@@ -62,6 +62,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       description={absenceReason.description || undefined}
       allowNegativeBalance={absenceReason.allowNegativeBalance}
       isRestricted={absenceReason.isRestricted}
+      requireNotesToAdmin={absenceReason.requireNotesToAdmin ?? false}
       absenceReasonTrackingTypeId={
         absenceReason.absenceReasonTrackingTypeId || undefined
       }

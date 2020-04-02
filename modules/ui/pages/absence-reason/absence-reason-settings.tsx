@@ -24,12 +24,14 @@ type Props = {
   isRestricted: boolean;
   // isBucket: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+  requireNotesToAdmin: boolean;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
     // isBucket: boolean;
     isRestricted: boolean;
     description?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+    requireNotesToAdmin: boolean;
   }) => Promise<void>;
   onCancel: () => void;
   className?: string;
@@ -46,6 +48,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
     "isRestricted",
     // "isBucket",
     "absenceReasonTrackingTypeId",
+    "requireNotesToAdmin",
   ]);
 
   return (
@@ -138,6 +141,31 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
               value={values.isRestricted}
               onChange={e => {
                 setFieldValue("isRestricted", e.target.value === "true");
+              }}
+              row={!isMobile}
+            >
+              <FormControlLabel
+                value={false}
+                control={<Radio color="primary" />}
+                label={t("No")}
+                labelPlacement="end"
+              />
+              <FormControlLabel
+                value={true}
+                control={<Radio color="primary" />}
+                label={t("Yes")}
+                labelPlacement="end"
+              />
+            </RadioGroup>
+            <Typography variant="h6" className={classes.label}>
+              {t("Require notes to administrator?")}
+            </Typography>
+            <RadioGroup
+              aria-label="requireNotesToAdmin"
+              name="requireNotesToAdmin"
+              value={values.requireNotesToAdmin}
+              onChange={e => {
+                setFieldValue("requireNotesToAdmin", e.target.value === "true");
               }}
               row={!isMobile}
             >

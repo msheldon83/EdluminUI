@@ -117,6 +117,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
           <AbsenceReasonSettings
             allowNegativeBalance={false}
             absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
+            requireNotesToAdmin={false}
             description={""}
             isRestricted={false}
             onSubmit={settingsOnSubmit}
