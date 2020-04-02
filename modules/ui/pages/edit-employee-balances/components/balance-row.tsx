@@ -175,7 +175,6 @@ export const BalanceRow: React.FC<Props> = props => {
               isBefore(value, parseISO(props.startOfSchoolYear)) ||
               isAfter(value, parseISO(props.endOfSchoolYear))
             ) {
-              console.log(value);
               return this.createError({
                 message: t("Must be in school year"),
               });

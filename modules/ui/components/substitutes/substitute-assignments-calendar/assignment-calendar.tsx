@@ -9,46 +9,84 @@ type Props = {
   onSelectDate: (date: Date) => void;
   assignmentDates: Date[];
   selectedDate: Date;
+  unavailableDates: Date[];
+  availableBeforeDates: Date[];
+  availableAfterDates: Date[];
 };
 
 export const AssignmentCalendar: React.FC<Props> = props => {
   const classes = useStyles();
   const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
 
-  const className = classes.assignment;
   const checkDays = useMemo(
     () => DateFns.isSameMonth(parsedDate, props.selectedDate),
     [parsedDate, props.selectedDate]
   );
 
-  const checkSelected = useMemo(
-    () => (d: Date) => {
-      if (DateFns.isSameDay(d, props.selectedDate)) {
-        return classes.selected;
-      } else {
-        return className;
-      }
-    },
-    [props.selectedDate, classes, className]
-  );
+  const checkSelected = (d: Date, className: string) => {
+    if (DateFns.isSameDay(d, props.selectedDate)) {
+      return classes.selected;
+    } else {
+      return className;
+    }
+  };
 
-  const assignmentDates = useMemo(
-    () =>
-      checkDays
-        ? props.assignmentDates.map(d => ({
-            date: d,
-            buttonProps: { className: checkSelected(d) },
-          }))
-        : props.assignmentDates.map(d => ({
-            date: d,
-            buttonProps: { className },
-          })),
-    [props.assignmentDates, className, checkDays, checkSelected]
-  );
+  const unavailableDates = checkDays
+    ? props.unavailableDates.map(d => ({
+        date: d,
+        buttonProps: { className: checkSelected(d, classes.unavailableDate) },
+      }))
+    : props.unavailableDates.map(d => ({
+        date: d,
+        buttonProps: { className: classes.unavailableDate },
+      }));
 
-  // If the selected day is not in assignmentDates, add an entry for it
+  const availableBeforeDates = checkDays
+    ? props.availableBeforeDates.map(d => ({
+        date: d,
+        buttonProps: {
+          className: checkSelected(d, classes.availableBeforeDate),
+        },
+      }))
+    : props.availableBeforeDates.map(d => ({
+        date: d,
+        buttonProps: { className: classes.availableBeforeDate },
+      }));
+
+  const availableAfterDates = checkDays
+    ? props.availableAfterDates.map(d => ({
+        date: d,
+        buttonProps: {
+          className: checkSelected(d, classes.availableAfterDate),
+        },
+      }))
+    : props.availableAfterDates.map(d => ({
+        date: d,
+        buttonProps: { className: classes.availableAfterDate },
+      }));
+
+  const assignmentDates = checkDays
+    ? props.assignmentDates.map(d => ({
+        date: d,
+        buttonProps: { className: checkSelected(d, classes.assignment) },
+      }))
+    : props.assignmentDates.map(d => ({
+        date: d,
+        buttonProps: { className: classes.assignment },
+      }));
+
+  const disabledDates = unavailableDates
+    .concat(availableBeforeDates)
+    .concat(availableAfterDates)
+    .filter(
+      d => !props.assignmentDates.find(ad => DateFns.isSameDay(ad, d.date))
+    );
+
+  const customDates = disabledDates.concat(assignmentDates);
+
+  // If the selected day is not in customDates, add an entry for it
   checkDays &&
-    assignmentDates.push({
+    customDates.push({
       date: props.selectedDate,
       buttonProps: { className: classes.selected },
     });
@@ -57,7 +95,7 @@ export const AssignmentCalendar: React.FC<Props> = props => {
     <div className={classes.calendar}>
       <SingleMonthCalendar
         currentMonth={parsedDate}
-        customDates={assignmentDates}
+        customDates={customDates}
         onSelectDate={props.onSelectDate}
         className={classes.calendarSize}
       />
@@ -90,5 +128,20 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.customColors.sky,
       color: theme.customColors.white,
     },
+  },
+  unavailableDate: {
+    backgroundColor: theme.customColors.medLightGray,
+    color: theme.palette.text.disabled,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+      color: theme.palette.text.disabled,
+    },
+  },
+  availableBeforeDate: {
+    background: `linear-gradient(to left top, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
+  },
+  availableAfterDate: {
+    background: `linear-gradient(to right bottom, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
   },
 }));
