@@ -35,6 +35,8 @@ import {
 import { Can } from "ui/components/auth/can";
 import { EditableTable } from "ui/components/editable-table";
 import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
+import { useAllSchoolYears } from "reference-data/school-years";
+import { useContracts } from "reference-data/contracts";
 
 type Props = {
   view: "list" | "calendar";
@@ -45,8 +47,20 @@ export const Calendars: React.FC<Props> = props => {
   const params = useRouteParams(CalendarRoute);
   const classes = useStyles();
 
-  const [schoolYear, setSchoolYear] = useState();
-  const [contract, setContract] = useState();
+  const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
+  const allSchoolYears = useAllSchoolYears(params.organizationId);
+  const schoolYear = useMemo(
+    () => allSchoolYears.find(x => x.id === schoolYearId),
+    [allSchoolYears, schoolYearId]
+  );
+
+  const [contractId, setContractId] = useState<string | undefined>();
+  const allContracts = useContracts(params.organizationId);
+  const contract = useMemo(() => allContracts.find(x => x.id === contractId), [
+    allContracts,
+    contractId,
+  ]);
+
   const [
     selectedDateCalendarChanges,
     setSelectedDateCalendarChanges,
@@ -60,8 +74,8 @@ export const Calendars: React.FC<Props> = props => {
     {
       variables: {
         orgId: params.organizationId,
-        schoolYearId: schoolYear?.id,
-        contractId: contract?.id,
+        schoolYearId: schoolYearId,
+        contractId: contractId,
       },
       fetchPolicy: "cache-and-network",
     }
@@ -221,7 +235,7 @@ export const Calendars: React.FC<Props> = props => {
       <div>
         <div>
           <Typography variant="h5">
-            {contract === undefined ? t("All Contracts") : contract.name}
+            {contract === undefined ? t("All Contracts") : contract?.name}
           </Typography>
 
           {schoolYear && (
@@ -258,11 +272,10 @@ export const Calendars: React.FC<Props> = props => {
             <Grid item xs={12} className={classes.filters}>
               <div className={classes.scheduleHeader}>
                 <ContractScheduleHeader
-                  view={props.view}
-                  schoolYearValue={schoolYear?.id}
-                  setSchoolYear={setSchoolYear}
-                  contractValue={contract?.id}
-                  setContract={setContract}
+                  schoolYearId={schoolYearId}
+                  setSchoolYearId={setSchoolYearId}
+                  contractId={contract?.id}
+                  setContractId={setContractId}
                   orgId={params.organizationId}
                 />
               </div>
