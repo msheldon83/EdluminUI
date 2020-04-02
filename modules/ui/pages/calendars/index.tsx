@@ -9,14 +9,13 @@ import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule
 import { useState, useMemo, useCallback } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
-import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
-import { Column } from "material-table";
 import {
-  CalendarChange,
-  CalendarDayType,
-  PermissionEnum,
-} from "graphql/server-types.gen";
-import { Table } from "ui/components/table";
+  usePagedQueryBundle,
+  useMutationBundle,
+  useQueryBundle,
+} from "graphql/hooks";
+import { Column } from "material-table";
+import { CalendarDayType, PermissionEnum } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
@@ -37,6 +36,8 @@ import { EditableTable } from "ui/components/editable-table";
 import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { useContracts } from "reference-data/contracts";
+import { ContractScheduleWarning } from "./components/contract-schedule-warning";
+import { GetContractsWithoutSchedules } from "./graphql/get-contracts-without-schedules.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -67,6 +68,24 @@ export const Calendars: React.FC<Props> = props => {
   ] = useState();
   const today = useMemo(() => new Date(), []);
   const [selectedDate, setSelectedDate] = useState(today);
+
+  const getContractsWithoutSchedules = useQueryBundle(
+    GetContractsWithoutSchedules,
+    {
+      variables: {
+        orgId: params.organizationId,
+        schoolYearId: schoolYearId ?? "",
+      },
+      skip: !schoolYearId,
+    }
+  );
+  const contractsWithoutSchedules =
+    getContractsWithoutSchedules.state !== "LOADING"
+      ? compact(
+          getContractsWithoutSchedules?.data?.contract
+            ?.contractsWithoutSchedules ?? []
+        )
+      : [];
 
   const [getCalendarChanges, pagination] = usePagedQueryBundle(
     GetCalendarChanges,
@@ -230,6 +249,10 @@ export const Calendars: React.FC<Props> = props => {
     },
   ];
 
+  const schoolYearName = `${t("Calendar")} ${parseISO(
+    schoolYear?.startDate
+  ).getFullYear()} - ${parseISO(schoolYear?.endDate).getFullYear()}`;
+
   return (
     <>
       <div>
@@ -238,14 +261,14 @@ export const Calendars: React.FC<Props> = props => {
             {contract === undefined ? t("All Contracts") : contract?.name}
           </Typography>
 
-          {schoolYear && (
-            <PageTitle
-              title={`${t("Calendar")} ${parseISO(
-                schoolYear.startDate
-              ).getFullYear()} - ${parseISO(schoolYear.endDate).getFullYear()}`}
-            />
-          )}
+          {schoolYear && <PageTitle title={schoolYearName} />}
         </div>
+        <ContractScheduleWarning
+          showWarning={contractsWithoutSchedules.length > 0}
+          schoolYearName={schoolYearName}
+          schoolYearId={schoolYearId ?? ""}
+          contracts={contractsWithoutSchedules}
+        />
         <Can do={[PermissionEnum.CalendarChangeSave]}>
           <Section className={classes.container}>
             <CreateExpansionPanel

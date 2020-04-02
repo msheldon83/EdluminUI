@@ -24,7 +24,7 @@ export const ContractSelect: React.FC<Props> = props => {
   } = props;
 
   const contractOptions = useContractOptions(orgId);
-  if (includeAllOption && contractOptions[0].value !== "0") {
+  if (includeAllOption && contractOptions[0]?.value !== "0") {
     contractOptions.unshift({ label: "All Contracts", value: "0" });
   }
 
