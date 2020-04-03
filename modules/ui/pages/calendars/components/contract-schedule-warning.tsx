@@ -10,7 +10,11 @@ import { ErrorOutline } from "@material-ui/icons";
 import { CreateContractSchedule } from "../graphql/create-contract-schedule.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { ContractScheduleCreateInput } from "graphql/server-types.gen";
+import {
+  ContractScheduleCreateInput,
+  PermissionEnum,
+} from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   showWarning: boolean;
@@ -103,15 +107,24 @@ export const ContractScheduleWarning: React.FC<Props> = props => {
                   <div key={i} className={classes.contractContainer}>
                     <div className={classes.contractName}>{c.name} </div>
                     <div>
-                      <TextButton
-                        color="primary"
-                        onClick={() => {
-                          setContract(c);
-                          setCreateDialogOpen(true);
-                        }}
-                      >
-                        {t("Set start date")}
-                      </TextButton>
+                      <Can do={[PermissionEnum.FinanceSettingsSave]}>
+                        <TextButton
+                          color="primary"
+                          onClick={() => {
+                            setContract(c);
+                            setCreateDialogOpen(true);
+                          }}
+                        >
+                          {t("Set start date")}
+                        </TextButton>
+                      </Can>
+                      <Can not do={[PermissionEnum.FinanceSettingsSave]}>
+                        <div>
+                          {t(
+                            "Contact your district admin to set the start date"
+                          )}
+                        </div>
+                      </Can>
                     </div>
                   </div>
                 );

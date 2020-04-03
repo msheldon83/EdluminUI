@@ -5,17 +5,18 @@ import {
   DialogTitle,
   Typography,
   Divider,
-  InputLabel,
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
-import { ContractScheduleCreateInput } from "graphql/server-types.gen";
+import {
+  ContractScheduleCreateInput,
+  DayOfWeek,
+} from "graphql/server-types.gen";
 import { DayOfWeekSelector } from "ui/components/day-of-week-selector";
 import { Formik } from "formik";
-import { DayOfWeek } from "graphql/server-types.gen";
 import { DatePicker } from "ui/components/form/date-picker";
 import { useWorkDayPatterns } from "reference-data/work-day-patterns";
 import { getDayOfWeekFromDate } from "helpers/day-of-week";
