@@ -12,6 +12,7 @@ mutation updateAbsenceReason($absenceReason: AbsenceReasonUpdateInput!) {
       absenceReasonTrackingTypeId
       allowNegativeBalance
       isRestricted
+      requireNotesToAdmin
     }
   }
 }

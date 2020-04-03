@@ -42,6 +42,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       description?: string;
       isRestricted: boolean;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+      requireNotesToAdmin: boolean;
     }) => {
       if (!basicInfo) {
         return;
@@ -51,6 +52,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         absenceReasonTrackingTypeId: absenceReasonTrackingId,
         description,
         isRestricted,
+        requireNotesToAdmin,
       } = updatedValues;
 
       const result = await createAbsenceReason({
@@ -64,6 +66,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             isRestricted,
             appliesToAssignmentTypes: AssignmentType.ContractAssignment,
             description,
+            requireNotesToAdmin: requireNotesToAdmin,
           },
         },
       });
@@ -117,6 +120,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
           <AbsenceReasonSettings
             allowNegativeBalance={false}
             absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
+            requireNotesToAdmin={false}
             description={""}
             isRestricted={false}
             onSubmit={settingsOnSubmit}
