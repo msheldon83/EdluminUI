@@ -52,7 +52,11 @@ export const NotificationPreferences: React.FC<Props> = props => {
     x.methodsOfDelivery.find(y => y.method === NotificationMethod.Email)
   );
   const showSmsColumn = userNotificationReasons.some(x =>
-    x.methodsOfDelivery.find(y => y.method === NotificationMethod.Sms)
+    x.methodsOfDelivery.find(
+      y =>
+        y.method === NotificationMethod.Sms ||
+        y.method === NotificationMethod.Push
+    )
   );
   const showInAppColumn = userNotificationReasons.some(x =>
     x.methodsOfDelivery.find(y => y.method === NotificationMethod.InApp)
