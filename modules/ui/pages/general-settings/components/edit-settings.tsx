@@ -45,7 +45,11 @@ export const EditGeneralSettings: React.FC<Props> = props => {
 
   const timeZoneOptions = useTimeZoneOptions();
   const selectedTimeZoneOption = timeZoneOptions.find(
-    tz => tz && tz.value === props.organization.timeZoneId?.toString()
+    tz =>
+      (tz && tz.value === props.organization.timeZoneId?.toString()) ?? {
+        label: "",
+        value: "",
+      }
   );
 
   return (

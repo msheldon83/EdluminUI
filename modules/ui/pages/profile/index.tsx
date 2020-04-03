@@ -12,6 +12,7 @@ import {
   UserUpdateInput,
   UserPreferencesInput,
 } from "graphql/server-types.gen";
+import { compact } from "lodash-es";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
