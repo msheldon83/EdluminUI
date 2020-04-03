@@ -7,6 +7,14 @@ mutation UpdateUser($user: UserUpdateInput!) {
       phone
       timeZoneId
       rowVersion
+      preferences {
+        notificationPreferences {
+          notificationReasonId
+          receiveInAppNotifications
+          receiveEmailNotifications
+          receiveSmsNotifications
+        }
+      }
     }
   }
 }

@@ -35,6 +35,14 @@ query GetUserById($id: ID!) {
           name
         }
       }
+      preferences {
+        notificationPreferences {
+          notificationReasonId
+          receiveInAppNotifications
+          receiveEmailNotifications
+          receiveSmsNotifications
+        }
+      }
     }
   }
 }
