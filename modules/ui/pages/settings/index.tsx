@@ -26,7 +26,7 @@ import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 
 //Create Routes for Pages
-export const OrgSettingsPage: React.FC<{}> = props => {
+export const SettingsPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AdminChromeRoute);
 
