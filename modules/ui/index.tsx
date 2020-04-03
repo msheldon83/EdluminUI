@@ -91,6 +91,8 @@ import {
   OrganizationsLoader,
   OrganizationsRoute,
   OrganizationAddRoute,
+  OrganizationContactInfoLoader,
+  OrganizationContactInfoRoute,
   OrganizationAddLoader,
 } from "./routes/organizations";
 import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
@@ -324,6 +326,10 @@ export const App = hot(function() {
                       <Route
                         component={ProfileLoader}
                         path={ProfileRoute.path}
+                      />
+                      <Route
+                        component={OrganizationContactInfoLoader}
+                        path={OrganizationContactInfoRoute.path}
                       />
                       <Route
                         exact

@@ -16,6 +16,7 @@ mutation CreateAbsenceReason($absenceReason: AbsenceReasonCreateInput!) {
       prioritySequence
       expired
       isRestricted
+      requireNotesToAdmin
     }
   }
 }

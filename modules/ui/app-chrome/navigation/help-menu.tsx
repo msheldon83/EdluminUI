@@ -1,10 +1,13 @@
-import { MenuList } from "@material-ui/core";
+import { MenuList, IconButton } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
+import { AppChromeRoute } from "ui/routes/app-chrome";
+import { useRouteParams } from "ui/routes/definition";
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
-import { MyProfileMenuLink, SignOutMenuLink } from "../custom-menu-links";
-import { useIsImpersonating } from "reference-data/is-impersonating";
-import { useMyUserAccess } from "reference-data/my-user-access";
+import {
+  HelpMenuLink,
+  OrganizationContactMenuLink,
+} from "../custom-menu-links";
 
 type Props = {
   open: boolean;
@@ -12,17 +15,15 @@ type Props = {
   anchorElement: null | HTMLElement;
 };
 
-export const UserMenu: React.FC<Props> = props => {
+export const HelpMenu: React.FC<Props> = props => {
   const classes = useStyles();
   const userMenuListClasses = useUserMenuListStyles();
-  const userAccess = useMyUserAccess();
-  const actualUser = userAccess?.me?.actualUser;
 
-  const isImpersonating = useIsImpersonating();
+  const params = useRouteParams(AppChromeRoute);
 
   return (
     <Menu
-      id="user-menu"
+      id="help-menu"
       open={props.open}
       onClose={props.onClose}
       anchorEl={props.anchorElement}
@@ -34,23 +35,16 @@ export const UserMenu: React.FC<Props> = props => {
       classes={userMenuListClasses}
     >
       <MenuList variant="menu" className={classes.menuList}>
-        {(!isImpersonating || actualUser?.isSystemAdministrator) && (
-          <MyProfileMenuLink
+        <HelpMenuLink
+          onClick={props.onClose}
+          className={classes.userMenuLink}
+        />
+        {params.role !== "admin" && Config.isDevFeatureOnly && (
+          <OrganizationContactMenuLink
             onClick={props.onClose}
             className={classes.userMenuLink}
           />
         )}
-        <SignOutMenuLink
-          onClick={props.onClose}
-          className={classes.userMenuLink}
-        />
-        {/* ml 1-29-20 -- for the initial release phase, we are
-            moving the help link to the top bar. Long term, it
-            belongs here */}
-        {/* <HelpMenuLink
-          onClick={props.onClose}
-          className={classes.userMenuLink}
-        /> */}
       </MenuList>
     </Menu>
   );

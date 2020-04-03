@@ -15,6 +15,7 @@ import { ProfileAvatar } from "ui/components/profile-avatar/profile-avatar";
 import { AdminChromeRoute, AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 import { SearchBar } from "./search-bar";
+import { HelpMenu } from "./help-menu";
 import { UserMenu } from "./user-menu";
 import { useAppConfig, AppConfig } from "hooks/app-config";
 
@@ -23,12 +24,19 @@ type Props = { contentClassName?: string };
 export const TopBar: React.FC<Props> = props => {
   const classes = useStyles();
   const iconButtonClasses = useIconButtonClasses();
-  const [subMenuAnchor, setSubMenuAnchor] = React.useState<null | HTMLElement>(
-    null
-  );
   const { appConfig } = useAppConfig();
   const mobileToolbarClasses = useMobileToolbarClasses(appConfig);
   const params = useRouteParams(AppChromeRoute);
+
+  const [
+    subUserMenuAnchor,
+    setUserSubMenuAnchor,
+  ] = React.useState<null | HTMLElement>(null);
+
+  const [
+    subHelpMenuAnchor,
+    setHelpSubMenuAnchor,
+  ] = React.useState<null | HTMLElement>(null);
 
   return (
     <>
@@ -49,37 +57,36 @@ export const TopBar: React.FC<Props> = props => {
                 ) : (
                   <QuickCreateButton role={params.role} />
                 )}
-
                 <IconButton edge="end" classes={iconButtonClasses}>
                   <NotificationsNoneIcon />
                 </IconButton>
-
-                {/* ml 1-29-20 -- for the initial release phase, we are
-                    moving the help link to the top bar. Long term, it
-                    belongs in the user menu */}
                 <IconButton
+                  aria-haspopup="true"
+                  aria-owns="help-menu"
                   edge="end"
                   classes={iconButtonClasses}
-                  onClick={() => {
-                    window.open("https://help.redroverk12.com", "_blank");
-                  }}
+                  onClick={event => setHelpSubMenuAnchor(event.currentTarget)}
                 >
                   <HelpOutlineIcon />
                 </IconButton>
-
+                <HelpMenu
+                  anchorElement={subHelpMenuAnchor}
+                  open={Boolean(subHelpMenuAnchor)}
+                  onClose={() => setHelpSubMenuAnchor(null)}
+                />
                 <IconButton
                   aria-haspopup="true"
                   aria-owns="user-menu"
                   edge="end"
                   classes={iconButtonClasses}
-                  onClick={event => setSubMenuAnchor(event.currentTarget)}
+                  onClick={event => setUserSubMenuAnchor(event.currentTarget)}
                 >
                   <ProfileAvatar className={classes.avatar} />
                 </IconButton>
                 <UserMenu
-                  anchorElement={subMenuAnchor}
-                  open={Boolean(subMenuAnchor)}
-                  onClose={() => setSubMenuAnchor(null)}
+                  anchorElement={subUserMenuAnchor}
+                  open={Boolean(subUserMenuAnchor)}
+                  onClose={() => setUserSubMenuAnchor(null)}
                 />
               </Grid>
             </Grid>
