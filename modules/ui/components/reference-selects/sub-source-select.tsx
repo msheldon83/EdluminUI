@@ -7,8 +7,8 @@ import { OrganizationRelationshipType } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
-  selectedSubSource?: string;
-  setSelectedSubSource: (orgId?: string) => void;
+  selectedSubSource?: string | null;
+  setSelectedSubSource: (orgId?: string | null) => void;
   includeAllAndMyOptions?: boolean;
   showLabel?: boolean;
 };
