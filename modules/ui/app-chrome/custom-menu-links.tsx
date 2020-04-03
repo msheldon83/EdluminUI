@@ -3,11 +3,15 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import ContactPhoneIcon from "@material-ui/icons/ContactPhone";
 import { MenuLink } from "./menu-link";
 import { ProfileRoute } from "ui/routes/profile";
 import { useAuth0 } from "auth/auth0";
-import { useRouteMatch, useParams } from "react-router";
 import { AppChromeRoute } from "ui/routes/app-chrome";
+import {
+  OrganizationContactInfoRoute,
+  OrganizationsRoute,
+} from "ui/routes/organizations";
 import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
@@ -51,6 +55,19 @@ export const HelpMenuLink: React.FC<Props> = props => {
       onClick={() => {
         window.open("https://help.redroverk12.com", "_blank");
       }}
+    />
+  );
+};
+
+export const OrganizationContactMenuLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  const params = useRouteParams(AppChromeRoute);
+  return (
+    <MenuLink
+      title={t("District Contact info")}
+      icon={<ContactPhoneIcon />}
+      route={OrganizationContactInfoRoute.generate(params)}
+      {...props}
     />
   );
 };
