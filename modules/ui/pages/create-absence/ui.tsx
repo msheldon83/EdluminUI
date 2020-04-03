@@ -45,6 +45,7 @@ import { StepParams } from "../../../helpers/step-params";
 import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
 
 type Props = {
   firstName: string;
@@ -75,7 +76,14 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const actingAsEmployee = props.actingAsEmployee;
 
-  const [requireAdminNotes, setRequireAdminNotes] = useState(false);
+  const absenceReasons = useAbsenceReasons(props.organizationId);
+
+  const [requireAdminNotes, setRequireAdminNotes] = useState(
+    props.initialAbsenceReason
+      ? absenceReasons.find(ar => ar.id === props.initialAbsenceReason)
+          ?.requireNotesToAdmin ?? false
+      : false
+  );
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
