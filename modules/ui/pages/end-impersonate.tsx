@@ -7,7 +7,6 @@ type Props = {};
 export const EndImpersonate: React.FC<Props> = props => {
   const isImpersonating = useIsImpersonating();
   const history = useHistory();
-  console.log("here");
   if (isImpersonating) {
     sessionStorage.removeItem(Config.impersonation.actingUserIdKey);
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);

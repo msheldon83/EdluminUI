@@ -2,6 +2,7 @@ query GetVacancyById($id: ID!, $vacancyId: ID!) {
   vacancy {
     specificJobSearchForUser(id: $id, vacancyId: $vacancyId) {
       id
+      orgId
       organization {
         id
         name
@@ -18,6 +19,9 @@ query GetVacancyById($id: ID!, $vacancyId: ID!) {
           lastName
         }
       }
+      payInfoSummary {
+        summaryLabel
+      }
       startTimeLocal
       endTimeLocal
       startDate
@@ -30,9 +34,16 @@ query GetVacancyById($id: ID!, $vacancyId: ID!) {
           id
           name
         }
+        payInfo {
+          label
+        }
         startTimeLocal
         endTimeLocal
         dayPortion
+        vacancyReason {
+          id
+          name
+        }
       }
     }
   }

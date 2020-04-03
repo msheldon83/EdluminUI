@@ -2,11 +2,7 @@ import { MenuList } from "@material-ui/core";
 import Menu from "@material-ui/core/Menu";
 import { makeStyles } from "@material-ui/styles";
 import * as React from "react";
-import {
-  HelpMenuLink,
-  MyProfileMenuLink,
-  SignOutMenuLink,
-} from "../custom-menu-links";
+import { MyProfileMenuLink, SignOutMenuLink } from "../custom-menu-links";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useMyUserAccess } from "reference-data/my-user-access";
 

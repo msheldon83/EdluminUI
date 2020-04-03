@@ -15,8 +15,6 @@ import { getBeginningOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
 import { addMonths, endOfMonth } from "date-fns";
 import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
-import { useIsImpersonating } from "reference-data/is-impersonating";
-import { useMyUserAccess } from "reference-data/my-user-access";
 
 type Props = {
   view: "list" | "calendar";
@@ -25,15 +23,13 @@ type Props = {
   listViewRoute: string;
   calendarViewRoute: string;
   userCreatedDate: Date;
-  isAdmin: boolean;
+  viewingAsAdmin: boolean;
   orgId?: string;
 };
 
 export const SubstituteAssignments: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const userAccess = useMyUserAccess();
-  const actualUser = userAccess?.me?.actualUser;
 
   /* the value for today will not change as long as the 
       component is mounted. This could cause stale today
@@ -65,8 +61,6 @@ export const SubstituteAssignments: React.FC<Props> = props => {
     [setSelectedDate]
   );
 
-  const isImpersonating = useIsImpersonating();
-
   return (
     <>
       <div className={props.view === "calendar" ? classes.sticky : ""}>
@@ -74,25 +68,24 @@ export const SubstituteAssignments: React.FC<Props> = props => {
           <Grid item>
             <PageTitle title={t(props.pageTitle)} />
           </Grid>
-          {!props.isAdmin &&
-            (!isImpersonating || actualUser?.isSystemAdministrator) && (
-              <Grid item>
-                <Button
-                  variant="outlined"
-                  component={Link}
-                  to={SubAvailabilityRoute.generate({})}
-                >
-                  {t("Manage Availability")}
-                </Button>
-              </Grid>
-            )}
+          {!props.viewingAsAdmin && (
+            <Grid item>
+              <Button
+                variant="outlined"
+                component={Link}
+                to={SubAvailabilityRoute.generate({})}
+              >
+                {t("Manage Availability")}
+              </Button>
+            </Grid>
+          )}
         </Grid>
         {props.view === "calendar" && (
           <Section className={classes.assignments}>
             <NowViewingAssignmentsForDate
               date={selectedDate}
               userId={props.userId}
-              isAdmin={props.isAdmin}
+              isAdmin={props.viewingAsAdmin}
               orgId={props.orgId}
             />
           </Section>
@@ -141,7 +134,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
               userId={props.userId}
               startDate={queryStartDate}
               endDate={queryEndDate}
-              isAdmin={props.isAdmin}
+              isAdmin={props.viewingAsAdmin}
               orgId={props.orgId}
             />
           )}

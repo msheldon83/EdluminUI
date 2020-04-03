@@ -66,7 +66,7 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
             params
           )}
           orgId={orgUser?.substitute!.orgId.toString()}
-          isAdmin={true}
+          viewingAsAdmin={true}
           userCreatedDate={orgUserCreatedDate}
         />
       )}

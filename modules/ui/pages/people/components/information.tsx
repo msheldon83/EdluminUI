@@ -344,14 +344,16 @@ export const Information: React.FC<Props> = props => {
               {!props.isCreate && (
                 <SectionHeader
                   title={t("Information")}
-                  action={{
-                    text: t("Edit"),
-                    visible: !props.editing && props.editable,
-                    execute: () => {
-                      props.setEditing!(editableSections.information);
+                  actions={[
+                    {
+                      text: t("Edit"),
+                      visible: !props.editing && props.editable,
+                      execute: () => {
+                        props.setEditing!(editableSections.information);
+                      },
+                      permissions: props.editPermissions,
                     },
-                    permissions: props.editPermissions,
-                  }}
+                  ]}
                   submit={{
                     text: t("Save"),
                     visible: props.editing === editableSections.information,

@@ -1,16 +1,25 @@
 import { Divider, makeStyles } from "@material-ui/core";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import {
+  useQueryBundle,
+  useMutationBundle,
+  usePagedQueryBundle,
+} from "graphql/hooks";
 import { compact } from "lodash-es";
 import * as React from "react";
 import { useMemo, useState, useCallback } from "react";
 import { GetUpcomingAssignments } from "../../../pages/sub-home/graphql/get-upcoming-assignments.gen";
 import { AssignmentRow } from "../assignment-row";
 import { NoAssignment } from "../assignment-row/no-assignment";
+import { NonWorkDay } from "./non-work-day";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { CancelAssignment } from "ui/components/absence/graphql/cancel-assignment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
+import { GetUnavilableTimeExceptions } from "ui/pages/sub-availability/graphql/get-unavailable-exceptions.gen";
+import { GetMyAvailableTime } from "ui/pages/sub-availability/graphql/get-available-time.gen";
+import { getDay } from "date-fns";
+import { daysOfWeekOrdered } from "helpers/day-of-week";
 
 type Props = {
   userId?: string;
@@ -78,6 +87,41 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
     }
   }, [upcomingAssignments]);
 
+  const [getExceptions, _] = usePagedQueryBundle(
+    GetUnavilableTimeExceptions,
+    r => r.user?.pagedUserUnavailableTime?.totalCount,
+    {
+      variables: {
+        userId: props.userId ?? "",
+        fromDate: props.date,
+        toDate: props.date,
+      },
+      skip: !props.userId,
+    }
+  );
+  const exceptions = useMemo(() => {
+    if (
+      getExceptions.state === "DONE" &&
+      getExceptions.data.user?.pagedUserUnavailableTime?.results
+    ) {
+      return (
+        compact(getExceptions.data.user?.pagedUserUnavailableTime?.results) ??
+        []
+      );
+    }
+    return [];
+  }, [getExceptions]);
+
+  const getAvailableTime = useQueryBundle(GetMyAvailableTime);
+  const regularAvailableTime = useMemo(
+    () =>
+      getAvailableTime.state === "DONE"
+        ? compact(getAvailableTime.data.userAccess?.me?.user?.availableTime) ??
+          []
+        : [],
+    [getAvailableTime]
+  );
+
   if (
     upcomingAssignments.state !== "DONE" &&
     upcomingAssignments.state !== "UPDATING"
@@ -90,6 +134,14 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
   const otherAssignments = data && data.length > 1 && data.slice(1);
   const moreCount = data && data.length - 1;
 
+  const availabilityException =
+    exceptions && exceptions.length > 0 ? exceptions[0] : null;
+
+  const dow = getDay(props.date);
+  const regularException = regularAvailableTime.find(
+    x => x?.daysOfWeek[0] === daysOfWeekOrdered[dow]
+  );
+
   return (
     <div>
       {firstAssignment ? (
@@ -98,6 +150,18 @@ export const NowViewingAssignmentsForDate: React.FC<Props> = props => {
           assignment={firstAssignment}
           onCancel={onCancel}
           isAdmin={props.isAdmin}
+        />
+      ) : availabilityException || regularException ? (
+        <NonWorkDay
+          date={props.date}
+          availabilityType={
+            availabilityException?.availabilityType ??
+            regularException?.availabilityType
+          }
+          time={
+            availabilityException?.availableTime ??
+            regularException?.availableTime
+          }
         />
       ) : (
         <NoAssignment date={props.date} />

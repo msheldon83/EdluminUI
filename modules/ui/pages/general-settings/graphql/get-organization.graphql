@@ -1,0 +1,23 @@
+query GetOrganizationById($id: ID!) {
+  organization {
+    byId(id: $id) {
+      id
+      rowVersion
+      name
+      externalId
+      timeZoneId
+      config {
+        absenceSubContact {
+          email
+          name
+          phone
+        }
+        absenceEmployeeContact {
+          email
+          name
+          phone
+        }
+      }
+    }
+  }
+}

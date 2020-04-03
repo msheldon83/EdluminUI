@@ -4,6 +4,47 @@ query GetVacancyById($id: ID!) {
       id
       notesToReplacement
       rowVersion
+      isClosed
+      closedDetails {
+        id
+        locationId
+        location {
+          id
+          name
+        }
+        workDayScheduleId
+        startTimeUtc
+        endTimeUtc
+        startDate
+        startTimeLocalTimeSpan
+        endDate
+        endTimeLocalTimeSpan
+        payCodeId
+        payCode {
+          id
+          name
+        }
+        vacancyReasonId
+        accountingCodeAllocations {
+          id
+          accountingCodeId
+          accountingCode {
+            id
+            name
+          }
+          allocation
+        }
+        assignment {
+          id
+          rowVersion
+          employeeId
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
       details {
         id
         locationId

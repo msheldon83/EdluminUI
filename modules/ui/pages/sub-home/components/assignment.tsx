@@ -10,21 +10,46 @@ import * as React from "react";
 import { parseISO, isTomorrow, isToday, format } from "date-fns";
 import { useTranslation } from "react-i18next";
 import { formatIsoDateIfPossible } from "helpers/date";
-import { VacancyDetail } from "graphql/server-types.gen";
 import { Section } from "ui/components/section";
 import { useIsMobile } from "hooks";
 
+export type VacancyDetail = {
+  id: string;
+  startDate: string;
+  startTimeLocal: string;
+  endTimeLocal: string;
+  assignment?: {
+    id: string;
+    startTimeLocal?: string;
+    endTimeLocal?: string;
+  } | null;
+  location?: {
+    name: string;
+    address1?: string | null;
+    city?: string | null;
+    stateName?: string | null;
+    postalCode?: string | null;
+    phoneNumber?: string | null;
+  } | null;
+  vacancy?: {
+    notesToReplacement?: string | null;
+    position?: {
+      title: string;
+    } | null;
+    absence?: {
+      employee?: {
+        firstName: string;
+        lastName: string;
+      } | null;
+    } | null;
+  } | null;
+  vacancyReason?: {
+    name: string;
+  } | null;
+};
+
 type Props = {
-  vacancyDetail: Pick<
-    VacancyDetail,
-    | "id"
-    | "startTimeLocal"
-    | "endTimeLocal"
-    | "assignment"
-    | "location"
-    | "vacancy"
-    | "vacancyReason"
-  >;
+  vacancyDetail: VacancyDetail;
   shadeRow: boolean;
   className?: string;
 };
@@ -68,14 +93,10 @@ export const AssignmentCard: React.FC<Props> = props => {
     : format(parsedDay, "EEEE");
 
   const mapUrl = encodeURI(
-    `https://www.google.com/maps/search/?api=1&query=${
-      vacancyDetail.location!.address1
-    }, ${vacancyDetail.location!.city}, ${vacancyDetail.location!.stateName} ${
-      vacancyDetail.location!.postalCode
-    }`
+    `https://www.google.com/maps/search/?api=1&query=${vacancyDetail.location?.address1}, ${vacancyDetail.location?.city}, ${vacancyDetail.location?.stateName} ${vacancyDetail.location?.postalCode}`
   );
 
-  const assignmentId = `(#C${vacancyDetail.assignment!.id})`;
+  const assignmentId = `(#C${vacancyDetail.assignment?.id})`;
   const dateHeader = `${dayLabel}, ${
     isMobile
       ? format(parsedDay, "MMM d")
@@ -88,9 +109,9 @@ export const AssignmentCard: React.FC<Props> = props => {
         <IconButton href={mapUrl} target={"_blank"} rel={"noreferrer"}>
           <Directions />
         </IconButton>
-        {vacancyDetail.location!.phoneNumber && isMobile ? (
+        {vacancyDetail.location?.phoneNumber && isMobile ? (
           <IconButton
-            href={`tel:${vacancyDetail.location!.phoneNumber}`}
+            href={`tel:${vacancyDetail.location?.phoneNumber}`}
             target={"_blank"}
             rel={"noreferrer"}
           >
@@ -110,14 +131,14 @@ export const AssignmentCard: React.FC<Props> = props => {
               {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={150}>
                   <div className={classes.paper}>
-                    {vacancyDetail.location!.phoneNumber}
+                    {vacancyDetail.location?.phoneNumber}
                   </div>
                 </Fade>
               )}
             </Popper>
           </>
         )}
-        {vacancyDetail.vacancy!.notesToReplacement && (
+        {vacancyDetail.vacancy?.notesToReplacement && (
           <>
             <IconButton id={notesId} onClick={handleShowNotes}>
               <ReceiptOutlined />
@@ -131,7 +152,7 @@ export const AssignmentCard: React.FC<Props> = props => {
               {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={150}>
                   <div className={classes.paper}>
-                    {vacancyDetail.vacancy!.notesToReplacement}
+                    {vacancyDetail.vacancy?.notesToReplacement}
                   </div>
                 </Fade>
               )}
@@ -148,25 +169,25 @@ export const AssignmentCard: React.FC<Props> = props => {
         <Typography variant="h6">{dateHeader}</Typography>
         {isMobile && <Typography variant="h6">{assignmentId}</Typography>}
         <Typography className={classes.text}>
-          {vacancyDetail.location!.name}
+          {vacancyDetail.location?.name}
         </Typography>
         {!isFromVacancy && (
           <Typography className={classes.text}>{`${
-            vacancyDetail.vacancy!.position!.title
+            vacancyDetail.vacancy?.position?.title
           } ${t("for")} ${
-            vacancyDetail.vacancy!.absence!.employee!.firstName
-          } ${vacancyDetail.vacancy!.absence!.employee!.lastName}`}</Typography>
+            vacancyDetail.vacancy?.absence?.employee?.firstName
+          } ${vacancyDetail.vacancy?.absence?.employee?.lastName}`}</Typography>
         )}
         {isFromVacancy && (
           <Typography className={classes.text}>{`${t("for Vacancy")}: ${
-            vacancyDetail.vacancy!.position!.title
+            vacancyDetail.vacancy?.position?.title
           }`}</Typography>
         )}
         <Typography className={classes.text}>{`${formatIsoDateIfPossible(
-          vacancyDetail.assignment!.startTimeLocal,
+          vacancyDetail.assignment?.startTimeLocal,
           "h:mm aaa"
         )} - ${formatIsoDateIfPossible(
-          vacancyDetail.assignment!.endTimeLocal,
+          vacancyDetail.assignment?.endTimeLocal,
           "h:mm aaa"
         )}`}</Typography>
         {renderIcons()}

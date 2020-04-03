@@ -16,6 +16,7 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
+  vacancyDate?: string;
 };
 
 export const DailyReportDetailsGroup: React.FC<Props> = props => {
@@ -29,6 +30,10 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
     panelId,
     updateSelectedDetails,
   } = props;
+
+  const hasClosedAbs = React.useMemo(() => {
+    return details.filter(d => d.isClosed).length > 0;
+  }, [details]);
 
   if (details.length === 0) {
     return <></>;
@@ -48,6 +53,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
         updateSelectedDetails={updateSelectedDetails}
         removeSub={removeSub}
         key={`${panelId}-${i}`}
+        vacancyDate={hasClosedAbs ? props.vacancyDate : undefined}
       />
     );
   });
@@ -62,6 +68,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
     <>
       <DesktopOnly>
         <div className={headerClasses}>
+          {hasClosedAbs && <div className={classes.closedSection}></div>}
           <div className={classes.employeeSection}>{t("Employee")}</div>
           <div className={classes.reasonSection}>{t("Reason")}</div>
           <div className={classes.locationSection}>{t("School")}</div>
@@ -94,6 +101,10 @@ const useStyles = makeStyles(theme => ({
   locationSection: {
     display: "flex",
     flex: 7,
+  },
+  closedSection: {
+    display: "flex",
+    flex: 2,
   },
   reasonSection: {
     display: "flex",

@@ -86,11 +86,13 @@ import {
   GeneralSettingsLoader,
   GeneralSettingsRoute,
 } from "./routes/general-settings";
-import { OrgSettingsLoader, OrgSettingsRoute } from "./routes/org-settings";
+import { SettingsLoader, SettingsRoute } from "./routes/settings";
 import {
   OrganizationsLoader,
   OrganizationsRoute,
   OrganizationAddRoute,
+  OrganizationContactInfoLoader,
+  OrganizationContactInfoRoute,
   OrganizationAddLoader,
 } from "./routes/organizations";
 import { PayCodeLoader, PayCodeRoute } from "./routes/pay-code";
@@ -127,6 +129,8 @@ import {
   EmployeeSubstitutePreferenceLoader,
   PeopleEmployeeBalancesEditRoute,
   PeopleEmployeeBalancesEditLoader,
+  SubstituteAvailableAssignmentsRoute,
+  SubstituteAvailableAssignmentsLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -322,6 +326,10 @@ export const App = hot(function() {
                       <Route
                         component={ProfileLoader}
                         path={ProfileRoute.path}
+                      />
+                      <Route
+                        component={OrganizationContactInfoLoader}
+                        path={OrganizationContactInfoRoute.path}
                       />
                       <Route
                         exact
@@ -601,6 +609,18 @@ export const App = hot(function() {
                                     ]}
                                   />
                                   <ProtectedRoute
+                                    component={
+                                      SubstituteAvailableAssignmentsLoader
+                                    }
+                                    path={
+                                      SubstituteAvailableAssignmentsRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.SubstituteView,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
                                     component={PeopleSubRelatedOrgsEditLoader}
                                     path={PeopleSubRelatedOrgsEditRoute.path}
                                     role={"admin"}
@@ -691,8 +711,8 @@ export const App = hot(function() {
                                     ]}
                                   />
                                   <ProtectedRoute
-                                    component={OrgSettingsLoader}
-                                    path={OrgSettingsRoute.path}
+                                    component={SettingsLoader}
+                                    path={SettingsRoute.path}
                                     role={"admin"}
                                     permissions={[
                                       PermissionEnum.GeneralSettingsView,

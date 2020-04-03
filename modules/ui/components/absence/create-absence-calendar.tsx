@@ -67,12 +67,12 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
       }),
     [selectedAbsenceDates, selectedDateClass]
   );
-
   const customDates = useMemo(
     () =>
-      customDatesDisabled
-        .concat(customExistingAbsenceDates)
-        .concat(customSelectedAbsenceDates),
+      customSelectedAbsenceDates
+        .concat(customDatesDisabled)
+        .concat(customExistingAbsenceDates),
+
     [
       customDatesDisabled,
       customExistingAbsenceDates,

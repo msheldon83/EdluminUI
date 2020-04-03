@@ -26,6 +26,7 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
+  vacancyDate?: string;
 };
 
 export const DailyReportDetail: React.FC<Props> = props => {

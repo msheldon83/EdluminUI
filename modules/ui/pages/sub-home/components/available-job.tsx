@@ -49,12 +49,13 @@ type Props = {
   onDismiss: (vacancyId: string) => Promise<void>;
   shadeRow: boolean;
   forSingleJob?: boolean;
+  viewingAsAdmin?: boolean;
 };
 
 export const AvailableJob: React.FC<Props> = props => {
   const isMobile = useIsMobile();
-  const { forSingleJob } = props;
-  const classes = useStyles({ isMobile, forSingleJob });
+  const { forSingleJob, viewingAsAdmin } = props;
+  const classes = useStyles({ isMobile, forSingleJob, viewingAsAdmin });
   const { t } = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -91,36 +92,39 @@ export const AvailableJob: React.FC<Props> = props => {
                       <NotesPopper notes={vacancy.notesToReplacement} />
                     )}
                   </div>
-
-                  <div
-                    className={[
-                      classes.actionItem,
-                      isMobile ? classes.mobileDismiss : "",
-                    ].join(" ")}
-                  >
-                    <Button
-                      onClick={() => handleDismiss()}
-                      className={classes.lightUnderlineText}
-                    >
-                      {t("Dismiss")}
-                    </Button>
-                  </div>
-                  <div className={classes.actionItem}>
-                    <Button
-                      variant="outlined"
-                      disabled={acceptButtonDisabled}
-                      onClick={async e => {
-                        e.stopPropagation();
-                        await props.onAccept(
-                          vacancy.id,
-                          props.unavailableToWork
-                        );
-                      }}
-                    >
-                      {props.unavailableToWork && <Warning />}
-                      {t("Accept")}
-                    </Button>
-                  </div>
+                  {!viewingAsAdmin && (
+                    <>
+                      <div
+                        className={[
+                          classes.actionItem,
+                          isMobile ? classes.mobileDismiss : "",
+                        ].join(" ")}
+                      >
+                        <Button
+                          onClick={() => handleDismiss()}
+                          className={classes.lightUnderlineText}
+                        >
+                          {t("Dismiss")}
+                        </Button>
+                      </div>
+                      <div className={classes.actionItem}>
+                        <Button
+                          variant="outlined"
+                          disabled={acceptButtonDisabled}
+                          onClick={async e => {
+                            e.stopPropagation();
+                            await props.onAccept(
+                              vacancy.id,
+                              props.unavailableToWork
+                            );
+                          }}
+                        >
+                          {props.unavailableToWork && <Warning />}
+                          {t("Accept")}
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -162,7 +166,11 @@ export const AvailableJob: React.FC<Props> = props => {
   );
 };
 
-type StyleProps = { isMobile: boolean; forSingleJob?: boolean };
+type StyleProps = {
+  isMobile: boolean;
+  forSingleJob?: boolean;
+  viewingAsAdmin?: boolean;
+};
 
 export const useStyles = makeStyles(theme => ({
   noBorder: { border: "none" },
@@ -197,7 +205,7 @@ export const useStyles = makeStyles(theme => ({
   infoContainer: (props: StyleProps) => ({
     display: "flex",
     justifyContent: "space-between",
-    flex: 3,
+    flex: props.viewingAsAdmin ? 5 : 3,
     flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
   }),
 
