@@ -17,7 +17,6 @@ type Props = {
 
 export const HelpMenu: React.FC<Props> = props => {
   const classes = useStyles();
-  const iconButtonClasses = useIconButtonClasses();
   const userMenuListClasses = useUserMenuListStyles();
 
   const params = useRouteParams(AppChromeRoute);
@@ -66,13 +65,4 @@ const useStyles = makeStyles(theme => ({
 
 const useUserMenuListStyles = makeStyles(theme => ({
   list: { padding: 0 },
-}));
-
-const useIconButtonClasses = makeStyles(theme => ({
-  label: {
-    color: theme.customColors.black,
-  },
-  root: {
-    marginLeft: theme.spacing(1),
-  },
 }));

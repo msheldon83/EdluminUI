@@ -8,10 +8,7 @@ import { MenuLink } from "./menu-link";
 import { ProfileRoute } from "ui/routes/profile";
 import { useAuth0 } from "auth/auth0";
 import { AppChromeRoute } from "ui/routes/app-chrome";
-import {
-  OrganizationContactInfoRoute,
-  OrganizationsRoute,
-} from "ui/routes/organizations";
+import { OrganizationContactInfoRoute } from "ui/routes/organizations";
 import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
