@@ -1,0 +1,20 @@
+query GetOrganizationContactsById($orgId: ID!) {
+  organization {
+    byId(id: $orgId) {
+      id
+      name
+      config {
+        absenceEmployeeContact {
+          name
+          email
+          phone
+        }
+        absenceSubContact {
+          name
+          email
+          phone
+        }
+      }
+    }
+  }
+}
