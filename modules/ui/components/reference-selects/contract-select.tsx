@@ -6,9 +6,7 @@ import { useContractOptions } from "reference-data/contracts";
 type Props = {
   orgId: string;
   selectedContractId?: string;
-  setSelectedContractId: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
+  setSelectedContractId: (contractId?: string) => void;
   includeAllOption?: boolean;
   showLabel?: boolean;
 };

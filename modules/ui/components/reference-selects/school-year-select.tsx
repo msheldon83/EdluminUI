@@ -8,9 +8,7 @@ import { useEffect } from "react";
 type Props = {
   orgId: string;
   selectedSchoolYearId?: string;
-  setSelectedSchoolYearId: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
+  setSelectedSchoolYearId: (schoolYearId?: string) => void;
   defaultToCurrentSchoolYear?: boolean;
   showLabel?: boolean;
 };
