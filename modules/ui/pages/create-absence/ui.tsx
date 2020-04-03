@@ -146,12 +146,12 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "needsReplacement", type: "custom" });
-  register(
-    { name: "notesToApprover", type: "custom" },
-    {
-      validate: value => !requireAdminNotes || value || t("Notes are required"),
-    }
-  );
+  if (requireAdminNotes) {
+    register({ name: "notesToApprover", type: "custom" }, { required });
+  } else {
+    register({ name: "notesToApprover", type: "custom" });
+  }
+
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "replacementEmployeeId", type: "custom" });
   register({ name: "replacementEmployeeName", type: "custom" });
