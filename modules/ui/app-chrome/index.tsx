@@ -16,7 +16,7 @@ import { MobileTopBar } from "./mobile-navigation/mobile-top-bar";
 import { TopBar } from "./navigation/top-bar";
 import { OrganizationSwitcherBar } from "./organization-switcher-bar";
 import { PageTitleProvider } from "./page-title-context";
-import { OrganizationStatusBar } from "./orgaization-status-bar";
+import { OrganizationStatusBar } from "./organization-status-bar";
 import { HelpWidget } from "./help-widget";
 import { contentFooterRef } from "../components/content-footer";
 import { useAppConfig } from "../../hooks/app-config";
