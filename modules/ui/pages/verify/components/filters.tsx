@@ -1,19 +1,14 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryBundle } from "graphql/hooks";
-import { compact } from "lodash-es";
 import {
   Checkbox,
   FormControlLabel,
   Grid,
-  InputLabel,
   makeStyles,
 } from "@material-ui/core";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
-import { useLocations } from "reference-data/locations";
-import { useCallback, useMemo } from "react";
-import { OrganizationRelationshipType } from "graphql/server-types.gen";
-import { GetOrganizationRelationships } from "../graphql/get-organization-relationships.gen";
+import { SubSourceSelect } from "ui/components/reference-selects/sub-source-select";
+import { useOrganizationRelationships } from "reference-data/organization-relationships";
+import { LocationSelect } from "ui/components/reference-selects/location-select";
 
 type Props = {
   showVerified: boolean;
@@ -29,68 +24,15 @@ export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const locations = useLocations(props.orgId);
-  const locationOptions: OptionType[] = useMemo(
-    () => locations.map(l => ({ label: l.name, value: l.id })),
-    [locations]
-  );
+  const subSources = useOrganizationRelationships(props.orgId);
 
-  //Get Option Types for Sub Source
-  const getSubSources = useQueryBundle(GetOrganizationRelationships, {
-    fetchPolicy: "cache-first",
-    variables: { orgId: props.orgId },
-  });
+  const onChangeSubSource = (orgId?: string) => {
+    props.setSubSourceFilter(orgId ?? "");
+  };
 
-  const subSources = useMemo(() => {
-    if (
-      getSubSources.state === "DONE" &&
-      getSubSources.data.organizationRelationship
-    ) {
-      return compact(getSubSources.data.organizationRelationship.all) ?? [];
-    }
-    return [];
-  }, [getSubSources]);
-
-  const subSourceOptions: OptionType[] = useMemo(() => {
-    const delgateTo = subSources.filter(
-      l => l.relationshipType === OrganizationRelationshipType.DelegatesTo
-    );
-    const options =
-      delgateTo?.map(x => ({
-        label: x.relatesToOrganization!.name,
-        value: x.relatesToOrganization!.id,
-      })) ?? [];
-
-    options.unshift(
-      { label: "(All)", value: "0" },
-      { label: "My Organization", value: props.orgId }
-    );
-    return options;
-  }, [subSources]);
-
-  const selectedValue = subSourceOptions.find(e =>
-    props.subSourceFilter === "" || props.subSourceFilter === undefined
-      ? subSourceOptions.find(e => e.value.toString() === "0")
-      : e.label && props.subSourceFilter === e.value.toString()
-  );
-
-  const onChangeLocations = useCallback(
-    (value /* OptionType[] */) => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
-      props.setLocationsFilter(ids);
-    },
-    [props.setLocationsFilter]
-  );
-
-  const onChangeSubSource = useCallback(
-    (value /* OptionType[] */) => {
-      const ids = value ?? value.map((v: OptionType) => v.value);
-      if (ids.value === "0") ids.value = undefined;
-
-      props.setSubSourceFilter(ids.value);
-    },
-    [props.setSubSourceFilter]
-  );
+  const onChangeLocations = (locationIds?: string[]) => {
+    props.setLocationsFilter(locationIds ?? []);
+  };
 
   return (
     <>
@@ -102,28 +44,19 @@ export const Filters: React.FC<Props> = props => {
         className={classes.filters}
       >
         <Grid item xs={12} sm={6} md={3} lg={3}>
-          <InputLabel className={classes.label}>{t("Schools")}</InputLabel>
-          <SelectNew
-            onChange={onChangeLocations}
-            options={locationOptions}
-            value={locationOptions.filter(
-              e => e.value && props.locationsFilter.includes(e.value.toString())
-            )}
-            multiple
+          <LocationSelect
+            label={t("Schools")}
+            orgId={props.orgId}
+            selectedLocationIds={props.locationsFilter}
+            setSelectedLocationIds={onChangeLocations}
           />
         </Grid>
-        {subSourceOptions.length > 2 && (
+        {subSources.length > 1 && (
           <Grid item xs={12} sm={6} md={3} lg={3}>
-            <InputLabel className={classes.label}>
-              {t("Substitute source")}
-            </InputLabel>
-            <SelectNew
-              onChange={onChangeSubSource}
-              options={subSourceOptions}
-              value={selectedValue}
-              multiple={false}
-              withResetValue={false}
-              doSort={false}
+            <SubSourceSelect
+              orgId={props.orgId}
+              selectedSubSource={props.subSourceFilter}
+              setSelectedSubSource={onChangeSubSource}
             />
           </Grid>
         )}
