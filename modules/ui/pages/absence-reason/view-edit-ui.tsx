@@ -27,6 +27,7 @@ type Props = {
   name: string;
   rowVersion: string;
   isRestricted: boolean;
+  requireNotesToAdmin: boolean;
   description?: string;
   allowNegativeBalance: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
@@ -165,6 +166,14 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
             <Typography variant="h6">{t("Restrict absence reason")}</Typography>
             <Typography variant="body1">
               {displayBool(props.isRestricted)}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">
+              {t("Require notes to administrators")}
+            </Typography>
+            <Typography variant="body1">
+              {displayBool(props.requireNotesToAdmin)}
             </Typography>
           </Grid>
         </Grid>
