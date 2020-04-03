@@ -75,6 +75,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const actingAsEmployee = props.actingAsEmployee;
 
+  const [requireAdminNotes, setRequireAdminNotes] = useState(false);
+
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
     props,
@@ -144,7 +146,12 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "needsReplacement", type: "custom" });
-  register({ name: "notesToApprover", type: "custom" });
+  register(
+    { name: "notesToApprover", type: "custom" },
+    {
+      validate: value => !requireAdminNotes || value || t("Notes are required"),
+    }
+  );
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "replacementEmployeeId", type: "custom" });
   register({ name: "replacementEmployeeName", type: "custom" });
@@ -457,6 +464,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 assignmentsByDate={[]}
                 usages={absenceBalanceUsages}
                 isClosed={false}
+                setRequireAdminNotes={setRequireAdminNotes}
               />
             </Section>
           </>
