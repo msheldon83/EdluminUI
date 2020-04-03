@@ -1,6 +1,7 @@
 import { DayOfWeek } from "graphql/server-types.gen";
 import i18next = require("i18next");
 import { getDisplayName } from "ui/components/enumHelpers";
+import { getDay, parseISO } from "date-fns";
 
 export const daysOfWeekOrdered = [
   DayOfWeek.Sunday,
@@ -11,6 +12,13 @@ export const daysOfWeekOrdered = [
   DayOfWeek.Friday,
   DayOfWeek.Saturday,
 ];
+
+export const getDayOfWeekFromDate = (date: Date | string) => {
+  const dateToCheck = typeof date === "string" ? parseISO(date) : date;
+
+  const dow = getDay(dateToCheck);
+  return daysOfWeekOrdered[dow];
+};
 
 // Use to sort an array of days of the week
 export const sortDaysOfWeek = (daysOfWeek?: DayOfWeek[]) => {

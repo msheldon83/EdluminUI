@@ -11,11 +11,11 @@ import { OptionType } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { PeriodUI, BellSchedule } from "./period";
-import { Schedule, Period } from "./helpers";
+import { Schedule } from "./helpers";
 import { DayOfWeek } from "graphql/server-types.gen";
-import { DayOfWeekCheckBox } from "./day-of-week";
 import InfoIcon from "@material-ui/icons/Info";
 import { FormikErrors } from "formik";
+import { DayOfWeekSelector } from "ui/components/day-of-week-selector";
 
 type Props = {
   index: number;
@@ -46,8 +46,6 @@ export const ScheduleUI: React.FC<Props> = props => {
 
   const periods = props.schedule.periods;
 
-  const days = Object.values(DayOfWeek);
-
   return (
     <>
       <Grid container spacing={2}>
@@ -76,19 +74,11 @@ export const ScheduleUI: React.FC<Props> = props => {
           spacing={2}
         >
           <Grid item xs={12}>
-            <div className={classes.daysOfWeekContainer}>
-              {days.map((day, i) => {
-                return (
-                  <DayOfWeekCheckBox
-                    key={`dayOfWeek${i}`}
-                    dayOfWeek={day}
-                    scheduleDaysOfWeek={props.schedule.daysOfTheWeek}
-                    disabledDaysOfWeek={props.disabledDaysOfWeek}
-                    onCheckDayOfWeek={props.onCheckDayOfWeek}
-                  />
-                );
-              })}
-            </div>
+            <DayOfWeekSelector
+              daysOfWeek={props.schedule.daysOfTheWeek}
+              disabledDaysOfWeek={props.disabledDaysOfWeek}
+              onCheckDayOfWeek={props.onCheckDayOfWeek}
+            />
           </Grid>
           <Grid item xs={12}>
             {periods.map((p, i) => {

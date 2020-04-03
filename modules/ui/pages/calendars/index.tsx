@@ -249,7 +249,7 @@ export const Calendars: React.FC<Props> = props => {
     },
   ];
 
-  const schoolYearName = `${t("Calendar")} ${parseISO(
+  const schoolYearName = `${parseISO(
     schoolYear?.startDate
   ).getFullYear()} - ${parseISO(schoolYear?.endDate).getFullYear()}`;
 
@@ -261,13 +261,16 @@ export const Calendars: React.FC<Props> = props => {
             {contract === undefined ? t("All Contracts") : contract?.name}
           </Typography>
 
-          {schoolYear && <PageTitle title={schoolYearName} />}
+          {schoolYear && (
+            <PageTitle title={`${t("Calendar")} ${schoolYearName}`} />
+          )}
         </div>
         <ContractScheduleWarning
           showWarning={contractsWithoutSchedules.length > 0}
           schoolYearName={schoolYearName}
-          schoolYearId={schoolYearId ?? ""}
+          schoolYear={schoolYear}
           contracts={contractsWithoutSchedules}
+          orgId={params.organizationId}
         />
         <Can do={[PermissionEnum.CalendarChangeSave]}>
           <Section className={classes.container}>
