@@ -1,12 +1,4 @@
-import {
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  InputLabel,
-  makeStyles,
-  Tab,
-  Tabs,
-} from "@material-ui/core";
+import { Grid, makeStyles, Tab, Tabs } from "@material-ui/core";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { useDeferredState } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
@@ -21,9 +13,10 @@ import {
 import { FiltersByRole } from "./filters-by-role";
 import { Input } from "ui/components/form/input";
 import { ActiveInactiveFilter } from "ui/components/active-inactive-filter";
-import { canViewMultiplePeopleRoles, can } from "helpers/permissions";
+import { can } from "helpers/permissions";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useOrganizationId } from "core/org-context";
+import { useOrganizationRelationships } from "reference-data/organization-relationships";
 
 type Props = { className?: string };
 
@@ -32,6 +25,8 @@ export const PeopleFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const userAccess = useMyUserAccess();
   const contextOrgId = useOrganizationId();
+
+  const orgRelationships = useOrganizationRelationships(contextOrgId);
 
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
   const [name, pendingName, setPendingName] = useDeferredState(
@@ -65,11 +60,18 @@ export const PeopleFilters: React.FC<Props> = props => {
       let filters: RoleSpecificFilters;
       switch (roleFilter) {
         case OrgUserRole.Employee:
-        case OrgUserRole.Administrator:
           filters = { roleFilter, locations: [], positionTypes: [] };
           break;
+        case OrgUserRole.Administrator:
+          filters = {
+            roleFilter,
+            locations: [],
+            positionTypes: [],
+            shadowOrgIds: [],
+          };
+          break;
         case OrgUserRole.ReplacementEmployee:
-          filters = { roleFilter, endorsements: [] };
+          filters = { roleFilter, endorsements: [], shadowOrgIds: [] };
           break;
         case null:
         default:
@@ -187,13 +189,18 @@ export const PeopleFilters: React.FC<Props> = props => {
     classes.tab,
   ]);
 
+  // Because the number of filters on Admin view gets too squashed when the org relation ship filter is shown, this adjust the placement of hte filters
+  const adjustFilterLocation =
+    orgRelationships.length > 1 &&
+    isoFilters.roleFilter == OrgUserRole.Administrator;
+
   return (
     <div className={`${props.className} ${classes.tabsContainer}`}>
       {filteredTabs.length > 0 && tabs}
 
       <div className={classes.filterSection}>
-        <Grid container justify="space-between">
-          <Grid item container md={3}>
+        <Grid container spacing={2}>
+          <Grid item xs={3}>
             <Input
               label={t("Name")}
               value={pendingName}
@@ -201,10 +208,8 @@ export const PeopleFilters: React.FC<Props> = props => {
               placeholder={t("Search for first or last name")}
             />
           </Grid>
-
           <FiltersByRole />
-
-          <Grid item container md={2}>
+          <Grid item xs={3}>
             <ActiveInactiveFilter
               label="Status"
               activeLabel="Active"

@@ -6,7 +6,7 @@ import {
   Grid,
   makeStyles,
 } from "@material-ui/core";
-import { SubSourceSelect } from "ui/components/reference-selects/sub-source-select";
+import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 
@@ -26,7 +26,7 @@ export const Filters: React.FC<Props> = props => {
 
   const subSources = useOrganizationRelationships(props.orgId);
 
-  const onChangeSubSource = (orgId?: string) => {
+  const onChangeSubSource = (orgId?: string | null) => {
     props.setSubSourceFilter(orgId ?? "");
   };
 
@@ -53,10 +53,11 @@ export const Filters: React.FC<Props> = props => {
         </Grid>
         {subSources.length > 1 && (
           <Grid item xs={12} sm={6} md={3} lg={3}>
-            <SubSourceSelect
+            <OrgRelationshipSelect
               orgId={props.orgId}
-              selectedSubSource={props.subSourceFilter}
-              setSelectedSubSource={onChangeSubSource}
+              selectedOrgId={props.subSourceFilter}
+              setSelectedOrgId={onChangeSubSource}
+              label={t("Sub source")}
             />
           </Grid>
         )}

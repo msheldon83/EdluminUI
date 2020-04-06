@@ -3,7 +3,7 @@ import { compact } from "lodash-es";
 import { GetOrganizationRelationships } from "./get-organization-relationships.gen";
 import { useMemo } from "react";
 
-export function useOrganizationRelationships(orgId?: string) {
+export function useOrganizationRelationships(orgId?: string | null) {
   const organizationRelationships = useQueryBundle(
     GetOrganizationRelationships,
     {

@@ -26,7 +26,7 @@ export const EmployeeFilters: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid item md={3}>
+      <Grid item xs={3}>
         <PositionTypeSelect
           orgId={params.organizationId}
           label={props.positionTypeLabel}
@@ -34,7 +34,7 @@ export const EmployeeFilters: React.FC<Props> = props => {
           setSelectedPositionTypeIds={onChangePositionTypes}
         />
       </Grid>
-      <Grid item md={3}>
+      <Grid item xs={3}>
         <LocationSelect
           orgId={params.organizationId}
           label={props.locationLabel}

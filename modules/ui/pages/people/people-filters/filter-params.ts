@@ -143,6 +143,7 @@ const to = (o: PeopleFilters): RoleSpecificFilters => {
 };
 
 const from = (o: RoleSpecificFilters) => {
+  console.log(o);
   switch (o.roleFilter) {
     case OrgUserRole.Administrator:
       return {

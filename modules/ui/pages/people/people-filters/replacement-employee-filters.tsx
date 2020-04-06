@@ -1,68 +1,52 @@
-import { Grid, InputLabel } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useEndorsements } from "reference-data/endorsements";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import {
   FilterQueryParams,
   ReplacementEmployeeQueryFilters,
 } from "./filter-params";
-import { useFilterStyles } from "./filters-by-role";
 import { useOrganizationRelationships } from "reference-data/organization-relationships";
-import { SubSourceSelect } from "ui/components/reference-selects/sub-source-select";
+import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
+import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
 
 type Props = ReplacementEmployeeQueryFilters;
 
 export const ReplacementEmployeeFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useFilterStyles();
   const params = useRouteParams(PeopleRoute);
 
-  const subSources = useOrganizationRelationships(params.organizationId);
+  const orgRelationships = useOrganizationRelationships(params.organizationId);
 
-  const endorsements = useEndorsements(params.organizationId);
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
-
-  const endorsementOptions: OptionType[] = useMemo(
-    () => endorsements.map(e => ({ label: e.name, value: e.id })),
-    [endorsements]
-  );
-
-  const onChange = useCallback(
-    (value /* OptionType[] */) => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
-      updateFilters({ endorsements: ids });
-    },
-    [updateFilters]
-  );
 
   const onChangeSubSource = (shadowOrgId?: string | null) => {
     updateFilters({ shadowOrgIds: shadowOrgId ? [shadowOrgId] : [] });
   };
 
+  const onChangeEndorsements = (endorsementIds?: string[]) => {
+    updateFilters({ endorsements: endorsementIds ?? [] });
+  };
+
   return (
     <>
-      <Grid item md={3}>
-        <InputLabel className={classes.label}>{t("Attributes")}</InputLabel>
-        <SelectNew
-          onChange={onChange}
-          options={endorsementOptions}
-          value={endorsementOptions.filter(
-            e => e.value && props.endorsements.includes(e.value.toString())
-          )}
-          multiple
+      <Grid item xs={3}>
+        <EndorsementSelect
+          orgId={params.organizationId}
+          label={t("Attributes")}
+          selectedEndorsementIds={props.endorsements}
+          setSelectedEndorsementIds={onChangeEndorsements}
         />
       </Grid>
-      {subSources.length > 1 && (
-        <Grid item md={3}>
-          <SubSourceSelect
+      {orgRelationships.length > 1 && (
+        <Grid item xs={3}>
+          <OrgRelationshipSelect
             orgId={params.organizationId}
-            selectedSubSource={props.shadowOrgIds[0]}
-            setSelectedSubSource={onChangeSubSource}
+            selectedOrgId={props.shadowOrgIds[0]}
+            setSelectedOrgId={onChangeSubSource}
+            label={t("Source organization")}
           />
         </Grid>
       )}
