@@ -1,6 +1,7 @@
-import { Button, makeStyles } from "@material-ui/core";
+import { Button, makeStyles, Link } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import * as React from "react";
+import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { AssignmentDetails } from "ui/components/substitutes/assignment-details";
 import { ExpandOrCollapseIndicator } from "ui/components/substitutes/expand-or-collapse-indicator";
@@ -8,6 +9,8 @@ import { NotesPopper } from "ui/components/substitutes/notes-popper";
 import { AvailableJobDetail } from "./available-job-detail";
 import { isBefore, parseISO } from "date-fns";
 import { Warning } from "@material-ui/icons";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
   vacancy: {
@@ -24,6 +27,7 @@ type Props = {
     startDate?: any;
     endDate?: any;
     absence?: {
+      id: string;
       employee?: {
         firstName: string;
         lastName: string;
@@ -54,6 +58,7 @@ type Props = {
 
 export const AvailableJob: React.FC<Props> = props => {
   const isMobile = useIsMobile();
+  const history = useHistory();
   const { forSingleJob, viewingAsAdmin } = props;
   const classes = useStyles({ isMobile, forSingleJob, viewingAsAdmin });
   const { t } = useTranslation();
@@ -92,7 +97,35 @@ export const AvailableJob: React.FC<Props> = props => {
                       <NotesPopper notes={vacancy.notesToReplacement} />
                     )}
                   </div>
-                  {!viewingAsAdmin && (
+                  {viewingAsAdmin ? (
+                    <div className={classes.actionItem}>
+                      {vacancy.absence ? (
+                        <Link
+                          className={classes.action}
+                          onClick={() =>
+                            history.push(
+                              AdminEditAbsenceRoute.generate({
+                                organizationId: vacancy.organization.id,
+                                absenceId: vacancy.absence?.id ?? "",
+                              })
+                            )
+                          }
+                        >{`#${vacancy.absence?.id}`}</Link>
+                      ) : (
+                        <Link
+                          className={classes.action}
+                          onClick={() =>
+                            history.push(
+                              VacancyViewRoute.generate({
+                                organizationId: vacancy.organization.id,
+                                vacancyId: vacancy.id,
+                              })
+                            )
+                          }
+                        >{`#V${vacancy.id}`}</Link>
+                      )}
+                    </div>
+                  ) : (
                     <>
                       <div
                         className={[
@@ -150,6 +183,7 @@ export const AvailableJob: React.FC<Props> = props => {
                     endTimeLocal={detail!.endTimeLocal ?? ""}
                     shadeRow={index % 2 != 1}
                     key={index}
+                    viewingAsAdmin={viewingAsAdmin}
                   />
                 ))}
             </div>
@@ -233,4 +267,7 @@ export const useStyles = makeStyles(theme => ({
   notes: (props: StyleProps) => ({
     flex: props.isMobile ? 0 : 1,
   }),
+  action: {
+    cursor: "pointer",
+  },
 }));

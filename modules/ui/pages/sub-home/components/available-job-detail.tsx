@@ -12,6 +12,7 @@ type Props = {
   endTimeLocal: string;
   dayPortion: number;
   shadeRow: boolean;
+  viewingAsAdmin?: boolean;
 };
 
 export const AvailableJobDetail: React.FC<Props> = props => {
