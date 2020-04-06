@@ -215,11 +215,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "needsReplacement", type: "custom" });
-  if (requireAdminNotes) {
-    register({ name: "notesToApprover", type: "custom" }, { required });
-  } else {
-    register({ name: "notesToApprover", type: "custom" });
-  }
+  register(
+    { name: "notesToApprover", type: "custom" },
+    {
+      validate: value => {
+        const req = t("Required") ?? "Required";
+        return (requireAdminNotes && !!value) || !requireAdminNotes || req;
+      },
+    }
+  );
   register({ name: "notesToReplacement", type: "custom" });
   register(
     { name: "hourlyStartTime", type: "custom" },
