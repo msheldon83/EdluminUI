@@ -15,8 +15,9 @@ import { Input } from "ui/components/form/input";
 import { ActiveInactiveFilter } from "ui/components/active-inactive-filter";
 import { can } from "helpers/permissions";
 import { useMyUserAccess } from "reference-data/my-user-access";
-import { useOrganizationId } from "core/org-context";
 import { useOrganizationRelationships } from "reference-data/organization-relationships";
+import { PeopleRoute } from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = { className?: string };
 
@@ -24,9 +25,9 @@ export const PeopleFilters: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const userAccess = useMyUserAccess();
-  const contextOrgId = useOrganizationId();
+  const params = useRouteParams(PeopleRoute);
 
-  const orgRelationships = useOrganizationRelationships(contextOrgId);
+  const orgRelationships = useOrganizationRelationships(params.organizationId);
 
   const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
   const [name, pendingName, setPendingName] = useDeferredState(
@@ -67,7 +68,7 @@ export const PeopleFilters: React.FC<Props> = props => {
             roleFilter,
             locations: [],
             positionTypes: [],
-            shadowOrgIds: [],
+            shadowOrgIds: [params.organizationId],
           };
           break;
         case OrgUserRole.ReplacementEmployee:
@@ -104,7 +105,7 @@ export const PeopleFilters: React.FC<Props> = props => {
         [PermissionEnum.EmployeeView],
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        contextOrgId ?? undefined
+        params.organizationId
       )
     ) {
       tabs.push({
@@ -118,7 +119,7 @@ export const PeopleFilters: React.FC<Props> = props => {
         [PermissionEnum.SubstituteView],
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        contextOrgId ?? undefined
+        params.organizationId
       )
     ) {
       tabs.push({
@@ -132,7 +133,7 @@ export const PeopleFilters: React.FC<Props> = props => {
         [PermissionEnum.AdminView],
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        contextOrgId ?? undefined
+        params.organizationId
       )
     ) {
       tabs.push({
@@ -147,7 +148,7 @@ export const PeopleFilters: React.FC<Props> = props => {
     }
 
     return tabs;
-  }, [userAccess, contextOrgId, t]);
+  }, [userAccess, params.organizationId, t]);
 
   // If only have 1 Role tab, we have to default the filters
   // to those that match that Role.
@@ -188,11 +189,6 @@ export const PeopleFilters: React.FC<Props> = props => {
     classes.tabs,
     classes.tab,
   ]);
-
-  // Because the number of filters on Admin view gets too squashed when the org relation ship filter is shown, this adjust the placement of hte filters
-  const adjustFilterLocation =
-    orgRelationships.length > 1 &&
-    isoFilters.roleFilter == OrgUserRole.Administrator;
 
   return (
     <div className={`${props.className} ${classes.tabsContainer}`}>
