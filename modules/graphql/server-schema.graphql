@@ -1087,20 +1087,9 @@ type ContractMutations {
 
 type ContractQueries {
   byId(id: ID!): Contract
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [Contract]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedContract
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Contract]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedContract
+  contractsWithoutSchedules(schoolYearId: ID!, orgId: ID!): [Contract]
 }
 
 type ContractSchedule implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
