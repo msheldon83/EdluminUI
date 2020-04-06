@@ -191,7 +191,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     //   };
     // }
     if (!absenceCreateInput) return;
-    /* const result = await createAbsenceMutation({
+    const result = await createAbsenceMutation({
       variables: {
         absence: absenceCreateInput,
       },
@@ -203,7 +203,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           absenceId: result.data.absence.create.id,
         })
       );
-    }*/
+    }
   };
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
