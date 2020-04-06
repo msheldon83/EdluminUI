@@ -133,7 +133,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
       await setValue("absenceReason", event.value);
       await triggerValidation({ name: "absenceReason" });
       setRequireAdminNotes(
-        absenceReasons.find(ar => ar.id === event.value)?.requireNotesToAdmin ??
+        absenceReasons.find(ar => ar.id === event.value)?.requireNotesToAdmin ||
           false
       );
     },
