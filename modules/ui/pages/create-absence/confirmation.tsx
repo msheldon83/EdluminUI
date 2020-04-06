@@ -38,7 +38,7 @@ export const Confirmation: React.FC<Props> = props => {
   );
 
   React.useEffect(() => {
-    window.scrollTo({ top: 0 });
+    window.scrollTo(0, 0);
   }, []);
 
   const editUrl = useMemo(() => {
