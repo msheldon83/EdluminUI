@@ -1,50 +1,76 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { ShowErrors } from "ui/components/error-helpers";
+import { GetOrganizationById } from "./graphql/get-organization.gen";
 import { useHistory } from "react-router";
-import { PageTitle } from "ui/components/page-title";
-import { GeneralSettingsRoute } from "ui/routes/general-settings";
+import { UpdateOrganization } from "./graphql/update-organization.gen";
+import { useSnackbar } from "hooks/use-snackbar";
+import { OrganizationUpdateInput } from "graphql/server-types.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
+import { EditGeneralSettings } from "./components/edit-settings";
+import { SettingsRoute } from "ui/routes/settings";
 
-type Props = {};
-
-export const GeneralSettings: React.FC<Props> = props => {
+export const GeneralSettings: React.FC<{}> = props => {
   const { t } = useTranslation();
+  const { openSnackbar } = useSnackbar();
+  const params = useRouteParams(SettingsRoute);
   const history = useHistory();
-  const theme = useTheme();
-  const classes = useStyles();
-  const isMobile = useIsMobile();
-  const params = useRouteParams(GeneralSettingsRoute);
 
-  const [triggerError, setTriggerError] = React.useState(false);
+  const [updateOrg] = useMutationBundle(UpdateOrganization, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
-  if (triggerError) {
-    throw Error("error!");
+  const onCancel = async () => {
+    history.push(SettingsRoute.generate(params));
+  };
+
+  const onUpdateOrg = async (organization: OrganizationUpdateInput) => {
+    const response = await updateOrg({
+      variables: {
+        organization: {
+          orgId: organization.orgId,
+          rowVersion: organization.rowVersion,
+          name: organization.name,
+          externalId: organization.externalId,
+          timeZoneId: organization.timeZoneId,
+          config: {
+            absenceSubContact: organization.config?.absenceSubContact,
+            absenceEmployeeContact: organization.config?.absenceEmployeeContact,
+          },
+        },
+      },
+    });
+
+    const result = response.data?.organization?.update;
+    if (result) {
+      await onCancel();
+    }
+  };
+
+  const getOrganization = useQueryBundle(GetOrganizationById, {
+    variables: { id: params.organizationId },
+  });
+
+  if (getOrganization.state === "LOADING") {
+    return <></>;
+  }
+
+  const organization = getOrganization?.data?.organization?.byId;
+
+  if (!organization) {
+    return <></>;
   }
 
   return (
     <>
-      <PageTitle title={`${params.organizationId} ${t("General Settings")}`} />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <EditGeneralSettings
+        organization={organization}
+        onUpdateOrg={onUpdateOrg}
+        onCancel={onCancel}
+      />
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));

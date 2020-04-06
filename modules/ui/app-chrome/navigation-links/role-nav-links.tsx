@@ -32,7 +32,7 @@ import {
   SubPreferencesNavLink,
   MobileSearchNavLink,
 } from "./custom-nav-links";
-import { OrgSettingsRoute } from "ui/routes/org-settings";
+import { SettingsRoute } from "ui/routes/settings";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { LocationsRoute } from "ui/routes/locations";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
@@ -191,7 +191,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           <SettingsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={OrgSettingsRoute.generate(params)}
+            route={SettingsRoute.generate(params)}
             orgId={params.organizationId}
           />
           <SecurityNavLink

@@ -86,7 +86,7 @@ import {
   GeneralSettingsLoader,
   GeneralSettingsRoute,
 } from "./routes/general-settings";
-import { OrgSettingsLoader, OrgSettingsRoute } from "./routes/org-settings";
+import { SettingsLoader, SettingsRoute } from "./routes/settings";
 import {
   OrganizationsLoader,
   OrganizationsRoute,
@@ -711,8 +711,8 @@ export const App = hot(function() {
                                     ]}
                                   />
                                   <ProtectedRoute
-                                    component={OrgSettingsLoader}
-                                    path={OrgSettingsRoute.path}
+                                    component={SettingsLoader}
+                                    path={SettingsRoute.path}
                                     role={"admin"}
                                     permissions={[
                                       PermissionEnum.GeneralSettingsView,

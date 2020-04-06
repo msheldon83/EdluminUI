@@ -1,0 +1,23 @@
+mutation UpdateOrganization($organization: OrganizationUpdateInput!) {
+  organization {
+    update(organization: $organization) {
+      id
+      rowVersion
+      name
+      externalId
+      timeZoneId
+      config {
+        absenceSubContact {
+          email
+          name
+          phone
+        }
+        absenceEmployeeContact {
+          email
+          name
+          phone
+        }
+      }
+    }
+  }
+}
