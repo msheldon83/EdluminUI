@@ -14,6 +14,7 @@ export type VacancyDetailsFormData = {
   locationName: string;
   workDayScheduleId: string;
   notesToReplacement?: string | null;
+  adminOnlyNotes?: string | null;
   isClosed: boolean;
   details: VacancyDetailItem[];
   closedDetails: VacancyDetailItem[];

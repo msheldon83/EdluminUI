@@ -174,9 +174,9 @@ export const View: React.FC<Props> = props => {
               />
             </div>
 
-            <div className={classes.notesToApproverSection}>
+            <div className={classes.notesSection}>
               <Typography variant={"h6"}>
-                {t("Notes for administrator")}
+                {t("Notes to administrator")}
               </Typography>
               <Typography className={classes.subText}>
                 {t("Can be seen by the administrator and the employee.")}
@@ -189,6 +189,24 @@ export const View: React.FC<Props> = props => {
                 )}
               </div>
             </div>
+
+            {!props.actingAsEmployee && (
+              <div className={classes.notesSection}>
+                <Typography variant={"h6"}>
+                  {t("Administrator comments")}
+                </Typography>
+                <Typography className={classes.subText}>
+                  {t("Can be seen and edited by administrators only.")}
+                </Typography>
+                <div className={classes.notesForApprover}>
+                  {absence.adminOnlyNotes || (
+                    <span className={classes.valueMissing}>
+                      {t("No Notes Specified")}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
           </Grid>
         </Grid>
         {hasVacancies && (
@@ -330,7 +348,7 @@ const useStyles = makeStyles(theme => ({
   dates: {
     marginTop: theme.spacing(2),
   },
-  notesToApproverSection: {
+  notesSection: {
     marginTop: theme.spacing(2),
   },
   notesForApprover: {
@@ -391,7 +409,10 @@ const getAbsenceReasonListDisplay = (
           {matchingAbsenceReason?.name}
         </div>
         <Typography variant="h6">
-          {getDateRangeDisplayTextWithDayOfWeekForContiguousDates(allDates, disabledDates)}
+          {getDateRangeDisplayTextWithDayOfWeekForContiguousDates(
+            allDates,
+            disabledDates
+          )}
         </Typography>
         {d.simpleDetailItems &&
           d.simpleDetailItems.map((di, detailIndex) => {

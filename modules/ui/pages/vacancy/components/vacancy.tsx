@@ -406,6 +406,7 @@ export const VacancyUI: React.FC<Props> = props => {
           workDayScheduleId: vacancy.workDayScheduleId,
           details: vacancy.details,
           notesToReplacement: vacancy.notesToReplacement,
+          adminOnlyNotes: vacancy.adminOnlyNotes,
         }}
         onReset={(values, e) => {
           setResetKey(resetKey + 1);
@@ -420,6 +421,7 @@ export const VacancyUI: React.FC<Props> = props => {
               workDayScheduleId: initialVacancy.workDayScheduleId,
               details: initialVacancy.details,
               notesToReplacement: initialVacancy.notesToReplacement,
+              adminOnlyNotes: initialVacancy.adminOnlyNotes,
             },
           });
         }}
@@ -486,6 +488,7 @@ export const VacancyUI: React.FC<Props> = props => {
                     workDayScheduleId: updatedFormData.workDayScheduleId,
                     details: updatedFormData.details,
                     notesToReplacement: updatedFormData.notesToReplacement,
+                    adminOnlyNotes: updatedFormData.adminOnlyNotes,
                   },
                 });
               }

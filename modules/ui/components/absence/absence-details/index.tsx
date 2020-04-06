@@ -50,6 +50,7 @@ export type AbsenceDetailsFormData = {
   hourlyEndTime?: Date;
   notesToApprover?: string;
   notesToReplacement?: string;
+  adminOnlyNotes?: string;
 };
 
 type Props = {
@@ -178,6 +179,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     [setValue]
   );
 
+  const onAdminOnlyNotesChange = React.useCallback(
+    async event => {
+      await setValue("adminOnlyNotes", event.target.value);
+    },
+    [setValue]
+  );
+
   const dayPartValue: DayPartValue = React.useMemo(() => {
     if (values.dayPart === DayPart.Hourly) {
       return {
@@ -289,8 +297,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
           disabled={props.disableEditingDatesAndTimes}
         />
 
-        <div className={classes.notesForApprover}>
-          <Typography variant="h6">{t("Notes for administration")}</Typography>
+        <div className={classes.notesSection}>
+          <Typography variant="h6">{t("Notes to administrator")}</Typography>
           <Typography className={classes.subText}>
             {t("Can be seen by the administrator and the employee.")}
           </Typography>
@@ -303,6 +311,23 @@ export const AbsenceDetails: React.FC<Props> = props => {
             value={values.notesToApprover}
           />
         </div>
+
+        {!actingAsEmployee && (
+          <div className={classes.notesSection}>
+            <Typography variant="h6">{t("Administrator comments")}</Typography>
+            <Typography className={classes.subText}>
+              {t("Can be seen and edited by administrators only.")}
+            </Typography>
+
+            <NoteField
+              onChange={onAdminOnlyNotesChange}
+              name={"adminOnlyNotes"}
+              isSubmitted={props.isSubmitted}
+              initialAbsenceCreation={props.initialAbsenceCreation}
+              value={values.adminOnlyNotes}
+            />
+          </div>
+        )}
       </Grid>
 
       <Grid item md={6}>
@@ -483,7 +508,7 @@ const useStyles = makeStyles(theme => ({
     }`,
     borderRadius: theme.typography.pxToRem(4),
   },
-  notesForApprover: {
+  notesSection: {
     paddingTop: theme.spacing(3),
   },
   usageTextContainer: {

@@ -353,6 +353,7 @@ export const EditAbsence: React.FC<Props> = props => {
         rowVersion={data.rowVersion}
         needsReplacement={needsReplacement}
         notesToApprover={data.notesToApprover ?? undefined}
+        adminOnlyNotes={data.adminOnlyNotes ?? undefined}
         positionId={position?.id ?? employee.primaryPositionId ?? undefined}
         positionName={position?.title ?? employee.primaryPosition?.title}
         organizationId={data.organization.id}

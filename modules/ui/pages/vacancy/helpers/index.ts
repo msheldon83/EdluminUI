@@ -17,6 +17,7 @@ export const buildVacancyCreateInput = (
     locationId: v.locationId,
     workDayScheduleId: v.workDayScheduleId,
     notesToReplacement: v.notesToReplacement,
+    adminOnlyNotes: v.adminOnlyNotes,
     details: v.details.map(d => {
       return {
         date: d.date,
@@ -51,6 +52,7 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
     contractId: v.position?.contractId ?? "",
     title: v.position?.title ?? "",
     notesToReplacement: v.notesToReplacement ?? "",
+    adminOnlyNotes: v.adminOnlyNotes ?? "",
     ignoreWarnings: false,
     locationId: locationId,
     locationName: locationName,
@@ -129,6 +131,7 @@ export const buildVacancyUpdateInput = (
     title: v.title,
     workDayScheduleId: v.workDayScheduleId,
     notesToReplacement: v.notesToReplacement,
+    adminOnlyNotes: v.adminOnlyNotes,
     details: v.details.map(d => {
       return {
         id: d.saved ? d.id : undefined,

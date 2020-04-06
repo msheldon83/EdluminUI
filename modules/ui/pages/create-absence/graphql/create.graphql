@@ -28,6 +28,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
       startTimeLocal
       endTimeLocal
       notesToApprover
+      adminOnlyNotes
       numDays
       totalDuration
       totalDayPortion

@@ -287,7 +287,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
               )}
 
             <div className={classes.notesForReplacement}>
-              <Typography variant="h6">{t("Notes for substitute")}</Typography>
+              <Typography variant="h6">{t("Notes to substitute")}</Typography>
               <Typography
                 className={[
                   classes.subText,
