@@ -17,3 +17,16 @@ export function useContracts(orgId: string | undefined) {
     return [];
   }, [contracts]);
 }
+
+export function useContractOptions(orgId: string | undefined) {
+  const contracts = useContracts(orgId);
+
+  return useMemo(
+    () =>
+      contracts.map(c => ({
+        label: c.name,
+        value: c.id,
+      })),
+    [contracts]
+  );
+}
