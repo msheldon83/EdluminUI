@@ -11,6 +11,7 @@ type Props = {
   setSelectedSubSource: (orgId?: string | null) => void;
   includeAllAndMyOptions?: boolean;
   showLabel?: boolean;
+  multiple?: boolean;
 };
 
 export const SubSourceSelect: React.FC<Props> = props => {
@@ -30,10 +31,14 @@ export const SubSourceSelect: React.FC<Props> = props => {
       l => l.relationshipType === OrganizationRelationshipType.DelegatesTo
     );
     const options =
-      delgateTo?.map(x => ({
-        label: x.relatesToOrganization!.name,
-        value: x.relatesToOrganization!.id,
-      })) ?? [];
+      delgateTo
+        ?.map(x => ({
+          label: x.relatesToOrganization!.name,
+          value: x.relatesToOrganization!.id,
+        }))
+        .sort((a, b) =>
+          a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
+        ) ?? [];
 
     if (includeAllAndMyOptions) {
       options.unshift(

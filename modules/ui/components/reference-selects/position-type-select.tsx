@@ -1,0 +1,68 @@
+import * as React from "react";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { usePositionTypeOptions } from "reference-data/position-types";
+
+type Props = {
+  orgId?: string;
+  selectedPositionTypeIds?: string[];
+  setSelectedPositionTypeIds: (positionTypeIds?: string[]) => void;
+  includeAllOption?: boolean;
+  label?: string;
+  multiple?: boolean;
+};
+
+export const PositionTypeSelect: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  const {
+    orgId,
+    label,
+    selectedPositionTypeIds,
+    setSelectedPositionTypeIds,
+    includeAllOption = true,
+    multiple = true,
+  } = props;
+
+  let positionTypeOptions = usePositionTypeOptions(orgId);
+
+  if (includeAllOption) {
+    positionTypeOptions = positionTypeOptions.sort((a, b) =>
+      a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
+    );
+    positionTypeOptions.unshift({ label: t("(All)"), value: "0" });
+  }
+
+  const selectedPositionTypes = positionTypeOptions.filter(
+    e => e.value && selectedPositionTypeIds?.includes(e.value.toString())
+  );
+
+  const onChangePositionTypes = useCallback(
+    value => {
+      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      if (ids.includes("0")) {
+        setSelectedPositionTypeIds(undefined);
+      } else {
+        setSelectedPositionTypeIds(ids);
+      }
+    },
+    [setSelectedPositionTypeIds]
+  );
+
+  return (
+    <SelectNew
+      label={label}
+      value={selectedPositionTypes}
+      multiple={multiple}
+      options={positionTypeOptions}
+      withResetValue={false}
+      onChange={onChangePositionTypes}
+      placeholder={
+        includeAllOption && selectedPositionTypeIds?.length === 0
+          ? t("(All)")
+          : undefined
+      }
+      doSort={!includeAllOption}
+    />
+  );
+};

@@ -73,6 +73,7 @@ export const PeoplePage: React.FC<Props> = props => {
     {
       variables: {
         ...filters,
+
         orgId: params.organizationId,
         role,
         sortBy: [

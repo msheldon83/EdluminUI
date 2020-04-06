@@ -12,6 +12,8 @@ import {
   ReplacementEmployeeQueryFilters,
 } from "./filter-params";
 import { useFilterStyles } from "./filters-by-role";
+import { useOrganizationRelationships } from "reference-data/organization-relationships";
+import { SubSourceSelect } from "ui/components/reference-selects/sub-source-select";
 
 type Props = ReplacementEmployeeQueryFilters;
 
@@ -19,6 +21,8 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useFilterStyles();
   const params = useRouteParams(PeopleRoute);
+
+  const subSources = useOrganizationRelationships(params.organizationId);
 
   const endorsements = useEndorsements(params.organizationId);
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
@@ -36,17 +40,32 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
     [updateFilters]
   );
 
+  const onChangeSubSource = (shadowOrgId?: string | null) => {
+    updateFilters({ shadowOrgIds: shadowOrgId ? [shadowOrgId] : [] });
+  };
+
   return (
-    <Grid item md={3}>
-      <InputLabel className={classes.label}>{t("Attributes")}</InputLabel>
-      <SelectNew
-        onChange={onChange}
-        options={endorsementOptions}
-        value={endorsementOptions.filter(
-          e => e.value && props.endorsements.includes(e.value.toString())
-        )}
-        multiple
-      />
-    </Grid>
+    <>
+      <Grid item md={3}>
+        <InputLabel className={classes.label}>{t("Attributes")}</InputLabel>
+        <SelectNew
+          onChange={onChange}
+          options={endorsementOptions}
+          value={endorsementOptions.filter(
+            e => e.value && props.endorsements.includes(e.value.toString())
+          )}
+          multiple
+        />
+      </Grid>
+      {subSources.length > 1 && (
+        <Grid item md={3}>
+          <SubSourceSelect
+            orgId={params.organizationId}
+            selectedSubSource={props.shadowOrgIds[0]}
+            setSelectedSubSource={onChangeSubSource}
+          />
+        </Grid>
+      )}
+    </>
   );
 };

@@ -1,17 +1,13 @@
-import { Grid, InputLabel } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { useCallback, useMemo } from "react";
-import { useTranslation } from "react-i18next";
-import { usePositionTypes } from "reference-data/position-types";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute } from "ui/routes/people";
 import { FilterQueryParams, AdminQueryFilters } from "./filter-params";
-import { useFilterStyles } from "./filters-by-role";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import { SubSourceSelect } from "ui/components/reference-selects/sub-source-select";
+import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
 
 type Props = {
   positionTypeLabel: string;
@@ -19,48 +15,31 @@ type Props = {
 } & AdminQueryFilters;
 
 export const AdminFilters: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const classes = useFilterStyles();
   const params = useRouteParams(PeopleRoute);
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   const subSources = useOrganizationRelationships(params.organizationId);
 
-  const positionTypes = usePositionTypes(params.organizationId);
-  const positionTypesOptions: OptionType[] = useMemo(
-    () => positionTypes.map(p => ({ label: p.name, value: p.id })),
-    [positionTypes]
-  );
-
-  const onChangePositionType = useCallback(
-    (value /* OptionType[] */) => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
-      updateFilters({ positionTypes: ids });
-    },
-    [updateFilters]
-  );
+  const onChangePositionTypes = (positionTypeIds?: string[]) => {
+    updateFilters({ positionTypes: positionTypeIds ?? [] });
+  };
 
   const onChangeLocations = (locationIds?: string[]) => {
     updateFilters({ locations: locationIds ?? [] });
   };
 
-  const onChangeSubSource = (orgIds?: string[]) => {
-    updateFilters({ shadowOrgIds: orgIds ?? [] });
+  const onChangeSubSource = (shadowOrgId?: string | null) => {
+    updateFilters({ shadowOrgIds: shadowOrgId ? [shadowOrgId] : [] });
   };
 
   return (
     <>
       <Grid item md={3}>
-        <InputLabel className={classes.label}>
-          {props.positionTypeLabel}
-        </InputLabel>
-        <SelectNew
-          onChange={onChangePositionType}
-          options={positionTypesOptions}
-          value={positionTypesOptions.filter(
-            e => e.value && props.positionTypes.includes(e.value.toString())
-          )}
-          multiple
+        <PositionTypeSelect
+          orgId={params.organizationId}
+          label={props.positionTypeLabel}
+          selectedPositionTypeIds={props.positionTypes}
+          setSelectedPositionTypeIds={onChangePositionTypes}
         />
       </Grid>
       <Grid item md={3}>
@@ -75,7 +54,7 @@ export const AdminFilters: React.FC<Props> = props => {
         <Grid item md={3}>
           <SubSourceSelect
             orgId={params.organizationId}
-            selectedSubSource={props.shadowOrgIds}
+            selectedSubSource={props.shadowOrgIds[0]}
             setSelectedSubSource={onChangeSubSource}
           />
         </Grid>

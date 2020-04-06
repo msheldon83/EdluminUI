@@ -24,9 +24,12 @@ export const LocationSelect: React.FC<Props> = props => {
     multiple = true,
   } = props;
 
-  const locationOptions = useLocationOptions(orgId);
+  let locationOptions = useLocationOptions(orgId);
 
   if (includeAllOption) {
+    locationOptions = locationOptions.sort((a, b) =>
+      a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
+    );
     locationOptions.unshift({ label: t("(All)"), value: "0" });
   }
 
@@ -59,6 +62,7 @@ export const LocationSelect: React.FC<Props> = props => {
           ? t("(All)")
           : undefined
       }
+      doSort={!includeAllOption}
     />
   );
 };
