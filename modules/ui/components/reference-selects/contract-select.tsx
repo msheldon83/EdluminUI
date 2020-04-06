@@ -21,9 +21,12 @@ export const ContractSelect: React.FC<Props> = props => {
     showLabel = true,
   } = props;
 
-  const contractOptions = useContractOptions(orgId);
+  let contractOptions = useContractOptions(orgId);
   if (includeAllOption && contractOptions[0]?.value !== "0") {
-    contractOptions.unshift({ label: "All Contracts", value: "0" });
+    contractOptions = contractOptions.sort((a, b) =>
+      a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
+    );
+    contractOptions.unshift({ label: t("All Contracts"), value: "0" });
   }
 
   const selectedContract =
@@ -46,6 +49,7 @@ export const ContractSelect: React.FC<Props> = props => {
           setSelectedContractId(e.value.toString());
         }
       }}
+      doSort={!includeAllOption}
     />
   );
 };

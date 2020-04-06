@@ -165,6 +165,7 @@ export const CreateContractScheduleDialog: React.FC<Props> = props => {
                 variant="outlined"
                 onClick={submitForm}
                 className={classes.save}
+                disabled={values.daysToWork.length < 1}
               >
                 {t("Save")}
               </ButtonDisableOnClick>
