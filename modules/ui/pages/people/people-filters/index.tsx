@@ -195,7 +195,7 @@ export const PeopleFilters: React.FC<Props> = props => {
       {filteredTabs.length > 0 && tabs}
 
       <div className={classes.filterSection}>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} justify="space-between">
           <Grid item xs={3}>
             <Input
               label={t("Name")}
