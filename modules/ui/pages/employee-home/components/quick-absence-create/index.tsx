@@ -137,7 +137,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           false
       );
     },
-    [setValue, triggerValidation]
+    [setValue, triggerValidation, absenceReasons]
   );
 
   const onMonthChange = (month: Date) =>
