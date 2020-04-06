@@ -12,6 +12,7 @@ import {
   UserUpdateInput,
   UserPreferencesInput,
 } from "graphql/server-types.gen";
+import { compact } from "lodash-es";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
@@ -19,11 +20,8 @@ import { VerifyPhoneNumber } from "ui/pages/profile/graphql/verify-phone-number.
 import { debounce } from "lodash-es";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
-import { compact } from "lodash-es";
 
-type Props = {};
-
-export const ProfilePage: React.FC<Props> = props => {
+export const ProfilePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const history = useHistory();
