@@ -95,7 +95,7 @@ export const VacancySummary: React.FC<Props> = props => {
       </div>
       {!detailsOnly && (
         <div className={classes.notesContainer}>
-          <Typography variant={"h6"}>{t("Notes for substitute")}</Typography>
+          <Typography variant={"h6"}>{t("Notes to substitute")}</Typography>
           <Typography variant="caption" className={classes.subText}>
             {t("Can be seen by the substititue, administrator and employee")}
           </Typography>

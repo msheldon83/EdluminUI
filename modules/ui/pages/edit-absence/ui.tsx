@@ -70,6 +70,7 @@ type Props = {
   organizationId: string;
   needsReplacement: NeedsReplacement;
   notesToApprover?: string;
+  adminOnlyNotes?: string;
   positionId?: string;
   positionName?: string;
   absenceReason: {
@@ -114,6 +115,7 @@ type EditAbsenceFormData = {
   hourlyEndTime?: Date;
   notesToApprover?: string;
   notesToReplacement?: string;
+  adminOnlyNotes?: string;
   vacancies?: AbsenceVacancyInput[];
   accountingCode?: string;
   payCode?: string;
@@ -195,6 +197,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     notesToReplacement:
       props.initialVacancies[0]?.notesToReplacement ?? undefined,
     notesToApprover: props.notesToApprover,
+    adminOnlyNotes: props.adminOnlyNotes,
   };
 
   const {
@@ -225,6 +228,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     }
   );
   register({ name: "notesToReplacement", type: "custom" });
+  register({ name: "adminOnlyNotes", type: "custom" });
   register(
     { name: "hourlyStartTime", type: "custom" },
     {
@@ -787,6 +791,7 @@ const buildAbsenceUpdateInput = (
     id: absenceId,
     rowVersion,
     notesToApprover: formValues.notesToApprover,
+    adminOnlyNotes: formValues.adminOnlyNotes,
     details: dates.map(d => {
       const formattedDate = formatISO(d, { representation: "date" });
       const previousId = absenceDetailsIdsByDate[formattedDate];

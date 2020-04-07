@@ -55,6 +55,7 @@ query GetAbsence($id: ID!) {
       startTimeLocal
       endTimeLocal
       notesToApprover
+      adminOnlyNotes
       numDays
       totalDuration
       totalDayPortion

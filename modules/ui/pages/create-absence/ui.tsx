@@ -154,6 +154,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "needsReplacement", type: "custom" });
+  register({ name: "adminOnlyNotes", type: "custom" });
   register(
     { name: "notesToApprover", type: "custom" },
     {
@@ -558,6 +559,7 @@ export type CreateAbsenceFormData = {
   hourlyStartTime?: Date;
   hourlyEndTime?: Date;
   notesToApprover?: string;
+  adminOnlyNotes?: string;
   notesToReplacement?: string;
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
@@ -598,6 +600,7 @@ export const buildAbsenceCreateInput = (
     orgId: organizationId,
     employeeId: employeeId,
     notesToApprover: formValues.notesToApprover,
+    adminOnlyNotes: formValues.adminOnlyNotes,
     details: createAbsenceDetailInput(
       dates,
       formValues.absenceReason,

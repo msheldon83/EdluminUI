@@ -3,6 +3,7 @@ query GetVacancyById($id: ID!) {
     byId(id: $id) {
       id
       notesToReplacement
+      adminOnlyNotes
       rowVersion
       isClosed
       closedDetails {

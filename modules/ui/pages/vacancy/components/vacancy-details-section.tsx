@@ -15,7 +15,13 @@ import { useTranslation } from "react-i18next";
 import { sortBy } from "lodash-es";
 import { VacancyContractSelect } from "./vacancy-contract-select";
 import { OptionTypeBase } from "react-select";
-import { Grid, Typography, Button, Divider } from "@material-ui/core";
+import {
+  Grid,
+  Typography,
+  Button,
+  Divider,
+  TextField,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { startOfDay, addDays, format } from "date-fns";
 import { isSameDay } from "date-fns/esm";
@@ -397,7 +403,6 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                     updateModel({ workDayScheduleId: selectedValue });
                   }}
                 ></Select>
-                <Divider variant="fullWidth" />
               </>
             )}
             {readOnly && (
@@ -409,6 +414,48 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                       (a: any) => a.value === values.workDayScheduleId
                     )?.label
                   }
+                </Typography>
+              </>
+            )}
+          </Grid>
+        )}
+
+        {values.positionTypeId !== "" && (
+          <Grid item xs={12} className={classes.rowContainer}>
+            {!readOnly && (
+              <>
+                <label>{t("Administrator comments")}</label>
+                <Typography className={classes.subText}>
+                  {t("Can be seen and edited by administrators only.")}
+                </Typography>
+                <TextField
+                  multiline={true}
+                  value={values.adminOnlyNotes}
+                  fullWidth={true}
+                  placeholder={t("Enter administrative notes")}
+                  variant="outlined"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    updateModel({ adminOnlyNotes: e.target.value });
+                    setFieldValue("adminOnlyNotes", e.target.value);
+                  }}
+                />
+                <Divider variant="fullWidth" />
+              </>
+            )}
+            {readOnly && (
+              <>
+                <Typography variant="h6">
+                  {t("Administrator comments")}
+                </Typography>
+                <Typography className={classes.subText}>
+                  {t("Can be seen and edited by administrators only.")}
+                </Typography>
+                <Typography>
+                  {values.adminOnlyNotes || (
+                    <span className={classes.valueMissing}>
+                      {t("No Notes Specified")}
+                    </span>
+                  )}
                 </Typography>
               </>
             )}
@@ -483,5 +530,14 @@ const useStyles = makeStyles(theme => ({
       marginBottom: theme.typography.pxToRem(10),
       border: "1px solid  #d8d8d8",
     },
+  },
+  subText: {
+    color: theme.customColors.edluminSubText,
+    marginBottom: theme.typography.pxToRem(10),
+  },
+  valueMissing: {
+    fontWeight: "normal",
+    opacity: "0.6",
+    filter: "alpha(opacity = 60)",
   },
 }));
