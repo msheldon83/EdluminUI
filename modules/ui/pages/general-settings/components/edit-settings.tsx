@@ -110,7 +110,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
               <Grid container spacing={2} className={classes.paddingBottom}>
                 <Grid item xs={isMobile ? 12 : 4}>
                   <Input
-                    label={t("District name")}
+                    label={t("District Name")}
                     InputComponent={FormTextField}
                     inputComponentProps={{
                       name: "name",
