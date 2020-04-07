@@ -103,7 +103,9 @@ export const RemainingBalances: React.FC<Props> = props => {
                       balance?.usedBalance - balance?.plannedBalance ?? 0
                     }
                     plannedBalance={balance?.plannedBalance}
-                    remainingBalance={balance?.unusedBalance ?? 0}
+                    remainingBalance={
+                      balance?.initialBalance - balance?.usedBalance ?? 0
+                    }
                     trackingType={
                       balance?.absenceReason?.absenceReasonTrackingTypeId ??
                       AbsenceReasonTrackingTypeId.Daily
