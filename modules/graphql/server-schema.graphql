@@ -1932,6 +1932,13 @@ enum InterestRating {
   HIGH_INTEREST
 }
 
+enum InvitationStatus {
+  ALL
+  ACCOUNT_SETUP
+  INVITE_SENT
+  INVITE_NOT_SENT
+}
+
 enum JobNotificationResponse {
   INVALID
   ACCEPTED
@@ -2707,8 +2714,8 @@ type OrgUserMutations {
 
 type OrgUserQueries {
   byId(id: ID!): OrgUser
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID]): [OrgUser]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID]): PagedOrgUser
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID], invitationStatus: InvitationStatus): [OrgUser]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID], invitationStatus: InvitationStatus): PagedOrgUser
   pagedSubsForPreferences(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
 }
@@ -3541,6 +3548,7 @@ type PositionScheduleDate {
   workDayId: ID!
   contractId: ID!
   positionId: ID!
+  positionTypeId: ID!
   positionScheduleId: ID!
   workScheduleVariantTypeId: ID!
   startTimeLocal: DateTime

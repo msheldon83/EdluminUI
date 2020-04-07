@@ -10,6 +10,7 @@ query GetAllPeopleForOrg(
   $positionTypes: [ID]
   $locations: [ID]
   $shadowOrgIds: [ID]
+  $invitationStatus: InvitationStatus
 ) {
   orgUser {
     paged(
@@ -24,6 +25,7 @@ query GetAllPeopleForOrg(
       positionTypes: $positionTypes
       locations: $locations
       shadowOrgIds: $shadowOrgIds
+      invitationStatus: $invitationStatus
     ) {
       offset
       limit
