@@ -10,10 +10,13 @@ type Props = {
   dayPortion: number;
   payInfoLabel: string;
   shadeRow: boolean;
+  viewingAsAdmin?: boolean;
 };
 
 export const AvailableJobDetailUI: React.FC<Props> = props => {
-  const classes = useStyles();
+  const { viewingAsAdmin } = props;
+
+  const classes = useStyles({ viewingAsAdmin });
 
   return (
     <div
@@ -79,6 +82,10 @@ export const MobileAvailableJobDetailUI: React.FC<Props> = props => {
   );
 };
 
+type StyleProps = {
+  viewingAsAdmin?: boolean;
+};
+
 const useStyles = makeStyles(theme => ({
   lightText: {
     fontSize: theme.typography.pxToRem(14),
@@ -105,17 +112,17 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(2),
   },
 
-  date: {
-    flex: 1.7,
-  },
-  location: {
-    flex: 7,
-  },
-  dayPortion: {
+  date: (props: StyleProps) => ({
+    flex: props.viewingAsAdmin ? 1.9 : 1.7,
+  }),
+  location: (props: StyleProps) => ({
+    flex: props.viewingAsAdmin ? 8 : 7,
+  }),
+  dayPortion: (props: StyleProps) => ({
     display: "flex",
     alignItems: "center",
-    flex: 7,
-  },
+    flex: props.viewingAsAdmin ? 6.2 : 7,
+  }),
 }));
 
 const useMobileStyles = makeStyles(theme => ({
