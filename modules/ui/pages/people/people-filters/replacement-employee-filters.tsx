@@ -40,7 +40,7 @@ export const ReplacementEmployeeFilters: React.FC<Props> = props => {
           setSelectedEndorsementIds={onChangeEndorsements}
         />
       </Grid>
-      {orgRelationships.length > 1 && (
+      {orgRelationships.length > 0 && (
         <Grid item xs={3}>
           <OrgRelationshipSelect
             orgId={params.organizationId}

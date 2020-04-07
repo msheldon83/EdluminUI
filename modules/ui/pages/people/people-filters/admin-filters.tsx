@@ -52,7 +52,7 @@ export const AdminFilters: React.FC<Props> = props => {
           setSelectedLocationIds={onChangeLocations}
         />
       </Grid>
-      {orgRelationships.length > 1 && (
+      {orgRelationships.length > 0 && (
         <Grid item xs={3}>
           <OrgRelationshipSelect
             orgId={params.organizationId}
