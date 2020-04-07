@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, Link } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { Typography } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { useTranslation } from "react-i18next";
@@ -21,112 +21,54 @@ type Props = {
   } | null;
 };
 
-type ContactInfo = {
-  name?: string | null;
-  phone?: string | null;
-  email?: string | null;
-};
-
 export const OrganizationContactCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
 
-  const [isDirty, setIsDirty] = React.useState<boolean>(false);
-  const [isSame, setIsSame] = React.useState<boolean>(false);
+  const showLabels = props.isEmployee && props.isReplacementEmployee;
 
-  const [showLabels, setShowLabels] = React.useState<boolean>(
-    props.isEmployee && props.isReplacementEmployee
-  );
+  const sameContactInfo =
+    props.employeeContact?.name === props.subContact?.name &&
+    props.employeeContact?.email === props.subContact?.email &&
+    props.employeeContact?.phone === props.subContact?.phone;
 
-  const [contactInfo, setContactInfo] = React.useState<ContactInfo>({});
+  const employeeContactNotComplete =
+    (!props.employeeContact?.name || props.employeeContact?.name === "") &&
+    (!props.employeeContact?.email || props.employeeContact?.email === "") &&
+    (!props.employeeContact?.phone || props.employeeContact.phone === "");
+
+  const subContactNotComplete =
+    (!props.subContact?.name || props.subContact?.name === "") &&
+    (!props.subContact?.email || props.subContact?.email === "") &&
+    (!props.subContact?.phone || props.subContact.phone === "");
+
+  const blankContactInfo = sameContactInfo && employeeContactNotComplete;
 
   const showEmployee =
-    (props.isEmployee &&
-      props.employeeContact?.name &&
-      (props.employeeContact?.email || props.employeeContact?.phone)) ??
-    false;
-
+    (props.isEmployee && !employeeContactNotComplete) ?? false;
   const showSub =
-    (props.isReplacementEmployee &&
-      props.subContact?.name &&
-      (props.subContact?.email || props.subContact?.phone)) ??
-    false;
-
-  const sameContactInfo = () => {
-    if (
-      props.employeeContact?.name === props.subContact?.name &&
-      props.employeeContact?.email === props.subContact?.email &&
-      props.employeeContact?.phone === props.subContact?.phone
-    ) {
-      setContactInfo({
-        name: props.employeeContact?.name,
-        email: props.employeeContact?.email,
-        phone: props.employeeContact?.phone,
-      });
-      setIsSame(true);
-      setShowLabels(false);
-    }
-  };
-
-  const showDirtyContactInfo = () => {
-    if (props.isReplacementEmployee && props.isEmployee) {
-      if (
-        (!props.employeeContact?.name || props.employeeContact?.name === "") &&
-        (!props.employeeContact?.email ||
-          props.employeeContact?.email === "" ||
-          !props.employeeContact?.phone ||
-          props.employeeContact.phone === "")
-      ) {
-        setContactInfo({
-          name: props.subContact?.name,
-          email: props.subContact?.email,
-          phone: props.subContact?.phone,
-        });
-        setIsDirty(true);
-        setShowLabels(false);
-      } else if (
-        (!props.subContact?.name || props.subContact?.name === "") &&
-        (!props.subContact?.email ||
-          props.subContact?.email === "" ||
-          !props.subContact?.phone ||
-          props.subContact.phone === "")
-      ) {
-        setContactInfo({
-          name: props.employeeContact?.name,
-          email: props.employeeContact?.email,
-          phone: props.employeeContact?.phone,
-        });
-        setIsDirty(true);
-        setShowLabels(false);
-      }
-    }
-  };
-
-  console.log("dirty contact:" + isSame);
-
-  console.log("same Contact:" + isDirty);
-
-  sameContactInfo();
-  showDirtyContactInfo();
+    (props.isReplacementEmployee && !subContactNotComplete) ?? false;
 
   return (
     <>
       <Typography variant="h5">{props.organizationName}</Typography>
       <Grid container item xs={12} spacing={3}>
-        {isSame || isDirty ? (
+        {sameContactInfo && !blankContactInfo ? (
           <Grid item xs={isMobile ? 12 : 3}>
-            <div>{contactInfo.name}</div>
-            <div>{contactInfo.phone}</div>
+            <div>{props.employeeContact?.name}</div>
+            <div>{props.employeeContact?.phone}</div>
             <div>
-              <a href={"mailto:" + contactInfo?.email}>{contactInfo?.email}</a>
+              <a href={"mailto:" + props.employeeContact?.email}>
+                {props.employeeContact?.email}
+              </a>
             </div>
           </Grid>
         ) : (
           <>
             {showEmployee && (
               <Grid item xs={isMobile ? 12 : 3}>
-                {showLabels && !isDirty && (
+                {showLabels && showSub && (
                   <div className={classes.header}>{t("Employee Contact")}</div>
                 )}
                 <div>{props.employeeContact?.name}</div>
@@ -140,7 +82,7 @@ export const OrganizationContactCard: React.FC<Props> = props => {
             )}
             {showSub && (
               <Grid item xs={isMobile ? 12 : 3}>
-                {showLabels && !isDirty && (
+                {showLabels && showEmployee && (
                   <div className={classes.header}>
                     {t("Substitute Contact")}
                   </div>
@@ -151,6 +93,13 @@ export const OrganizationContactCard: React.FC<Props> = props => {
                   <a href={"mailto:" + props.subContact?.email}>
                     {props.subContact?.email}
                   </a>
+                </div>
+              </Grid>
+            )}
+            {blankContactInfo && (
+              <Grid item xs={isMobile ? 12 : 3}>
+                <div className={classes.header}>
+                  <i> {t("No Contact Specified")}</i>
                 </div>
               </Grid>
             )}
