@@ -53,7 +53,7 @@ export const OrganizationContactCard: React.FC<Props> = props => {
   return (
     <>
       <Typography variant="h5">{props.organizationName}</Typography>
-      <Grid container item xs={12} spacing={3}>
+      <Grid container item xs={12} spacing={3} className={classes.marginBottom}>
         {sameContactInfo && !blankContactInfo ? (
           <Grid item xs={isMobile ? 12 : 3}>
             <div>{props.employeeContact?.name}</div>
@@ -66,6 +66,13 @@ export const OrganizationContactCard: React.FC<Props> = props => {
           </Grid>
         ) : (
           <>
+            {blankContactInfo && (
+              <Grid item xs={isMobile ? 12 : 3}>
+                <div className={classes.header}>
+                  <i> {t("No Contact Specified")}</i>
+                </div>
+              </Grid>
+            )}
             {showEmployee && (
               <Grid item xs={isMobile ? 12 : 3}>
                 {showLabels && showSub && (
@@ -96,13 +103,6 @@ export const OrganizationContactCard: React.FC<Props> = props => {
                 </div>
               </Grid>
             )}
-            {blankContactInfo && (
-              <Grid item xs={isMobile ? 12 : 3}>
-                <div className={classes.header}>
-                  <i> {t("No Contact Specified")}</i>
-                </div>
-              </Grid>
-            )}
           </>
         )}
       </Grid>
@@ -116,6 +116,8 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     color: "#9E9E9E",
-    paddingTop: "10px",
+  },
+  marginBottom: {
+    marginBottom: "15px",
   },
 }));
