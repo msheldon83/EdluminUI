@@ -45,12 +45,11 @@ export const EditGeneralSettings: React.FC<Props> = props => {
 
   const timeZoneOptions = useTimeZoneOptions();
   const selectedTimeZoneOption = timeZoneOptions.find(
-    tz =>
-      (tz && tz.value === props.organization.timeZoneId?.toString()) ?? {
-        label: "",
-        value: "",
-      }
-  );
+    tz => tz && tz.value === props.organization.timeZoneId?.toString()
+  ) ?? {
+    label: "",
+    value: "",
+  };
 
   return (
     <>
@@ -95,7 +94,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
           });
         }}
         validationSchema={yup.object().shape({
-          name: yup.string().required(t("Org name is required")),
+          name: yup.string().required(t("District name is required")),
           externalId: yup.string().nullable(),
           timeZoneId: yup.string().required(t("Time zone is required")),
           absenceSubContactEmail: yup.string().email("Must be a valid email"),
@@ -110,7 +109,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
               <Grid container spacing={2} className={classes.paddingBottom}>
                 <Grid item xs={isMobile ? 12 : 4}>
                   <Input
-                    label={t("Organization name")}
+                    label={t("District Name")}
                     InputComponent={FormTextField}
                     inputComponentProps={{
                       name: "name",
@@ -172,12 +171,26 @@ export const EditGeneralSettings: React.FC<Props> = props => {
               </Grid>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <SectionHeader title={t("Org Contacts")} />
+                  <SectionHeader title={t("District Contacts")} />
+                  <Section className={classes.sectionBackground}>
+                    <div>
+                      Enter a district-level contact for substitutes and
+                      employees below. This contact information will be visible
+                      from the Help menu in Red Rover for substitutes and
+                      employees. You can use the same contact for both
+                      substitutes and employees, or you can have a separate
+                      contact for each.
+                    </div>
+                    <div className={classes.noteText}>
+                      Note: Substitutes and Employees will see separate contacts
+                      for each of their districts who use Red Rover districts.
+                    </div>
+                  </Section>
                 </Grid>
                 <Grid item xs={4}>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Sub Name")}</div>
+                      <div>{t("District Contact Name for Substitutes")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -187,9 +200,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Sub Phone")}</div>
+                      <div>{t("District Contact Phone for Substitutes")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -199,9 +212,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Sub Email")}</div>
+                      <div>{t("District Contact Email for Substitutes")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -213,9 +226,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                   </Grid>
                 </Grid>
                 <Grid item xs={4}>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Employee Name")}</div>
+                      <div>{t("District Contact Name for Employees")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -225,9 +238,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Employee Phone")}</div>
+                      <div>{t("District Contact Phone for Employees")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -237,9 +250,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Employee Email")}</div>
+                      <div>{t("District Contact Email for Employees")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -290,5 +303,15 @@ const useStyles = makeStyles(theme => ({
   },
   paddingBottom: {
     paddingBottom: "20px",
+  },
+  noteText: {
+    paddingTop: "10px",
+    fontStyle: "italic",
+  },
+  sectionBackground: {
+    backgroundColor: theme.customColors.lightSlate,
+  },
+  gridMargin: {
+    marginTop: "20px",
   },
 }));
