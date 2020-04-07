@@ -174,6 +174,12 @@ export const Information: React.FC<Props> = props => {
     return phoneNumber.replace(/\D/g, "");
   };
 
+  const phoneFieldLabel =
+    props.selectedRole === OrgUserRole.ReplacementEmployee &&
+    props.editing == "edit-information"
+      ? t("Phone (mobile preferred)")
+      : t("Phone");
+
   return (
     <>
       <Formik
@@ -421,7 +427,7 @@ export const Information: React.FC<Props> = props => {
                       }
                     />
                     <PeopleGridItem
-                      title={t("Phone")}
+                      title={phoneFieldLabel}
                       description={
                         props.editing === editableSections.information ? (
                           <Input
