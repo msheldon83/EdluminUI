@@ -76,6 +76,7 @@ type Props = {
   absenceReason: {
     id: string;
     name: string;
+    requireNotesToAdmin: boolean;
   };
   absenceId: string;
   assignmentId?: string;
@@ -141,12 +142,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const [employeeToReplace, setEmployeeToReplace] = useState<
     string | undefined
   >(undefined);
-
   const actingAsEmployee = props.actingAsEmployee;
 
   const [step, setStep] = useQueryParamIso(StepParams);
   const [state, dispatch] = useReducer(editAbsenceReducer, props, initialState);
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = useState(false);
+  const [requireAdminNotes, setRequireAdminNotes] = useState(
+    props.absenceReason.requireNotesToAdmin
+  );
 
   const customizedVacancyDetails = state.customizedVacanciesInput;
   const setVacanciesInput = useCallback(
@@ -215,7 +218,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "needsReplacement", type: "custom" });
-  register({ name: "notesToApprover", type: "custom" });
+  register(
+    { name: "notesToApprover", type: "custom" },
+    {
+      validate: value => {
+        const req = t("Required") ?? "Required";
+        return (requireAdminNotes && !!value) || !requireAdminNotes || req;
+      },
+    }
+  );
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "adminOnlyNotes", type: "custom" });
   register(
@@ -628,7 +639,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               values={formValues}
               setValue={setValue}
               absenceReason={props.absenceReason}
-              errors={{}}
+              errors={errors}
               triggerValidation={triggerValidation}
               vacancies={projectedVacancies || props.initialVacancies}
               vacancyDetails={theVacancyDetails}
@@ -661,6 +672,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               }
               closedDates={props.closedDates}
               isClosed={props.isClosed}
+              setRequireAdminNotes={setRequireAdminNotes}
             />
           </Section>
         </form>

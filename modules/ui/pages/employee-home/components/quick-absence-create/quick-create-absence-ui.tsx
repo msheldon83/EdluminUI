@@ -45,6 +45,7 @@ type Props = {
   onNeedsReplacementChange: (needsReplacement: boolean) => void;
   isSubmitting: boolean;
   usages: AbsenceReasonUsageData[] | null;
+  requireAdminNotes?: boolean;
 };
 
 export const QuickAbsenceCreateUI: React.FC<Props> = props => {
@@ -208,6 +209,14 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
         )}
       </div>
 
+      {props.requireAdminNotes && (
+        <div className={classes.blockCreateMessage}>
+          {t(
+            "More details are required to create this absence.  Click Add additional details."
+          )}
+        </div>
+      )}
+
       <div className={classes.buttons}>
         <TextButton
           disabled={props.isSubmitting}
@@ -217,7 +226,11 @@ export const QuickAbsenceCreateUI: React.FC<Props> = props => {
           {t("Add additional details")}
         </TextButton>
         <Button
-          disabled={props.isSubmitting || negativeBalanceWarning}
+          disabled={
+            props.isSubmitting ||
+            negativeBalanceWarning ||
+            props.requireAdminNotes
+          }
           variant="outlined"
           type="submit"
         >
@@ -250,5 +263,12 @@ const useStyles = makeStyles(theme => ({
   },
   additionalButton: {
     marginRight: theme.spacing(3),
+  },
+  blockCreateMessage: {
+    borderRadius: theme.typography.pxToRem(4),
+    backgroundColor: theme.palette.error.main,
+    color: theme.customColors.white,
+    padding: theme.spacing(1),
+    marginBottom: theme.spacing(),
   },
 }));

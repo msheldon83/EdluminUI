@@ -15,7 +15,10 @@ import { useMemo } from "react";
 import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
-import { useAbsenceReasonOptions } from "reference-data/absence-reasons";
+import {
+  useAbsenceReasonOptions,
+  useAbsenceReasons,
+} from "reference-data/absence-reasons";
 import {
   createAbsenceDetailInput,
   getAbsenceDates,
@@ -49,6 +52,8 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   const classes = useStyles();
   const { openDialog } = useDialog();
   const history = useHistory();
+
+  const [requireAdminNotes, setRequireAdminNotes] = React.useState(false);
 
   const initialState = (props: Props): QuickCreateAbsenceState => ({
     employeeId: props.employeeId,
@@ -119,14 +124,20 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     ],
   });
 
+  const absenceReasons = useAbsenceReasons(props.organizationId);
+
   const absenceReasonOptions = useAbsenceReasonOptions(props.organizationId);
 
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
       await triggerValidation({ name: "absenceReason" });
+      setRequireAdminNotes(
+        absenceReasons.find(ar => ar.id === event.value)?.requireNotesToAdmin ||
+          false
+      );
     },
-    [setValue, triggerValidation]
+    [setValue, triggerValidation, absenceReasons]
   );
 
   const onMonthChange = (month: Date) =>
@@ -279,6 +290,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
           wantsReplacement={state.needsReplacement}
           needsReplacement={props.defaultReplacementNeeded}
           usages={absenceBalanceUsages}
+          requireAdminNotes={requireAdminNotes}
         />
       </Section>
     </form>

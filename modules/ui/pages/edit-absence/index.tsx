@@ -360,6 +360,8 @@ export const EditAbsence: React.FC<Props> = props => {
         absenceReason={{
           id: reasonUsage.absenceReason!.id,
           name: reasonUsage.absenceReason!.name,
+          requireNotesToAdmin:
+            reasonUsage.absenceReason!.requireNotesToAdmin ?? false,
         }}
         absenceId={data.id}
         absenceDates={absenceDates}

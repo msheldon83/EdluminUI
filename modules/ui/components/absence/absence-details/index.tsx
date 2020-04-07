@@ -21,7 +21,10 @@ import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { useAbsenceReasonOptions } from "reference-data/absence-reasons";
+import {
+  useAbsenceReasonOptions,
+  useAbsenceReasons,
+} from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail, AssignmentOnDate } from "ui/components/absence/types";
 import { Can } from "ui/components/auth/can";
@@ -110,6 +113,7 @@ type Props = {
   closedDates?:
     | Maybe<Pick<AbsenceDetail, "id" | "startDate"> | null | undefined>[]
     | null;
+  setRequireAdminNotes: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -129,19 +133,22 @@ export const AbsenceDetails: React.FC<Props> = props => {
     errors,
     triggerValidation,
     assignmentsByDate,
+    setRequireAdminNotes,
   } = props;
 
   const [negativeBalanceWarning, setNegativeBalanceWarning] = useState(false);
 
-  const absenceReasons =
+  const absenceReasonsFromProps =
     props?.absenceReason?.name && props?.absenceReason?.id
       ? [{ label: props.absenceReason.name, value: props.absenceReason.id }]
       : [];
 
   const absenceReasonOptions = useAbsenceReasonOptions(
     organizationId,
-    absenceReasons
+    absenceReasonsFromProps
   );
+
+  const absenceReasons = useAbsenceReasons(organizationId);
 
   const startDate = startOfDay(min(props.absenceDates));
 
@@ -149,6 +156,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
     async event => {
       await setValue("absenceReason", event.value);
       await triggerValidation({ name: "absenceReason" });
+      setRequireAdminNotes(
+        absenceReasons.find(ar => ar.id === event.value)?.requireNotesToAdmin ||
+          false
+      );
+      await triggerValidation({ name: "notesToApprover" });
     },
     [setValue, triggerValidation]
   );
@@ -309,6 +321,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             isSubmitted={props.isSubmitted}
             initialAbsenceCreation={props.initialAbsenceCreation}
             value={values.notesToApprover}
+            validationMessage={errors.notesToApprover}
           />
         </div>
 

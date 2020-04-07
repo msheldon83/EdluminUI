@@ -33,7 +33,7 @@ export const ScheduleCalendar: React.FC<Props> = props => {
 
   const disabledDates = props.disabledDates.map(date => ({
     date,
-    buttonProps: { className: classes.dateDisabled+ " dateDisabled" },
+    buttonProps: { className: `${classes.dateDisabled} dateDisabled`},
   }));
 
   const absenceDates = absentDays.map(date => ({
