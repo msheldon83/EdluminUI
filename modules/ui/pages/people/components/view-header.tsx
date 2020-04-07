@@ -46,6 +46,7 @@ type Props = {
     isReplacementEmployee: boolean;
     isShadowRecord: boolean;
     shadowFromOrgName?: string | null | undefined;
+    shadowFromOrgId?: string | null;
   };
   orgStatus?: OrganizationType | null | undefined;
   selectedRole?: OrgUserRole | null;
@@ -121,8 +122,9 @@ export const PersonViewHeader: React.FC<Props> = props => {
       orgUser.isAdmin,
       orgUser.isEmployee,
       orgUser.isReplacementEmployee,
+      orgUser.isShadowRecord,
       orgId,
-      orgUser.isShadowRecord
+      orgUser.shadowFromOrgId
     );
 
   const canDeleteThisOrgUser = (

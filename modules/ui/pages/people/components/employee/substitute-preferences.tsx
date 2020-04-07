@@ -8,6 +8,7 @@ import { Maybe, Employee, PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   editing: string | null;
+  editable: boolean;
   substitutePools?: Maybe<{
     blockedEmployees: Maybe<Pick<Employee, "firstName" | "lastName">>[] | null;
     favoriteEmployees: Maybe<Pick<Employee, "firstName" | "lastName">>[] | null;
@@ -17,6 +18,8 @@ type Props = {
 export const SubstitutePreferences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+
+  const showEditButton = !props.editing && props.editable;
 
   const favoriteEmployees = props?.substitutePools?.favoriteEmployees;
   const blockedEmployees = props?.substitutePools?.blockedEmployees;
@@ -29,7 +32,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
           actions={[
             {
               text: t("Edit"),
-              visible: !props.editing,
+              visible: showEditButton,
               execute: () => {
                 const editSettingsUrl = "/"; //TODO figure out the URL for editing
                 history.push(editSettingsUrl);

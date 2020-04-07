@@ -95,6 +95,7 @@ export const EmployeeTab: React.FC<Props> = props => {
       />
       <Position
         editing={props.editing}
+        editable={canEditThisEmployee}
         setEditing={props.setEditing}
         positionTitle={employee.primaryPosition?.title}
         positionTypeName={employee.primaryPosition?.positionType?.name}
@@ -109,12 +110,13 @@ export const EmployeeTab: React.FC<Props> = props => {
       <RemainingBalances
         employeeId={employee.id}
         title={t("Time off balances")}
-        showEdit={true}
+        showEdit={canEditThisEmployee}
         editing={props.editing}
         orgId={employee.orgId}
       />
       <ReplacementCriteria
         editing={props.editing}
+        editable={canEditThisEmployee}
         replacementCriteria={employee?.primaryPosition?.replacementCriteria}
         inheritedReplacementCriteria={
           employee?.primaryPosition?.positionType?.replacementCriteria
@@ -126,6 +128,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}
         editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}
         editing={props.editing ? true : false}
+        editable={canEditThisEmployee}
         editPermission={[
           PermissionEnum.EmployeeSaveBlockedSubs,
           PermissionEnum.EmployeeSaveFavoriteSubs,

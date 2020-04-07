@@ -13,6 +13,7 @@ import {
 
 type Props = {
   editing: string | null;
+  editable: boolean;
   replacementCriteria?: Maybe<{
     mustHave?: Maybe<Pick<Endorsement, "name">>[] | null;
     mustNotHave?: Maybe<Pick<Endorsement, "name">>[] | null;
@@ -31,6 +32,8 @@ export const ReplacementCriteria: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
+
+  const showEditButton = !props.editing && props.editable;
 
   const replacementCriteria = props.replacementCriteria;
   const inheritedReplacementCriteria = props.inheritedReplacementCriteria;
@@ -72,7 +75,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
           actions={[
             {
               text: t("Edit"),
-              visible: !props.editing,
+              visible: showEditButton,
               execute: () => {
                 const editSettingsUrl = PeopleReplacementCriteriaEditRoute.generate(
                   params

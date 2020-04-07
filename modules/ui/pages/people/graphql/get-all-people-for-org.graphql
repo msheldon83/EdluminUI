@@ -48,6 +48,7 @@ query GetAllPeopleForOrg(
         inviteSentAtUtc
         isAccountSetup
         isShadowRecord
+        shadowFromOrgId
         shadowFromOrgName
         employee {
           id
