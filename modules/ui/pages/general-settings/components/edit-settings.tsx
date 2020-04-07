@@ -173,11 +173,25 @@ export const EditGeneralSettings: React.FC<Props> = props => {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <SectionHeader title={t("Org Contacts")} />
+                  <Section className={classes.sectionBackground}>
+                    <div>
+                      Enter a district-level contact for substitutes and
+                      employees below. This contact information will be visible
+                      from the Help menu in Red Rover for substitutes and
+                      employees. You can use the same contact for both
+                      substitutes and employees, or you can have a separate
+                      contact for each.
+                    </div>
+                    <div className={classes.noteText}>
+                      Note: Substitutes and Employees will see separate contacts
+                      for each of their Red Rover districts.
+                    </div>
+                  </Section>
                 </Grid>
                 <Grid item xs={4}>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Sub Name")}</div>
+                      <div>{t("District Contact Name for Substitutes")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -187,9 +201,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Sub Phone")}</div>
+                      <div>{t("District Contact Phone for Substitutes")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -199,9 +213,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Sub Email")}</div>
+                      <div>{t("District Contact Email for Substitutes")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -213,9 +227,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                   </Grid>
                 </Grid>
                 <Grid item xs={4}>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Employee Name")}</div>
+                      <div>{t("District Contact Name for Employees")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -225,9 +239,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Employee Phone")}</div>
+                      <div>{t("District Contact Phone for Employees")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -237,9 +251,9 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} className={classes.gridMargin}>
                     <div className={classes.labelContainer}>
-                      <div>{t("Employee Email")}</div>
+                      <div>{t("District Contact Email for Employees")}</div>
                     </div>
                     <Input
                       InputComponent={FormTextField}
@@ -290,5 +304,15 @@ const useStyles = makeStyles(theme => ({
   },
   paddingBottom: {
     paddingBottom: "20px",
+  },
+  noteText: {
+    paddingTop: "10px",
+    fontStyle: "italic",
+  },
+  sectionBackground: {
+    backgroundColor: theme.customColors.lightSlate,
+  },
+  gridMargin: {
+    marginTop: "20px",
   },
 }));
