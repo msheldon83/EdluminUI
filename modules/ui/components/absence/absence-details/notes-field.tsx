@@ -8,6 +8,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
 import { isEmpty, words } from "lodash-es";
+import { FieldError } from "react-hook-form/dist/types";
 
 type Props = {
   name: string;
@@ -15,6 +16,7 @@ type Props = {
   onChange: (event: any) => Promise<void>;
   initialAbsenceCreation: boolean;
   isSubmitted: boolean;
+  validationMessage?: FieldError | undefined;
 };
 
 export const NoteField: React.FC<Props> = props => {
@@ -25,10 +27,8 @@ export const NoteField: React.FC<Props> = props => {
   const [isEditingNotes, setIsEditingNotes] = React.useState(false);
 
   React.useEffect(() => {
-    if (props.isSubmitted) {
-      setIsEditingNotes(false);
-    }
     const emptyNotes = isEmpty(words(props.value));
+
     if (emptyNotes) setIsEditingNotes(true);
   }, [props.isSubmitted, props.value]);
 
@@ -45,6 +45,8 @@ export const NoteField: React.FC<Props> = props => {
           fullWidth
           onChange={props.onChange}
           InputProps={{ classes: textFieldClasses }}
+          error={!!props.validationMessage}
+          helperText={props.validationMessage?.message}
         />
       ) : (
         <div className={classes.readonlyNotes}>
