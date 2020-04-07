@@ -184,7 +184,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                     </div>
                     <div className={classes.noteText}>
                       Note: Substitutes and Employees will see separate contacts
-                      for each of their Red Rover districts.
+                      for each of their districts who use Red Rover districts.
                     </div>
                   </Section>
                 </Grid>
