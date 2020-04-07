@@ -318,7 +318,7 @@ export const VacancyUI: React.FC<Props> = props => {
 
   React.useEffect(() => {
     const container = document.getElementById("main-container");
-    container?.scrollTo(0, 0);
+    if (container) container.scrollTop = 0;
   }, [step]);
 
   const renderClosedDaysBanner = useMemo(() => {
