@@ -95,7 +95,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
           });
         }}
         validationSchema={yup.object().shape({
-          name: yup.string().required(t("Org name is required")),
+          name: yup.string().required(t("District name is required")),
           externalId: yup.string().nullable(),
           timeZoneId: yup.string().required(t("Time zone is required")),
           absenceSubContactEmail: yup.string().email("Must be a valid email"),
@@ -110,7 +110,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
               <Grid container spacing={2} className={classes.paddingBottom}>
                 <Grid item xs={isMobile ? 12 : 4}>
                   <Input
-                    label={t("Organization name")}
+                    label={t("District name")}
                     InputComponent={FormTextField}
                     inputComponentProps={{
                       name: "name",
@@ -172,7 +172,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
               </Grid>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <SectionHeader title={t("Org Contacts")} />
+                  <SectionHeader title={t("District Contacts")} />
                   <Section className={classes.sectionBackground}>
                     <div>
                       Enter a district-level contact for substitutes and
