@@ -45,6 +45,7 @@ import { StepParams } from "../../../helpers/step-params";
 import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
 
 type Props = {
   firstName: string;
@@ -74,6 +75,15 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const match = useRouteMatch();
 
   const actingAsEmployee = props.actingAsEmployee;
+
+  const absenceReasons = useAbsenceReasons(props.organizationId);
+
+  const [requireAdminNotes, setRequireAdminNotes] = useState(
+    props.initialAbsenceReason
+      ? absenceReasons.find(ar => ar.id === props.initialAbsenceReason)
+          ?.requireNotesToAdmin ?? false
+      : false
+  );
 
   const [state, dispatch] = useReducer(
     createAbsenceReducer,
@@ -144,7 +154,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   register({ name: "dayPart", type: "custom" }, { required });
   register({ name: "absenceReason", type: "custom" }, { required });
   register({ name: "needsReplacement", type: "custom" });
-  register({ name: "notesToApprover", type: "custom" });
+  register(
+    { name: "notesToApprover", type: "custom" },
+    {
+      validate: value => {
+        const req = t("Required") ?? "Required";
+        return (requireAdminNotes && !!value) || !requireAdminNotes || req;
+      },
+    }
+  );
+
   register({ name: "notesToReplacement", type: "custom" });
   register({ name: "replacementEmployeeId", type: "custom" });
   register({ name: "replacementEmployeeName", type: "custom" });
@@ -457,6 +476,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 assignmentsByDate={[]}
                 usages={absenceBalanceUsages}
                 isClosed={false}
+                setRequireAdminNotes={setRequireAdminNotes}
               />
             </Section>
           </>

@@ -49,27 +49,29 @@ export const VacancyDateSelect: React.FC<Props> = props => {
       toDate: format(endOfMonth(addMonths(props.month, 2)), "yyyy-M-d"),
     },
   });
+  const disabledClass = `${classes.dateDisabled} dateDisabled`;
   const disabledDates = useMemo(
     () =>
       computeDisabledDates(getContractScheduleDates).map(date => {
         return {
           date,
-          buttonProps: { className: classes.dateDisabled },
+          buttonProps: { className: disabledClass},
         };
       }),
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
     [getContractScheduleDates]
   );
 
+  const selectedClass = `${classes.selectedAbsenceDate} selectedAbsenceDate`;
   const customSelectedVacancyDates = useMemo(
     () =>
       props.vacancySelectedDates.map(date => {
         return {
           date,
-          buttonProps: { className: classes.selectedAbsenceDate },
+          buttonProps: { className: selectedClass},
         };
       }),
-    [props.vacancySelectedDates, classes.selectedAbsenceDate]
+    [props.vacancySelectedDates, selectedClass]
   );
 
   const customDates = useMemo(

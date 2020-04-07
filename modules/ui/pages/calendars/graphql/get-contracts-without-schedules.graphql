@@ -1,0 +1,8 @@
+query GetContractsWithoutSchedules($orgId: ID!, $schoolYearId: ID!) {
+  contract {
+    contractsWithoutSchedules(orgId: $orgId, schoolYearId: $schoolYearId) {
+      id
+      name
+    }
+  }
+}

@@ -1,0 +1,9 @@
+mutation CreateContractSchedule(
+  $contractSchedule: ContractScheduleCreateInput!
+) {
+  contractSchedule {
+    create(contractSchedule: $contractSchedule) {
+      id
+    }
+  }
+}
