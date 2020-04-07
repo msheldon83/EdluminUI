@@ -34,8 +34,8 @@ query SubJobSearch(
             id
             title
           }
+          absenceId
           absence {
-            id
             employee {
               id
               firstName

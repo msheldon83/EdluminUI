@@ -26,8 +26,8 @@ type Props = {
     endTimeLocal?: any;
     startDate?: any;
     endDate?: any;
+    absenceId?: string | null;
     absence?: {
-      id: string;
       employee?: {
         firstName: string;
         lastName: string;
@@ -99,18 +99,18 @@ export const AvailableJob: React.FC<Props> = props => {
                   </div>
                   {viewingAsAdmin ? (
                     <div className={classes.actionItem}>
-                      {vacancy.absence ? (
+                      {vacancy.absenceId ? (
                         <Link
                           className={classes.action}
                           onClick={() =>
                             history.push(
                               AdminEditAbsenceRoute.generate({
                                 organizationId: vacancy.organization.id,
-                                absenceId: vacancy.absence?.id ?? "",
+                                absenceId: vacancy.absenceId ?? "",
                               })
                             )
                           }
-                        >{`#${vacancy.absence?.id}`}</Link>
+                        >{`#${vacancy.absenceId}`}</Link>
                       ) : (
                         <Link
                           className={classes.action}

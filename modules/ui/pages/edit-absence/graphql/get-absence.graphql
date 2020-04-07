@@ -125,6 +125,7 @@ query GetAbsence($id: ID!) {
             allocation
           }
         }
+        absenceId
         absence {
           startDate
           endDate
