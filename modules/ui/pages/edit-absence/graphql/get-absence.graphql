@@ -19,6 +19,7 @@ query GetAbsence($id: ID!) {
           absenceReason {
             id
             name
+            requireNotesToAdmin
           }
         }
         dayPartId
@@ -41,6 +42,7 @@ query GetAbsence($id: ID!) {
           absenceReason {
             id
             name
+            requireNotesToAdmin
           }
         }
       }
@@ -123,6 +125,7 @@ query GetAbsence($id: ID!) {
             allocation
           }
         }
+        absenceId
         absence {
           startDate
           endDate
