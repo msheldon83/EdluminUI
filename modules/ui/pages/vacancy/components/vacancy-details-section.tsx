@@ -444,7 +444,6 @@ export const VacancyDetailSection: React.FC<Props> = props => {
             )}
             {readOnly && (
               <>
-                {" "}
                 <Typography variant="h6">
                   {t("Administrator comments")}
                 </Typography>
