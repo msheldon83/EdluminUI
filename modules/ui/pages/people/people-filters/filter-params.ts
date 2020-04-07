@@ -1,5 +1,5 @@
 import { Isomorphism } from "@atomic-object/lenses";
-import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserRole, InvitationStatus } from "graphql/server-types.gen";
 
 export const FilterQueryParamDefaults: PeopleFilters = {
   name: "",
@@ -11,6 +11,7 @@ export const FilterQueryParamDefaults: PeopleFilters = {
   positionTypes: "",
   locations: "",
   shadowOrgIds: "",
+  invitationStatus: InvitationStatus.All.toString(),
 };
 
 export type FilterRole =
@@ -28,6 +29,7 @@ export type PeopleFilters = {
   positionTypes: string;
   locations: string;
   shadowOrgIds: string;
+  invitationStatus: string;
 };
 
 type PeopleFilterQueryParams = Omit<
@@ -40,6 +42,7 @@ type PeopleFilterQueryParams = Omit<
   | "shadowOrgIds"
 > & {
   active: boolean | undefined;
+  invitationStatus: InvitationStatus | undefined;
 } & RoleSpecificFilters;
 
 export type RoleSpecificFilters =
@@ -76,6 +79,7 @@ export const FilterParams: Isomorphism<
     firstNameSort: k.firstNameSort,
     lastNameSort: k.lastNameSort,
     active: stringToBool(k.active),
+    invitationStatus: k.invitationStatus as InvitationStatus,
     ...to(k),
   }),
   from: s => ({
@@ -85,6 +89,7 @@ export const FilterParams: Isomorphism<
     firstNameSort: s.firstNameSort,
     lastNameSort: s.lastNameSort,
     active: boolToString(s.active),
+    invitationStatus: s.invitationStatus,
   }),
 };
 
