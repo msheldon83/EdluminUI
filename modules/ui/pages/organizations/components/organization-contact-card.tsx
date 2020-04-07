@@ -34,14 +34,14 @@ export const OrganizationContactCard: React.FC<Props> = props => {
     props.employeeContact?.phone === props.subContact?.phone;
 
   const employeeContactComplete =
-    (props.employeeContact?.name || props.employeeContact?.name === "") &&
-    (props.employeeContact?.email || props.employeeContact?.email === "") &&
-    (props.employeeContact?.phone || props.employeeContact.phone === "");
+    (props.employeeContact?.name || props.employeeContact?.name != "") &&
+    (props.employeeContact?.email || props.employeeContact?.email != "") &&
+    (props.employeeContact?.phone || props.employeeContact?.phone != "");
 
   const subContactComplete =
-    (props.subContact?.name || props.subContact?.name === "") &&
-    (props.subContact?.email || props.subContact?.email === "") &&
-    (props.subContact?.phone || props.subContact.phone === "");
+    (props.subContact?.name || props.subContact?.name != "") &&
+    (props.subContact?.email || props.subContact?.email != "") &&
+    (props.subContact?.phone || props.subContact?.phone != "");
 
   const blankContactInfo = sameContactInfo && !employeeContactComplete;
 
