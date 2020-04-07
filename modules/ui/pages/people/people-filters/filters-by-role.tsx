@@ -2,7 +2,8 @@ import { makeStyles } from "@material-ui/core";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
-import { PositionTypeAndLocationFilters } from "./position-type-and-location-filters";
+import { EmployeeFilters } from "./employee-filters";
+import { AdminFilters } from "./admin-filters";
 import { FilterQueryParams } from "./filter-params";
 import { ReplacementEmployeeFilters } from "./replacement-employee-filters";
 import { useTranslation } from "react-i18next";
@@ -16,7 +17,7 @@ export const FiltersByRole: React.FC<Props> = props => {
   switch (filters.roleFilter) {
     case OrgUserRole.Employee:
       return (
-        <PositionTypeAndLocationFilters
+        <EmployeeFilters
           {...filters}
           locationLabel={t("Locations")}
           positionTypeLabel={t("Position type")}
@@ -26,7 +27,7 @@ export const FiltersByRole: React.FC<Props> = props => {
       return <ReplacementEmployeeFilters {...filters} />;
     case OrgUserRole.Administrator:
       return (
-        <PositionTypeAndLocationFilters
+        <AdminFilters
           {...filters}
           locationLabel={t("Manages locations")}
           positionTypeLabel={t("Manages position type")}

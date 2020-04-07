@@ -16,3 +16,16 @@ export function usePositionTypes(orgId?: string) {
     return [];
   }, [positionTypes]);
 }
+
+export function usePositionTypeOptions(orgId: string | undefined) {
+  const positionTypes = usePositionTypes(orgId);
+
+  return useMemo(
+    () =>
+      positionTypes.map(pt => ({
+        label: pt.name,
+        value: pt.id,
+      })),
+    [positionTypes]
+  );
+}

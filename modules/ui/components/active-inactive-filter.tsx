@@ -2,7 +2,7 @@ import * as React from "react";
 import {
   Checkbox,
   FormControlLabel,
-  Grid,
+  makeStyles,
   InputLabel,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,7 @@ type Props = {
 };
 
 export const ActiveInactiveFilter = (props: Props) => {
+  const classes = useStyles();
   const { onChange = () => {}, label, activeLabel, inactiveLabel } = props;
 
   const { t } = useTranslation();
@@ -45,7 +46,7 @@ export const ActiveInactiveFilter = (props: Props) => {
   return (
     <div>
       <InputLabel>{t(label)}</InputLabel>
-      <div>
+      <div className={classes.container}>
         <FormControlLabel
           checked={
             isoFilters.active === true || isoFilters.active === undefined
@@ -68,3 +69,9 @@ export const ActiveInactiveFilter = (props: Props) => {
     </div>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  container: {
+    display: "flex",
+  },
+}));

@@ -16,3 +16,16 @@ export function useLocations(orgId?: string, orgIds?: Array<string>) {
     return [];
   }, [locations]);
 }
+
+export function useLocationOptions(orgId: string | undefined) {
+  const locations = useLocations(orgId);
+
+  return useMemo(
+    () =>
+      locations.map(l => ({
+        label: l.name,
+        value: l.id,
+      })),
+    [locations]
+  );
+}

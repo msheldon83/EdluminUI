@@ -20,3 +20,16 @@ export function useEndorsements(
     return [];
   }, [endorsements]);
 }
+
+export function useEndorsementOptions(orgId: string) {
+  const endorsements = useEndorsements(orgId);
+
+  return useMemo(
+    () =>
+      endorsements.map(e => ({
+        label: e.name,
+        value: e.id,
+      })),
+    [endorsements]
+  );
+}

@@ -9,6 +9,7 @@ query GetAllPeopleForOrg(
   $endorsements: [ID]
   $positionTypes: [ID]
   $locations: [ID]
+  $shadowOrgIds: [ID]
 ) {
   orgUser {
     paged(
@@ -22,6 +23,7 @@ query GetAllPeopleForOrg(
       endorsements: $endorsements
       positionTypes: $positionTypes
       locations: $locations
+      shadowOrgIds: $shadowOrgIds
     ) {
       offset
       limit
