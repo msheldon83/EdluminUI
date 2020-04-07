@@ -7,7 +7,9 @@ import { Section } from "ui/components/section";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { makeStyles } from "@material-ui/styles";
 import { OrganizationContactCard } from "./components/organization-contact-card";
-import { GetOrganizationContactsById } from "ui/pages/organizations/graphql/get-organization-contacts.gen";
+import { GetOrganizationContactsByUserId } from "ui/pages/organizations/graphql/get-organization-contacts.gen";
+//import _ = require("lodash");
+import { sortBy } from "lodash-es";
 
 export const OrganicationContactInfo: React.FC<{}> = props => {
   const classes = useStyles();
@@ -15,9 +17,12 @@ export const OrganicationContactInfo: React.FC<{}> = props => {
   const user = myUserAccess?.me?.user;
   const { t } = useTranslation();
 
-  const getOrganizationContacts = useQueryBundle(GetOrganizationContactsById, {
-    variables: { id: user?.id },
-  });
+  const getOrganizationContacts = useQueryBundle(
+    GetOrganizationContactsByUserId,
+    {
+      variables: { id: user?.id },
+    }
+  );
 
   if (getOrganizationContacts.state === "LOADING") {
     return <></>;
@@ -25,6 +30,11 @@ export const OrganicationContactInfo: React.FC<{}> = props => {
 
   const organizationContacts =
     getOrganizationContacts?.data.user?.byId?.orgUsers;
+
+  const sortedOrganizations = sortBy(
+    organizationContacts,
+    o => o?.organization.name
+  );
 
   return (
     <>
@@ -35,10 +45,10 @@ export const OrganicationContactInfo: React.FC<{}> = props => {
         <PageTitle title={t("District Contacts")} />
       </div>
       <Section>
-        {organizationContacts?.map((e, i) => (
+        {sortedOrganizations?.map((e, i) => (
           <OrganizationContactCard
             key={i}
-            organizationName={e?.organization?.name}
+            organizationName={e?.organization!.name}
             isEmployee={e?.isEmployee ?? false}
             isReplacementEmployee={e?.isReplacementEmployee ?? false}
             subContact={e?.organization.config?.absenceSubContact}

@@ -1,4 +1,4 @@
-query GetOrganizationContactsById($id: ID!) {
+query GetOrganizationContactsByUserId($id: ID!) {
   user {
     byId(id: $id) {
       orgUsers {

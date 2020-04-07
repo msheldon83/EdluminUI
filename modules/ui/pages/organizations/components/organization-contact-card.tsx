@@ -33,22 +33,20 @@ export const OrganizationContactCard: React.FC<Props> = props => {
     props.employeeContact?.email === props.subContact?.email &&
     props.employeeContact?.phone === props.subContact?.phone;
 
-  const employeeContactNotComplete =
+  const employeeContactComplete =
     (!props.employeeContact?.name || props.employeeContact?.name === "") &&
     (!props.employeeContact?.email || props.employeeContact?.email === "") &&
     (!props.employeeContact?.phone || props.employeeContact.phone === "");
 
-  const subContactNotComplete =
+  const subContactComplete =
     (!props.subContact?.name || props.subContact?.name === "") &&
     (!props.subContact?.email || props.subContact?.email === "") &&
     (!props.subContact?.phone || props.subContact.phone === "");
 
-  const blankContactInfo = sameContactInfo && employeeContactNotComplete;
+  const blankContactInfo = sameContactInfo && employeeContactComplete;
 
-  const showEmployee =
-    (props.isEmployee && !employeeContactNotComplete) ?? false;
-  const showSub =
-    (props.isReplacementEmployee && !subContactNotComplete) ?? false;
+  const showEmployee = props.isEmployee && !employeeContactComplete;
+  const showSub = props.isReplacementEmployee && !subContactComplete;
 
   return (
     <>
