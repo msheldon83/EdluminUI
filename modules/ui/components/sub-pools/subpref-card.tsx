@@ -4,12 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import {
-  Maybe,
-  Employee,
-  PermissionEnum,
-  Location,
-} from "graphql/server-types.gen";
+import { Employee, PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   heading: string;
@@ -19,12 +14,15 @@ type Props = {
   autoAssignedSubsOnly?: boolean;
   editRoute: string;
   editing: boolean;
+  editable: boolean;
   editPermission: PermissionEnum[];
 };
 
 export const SubstitutePrefCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+
+  const showEditButton = !props.editing && props.editable;
 
   const favoriteEmployees = props.favoriteSubstitutes
     ? props.favoriteSubstitutes
@@ -46,7 +44,7 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
           actions={[
             {
               text: t("Edit"),
-              visible: !props.editing,
+              visible: showEditButton,
               execute: () => {
                 history.push(props.editRoute);
               },

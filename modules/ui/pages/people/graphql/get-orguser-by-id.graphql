@@ -27,6 +27,7 @@ query GetOrgUserById($id: ID!) {
       isAccountSetup
       temporaryPassword
       isShadowRecord
+      shadowFromOrgId
       shadowFromOrgName
     }
   }

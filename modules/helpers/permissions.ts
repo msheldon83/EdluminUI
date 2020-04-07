@@ -406,18 +406,21 @@ export const canEditOrgUser = (
   isAdmin: boolean,
   isEmployee: boolean,
   isReplacementEmployee: boolean,
+  isShadowRecord: boolean,
   orgId?: string,
-  isShadowRecord: boolean
+  shadowFromOrgId?: string | null
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
+  let userPerms = [] as PermissionEnum[];
   if (isShadowRecord) {
-    return false;
+    userPerms = getUserPermissions(permissions, shadowFromOrgId);
+  } else {
+    userPerms = getUserPermissions(permissions, orgId);
   }
 
-  const userPerms = getUserPermissions(permissions, orgId);
   const canEditAdmin =
     isAdmin && !!userPerms?.includes(PermissionEnum.AdminSave);
   const canEditEmployee =
@@ -523,9 +526,13 @@ export const canEditSub = (
     return true;
   }
 
-  if (context?.isShadowRecord) return false;
+  let userPerms = [] as PermissionEnum[];
+  if (context?.isShadowRecord) {
+    userPerms = getUserPermissions(permissions, context?.shadowFromOrgId);
+  } else {
+    userPerms = getUserPermissions(permissions, orgId);
+  }
 
-  const userPerms = getUserPermissions(permissions, orgId);
   return !!userPerms?.includes(PermissionEnum.SubstituteSave);
 };
 

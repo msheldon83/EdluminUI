@@ -51,14 +51,14 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
             orgId
           )
         }
-      ></PageHeader>
+      />
       <PageHeader
         text={locationGroup.externalId}
         label={t("External ID")}
         showLabel={true}
         isSubHeader={true}
         editable={true}
-      ></PageHeader>
+      />
       <div className={classes.content}>
         {locationGroup && (
           <SubstitutePrefCard
@@ -71,8 +71,9 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
             }
             editRoute={LocationGroupSubPrefRoute.generate(params)}
             editing={false}
+            editable={true}
             editPermission={[PermissionEnum.LocationGroupSave]}
-          ></SubstitutePrefCard>
+          />
         )}
       </div>
     </div>

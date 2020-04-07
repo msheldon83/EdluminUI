@@ -26,6 +26,7 @@ const editableSections = {
 
 type Props = {
   editing: string | null;
+  editable: boolean;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   positionTitle: string | null | undefined;
   positionTypeName: string | null | undefined;
@@ -73,6 +74,8 @@ export const Position: React.FC<Props> = props => {
   const history = useHistory();
   const classes = useStyles();
 
+  const showEditButton = !props.editing && props.editable;
+
   const accountingCodes = props.accountingCodeAllocations
     ? props.accountingCodeAllocations
         ?.map(ac => ac?.accountingCode?.name)
@@ -94,7 +97,7 @@ export const Position: React.FC<Props> = props => {
           actions={[
             {
               text: t("Edit"),
-              visible: !props.editing,
+              visible: showEditButton,
               execute: () => {
                 props.setEditing(editableSections.empPosition);
                 history.push(PeopleEmployeePositionEditRoute.generate(params));
@@ -102,20 +105,6 @@ export const Position: React.FC<Props> = props => {
               permissions: [PermissionEnum.EmployeeSave],
             },
           ]}
-          submit={{
-            text: t("Save"),
-            visible: props.editing === editableSections.empPosition,
-            execute: () => {
-              props.setEditing(null);
-            },
-          }}
-          cancel={{
-            text: t("Cancel"),
-            visible: props.editing === editableSections.empPosition,
-            execute: () => {
-              props.setEditing(null);
-            },
-          }}
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={4}>
