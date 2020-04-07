@@ -260,7 +260,7 @@ export const BalanceRow: React.FC<Props> = props => {
                 ? round(
                     absenceReasonBalance?.usedBalance -
                       absenceReasonBalance?.plannedBalance,
-                    1
+                    2
                   )
                 : 0}
             </div>
@@ -270,8 +270,13 @@ export const BalanceRow: React.FC<Props> = props => {
                 : 0}
             </div>
             <div className={classes.valueContainer}>
-              {absenceReasonBalance?.unusedBalance != undefined
-                ? round(absenceReasonBalance?.unusedBalance, 2)
+              {absenceReasonBalance?.usedBalance != undefined &&
+              absenceReasonBalance?.initialBalance != undefined
+                ? round(
+                    absenceReasonBalance?.initialBalance -
+                      absenceReasonBalance?.usedBalance,
+                    2
+                  )
                 : values.balance}
             </div>
             <div className={classes.buttonContainer}>
