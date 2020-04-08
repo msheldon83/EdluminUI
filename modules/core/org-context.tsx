@@ -17,3 +17,17 @@ export const AdminRouteOrganizationContextProvider: React.FC = props => {
     </OrganizationContext.Provider>
   );
 };
+
+/**** If the component is not under an AdminRouteOrganizationContextProvider */
+/****  we need to do this to grab the org id. */
+/**** Our Logic is if the user is in the admin context of a specific org, */
+/**** we will send that org.  For every other context we will not send orgs and allow */
+/**** the server to decide which orgs the user has access to */
+export const getOrgIdFromRoute = () => {
+  const orgId: string | undefined =
+    window.location.pathname.includes("admin") &&
+    window.location.pathname.split("/")[2]
+      ? window.location.pathname.split("/")[2]
+      : undefined;
+  return orgId;
+};
