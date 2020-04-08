@@ -673,6 +673,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               closedDates={props.closedDates}
               isClosed={props.isClosed}
               setRequireAdminNotes={setRequireAdminNotes}
+              requireAdminNotes={requireAdminNotes}
             />
           </Section>
         </form>

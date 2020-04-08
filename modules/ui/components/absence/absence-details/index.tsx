@@ -114,6 +114,7 @@ type Props = {
     | Maybe<Pick<AbsenceDetail, "id" | "startDate"> | null | undefined>[]
     | null;
   setRequireAdminNotes: React.Dispatch<React.SetStateAction<boolean>>;
+  requireAdminNotes: boolean;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -134,6 +135,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     triggerValidation,
     assignmentsByDate,
     setRequireAdminNotes,
+    requireAdminNotes,
   } = props;
 
   const [negativeBalanceWarning, setNegativeBalanceWarning] = useState(false);
@@ -155,14 +157,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
   const onReasonChange = React.useCallback(
     async event => {
       await setValue("absenceReason", event.value);
-      await triggerValidation({ name: "absenceReason" });
       setRequireAdminNotes(
         absenceReasons.find(ar => ar.id === event.value)?.requireNotesToAdmin ||
           false
       );
-      await triggerValidation({ name: "notesToApprover" });
     },
-    [setValue, triggerValidation]
+    [absenceReasons, setRequireAdminNotes, setValue]
   );
 
   const onDayPartChange = React.useCallback(
@@ -322,6 +322,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             initialAbsenceCreation={props.initialAbsenceCreation}
             value={values.notesToApprover}
             validationMessage={errors.notesToApprover}
+            required={requireAdminNotes}
           />
         </div>
 

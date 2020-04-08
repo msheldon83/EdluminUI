@@ -17,6 +17,7 @@ type Props = {
   initialAbsenceCreation: boolean;
   isSubmitted: boolean;
   validationMessage?: FieldError | undefined;
+  required?: boolean;
 };
 
 export const NoteField: React.FC<Props> = props => {
@@ -32,6 +33,13 @@ export const NoteField: React.FC<Props> = props => {
     if (emptyNotes) setIsEditingNotes(true);
   }, [props.isSubmitted, props.value]);
 
+  const requireNotes =
+    (props.required && isEmpty(words(props.value))) ||
+    !!props.validationMessage;
+  const requiredText = requireNotes
+    ? t("Required")
+    : props.validationMessage?.message;
+
   return (
     <>
       {isEditingNotes || props.initialAbsenceCreation ? (
@@ -45,8 +53,8 @@ export const NoteField: React.FC<Props> = props => {
           fullWidth
           onChange={props.onChange}
           InputProps={{ classes: textFieldClasses }}
-          error={!!props.validationMessage}
-          helperText={props.validationMessage?.message}
+          error={requireNotes}
+          helperText={requiredText}
         />
       ) : (
         <div className={classes.readonlyNotes}>

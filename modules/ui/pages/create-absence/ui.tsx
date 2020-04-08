@@ -478,6 +478,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 usages={absenceBalanceUsages}
                 isClosed={false}
                 setRequireAdminNotes={setRequireAdminNotes}
+                requireAdminNotes={requireAdminNotes}
               />
             </Section>
           </>
