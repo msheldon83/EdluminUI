@@ -20,7 +20,7 @@ import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
-import { isBefore, parseISO, isValid, areIntervalsOverlapping } from "date-fns";
+import { isBefore, parseISO, isValid, areIntervalsOverlapping, isSameDay } from "date-fns";
 import { getDateRangeDisplayTextWithDayOfWeek } from "ui/components/date-helpers";
 
 type Props = {
@@ -50,13 +50,10 @@ export const EditVacancies: React.FC<Props> = props => {
   const initialFormData: EditVacancyFormData = {
     details: props.details.map(d => ({
       ...d,
-      locationId: d.locationId,
       startTime: parseISO(d.startTime).toISOString(),
       endTime: parseISO(d.endTime).toISOString(),
       accountingCodeId: d.accountingCodeId ?? props.defaultAccountingCode,
       payCodeId: d.payCodeId ?? props.defaultPayCode,
-      absenceStartTime: d.absenceStartTime,
-      absenceEndTime: d.absenceEndTime,
     })),
   };
 
@@ -216,31 +213,36 @@ export const EditVacancies: React.FC<Props> = props => {
             <FieldArray
               name="details"
               render={arrayHelpers =>
-                values.details.map((d, i) => (
-                  <Grid key={i} container className={classes.rowSpacing}>
-                    <EditableVacancyDetailRow
-                      actingAsEmployee={props.actingAsEmployee}
-                      locationOptions={locationOptions}
-                      accountingCodes={accountingCodes}
-                      orgId={props.orgId}
-                      payCodeOptions={payCodeOptions}
-                      keyPrefix={`details.${i}`}
-                      values={d}
-                      className={i % 2 == 1 ? classes.shadedRow : undefined}
-                      onAddRow={() => arrayHelpers.insert(i + 1, d)}
-                      onRemoveRow={() => arrayHelpers.remove(i)}
-                      showRemoveButton={mulitpleDetailsForDate(
-                        values.details,
-                        d
-                      )}
-                      error={
-                        errors && errors.details && isArray(errors.details)
-                          ? (errors.details[i] as FormikErrors<VacancyDetail>)
-                          : undefined
-                      }
-                    />
-                  </Grid>
-                ))
+                values.details.map((d, i) => {
+                    const isLastOnDay = values.details.length - 1 == i ||
+                                        !isSameDay(parseISO(values.details[i+1].date),
+                                                   parseISO(d.date));
+                    return (<Grid key={i} container className={classes.rowSpacing}>
+                      <EditableVacancyDetailRow
+                        actingAsEmployee={props.actingAsEmployee}
+                        locationOptions={locationOptions}
+                        accountingCodes={accountingCodes}
+                        orgId={props.orgId}
+                        payCodeOptions={payCodeOptions}
+                        keyPrefix={`details.${i}`}
+                        values={d}
+                        className={i % 2 == 1 ? classes.shadedRow : undefined}
+                        onAddRow={() => arrayHelpers.insert(i + 1, d)}
+                        onRemoveRow={() => arrayHelpers.remove(i)}
+                        showRemoveButton={mulitpleDetailsForDate(
+                          values.details,
+                          d
+                        )}
+                        error={
+                          errors && errors.details && isArray(errors.details)
+                            ? (errors.details[i] as FormikErrors<VacancyDetail>)
+                            : undefined
+                        }
+                        isLastOnDay={isLastOnDay}
+                      />
+                    </Grid>
+                  )
+                })
               }
             />
 

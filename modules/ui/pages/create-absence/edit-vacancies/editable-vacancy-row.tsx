@@ -42,6 +42,7 @@ type Props = {
   onRemoveRow: () => void;
   onAddRow: () => void;
   error?: FormikErrors<VacancyDetail>;
+  isLastOnDay: boolean;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
@@ -196,9 +197,10 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           </Grid>
         )}
       </Grid>
-      <Grid item container>
-        <Link onClick={props.onAddRow}>{t("Add row")}</Link>
-      </Grid>
+      {props.isLastOnDay &&
+       <Grid item container>
+         <Link onClick={props.onAddRow}>{t("Add row")}</Link>
+       </Grid>}
     </Grid>
   );
 };
