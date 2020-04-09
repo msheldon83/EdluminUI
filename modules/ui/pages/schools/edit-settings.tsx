@@ -22,6 +22,8 @@ import {
   StateCode,
 } from "graphql/server-types.gen";
 import { LocationViewRoute } from "ui/routes/locations";
+import { useLocationGroupOptions } from "reference-data/location-groups";
+import { GetLocationsDocument } from "reference-data/get-locations.gen";
 
 export const LocationEditSettingsPage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -30,16 +32,20 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
   const history = useHistory();
   const params = useRouteParams(LocationViewRoute);
 
+  const locationsReferenceDataQuery = {
+    query: GetLocationsDocument,
+    varaibles: { orgId: params.organizationId },
+  };
+
   const [updateLocation] = useMutationBundle(UpdateLocation, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
-    awaitRefetchQueries: true,
-    refetchQueries: ["GetLocationById"],
+    refetchQueries: [locationsReferenceDataQuery],
   });
 
   const update = async (location: LocationUpdateInput) => {
-    const result = await updateLocation({
+    await updateLocation({
       variables: {
         location: {
           ...location,
@@ -54,22 +60,13 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
     variables: {
       locationId: params.locationId,
     },
-    fetchPolicy: "cache-first",
   });
 
-  const locationGroups = useQueryBundle(GetAllLocationGroupsWithinOrg, {
-    variables: { orgId: params.organizationId },
-  });
+  const locationGroupOptions = useLocationGroupOptions(params.organizationId);
 
-  if (locationGroups.state === "LOADING" || getLocation.state === "LOADING") {
+  if (getLocation.state === "LOADING") {
     return <></>;
   }
-
-  const locationGroupOptions: OptionType[] =
-    locationGroups?.data?.locationGroup?.all?.map(c => ({
-      label: c?.name ?? "",
-      value: c?.id ?? "",
-    })) ?? [];
 
   const location = getLocation?.data?.location?.byId;
 

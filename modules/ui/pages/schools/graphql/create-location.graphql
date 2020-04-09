@@ -3,18 +3,40 @@ mutation CreateLocation($location: LocationCreateInput!) {
     create(location: $location) {
       id
       name
-      rowVersion
       externalId
-      locationGroupId
-      address {
-        address1
-        city
-        state
-        postalCode
-      }
+      address1
+      address2
+      city
+      stateName
+      state
+      postalCode
       phoneNumber
-      replacementEndOffsetMinutes
-      replacementStartOffsetMinutes
+      formattedPhone
+      rowVersion
+      substitutePreferences {
+        blockedSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
+        favoriteSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
+        autoAssignedSubstitutes {
+          id
+          firstName
+          middleName
+          lastName
+        }
+      }
+      locationGroup {
+        id
+        name
+      }
     }
   }
 }
