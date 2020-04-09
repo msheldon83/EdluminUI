@@ -62,10 +62,10 @@ export const NotificationsUI: React.FC<Props> = props => {
         ) : (
           notifications.map((n, i) => {
             return (
-              <>
+              <React.Fragment key={i}>
                 <Notification key={i} notification={n} />
                 <Divider className={classes.divider} />
-              </>
+              </React.Fragment>
             );
           })
         )}

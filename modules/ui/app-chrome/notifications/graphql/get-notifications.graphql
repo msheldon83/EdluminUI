@@ -20,7 +20,6 @@ query GetNotifications(
         orgId
         title
         content
-        headerMessage
         viewed
         objectTypeId
         objectKey

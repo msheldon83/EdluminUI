@@ -18,7 +18,6 @@ type Props = {
     id: string;
     title?: string | null;
     content?: string | null;
-    headerMessage?: string | null;
     viewed: boolean;
     createdUtc: string;
     objectTypeId: ObjectType;

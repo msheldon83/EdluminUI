@@ -26,7 +26,7 @@ export const AdminRouteOrganizationContextProvider: React.FC = props => {
 export const getOrgIdFromRoute = () => {
   const orgId: string | undefined =
     window.location.pathname.includes("admin") &&
-    window.location.pathname.split("/")[2]
+    Number(window.location.pathname.split("/")[2]) > 0
       ? window.location.pathname.split("/")[2]
       : undefined;
   return orgId;

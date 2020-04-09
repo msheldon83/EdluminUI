@@ -144,7 +144,11 @@ import {
   ReplacementCriteriaEditLoader,
   ReplacementCriteriaEditRoute,
 } from "./routes/position-type";
-import { ProfileLoader, ProfileRoute } from "./routes/profile";
+import {
+  ProfileLoader,
+  ProfileRoute,
+  AdminProfileRoute,
+} from "./routes/profile";
 import {
   ReplacementAttributeLoader,
   ReplacementAttributeRoute,
@@ -460,7 +464,10 @@ export const App = hot(function() {
                               component={OrganizationsLoader}
                               path={OrganizationsRoute.path}
                             />
-
+                            <Route
+                              component={ProfileLoader}
+                              path={AdminProfileRoute.path}
+                            />
                             <ProtectedRoute
                               component={VacancyCreateLoader}
                               path={VacancyCreateRoute.path}
