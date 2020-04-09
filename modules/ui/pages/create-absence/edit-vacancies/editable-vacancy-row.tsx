@@ -42,6 +42,7 @@ type Props = {
   onRemoveRow: () => void;
   onAddRow: () => void;
   error?: FormikErrors<VacancyDetail>;
+  isFirstOnDay: boolean;
   isLastOnDay: boolean;
 };
 
@@ -90,18 +91,22 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
       container
       className={[classes.rowContainer, props.className].join(" ")}
     >
-      <Grid item container>
-        <Typography variant="h6">
-          {date && formatDateIfPossible(date, "MMMM d, yyyy")}
-        </Typography>
-      </Grid>
-      <Grid item container>
-        {(absenceStartTime || absenceEndTime) && (
-          <Typography variant="h6">
-            {absenceStartTime} - {absenceEndTime}
-          </Typography>
-        )}
-      </Grid>
+      {props.isFirstOnDay &&
+      <>
+          <Grid item container>
+            <Typography variant="h6">
+              {date && formatDateIfPossible(date, "MMMM d, yyyy")}
+            </Typography>
+          </Grid>
+          <Grid item container>
+            {(absenceStartTime || absenceEndTime) && (
+              <Typography variant="h6">
+                {absenceStartTime} - {absenceEndTime}
+              </Typography>
+            )}
+          </Grid>
+      </>
+      }
       <Grid item container alignItems="center">
         <Grid
           item

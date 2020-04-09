@@ -220,6 +220,12 @@ export const EditVacancies: React.FC<Props> = props => {
               name="details"
               render={arrayHelpers =>
                 values.details.map((d, i) => {
+                  const isFirstOnDay =
+                    0 == i ||
+                    !isSameDay(
+                      parseISO(values.details[i - 1].date),
+                      parseISO(d.date)
+                    );
                   const isLastOnDay =
                     values.details.length - 1 == i ||
                     !isSameDay(
@@ -248,6 +254,7 @@ export const EditVacancies: React.FC<Props> = props => {
                             ? (errors.details[i] as FormikErrors<VacancyDetail>)
                             : undefined
                         }
+                        isFirstOnDay={isFirstOnDay}
                         isLastOnDay={isLastOnDay}
                       />
                     </Grid>
