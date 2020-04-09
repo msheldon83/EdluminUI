@@ -156,7 +156,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
             superUserLoginEmail: data.superUserLoginEmail,
             timeZoneId: data.timeZoneId,
             seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
-            relatesToOrganizationId: props.relatesToOrganizationId,
+            relatesToOrganizationId: data.isEdustaffOrg
+              ? props.relatesToOrganizationId
+              : undefined,
             config: {
               defaultCountry: CountryCode.Us,
               featureFlags: data.featureFlags,
