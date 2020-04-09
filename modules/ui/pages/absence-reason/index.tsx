@@ -1,11 +1,9 @@
-import { useTheme } from "@material-ui/styles";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import {
   AbsenceReasonRoute,
   AbsenceReasonAddRoute,
@@ -15,17 +13,15 @@ import { Link } from "react-router-dom";
 import { compact } from "lodash-es";
 import { Table } from "ui/components/table";
 import { Column } from "material-table";
-import { DeleteAbsenceReason } from "ui/pages/absence-reason/graphql/delete-absence-reason.gen";
 import { GetAllAbsenceReasonsWithinOrg } from "ui/pages/absence-reason/graphql/get-absence-reasons.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { Button, Grid, makeStyles } from "@material-ui/core";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
 
-export const AbsenceReason: React.FC<{}> = props => {
+export const AbsenceReason: React.FC<{}> = () => {
   const { t } = useTranslation();
   const history = useHistory();
-  const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(AbsenceReasonRoute);
@@ -34,23 +30,6 @@ export const AbsenceReason: React.FC<{}> = props => {
   const getAbsenceReasons = useQueryBundle(GetAllAbsenceReasonsWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired },
   });
-  const [deleteAbsenceReaonsMutation] = useMutationBundle(DeleteAbsenceReason);
-  const deleteAbsenceReason = (absenceReasonId: string) => {
-    return deleteAbsenceReaonsMutation({
-      variables: {
-        absenceReasonId: absenceReasonId,
-      },
-    });
-  };
-
-  const deleteSelected = async (data: { id: string } | { id: string }[]) => {
-    if (Array.isArray(data)) {
-      await Promise.all(data.map(id => deleteAbsenceReason(id.id)));
-    } else {
-      await Promise.resolve(deleteAbsenceReason(data.id));
-    }
-    await getAbsenceReasons.refetch();
-  };
 
   const columns: Column<GetAllAbsenceReasonsWithinOrg.All>[] = [
     {

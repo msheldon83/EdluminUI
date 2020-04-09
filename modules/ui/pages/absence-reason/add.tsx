@@ -17,9 +17,12 @@ import {
   AbsenceReasonViewEditRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { AbsenceReasonSettings } from "./absence-reason-settings";
 import { AddBasicInfo } from "./add-basic-info";
 import { CreateAbsenceReason } from "./graphql/create-absence-reason.gen";
+import { GetAbsenceReasonsDocument } from "reference-data/get-absence-reasons.gen";
 
 type Props = {};
 
@@ -28,13 +31,25 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
   const history = useHistory();
   const classes = useStyles();
   const params = useRouteParams(AbsenceReasonAddRoute);
+  const { openSnackbar } = useSnackbar();
+
+  const absenceReasonsReferenceQuery = {
+    query: GetAbsenceReasonsDocument,
+    variables: { orgId: params.organizationId },
+  };
 
   const namePlaceholder = t("Professional Development");
   const [basicInfo, setBasicInfo] = React.useState<{
     name: string;
     externalId?: string;
   } | null>(null);
-  const [createAbsenceReason] = useMutationBundle(CreateAbsenceReason);
+
+  const [createAbsenceReason] = useMutationBundle(CreateAbsenceReason, {
+    refetchQueries: [absenceReasonsReferenceQuery],
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const settingsOnSubmit = useCallback(
     async (updatedValues: {
