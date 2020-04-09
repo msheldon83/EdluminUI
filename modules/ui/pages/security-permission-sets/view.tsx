@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import Maybe from "graphql/tsutils/Maybe";
 import { useIsMobile } from "hooks";
@@ -27,10 +27,10 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { PermissionSettings } from "./components/add-edit-permission-settings";
 import { usePermissionDefinitions } from "reference-data/permission-definitions";
-import { pick } from "lodash-es";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
 import { canEditPermissionSet } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
+import { GetPermissionSetsDocument } from "reference-data/get-permission-sets.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -50,7 +50,13 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
   const permissionDefinitions = usePermissionDefinitions(role);
   const canDoFn = useCanDo();
 
+  const permissionSetsReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const [deletePermissionSetMutation] = useMutationBundle(DeletePermissionSet, {
+    refetchQueries: [permissionSetsReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -66,9 +72,10 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
       awaitRefetchQueries: true,
       refetchQueries: ["GetAllPermissionSetsWithinOrg"],
     });
-  }, [deletePermissionSetMutation]);
+  }, [deletePermissionSetMutation, params.permissionSetId]);
 
   const [updatePermissionSet] = useMutationBundle(UpdatePermissionSet, {
+    refetchQueries: [permissionSetsReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
