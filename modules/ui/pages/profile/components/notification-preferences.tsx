@@ -107,7 +107,9 @@ export const NotificationPreferences: React.FC<Props> = props => {
                 )}
                 {showInAppColumn && (
                   <Grid item xs={1}>
-                    <div className={classes.headerText}>{t("In app")}</div>
+                    <div className={classes.headerText}>{`${t("In app")} (${t(
+                      "coming soon"
+                    )})`}</div>
                   </Grid>
                 )}
               </Grid>
