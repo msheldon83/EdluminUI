@@ -17,24 +17,21 @@ import {
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "../../../components/action-buttons";
-import { GetAllCalendarChangeReasonsWithinOrg } from "ui/pages/calendar-event-reasons/graphql/get-calendar-event-reasons.gen";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useMutationBundle } from "graphql/hooks";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
-import {
-  SelectNew as SelectMulti,
-  OptionType as OptionMulti,
-} from "ui/components/form/select-new";
+import { SelectNew as SelectMulti } from "ui/components/form/select-new";
 import { DatePicker } from "ui/components/form/date-picker";
 import { useContracts } from "reference-data/contracts";
 import { useMemo } from "react";
 import { OptionTypeBase } from "react-select/src/types";
-import { parseISO, format, isBefore, isValid } from "date-fns";
+import { parseISO, isBefore } from "date-fns";
 import { CreateCalendarChange } from "../graphql/create-calendar-change.gen";
 import { CalendarChangeCreateInput } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { isAfterDate } from "helpers/date";
+import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-reasons";
 
 type Props = {
   orgId: string;
@@ -48,19 +45,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
   const today = useMemo(() => new Date(), []);
   const schoolYears = useAllSchoolYears(props.orgId);
 
-  const getCalendarChangeReasons: any = useQueryBundle(
-    GetAllCalendarChangeReasonsWithinOrg,
-    {
-      variables: { orgId: props.orgId, includeExpired: false },
-    }
-  );
-  const changeReasonOptions = useMemo(
-    () =>
-      getCalendarChangeReasons?.data?.orgRef_CalendarChangeReason?.all.map(
-        (cr: any) => ({ label: cr.name, value: cr.id })
-      ),
-    [getCalendarChangeReasons]
-  );
+  const changeReasonOptions = useCalendarChangeReasonOptions(props.orgId);
 
   const contracts = useContracts(props.orgId);
   const contractOptions = useMemo(
@@ -68,14 +53,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
     [contracts]
   );
 
-  const [enableAllContracts, setEnableAllContracts] = React.useState(true);
-  const [selectedChangeReason, setSelectedChangeReason] = React.useState();
-  const [selectedContracts, setselectedContracts] = React.useState();
   const [panelOpened, setPanelOpened] = React.useState(false);
-
-  const contractValue = contractOptions.filter(
-    e => e.value && selectedContracts?.includes(Number(e.value))
-  );
 
   const [createCalendarChange] = useMutationBundle(CreateCalendarChange, {
     onError: error => {
@@ -157,15 +135,6 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
     return true;
   };
 
-  /** used to initialize which change reason is selected **/
-  if (changeReasonOptions != undefined && selectedChangeReason == undefined) {
-    setSelectedChangeReason(changeReasonOptions[0].value);
-  }
-
-  if (getCalendarChangeReasons.state !== "DONE") {
-    return <></>;
-  }
-
   return (
     <>
       <ExpansionPanel expanded={panelOpened}>
@@ -180,17 +149,22 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
         <ExpansionPanelDetails>
           <Formik
             initialValues={{
-              changeReason: selectedChangeReason,
+              changeReason: changeReasonOptions[0].value,
               toDate: today,
               fromDate: today,
               notes: undefined,
-              contracts: selectedContracts,
-              applyToAll: enableAllContracts,
+              contracts: [] as string[],
+              applyToAll: true,
             }}
             onReset={(values, formProps) => {
-              setselectedContracts([]);
-              setEnableAllContracts(true);
-              setSelectedChangeReason(changeReasonOptions[0].value);
+              formProps.setFieldValue("toDate", today);
+              formProps.setFieldValue("fromDate", today);
+              formProps.setFieldValue("contracts", []);
+              formProps.setFieldValue("applyToAll", true);
+              formProps.setFieldValue(
+                "changeReason",
+                changeReasonOptions[0].value
+              );
               formProps.setFieldValue("notes", "");
               setPanelOpened(false);
             }}
@@ -232,10 +206,8 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                       control={
                         <Checkbox
                           onChange={e => {
-                            setEnableAllContracts(!enableAllContracts);
-                            setFieldValue("applyToAll", !enableAllContracts);
-                            if (!enableAllContracts) {
-                              setselectedContracts([]);
+                            setFieldValue("applyToAll", !values.applyToAll);
+                            if (!values.applyToAll) {
                               setFieldValue("contracts", []);
                             }
                           }}
@@ -247,14 +219,19 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   <Grid item xs={3}>
                     <SelectMulti
                       name={"contracts"}
-                      disabled={enableAllContracts}
+                      disabled={values.applyToAll}
                       label={t("Contracts")}
-                      value={contractValue}
+                      value={
+                        contractOptions.filter(
+                          e =>
+                            e.value &&
+                            values.contracts.includes(e.value.toString())
+                        ) ?? [{ label: "", id: "" }]
+                      }
                       onChange={(value: OptionType[]) => {
                         const ids: number[] = value
                           ? value.map((v: OptionType) => Number(v.value))
                           : [];
-                        setselectedContracts(ids);
                         setFieldValue("contracts", ids);
                       }}
                       options={contractOptions}
@@ -315,10 +292,10 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                         if (e) {
                           selectedValue = (e as OptionTypeBase).value;
                         }
-                        setSelectedChangeReason(selectedValue);
                         setFieldValue("changeReason", selectedValue);
                       }}
                       multiple={false}
+                      withResetValue={false}
                     />
                   </Grid>
 

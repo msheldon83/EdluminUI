@@ -24,6 +24,7 @@ import { DeleteCalendarChangeReason } from "./graphql/delete.gen";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
+import { GetCalendarChangeReasonsDocument } from "reference-data/get-calendar-change-reasons.gen";
 
 type Props = {};
 
@@ -31,9 +32,19 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const params = useRouteParams(CalendarChangeReasonIndexRoute);
+  const { openSnackbar } = useSnackbar();
+  const [includeExpired, setIncludeExpired] = React.useState(false);
+
+  const calendarChangeReasonsReferenceDataQuery = {
+    query: GetCalendarChangeReasonsDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const [createCalendarChangeReasons] = useMutationBundle(
     CreateCalendarChangeReason,
     {
+      refetchQueries: [calendarChangeReasonsReferenceDataQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
@@ -42,14 +53,12 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const [updateCalendarChangeReasons] = useMutationBundle(
     UpdateCalendarChangeReason,
     {
+      refetchQueries: [calendarChangeReasonsReferenceDataQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
     }
   );
-  const params = useRouteParams(CalendarChangeReasonIndexRoute);
-  const { openSnackbar } = useSnackbar();
-  const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getCalendarChangeReasons = useQueryBundle(
     GetAllCalendarChangeReasonsWithinOrg,
@@ -75,6 +84,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
   const [deleteCalendarChangeReasonsMutation] = useMutationBundle(
     DeleteCalendarChangeReason,
     {
+      refetchQueries: [calendarChangeReasonsReferenceDataQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },

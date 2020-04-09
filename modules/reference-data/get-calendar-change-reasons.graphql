@@ -1,0 +1,8 @@
+query GetCalendarChangeReasons($orgId: ID, $includeExpired: Boolean) {
+  orgRef_CalendarChangeReason {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+    }
+  }
+}
