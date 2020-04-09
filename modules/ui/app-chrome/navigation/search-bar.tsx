@@ -13,10 +13,9 @@ import { useTranslation } from "react-i18next";
 import { useDeferredState } from "hooks";
 import { useEffect } from "react";
 import { useQueryBundle } from "graphql/hooks";
-import { GetSearchResultsByConfirmationId } from "ui/app-chrome/graphql/get-search-results-by-confirmation-id.gen";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import CloseIcon from "@material-ui/icons/Close";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, parse } from "date-fns";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { AppChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
@@ -28,6 +27,10 @@ import { VacancyViewRoute } from "ui/routes/vacancy";
 import { useHistory } from "react-router";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { GetGlobalSearchResults } from "../graphql/global-search.gen";
+import { date } from "@storybook/addon-knobs";
+import { LocationViewRoute } from "ui/routes/locations";
+import { PersonViewRoute } from "ui/routes/people";
 
 type Props = {
   className?: string;
@@ -58,44 +61,43 @@ export const SearchBar: React.FC<Props> = props => {
   const [openDrawer, updateOpenDrawer] = React.useState(false);
 
   const [
-    confirmationId,
-    pendingConfirmationId,
-    setPendingConfirmationId,
+    searchTerm,
+    pendingSearchTerm,
+    setPendingSearchTerm,
   ] = useDeferredState<any>("", 200);
 
   const updateSearch = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       updateLoading(event.target.value !== "" ? true : false);
-      setPendingConfirmationId(event.target.value);
+      setPendingSearchTerm(event.target.value);
       if (event.target.value === "") {
         updateOpenDrawer(false);
       }
     },
-    [setPendingConfirmationId]
+    [setPendingSearchTerm]
   );
 
-  const searchResults = useQueryBundle(GetSearchResultsByConfirmationId, {
+  const searchResults = useQueryBundle(GetGlobalSearchResults, {
     variables: {
-      confirmationId,
+      searchTerm,
       orgIds,
     },
-    skip:
-      confirmationId == undefined || userAccess == null || confirmationId == "",
+    skip: searchTerm == undefined || userAccess == null || searchTerm == "",
   });
 
   useEffect(() => {
     if (searchResults.state === "DONE" && loading) {
       updateLoading(false);
-      updateOpenDrawer(pendingConfirmationId !== "");
+      updateOpenDrawer(pendingSearchTerm !== "");
     }
-  }, [searchResults, loading, setPendingConfirmationId, pendingConfirmationId]);
+  }, [searchResults, loading, setPendingSearchTerm, pendingSearchTerm]);
 
   const results =
     searchResults.state === "DONE" || searchResults.state === "UPDATING"
-      ? searchResults?.data?.absence?.byConfirmationId
+      ? searchResults?.data?.organization?.search
       : [];
 
-  const handleOnClick = (id: string, isNormalVacancy: boolean) => {
+  const handleAbsVacOnClick = (id: string, isNormalVacancy: boolean) => {
     onClose();
     if (params.role === "admin") {
       if (isNormalVacancy) {
@@ -106,6 +108,24 @@ export const SearchBar: React.FC<Props> = props => {
     } else {
       goToEmployeeAbsenceEdit(id);
     }
+  };
+
+  const handleLocationOnClick = (id: string) => {
+    onClose();
+    const url = LocationViewRoute.generate({
+      organizationId: window.location.pathname.split("/")[2],
+      locationId: id,
+    });
+    history.push(url);
+  };
+
+  const handleOrgUserOnClick = (id: string) => {
+    onClose();
+    const url = PersonViewRoute.generate({
+      organizationId: window.location.pathname.split("/")[2],
+      orgUserId: id,
+    });
+    history.push(url);
   };
 
   const goToAdminAbsenceEdit = (absenceId: string) => {
@@ -136,9 +156,221 @@ export const SearchBar: React.FC<Props> = props => {
   };
 
   const onClose = () => {
-    setPendingConfirmationId("");
+    setPendingSearchTerm("");
     updateOpenDrawer(false);
   };
+
+  const highlightSearchTerm = (s: string, searchTerm: string) => {
+    const sLower = s.toLowerCase();
+    const stLower = searchTerm.toLowerCase();
+    const arr = searchTerm === undefined ? [] : sLower.split(stLower);
+    const lengthArr = arr.map(a => a.length);
+    let pointer = 0;
+    return arr.map((a, i) => {
+      pointer =
+        i === 0 ? pointer : pointer + lengthArr[i - 1] + searchTerm.length;
+      return i == arr.length - 1 ? (
+        s.substr(pointer, lengthArr[i])
+      ) : (
+        <div key={i} className={classes.inlineBlock}>
+          {s.substr(pointer, lengthArr[i])}
+          <span className={classes.highlight}>
+            {s.substr(lengthArr[i], searchTerm.length)}
+          </span>
+        </div>
+      );
+    });
+  };
+
+  const renderAbsVacAssignmentResult = (result: any, i: number) => {
+    const attributes = JSON.parse(result.objectJson);
+
+    const heading: string =
+      attributes.isNormalVacancy === 1
+        ? attributes.assignmentId !== 0
+          ? `${t("Vacancy")} #V${result.ownerId} (${t("Assignment")} #C${
+              attributes.assignmentId
+            })`
+          : `${t("Vacancy")} #V${result.ownerId}`
+        : attributes.assignmentId !== 0
+        ? `${t("Absence")} #${result.ownerId} (${t("Assignment")} #C${
+            attributes.assignmentId
+          })`
+        : `${t("Absence")} #${result.ownerId}`;
+
+    const subHeading = `${format(
+      parseISO(attributes.absenceStartTimeUTC),
+      "EEE, MMM d, yyyy"
+    )}`;
+    const empName = attributes.employeeFirstName
+      ? `${attributes.employeeFirstName} ${attributes.employeeLastName}`
+      : attributes.employeeLastName;
+    const subName = `${attributes.subFirstName} ${attributes.subLastName}`;
+    const headingArr = highlightSearchTerm(heading, searchTerm);
+
+    return (
+      <Grid className={classes.resultItem} item xs={12} key={i}>
+        <div
+          onClick={() =>
+            handleAbsVacOnClick(
+              result.ownerId,
+              attributes.isNormalVacancy === 1
+            )
+          }
+        >
+          <div className={classes.header}>
+            {headingArr.map(a => {
+              return a;
+            })}
+          </div>
+          <div>
+            <span className={classes.label}>{t("on")}</span>
+            <span className={classes.data}>{subHeading}</span>
+            <span className={classes.label}>{t("for")}</span>
+            <span className={classes.data}>{empName}</span>
+            {attributes.assignmentId !== 0 && (
+              <>
+                <span className={classes.label}>{t("filled by")}</span>
+
+                {attributes.assignmentId && <span>{subName}</span>}
+              </>
+            )}
+          </div>
+        </div>
+      </Grid>
+    );
+  };
+
+  const renderLocationResult = (result: any, i: number) => {
+    const attributes = JSON.parse(result.objectJson);
+    const nameArray = highlightSearchTerm(attributes.name, searchTerm);
+    const phoneArray = attributes.phoneNumber
+      ? highlightSearchTerm(attributes.phoneNumber, searchTerm)
+      : [];
+    const externalArray = attributes.externalId
+      ? highlightSearchTerm(attributes.externalId, searchTerm)
+      : [];
+
+    return (
+      <Grid className={classes.resultItem} item xs={12} key={i}>
+        <div onClick={() => handleLocationOnClick(result.ownerId)}>
+          <div className={classes.header}>
+            {nameArray.map(a => {
+              return a;
+            })}
+          </div>
+          <div>
+            {phoneArray.length > 0 && (
+              <>
+                <span className={classes.label}>{t("phone")}</span>
+
+                <span className={classes.data}>
+                  {phoneArray.map(a => {
+                    return a;
+                  })}
+                </span>
+              </>
+            )}
+            {externalArray.length > 0 && (
+              <>
+                <span className={classes.label}>{t("external id")}</span>
+                <span className={classes.data}>
+                  {externalArray.map(a => {
+                    return a;
+                  })}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </Grid>
+    );
+  };
+
+  const renderPeopleResult = (result: any, i: number) => {
+    const attributes = JSON.parse(result.objectJson);
+    let name = attributes.firstName ? attributes.firstName : "";
+    name = attributes.middleName ? `${name} ${attributes.middleName}` : name;
+    name = attributes.lastName ? `${name} ${attributes.lastName}` : name;
+    const nameArray = highlightSearchTerm(name, searchTerm);
+    const phoneArray = attributes.phoneNumber
+      ? highlightSearchTerm(attributes.phoneNumber, searchTerm)
+      : [];
+    const emailArray = attributes.email
+      ? highlightSearchTerm(attributes.email, searchTerm)
+      : [];
+    const externalArray = attributes.externalId
+      ? highlightSearchTerm(attributes.externalId, searchTerm)
+      : [];
+
+    return (
+      <Grid className={classes.resultItem} item xs={12} key={i}>
+        <div onClick={() => handleOrgUserOnClick(result.ownerId)}>
+          <div className={classes.header}>
+            {nameArray.map(a => {
+              return a;
+            })}
+          </div>
+          <div>
+            {phoneArray.length > 0 && (
+              <>
+                <span className={classes.label}>{t("phone")}</span>
+
+                <span className={classes.data}>
+                  {phoneArray.map(a => {
+                    return a;
+                  })}
+                </span>
+              </>
+            )}
+            {emailArray.length > 0 && (
+              <>
+                <span className={classes.label}>{t("email")}</span>
+
+                <span className={classes.data}>
+                  {emailArray.map(a => {
+                    return a;
+                  })}
+                </span>
+              </>
+            )}
+            {externalArray.length > 0 && (
+              <>
+                <span className={classes.label}>{t("external id")}</span>
+                <span className={classes.data}>
+                  {externalArray.map(a => {
+                    return a;
+                  })}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </Grid>
+    );
+  };
+
+  const absVacResults = results
+    ? results?.filter(r => {
+        return (
+          r?.objectTypeId === "ABSENCE" ||
+          r?.objectTypeId === "VACANCY" ||
+          r?.objectTypeId === "ASSIGNMENT"
+        );
+      })
+    : [];
+
+  const locationResults = results
+    ? results?.filter(r => {
+        return r?.objectTypeId === "LOCATION";
+      })
+    : [];
+
+  const peopleResults = results
+    ? results?.filter(r => {
+        return r?.objectTypeId === "ORG_USER";
+      })
+    : [];
 
   return (
     <Can do={[PermissionEnum.AbsVacView]}>
@@ -151,7 +383,7 @@ export const SearchBar: React.FC<Props> = props => {
             placeholder={t("Search")}
             classes={inputClasses}
             inputProps={{ "aria-label": "search" }}
-            value={pendingConfirmationId}
+            value={pendingSearchTerm}
             onChange={updateSearch}
             endAdornment={
               results?.length !== 0 && loading === false ? (
@@ -181,72 +413,38 @@ export const SearchBar: React.FC<Props> = props => {
                   <Typography align="center">{t("No Results")}</Typography>
                 </Grid>
               )}
-              {results.map((r: any, i) => {
-                const heading: string = r.isNormalVacancy
-                  ? r.assignmentId
-                    ? `${t("Vacancy")} #${r.ownerId} (${t("Assignment")} #C${
-                        r.assignmentId
-                      })`
-                    : `${t("Vacancy")} #${r.ownerId}`
-                  : r.assignmentId
-                  ? `${t("Absence")} #${r.ownerId} (${t("Assignment")} #C${
-                      r.assignmentId
-                    })`
-                  : `${t("Absence")} #${r.ownerId}`;
-                const subHeading = `${format(
-                  parseISO(r.absenceStartTimeUtc),
-                  "EEE, MMM d, yyyy"
-                )}`;
-                const empName = r.employeeFirstName
-                  ? `${r.employeeFirstName} ${r.employeeLastName}`
-                  : r.employeeLastName;
-                const subName = `${r.subFirstName} ${r.subLastName}`;
-
-                const arr =
-                  confirmationId === undefined
-                    ? []
-                    : heading.split(confirmationId);
-                const newArr = arr.map((a, i) => {
-                  return i == arr.length - 1 ? (
-                    a
-                  ) : (
-                    <div key={i} className={classes.inlineBlock}>
-                      {a}
-                      <span className={classes.highlight}>
-                        {confirmationId}
-                      </span>
-                    </div>
-                  );
-                });
-
-                return (
-                  <Grid className={classes.resultItem} item xs={12} key={i}>
-                    <div
-                      onClick={() =>
-                        handleOnClick(r.ownerId, r.isNormalVacancy)
-                      }
-                    >
-                      <div className={classes.header}>
-                        {newArr.map(a => {
-                          return a;
-                        })}
-                      </div>
-                      <div>
-                        <span className={classes.label}>{t("on")}</span>
-                        <span className={classes.data}>{subHeading}</span>
-                        <span className={classes.label}>{t("for")}</span>
-                        <span className={classes.data}>{empName}</span>
-                        {r.assignmentId && (
-                          <span className={classes.label}>
-                            {t("filled by")}
-                          </span>
-                        )}
-                        {r.assignmentId && <span>{subName}</span>}
-                      </div>
-                    </div>
+              {absVacResults.length > 0 && (
+                <>
+                  <Grid item xs={12} className={classes.categoryTitle}>
+                    <Typography variant="h6">
+                      {t("Absences/Vacancies")}
+                    </Typography>
                   </Grid>
-                );
-              })}
+                  {absVacResults.map((r: any, i) => {
+                    return renderAbsVacAssignmentResult(r, i);
+                  })}
+                </>
+              )}
+              {locationResults.length > 0 && (
+                <>
+                  <Grid item xs={12} className={classes.categoryTitle}>
+                    <Typography variant="h6">{t("Schools")}</Typography>
+                  </Grid>
+                  {locationResults.map((r: any, i) => {
+                    return renderLocationResult(r, i);
+                  })}
+                </>
+              )}
+              {peopleResults.length > 0 && (
+                <>
+                  <Grid item xs={12} className={classes.categoryTitle}>
+                    <Typography variant="h6">{t("People")}</Typography>
+                  </Grid>
+                  {peopleResults.map((r: any, i) => {
+                    return renderPeopleResult(r, i);
+                  })}
+                </>
+              )}
             </Grid>
           )}
         </div>
@@ -298,6 +496,7 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray
     }`,
+    paddingLeft: `${theme.typography.pxToRem(30)}!important`,
   },
   label: {
     color: theme.customColors.darkGray,
@@ -311,11 +510,12 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     fontWeight: "bold",
-    fontSize: theme.typography.pxToRem(16),
+    fontSize: theme.typography.pxToRem(14),
   },
   highlight: {
     backgroundColor: theme.customColors.gray,
   },
+  categoryTitle: { backgroundColor: theme.customColors.white },
 }));
 
 const useInputStyles = makeStyles(theme => ({
