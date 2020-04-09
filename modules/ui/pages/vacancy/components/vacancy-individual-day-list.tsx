@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailItem, VacancyDayPart } from "../helpers/types";
+import { useVacancyReasonOptions } from "reference-data/vacancy-reasons";
 
 type Props = {
   vacancyDays: VacancyDetailItem[];
@@ -24,7 +25,6 @@ type Props = {
   payCodes: PayCode[];
   defaultPayCodeId?: string;
   accountingCodes: AccountingCode[];
-  vacancyReasons: VacancyReason[];
   setFieldValue: (
     field: any,
     value: any,
@@ -45,10 +45,8 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     payCodes,
     accountingCodes,
     defaultPayCodeId,
-    vacancyReasons = [],
   } = props;
   const { t } = useTranslation();
-  const [dayForCopy, setDayForCopy] = useState();
   const [useSameTime, setUseSameTime] = useState(false);
   const [useSameReason, setUseSameReason] = useState(false);
   const [useSamePayCode, setUseSamePayCode] = useState(false);
@@ -253,9 +251,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     [vacancyDays]
   );
 
-  const vacancyReasonOptions = useMemo(() => {
-    return vacancyReasons.map((r: any) => ({ label: r.name, value: r.id }));
-  }, [vacancyReasons]);
+  const vacancyReasonOptions = useVacancyReasonOptions(orgId);
 
   const payCodeOptions = useMemo(() => {
     return payCodes.map((r: any) => ({ label: r.name, value: r.id }));
