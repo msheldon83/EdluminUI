@@ -164,7 +164,7 @@ export const AccountingCode: React.FC<Props> = props => {
         },
       },
     });
-    if (result === undefined) return false;
+    if (!result.data) return false;
     return true;
   };
 
@@ -194,7 +194,7 @@ export const AccountingCode: React.FC<Props> = props => {
         },
       },
     });
-    if (result === undefined) return false;
+    if (!result.data) return false;
     return true;
   };
 
