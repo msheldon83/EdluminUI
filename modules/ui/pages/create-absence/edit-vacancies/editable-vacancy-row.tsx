@@ -99,11 +99,30 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             </Typography>
           </Grid>
           <Grid item container>
-            {(absenceStartTime || absenceEndTime) && (
-              <Typography variant="h6">
-                {absenceStartTime} - {absenceEndTime}
-              </Typography>
-            )}
+			<Grid item xs={isMobile ? 12 : 3}>
+			  {(absenceStartTime || absenceEndTime) && (
+				<Typography variant="h6">
+				  {absenceStartTime} - {absenceEndTime}
+				</Typography>
+			  )}
+			 </Grid>
+			 <Grid item container xs={isMobile ? 12 : 8}>
+			   <Grid item xs={isMobile ? 12 : 4}>
+				<Typography variant="h6">
+				  {t("School")}
+				</Typography>
+			   </Grid>
+			   <Grid item xs={isMobile ? 12 : 4}>
+				<Typography variant="h6">
+				  {t("Accounting Code")}
+				</Typography>
+			   </Grid>
+			   <Grid item xs={isMobile ? 12 : 4}>
+				<Typography variant="h6">
+				  {t("Pay Code")}
+				</Typography>
+			   </Grid>
+			 </Grid>
           </Grid>
       </>
       }
@@ -152,7 +171,6 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               isMobile ? classes.mobileMargin : classes.noClass)
             }
           >
-            {t("School")}
             <FormikSelect
               name={`${fieldNamePrefix}.locationId`}
               options={locationMenuOptions}
@@ -169,7 +187,6 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                   isMobile ? classes.mobileMargin : classes.spacing)
                 }
               >
-                {t("Accounting Code")}
                 <FormikSelect
                   name={`${fieldNamePrefix}.accountingCodeId`}
                   options={accountingCodeOptions}
@@ -184,7 +201,6 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                   isMobile ? classes.mobileMargin : classes.spacing)
                 }
               >
-                {t("Pay Code")}
                 <FormikSelect
                   name={`${fieldNamePrefix}.payCodeId`}
                   options={props.payCodeOptions}
@@ -219,13 +235,13 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(2),
   },
   rowContainer: {
-    padding: theme.spacing(1),
+    //padding: theme.spacing(1),
   },
   timeInput: {
     marginRight: theme.spacing(1),
   },
   spacing: {
-    marginBottom: theme.spacing(2),
+    //marginBottom: theme.spacing(2),
     paddingLeft: theme.spacing(0.5),
   },
   mobileMargin: {

@@ -233,7 +233,7 @@ export const EditVacancies: React.FC<Props> = props => {
                       parseISO(d.date)
                     );
                   return (
-                    <Grid key={i} container className={classes.rowSpacing}>
+                    <Grid key={i} container>
                       <EditableVacancyDetailRow
                         actingAsEmployee={props.actingAsEmployee}
                         locationOptions={locationOptions}
@@ -291,9 +291,6 @@ const useStyles = makeStyles(theme => ({
   },
   shadedRow: {
     backgroundColor: theme.customColors.lightGray,
-  },
-  rowSpacing: {
-    marginBottom: theme.spacing(2),
   },
   detailsError: {
     fontSize: theme.typography.pxToRem(14),
