@@ -27,6 +27,7 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import { ReplacementCriteria } from "./replacement-criteria";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
+import { GetPositionTypesDocument } from "reference-data/get-position-types.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -43,6 +44,11 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
 
+  const positionTypesReferenceQuery = {
+    query: GetPositionTypesDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -54,12 +60,21 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         positionTypeId: params.positionTypeId,
       },
       awaitRefetchQueries: true,
-      refetchQueries: ["GetAllPositionTypesWithinOrg"],
+      refetchQueries: [
+        "GetAllPositionTypesWithinOrg",
+        positionTypesReferenceQuery,
+      ],
     });
     history.push(PositionTypeRoute.generate(params));
-  }, [deletePositionTypeMutation, history, params]);
+  }, [
+    deletePositionTypeMutation,
+    history,
+    params,
+    positionTypesReferenceQuery,
+  ]);
 
   const [updatePositionType] = useMutationBundle(UpdatePositionType, {
+    refetchQueries: [positionTypesReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
