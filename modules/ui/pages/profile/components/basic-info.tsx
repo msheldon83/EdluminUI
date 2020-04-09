@@ -58,7 +58,7 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
   );
 
   // TODO: Consolidate this logic with the phone number field in Information component
-  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  const phoneRegExp = /^(1 )?\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
   const cleanPhoneNumber = (phoneNumber: string) => {
     return phoneNumber.replace(/\D/g, "");
