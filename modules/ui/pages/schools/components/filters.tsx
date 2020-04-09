@@ -50,20 +50,13 @@ export const Filters: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid
-        container
-        alignItems="center"
-        justify="flex-start"
-        spacing={2}
-        className={classes.filters}
-      >
+      <Grid container alignItems="center" justify="flex-start" spacing={2}>
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <Input
             label={t("Name or ID")}
             value={pendingSearchText}
             onChange={updateSearchText}
             placeholder={t("Filter by name or ID")}
-            className={classes.label}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
@@ -80,10 +73,6 @@ export const Filters: React.FC<Props> = props => {
 };
 
 export const useStyles = makeStyles(theme => ({
-  label: {
-    fontWeight: 500,
-    marginBottom: theme.typography.pxToRem(4),
-  },
   filters: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
