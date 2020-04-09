@@ -17,6 +17,7 @@ import { useIsMobile } from "hooks";
 import { UserUpdateInput, TimeZone } from "graphql/server-types.gen";
 import { TextButton } from "ui/components/text-button";
 import { isAfter, parseISO, format } from "date-fns";
+import { phoneRegExp } from "helpers/regexp"
 
 type Props = {
   user: {
@@ -56,9 +57,6 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
     () => setChangeEmailIsOpen(false),
     [setChangeEmailIsOpen]
   );
-
-  // TODO: Consolidate this logic with the phone number field in Information component
-  const phoneRegExp = /^(1 )?\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
   const cleanPhoneNumber = (phoneNumber: string) => {
     return phoneNumber.replace(/\D/g, "");
