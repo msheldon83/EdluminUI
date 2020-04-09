@@ -1,9 +1,9 @@
-import { makeStyles, Grid, useTheme } from "@material-ui/core";
+import { makeStyles, Grid } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
 import { AccountingCodeRoute } from "ui/routes/accounting-code";
 import { useRouteParams } from "ui/routes/definition";
@@ -23,24 +23,31 @@ import * as Yup from "yup";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useLocations } from "reference-data/locations";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
+import { GetAccountingCodesDocument } from "reference-data/get-accounting-codes.gen";
 
 type Props = {};
 
 export const AccountingCode: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(AccountingCodeRoute);
   const { openSnackbar } = useSnackbar();
 
+  const accountingCodesReferenceDataQuery = {
+    query: GetAccountingCodesDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const locations = useLocations(params.organizationId);
-  const locationOptions = locations.reduce(
-    (o: any, key: any) => ({ ...o, [key.id]: key.name }),
-    {}
-  );
-  locationOptions[0] = t("All Schools"); //add default option
+  const locationOptions = useMemo(() => {
+    const options = locations.reduce(
+      (o: any, key: any) => ({ ...o, [key.id]: key.name }),
+      {}
+    );
+    options[0] = t("All Schools"); //add default option
+    return options;
+  }, [locations, t]);
 
   //Hardcoding includeExpired.  Currently UI does not give option to choose.
   const getAccountingCodes = useQueryBundle(GetAllAccountingCodesWithinOrg, {
@@ -48,11 +55,13 @@ export const AccountingCode: React.FC<Props> = props => {
   });
 
   const [updateAccountingCode] = useMutationBundle(UpdateAccountingCode, {
+    refetchQueries: [accountingCodesReferenceDataQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
   const [createAccountingCode] = useMutationBundle(CreateAccountingCode, {
+    refetchQueries: [accountingCodesReferenceDataQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -60,6 +69,7 @@ export const AccountingCode: React.FC<Props> = props => {
   const [deleteAccountingCodeMutation] = useMutationBundle(
     DeleteAccountingCode,
     {
+      refetchQueries: [accountingCodesReferenceDataQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
