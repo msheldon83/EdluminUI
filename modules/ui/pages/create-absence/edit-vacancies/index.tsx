@@ -20,7 +20,13 @@ import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
-import { isBefore, parseISO, isValid, areIntervalsOverlapping, isSameDay } from "date-fns";
+import {
+  isBefore,
+  parseISO,
+  isValid,
+  areIntervalsOverlapping,
+  isSameDay,
+} from "date-fns";
 import { getDateRangeDisplayTextWithDayOfWeek } from "ui/components/date-helpers";
 
 type Props = {
@@ -214,10 +220,14 @@ export const EditVacancies: React.FC<Props> = props => {
               name="details"
               render={arrayHelpers =>
                 values.details.map((d, i) => {
-                    const isLastOnDay = values.details.length - 1 == i ||
-                                        !isSameDay(parseISO(values.details[i+1].date),
-                                                   parseISO(d.date));
-                    return (<Grid key={i} container className={classes.rowSpacing}>
+                  const isLastOnDay =
+                    values.details.length - 1 == i ||
+                    !isSameDay(
+                      parseISO(values.details[i + 1].date),
+                      parseISO(d.date)
+                    );
+                  return (
+                    <Grid key={i} container className={classes.rowSpacing}>
                       <EditableVacancyDetailRow
                         actingAsEmployee={props.actingAsEmployee}
                         locationOptions={locationOptions}
@@ -241,7 +251,7 @@ export const EditVacancies: React.FC<Props> = props => {
                         isLastOnDay={isLastOnDay}
                       />
                     </Grid>
-                  )
+                  );
                 })
               }
             />
