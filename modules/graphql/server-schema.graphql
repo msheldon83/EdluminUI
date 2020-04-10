@@ -2057,12 +2057,61 @@ enum FillStatus {
   FILLED
 }
 
+type GlobalSearchTypeDef {
+  _info: [ReturnMessage]
+  ownerId: ID!
+  objectTypeId: ObjectType!
+  objectTypeName: String!
+  orgId: ID!
+  createdUtc: DateTime
+  objectJson: String!
+}
+
 scalar Guid
+
+type InAppNotification implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  title: String
+  content: String
+  headerMessage: String
+  objectTypeId: ObjectType!
+  objectKey: ID!
+  viewed: Boolean!
+  orgId: Int
+}
+
+type InAppNotificationMutations {
+  markSingleNotificationViewed(notificationId: ID!): Boolean
+  markMultipleNotificationsViewed(notificationIds: [ID]!): Boolean
+}
+
+type InAppNotificationQueries {
+  byId(id: ID!): InAppNotification
+  paged(
+    limit: Int
+    offset: Int
+    orgId: ID
+    includeViewed: Boolean
+  ): PagedInAppNotification
+  unreadNotificationCount(orgId: ID): Int
+}
 
 enum InterestRating {
   NOT_INTERESTED
   LOW_INTEREST
   HIGH_INTEREST
+}
+
+enum InvitationStatus {
+  ALL
+  ACCOUNT_SETUP
+  INVITE_SENT
+  INVITE_NOT_SENT
 }
 
 enum JobNotificationResponse {
@@ -2303,9 +2352,9 @@ type Mutation {
   customField: CustomFieldMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
+  inAppNotification: InAppNotificationMutations
   locationGroup: LocationGroupMutations
   location: LocationMutations
-  notificationLog: NotificationLogMutations
   organization: OrganizationMutations
   organizationRelationship: OrganizationRelationshipMutations
   orgUser: OrgUserMutations
@@ -2337,38 +2386,6 @@ enum NeedsReplacement {
   NO
   YES
   SOMETIMES
-}
-
-type NotificationLog implements ModelObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  title: String
-  content: String
-  headerMessage: String
-  objectTypeId: ObjectType!
-  objectKey: Int
-  viewed: Boolean!
-  orgId: Int
-}
-
-type NotificationLogMutations {
-  markSingleNotificationViewed(notificationId: ID!): Boolean
-  markMultipleNotificationsViewed(notificationIds: [ID]!): Boolean
-}
-
-type NotificationLogQueries {
-  byId(id: ID!): NotificationLog
-  paged(
-    limit: Int
-    offset: Int
-    orgId: ID
-    includeViewed: Boolean
-  ): PagedNotificationLog
-  unreadNotificationCount(orgId: ID): Int
 }
 
 enum NotificationMessageStatus {
@@ -2588,6 +2605,7 @@ type OrganizationQueries {
   byId(id: ID!): Organization
   all(searchText: String): [Organization]
   paged(limit: Int, offset: Int, searchText: String): PagedOrganization
+  search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -3019,6 +3037,8 @@ type OrgUserQueries {
     endorsements: [ID]
     locations: [ID]
     positionTypes: [ID]
+    shadowOrgIds: [ID]
+    invitationStatus: InvitationStatus
   ): [OrgUser]
   paged(
     orgId: ID
@@ -3032,6 +3052,8 @@ type OrgUserQueries {
     endorsements: [ID]
     locations: [ID]
     positionTypes: [ID]
+    shadowOrgIds: [ID]
+    invitationStatus: InvitationStatus
   ): PagedOrgUser
   pagedSubsForPreferences(
     orgId: ID
@@ -3206,6 +3228,15 @@ type PagedEventQueue {
   totalCount: Int
 }
 
+type PagedInAppNotification {
+  _info: [ReturnMessage]
+  results: [InAppNotification]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedLabel {
   _info: [ReturnMessage]
   results: [Label]
@@ -3227,15 +3258,6 @@ type PagedLocation {
 type PagedLocationGroup {
   _info: [ReturnMessage]
   results: [LocationGroup]
-  offset: Int!
-  limit: Int!
-  hasMoreData: Boolean!
-  totalCount: Int
-}
-
-type PagedNotificationLog {
-  _info: [ReturnMessage]
-  results: [NotificationLog]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -3904,6 +3926,7 @@ type PositionScheduleDate {
   workDayId: ID!
   contractId: ID!
   positionId: ID!
+  positionTypeId: ID!
   positionScheduleId: ID!
   workScheduleVariantTypeId: ID!
   startTimeLocal: DateTime
@@ -4295,9 +4318,9 @@ type Query {
   customField: CustomFieldQueries
   employee: EmployeeQueries
   eventQueue: EventQueueQueries
+  inAppNotification: InAppNotificationQueries
   locationGroup: LocationGroupQueries
   location: LocationQueries
-  notificationLog: NotificationLogQueries
   organization: OrganizationQueries
   organizationRelationship: OrganizationRelationshipQueries
   orgRef_AbsenceReason: OrgRef_AbsenceReasonQueries
