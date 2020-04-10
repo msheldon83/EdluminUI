@@ -4,6 +4,7 @@ import {
   Typography,
   IconButton,
   ClickAwayListener,
+  Chip,
 } from "@material-ui/core";
 import InputBase from "@material-ui/core/InputBase";
 import { fade } from "@material-ui/core/styles";
@@ -31,6 +32,7 @@ import { GetGlobalSearchResults } from "../graphql/global-search.gen";
 import { date } from "@storybook/addon-knobs";
 import { LocationViewRoute } from "ui/routes/locations";
 import { PersonViewRoute } from "ui/routes/people";
+import { formatPhoneNumber } from "../helpers/index";
 
 type Props = {
   className?: string;
@@ -245,7 +247,10 @@ export const SearchBar: React.FC<Props> = props => {
     const attributes = JSON.parse(result.objectJson);
     const nameArray = highlightSearchTerm(attributes.name, searchTerm);
     const phoneArray = attributes.phoneNumber
-      ? highlightSearchTerm(attributes.phoneNumber, searchTerm)
+      ? highlightSearchTerm(
+          formatPhoneNumber(attributes.phoneNumber),
+          searchTerm
+        )
       : [];
     const externalArray = attributes.externalId
       ? highlightSearchTerm(attributes.externalId, searchTerm)
@@ -294,7 +299,10 @@ export const SearchBar: React.FC<Props> = props => {
     name = attributes.lastName ? `${name} ${attributes.lastName}` : name;
     const nameArray = highlightSearchTerm(name, searchTerm);
     const phoneArray = attributes.phoneNumber
-      ? highlightSearchTerm(attributes.phoneNumber, searchTerm)
+      ? highlightSearchTerm(
+          formatPhoneNumber(attributes.phoneNumber),
+          searchTerm
+        )
       : [];
     const emailArray = attributes.email
       ? highlightSearchTerm(attributes.email, searchTerm)
@@ -302,7 +310,7 @@ export const SearchBar: React.FC<Props> = props => {
     const externalArray = attributes.externalId
       ? highlightSearchTerm(attributes.externalId, searchTerm)
       : [];
-
+    console.log(attributes);
     return (
       <Grid className={classes.resultItem} item xs={12} key={i}>
         <div onClick={() => handleOrgUserOnClick(result.ownerId)}>
@@ -310,6 +318,21 @@ export const SearchBar: React.FC<Props> = props => {
             {nameArray.map(a => {
               return a;
             })}
+            {attributes.isEmployee === "1" && (
+              <Typography className={classes.chip} variant="caption">
+                {t("Employee")}
+              </Typography>
+            )}
+            {attributes.isAdmin === "1" && (
+              <Typography className={classes.chip} variant="caption">
+                {t("Administrator")}
+              </Typography>
+            )}
+            {attributes.isSub === "1" && (
+              <Typography className={classes.chip} variant="caption">
+                {t("Substitute")}
+              </Typography>
+            )}
           </div>
           <div>
             {phoneArray.length > 0 && (
@@ -373,83 +396,81 @@ export const SearchBar: React.FC<Props> = props => {
     : [];
 
   return (
-    <Can do={[PermissionEnum.AbsVacView]}>
-      <ClickAwayListener onClickAway={handleClickAway}>
-        <div className={`${classes.search} ${props.className}`}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
-          </div>
-          <InputBase
-            placeholder={t("Search")}
-            classes={inputClasses}
-            inputProps={{ "aria-label": "search" }}
-            value={pendingSearchTerm}
-            onChange={updateSearch}
-            endAdornment={
-              results?.length !== 0 && loading === false ? (
-                <React.Fragment>
-                  <IconButton
-                    key="close"
-                    aria-label="close"
-                    color="inherit"
-                    onClick={onClose}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  {loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                </React.Fragment>
-              )
-            }
-          />
-          {results && openDrawer && (
-            <Grid className={classes.resultContainer} container spacing={2}>
-              {results.length == 0 && (
-                <Grid className={classes.resultItem} item xs={12}>
-                  <Typography align="center">{t("No Results")}</Typography>
-                </Grid>
-              )}
-              {absVacResults.length > 0 && (
-                <>
-                  <Grid item xs={12} className={classes.categoryTitle}>
-                    <Typography variant="h6">
-                      {t("Absences/Vacancies")}
-                    </Typography>
-                  </Grid>
-                  {absVacResults.map((r: any, i) => {
-                    return renderAbsVacAssignmentResult(r, i);
-                  })}
-                </>
-              )}
-              {locationResults.length > 0 && (
-                <>
-                  <Grid item xs={12} className={classes.categoryTitle}>
-                    <Typography variant="h6">{t("Schools")}</Typography>
-                  </Grid>
-                  {locationResults.map((r: any, i) => {
-                    return renderLocationResult(r, i);
-                  })}
-                </>
-              )}
-              {peopleResults.length > 0 && (
-                <>
-                  <Grid item xs={12} className={classes.categoryTitle}>
-                    <Typography variant="h6">{t("People")}</Typography>
-                  </Grid>
-                  {peopleResults.map((r: any, i) => {
-                    return renderPeopleResult(r, i);
-                  })}
-                </>
-              )}
-            </Grid>
-          )}
+    <ClickAwayListener onClickAway={handleClickAway}>
+      <div className={`${classes.search} ${props.className}`}>
+        <div className={classes.searchIcon}>
+          <SearchIcon />
         </div>
-      </ClickAwayListener>
-    </Can>
+        <InputBase
+          placeholder={t("Search")}
+          classes={inputClasses}
+          inputProps={{ "aria-label": "search" }}
+          value={pendingSearchTerm}
+          onChange={updateSearch}
+          endAdornment={
+            results?.length !== 0 && loading === false ? (
+              <React.Fragment>
+                <IconButton
+                  key="close"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={onClose}
+                >
+                  <CloseIcon />
+                </IconButton>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
+              </React.Fragment>
+            )
+          }
+        />
+        {results && openDrawer && (
+          <Grid className={classes.resultContainer} container spacing={2}>
+            {results.length == 0 && (
+              <Grid className={classes.resultItem} item xs={12}>
+                <Typography align="center">{t("No Results")}</Typography>
+              </Grid>
+            )}
+            {absVacResults.length > 0 && (
+              <>
+                <Grid item xs={12} className={classes.categoryTitle}>
+                  <Typography variant="subtitle1">
+                    {t("Absences/Vacancies")}
+                  </Typography>
+                </Grid>
+                {absVacResults.map((r: any, i) => {
+                  return renderAbsVacAssignmentResult(r, i);
+                })}
+              </>
+            )}
+            {locationResults.length > 0 && (
+              <>
+                <Grid item xs={12} className={classes.categoryTitle}>
+                  <Typography variant="subtitle1">{t("Schools")}</Typography>
+                </Grid>
+                {locationResults.map((r: any, i) => {
+                  return renderLocationResult(r, i);
+                })}
+              </>
+            )}
+            {peopleResults.length > 0 && (
+              <>
+                <Grid item xs={12} className={classes.categoryTitle}>
+                  <Typography variant="subtitle1">{t("People")}</Typography>
+                </Grid>
+                {peopleResults.map((r: any, i) => {
+                  return renderPeopleResult(r, i);
+                })}
+              </>
+            )}
+          </Grid>
+        )}
+      </div>
+    </ClickAwayListener>
   );
 };
 
@@ -501,21 +522,33 @@ const useStyles = makeStyles(theme => ({
   label: {
     color: theme.customColors.darkGray,
     marginRight: theme.spacing(1),
+    fontSize: theme.typography.pxToRem(13),
   },
   data: {
     marginRight: theme.spacing(1),
+    fontSize: theme.typography.pxToRem(13),
   },
   inlineBlock: {
     display: "inline",
   },
   header: {
-    fontWeight: "bold",
-    fontSize: theme.typography.pxToRem(14),
+    fontWeight: 500,
+    fontSize: theme.typography.pxToRem(16),
   },
   highlight: {
     backgroundColor: theme.customColors.gray,
   },
-  categoryTitle: { backgroundColor: theme.customColors.white },
+  categoryTitle: {
+    backgroundColor: theme.customColors.white,
+    fontSize: theme.typography.pxToRem(14),
+    color: theme.customColors.darkGray,
+  },
+  chip: {
+    display: "inline",
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1),
+    color: theme.customColors.gray,
+  },
 }));
 
 const useInputStyles = makeStyles(theme => ({
