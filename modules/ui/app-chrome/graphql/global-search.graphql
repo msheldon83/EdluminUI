@@ -3,7 +3,6 @@ query GetGlobalSearchResults($orgIds: [ID], $searchTerm: String!) {
     search(orgIds: $orgIds, searchTerm: $searchTerm) {
       ownerId
       objectTypeId
-      objectTypeName
       orgId
       createdUtc
       objectJson
