@@ -16,6 +16,7 @@ import {
   StateCode,
 } from "graphql/server-types.gen";
 import { formatIsoDateIfPossible } from "helpers/date";
+import { phoneRegExp } from "helpers/regexp"
 import { useBreakpoint } from "hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import * as React from "react";
@@ -167,8 +168,6 @@ export const Information: React.FC<Props> = props => {
     label: s.name,
     value: s.enumValue,
   }));
-
-  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
   const cleanPhoneNumber = (phoneNumber: string) => {
     return phoneNumber.replace(/\D/g, "");

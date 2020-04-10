@@ -6,7 +6,6 @@ import {
   Toolbar,
 } from "@material-ui/core";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
-import NotificationsNoneIcon from "@material-ui/icons/NotificationsNone";
 import * as React from "react";
 import { Route } from "react-router-dom";
 import { QuickCreateButton } from "ui/components/absence/quick-create-button";
@@ -18,6 +17,8 @@ import { SearchBar } from "./search-bar";
 import { HelpMenu } from "./help-menu";
 import { UserMenu } from "./user-menu";
 import { useAppConfig, AppConfig } from "hooks/app-config";
+import { NotificationsUI } from "../notifications";
+import { NotificationIcon } from "../notifications/components/notifications-icon";
 
 type Props = { contentClassName?: string };
 
@@ -36,6 +37,11 @@ export const TopBar: React.FC<Props> = props => {
   const [
     subHelpMenuAnchor,
     setHelpSubMenuAnchor,
+  ] = React.useState<null | HTMLElement>(null);
+
+  const [
+    subNotificationsAnchor,
+    setSubNotificationsAnchor,
   ] = React.useState<null | HTMLElement>(null);
 
   return (
@@ -57,9 +63,24 @@ export const TopBar: React.FC<Props> = props => {
                 ) : (
                   <QuickCreateButton role={params.role} />
                 )}
-                <IconButton edge="end" classes={iconButtonClasses}>
-                  <NotificationsNoneIcon />
+                <IconButton
+                  aria-describedby="notifications-popover"
+                  edge="end"
+                  classes={iconButtonClasses}
+                  onClick={event => {
+                    // TODO: Remove this check when we have InApp Notifications in prod
+                    if (Config.isDevFeatureOnly) {
+                      setSubNotificationsAnchor(event.currentTarget);
+                    }
+                  }}
+                >
+                  <NotificationIcon />
                 </IconButton>
+                <NotificationsUI
+                  open={Boolean(subNotificationsAnchor)}
+                  anchorElement={subNotificationsAnchor}
+                  onClose={() => setSubNotificationsAnchor(null)}
+                />
                 <IconButton
                   aria-haspopup="true"
                   aria-owns="help-menu"

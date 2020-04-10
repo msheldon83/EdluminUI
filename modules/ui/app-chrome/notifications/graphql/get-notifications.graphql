@@ -1,0 +1,30 @@
+query GetNotifications(
+  $orgId: ID
+  $limit: Int
+  $offset: Int
+  $includeViewed: Boolean
+) {
+  inAppNotification {
+    paged(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      includeViewed: $includeViewed
+    ) {
+      limit
+      offset
+      totalCount
+      hasMoreData
+      results {
+        id
+        orgId
+        title
+        content
+        viewed
+        objectTypeId
+        objectKey
+        createdUtc
+      }
+    }
+  }
+}

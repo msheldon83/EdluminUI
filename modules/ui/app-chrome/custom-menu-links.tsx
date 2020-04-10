@@ -5,11 +5,12 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import ContactPhoneIcon from "@material-ui/icons/ContactPhone";
 import { MenuLink } from "./menu-link";
-import { ProfileRoute } from "ui/routes/profile";
+import { ProfileRoute, AdminProfileRoute } from "ui/routes/profile";
 import { useAuth0 } from "auth/auth0";
 import { AppChromeRoute } from "ui/routes/app-chrome";
 import { OrganizationContactInfoRoute } from "ui/routes/organizations";
 import { useRouteParams } from "ui/routes/definition";
+import { getOrgIdFromRoute } from "core/org-context";
 
 type Props = {
   className?: string;
@@ -19,11 +20,17 @@ type Props = {
 export const MyProfileMenuLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AppChromeRoute);
+  const orgId = getOrgIdFromRoute();
+
   return (
     <MenuLink
       title={t("My Profile")}
       icon={<AccountCircleIcon />}
-      route={ProfileRoute.generate(params)}
+      route={
+        params.role === "admin" && orgId !== undefined
+          ? AdminProfileRoute.generate({ organizationId: orgId })
+          : ProfileRoute.generate(params)
+      }
       {...props}
     />
   );
