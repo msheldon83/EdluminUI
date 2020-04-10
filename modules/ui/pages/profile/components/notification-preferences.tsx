@@ -33,17 +33,9 @@ export const NotificationPreferences: React.FC<Props> = props => {
   );
 
   // Check if any of the users notifications reasons have been implemented by the backend
-  const userNotificationReasons = allNotificationReasons
-    .filter(v => {
-      if (v?.enumValue) return userNotificationReasonIds.includes(v.enumValue);
-    })
-    .sort((a, b) => {
-      if (a.description && b.description) {
-        return a?.description > b?.description ? 1 : -1;
-      } else {
-        return 0;
-      }
-    });
+  const userNotificationReasons = allNotificationReasons.filter(v => {
+    if (v?.enumValue) return userNotificationReasonIds.includes(v.enumValue);
+  });
   if (!userNotificationReasons || userNotificationReasons.length < 1) {
     return <></>;
   }
@@ -61,7 +53,6 @@ export const NotificationPreferences: React.FC<Props> = props => {
   const showInAppColumn = userNotificationReasons.some(x =>
     x.methodsOfDelivery.find(y => y.method === NotificationMethod.InApp)
   );
-  const columnCount = +showEmailColumn + +showSmsColumn + +showInAppColumn;
 
   return (
     <>
@@ -113,25 +104,20 @@ export const NotificationPreferences: React.FC<Props> = props => {
                   </Grid>
                 )}
               </Grid>
-              {userNotificationReasons.map((r, i) => {
-                const preference = values.notificationPreferences.find(
-                  x => x.notificationReasonId === r.enumValue
+              {values.notificationPreferences.map((r, i) => {
+                return (
+                  <PreferenceRow
+                    key={i}
+                    notificationPreference={r}
+                    onSubmit={submitForm}
+                    shadeRow={i % 2 == 1}
+                    setFieldValue={setFieldValue}
+                    index={i}
+                    showEmailColumn={showEmailColumn}
+                    showSmsColumn={showSmsColumn}
+                    showInAppColumn={showInAppColumn}
+                  />
                 );
-                if (preference) {
-                  return (
-                    <PreferenceRow
-                      key={i}
-                      notificationPreference={preference}
-                      onSubmit={submitForm}
-                      shadeRow={i % 2 == 1}
-                      setFieldValue={setFieldValue}
-                      index={i}
-                      showEmailColumn={showEmailColumn}
-                      showSmsColumn={showSmsColumn}
-                      showInAppColumn={showInAppColumn}
-                    />
-                  );
-                }
               })}
             </Section>
           </form>
