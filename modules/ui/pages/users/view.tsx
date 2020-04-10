@@ -36,6 +36,7 @@ import { OrgUser } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { UserSmsLogRoute } from "ui/routes/sms-log";
+import { phoneRegExp } from "helpers/regexp"
 
 export const UserViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -261,8 +262,6 @@ export const UserViewPage: React.FC<{}> = props => {
       render: rowData => (rowData.active ? t("Yes") : t("No")),
     },
   ];
-
-  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
 
   return (
     <>
