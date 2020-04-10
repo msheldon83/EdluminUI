@@ -28,6 +28,7 @@ import { VacancyViewRoute } from "ui/routes/vacancy";
 import { useHistory } from "react-router";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { getOrgIdFromRoute } from "core/org-context";
 
 type Props = {
   className?: string;
@@ -42,17 +43,8 @@ export const SearchBar: React.FC<Props> = props => {
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
   const history = useHistory();
 
-  /**** Because this component is not under an AdminRouteOrganizationContextProvider */
-  /****  we need to do this to grab the org id. */
-  /**** Our Logic is if the user is in the admin context of a specific org, */
-  /**** we will send that org.  For every other context we will not send orgs and allow */
-  /**** the server to decide which orgs the user has access to */
-
-  const orgIds: string[] | undefined =
-    window.location.pathname.includes("admin") &&
-    window.location.pathname.split("/")[2]
-      ? [window.location.pathname.split("/")[2]]
-      : undefined;
+  const orgId = getOrgIdFromRoute();
+  const orgIds = orgId ? [orgId] : undefined;
 
   const [loading, updateLoading] = React.useState(false);
   const [openDrawer, updateOpenDrawer] = React.useState(false);

@@ -1,0 +1,5 @@
+query GetUnreadNotificationCount($orgId: ID) {
+  inAppNotification {
+    unreadNotificationCount(orgId: $orgId)
+  }
+}
