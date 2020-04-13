@@ -34,7 +34,7 @@ import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { SectionHeader } from "ui/components/section-header";
 import { Link } from "react-router-dom";
 import { VacancyDetail } from "./components/assignment";
-import { SubAvailabilityPreloadedRoute } from "ui/routes/sub-schedule";
+import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
 
 type Props = {
   userId?: string;
@@ -223,11 +223,11 @@ export const UpcomingAssignments: React.FC<Props> = props => {
   const calendarDates = disabledDates.concat(pastDays).concat(activeDates);
 
   const preloadDate = (dates: Date[]) => {
-    const first = dates[0].toISOString();
-    const last = dates[dates.length - 1].toISOString();
-    history.push(
-      SubAvailabilityPreloadedRoute.generate({ fromDate: first, toDate: last })
-    );
+    const baseRoute = SubAvailabilityRoute.generate({});
+    const params = new URLSearchParams();
+    params.set("fromDate", dates[0].toISOString());
+    params.set("toDate", dates[dates.length - 1].toISOString());
+    history.push(`${baseRoute}?${params.toString()}`);
   };
 
   return (

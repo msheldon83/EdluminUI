@@ -209,7 +209,6 @@ import {
   SubScheduleRoute,
   SubAvailabilityRoute,
   SubAvailabilityLoader,
-  SubAvailabilityPreloadedRoute,
 } from "./routes/sub-schedule";
 import {
   SubstituteSettingsLoader,
