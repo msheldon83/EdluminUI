@@ -8,14 +8,14 @@ describe("formatPhoneNumber", () => {
     expect(result).toStrictEqual("(123) 456-7890");
   });
 
-  it("Not a phone number", () => {
+  it("Not a phone number: All characters", () => {
     const phoneNumber = "ABC";
     const result = formatPhoneNumber(phoneNumber);
 
     expect(result).toStrictEqual("");
   });
 
-  it("Not a phone number", () => {
+  it("Not a phone number: not enough digits", () => {
     const phoneNumber = "123456";
     const result = formatPhoneNumber(phoneNumber);
 
