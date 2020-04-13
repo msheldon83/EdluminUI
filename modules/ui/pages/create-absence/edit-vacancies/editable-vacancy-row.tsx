@@ -91,41 +91,35 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
       container
       className={[classes.rowContainer, props.className].join(" ")}
     >
-      {props.isFirstOnDay &&
-      <>
-          <Grid item container>
+      {props.isFirstOnDay && (
+        <>
+          <Grid item container className={classes.date}>
             <Typography variant="h6">
               {date && formatDateIfPossible(date, "MMMM d, yyyy")}
             </Typography>
           </Grid>
-          <Grid item container>
-			<Grid item xs={isMobile ? 12 : 3}>
-			  {(absenceStartTime || absenceEndTime) && (
-				<Typography variant="h6">
-				  {absenceStartTime} - {absenceEndTime}
-				</Typography>
-			  )}
-			 </Grid>
-			 <Grid item container xs={isMobile ? 12 : 8}>
-			   <Grid item xs={isMobile ? 12 : 4}>
-				<Typography variant="h6">
-				  {t("School")}
-				</Typography>
-			   </Grid>
-			   <Grid item xs={isMobile ? 12 : 4}>
-				<Typography variant="h6">
-				  {t("Accounting Code")}
-				</Typography>
-			   </Grid>
-			   <Grid item xs={isMobile ? 12 : 4}>
-				<Typography variant="h6">
-				  {t("Pay Code")}
-				</Typography>
-			   </Grid>
-			 </Grid>
+          <Grid item container className={classes.time}>
+            <Grid item xs={isMobile ? 12 : 3}>
+              {(absenceStartTime || absenceEndTime) && (
+                <Typography variant="h6">
+                  {absenceStartTime} - {absenceEndTime}
+                </Typography>
+              )}
+            </Grid>
+            <Grid item container xs={isMobile ? 12 : 8}>
+              <Grid item xs={isMobile ? 12 : 4}>
+                <Typography variant="h6">{t("School")}</Typography>
+              </Grid>
+              <Grid item xs={isMobile ? 12 : 4}>
+                <Typography variant="h6">{t("Accounting Code")}</Typography>
+              </Grid>
+              <Grid item xs={isMobile ? 12 : 4}>
+                <Typography variant="h6">{t("Pay Code")}</Typography>
+              </Grid>
+            </Grid>
           </Grid>
-      </>
-      }
+        </>
+      )}
       <Grid item container alignItems="center">
         <Grid
           item
@@ -218,15 +212,26 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           </Grid>
         )}
       </Grid>
-      {props.isLastOnDay &&
-       <Grid item container>
-         <Link onClick={props.onAddRow}>{t("Add row")}</Link>
-       </Grid>}
+      {props.isLastOnDay && (
+        <Grid item container className={classes.addRow}>
+          <Link onClick={props.onAddRow}>{t("Add row")}</Link>
+        </Grid>
+      )}
     </Grid>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  addRow: {
+    paddingBottom: theme.spacing(1),
+  },
+  date: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+  time: {
+    paddingBottom: theme.spacing(1),
+  },
   vacancyBlockItem: {
     marginTop: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
