@@ -13,6 +13,8 @@ import {
   parseISO,
   getDay,
   startOfDay,
+  startOfWeek,
+  eachDayOfInterval,
 } from "date-fns";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { daysOfWeekOrdered } from "helpers/day-of-week";
@@ -118,6 +120,15 @@ export const UpcomingAssignments: React.FC<Props> = props => {
       });
   };
 
+  const pastDays = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek(fromDate),
+        end: fromDate,
+      }).map(date => ({ date, buttonProps: { className: classes.pastDate } })),
+    [fromDate]
+  );
+
   const uniqueNonWorkingDays = useMemo(() => {
     const dates = [] as Date[];
     exceptions
@@ -209,7 +220,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
       d => !uniqueWorkingDays.find(uwd => uwd.getTime() == d.date.getTime())
     );
 
-  const calendarDates = disabledDates.concat(activeDates);
+  const calendarDates = disabledDates.concat(pastDays).concat(activeDates);
 
   const preloadDate = (dates: Date[]) => {
     const first = dates[0].toISOString();
@@ -332,6 +343,9 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.customColors.lightGray,
       color: theme.palette.text.disabled,
     },
+  },
+  pastDate: {
+    pointerEvents: "none",
   },
   availableBeforeDate: {
     background: `linear-gradient(to left top, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
