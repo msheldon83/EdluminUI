@@ -412,10 +412,6 @@ export const App = hot(function() {
                             />
                             <Route
                               component={SubAvailabilityLoader}
-                              path={SubAvailabilityPreloadedRoute.path}
-                            />
-                            <Route
-                              component={SubAvailabilityLoader}
                               path={SubAvailabilityRoute.path}
                             />
                             <Route path={SubScheduleCalendarViewRoute.path}>
