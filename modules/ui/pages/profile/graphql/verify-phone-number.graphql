@@ -3,6 +3,7 @@ mutation VerifyPhoneNumber($phoneNumber: String!) {
     verifyPhoneNumber(phoneNumber: $phoneNumber) {
       id
       phone
+      rowVersion
     }
   }
 }

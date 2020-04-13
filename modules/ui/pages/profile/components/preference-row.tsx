@@ -39,8 +39,6 @@ export const PreferenceRow: React.FC<Props> = props => {
     return <></>;
   }
 
-  const columnCount = +showEmailColumn + +showSmsColumn + +showInAppColumn;
-
   return (
     <>
       <Grid

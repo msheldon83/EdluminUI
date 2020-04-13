@@ -12,6 +12,7 @@ import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { ActionButtons } from "../../../components/action-buttons";
+import { phoneRegExp } from "helpers/regexp"
 
 type Props = {
   locationGroupOptions: OptionType[];
@@ -49,7 +50,6 @@ export const AddSettingsInfo: React.FC<Props> = props => {
     value: s.enumValue,
   }));
 
-  const phoneRegExp = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
   const cleanPhoneNumber = (phoneNumber: string) => {
     return phoneNumber.replace(/\D/g, "");
   };
