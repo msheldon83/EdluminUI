@@ -163,14 +163,13 @@ export const SearchBar: React.FC<Props> = props => {
     return arr.map((a, i) => {
       pointer =
         i === 0 ? pointer : pointer + lengthArr[i - 1] + searchTerm.length;
+
       return i == arr.length - 1 ? (
         s.substr(pointer, lengthArr[i])
       ) : (
         <div key={i} className={classes.inlineBlock}>
           {s.substr(pointer, lengthArr[i])}
-          <span className={classes.highlight}>
-            {s.substr(lengthArr[i], searchTerm.length)}
-          </span>
+          <span className={classes.highlight}>{searchTerm}</span>
         </div>
       );
     });
@@ -180,17 +179,9 @@ export const SearchBar: React.FC<Props> = props => {
     const attributes = JSON.parse(result.objectJson);
 
     const heading: string =
-      attributes.isNormalVacancy === 1
-        ? attributes.assignmentId !== 0
-          ? `${t("Vacancy")} #V${result.ownerId} (${t("Assignment")} #C${
-              attributes.assignmentId
-            })`
-          : `${t("Vacancy")} #V${result.ownerId}`
-        : attributes.assignmentId !== 0
-        ? `${t("Absence")} #${result.ownerId} (${t("Assignment")} #C${
-            attributes.assignmentId
-          })`
-        : `${t("Absence")} #${result.ownerId}`;
+      attributes.assignmentId !== 0
+        ? `${result.ownerId} (${t("Assignment")} #C${attributes.assignmentId})`
+        : `${result.ownerId}`;
 
     const subHeading = `${format(
       parseISO(attributes.absenceStartTimeUTC),
@@ -201,6 +192,11 @@ export const SearchBar: React.FC<Props> = props => {
       : attributes.employeeLastName;
     const subName = `${attributes.subFirstName} ${attributes.subLastName}`;
     const headingArr = highlightSearchTerm(heading, searchTerm);
+    headingArr.unshift(
+      attributes.isNormalVacancy === 1
+        ? `${t("Vacancy")} #V`
+        : `${t("Absence")} #`
+    );
 
     return (
       <Grid className={classes.resultItem} item xs={12} key={i}>
@@ -302,7 +298,7 @@ export const SearchBar: React.FC<Props> = props => {
     const externalArray = attributes.externalId
       ? highlightSearchTerm(attributes.externalId, searchTerm)
       : [];
-    console.log(attributes);
+
     return (
       <Grid className={classes.resultItem} item xs={12} key={i}>
         <div onClick={() => handleOrgUserOnClick(result.ownerId)}>
