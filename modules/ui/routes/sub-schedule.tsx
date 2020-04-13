@@ -30,6 +30,12 @@ export const SubAvailabilityRoute = defineSubRoute(
   "/availability"
 );
 
+export const SubAvailabilityPreloadedRoute = defineSubRoute(
+  SubAvailabilityRoute,
+  "/from/:fromDate/to/:toDate",
+  ["fromDate", "toDate"]
+);
+
 export const SubAvailabilityLoader = asyncComponent({
   resolve: async () => {
     const SubAvailability = (await import("ui/pages/sub-availability/index"))

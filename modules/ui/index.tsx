@@ -209,6 +209,7 @@ import {
   SubScheduleRoute,
   SubAvailabilityRoute,
   SubAvailabilityLoader,
+  SubAvailabilityPreloadedRoute,
 } from "./routes/sub-schedule";
 import {
   SubstituteSettingsLoader,
@@ -408,6 +409,10 @@ export const App = hot(function() {
                             <Route
                               component={UnauthorizedLoader}
                               path={UnauthorizedSubstituteRoleRoute.path}
+                            />
+                            <Route
+                              component={SubAvailabilityLoader}
+                              path={SubAvailabilityPreloadedRoute.path}
                             />
                             <Route
                               component={SubAvailabilityLoader}
