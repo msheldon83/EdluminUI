@@ -79,6 +79,12 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                   className={classes.endOfMorning}
+                                  style={{
+                                    ...provided.draggableProps.style,
+                                    position: snapshot.isDragging
+                                      ? "static"
+                                      : undefined,
+                                  }}
                                 >
                                   {endOfMorningDiv}
                                 </div>
@@ -96,7 +102,6 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
                   </div>
                 );
               })}
-              {provided.placeholder}
             </div>
           );
         }}
