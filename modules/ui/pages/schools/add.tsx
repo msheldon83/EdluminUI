@@ -5,9 +5,7 @@ import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
-import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
-import { TimeZone } from "graphql/server-types.gen";
 import { Typography, makeStyles } from "@material-ui/core";
 import { AddSettingsInfo } from "./components/add-settings-info";
 import {
@@ -15,7 +13,6 @@ import {
   CountryCode,
   StateCode,
 } from "graphql/server-types.gen";
-import { GetAllLocationGroupsWithinOrg } from "ui/pages/school-groups/graphql/get-all-location-groups.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { GetOrgConfigTimeZoneId } from "reference-data/get-org-config-timezone.gen";
 import { CreateLocation } from "./graphql/create-location.gen";
@@ -26,6 +23,8 @@ import {
   LocationsRoute,
   LocationViewRoute,
 } from "ui/routes/locations";
+import { GetLocationsDocument } from "reference-data/get-locations.gen";
+import { useLocationGroupOptions } from "reference-data/location-groups";
 
 type Props = {};
 
@@ -38,7 +37,13 @@ export const LocationAddPage: React.FC<Props> = props => {
   const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("Glenbrook North High School");
 
+  const locationsReferenceDataQuery = {
+    query: GetLocationsDocument,
+    varaibles: { orgId: params.organizationId },
+  };
+
   const [createLocation] = useMutationBundle(CreateLocation, {
+    refetchQueries: [locationsReferenceDataQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -60,23 +65,15 @@ export const LocationAddPage: React.FC<Props> = props => {
     replacementEndOffsetMinutes: null,
   });
 
-  //Query Location Groups
-  const locationGroups = useQueryBundle(GetAllLocationGroupsWithinOrg, {
-    variables: { orgId: params.organizationId },
-  });
   const getTimeZoneId = useQueryBundle(GetOrgConfigTimeZoneId, {
     variables: { orgId: params.organizationId },
   });
 
-  if (locationGroups.state === "LOADING" || getTimeZoneId.state === "LOADING") {
+  const locationGroupOptions = useLocationGroupOptions(params.organizationId);
+
+  if (getTimeZoneId.state === "LOADING") {
     return <></>;
   }
-
-  const locationGroupOptions: OptionType[] =
-    locationGroups?.data?.locationGroup?.all?.map(c => ({
-      label: c?.name ?? "",
-      value: c?.id ?? "",
-    })) ?? [];
 
   const timeZoneId = getTimeZoneId?.data?.organization?.byId?.timeZoneId;
 

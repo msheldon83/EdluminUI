@@ -2,7 +2,6 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageHeader } from "ui/components/page-header";
@@ -12,71 +11,87 @@ import {
   AbsenceReasonViewEditRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { AbsenceReasonSettings } from "./absence-reason-settings";
 import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
 import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
 import { makeStyles } from "@material-ui/styles";
+import { GetAbsenceReasonsDocument } from "reference-data/get-absence-reasons.gen";
 
 type Props = {};
 
-export const AbsenceReasonEditSettingsPage: React.FC<Props> = props => {
+export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
   const params = useRouteParams(AbsenceReasonEditSettingsRoute);
   const history = useHistory();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
 
-  const result = useQueryBundle(GetAbsenceReason, {
+  const absenceReasonsReferenceQuery = {
+    query: GetAbsenceReasonsDocument,
+    variables: { orgId: params.organizationId },
+  };
+
+  const getAbsenceReason = useQueryBundle(GetAbsenceReason, {
     fetchPolicy: "cache-and-network",
     variables: {
       absenceReasonId: params.absenceReasonId,
     },
   });
 
-  const [mutation] = useMutationBundle(UpdateAbsenceReason);
-
-  const updateAbsenceReason = useCallback(
-    async (updatedValues: {
-      allowNegativeBalance: boolean;
-      description?: string;
-      isRestricted: boolean;
-      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-      requireNotesToAdmin: boolean;
-    }) => {
-      if (result.state !== "DONE") {
-        return;
-      }
-      const reason = result.data.orgRef_AbsenceReason?.byId!;
-      const {
-        allowNegativeBalance,
-        description,
-        isRestricted,
-        absenceReasonTrackingTypeId: absenceReasonTrackingId,
-        requireNotesToAdmin,
-      } = updatedValues;
-      await mutation({
-        variables: {
-          absenceReason: {
-            id: reason.id,
-            rowVersion: reason.rowVersion,
-            allowNegativeBalance,
-            isBucket: false,
-            description,
-            isRestricted,
-            absenceReasonTrackingId,
-            requireNotesToAdmin,
-          },
-        },
-      });
-      history.push(AbsenceReasonViewEditRoute.generate(params));
+  const [mutation] = useMutationBundle(UpdateAbsenceReason, {
+    refetchQueries: [absenceReasonsReferenceQuery],
+    onError: error => {
+      ShowErrors(error, openSnackbar);
     },
-    [result, history, params]
-  );
+  });
 
-  if (result.state !== "DONE" && result.state !== "UPDATING") {
+  const updateAbsenceReason = async (updatedValues: {
+    allowNegativeBalance: boolean;
+    description?: string;
+    isRestricted: boolean;
+    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+    requireNotesToAdmin: boolean;
+  }) => {
+    if (getAbsenceReason.state !== "DONE") {
+      return;
+    }
+    const reason = getAbsenceReason.data.orgRef_AbsenceReason?.byId!;
+    const {
+      allowNegativeBalance,
+      description,
+      isRestricted,
+      absenceReasonTrackingTypeId: absenceReasonTrackingId,
+      requireNotesToAdmin,
+    } = updatedValues;
+    const result = await mutation({
+      variables: {
+        absenceReason: {
+          id: reason.id,
+          rowVersion: reason.rowVersion,
+          allowNegativeBalance,
+          isBucket: false,
+          description,
+          isRestricted,
+          absenceReasonTrackingId,
+          requireNotesToAdmin,
+        },
+      },
+    });
+    if (result.data) {
+      history.push(AbsenceReasonViewEditRoute.generate(params));
+    }
+  };
+
+  if (
+    getAbsenceReason.state !== "DONE" &&
+    getAbsenceReason.state !== "UPDATING"
+  ) {
     return <></>;
   }
-  const absenceReason = result.data.orgRef_AbsenceReason?.byId!;
+  const absenceReason = getAbsenceReason.data.orgRef_AbsenceReason?.byId!;
 
   return (
     <>

@@ -21,6 +21,7 @@ import { ReplacementAttributeIndexRoute } from "ui/routes/replacement-attribute"
 import { GetAllReplacementEndorsementsWithinOrg } from "./graphql/get-replacement-endorsements.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
+import { GetEndorsementsDocument } from "reference-data/get-endorsements.gen";
 
 type Props = {};
 
@@ -28,9 +29,19 @@ export const ReplacementAttribute: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const params = useRouteParams(ReplacementAttributeIndexRoute);
+  const { openSnackbar } = useSnackbar();
+  const [includeExpired, setIncludeExpired] = React.useState(false);
+
+  const endorsementsReferenceDataQuery = {
+    query: GetEndorsementsDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const [createReplacementEndorsement] = useMutationBundle(
     CreateReplacementEndorsement,
     {
+      refetchQueries: [endorsementsReferenceDataQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
@@ -39,14 +50,12 @@ export const ReplacementAttribute: React.FC<Props> = props => {
   const [updateReplacementEndorsement] = useMutationBundle(
     UpdateReplacementEndorsement,
     {
+      refetchQueries: [endorsementsReferenceDataQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
     }
   );
-  const params = useRouteParams(ReplacementAttributeIndexRoute);
-  const { openSnackbar } = useSnackbar();
-  const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getReplacementEndorsements = useQueryBundle(
     GetAllReplacementEndorsementsWithinOrg,
@@ -57,6 +66,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
   const [deleteReplacementEndorsementMutation] = useMutationBundle(
     DeleteReplacementEndorsement,
     {
+      refetchQueries: [endorsementsReferenceDataQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
@@ -95,7 +105,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         replacementEndorsement,
       },
     });
-    if (result === undefined) return false;
+    if (!result.data) return false;
     return true;
   };
   const update = async (replacementEndorsement: EndorsementUpdateInput) => {
@@ -109,7 +119,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         replacementEndorsement,
       },
     });
-    if (result === undefined) return false;
+    if (!result.data) return false;
     return true;
   };
   const deleteReplacementEndorsement = (endorsementId: string) => {
@@ -238,7 +248,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         }}
         onRowDelete={{
           action: async oldData => {
-            await deleteReplacementEndorsement(String(oldData.id));
+            await deleteReplacementEndorsement(oldData.id);
             await getReplacementEndorsements.refetch();
           },
           permissions: [PermissionEnum.AbsVacSettingsDelete],

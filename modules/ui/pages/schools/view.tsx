@@ -7,10 +7,10 @@ import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { useState } from "react";
 import { LocationViewRoute } from "ui/routes/locations";
-import { Redirect, useHistory } from "react-router";
+import { useHistory } from "react-router";
 import * as yup from "yup";
 import { useTranslation } from "react-i18next";
-import { Location as Loc, PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
 import { OrgUserPermissions } from "ui/components/auth/types";
@@ -20,6 +20,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { LocationSubPrefRoute, LocationsRoute } from "ui/routes/locations";
 import { DeleteLocation } from "./graphql/delete-location.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
+import { GetLocationsDocument } from "reference-data/get-locations.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -34,35 +35,40 @@ export const LocationViewPage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const [editing, setEditing] = useState<string | null>(null);
 
+  const locationsReferenceDataQuery = {
+    query: GetLocationsDocument,
+    varaibles: { orgId: params.organizationId },
+  };
+
   const getLocation = useQueryBundle(GetLocationById, {
     variables: {
       locationId: params.locationId,
     },
-    fetchPolicy: "cache-first",
   });
 
   const [deleteLocationMutation] = useMutationBundle(DeleteLocation, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: [locationsReferenceDataQuery],
   });
+
   const deleteLocation = React.useCallback(async () => {
-    await deleteLocationMutation({
+    const result = await deleteLocationMutation({
       variables: {
         locationId: params.locationId,
       },
-      awaitRefetchQueries: true,
-      refetchQueries: ["GetAllLocationsWithinOrg"],
     });
-    history.push(LocationsRoute.generate(params));
+    if (result.data) {
+      history.push(LocationsRoute.generate(params));
+    }
   }, [deleteLocationMutation, history, params]);
 
   const [updateLocation] = useMutationBundle(UpdateLocation, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
-    awaitRefetchQueries: true,
-    refetchQueries: ["GetLocationById"],
+    refetchQueries: [locationsReferenceDataQuery],
   });
 
   if (getLocation.state === "LOADING") {
