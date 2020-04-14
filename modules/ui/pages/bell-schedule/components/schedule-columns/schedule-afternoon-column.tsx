@@ -37,7 +37,7 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
           {(provided, snapshot) => {
             const { innerRef } = provided;
             return (
-              <div ref={innerRef} {...provided.droppableProps}>
+              <div {...provided.droppableProps} ref={innerRef} >
                 {props.periods.map((p, i) => {
                   const periodClasses = [props.scheduleClasses.period];
                   if (i % 2 === 1) {
