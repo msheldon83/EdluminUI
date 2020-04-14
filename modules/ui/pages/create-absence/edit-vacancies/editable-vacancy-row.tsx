@@ -245,7 +245,8 @@ const useStyles = makeStyles(theme => ({
   },
   rowContainer: {
     padding: theme.spacing(1),
-    paddingTop: 0,
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.5),
   },
   timeInput: {
     marginRight: theme.spacing(1),
