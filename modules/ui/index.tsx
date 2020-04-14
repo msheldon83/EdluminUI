@@ -80,6 +80,8 @@ import {
 import {
   AbsenceActivityLogRoute,
   AbsenceActivityLogLoader,
+  VacancyActivityLogRoute,
+  VacancyActivityLogLoader,
 } from "./routes/absence-vacancy/activity-log";
 import { EmployeeHomeLoader, EmployeeHomeRoute } from "./routes/employee-home";
 import {
@@ -267,6 +269,7 @@ import {
   VacancyViewRoute,
 } from "./routes/vacancy";
 import {
+  AbsenceVacancyNotificationLogRoute,
   VacancyNotificationLogRoute,
   VacancyNotificationLogLoader,
   UserNotificationLogRoute,
@@ -475,6 +478,19 @@ export const App = hot(function() {
                               permissions={[PermissionEnum.AbsVacSave]}
                             />
                             <ProtectedRoute
+                              component={VacancyActivityLogLoader}
+                              path={VacancyActivityLogRoute.path}
+                              role={"sysAdmin"}
+                            />
+                            <ProtectedRoute
+                              component={VacancyNotificationLogLoader}
+                              path={VacancyNotificationLogRoute.path}
+                              role={"admin"}
+                              permissions={[
+                                PermissionEnum.AbsVacViewNotificationLog,
+                              ]}
+                            />
+                            <ProtectedRoute
                               component={VacancyViewLoader}
                               path={VacancyViewRoute.path}
                               role={"admin"}
@@ -514,7 +530,9 @@ export const App = hot(function() {
                                   />
                                   <ProtectedRoute
                                     component={VacancyNotificationLogLoader}
-                                    path={VacancyNotificationLogRoute.path}
+                                    path={
+                                      AbsenceVacancyNotificationLogRoute.path
+                                    }
                                     role={"admin"}
                                     permissions={[
                                       PermissionEnum.AbsVacViewNotificationLog,

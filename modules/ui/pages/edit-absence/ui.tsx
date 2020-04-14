@@ -33,7 +33,7 @@ import {
   vacancyDetailsHaveDifferentAccountingCodeSelections,
   vacancyDetailsHaveDifferentPayCodeSelections,
 } from "ui/components/absence/helpers";
-import { ActionMenu } from "ui/components/action-menu";
+import { ActionMenu, Option } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -55,7 +55,7 @@ import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAsSysAdmin } from "helpers/permissions";
-import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
@@ -536,6 +536,48 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     theVacancyDetails,
   ]);
 
+  const actionMenuOptions = useMemo(() => {
+    const options: Option[] = [
+      {
+        name: t("Activity Log"),
+        onClick: () => {
+          history.push(
+            AbsenceActivityLogRoute.generate({
+              organizationId: props.organizationId,
+              absenceId: props.absenceId,
+            })
+          );
+        },
+        permissions: (
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+      },
+    ];
+    if (props.initialVacancies[0]) {
+      options.push({
+        name: t("Notification Log"),
+        onClick: () => {
+          history.push(
+            AbsenceVacancyNotificationLogRoute.generate({
+              organizationId: props.organizationId,
+              vacancyId: props.initialVacancies[0].id,
+            })
+          );
+        },
+        permissions: [PermissionEnum.AbsVacViewNotificationLog],
+      });
+    }
+    return options;
+  }, [
+    history,
+    props.absenceId,
+    props.initialVacancies,
+    props.organizationId,
+    t,
+  ]);
+
   return (
     <>
       <DiscardChangesDialog
@@ -583,37 +625,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             <div className={classes.headerMenu}>
               <ActionMenu
                 className={classes.actionMenu}
-                options={[
-                  {
-                    name: t("Activity Log"),
-                    onClick: () => {
-                      history.push(
-                        AbsenceActivityLogRoute.generate({
-                          organizationId: props.organizationId,
-                          absenceId: props.absenceId,
-                        })
-                      );
-                    },
-                    permissions: (
-                      permissions: OrgUserPermissions[],
-                      isSysAdmin: boolean,
-                      orgId?: string
-                    ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
-                  },
-                  {
-                    name: t("Notification Log"),
-                    onClick: () => {
-                      history.push(
-                        VacancyNotificationLogRoute.generate({
-                          organizationId: props.organizationId,
-                          vacancyId: props.initialVacancies[0].id,
-                          absenceId: props.absenceId,
-                        })
-                      );
-                    },
-                    permissions: [PermissionEnum.AbsVacViewNotificationLog],
-                  },
-                ]}
+                options={actionMenuOptions}
               />
             </div>
           </div>
