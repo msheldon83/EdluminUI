@@ -23,6 +23,8 @@ import { useIsMobile } from "hooks";
 type Props = {
   userId: string;
   onSave: (exception: UserUnavailableTimeInput) => Promise<unknown>;
+  fromDate?: Date;
+  toDate?: Date;
 };
 
 export const AddException: React.FC<Props> = props => {
@@ -45,8 +47,8 @@ export const AddException: React.FC<Props> = props => {
           initialValues={{
             availability: UserAvailability.NotAvailable,
             time: undefined,
-            fromDate: today,
-            toDate: today,
+            fromDate: props.fromDate ?? today,
+            toDate: props.toDate ?? today,
             reason: "",
           }}
           onSubmit={async (data, e) => {
