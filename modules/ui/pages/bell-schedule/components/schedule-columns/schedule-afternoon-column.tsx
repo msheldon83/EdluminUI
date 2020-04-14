@@ -36,6 +36,7 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
         <Droppable droppableId="startOfAfternoonDroppable">
           {(provided, snapshot) => {
             const { innerRef } = provided;
+
             return (
               <div {...provided.droppableProps} ref={innerRef} >
                 {props.periods.map((p, i) => {
@@ -82,6 +83,12 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
                                     className={classes.startOfAfternoon}
+                                    style={{
+                                      ...provided.draggableProps.style,
+                                      position: snapshot.isDragging
+                                        ? "static"
+                                        : undefined,
+                                    }}
                                   >
                                     {startOfAfternoonDiv}
                                   </div>
@@ -99,7 +106,6 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
                     </div>
                   );
                 })}
-                {provided.placeholder}
               </div>
             );
           }}
