@@ -169,7 +169,9 @@ export const SearchBar: React.FC<Props> = props => {
       ) : (
         <div key={i} className={classes.inlineBlock}>
           {s.substr(pointer, lengthArr[i])}
-          <span className={classes.highlight}>{searchTerm}</span>
+          <span className={classes.highlight}>
+            {s.substr(lengthArr[i] + pointer, searchTerm.length)}
+          </span>
         </div>
       );
     });
