@@ -6,9 +6,16 @@ const CopyPlugin = require("copy-webpack-plugin");
 const ProgressBarPlugin = require("progress-bar-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const loaders = require("./loaders");
-const HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { execSync } = require("child_process");
+
+/*
+  This forked version of the component fixes a bug that's yet to get merged into
+  the original package. Here's a link to the thread:
+
+  https://github.com/mzgoddard/hard-source-webpack-plugin/issues/416
+*/
+const HardSourceWebpackPlugin = require("hard-source-webpack-plugin-fixed-hashbug");
 
 const os = require("os");
 const DEV_PORT = config.get("devServer.port");
@@ -53,7 +60,7 @@ module.exports = {
 
   devtool: config.get("minify")
     ? "hidden-source-map"
-    : "cheap-module-source-map",
+    : "cheap-module-eval-source-map",
 
   cache: config.get("minify") ? false : true,
 
@@ -85,11 +92,10 @@ module.exports = {
           // },
         },
       }
-    : {
-        noEmitOnErrors: true,
-      },
+    : undefined,
 
   performance: {
+    hints: "warning",
     assetFilter(filename) {
       // Don't size test uncompressed javascript - we just care about the .js.gz files
       return !/\.(js|map)$/.test(filename);
@@ -102,7 +108,12 @@ module.exports = {
   },
 
   plugins: [
-    // new HardSourceWebpackPlugin(),
+    new HardSourceWebpackPlugin({
+      cacheDirectory: path.resolve(
+        __dirname,
+        "../.cache/hard-source/[confighash]"
+      ),
+    }),
 
     new CopyPlugin([{ from: "scripts/new-relic.js" }]),
 
@@ -188,6 +199,7 @@ module.exports = {
       "@material-ui/core": "@material-ui/core/es",
       "react-dom": "@hot-loader/react-dom",
     },
+    symlinks: false,
   },
 
   module: {
