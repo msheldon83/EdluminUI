@@ -4,6 +4,7 @@ query GetEmployeesForOrg(
   $offset: Int
   $name: String
   $sortBy: [SortDetailsInput]
+  $active: Boolean
 ) {
   orgUser {
     paged(
@@ -13,6 +14,7 @@ query GetEmployeesForOrg(
       role: EMPLOYEE
       name: $name
       sortBy: $sortBy
+      active: $active
     ) {
       totalCount
       offset
