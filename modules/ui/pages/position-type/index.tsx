@@ -1,6 +1,5 @@
 import { Button, Grid, makeStyles } from "@material-ui/core";
-import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { useIsMobile } from "hooks";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
@@ -17,11 +16,8 @@ import {
   PositionTypeRoute,
   PositionTypeViewRoute,
 } from "ui/routes/position-type";
-import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
-import { useSnackbar } from "hooks/use-snackbar";
-import { ShowErrors } from "ui/components/error-helpers";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -29,33 +25,11 @@ export const PositionTypePage: React.FC<{}> = props => {
   const history = useHistory();
   const params = useRouteParams(PositionTypeRoute);
   const isMobile = useIsMobile();
-  const { openSnackbar } = useSnackbar();
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
   const getPositionTypes = useQueryBundle(GetAllPositionTypesWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired },
   });
-  const [deletePositionTypeMutation] = useMutationBundle(DeletePostionType, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-  const deletePositionType = (positionTypeId: string) => {
-    return deletePositionTypeMutation({
-      variables: {
-        positionTypeId: positionTypeId,
-      },
-    });
-  };
-
-  const deleteSelected = async (data: { id: string } | { id: string }[]) => {
-    if (Array.isArray(data)) {
-      await Promise.all(data.map(id => deletePositionType(id.id)));
-    } else {
-      await Promise.resolve(deletePositionType(data.id));
-    }
-    await getPositionTypes.refetch();
-  };
 
   const columns: Column<GetAllPositionTypesWithinOrg.All>[] = [
     {

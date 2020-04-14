@@ -26,6 +26,7 @@ import { SectionHeader } from "ui/components/section-header";
 import { ActionButtons } from "ui/components/action-buttons";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { GetPermissionSetsDocument } from "reference-data/get-permission-sets.gen";
 
 type PermissionSetCreate = {
   orgId: string;
@@ -42,7 +43,34 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
   const params = useRouteParams(SecurityPermissionSetsAddRoute);
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+
+  const permissionSetsAdminReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.Administrator],
+    },
+  };
+
+  const permissionSetsEmployeeReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: { orgId: params.organizationId, roles: [OrgUserRole.Employee] },
+  };
+
+  const permissionSetsSubReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.ReplacementEmployee],
+    },
+  };
+
   const [createPermissionSet] = useMutationBundle(CreatePermissionSet, {
+    refetchQueries: [
+      permissionSetsAdminReferenceQuery,
+      permissionSetsEmployeeReferenceQuery,
+      permissionSetsSubReferenceQuery,
+    ],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },

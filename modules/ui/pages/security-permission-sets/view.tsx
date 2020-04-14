@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import Maybe from "graphql/tsutils/Maybe";
 import { useIsMobile } from "hooks";
@@ -27,10 +27,10 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { PermissionSettings } from "./components/add-edit-permission-settings";
 import { usePermissionDefinitions } from "reference-data/permission-definitions";
-import { pick } from "lodash-es";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
 import { canEditPermissionSet } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
+import { GetPermissionSetsDocument } from "reference-data/get-permission-sets.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -50,6 +50,27 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
   const permissionDefinitions = usePermissionDefinitions(role);
   const canDoFn = useCanDo();
 
+  const permissionSetsAdminReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.Administrator],
+    },
+  };
+
+  const permissionSetsEmployeeReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: { orgId: params.organizationId, roles: [OrgUserRole.Employee] },
+  };
+
+  const permissionSetsSubReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.ReplacementEmployee],
+    },
+  };
+
   const [deletePermissionSetMutation] = useMutationBundle(DeletePermissionSet, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -64,11 +85,27 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         permissionSetId: params.permissionSetId,
       },
       awaitRefetchQueries: true,
-      refetchQueries: ["GetAllPermissionSetsWithinOrg"],
+      refetchQueries: [
+        "GetAllPermissionSetsWithinOrg",
+        permissionSetsAdminReferenceQuery,
+        permissionSetsEmployeeReferenceQuery,
+        permissionSetsSubReferenceQuery,
+      ],
     });
-  }, [deletePermissionSetMutation]);
+  }, [
+    deletePermissionSetMutation,
+    params.permissionSetId,
+    permissionSetsAdminReferenceQuery,
+    permissionSetsEmployeeReferenceQuery,
+    permissionSetsSubReferenceQuery,
+  ]);
 
   const [updatePermissionSet] = useMutationBundle(UpdatePermissionSet, {
+    refetchQueries: [
+      permissionSetsAdminReferenceQuery,
+      permissionSetsEmployeeReferenceQuery,
+      permissionSetsSubReferenceQuery,
+    ],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
