@@ -44,13 +44,33 @@ export const PermissionSetAddPage: React.FC<{}> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
-  const permissionSetsReferenceQuery = {
+  const permissionSetsAdminReferenceQuery = {
     query: GetPermissionSetsDocument,
-    variables: { orgId: params.organizationId },
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.Administrator],
+    },
+  };
+
+  const permissionSetsEmployeeReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: { orgId: params.organizationId, roles: [OrgUserRole.Employee] },
+  };
+
+  const permissionSetsSubReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.ReplacementEmployee],
+    },
   };
 
   const [createPermissionSet] = useMutationBundle(CreatePermissionSet, {
-    refetchQueries: [permissionSetsReferenceQuery],
+    refetchQueries: [
+      permissionSetsAdminReferenceQuery,
+      permissionSetsEmployeeReferenceQuery,
+      permissionSetsSubReferenceQuery,
+    ],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },

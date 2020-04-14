@@ -50,13 +50,28 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
   const permissionDefinitions = usePermissionDefinitions(role);
   const canDoFn = useCanDo();
 
-  const permissionSetsReferenceQuery = {
+  const permissionSetsAdminReferenceQuery = {
     query: GetPermissionSetsDocument,
-    variables: { orgId: params.organizationId },
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.Administrator],
+    },
+  };
+
+  const permissionSetsEmployeeReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: { orgId: params.organizationId, roles: [OrgUserRole.Employee] },
+  };
+
+  const permissionSetsSubReferenceQuery = {
+    query: GetPermissionSetsDocument,
+    variables: {
+      orgId: params.organizationId,
+      roles: [OrgUserRole.ReplacementEmployee],
+    },
   };
 
   const [deletePermissionSetMutation] = useMutationBundle(DeletePermissionSet, {
-    refetchQueries: [permissionSetsReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -70,12 +85,27 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         permissionSetId: params.permissionSetId,
       },
       awaitRefetchQueries: true,
-      refetchQueries: ["GetAllPermissionSetsWithinOrg"],
+      refetchQueries: [
+        "GetAllPermissionSetsWithinOrg",
+        permissionSetsAdminReferenceQuery,
+        permissionSetsEmployeeReferenceQuery,
+        permissionSetsSubReferenceQuery,
+      ],
     });
-  }, [deletePermissionSetMutation, params.permissionSetId]);
+  }, [
+    deletePermissionSetMutation,
+    params.permissionSetId,
+    permissionSetsAdminReferenceQuery,
+    permissionSetsEmployeeReferenceQuery,
+    permissionSetsSubReferenceQuery,
+  ]);
 
   const [updatePermissionSet] = useMutationBundle(UpdatePermissionSet, {
-    refetchQueries: [permissionSetsReferenceQuery],
+    refetchQueries: [
+      permissionSetsAdminReferenceQuery,
+      permissionSetsEmployeeReferenceQuery,
+      permissionSetsSubReferenceQuery,
+    ],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },

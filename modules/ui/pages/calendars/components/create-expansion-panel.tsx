@@ -149,7 +149,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
         <ExpansionPanelDetails>
           <Formik
             initialValues={{
-              changeReason: changeReasonOptions[0].value,
+              changeReason: changeReasonOptions[0]?.value ?? undefined,
               toDate: today,
               fromDate: today,
               notes: undefined,
@@ -174,7 +174,9 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                 description: data.notes,
                 startDate: data.fromDate,
                 endDate: data.toDate,
-                calendarChangeReasonId: data.changeReason,
+                calendarChangeReasonId: data.changeReason
+                  ? data.changeReason
+                  : changeReasonOptions[0]?.value,
                 contractIds: data.contracts ?? [],
                 affectsAllContracts: data.applyToAll,
               };
@@ -280,13 +282,13 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                     <Typography>{t("Reason")}</Typography>
                     <SelectNew
                       options={changeReasonOptions}
-                      value={{
-                        value: values.changeReason ?? "",
-                        label:
-                          changeReasonOptions.find(
-                            (a: any) => a.value === values.changeReason
-                          )?.label || "",
-                      }}
+                      value={
+                        values.changeReason
+                          ? changeReasonOptions.find(
+                              (a: any) => a.value === values.changeReason
+                            )
+                          : changeReasonOptions[0] ?? { value: "", label: "" }
+                      }
                       onChange={async (e: OptionType) => {
                         let selectedValue = null;
                         if (e) {

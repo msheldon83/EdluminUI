@@ -59,7 +59,7 @@ export const LocationViewPage: React.FC<{}> = props => {
         locationId: params.locationId,
       },
     });
-    if (result.data) {
+    if (result.data?.location?.delete) {
       history.push(LocationsRoute.generate(params));
     }
   }, [deleteLocationMutation, history, params]);
