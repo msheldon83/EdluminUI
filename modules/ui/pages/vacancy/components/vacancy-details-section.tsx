@@ -122,7 +122,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
         newDetails.push({ date: d, id: uuid.v4() });
       }
     });
-    newDetails.sort((a, b) => a.date.getTime() - b.date.getTime())
+    newDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
     setFieldValue("details", newDetails);
     updateModel({ details: newDetails });
     setIsSelectDatesOpen(false);
@@ -473,6 +473,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               {!readOnly && (
                 <Grid item xs={4}>
                   <Button
+                    className={classes.selectDateButton}
                     onClick={() => {
                       setIsSelectDatesOpen(true);
                     }}
@@ -537,5 +538,8 @@ const useStyles = makeStyles(theme => ({
     fontWeight: "normal",
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
+  },
+  selectDateButton: {
+    marginLeft: theme.typography.pxToRem(10),
   },
 }));
