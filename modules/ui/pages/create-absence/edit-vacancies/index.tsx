@@ -88,6 +88,7 @@ export const EditVacancies: React.FC<Props> = props => {
     ? `${t("Substitute details for absence ")} ${"#" + props.absenceId}`
     : t("Substitute details for a new absence");
 
+  let shaded = false;
   return (
     <Formik
       initialValues={initialFormData}
@@ -232,6 +233,8 @@ export const EditVacancies: React.FC<Props> = props => {
                       parseISO(values.details[i + 1].date),
                       parseISO(d.date)
                     );
+                  // If the first detail on a day, or the last one was shaded, don't shade.
+                  shaded = !(isFirstOnDay || shaded);
                   return (
                     <Grid key={i} container>
                       <EditableVacancyDetailRow
@@ -242,7 +245,7 @@ export const EditVacancies: React.FC<Props> = props => {
                         payCodeOptions={payCodeOptions}
                         keyPrefix={`details.${i}`}
                         values={d}
-                        className={i % 2 == 1 ? classes.shadedRow : undefined}
+                        className={shaded ? classes.shadedRow : undefined}
                         onAddRow={() => arrayHelpers.insert(i + 1, d)}
                         onRemoveRow={() => arrayHelpers.remove(i)}
                         showRemoveButton={mulitpleDetailsForDate(
