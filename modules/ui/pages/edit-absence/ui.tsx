@@ -55,7 +55,7 @@ import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAsSysAdmin } from "helpers/permissions";
-import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
@@ -604,10 +604,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                     name: t("Notification Log"),
                     onClick: () => {
                       history.push(
-                        VacancyNotificationLogRoute.generate({
+                        AbsenceVacancyNotificationLogRoute.generate({
                           organizationId: props.organizationId,
                           vacancyId: props.initialVacancies[0].id,
-                          absenceId: props.absenceId,
                         })
                       );
                     },

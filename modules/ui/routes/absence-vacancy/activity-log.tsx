@@ -14,3 +14,16 @@ export const AbsenceActivityLogLoader = asyncComponent({
       .AbsenceActivityLog;
   },
 });
+
+export const VacancyActivityLogRoute = defineSubRoute(
+  AdminChromeRoute,
+  "vacancy/activity/:vacancyId",
+  ["vacancyId"]
+);
+
+export const VacancyActivityLogLoader = asyncComponent({
+  async resolve() {
+    return (await import("ui/pages/vacancy/vacancy-activity-log"))
+      .VacancyActivityLog;
+  },
+});

@@ -3,20 +3,18 @@ import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
 import * as React from "react";
-import { useMemo } from "react";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
-import { PageTitle } from "ui/components/page-title";
 import { Table } from "ui/components/table";
 import { GetNotificationLogForVacancy } from "./graphql/get-notification-log.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
-import { Link } from "react-router-dom";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
-import { GetAbsence } from "./graphql/get-absence.gen";
+import { GetVacancyById } from "./graphql/get-vacancy-byid.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 
 export const VacancyNotificationLogIndex: React.FC<{}> = props => {
@@ -29,21 +27,32 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
     variables: { vacancyId: params.vacancyId },
   });
 
-  const getAbsence = useQueryBundle(GetAbsence, {
-    variables: { id: params.absenceId },
+  const getVacancy = useQueryBundle(GetVacancyById, {
+    variables: { id: params.vacancyId },
   });
-  const absence =
-    getAbsence.state !== "LOADING" ? getAbsence?.data?.absence?.byId : null;
-  const employeeName = `${absence?.employee?.firstName ?? ""} ${absence
-    ?.employee?.lastName ?? ""}`;
+
+  const vacancy =
+    getVacancy.state !== "LOADING" ? getVacancy?.data?.vacancy?.byId : null;
+  const isAbsenceVacancy = vacancy?.absence ? true : false;
+
+  const headerId = isAbsenceVacancy
+    ? `#${vacancy?.absence?.id}`
+    : `#V${vacancy?.id}`;
+  const subHeader = isAbsenceVacancy
+    ? `${vacancy?.absence?.employee?.firstName} ${vacancy?.absence?.employee?.lastName}`
+    : vacancy?.position?.title;
 
   const onReturn = () => {
-    history.push(
-      AdminEditAbsenceRoute.generate({
-        absenceId: params.absenceId,
-        organizationId: params.organizationId,
-      })
-    );
+    if (isAbsenceVacancy) {
+      history.push(
+        AdminEditAbsenceRoute.generate({
+          absenceId: vacancy?.absence?.id ?? "",
+          organizationId: params.organizationId,
+        })
+      );
+    } else {
+      history.push(VacancyViewRoute.generate(params));
+    }
   };
 
   const userAccess = useMyUserAccess();
@@ -151,9 +160,10 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
         <Grid item>
           <AbsenceVacancyHeader
             actingAsEmployee={false}
-            subHeader={employeeName}
-            pageHeader={`${t("Text message log")} #${params.absenceId}`}
+            subHeader={subHeader ?? ""}
+            pageHeader={`${t("Text message log")} ${headerId}`}
             onCancel={onReturn}
+            isForVacancy={!isAbsenceVacancy}
           />
           <div className={classes.infoText}>
             {t(

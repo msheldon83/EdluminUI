@@ -1,8 +1,9 @@
 import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { useRouteParams } from "ui/routes/definition";
-import { UnderConstructionHeader } from "ui/components/under-construction";
+import { ActionMenu } from "ui/components/action-menu";
 import { VacancyViewRoute } from "ui/routes/vacancy";
+import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useTranslation } from "react-i18next";
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
@@ -13,13 +14,16 @@ import { UpdateVacancy } from "./graphql/update-vacancy.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { buildFormData, buildVacancyUpdateInput } from "./helpers";
-import { Vacancy } from "graphql/server-types.gen";
+import { PermissionEnum, Vacancy } from "graphql/server-types.gen";
 import { useState, useEffect } from "react";
 import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete-absence-vacancy-dialog";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useHistory } from "react-router";
 import { DeleteVacancy } from "./graphql/delete-vacancy.gen";
 import { VacancyDetailsFormData } from "./helpers/types";
+import { VacancyActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
+import { OrgUserPermissions } from "ui/components/auth/types";
+import { canViewAsSysAdmin } from "helpers/permissions";
 
 type Props = {};
 
@@ -110,9 +114,36 @@ export const VacancyView: React.FC<Props> = props => {
   return (
     <>
       <PageTitle title={t("Vacancy")} withoutHeading />
-      <Typography className={classes.title} variant="h5">
-        {t("Vacancy")}
-      </Typography>
+      <div className={classes.titleContainer}>
+        <Typography className={classes.title} variant="h5">
+          {t("Vacancy")}
+        </Typography>
+        <div className={classes.headerMenu}>
+          <ActionMenu
+            className={classes.actionMenu}
+            options={[
+              {
+                name: t("Activity Log"),
+                onClick: () => {
+                  history.push(VacancyActivityLogRoute.generate(params));
+                },
+                permissions: (
+                  permissions: OrgUserPermissions[],
+                  isSysAdmin: boolean,
+                  orgId?: string
+                ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+              },
+              {
+                name: t("Notification Log"),
+                onClick: () => {
+                  history.push(VacancyNotificationLogRoute.generate(params));
+                },
+                permissions: [PermissionEnum.AbsVacViewNotificationLog],
+              },
+            ]}
+          />
+        </div>
+      </div>
       <DeleteAbsenceVacancyDialog
         objectType={"vacancy"}
         onDelete={onDeleteVacancy}
@@ -131,4 +162,20 @@ export const VacancyView: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   title: { color: theme.customColors.primary },
+  titleContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignText: "center",
+    justifyContent: "space-between",
+  },
+  headerMenu: {
+    display: "flex",
+    flexDirection: "column",
+    alignText: "center",
+    justifyContent: "space-between",
+  },
+  actionMenu: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
 }));

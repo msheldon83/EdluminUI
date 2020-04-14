@@ -1,0 +1,19 @@
+query GetVacancyById($id: ID!) {
+  vacancy {
+    byId(id: $id) {
+      id
+      absence {
+        id
+        employee {
+          id
+          firstName
+          lastName
+        }
+      }
+      position {
+        id
+        title
+      }
+    }
+  }
+}
