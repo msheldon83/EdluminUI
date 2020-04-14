@@ -129,7 +129,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                 </Grid>
                 <Grid item xs={isMobile ? 12 : 4}>
                   <div>
-                    <div className={classes.labelContainer}>
+                    <div className={classes.timezoneLabelContainer}>
                       <div>
                         {t("Time Zone")}
                         <Tooltip
@@ -297,6 +297,10 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
     marginBottom: theme.spacing(0.4),
+  },
+  timezoneLabelContainer: {
+    display: "flex",
+    justifyContent: "space-between",
   },
   tooltip: {
     padding: theme.spacing(2),
