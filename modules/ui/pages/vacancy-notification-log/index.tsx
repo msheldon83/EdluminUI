@@ -33,25 +33,25 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
 
   const vacancy =
     getVacancy.state !== "LOADING" ? getVacancy?.data?.vacancy?.byId : null;
-  const isAbsenceVacancy = vacancy?.absence ? true : false;
+  const isNormalVacancy = vacancy?.isNormalVacancy;
 
-  const headerId = isAbsenceVacancy
-    ? `#${vacancy?.absence?.id}`
-    : `#V${vacancy?.id}`;
-  const subHeader = isAbsenceVacancy
-    ? `${vacancy?.absence?.employee?.firstName} ${vacancy?.absence?.employee?.lastName}`
-    : vacancy?.position?.title;
+  const headerId = isNormalVacancy
+    ? `#V${vacancy?.id}`
+    : `#${vacancy?.absenceId}`;
+  const subHeader = isNormalVacancy
+    ? vacancy?.position?.title
+    : `${vacancy?.absence?.employee?.firstName} ${vacancy?.absence?.employee?.lastName}`;
 
   const onReturn = () => {
-    if (isAbsenceVacancy) {
+    if (isNormalVacancy) {
+      history.push(VacancyViewRoute.generate(params));
+    } else {
       history.push(
         AdminEditAbsenceRoute.generate({
-          absenceId: vacancy?.absence?.id ?? "",
+          absenceId: vacancy?.absenceId ?? "",
           organizationId: params.organizationId,
         })
       );
-    } else {
-      history.push(VacancyViewRoute.generate(params));
     }
   };
 
@@ -163,7 +163,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
             subHeader={subHeader ?? ""}
             pageHeader={`${t("Text message log")} ${headerId}`}
             onCancel={onReturn}
-            isForVacancy={!isAbsenceVacancy}
+            isForVacancy={isNormalVacancy}
           />
           <div className={classes.infoText}>
             {t(

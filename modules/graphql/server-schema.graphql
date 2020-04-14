@@ -1344,6 +1344,128 @@ type DailyReportV2 {
   parseTime: Float!
 }
 
+type DataImport implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  importOptions: DataImportOptions
+  totalRowCount: Int!
+  columnNames: [String]
+  dataImportStatusId: DataImportStatus
+  rows: [DataImportRow]
+  numAttempts: Int!
+  lastAttemptUtc: DateTime!
+  nextAttemptUtc: DateTime!
+  callStack: String!
+  messages: [String]
+}
+
+type DataImportOptions {
+  _info: [ReturnMessage]
+  orgId: ID!
+  dataImportTypeId: DataImportType
+  parseOnly: Boolean!
+  validateOnly: Boolean!
+  ignoreWarnings: Boolean!
+  maxParseErrors: Int!
+  maxValidationErrors: Int!
+  maxImportErrors: Int!
+  earliestStartUtc: DateTime!
+  notificationEmailAddresses: [String]
+}
+
+type DataImportQueries {
+  byId(id: ID!): DataImport
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): [DataImport]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): PagedDataImport
+}
+
+type DataImportRow implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  dataImportId: ID!
+  rowNumber: Int!
+  columnValues: [String]
+  rowStatusId: DataImportRowStatus
+  numAttempts: Int!
+  lastAttemptUtc: DateTime!
+  callStack: String!
+  messages: [String]
+}
+
+enum DataImportRowStatus {
+  INVALID
+  CREATED
+  NOTHING_TO_IMPORT
+  MISSING_REQUIRED_COLUMNS
+  PARSE_ERROR
+  PARSED
+  VALIDATION_FAILURE
+  VALIDATED
+  IMPORT_FAILURE
+  IMPORTED
+}
+
+enum DataImportStatus {
+  INVALID
+  CREATED
+  FILE_UPLOAD_FAILURE
+  UNSUPPORTED_DATA_LOAD_TYPE
+  MISSING_COLUMN_DEFINITIONS
+  MISSING_COLUMN_NAMES
+  PARSING
+  PARSE_FAILURE
+  READY_TO_IMPORT
+  VALIDATING
+  PARTIALLY_VALIDATED
+  VALIDATION_FAILURE
+  VALIDATED
+  IMPORTING
+  PARTIALLY_IMPORTED
+  IMPORT_FAILURE
+  IMPORTED
+  PERMANENT_FAILURE
+}
+
+enum DataImportType {
+  INVALID
+  ABSENCE
+  ABSENCE_REASON
+  ACCOUNTING_CODE
+  ADMINISTRATOR
+  CALENDAR_CHANGE
+  CALENDAR_CHANGE_REASON
+  CONTRACT
+  EMPLOYEE
+  ENDORSEMENT
+  LOCATION
+  LOCATION_GROUP
+  PAY_CODE
+  POSITION_TYPE
+  REPLACEMENT_CRITERIA_CONFIG
+  REPLACEMENT_POOL_CONFIG
+  SUBSTITUTE
+  VACANCY
+  ABSENCE_REASON_BALANCE
+}
+
 scalar Date
 
 enum DateRangeType {
@@ -2077,7 +2199,6 @@ type InAppNotification implements ModelObjectInterface {
   isDeleted: Boolean!
   title: String
   content: String
-  headerMessage: String
   objectTypeId: ObjectType!
   objectKey: ID!
   viewed: Boolean!
@@ -2432,6 +2553,9 @@ enum NotificationReason {
   EMP_ABSENCE_CREATED_BY_SELF
   EMP_ABSENCE_DELETED_BY_OTHER
   EMP_ABSENCE_DELETED_BY_SELF
+  SUB_ASSIGNED_BY_OTHER
+  SUB_ASSIGNED_BY_SELF
+  ADMIN_SUB_REMOVED_BY_ANY
 }
 
 type ObjectReplacementCriteria {
@@ -3176,6 +3300,15 @@ type PagedContractSchedule {
 type PagedCustomField {
   _info: [ReturnMessage]
   results: [CustomField]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedDataImport {
+  _info: [ReturnMessage]
+  results: [DataImport]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4315,6 +4448,7 @@ type Query {
   contract: ContractQueries
   contractSchedule: ContractScheduleQueries
   customField: CustomFieldQueries
+  dataImport: DataImportQueries
   employee: EmployeeQueries
   eventQueue: EventQueueQueries
   inAppNotification: InAppNotificationQueries

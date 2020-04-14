@@ -2,8 +2,9 @@ query GetVacancyById($id: ID!) {
   vacancy {
     byId(id: $id) {
       id
+      isNormalVacancy
+      absenceId
       absence {
-        id
         employee {
           id
           firstName
