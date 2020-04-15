@@ -1,0 +1,40 @@
+query GetDataImports(
+  $orgId: ID
+  $limit: Int
+  $offset: Int
+  $status: DataImportStatus
+  $type: DataImportType
+  $fromDate: Date
+  $toDate: Date
+) {
+  dataImport {
+    paged(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      status: $status
+      type: $type
+      fromDate: $fromDate
+      toDate: $toDate
+    ) {
+      offset
+      limit
+      hasMoreData
+      totalCount
+      results {
+        id
+        dataImportStatusId
+        createdUtc
+        nextAttemptUtc
+        numAttempts
+        totalRowCount
+        columnNames
+        importOptions {
+          dataImportTypeId
+          parseOnly
+          validateOnly
+        }
+      }
+    }
+  }
+}

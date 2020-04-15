@@ -1,0 +1,26 @@
+query GetDataImportRows(
+  $orgId: ID!
+  $dataImportId: ID!
+  $limit: Int
+  $offset: Int
+) {
+  dataImport {
+    pagedDataImportRows(
+      orgId: $orgId
+      dataImportId: $dataImportId
+      limit: $limit
+      offset: $offset
+    ) {
+      offset
+      limit
+      hasMoreData
+      totalCount
+      results {
+        id
+        columnValues
+        rowNumber
+        rowStatusId
+      }
+    }
+  }
+}
