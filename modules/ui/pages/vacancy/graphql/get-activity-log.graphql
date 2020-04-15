@@ -1,0 +1,16 @@
+query GetActivityLogForVacancy($id: ID!) {
+  vacancy {
+    activityLog(id: $id) {
+      count
+      orgId
+      activityLogDetails {
+        actualUser
+        actingUser
+        createdUtc
+        moreDetail
+        title
+        subTitle
+      }
+    }
+  }
+}

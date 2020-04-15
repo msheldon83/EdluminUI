@@ -1,0 +1,11 @@
+query GetGlobalSearchResults($orgIds: [ID], $searchTerm: String!) {
+  organization {
+    search(orgIds: $orgIds, searchTerm: $searchTerm) {
+      ownerId
+      objectTypeId
+      orgId
+      createdUtc
+      objectJson
+    }
+  }
+}

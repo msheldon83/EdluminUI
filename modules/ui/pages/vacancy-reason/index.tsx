@@ -23,33 +23,40 @@ import { CreateVacancyReason } from "./graphql/create-vacancy-reason.gen";
 import { DeleteVacancyReason } from "./graphql/delete-vacancy-reason.gen";
 import { Column } from "material-table";
 import { compact } from "lodash-es";
-import { UnderConstructionHeader } from "ui/components/under-construction";
+import { GetVacancyReasonsDocument } from "reference-data/get-vacancy-reasons.gen";
 
 type Props = {};
 
 export const VacancyReason: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
   const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(VacancyReasonRoute);
   const { openSnackbar } = useSnackbar();
 
+  const vacancyReasonsReferenceQuery = {
+    query: GetVacancyReasonsDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const getVacancyReasons = useQueryBundle(GetAllVacancyReasonsWithinOrg, {
     variables: { orgId: params.organizationId, includeExpired: true },
   });
+
   const [updateVacancyReason] = useMutationBundle(UpdateVacancyReason, {
+    refetchQueries: [vacancyReasonsReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
   const [createVacancyReason] = useMutationBundle(CreateVacancyReason, {
+    refetchQueries: [vacancyReasonsReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
   const [deleteVacancyReasonMutation] = useMutationBundle(DeleteVacancyReason, {
+    refetchQueries: [vacancyReasonsReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },

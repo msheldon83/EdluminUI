@@ -39,7 +39,6 @@ type Props = {
   payCodes?: PayCode[];
   accountingCodes?: AccountingCode[];
   contracts: Contract[];
-  vacancyReasons: VacancyReason[];
   values: VacancyDetailsFormData;
   setFieldValue: (
     field: any,
@@ -64,7 +63,6 @@ export const VacancyDetailSection: React.FC<Props> = props => {
     accountingCodes,
     readOnly,
     vacancyExists,
-    vacancyReasons,
   } = props;
   const { t } = useTranslation();
   const classes = useStyles();
@@ -124,7 +122,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
         newDetails.push({ date: d, id: uuid.v4() });
       }
     });
-    newDetails.sort((a, b) => a.date.getTime() - b.date.getTime())
+    newDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
     setFieldValue("details", newDetails);
     updateModel({ details: newDetails });
     setIsSelectDatesOpen(false);
@@ -475,6 +473,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               {!readOnly && (
                 <Grid item xs={4}>
                   <Button
+                    className={classes.selectDateButton}
                     onClick={() => {
                       setIsSelectDatesOpen(true);
                     }}
@@ -501,7 +500,6 @@ export const VacancyDetailSection: React.FC<Props> = props => {
                     ?.payCodeId ?? undefined
                 }
                 accountingCodes={accountingCodes}
-                vacancyReasons={vacancyReasons}
                 workDayScheduleVariant={locations
                   .find(l => l.id === values.locationId)
                   ?.workDaySchedules.find(
@@ -540,5 +538,8 @@ const useStyles = makeStyles(theme => ({
     fontWeight: "normal",
     opacity: "0.6",
     filter: "alpha(opacity = 60)",
+  },
+  selectDateButton: {
+    marginLeft: theme.typography.pxToRem(10),
   },
 }));

@@ -21,6 +21,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
+import { GetPositionTypesDocument } from "reference-data/get-position-types.gen";
 
 export const PositionTypeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -28,7 +29,14 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
   const params = useRouteParams(PositionTypeAddRoute);
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+
+  const positionTypesReferenceQuery = {
+    query: GetPositionTypesDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const [createPositionType] = useMutationBundle(CreatePositionType, {
+    refetchQueries: [positionTypesReferenceQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },

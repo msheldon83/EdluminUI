@@ -67,8 +67,13 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                               <div
                                 ref={innerRef}
                                 {...provided.draggableProps}
-                                {...provided.dragHandleProps}
                                 className={classes.draggableSection}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                  position: snapshot.isDragging
+                                    ? "static"
+                                    : undefined,
+                                }}
                               >
                                 <div className={classes.nameInput}>
                                   {props.isStandard && (
@@ -89,7 +94,10 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                                   )}
                                   {!props.isStandard && p.name}
                                 </div>
-                                <div className={classes.actionDiv}>
+                                <div
+                                  className={classes.actionDiv}
+                                  {...provided.dragHandleProps}
+                                >
                                   {props.periods.length > 1 && !p.skipped && (
                                     <DragHandle />
                                   )}
@@ -105,7 +113,6 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                     </div>
                   );
                 })}
-                {provided.placeholder}
               </div>
             );
           }}

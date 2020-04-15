@@ -15,11 +15,13 @@ import { useRouteParams } from "ui/routes/definition";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { format, addDays } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { GetUserById } from "./graphql/get-user-by-id.gen";
 import { Section } from "ui/components/section";
 import { DatePicker } from "ui/components/form/date-picker";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 
 export const UserNotificationLogIndex: React.FC<{}> = props => {
   const classes = useStyles();
@@ -48,27 +50,42 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
 
   const columns: Column<GetNotificationLogForUser.Results>[] = [
     {
-      title: t("AbsenceId"),
+      title: t("Id"),
       render: data => {
         return (
           <>
             <div>
               <Link
-                to={AdminEditAbsenceRoute.generate({
-                  absenceId: data.vacancy.absenceId ?? "",
-                  organizationId: data.orgId,
-                })}
+                to={
+                  data.vacancy.absenceId
+                    ? AdminEditAbsenceRoute.generate({
+                        absenceId: data.vacancy.absenceId ?? "",
+                        organizationId: data.orgId,
+                      })
+                    : VacancyViewRoute.generate({
+                        vacancyId: data.vacancy.id,
+                        organizationId: data.orgId,
+                      })
+                }
               >
-                {`#${data.vacancy.absenceId}`}
+                {data.vacancy.absenceId
+                  ? `#${data.vacancy.absenceId}`
+                  : `#V${data.vacancy.id}`}
               </Link>
             </div>
             <div>
               <Link
-                to={VacancyNotificationLogRoute.generate({
-                  organizationId: data.orgId,
-                  vacancyId: data.vacancyId ?? "",
-                  absenceId: data.vacancy.absenceId ?? "",
-                })}
+                to={
+                  data.vacancy.absenceId
+                    ? AbsenceVacancyNotificationLogRoute.generate({
+                        organizationId: data.orgId,
+                        vacancyId: data.vacancyId ?? "",
+                      })
+                    : VacancyNotificationLogRoute.generate({
+                        organizationId: data.orgId,
+                        vacancyId: data.vacancyId ?? "",
+                      })
+                }
               >
                 {t("Log")}
               </Link>

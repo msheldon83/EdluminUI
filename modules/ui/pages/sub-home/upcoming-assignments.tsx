@@ -13,6 +13,8 @@ import {
   parseISO,
   getDay,
   startOfDay,
+  startOfWeek,
+  eachDayOfInterval,
 } from "date-fns";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { daysOfWeekOrdered } from "helpers/day-of-week";
@@ -20,6 +22,7 @@ import { UserAvailability } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { AssignmentCard } from "./components/assignment";
 import { compact } from "lodash-es";
@@ -31,6 +34,7 @@ import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { SectionHeader } from "ui/components/section-header";
 import { Link } from "react-router-dom";
 import { VacancyDetail } from "./components/assignment";
+import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
 
 type Props = {
   userId?: string;
@@ -41,6 +45,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const history = useHistory();
 
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
@@ -114,6 +119,15 @@ export const UpcomingAssignments: React.FC<Props> = props => {
         );
       });
   };
+
+  const pastDays = useMemo(
+    () =>
+      eachDayOfInterval({
+        start: startOfWeek(fromDate),
+        end: fromDate,
+      }).map(date => ({ date, buttonProps: { className: classes.pastDate } })),
+    [fromDate]
+  );
 
   const uniqueNonWorkingDays = useMemo(() => {
     const dates = [] as Date[];
@@ -206,7 +220,15 @@ export const UpcomingAssignments: React.FC<Props> = props => {
       d => !uniqueWorkingDays.find(uwd => uwd.getTime() == d.date.getTime())
     );
 
-  const calendarDates = disabledDates.concat(activeDates);
+  const calendarDates = disabledDates.concat(pastDays).concat(activeDates);
+
+  const preloadDate = (dates: Date[]) => {
+    const baseRoute = SubAvailabilityRoute.generate({});
+    const params = new URLSearchParams();
+    params.set("fromDate", dates[0].toISOString());
+    params.set("toDate", dates[dates.length - 1].toISOString());
+    history.push(`${baseRoute}?${params.toString()}`);
+  };
 
   return (
     <>
@@ -253,6 +275,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
                   classes={{
                     weekend: classes.weekendDate,
                   }}
+                  onSelectDates={preloadDate}
                 />
               </Padding>
             </Section>
@@ -294,6 +317,7 @@ const useStyles = makeStyles(theme => ({
   activeDate: {
     backgroundColor: theme.palette.primary.main,
     color: theme.customColors.white,
+    pointerEvents: "none",
 
     "&:hover": {
       backgroundColor: theme.palette.primary.main,
@@ -303,6 +327,7 @@ const useStyles = makeStyles(theme => ({
   unavailableDate: {
     backgroundColor: theme.customColors.medLightGray,
     color: theme.palette.text.disabled,
+    pointerEvents: "none",
 
     "&:hover": {
       backgroundColor: theme.customColors.lightGray,
@@ -312,11 +337,15 @@ const useStyles = makeStyles(theme => ({
   weekendDate: {
     backgroundColor: theme.customColors.lightGray,
     color: theme.palette.text.disabled,
+    pointerEvents: "none",
 
     "&:hover": {
       backgroundColor: theme.customColors.lightGray,
       color: theme.palette.text.disabled,
     },
+  },
+  pastDate: {
+    pointerEvents: "none",
   },
   availableBeforeDate: {
     background: `linear-gradient(to left top, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,

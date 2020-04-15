@@ -12,6 +12,8 @@ type Props = {
   userId: string;
   userCreatedDate: Date;
   isImpersonating: boolean;
+  fromDate?: Date;
+  toDate?: Date;
 };
 
 export const Exceptions: React.FC<Props> = props => {
@@ -52,7 +54,12 @@ export const Exceptions: React.FC<Props> = props => {
   return (
     <>
       {!props.isImpersonating && (
-        <AddException userId={props.userId} onSave={onSaveException} />
+        <AddException
+          userId={props.userId}
+          onSave={onSaveException}
+          fromDate={props.fromDate}
+          toDate={props.toDate}
+        />
       )}
       <ExceptionList
         userId={props.userId}

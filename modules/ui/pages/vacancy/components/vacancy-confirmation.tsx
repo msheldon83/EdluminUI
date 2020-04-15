@@ -7,13 +7,12 @@ import { VacancyCreateRoute, VacancyViewRoute } from "ui/routes/vacancy";
 import { useRouteParams } from "ui/routes/definition";
 import { VacancyStep } from "helpers/step-params";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { VacancyDetailSection } from "./vacancy-details-section";
 import {
   Location as Loc,
   PositionType,
   Contract,
-  VacancyReason,
 } from "graphql/server-types.gen";
 import { VacancyDetailsFormData } from "../helpers/types";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
@@ -33,7 +32,6 @@ type Props = {
   >;
   vacancySummaryDetails: VacancySummaryDetail[];
   onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<void>;
-  vacancyReasons: VacancyReason[];
   orgHasPayCodesDefined: boolean;
   orgHasAccountingCodesDefined: boolean;
 };
@@ -55,7 +53,6 @@ export const VacancyConfirmation: React.FC<Props> = props => {
     vacancySummaryDetails,
     onCancelAssignment,
     notes,
-    vacancyReasons,
     orgHasPayCodesDefined,
     orgHasAccountingCodesDefined,
   } = props;
@@ -106,7 +103,6 @@ export const VacancyConfirmation: React.FC<Props> = props => {
               setVacancy={v => {}}
               readOnly={true}
               vacancyExists={true}
-              vacancyReasons={vacancyReasons}
             />
           </Grid>
           <Grid item xs={6}>

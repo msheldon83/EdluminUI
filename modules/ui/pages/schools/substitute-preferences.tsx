@@ -19,7 +19,6 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     variables: {
       locationId: params.locationId,
     },
-    fetchPolicy: "cache-first",
   });
 
   const onRemoveFavoriteSubstitute = async (substitute: OrgUser) => {
@@ -123,7 +122,6 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
       },
     });
     if (!result?.data) return false;
-    await getLocation.refetch();
     return true;
   };
 

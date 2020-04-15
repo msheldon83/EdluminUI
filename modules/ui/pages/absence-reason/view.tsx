@@ -4,25 +4,47 @@ import {
   AbsenceReasonViewEditRoute,
   AbsenceReasonRoute,
 } from "ui/routes/absence-reason";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAbsenceReason } from "./graphql/get-absence-reason.gen";
 import { UpdateAbsenceReason } from "./graphql/update-absence-reason.gen";
 import { AbsenceReasonViewEditUI } from "./view-edit-ui";
 import { DeleteAbsenceReason } from "./graphql/delete-absence-reason.gen";
 import { useHistory } from "react-router";
+import { GetAbsenceReasonsDocument } from "reference-data/get-absence-reasons.gen";
 
 export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const history = useHistory();
-  const [updateAbsenceReasonMutation] = useMutationBundle(UpdateAbsenceReason);
+  const { openSnackbar } = useSnackbar();
+
+  const absenceReasonsReferenceQuery = {
+    query: GetAbsenceReasonsDocument,
+    variables: { orgId: params.organizationId },
+  };
+
+  const [updateAbsenceReasonMutation] = useMutationBundle(UpdateAbsenceReason, {
+    refetchQueries: [absenceReasonsReferenceQuery],
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const [deleteAbsenceReason] = useMutationBundle(DeleteAbsenceReason, {
-    variables: { absenceReasonId: params.absenceReasonId },
+    refetchQueries: [absenceReasonsReferenceQuery],
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
   });
 
   const deleteAbsenceReasonCallback = React.useCallback(async () => {
-    await deleteAbsenceReason();
-    history.push(AbsenceReasonRoute.generate(params));
+    const result = await deleteAbsenceReason({
+      variables: { absenceReasonId: params.absenceReasonId },
+    });
+    if (result.data) {
+      history.push(AbsenceReasonRoute.generate(params));
+    }
   }, [deleteAbsenceReason, params, history]);
 
   const result = useQueryBundle(GetAbsenceReason, {

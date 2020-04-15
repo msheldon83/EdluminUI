@@ -31,7 +31,7 @@ export const SubstituteAssignments: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  /* the value for today will not change as long as the 
+  /* the value for today will not change as long as the
       component is mounted. This could cause stale today
       values to be shown if the browser is on the same page
       over multiple days. */

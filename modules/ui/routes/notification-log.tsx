@@ -2,15 +2,21 @@ import { asyncComponent } from "ui/async-component";
 import { AdminChromeRoute, AdminRootChromeRoute } from "./app-chrome";
 import { defineSubRoute } from "./definition";
 
+export const AbsenceVacancyNotificationLogRoute = defineSubRoute(
+  AdminChromeRoute,
+  "absence/notificationlog/:vacancyId",
+  ["vacancyId"]
+);
+
 export const VacancyNotificationLogRoute = defineSubRoute(
   AdminChromeRoute,
-  "absence/notificationlog/:vacancyId/:absenceId",
-  ["vacancyId", "absenceId"]
+  "vacancy/notificationlog/:vacancyId",
+  ["vacancyId"]
 );
 
 export const VacancyNotificationLogLoader = asyncComponent({
   async resolve() {
-    return (await import("ui/pages/edit-absence/vacancy-notification-log"))
+    return (await import("ui/pages/vacancy-notification-log"))
       .VacancyNotificationLogIndex;
   },
 });

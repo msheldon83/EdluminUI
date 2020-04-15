@@ -21,6 +21,7 @@ import { UpdateWorkDayScheduleVariantType } from "./graphql/update.gen";
 import { DeleteWorkDayScheduleVariantType } from "./graphql/delete.gen";
 import { GetAllWorkDayScheduleVariantTypesInOrg } from "./graphql/get-all-bell-schedule-variants.gen";
 import { BellScheduleVariantsIndexRoute } from "ui/routes/bell-schedule-variants";
+import { GetWorkDayScheduleVariantTypesDocument } from "reference-data/get-work-day-schedule-variant-types.gen";
 
 type Props = {};
 
@@ -32,9 +33,15 @@ export const BellScheduleVariants: React.FC<Props> = props => {
   const params = useRouteParams(BellScheduleVariantsIndexRoute);
   const [includeExpired, setIncludeExpired] = React.useState(false);
 
+  const workDayScheduleVariantTypesReferenceQuery = {
+    query: GetWorkDayScheduleVariantTypesDocument,
+    variables: { orgId: params.organizationId },
+  };
+
   const [createWorkDayScheduleVariantType] = useMutationBundle(
     CreateWorkDayScheduleVariantType,
     {
+      refetchQueries: [workDayScheduleVariantTypesReferenceQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
@@ -44,6 +51,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
   const [updateWorkDayScheduleVariantType] = useMutationBundle(
     UpdateWorkDayScheduleVariantType,
     {
+      refetchQueries: [workDayScheduleVariantTypesReferenceQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },
@@ -53,6 +61,7 @@ export const BellScheduleVariants: React.FC<Props> = props => {
   const [deleteWorkDayScheduleVariantTypeMutation] = useMutationBundle(
     DeleteWorkDayScheduleVariantType,
     {
+      refetchQueries: [workDayScheduleVariantTypesReferenceQuery],
       onError: error => {
         ShowErrors(error, openSnackbar);
       },

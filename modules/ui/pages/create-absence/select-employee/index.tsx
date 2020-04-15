@@ -65,6 +65,7 @@ export const SelectEmployee: React.FC<Props> = props => {
         orgId: organizationId,
         name,
         sortBy: [{ sortByPropertyName: "lastName", sortAscending: true }],
+        active: true,
       },
     }
   );

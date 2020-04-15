@@ -19,7 +19,8 @@ import { parseISO } from "date-fns";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
 import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
 import { CalendarView } from "ui/pages/employee-schedule/components/calendar-view";
-import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -93,15 +94,17 @@ export const AbsenceSchedule: React.FC<Props> = props => {
             <PageTitle title={t(props.pageTitle)} />
           </Grid>
           {props.actingAsEmployee && (
-            <Grid item>
-              <Button
-                variant="outlined"
-                component={Link}
-                to={EmployeeCreateAbsenceRoute.generate(createAbsenceParams)}
-              >
-                {t("Create Absence")}
-              </Button>
-            </Grid>
+            <Can do={[PermissionEnum.AbsVacSave]}>
+              <Grid item>
+                <Button
+                  variant="outlined"
+                  component={Link}
+                  to={EmployeeCreateAbsenceRoute.generate(createAbsenceParams)}
+                >
+                  {t("Create Absence")}
+                </Button>
+              </Grid>
+            </Can>
           )}
           {props.view === "calendar" && getAbsenceSchedule.state === "DONE" && (
             <Grid item xs={12}>

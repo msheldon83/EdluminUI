@@ -1,4 +1,4 @@
-query GetVacancyReasonsForOrg($orgId: ID!) {
+query GetVacancyReasons($orgId: ID!) {
   orgRef_VacancyReason {
     all(orgId: $orgId) {
       id
