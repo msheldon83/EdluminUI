@@ -1,4 +1,4 @@
-query GetOrgConfig($id: ID!) {
+query GetOrgConfigById($id: ID!) {
   organization {
     byId(id: $id) {
       id
