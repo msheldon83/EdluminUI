@@ -1,54 +1,38 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { PageTitle } from "ui/components/page-title";
+import { ShowErrors } from "ui/components/error-helpers";
+import { EditAbsenceVacancyRules } from "./edit";
+import { useSnackbar } from "hooks/use-snackbar";
+import { OrganizationUpdateInput, FeatureFlag } from "graphql/server-types.gen";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyRulesRoute } from "ui/routes/absence-vacancy/rules";
+import { GetOrgConfig } from "./graphql/get-org-config.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
-import { UnderConstructionHeader } from "ui/components/under-construction";
 
-type Props = {};
-
-export const AbsenceVacancyRules: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
-  const classes = useStyles();
-  const isMobile = useIsMobile();
+export const AbsenceVacancyRules: React.FC<{}> = props => {
   const params = useRouteParams(AbsenceVacancyRulesRoute);
+  const { openSnackbar } = useSnackbar();
 
-  const [triggerError, setTriggerError] = React.useState(false);
+  const [updateOrgConfig] = useMutationBundle(UpdateOrgConfig, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
-  if (triggerError) {
-    throw Error("error!");
-  }
+  const update = async (orgConfig: OrganizationUpdateInput) => {
+    const result = await updateOrgConfig({
+      variables: {
+        organization: {
+          ...orgConfig,
+        },
+      },
+    });
+
+    return result?.data;
+  };
 
   return (
     <>
-      <PageTitle
-        title={`${params.organizationId} ${t("Absence & Vacancy Rules")}`}
-      />
-      <UnderConstructionHeader />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
+      <EditAbsenceVacancyRules />
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));

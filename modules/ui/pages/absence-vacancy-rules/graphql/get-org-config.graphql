@@ -1,0 +1,17 @@
+query GetOrgConfig($id: ID!) {
+  organization {
+    byId(id: $id) {
+      id
+      config {
+        featureFlags
+        minutesBeforeStartAbsenceCanBeCreated
+        minLeadTimeMinutesToCancelVacancy
+        minutesRelativeToStartVacancyCanBeFilled
+        minorConflictThresholdMinutes
+        requestedSubCutoffMinutes
+        minRequestedEmployeeHoldMinutes
+        maxRequestedEmployeeHoldMinutes
+      }
+    }
+  }
+}

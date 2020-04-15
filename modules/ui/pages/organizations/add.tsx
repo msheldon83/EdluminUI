@@ -28,10 +28,9 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const timeZones = useTimezones();
   const namePlaceholder = t("Glenbrook");
 
-  //Current Staffing Partner OrgId
+  //Current Staffing Partner OrgId for EduStaff
   const eduStaffOrgId = Config.isDevFeatureOnly ? "1046" : "1003";
 
-  //Mutation
   const [createOrganization] = useMutationBundle(CreateOrganization, {
     onError: error => {
       ShowErrors(error, openSnackbar);
