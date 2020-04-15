@@ -17,6 +17,7 @@ import { canAssignSub } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 import PermDeviceInformationIcon from "@material-ui/icons/PermDeviceInformation";
+import { EmployeeLink, LocationLink, SubstituteLink } from "ui/components/links";
 
 type Props = {
   detail: Detail;
@@ -27,12 +28,11 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
+  orgId: string;
   goToAbsenceEdit: (absenceId: string) => void;
   goToAbsenceEditAssign: (absenceId: string) => void;
   goToVacancyEdit: (absenceId: string) => void;
   goToVacancyEditAssign: (absenceId: string) => void;
-  goToPersonView: (orgUserId: string | undefined) => void;
-  goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
   rowActions: {
@@ -80,23 +80,13 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <Can do={[PermissionEnum.EmployeeView]}>
-                  <Link
-                    className={classes.action}
-                    onClick={() =>
-                      props.goToPersonView(props.detail.employee?.id)
-                    }
-                  >
-                    {props.detail.employee?.name}
-                  </Link>
-                </Can>
-                <Can not do={[PermissionEnum.EmployeeView]}>
+                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id}>
                   <span
                     className={props.detail.isClosed ? classes.closedText : ""}
                   >
                     {props.detail.employee?.name}
                   </span>
-                </Can>
+                </EmployeeLink>
               </div>
               <div className={classes.detailSubText}>
                 <span
@@ -138,21 +128,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.locationSection}>
         <div>
           <div>
-            <Can do={[PermissionEnum.LocationView]}>
-              <Link
-                className={classes.action}
-                onClick={() =>
-                  props.goToLocationView(props.detail.location?.id)
-                }
-              >
-                {props.detail.location?.name}
-              </Link>
-            </Can>
-            <Can not do={[PermissionEnum.LocationView]}>
+            <LocationLink orgId={props.orgId} locationId={props.detail.location?.id}>
               <span className={props.detail.isClosed ? classes.closedText : ""}>
                 {props.detail.location?.name}
               </span>
-            </Can>
+            </LocationLink>
           </div>
           <div className={classes.detailSubText}>
             <span
@@ -178,19 +158,9 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
               <div>
-                <Can do={[PermissionEnum.SubstituteView]}>
-                  <Link
-                    className={classes.action}
-                    onClick={() =>
-                      props.goToPersonView(props.detail.substitute?.id)
-                    }
-                  >
-                    {props.detail.substitute.name}
-                  </Link>
-                </Can>
-                <Can not do={[PermissionEnum.EmployeeView]}>
+                <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute.id}>
                   {props.detail.substitute.name}
-                </Can>
+                </SubstituteLink>
               </div>
               {props.detail.substitute.phone && (
                 <div className={classes.subPhoneInfoIcon}>

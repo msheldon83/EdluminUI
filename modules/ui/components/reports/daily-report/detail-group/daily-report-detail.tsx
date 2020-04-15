@@ -154,24 +154,22 @@ export const DailyReportDetail: React.FC<Props> = props => {
       {isMobile ? (
         <MobileDailyReportDetailUI
           {...props}
+          orgId={absenceEditParams.organizationId}
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
-          goToPersonView={goToPersonView}
-          goToLocationView={goToLocationView}
           isChecked={isChecked}
         />
       ) : (
         <DailyReportDetailUI
           {...props}
+          orgId={absenceEditParams.organizationId}
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
           goToAbsenceEditAssign={goToAbsenceEditAssign}
           goToVacancyEdit={goToVacancyEdit}
           goToVacancyEditAssign={goToVacancyEditAssign}
-          goToPersonView={goToPersonView}
-          goToLocationView={goToLocationView}
           isChecked={isChecked}
         />
       )}

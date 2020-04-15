@@ -20,6 +20,7 @@ import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { EmployeeLink, LocationLink, SubstituteLink } from "ui/components/links"
 
 type Props = {
   detail: Detail;
@@ -30,9 +31,8 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
+  orgId: string;
   goToAbsenceEdit: (absenceId: string) => void;
-  goToPersonView: (orgUserId: string | undefined) => void;
-  goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
   rowActions: {
@@ -109,19 +109,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <Can do={[PermissionEnum.EmployeeView]}>
-                  <Link
-                    className={classes.action}
-                    onClick={() =>
-                      props.goToPersonView(props.detail.employee?.id)
-                    }
-                  >
-                    {props.detail.employee?.name}
-                  </Link>
-                </Can>
-                <Can not do={[PermissionEnum.EmployeeView]}>
+                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id}>
                   {props.detail.employee?.name}
-                </Can>
+                </EmployeeLink>
               </div>
               <div className={classes.detailSubText}>
                 {props.detail.position?.title}
@@ -153,19 +143,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               <div>
-                <Can do={[PermissionEnum.LocationView]}>
-                  <Link
-                    className={classes.action}
-                    onClick={() =>
-                      props.goToLocationView(props.detail.location?.id)
-                    }
-                  >
+                <LocationLink orgId={props.orgId} locationId={props.detail.location?.id}>
                     {props.detail.location?.name}
-                  </Link>
-                </Can>
-                <Can not do={[PermissionEnum.LocationView]}>
-                  {props.detail.location?.name}
-                </Can>
+                </LocationLink>
               </div>
               <div
                 className={classes.detailSubText}
@@ -186,19 +166,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 props.detail.substitute && (
                   <div className={classes.subWithPhone}>
                     <div>
-                      <Can do={[PermissionEnum.SubstituteView]}>
-                        <Link
-                          className={classes.action}
-                          onClick={() =>
-                            props.goToPersonView(props.detail.substitute?.id)
-                          }
-                        >
+                      <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute?.id}>
                           {props.detail.substitute.name}
-                        </Link>
-                      </Can>
-                      <Can not do={[PermissionEnum.EmployeeView]}>
-                        {props.detail.substitute.name}
-                      </Can>
+                      </SubstituteLink>
                     </div>
                     {props.detail.substitute.phone && (
                       <div className={classes.subPhoneInfoIcon}>
