@@ -37,6 +37,7 @@ import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absen
 import { LocationsRoute } from "ui/routes/locations";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
 import { tbd, adminTbd } from "ui/routes/tbd";
+import { AnalyticsReportsDailyReportRoute } from "ui/routes/analytics-reports";
 import { useIsMobile } from "hooks";
 import {
   AdminMobileSearchRoute,
@@ -167,7 +168,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
           <AnalyticsAndReportsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
-            route={adminTbd.generate(params)}
+            route={AnalyticsReportsDailyReportRoute.generate(params)}
             orgId={params.organizationId}
           />
           <SchoolsNavLink
