@@ -9,7 +9,7 @@ type Props = {
   locationId: string | undefined;
   state?: any;
   linkClass?: string;
-  spanClass?: string;
+  textClass?: string;
 };
 
 export const LocationLink: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const LocationLink: React.FC<Props> = ({
   ...props
 }) => {
   if (locationId === undefined) {
-    return <span className={props.spanClass}> {props.children} </span>;
+    return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = LocationViewRoute.generate({
     organizationId: orgId,

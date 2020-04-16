@@ -84,7 +84,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                   orgId={props.detail.orgId}
                   orgUserId={props.detail.employee?.id}
                   linkClass={classes.action}
-                  spanClass={props.detail.isClosed ? classes.closedText : ""}
+                  textClass={props.detail.isClosed ? classes.closedText : ""}
                 >
                   {props.detail.employee?.name}
                 </EmployeeLink>
@@ -133,7 +133,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               orgId={props.detail.orgId}
               locationId={props.detail.location?.id}
               linkClass={classes.action}
-              spanClass={props.detail.isClosed ? classes.closedText : ""}
+              textClass={props.detail.isClosed ? classes.closedText : ""}
             >
               {props.detail.location?.name}
             </LocationLink>

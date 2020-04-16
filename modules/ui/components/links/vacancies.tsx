@@ -9,7 +9,7 @@ type Props = {
   vacancyId: string | undefined;
   state?: any;
   linkClass?: string;
-  spanClass?: string;
+  textClass?: string;
 };
 
 export const VacancyLink: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const VacancyLink: React.FC<Props> = ({
   ...props
 }) => {
   if (vacancyId === undefined) {
-    return <span className={props.spanClass}> {props.children} </span>;
+    return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = VacancyViewRoute.generate({
     organizationId: orgId,

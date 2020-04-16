@@ -9,7 +9,7 @@ type Props = {
   absenceId: string | undefined;
   state?: any;
   linkClass?: string;
-  spanClass?: string;
+  textClass?: string;
 };
 
 export const AbsenceLink: React.FC<Props> = ({
@@ -19,7 +19,7 @@ export const AbsenceLink: React.FC<Props> = ({
   ...props
 }) => {
   if (absenceId === undefined) {
-    return <span className={props.spanClass}> {props.children} </span>;
+    return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = AdminEditAbsenceRoute.generate({
     organizationId: orgId,

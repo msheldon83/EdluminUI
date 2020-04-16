@@ -12,7 +12,7 @@ type Props = {
     state?: any;
   };
   linkClass?: string;
-  spanClass?: string;
+  textClass?: string;
 };
 
 // new URL() passes all props as defined, but that causes issues with Link
@@ -26,7 +26,7 @@ export const pickUrl = (s: string) => {
   };
 };
 
-export const BaseLink: React.FC<Props> = ({ permissions, to, children, linkClass, spanClass}) => {
+export const BaseLink: React.FC<Props> = ({ permissions, to, children, linkClass, textClass}) => {
   // These are the styles applied to the base mui link
   const muiClass = "MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorPrimary"
   const className = `${muiClass}${linkClass ? " "+linkClass: ""}`
@@ -38,7 +38,7 @@ export const BaseLink: React.FC<Props> = ({ permissions, to, children, linkClass
       </Link>
     </Can>
     <Can not do={permissions}>
-      <span className={spanClass}>
+      <span className={textClass}>
         {children}
       </span>
     </Can>
