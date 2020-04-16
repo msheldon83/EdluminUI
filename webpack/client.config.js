@@ -48,6 +48,12 @@ const environmentPlugins = (() => {
     case "development":
       return [
         // Hot reloading is set up in webpack-dev-server.js
+        new HardSourceWebpackPlugin({
+          cacheDirectory: path.resolve(
+            __dirname,
+            "../.cache/hard-source/[confighash]"
+          ),
+        }),
       ];
 
     default:
@@ -108,13 +114,6 @@ module.exports = {
   },
 
   plugins: [
-    new HardSourceWebpackPlugin({
-      cacheDirectory: path.resolve(
-        __dirname,
-        "../.cache/hard-source/[confighash]"
-      ),
-    }),
-
     new CopyPlugin([{ from: "scripts/new-relic.js" }]),
 
     // Define global letiables in the client to instrument behavior.
