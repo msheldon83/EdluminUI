@@ -29,7 +29,6 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
   children = absString(absenceId),
   ...props
 }) => {
-  console.log(orgId);
   if (absenceId === undefined) {
     return <span className={props.textClass}> {children} </span>;
   }
@@ -69,8 +68,9 @@ export const VacancyLink: React.FC<VacancyProps> = ({
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
       to={{ ...pickUrl(urlStr), state: state }}
-      {...props}
-    />
+      {...props}>
+      {children}
+    </BaseLink>
   );
 };
 

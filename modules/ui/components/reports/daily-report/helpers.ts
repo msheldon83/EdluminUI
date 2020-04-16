@@ -674,8 +674,6 @@ export const MapDailyReportDetails = (
     });
   }
 
-  console.log(orgId);
-  console.log(filteredDetails);
   // Return an object that gives all of the groups as well as the raw details data
   return {
     groups,
