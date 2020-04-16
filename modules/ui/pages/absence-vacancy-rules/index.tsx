@@ -2,7 +2,6 @@ import * as React from "react";
 import { ShowErrors } from "ui/components/error-helpers";
 import { EditAbsenceVacancyRules } from "./edit";
 import { useHistory } from "react-router";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "hooks/use-snackbar";
 import { OrganizationUpdateInput } from "graphql/server-types.gen";
@@ -38,6 +37,8 @@ export const AbsenceVacancyRules: React.FC<{}> = props => {
     getOrgConfig?.data?.organization?.byId ?? undefined;
 
   const update = async (orgConfig: OrganizationUpdateInput) => {
+    console.log(orgConfig);
+
     const result = await updateOrgConfig({
       variables: {
         orgConfig: {

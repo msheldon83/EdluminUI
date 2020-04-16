@@ -5,6 +5,7 @@ export type Props = Omit<InputProps, "onChange" | "onBlur"> & {
   label?: string;
   value?: string;
   name?: string;
+  placeholder?: string;
   onChange: (value: number) => void;
   ref?: React.Ref<any>;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
@@ -22,6 +23,7 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
     inputStatus = "default",
     validationMessage,
     disabled,
+    placeholder,
     helperMessage,
   } = props;
 
@@ -45,6 +47,7 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
     <Input
       label={label}
       name={name}
+      placeholder={placeholder}
       value={internalValue}
       onChange={event => setInternalValue(event.target.value)}
       onBlur={handleBlur}

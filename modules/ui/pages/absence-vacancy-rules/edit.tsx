@@ -14,14 +14,11 @@ import { Formik } from "formik";
 import { DurationInput } from "ui/components/form/duration-input";
 import { Input } from "ui/components/form/input";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { useMemo } from "react";
-import Button from "@material-ui/core/Button";
-import { OptionTypeBase } from "react-select/src/types";
 import * as Yup from "yup";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "ui/components/action-buttons";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { SelectNew } from "ui/components/form/select-new";
 import { OrganizationUpdateInput, FeatureFlag } from "graphql/server-types.gen";
 
 type Props = {
@@ -55,14 +52,16 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
     minorConflictThresholdMinutes:
       props.organization?.config?.minorConflictThresholdMinutes || 15,
     minutesRelativeToStartVacancyCanBeFilled:
-      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
-      60,
+      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled &&
+      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled < 0
+        ? props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled *
+          -1
+        : props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled,
     assignmentStart:
-      // props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ??
-      // ((props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled > 0
-      //   ? 0
-      //   : 1) ||
-      0,
+      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled &&
+      props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled >= 0
+        ? "after"
+        : "before",
   };
 
   const validateBasicDetails = React.useMemo(
@@ -75,21 +74,18 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
         maxRequestedEmployeeHoldMinutes: Yup.number().nullable(),
         minorConflictThresholdMinutes: Yup.number().nullable(),
         minutesRelativeToStartVacancyCanBeFilled: Yup.number().nullable(),
-        featureFlags: Yup.array(Yup.string()).required(t("* Required *")),
       }),
     [t]
   );
 
-  console.log(props.organization.config);
-
   const assignmentStartOptions = useMemo(() => {
     return [
       {
-        value: 0,
+        value: "after",
         label: t("after assignment start"),
       },
       {
-        value: 1,
+        value: "before",
         label: t("before assignment start"),
       },
     ];
@@ -104,6 +100,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
           validationSchema={validateBasicDetails}
           onSubmit={async (data: any) => {
             await props.onSubmit({
+              orgId: props.organization.orgId,
               rowVersion: props.organization.rowVersion,
               config: {
                 featureFlags: data.featureFlags,
@@ -119,7 +116,9 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                 minorConflictThresholdMinutes:
                   data.minorConflictThresholdMinutes,
                 minutesRelativeToStartVacancyCanBeFilled:
-                  data.minutesRelativeToStartVacancyCanBeFilled,
+                  data.assignmentStart == "before"
+                    ? data.minutesRelativeToStartVacancyCanBeFilled * -1
+                    : data.minutesRelativeToStartVacancyCanBeFilled,
               },
             });
           }}
@@ -132,46 +131,77 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
             values,
           }) => (
             <form onSubmit={handleSubmit}>
-              {/* <Grid item xs={12} sm={3}>
-              <SelectNew
-                label={t("Feature Flags")}
-                name={"featureFlags"}
-                value={props.featureFlagOptions.filter(
-                  e => e.value && values.featureFlags?.some(v => v === e.value)
-                )}
-                withResetValue={false}
-                options={props.featureFlagOptions}
-                onChange={e => {
-                  const ids = e.map((v: OptionType) => v.value.toString());
-                  setFieldValue("featureFlags", ids);
-                }}
-                doSort={false}
-                multiple={true}
-              />
-            </Grid>
-            <Grid item xs={12} sm={3} >
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={values.isEdustaffOrg}
-                    onChange={e => {
-                      setFieldValue("isEdustaffOrg", e.target.checked);
-                    }}
-                    value={values.isEdustaffOrg}
-                    color="primary"
+              <div>
+                <Typography variant="h6">{t("Absence types")}</Typography>
+                <Grid item xs={2} className={classes.inline}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={values.featureFlags.includes(
+                          FeatureFlag.FullDayAbsences &&
+                            FeatureFlag.HalfDayAbsences
+                        )}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            values.featureFlags.push(
+                              FeatureFlag.FullDayAbsences,
+                              FeatureFlag.HalfDayAbsences
+                            );
+                          } else {
+                            values.featureFlags = values.featureFlags.filter(
+                              x =>
+                                x !== FeatureFlag.FullDayAbsences &&
+                                x !== FeatureFlag.HalfDayAbsences
+                            );
+                          }
+                          setFieldValue("featureFlags", values.featureFlags);
+                        }}
+                        value={values.featureFlags.includes(
+                          FeatureFlag.FullDayAbsences &&
+                            FeatureFlag.HalfDayAbsences
+                        )}
+                        color="primary"
+                      />
+                    }
+                    label={t("Full/Half Day")}
                   />
-                }
-                label={t("Is this an Edustaff Org?")}
-              />
-            </Grid> */}
+                </Grid>
+                <Grid item xs={2} className={classes.inline}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={values.featureFlags.includes(
+                          FeatureFlag.HourlyAbsences
+                        )}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            values.featureFlags.push(
+                              FeatureFlag.HourlyAbsences
+                            );
+                          } else {
+                            values.featureFlags = values.featureFlags.filter(
+                              x => x !== FeatureFlag.HourlyAbsences
+                            );
+                          }
+
+                          setFieldValue("featureFlags", values.featureFlags);
+                        }}
+                        value={values.featureFlags.includes(
+                          FeatureFlag.HourlyAbsences
+                        )}
+                        color="primary"
+                      />
+                    }
+                    label={t("Hourly")}
+                  />
+                </Grid>
+              </div>
               <div className={classes.rowMargin}>
                 <Typography variant="h6">
                   {t("Absence minimum notice")}
                 </Typography>
                 <FormHelperText>
-                  {t(
-                    "Employees may not enter an absence that starts within (hh:mm)"
-                  )}
+                  {t("Employees may not enter an absence that starts within")}
                 </FormHelperText>
                 <Grid item xs={2}>
                   <DurationInput
@@ -193,7 +223,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                 </Typography>
                 <FormHelperText>
                   {t(
-                    "Substitutes may not cancel an assignment that starts within (hh:mm)"
+                    "Substitutes may not cancel an assignment that starts within"
                   )}
                 </FormHelperText>
                 <Grid item xs={2}>
@@ -211,13 +241,16 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
               <div className={classes.rowMargin}>
                 <Typography variant="h6">{t("Fulfillment cutoff")}</Typography>
                 <FormHelperText>
-                  {t("Allow substitutes to accept an assignment until (hh:mm)")}
+                  {t("Allow substitutes to accept an assignment until")}
                 </FormHelperText>
                 <Grid item xs={1} className={classes.inline}>
                   <DurationInput
                     placeholder={t("hh:mm")}
                     name="minutesRelativeToStartVacancyCanBeFilled"
-                    value={values.minutesRelativeToStartVacancyCanBeFilled.toString()}
+                    value={
+                      values?.minutesRelativeToStartVacancyCanBeFilled?.toString() ??
+                      ""
+                    }
                     onChange={(value: number) =>
                       setFieldValue(
                         "minutesRelativeToStartVacancyCanBeFilled",
@@ -243,8 +276,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                     withResetValue={false}
                     options={assignmentStartOptions}
                     onChange={(e: any) => {
-                      const val = e.map((v: OptionType) => v.value);
-                      setFieldValue("assignmentStart", val);
+                      setFieldValue("assignmentStart", e.value);
                     }}
                     doSort={false}
                     multiple={false}
@@ -279,44 +311,60 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                 </Grid>
               </div>
 
-              <Grid item xs={2} className={classes.rowMargin}>
-                <Input
-                  label={t("Requested Sub Cutoff Minutes")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "requestedSubCutoffMinutes",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
+              {/* 
+              
+              Hidden until Request Sub has been implemented.
 
-              <Grid item xs={12} sm={4}>
-                <Input
-                  label={t("Minimum Requested Employee Hold Minutes")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "minRequestedEmployeeHoldMinutes",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Input
-                  label={t("Max Requested Employee Hold Minutes")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "maxRequestedEmployeeHoldMinutes",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-
+              <div className={classes.rowMargin}>
+                <Typography variant="h6">
+                  {t("Requesting Substitutes")}
+                </Typography>
+                <FormHelperText>
+                  {t(
+                    "Allow a substitute to be resquested as long as there are at least"
+                  )}
+                </FormHelperText>
+                <Grid item xs={4}>
+                  <DurationInput
+                    placeholder={t("hh:mm    before the assignment begins")}
+                    name="minorConflictThresholdMinutes"
+                    value={values.minorConflictThresholdMinutes.toString()}
+                    onChange={(value: number) =>
+                      setFieldValue("minorConflictThresholdMinutes", value)
+                    }
+                  />
+                </Grid>
+              </div>
+              <div>
+                <FormHelperText>
+                  {t(
+                    "Reserve the assignment for a requested substitute for at least"
+                  )}
+                </FormHelperText>
+                <Grid item xs={2}>
+                  <DurationInput
+                    placeholder={t("hh:mm")}
+                    name="minRequestedEmployeeHoldMinutes"
+                    value={values.minRequestedEmployeeHoldMinutes.toString()}
+                    onChange={(value: number) =>
+                      setFieldValue("minRequestedEmployeeHoldMinutes", value)
+                    }
+                  />
+                </Grid>
+              </div>
+              <div>
+                <FormHelperText>{t("but not more than")}</FormHelperText>
+                <Grid item xs={2}>
+                  <DurationInput
+                    placeholder={t("hh:mm")}
+                    name="maxRequestedEmployeeHoldMinutes"
+                    value={values.maxRequestedEmployeeHoldMinutes.toString()}
+                    onChange={(value: number) =>
+                      setFieldValue("maxRequestedEmployeeHoldMinutes", value)
+                    }
+                  />
+                </Grid>
+              </div> */}
               <ActionButtons
                 submit={{ text: t("Save"), execute: submitForm }}
                 cancel={{ text: t("Cancel"), execute: props.onCancel }}
