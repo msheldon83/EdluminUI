@@ -57,26 +57,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
     });
   };
 
-  const goToAbsenceEditAssign = (absenceId: string) => {
-    const url = AdminEditAbsenceRoute.generate({
-      ...absenceEditParams,
-      absenceId,
-    });
-    history.push(`${url}?step=preAssignSub`, {
-      returnUrl: `${history.location.pathname}${history.location.search}`,
-    });
-  };
-
-  const goToVacancyEditAssign = (vacancyId: string) => {
-    const url = VacancyViewRoute.generate({
-      ...vacancyEditParams,
-      vacancyId,
-    });
-    history.push(`${url}?step=preAssignSub`, {
-      returnUrl: `${history.location.pathname}${history.location.search}`,
-    });
-  };
-
   const rowActions = [
     {
       name: t("Edit"),
@@ -114,7 +94,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
           ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId),
     });
   }
-
   return (
     <>
       {isMobile ? (
@@ -122,7 +101,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
           {...props}
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
-          goToAbsenceEdit={goToAbsenceEdit}
           isChecked={isChecked}
         />
       ) : (
@@ -130,8 +108,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
           {...props}
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
-          goToAbsenceEditAssign={goToAbsenceEditAssign}
-          goToVacancyEditAssign={goToVacancyEditAssign}
           isChecked={isChecked}
         />
       )}

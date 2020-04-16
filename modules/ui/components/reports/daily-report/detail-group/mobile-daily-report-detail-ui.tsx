@@ -22,8 +22,7 @@ import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
-import { AbsenceLink } from "ui/components/links/absences";
-import { VacancyLink } from "ui/components/links/vacancies";
+import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
 
 type Props = {
   detail: Detail;
@@ -34,7 +33,6 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
-  goToAbsenceEdit: (absenceId: string) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
   rowActions: {
@@ -198,27 +196,14 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 )}
               {props.detail.state !== "noSubRequired" &&
                 !props.detail.substitute && (
-                  <Can
-                    do={(
-                      permissions: OrgUserPermissions[],
-                      isSysAdmin: boolean,
-                      orgId?: string
-                    ) =>
-                      canAssignSub(
-                        props.detail.date,
-                        permissions,
-                        isSysAdmin,
-                        orgId
-                      )
-                    }
-                  >
-                    <Link
-                      className={classes.action}
-                      onClick={() => props.goToAbsenceEdit(props.detail.id)}
+                  <AbsVacAssignLink
+                    orgId={props.detail.orgId}
+                    absVacId={props.detail.id}
+                    absVacType={props.detail.type}
+                    absVacDate={props.detail.date}
                     >
-                      {t("Assign")}
-                    </Link>
-                  </Can>
+                    {t("Assign")}
+                  </AbsVacAssignLink>
                 )}
               {props.detail.subTimes.map((st, i) => {
                 return (
@@ -230,23 +215,12 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             </div>
             <div className={classes.item}>
               <div>
-                {props.detail.type === "absence" ? (
-                  <AbsenceLink
-                    orgId={props.detail.orgId}
-                    absenceId={props.detail.id}
-                    linkClass={classes.action}
-                  >
-                    {`#${props.detail.id}`}
-                  </AbsenceLink>
-                ) : (
-                  <VacancyLink
-                    orgId={props.detail.orgId}
-                    vacancyId={props.detail.id}
-                    linkClass={classes.action}
-                  >
-                    {`#V${props.detail.id}`}
-                  </VacancyLink>
-                )}
+                <AbsVacLink
+                  orgId={props.detail.orgId}
+                  absVacId={props.detail.id}
+                  absVacType={props.detail.type}
+                  linkClass={classes.action}
+                  />
               </div>
               {props.detail.assignmentId && (
                 <div

@@ -128,6 +128,7 @@ export const MapDailyReportDetails = (
       return {
         id: a.id,
         detailId: absenceDetail.id,
+        orgId: orgId,
         state: "filled",
         type: "absence",
         isClosed: absenceDetail.isClosed,
@@ -209,6 +210,7 @@ export const MapDailyReportDetails = (
       return {
         id: v.id,
         detailId: vacancyDetail.id,
+        orgId: orgId,
         state: "filled",
         type: "vacancy",
         isClosed: vacancyDetail.isClosed,
@@ -281,6 +283,7 @@ export const MapDailyReportDetails = (
       return {
         id: a.id,
         detailId: absenceDetail.id,
+        orgId: orgId,
         state: "unfilled",
         type: "absence",
         isClosed: absenceDetail.isClosed,
@@ -350,6 +353,7 @@ export const MapDailyReportDetails = (
       return {
         id: v.id,
         detailId: vacancyDetail.id,
+        orgId: orgId,
         state: "unfilled",
         isClosed: vacancyDetail.isClosed,
         type: "vacancy",
@@ -543,6 +547,7 @@ export const MapDailyReportDetails = (
         return {
           id: a.id,
           detailId: vacancyDetail.id,
+          orgId: orgId,
           state: "closed",
           isClosed: vacancyDetail.isClosed,
           type: "vacancy",
@@ -669,6 +674,8 @@ export const MapDailyReportDetails = (
     });
   }
 
+  console.log(orgId);
+  console.log(filteredDetails);
   // Return an object that gives all of the groups as well as the raw details data
   return {
     groups,
