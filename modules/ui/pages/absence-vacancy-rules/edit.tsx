@@ -11,9 +11,11 @@ import {
 } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { Formik } from "formik";
+import { DurationInput } from "ui/components/form/duration-input";
 import { Input } from "ui/components/form/input";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { useMemo } from "react";
 import Button from "@material-ui/core/Button";
 import { OptionTypeBase } from "react-select/src/types";
 import * as Yup from "yup";
@@ -55,6 +57,12 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
     minutesRelativeToStartVacancyCanBeFilled:
       props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
       60,
+    assignmentStart:
+      // props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ??
+      // ((props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled > 0
+      //   ? 0
+      //   : 1) ||
+      0,
   };
 
   const validateBasicDetails = React.useMemo(
@@ -71,6 +79,21 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
       }),
     [t]
   );
+
+  console.log(props.organization.config);
+
+  const assignmentStartOptions = useMemo(() => {
+    return [
+      {
+        value: 0,
+        label: t("after assignment start"),
+      },
+      {
+        value: 1,
+        label: t("before assignment start"),
+      },
+    ];
+  }, [t]);
 
   return (
     <>
@@ -146,13 +169,108 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   {t("Absence minimum notice")}
                 </Typography>
                 <FormHelperText>
-                  {t("Employees may not enter an absence that starts within")}
+                  {t(
+                    "Employees may not enter an absence that starts within (hh:mm)"
+                  )}
+                </FormHelperText>
+                <Grid item xs={2}>
+                  <DurationInput
+                    placeholder={t("hh:mm")}
+                    name="minutesBeforeStartAbsenceCanBeCreated"
+                    value={values.minutesBeforeStartAbsenceCanBeCreated.toString()}
+                    onChange={(value: number) =>
+                      setFieldValue(
+                        "minutesBeforeStartAbsenceCanBeCreated",
+                        value
+                      )
+                    }
+                  />
+                </Grid>
+              </div>
+              <div className={classes.rowMargin}>
+                <Typography variant="h6">
+                  {t("Cancel assignment minimum notice")}
+                </Typography>
+                <FormHelperText>
+                  {t(
+                    "Substitutes may not cancel an assignment that starts within (hh:mm)"
+                  )}
+                </FormHelperText>
+                <Grid item xs={2}>
+                  <DurationInput
+                    placeholder={t("hh:mm")}
+                    name="minLeadTimeMinutesToCancelVacancy"
+                    value={values.minLeadTimeMinutesToCancelVacancy.toString()}
+                    onChange={(value: number) =>
+                      setFieldValue("minLeadTimeMinutesToCancelVacancy", value)
+                    }
+                  />
+                </Grid>
+              </div>
+
+              <div className={classes.rowMargin}>
+                <Typography variant="h6">{t("Fulfillment cutoff")}</Typography>
+                <FormHelperText>
+                  {t("Allow substitutes to accept an assignment until (hh:mm)")}
+                </FormHelperText>
+                <Grid item xs={1} className={classes.inline}>
+                  <DurationInput
+                    placeholder={t("hh:mm")}
+                    name="minutesRelativeToStartVacancyCanBeFilled"
+                    value={values.minutesRelativeToStartVacancyCanBeFilled.toString()}
+                    onChange={(value: number) =>
+                      setFieldValue(
+                        "minutesRelativeToStartVacancyCanBeFilled",
+                        value
+                      )
+                    }
+                  />
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                  className={[classes.inline, classes.marginLeft].join(" ")}
+                >
+                  <SelectNew
+                    name={"assignmentStart"}
+                    value={{
+                      value: values.assignmentStart ?? "",
+                      label:
+                        assignmentStartOptions.find(
+                          a => a.value === values.assignmentStart
+                        )?.label || "",
+                    }}
+                    withResetValue={false}
+                    options={assignmentStartOptions}
+                    onChange={(e: any) => {
+                      const val = e.map((v: OptionType) => v.value);
+                      setFieldValue("assignmentStart", val);
+                    }}
+                    doSort={false}
+                    multiple={false}
+                  />
+                </Grid>
+              </div>
+              <div className={classes.rowMargin}>
+                <Typography variant="h6">
+                  {t("Minor assignment conflict threshhold")}
+                </Typography>
+                <FormHelperText>
+                  {t(
+                    "Allow administrators with elevated permission to assign a"
+                  )}
+                </FormHelperText>
+                <FormHelperText>
+                  {t(
+                    "substitute to 2 assignments that overlap by a maximum of"
+                  )}
                 </FormHelperText>
                 <Grid item xs={2}>
                   <Input
                     InputComponent={FormTextField}
+                    placeholder={t("minutes")}
                     inputComponentProps={{
-                      name: "minutesBeforeStartAbsenceCanBeCreated",
+                      name: "minorConflictThresholdMinutes",
                       margin: isMobile ? "normal" : "none",
                       variant: "outlined",
                       fullWidth: true,
@@ -160,24 +278,13 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   />
                 </Grid>
               </div>
+
               <Grid item xs={2} className={classes.rowMargin}>
                 <Input
                   label={t("Requested Sub Cutoff Minutes")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     name: "requestedSubCutoffMinutes",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Input
-                  label={t("Minimum Lead Time Minutes to Cancel Vacancy")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "minLeadTimeMinutesToCancelVacancy",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     fullWidth: true,
@@ -209,30 +316,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
-                <Input
-                  label={t("Minor Conflict Threshold Minutes")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "minorConflictThresholdMinutes",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Input
-                  label={t("Minutes Relative To Start Vacancy Can Be Filled")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "minutesRelativeToStartVacancyCanBeFilled",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
+
               <ActionButtons
                 submit={{ text: t("Save"), execute: submitForm }}
                 cancel={{ text: t("Cancel"), execute: props.onCancel }}
@@ -247,5 +331,11 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   rowMargin: {
     marginTop: theme.spacing(4),
+  },
+  inline: {
+    display: "inline-block",
+  },
+  marginLeft: {
+    marginLeft: theme.spacing(1),
   },
 }));

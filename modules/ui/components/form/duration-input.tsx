@@ -2,7 +2,7 @@ import * as React from "react";
 import { Input, InputProps } from "./input";
 
 export type Props = Omit<InputProps, "onChange" | "onBlur"> & {
-  label: string;
+  label?: string;
   value?: string;
   name?: string;
   onChange: (value: number) => void;
@@ -55,7 +55,6 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
       validationMessage={validationMessage || helperMessage}
     />
   );
-
 });
 
 // Only allow valid characters
