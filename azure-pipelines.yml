@@ -57,16 +57,6 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - task: OctopusPush@4
-    displayName: "Push dev packages to Octopus"
-    inputs:
-      OctoConnectedServiceName: "Octopus Deploy"
-      Space: "Default"
-      Replace: true
-      Package: |
-        $(Build.ArtifactStagingDirectory)/Edlumin.UI.$(Build.BuildNumber)-dev.nupkg
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - task: OctopusPush@4
     displayName: "Push prod packages to Octopus"
     inputs:
       OctoConnectedServiceName: "Octopus Deploy"
