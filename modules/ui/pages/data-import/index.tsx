@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Grid, makeStyles } from "@material-ui/core";
+import { useState } from "react";
+import { Grid, makeStyles, Divider } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { DataImportRoute, DataImportViewRoute } from "ui/routes/data-import";
 import { useRouteParams } from "ui/routes/definition";
@@ -12,6 +13,8 @@ import { Column } from "material-table";
 import { compact } from "lodash-es";
 import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
+import { ImportFilters } from "./components/import-filters";
+import { DataImportStatus, DataImportType } from "graphql/server-types.gen";
 
 export const DataImportPage: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -19,12 +22,21 @@ export const DataImportPage: React.FC<{}> = () => {
   const classes = useStyles();
   const params = useRouteParams(DataImportRoute);
 
+  const [importStatusFilter, setImportStatusFilter] = useState<
+    DataImportStatus | undefined
+  >(undefined);
+  const [importTypeFilter, setImportTypeFilter] = useState<
+    DataImportType | undefined
+  >(undefined);
+
   const [getImports, pagination] = usePagedQueryBundle(
     GetDataImports,
     r => r.dataImport?.paged?.totalCount,
     {
       variables: {
         orgId: params.organizationId,
+        status: importStatusFilter,
+        type: importTypeFilter,
       },
     }
   );
@@ -92,6 +104,13 @@ export const DataImportPage: React.FC<{}> = () => {
         </Grid>
       </Grid>
       <div className={classes.tableContainer}>
+        <ImportFilters
+          selectedStatusId={importStatusFilter}
+          setSelectedStatusId={setImportStatusFilter}
+          selectedTypeId={importTypeFilter}
+          setSelectedTypeId={setImportTypeFilter}
+        />
+        <Divider className={classes.divider} />
         <Table
           title={`${dataImportCount} ${
             dataImportCount === 1 ? t("import") : t("imports")
@@ -118,7 +137,6 @@ const useStyles = makeStyles(theme => ({
   tableContainer: {
     backgroundColor: theme.customColors.white,
     border: `1px solid ${theme.customColors.sectionBorder}`,
-    borderTopWidth: 0,
     borderRadius: `0 0 ${theme.typography.pxToRem(
       5
     )} ${theme.typography.pxToRem(5)}`,
@@ -135,5 +153,9 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     marginBottom: theme.spacing(),
+  },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(2),
   },
 }));

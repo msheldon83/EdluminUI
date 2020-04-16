@@ -1,15 +1,12 @@
 import * as React from "react";
+import { useState } from "react";
 import {
   Grid,
   makeStyles,
   IconButton,
-  Popper,
-  Button,
-  Fade,
   ExpansionPanel,
   ExpansionPanelSummary,
   ExpansionPanelDetails,
-  Collapse,
 } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
 import { Section } from "ui/components/section";
@@ -17,33 +14,26 @@ import { PageTitle } from "ui/components/page-title";
 import { DataImportViewRoute } from "ui/routes/data-import";
 import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
 import { useQueryBundle, usePagedQueryBundle } from "graphql/hooks";
 import { GetDataImportById } from "./graphql/get-data-import-byid.gen";
 import { GetDataImportRows } from "./graphql/get-data-import-rows.gen";
-import { Table } from "ui/components/table";
-import { Column } from "material-table";
 import { compact } from "lodash-es";
 import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import { DataImportRowData } from "./components/row-data";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { RowStatusFilter } from "./components/row-status-filter";
+import { DataImportRowStatus } from "graphql/server-types.gen";
 
 export const DataImportViewPage: React.FC<{}> = () => {
   const { t } = useTranslation();
-  const history = useHistory();
   const classes = useStyles();
   const params = useRouteParams(DataImportViewRoute);
 
-  const [rowDataAnchor, setRowDataAnchor] = React.useState<null | HTMLElement>(
-    null
-  );
-  const handleShowRowData = (event: React.MouseEvent<HTMLElement>) => {
-    setRowDataAnchor(rowDataAnchor ? null : event.currentTarget);
-  };
-  const rowDataOpen = Boolean(rowDataAnchor);
-  const rowDataId = rowDataOpen ? "rowdata-popper" : undefined;
+  const [rowStatusFilter, setRowStatusFilter] = useState<
+    DataImportRowStatus | undefined
+  >(undefined);
 
   const getImport = useQueryBundle(GetDataImportById, {
     variables: {
@@ -58,6 +48,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
       variables: {
         orgId: params.organizationId,
         dataImportId: params.dataImportId,
+        rowStatusId: rowStatusFilter,
       },
     }
   );
@@ -72,51 +63,18 @@ export const DataImportViewPage: React.FC<{}> = () => {
         ).sort((a, b) => a.rowNumber - b.rowNumber)
       : [];
 
-  const columns: Column<GetDataImportRows.Results>[] = [
-    { title: t("Row #"), field: "rowNumber", sorting: false },
-    {
-      title: t("Status"),
-      render: data => {
-        return getDisplayName("dataImportRowStatus", data.rowStatusId, t);
-      },
-      sorting: false,
-    },
-    {
-      title: t("Data"),
-      sorting: false,
-      render: o =>
-        !o.columnValues || o.columnValues?.length < 1 ? (
-          t("Not available")
-        ) : (
-          <>
-            <Button id={rowDataId} onClick={handleShowRowData}>
-              {t("View")}
-            </Button>
-            <Popper
-              transition
-              open={rowDataOpen}
-              anchorEl={rowDataAnchor}
-              placement="bottom-end"
-            >
-              {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={150}>
-                  <DataImportRowData
-                    columnNames={dataImport?.columnNames ?? []}
-                    columns={o.columnValues ?? []}
-                  />
-                </Fade>
-              )}
-            </Popper>
-          </>
-        ),
-    },
-  ];
-
   if (!dataImport) {
     return <></>;
   }
 
-  const totalRowCount = pagination.totalCount;
+  const rowCountLabel =
+    pagination.totalCount === dataImport.totalRowCount
+      ? `${pagination.totalCount} ${
+          pagination.totalCount === 1 ? t("row") : t("rows")
+        }`
+      : `${pagination.totalCount} ${t("of")} ${dataImport.totalRowCount} ${
+          dataImport.totalRowCount === 1 ? t("row") : t("rows")
+        }`;
 
   return (
     <>
@@ -164,9 +122,11 @@ export const DataImportViewPage: React.FC<{}> = () => {
       </Section>
       <Section>
         <div className={classes.tableHeaderContainer}>
-          <div className={classes.labelText}>{`${totalRowCount} ${
-            totalRowCount === 1 ? t("row") : t("rows")
-          }`}</div>
+          <div className={classes.labelText}>{rowCountLabel}</div>
+          <RowStatusFilter
+            selectedStatusId={rowStatusFilter}
+            setSelectedStatusId={setRowStatusFilter}
+          />
           <PaginationControls pagination={pagination} />
         </div>
         <div className={classes.headerContainer}>

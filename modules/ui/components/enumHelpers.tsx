@@ -199,7 +199,7 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Partially validated"),
     },
     {
-      name: "dataImportStatus.VAILIDATION_FAILURE",
+      name: "dataImportStatus.VALIDATION_FAILURE",
       displayName: t("Vaildation failure"),
     },
     {

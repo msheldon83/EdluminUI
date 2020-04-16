@@ -1294,7 +1294,7 @@ type DataImportQueries {
   byId(id: ID!): DataImport
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): [DataImport]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): PagedDataImport
-  pagedDataImportRows(dataImportId: ID!, orgId: ID!, limit: Int, offset: Int): PagedDataImportRow
+  pagedDataImportRows(dataImportId: ID!, orgId: ID!, rowStatusId: DataImportRowStatus, limit: Int, offset: Int): PagedDataImportRow
 }
 
 type DataImportRow implements ModelObjectInterface & OrgObjectInterface {
@@ -2410,7 +2410,9 @@ enum NotificationReason {
   SUB_ASSIGNED_BY_SELF
   SUB_REMOVED_BY_OTHER
   SUB_REMOVED_BY_SELF
+  EMP_SUB_ASSIGNED_BY_ANY
   EMP_SUB_REMOVED_BY_ANY
+  ADMIN_SUB_ASSIGNED_BY_ANY
   ADMIN_SUB_REMOVED_BY_ANY
 }
 

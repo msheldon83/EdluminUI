@@ -3,6 +3,7 @@ query GetDataImportRows(
   $dataImportId: ID!
   $limit: Int
   $offset: Int
+  $rowStatusId: DataImportRowStatus
 ) {
   dataImport {
     pagedDataImportRows(
@@ -10,6 +11,7 @@ query GetDataImportRows(
       dataImportId: $dataImportId
       limit: $limit
       offset: $offset
+      rowStatusId: $rowStatusId
     ) {
       offset
       limit
