@@ -29,7 +29,6 @@ export const ImportTypeFilter: React.FC<Props> = props => {
         }
       })
       .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
-    console.log(options);
     return options;
   }, [t]);
 
@@ -37,9 +36,6 @@ export const ImportTypeFilter: React.FC<Props> = props => {
     selectedTypeId === undefined
       ? typeOptions[0]
       : typeOptions.find((s: any) => s.value === selectedTypeId.toString());
-
-  console.log(selectedType);
-  console.log(selectedTypeId);
 
   return (
     <SelectNew

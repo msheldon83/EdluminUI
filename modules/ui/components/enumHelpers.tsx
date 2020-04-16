@@ -231,10 +231,6 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Absence"),
     },
     {
-      name: "dataImportType.ABSENCE",
-      displayName: t("Absence"),
-    },
-    {
       name: "dataImportType.ABSENCE_REASON",
       displayName: t("Absence reason"),
     },
@@ -292,7 +288,7 @@ const buildEnumMap = (t: i18next.TFunction) => {
     },
     {
       name: "dataImportType.SUBSTITUTE",
-      displayName: t("Endorsement"),
+      displayName: t("Substitute"),
     },
     {
       name: "dataImportType.VACANCY",
