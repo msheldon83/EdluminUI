@@ -1,0 +1,20 @@
+query GetDataImportById($id: ID!) {
+  dataImport {
+    byId(id: $id) {
+      id
+      dataImportStatusId
+      createdUtc
+      nextAttemptUtc
+      numAttempts
+      totalRowCount
+      columnNames
+      dataImportTypeId
+      parseOnly
+      validateOnly
+      fileUpload {
+        id
+        originalFileDownloadUrlSas
+      }
+    }
+  }
+}

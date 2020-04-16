@@ -285,6 +285,12 @@ import {
   endImpersonationRoute,
   EndImpersonationLoader,
 } from "./routes/end-impersonate";
+import {
+  DataImportRoute,
+  DataImportLoader,
+  DataImportViewRoute,
+  DataImportViewLoader,
+} from "./routes/data-import";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -541,6 +547,16 @@ export const App = hot(function() {
                                     permissions={[
                                       PermissionEnum.AbsVacViewNotificationLog,
                                     ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={DataImportViewLoader}
+                                    path={DataImportViewRoute.path}
+                                    role={"sysAdmin"}
+                                  />
+                                  <ProtectedRoute
+                                    component={DataImportLoader}
+                                    path={DataImportRoute.path}
+                                    role={"sysAdmin"}
                                   />
                                   <ProtectedRoute
                                     component={AdminEditAbsenceLoader}
