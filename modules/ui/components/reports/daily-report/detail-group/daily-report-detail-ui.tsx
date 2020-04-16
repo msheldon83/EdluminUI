@@ -17,8 +17,10 @@ import { canAssignSub } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 import PermDeviceInformationIcon from "@material-ui/icons/PermDeviceInformation";
-import { EmployeeLink, SubstituteLink } from "ui/components/links/people"
-import { LocationLink } from "ui/components/links/locations"
+import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
+import { LocationLink } from "ui/components/links/locations";
+import { AbsenceLink } from "ui/components/links/absences";
+import { VacancyLink } from "ui/components/links/vacancies";
 
 type Props = {
   detail: Detail;
@@ -29,10 +31,7 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
-  orgId: string;
-  goToAbsenceEdit: (absenceId: string) => void;
   goToAbsenceEditAssign: (absenceId: string) => void;
-  goToVacancyEdit: (absenceId: string) => void;
   goToVacancyEditAssign: (absenceId: string) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
@@ -47,11 +46,6 @@ type Props = {
 export const DailyReportDetailUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const closedSpan = (c: React.ReactNode) => (
-    <span className={props.detail.isClosed ? classes.closedText : ""}>
-      c
-    </span>
-  );
 
   return (
     <div className={[classes.container, props.className].join(" ")}>
@@ -86,7 +80,12 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id} linkClass={classes.action} cannotWrapper={closedSpan}>
+                <EmployeeLink
+                  orgId={props.detail.orgId}
+                  orgUserId={props.detail.employee?.id}
+                  linkClass={classes.action}
+                  spanClass={props.detail.isClosed ? classes.closedText : ""}
+                >
                   {props.detail.employee?.name}
                 </EmployeeLink>
               </div>
@@ -130,7 +129,12 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.locationSection}>
         <div>
           <div>
-            <LocationLink orgId={props.orgId} locationId={props.detail.location?.id} linkClass={classes.action} cannotWrapper={closedSpan}>
+            <LocationLink
+              orgId={props.detail.orgId}
+              locationId={props.detail.location?.id}
+              linkClass={classes.action}
+              spanClass={props.detail.isClosed ? classes.closedText : ""}
+            >
               {props.detail.location?.name}
             </LocationLink>
           </div>
@@ -158,7 +162,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
               <div>
-                <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute.id} linkClass={classes.action}>
+                <SubstituteLink
+                  orgId={props.detail.orgId}
+                  orgUserId={props.detail.substitute.id}
+                  linkClass={classes.action}
+                >
                   {props.detail.substitute.name}
                 </SubstituteLink>
               </div>
@@ -224,15 +232,21 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div>
         <div>
           {props.detail.type === "absence" ? (
-            <Link
-              className={classes.action}
-              onClick={() => props.goToAbsenceEdit(props.detail.id)}
-            >{`#${props.detail.id}`}</Link>
+            <AbsenceLink
+              orgId={props.detail.orgId}
+              absenceId={props.detail.id}
+              linkClass={classes.action}
+             >
+              {`#${props.detail.id}`}
+            </AbsenceLink>
           ) : (
-            <Link
-              className={classes.action}
-              onClick={() => props.goToVacancyEdit(props.detail.id)}
-            >{`#V${props.detail.id}`}</Link>
+            <VacancyLink
+              orgId={props.detail.orgId}
+              vacancyId={props.detail.id}
+              linkClass={classes.action}
+             >
+              {`#V${props.detail.id}`}
+            </VacancyLink>
           )}
         </div>
         {props.detail.assignmentId && (

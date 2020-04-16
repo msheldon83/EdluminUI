@@ -57,14 +57,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
     });
   };
 
-  const goToVacancyEdit = (vacancyId: string) => {
-    const url = VacancyViewRoute.generate({
-      ...vacancyEditParams,
-      vacancyId: vacancyId,
-    });
-    history.push(url);
-  };
-
   const goToAbsenceEditAssign = (absenceId: string) => {
     const url = AdminEditAbsenceRoute.generate({
       ...absenceEditParams,
@@ -128,7 +120,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
       {isMobile ? (
         <MobileDailyReportDetailUI
           {...props}
-          orgId={absenceEditParams.organizationId}
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
           goToAbsenceEdit={goToAbsenceEdit}
@@ -137,12 +128,9 @@ export const DailyReportDetail: React.FC<Props> = props => {
       ) : (
         <DailyReportDetailUI
           {...props}
-          orgId={absenceEditParams.organizationId}
           rowActions={rowActions}
           hideCheckbox={hideCheckbox}
-          goToAbsenceEdit={goToAbsenceEdit}
           goToAbsenceEditAssign={goToAbsenceEditAssign}
-          goToVacancyEdit={goToVacancyEdit}
           goToVacancyEditAssign={goToVacancyEditAssign}
           isChecked={isChecked}
         />

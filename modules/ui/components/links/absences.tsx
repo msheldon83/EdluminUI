@@ -1,33 +1,33 @@
 import * as React from "react";
-import { BaseLink, pickUrl } from "./base";
+import { pickUrl, BaseLink } from "./base";
 import { CanDo } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { LocationViewRoute } from "ui/routes/locations";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   orgId: string;
-  locationId: string | undefined;
+  absenceId: string | undefined;
   state?: any;
   linkClass?: string;
   spanClass?: string;
 };
 
-export const LocationLink: React.FC<Props> = ({
+export const AbsenceLink: React.FC<Props> = ({
   orgId,
-  locationId,
+  absenceId,
   state,
   ...props
 }) => {
-  if (locationId === undefined) {
+  if (absenceId === undefined) {
     return <span className={props.spanClass}> {props.children} </span>;
   }
-  const urlStr = LocationViewRoute.generate({
+  const urlStr = AdminEditAbsenceRoute.generate({
     organizationId: orgId,
-    locationId,
+    absenceId: absenceId,
   });
   return (
     <BaseLink
-      permissions={[PermissionEnum.LocationView]}
+      permissions={[PermissionEnum.AbsVacView]}
       to={{ ...pickUrl(urlStr), state: state }}
       {...props}
     />

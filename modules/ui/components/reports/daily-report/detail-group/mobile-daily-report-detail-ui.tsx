@@ -20,8 +20,10 @@ import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { EmployeeLink, SubstituteLink } from "ui/components/links/people"
-import { LocationLink } from "ui/components/links/locations"
+import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
+import { LocationLink } from "ui/components/links/locations";
+import { AbsenceLink } from "ui/components/links/absences";
+import { VacancyLink } from "ui/components/links/vacancies";
 
 type Props = {
   detail: Detail;
@@ -32,7 +34,6 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
-  orgId: string;
   goToAbsenceEdit: (absenceId: string) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
@@ -110,7 +111,11 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id} linkClass={classes.action}>
+                <EmployeeLink
+                  orgId={props.detail.orgId}
+                  orgUserId={props.detail.employee?.id}
+                  linkClass={classes.action}
+                >
                   {props.detail.employee?.name}
                 </EmployeeLink>
               </div>
@@ -144,8 +149,12 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               <div>
-                <LocationLink orgId={props.orgId} locationId={props.detail.location?.id} linkClass={classes.action}>
-                    {props.detail.location?.name}
+                <LocationLink
+                  orgId={props.detail.orgId}
+                  locationId={props.detail.location?.id}
+                  linkClass={classes.action}
+                >
+                  {props.detail.location?.name}
                 </LocationLink>
               </div>
               <div
@@ -167,8 +176,12 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 props.detail.substitute && (
                   <div className={classes.subWithPhone}>
                     <div>
-                      <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute?.id} linkClass={classes.action}>
-                          {props.detail.substitute.name}
+                      <SubstituteLink
+                        orgId={props.detail.orgId}
+                        orgUserId={props.detail.substitute?.id}
+                        linkClass={classes.action}
+                      >
+                        {props.detail.substitute.name}
                       </SubstituteLink>
                     </div>
                     {props.detail.substitute.phone && (
@@ -218,12 +231,21 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.item}>
               <div>
                 {props.detail.type === "absence" ? (
-                  <Link
-                    className={classes.action}
-                    onClick={() => props.goToAbsenceEdit(props.detail.id)}
-                  >{`#${props.detail.id}`}</Link>
+                  <AbsenceLink
+                    orgId={props.detail.orgId}
+                    absenceId={props.detail.id}
+                    linkClass={classes.action}
+                  >
+                    {`#${props.detail.id}`}
+                  </AbsenceLink>
                 ) : (
-                  `#V${props.detail.id}`
+                  <VacancyLink
+                    orgId={props.detail.orgId}
+                    vacancyId={props.detail.id}
+                    linkClass={classes.action}
+                  >
+                    {`#V${props.detail.id}`}
+                  </VacancyLink>
                 )}
               </div>
               {props.detail.assignmentId && (

@@ -9,8 +9,7 @@ type Props = {
   orgUserId: string | undefined;
   state?: any;
   linkClass?: string;
-  canWrapper?: (children: React.ReactNode) => React.ReactNode;
-  cannotWrapper?: (children: React.ReactNode) => React.ReactNode;
+  spanClass?: string;
 };
 
 const PeopleLink: (perms: CanDo) => React.FC<Props> = perms => ({
@@ -20,11 +19,11 @@ const PeopleLink: (perms: CanDo) => React.FC<Props> = perms => ({
   ...props
 }) => {
   if (orgUserId === undefined) {
-    return <> children </>;
+    return <span className={props.spanClass}> {props.children} </span>;
   }
   const urlStr = PersonViewRoute.generate({
     organizationId: orgId,
-    orgUserId: orgUserId,
+    orgUserId,
   });
   return (
     <BaseLink
