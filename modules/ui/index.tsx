@@ -90,6 +90,10 @@ import {
 } from "./routes/general-settings";
 import { SettingsLoader, SettingsRoute } from "./routes/settings";
 import {
+  AnalyticsReportsDailyReportRoute,
+  AnalyticsReportsDailyReportLoader,
+} from "./routes/analytics-reports";
+import {
   OrganizationsLoader,
   OrganizationsRoute,
   OrganizationAddRoute,
@@ -1071,6 +1075,13 @@ export const App = hot(function() {
                                   <ProtectedRoute
                                     component={DailyReportLoader}
                                     path={DailyReportRoute.path}
+                                    role={"admin"}
+                                  />
+                                  <ProtectedRoute
+                                    component={
+                                      AnalyticsReportsDailyReportLoader
+                                    }
+                                    path={AnalyticsReportsDailyReportRoute.path}
                                     role={"admin"}
                                   />
                                 </Switch>
