@@ -38,25 +38,6 @@ steps:
     condition: and(succeededOrFailed(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - script: |
-      yarn production-build
-    displayName: "dev production build"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - script: |
-      cp web.config ./dist/web.config
-    displayName: "copy web.config"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - task: OctopusPack@4
-    displayName: "Dev Package for Octopus"
-    inputs:
-      PackageId: "Edlumin.UI"
-      PackageVersion: $(Build.BuildNumber)-dev
-      SourcePath: "./dist"
-      OutputPath: $(Build.ArtifactStagingDirectory)
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - script: |
       mv -f ./config/production.js.prod ./config/production.js
     displayName: "set prod variables"
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
@@ -73,16 +54,6 @@ steps:
       PackageVersion: $(Build.BuildNumber)
       SourcePath: "./dist"
       OutputPath: $(Build.ArtifactStagingDirectory)
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - task: OctopusPush@4
-    displayName: "Push dev packages to Octopus"
-    inputs:
-      OctoConnectedServiceName: "Octopus Deploy"
-      Space: "Default"
-      Replace: true
-      Package: |
-        $(Build.ArtifactStagingDirectory)/Edlumin.UI.$(Build.BuildNumber)-dev.nupkg
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - task: OctopusPush@4
