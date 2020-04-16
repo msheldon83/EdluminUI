@@ -77,11 +77,6 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - script: |
-      rm -r ./dist/*
-    displayName: "delete all files in dist directory"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - script: |
       mv -f ./config/production.js.prod ./config/production.js
     displayName: "set prod variables"
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
