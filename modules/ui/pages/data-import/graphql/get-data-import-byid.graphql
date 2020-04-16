@@ -8,11 +8,9 @@ query GetDataImportById($id: ID!) {
       numAttempts
       totalRowCount
       columnNames
-      importOptions {
-        dataImportTypeId
-        parseOnly
-        validateOnly
-      }
+      dataImportTypeId
+      parseOnly
+      validateOnly
       fileUpload {
         id
         originalFileDownloadUrlSas

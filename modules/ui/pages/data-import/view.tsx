@@ -83,7 +83,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <PageTitle
             title={`${getDisplayName(
               "dataImportType",
-              dataImport.importOptions.dataImportTypeId,
+              dataImport.dataImportTypeId,
               t
             )} ${t("data import")}`}
           />

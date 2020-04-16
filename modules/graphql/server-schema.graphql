@@ -1262,7 +1262,6 @@ type DataImport implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  importOptions: DataImportOptions!
   totalRowCount: Int!
   columnNames: [String]
   dataImportStatusId: DataImportStatus!
@@ -1274,11 +1273,6 @@ type DataImport implements ModelObjectInterface & OrgObjectInterface {
   messages: [String]
   fileUploadId: ID
   fileUpload: FileUpload
-}
-
-type DataImportOptions {
-  _info: [ReturnMessage]
-  orgId: ID!
   dataImportTypeId: DataImportType!
   parseOnly: Boolean!
   validateOnly: Boolean!
@@ -1434,6 +1428,11 @@ enum DefaultNotificationStatus {
   ALWAYS_ON
   ON
   OFF
+}
+
+input DeleteUserDeviceInput {
+  userId: ID
+  deviceId: String!
 }
 
 enum DensityUnit {
@@ -1816,6 +1815,9 @@ enum EventType {
   USER_UNAVAILABLE_TIME_SAVED
   USER_UNAVAILABLE_TIME_DELETED
   USER_NOTIFICATION_FAILED
+  USER_DEVICE_CREATED
+  USER_DEVICE_UPDATED
+  USER_DEVICE_DELETED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -2303,6 +2305,12 @@ input LocatorInput {
 }
 
 scalar Milliseconds
+
+enum MobileDeviceType {
+  INVALID
+  IOS
+  ANDROID
+}
 
 interface ModelObjectInterface {
   id: ID!
@@ -4364,6 +4372,15 @@ type RefWeightUnit {
   description: String
 }
 
+input RegisterUserDeviceInput {
+  userId: ID
+  deviceId: String!
+  firebaseTokenId: String
+  mobileDeviceTypeId: MobileDeviceType
+  operatingSystemVersion: String
+  softwareVersion: String
+}
+
 type ReplacementCriteria implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -5175,6 +5192,7 @@ type User implements ModelObjectInterface {
   orgUsers: [OrgUser]
   allOrgUsers: [OrgUser]
   preferences: UserPreferences
+  mobileDevices: [UserDevice]
   isSystemAdministrator: Boolean!
   eulaAcceptedAtUtc: DateTime
   eulaAccepted: Boolean!
@@ -5240,6 +5258,21 @@ input UserCreateInput {
   preferences: UserPreferencesInput
 }
 
+type UserDevice implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  userId: ID!
+  deviceId: String!
+  mobileDeviceTypeId: MobileDeviceType!
+  firebaseTokenId: String!
+  operatingSystemVersion: String!
+  softwareVersion: String!
+}
+
 input UserLoginEmailChangeInput {
   id: ID!
   rowVersion: String!
@@ -5259,6 +5292,8 @@ type UserMutations {
   deleteUnavailableTime(id: ID!): Boolean
   verifyPhoneNumber(phoneNumber: String!): User
   sendMobileMessage(id: ID!, title: String!, message: String!): Boolean
+  registerUserDevice(userDevice: RegisterUserDeviceInput!): UserDevice
+  deleteUserDevice(userDevice: DeleteUserDeviceInput!): Boolean
 }
 
 type UserPreferences {

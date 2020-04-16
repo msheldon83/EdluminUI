@@ -1,20 +1,21 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Grid, makeStyles, Divider } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { DataImportRoute, DataImportViewRoute } from "ui/routes/data-import";
 import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle } from "graphql/hooks";
 import { GetDataImports } from "./graphql/get-data-imports.gen";
 import { Table } from "ui/components/table";
 import { Column } from "material-table";
 import { compact } from "lodash-es";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { ImportFilters } from "./components/import-filters";
 import { DataImportStatus, DataImportType } from "graphql/server-types.gen";
+import { CreateExpansionPanel } from "./components/create-expansion-panel";
 
 export const DataImportPage: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -29,6 +30,10 @@ export const DataImportPage: React.FC<{}> = () => {
     DataImportType | undefined
   >(undefined);
 
+  const today = useMemo(() => new Date(), []);
+  const [fromDate, setFromDate] = useState<Date | string>(addDays(today, -7));
+  const [toDate, setToDate] = useState<Date | string>(today);
+
   const [getImports, pagination] = usePagedQueryBundle(
     GetDataImports,
     r => r.dataImport?.paged?.totalCount,
@@ -37,6 +42,8 @@ export const DataImportPage: React.FC<{}> = () => {
         orgId: params.organizationId,
         status: importStatusFilter,
         type: importTypeFilter,
+        fromDate: fromDate,
+        toDate: toDate,
       },
     }
   );
@@ -65,20 +72,16 @@ export const DataImportPage: React.FC<{}> = () => {
     {
       title: t("Type"),
       render: data => {
-        return getDisplayName(
-          "dataImportType",
-          data.importOptions.dataImportTypeId,
-          t
-        );
+        return getDisplayName("dataImportType", data.dataImportTypeId, t);
       },
       sorting: false,
     },
     {
       title: t("Action"),
       render: data => {
-        if (data.importOptions.parseOnly) {
+        if (data.parseOnly) {
           return t("Parse only");
-        } else if (data.importOptions.validateOnly) {
+        } else if (data.validateOnly) {
           return t("Validate only");
         } else {
           return t("Import");
@@ -103,12 +106,17 @@ export const DataImportPage: React.FC<{}> = () => {
           <PageTitle title={t("Data imports")} />
         </Grid>
       </Grid>
+      <CreateExpansionPanel />
       <div className={classes.tableContainer}>
         <ImportFilters
           selectedStatusId={importStatusFilter}
           setSelectedStatusId={setImportStatusFilter}
           selectedTypeId={importTypeFilter}
           setSelectedTypeId={setImportTypeFilter}
+          fromDate={fromDate}
+          toDate={toDate}
+          setFromDate={setFromDate}
+          setToDate={setToDate}
         />
         <Divider className={classes.divider} />
         <Table
@@ -141,6 +149,7 @@ const useStyles = makeStyles(theme => ({
       5
     )} ${theme.typography.pxToRem(5)}`,
     padding: theme.spacing(3),
+    marginTop: theme.spacing(2),
   },
   paper: {
     border: "1px solid",

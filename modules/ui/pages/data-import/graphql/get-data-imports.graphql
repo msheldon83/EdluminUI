@@ -29,11 +29,9 @@ query GetDataImports(
         numAttempts
         totalRowCount
         columnNames
-        importOptions {
-          dataImportTypeId
-          parseOnly
-          validateOnly
-        }
+        dataImportTypeId
+        parseOnly
+        validateOnly
       }
     }
   }
