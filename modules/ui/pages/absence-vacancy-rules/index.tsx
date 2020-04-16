@@ -15,7 +15,6 @@ import { SettingsRoute } from "ui/routes/settings";
 export const AbsenceVacancyRules: React.FC<{}> = props => {
   const params = useRouteParams(AbsenceVacancyRulesRoute);
   const history = useHistory();
-  const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 
   const [updateOrgConfig] = useMutationBundle(UpdateOrgConfig, {
@@ -37,8 +36,6 @@ export const AbsenceVacancyRules: React.FC<{}> = props => {
     getOrgConfig?.data?.organization?.byId ?? undefined;
 
   const update = async (orgConfig: OrganizationUpdateInput) => {
-    console.log(orgConfig);
-
     const result = await updateOrgConfig({
       variables: {
         orgConfig: {

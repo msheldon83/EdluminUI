@@ -123,13 +123,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
             });
           }}
         >
-          {({
-            handleSubmit,
-            handleChange,
-            submitForm,
-            setFieldValue,
-            values,
-          }) => (
+          {({ handleSubmit, submitForm, setFieldValue, values }) => (
             <form onSubmit={handleSubmit}>
               <div>
                 <Typography variant="h6">{t("Absence types")}</Typography>
