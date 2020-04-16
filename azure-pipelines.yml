@@ -58,7 +58,7 @@ steps:
 
   - script: |
       mv -f ./config/production.js.prod ./config/production.js
-    displayName: "rename config file"
+    displayName: "set prod variables"
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - script: |
