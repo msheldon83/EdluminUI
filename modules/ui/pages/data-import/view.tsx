@@ -130,15 +130,17 @@ export const DataImportViewPage: React.FC<{}> = () => {
             )} ${t("data import")}`}
           />
         </Grid>
-        <Grid item>
-          <IconButton
-            href={dataImport.fileUpload.originalFileDownloadUrlSas ?? ""}
-            target={"_blank"}
-            rel={"noreferrer"}
-          >
-            <CloudDownloadIcon />
-          </IconButton>
-        </Grid>
+        {dataImport.fileUpload && (
+          <Grid item>
+            <IconButton
+              href={dataImport.fileUpload?.originalFileDownloadUrlSas ?? ""}
+              target={"_blank"}
+              rel={"noreferrer"}
+            >
+              <CloudDownloadIcon />
+            </IconButton>
+          </Grid>
+        )}
       </Grid>
       <Section>
         <Grid container spacing={2}>
@@ -159,27 +161,24 @@ export const DataImportViewPage: React.FC<{}> = () => {
             </div>
           </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <div className={classes.labelText}>{t("Column headers")}</div>
-          <div className={classes.text}>
-            {dataImport.columnNames?.join(", ")}
-          </div>
-        </Grid>
       </Section>
       <Section>
-        <div className={classes.rowContainer}>
+        <div className={classes.tableHeaderContainer}>
           <div className={classes.labelText}>{`${totalRowCount} ${
             totalRowCount === 1 ? t("row") : t("rows")
           }`}</div>
           <PaginationControls pagination={pagination} />
         </div>
-        //TODO: Add a header row
+        <div className={classes.headerContainer}>
+          <div className={classes.headerColumn}>{t("Row #")}</div>
+          <div className={classes.headerColumn}>{t("Status")}</div>
+        </div>
         {dataImportRows.map((row, i) => (
           <ExpansionPanel defaultExpanded={false} key={i}>
             <ExpansionPanelSummary expandIcon={<ExpandMore />}>
               <div className={classes.rowContainer}>
-                <div>{row.rowNumber}</div>
-                <div>
+                <div className={classes.rowNumColumn}>{row.rowNumber}</div>
+                <div className={classes.statusColumn}>
                   {getDisplayName("dataImportRowStatus", row.rowStatusId, t)}
                 </div>
               </div>
@@ -201,8 +200,15 @@ export const DataImportViewPage: React.FC<{}> = () => {
 const useStyles = makeStyles(theme => ({
   rowContainer: {
     display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    width: "100%",
+  },
+  tableHeaderContainer: {
+    display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    width: "100%",
   },
   labelText: {
     fontSize: theme.typography.pxToRem(18),
@@ -211,5 +217,24 @@ const useStyles = makeStyles(theme => ({
   text: {
     fontSize: theme.typography.pxToRem(16),
     fontWeight: 400,
+  },
+  headerContainer: {
+    display: "flex",
+    background: theme.customColors.lightGray,
+    border: `1px solid ${theme.customColors.medLightGray}`,
+  },
+  headerColumn: {
+    fontSize: theme.typography.pxToRem(16),
+    fontWeight: 400,
+    padding: theme.spacing(2),
+    paddingRight: theme.spacing(8),
+  },
+  statusColumn: {
+    paddingLeft: theme.spacing(3),
+    flex: 12,
+  },
+  rowNumColumn: {
+    paddingLeft: theme.spacing(1),
+    flex: 1,
   },
 }));
