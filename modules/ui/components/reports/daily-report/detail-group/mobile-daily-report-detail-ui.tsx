@@ -20,7 +20,8 @@ import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { EmployeeLink, LocationLink, SubstituteLink } from "ui/components/links"
+import { EmployeeLink, SubstituteLink } from "ui/components/links/people"
+import { LocationLink } from "ui/components/links/locations"
 
 type Props = {
   detail: Detail;
@@ -109,7 +110,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id}>
+                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id} linkClass={classes.action}>
                   {props.detail.employee?.name}
                 </EmployeeLink>
               </div>
@@ -143,7 +144,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               <div>
-                <LocationLink orgId={props.orgId} locationId={props.detail.location?.id}>
+                <LocationLink orgId={props.orgId} locationId={props.detail.location?.id} linkClass={classes.action}>
                     {props.detail.location?.name}
                 </LocationLink>
               </div>
@@ -166,7 +167,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 props.detail.substitute && (
                   <div className={classes.subWithPhone}>
                     <div>
-                      <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute?.id}>
+                      <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute?.id} linkClass={classes.action}>
                           {props.detail.substitute.name}
                       </SubstituteLink>
                     </div>

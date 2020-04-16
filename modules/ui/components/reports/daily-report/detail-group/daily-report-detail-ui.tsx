@@ -17,7 +17,8 @@ import { canAssignSub } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
 import PermDeviceInformationIcon from "@material-ui/icons/PermDeviceInformation";
-import { EmployeeLink, LocationLink, SubstituteLink } from "ui/components/links";
+import { EmployeeLink, SubstituteLink } from "ui/components/links/people"
+import { LocationLink } from "ui/components/links/locations"
 
 type Props = {
   detail: Detail;
@@ -46,6 +47,11 @@ type Props = {
 export const DailyReportDetailUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const closedSpan = (c: React.ReactNode) => (
+    <span className={props.detail.isClosed ? classes.closedText : ""}>
+      c
+    </span>
+  );
 
   return (
     <div className={[classes.container, props.className].join(" ")}>
@@ -80,12 +86,8 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id}>
-                  <span
-                    className={props.detail.isClosed ? classes.closedText : ""}
-                  >
-                    {props.detail.employee?.name}
-                  </span>
+                <EmployeeLink orgId={props.orgId} orgUserId={props.detail.employee?.id} linkClass={classes.action} cannotWrapper={closedSpan}>
+                  {props.detail.employee?.name}
                 </EmployeeLink>
               </div>
               <div className={classes.detailSubText}>
@@ -128,10 +130,8 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.locationSection}>
         <div>
           <div>
-            <LocationLink orgId={props.orgId} locationId={props.detail.location?.id}>
-              <span className={props.detail.isClosed ? classes.closedText : ""}>
-                {props.detail.location?.name}
-              </span>
+            <LocationLink orgId={props.orgId} locationId={props.detail.location?.id} linkClass={classes.action} cannotWrapper={closedSpan}>
+              {props.detail.location?.name}
             </LocationLink>
           </div>
           <div className={classes.detailSubText}>
@@ -158,7 +158,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
               <div>
-                <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute.id}>
+                <SubstituteLink orgId={props.orgId} orgUserId={props.detail.substitute.id} linkClass={classes.action}>
                   {props.detail.substitute.name}
                 </SubstituteLink>
               </div>

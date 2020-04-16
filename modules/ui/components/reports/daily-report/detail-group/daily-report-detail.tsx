@@ -4,8 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
-import { PersonViewRoute } from "ui/routes/people";
-import { LocationViewRoute } from "ui/routes/locations";
 import { Detail } from "../helpers";
 import { DailyReportDetailUI } from "./daily-report-detail-ui";
 import { MobileDailyReportDetailUI } from "./mobile-daily-report-detail-ui";
@@ -85,30 +83,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
     history.push(`${url}?step=preAssignSub`, {
       returnUrl: `${history.location.pathname}${history.location.search}`,
     });
-  };
-
-  const goToPersonView = (orgUserId: string | undefined) => {
-    if (orgUserId) {
-      const url = PersonViewRoute.generate({
-        organizationId: absenceEditParams.organizationId,
-        orgUserId,
-      });
-      history.push(url, {
-        returnUrl: `${history.location.pathname}${history.location.search}`,
-      });
-    }
-  };
-
-  const goToLocationView = (locationId: string | undefined) => {
-    if (locationId) {
-      const url = LocationViewRoute.generate({
-        organizationId: absenceEditParams.organizationId,
-        locationId: locationId,
-      });
-      history.push(url, {
-        returnUrl: `${history.location.pathname}${history.location.search}`,
-      });
-    }
   };
 
   const rowActions = [
