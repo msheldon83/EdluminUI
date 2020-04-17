@@ -8,7 +8,6 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { makeStyles } from "@material-ui/styles";
 import { OrganizationContactCard } from "./components/organization-contact-card";
 import { GetOrganizationContactsByUserId } from "ui/pages/organizations/graphql/get-organization-contacts.gen";
-//import _ = require("lodash");
 import { sortBy } from "lodash-es";
 
 export const OrganicationContactInfo: React.FC<{}> = props => {
