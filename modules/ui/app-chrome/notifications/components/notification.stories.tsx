@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Notification } from "./notification";
-import { ObjectType } from "graphql/server-types.gen";
+import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import { Divider } from "@material-ui/core";
 
 export default {
@@ -13,7 +13,12 @@ export const BasicNotificationStory = () => {
       {notifications.map((n, i) => {
         return (
           <>
-            <Notification key={i} notification={n} />
+            <Notification
+              key={i}
+              notification={n}
+              orgId={"1111"}
+              orgUserRole={OrgUserRole.Administrator}
+            />
             <Divider />
           </>
         );

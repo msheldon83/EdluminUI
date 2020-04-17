@@ -1,9 +1,11 @@
 import * as React from "react";
 import { makeStyles, Divider, Popover } from "@material-ui/core";
+import { useMyUserAccess } from "reference-data/my-user-access";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetNotifications } from "./graphql/get-notifications.gen";
 import { compact } from "lodash-es";
 import { Notification } from "./components/notification";
+import { OrgUserRole } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { getOrgIdFromRoute } from "core/org-context";
 
@@ -17,6 +19,15 @@ export const NotificationsUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const orgId = getOrgIdFromRoute();
+
+  const userAccess = useMyUserAccess();
+  const orgUser = userAccess?.me?.user?.orgUsers?.find(e => e?.orgId === orgId);
+
+  const orgUserRole = orgUser?.isAdmin
+    ? OrgUserRole.Administrator
+    : orgUser?.isEmployee
+    ? OrgUserRole.Employee
+    : OrgUserRole.ReplacementEmployee;
 
   const { open, anchorElement, onClose } = props;
 
@@ -63,7 +74,12 @@ export const NotificationsUI: React.FC<Props> = props => {
           notifications.map((n, i) => {
             return (
               <React.Fragment key={i}>
-                <Notification key={i} notification={n} />
+                <Notification
+                  key={i}
+                  notification={n}
+                  orgId={orgId ?? ""}
+                  orgUserRole={orgUserRole}
+                />
                 <Divider className={classes.divider} />
               </React.Fragment>
             );

@@ -6,6 +6,6 @@ type Props = {
   objectKey: string;
 };
 
-export const NotificationLink: React.FC<Props> = props => {
+export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
   return <></>;
 };

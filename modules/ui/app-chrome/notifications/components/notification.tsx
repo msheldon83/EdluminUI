@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useMemo } from "react";
 import { makeStyles } from "@material-ui/core";
-import { ObjectType } from "graphql/server-types.gen";
+import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import {
   format,
   formatDistance,
@@ -11,6 +11,7 @@ import {
   isEqual,
 } from "date-fns";
 import { ViewedIcon } from "./viewed-icon";
+import { NotificationLink } from "ui/app-chrome/notifications/notification-links/index";
 import { useTranslation } from "react-i18next";
 
 type Props = {
@@ -23,6 +24,8 @@ type Props = {
     objectTypeId: ObjectType;
     objectKey: string;
   };
+  orgId: string;
+  orgUserRole: OrgUserRole;
 };
 
 export const Notification: React.FC<Props> = props => {
@@ -46,14 +49,21 @@ export const Notification: React.FC<Props> = props => {
 
   return (
     <>
-      <div className={classes.container}>
-        <ViewedIcon viewed={notification.viewed} />
-        <div className={classes.textContainer}>
-          <div className={classes.titleText}>{notification.title}</div>
-          <div>{notification.content}</div>
-          <div className={classes.dateText}>{formattedDate}</div>
+      <NotificationLink
+        objectKey={notification.objectKey}
+        objectTypeId={notification.objectTypeId}
+        orgUserRole={props.orgUserRole}
+        orgId={props.orgId}
+      >
+        <div className={classes.container}>
+          <ViewedIcon viewed={notification.viewed} />
+          <div className={classes.textContainer}>
+            <div className={classes.titleText}>{notification.title}</div>
+            <div>{notification.content}</div>
+            <div className={classes.dateText}>{formattedDate}</div>
+          </div>
         </div>
-      </div>
+      </NotificationLink>
     </>
   );
 };
