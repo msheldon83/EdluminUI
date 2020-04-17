@@ -1,54 +1,68 @@
-import { makeStyles, useTheme } from "@material-ui/styles";
-import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useTranslation } from "react-i18next";
+import { ShowErrors } from "ui/components/error-helpers";
+import { EditAbsenceVacancyRules } from "./edit";
 import { useHistory } from "react-router";
-import { PageTitle } from "ui/components/page-title";
+import { useTranslation } from "react-i18next";
+import { useSnackbar } from "hooks/use-snackbar";
+import { OrganizationUpdateInput } from "graphql/server-types.gen";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { AbsenceVacancyRulesRoute } from "ui/routes/absence-vacancy/rules";
+import { GetOrgConfigById } from "./graphql/get-org-config-by-id.gen";
+import { UpdateOrgConfig } from "./graphql/update-org-config.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { Button } from "@material-ui/core";
-import { UnderConstructionHeader } from "ui/components/under-construction";
+import { SettingsRoute } from "ui/routes/settings";
 
-type Props = {};
-
-export const AbsenceVacancyRules: React.FC<Props> = props => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  const theme = useTheme();
-  const classes = useStyles();
-  const isMobile = useIsMobile();
+export const AbsenceVacancyRules: React.FC<{}> = props => {
   const params = useRouteParams(AbsenceVacancyRulesRoute);
+  const history = useHistory();
+  const { openSnackbar } = useSnackbar();
 
-  const [triggerError, setTriggerError] = React.useState(false);
+  const [updateOrgConfig] = useMutationBundle(UpdateOrgConfig, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
-  if (triggerError) {
-    throw Error("error!");
+  const getOrgConfig = useQueryBundle(GetOrgConfigById, {
+    variables: {
+      id: params.organizationId,
+    },
+  });
+
+  if (getOrgConfig.state === "LOADING") {
+    return <></>;
   }
+  const organization: any | undefined =
+    getOrgConfig?.data?.organization?.byId ?? undefined;
+
+  const update = async (orgConfig: OrganizationUpdateInput) => {
+    const result = await updateOrgConfig({
+      variables: {
+        orgConfig: {
+          ...orgConfig,
+        },
+      },
+    });
+
+    return result?.data;
+  };
 
   return (
     <>
-      <PageTitle
-        title={`${params.organizationId} ${t("Absence & Vacancy Rules")}`}
+      <EditAbsenceVacancyRules
+        organization={organization}
+        onCancel={() => {
+          const url = SettingsRoute.generate(params);
+          history.push(url);
+        }}
+        onSubmit={async (orgConfig: OrganizationUpdateInput) => {
+          const result = await update(orgConfig);
+          if (result) {
+            const url = SettingsRoute.generate(params);
+            history.push(url);
+          }
+        }}
       />
-      <UnderConstructionHeader />
-      {__DEV__ && (
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            setTriggerError(true);
-          }}
-        >
-          Trigger Error
-        </Button>
-      )}
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));
