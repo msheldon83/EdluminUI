@@ -35,6 +35,7 @@ export type DetailGroup = {
 export type Detail = {
   id: string;
   detailId: string;
+  orgId: string;
   state: "unfilled" | "filled" | "noSubRequired" | "closed";
   type: "absence" | "vacancy";
   absenceRowVersion?: string;
@@ -82,6 +83,7 @@ export type Detail = {
 
 export const MapDailyReportDetails = (
   dailyReport: DailyReportType,
+  orgId: string,
   date: Date,
   showAbsences: boolean,
   showVacancies: boolean,
@@ -126,6 +128,7 @@ export const MapDailyReportDetails = (
       return {
         id: a.id,
         detailId: absenceDetail.id,
+        orgId: orgId,
         state: "filled",
         type: "absence",
         isClosed: absenceDetail.isClosed,
@@ -207,6 +210,7 @@ export const MapDailyReportDetails = (
       return {
         id: v.id,
         detailId: vacancyDetail.id,
+        orgId: orgId,
         state: "filled",
         type: "vacancy",
         isClosed: vacancyDetail.isClosed,
@@ -279,6 +283,7 @@ export const MapDailyReportDetails = (
       return {
         id: a.id,
         detailId: absenceDetail.id,
+        orgId: orgId,
         state: "unfilled",
         type: "absence",
         isClosed: absenceDetail.isClosed,
@@ -348,6 +353,7 @@ export const MapDailyReportDetails = (
       return {
         id: v.id,
         detailId: vacancyDetail.id,
+        orgId: orgId,
         state: "unfilled",
         isClosed: vacancyDetail.isClosed,
         type: "vacancy",
@@ -434,6 +440,7 @@ export const MapDailyReportDetails = (
       return {
         id: a.id,
         detailId: absenceDetail.id,
+        orgId: orgId,
         state: "noSubRequired",
         type: "absence",
         absenceRowVersion: a.rowVersion,
@@ -506,6 +513,7 @@ export const MapDailyReportDetails = (
         return {
           id: a.id,
           detailId: absenceDetail.id,
+          orgId: orgId,
           state: "closed",
           type: "absence",
           absenceRowVersion: a.rowVersion,
@@ -539,6 +547,7 @@ export const MapDailyReportDetails = (
         return {
           id: a.id,
           detailId: vacancyDetail.id,
+          orgId: orgId,
           state: "closed",
           isClosed: vacancyDetail.isClosed,
           type: "vacancy",
