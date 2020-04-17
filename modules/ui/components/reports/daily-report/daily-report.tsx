@@ -160,6 +160,7 @@ export const DailyReport: React.FC<Props> = props => {
   if (dailyReportDetails) {
     const mappedDetails = MapDailyReportDetails(
       dailyReportDetails,
+      props.orgId,
       new Date(filters.date),
       filters.showAbsences,
       filters.showVacancies,
