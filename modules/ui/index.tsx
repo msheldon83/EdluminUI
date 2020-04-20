@@ -320,22 +320,20 @@ export const App = hot(function() {
                 path={UnauthorizedRoute.path}
               />
               <Route path={SubSignInRoute.path}>
-                <RoleContextProvider>
-                  <AdminRouteOrganizationContextProvider>
-                    <IfAuthenticated>
-                      <IfHasRole role={OrgUserRole.Administrator}>
-                        <ProtectedRoute
-                          component={SubSignInLoader}
-                          path={SubSignInRoute.path}
-                          role={"admin"}
-                        />
-                      </IfHasRole>
-                    </IfAuthenticated>
-                    <IfAuthenticated not>
-                      <RedirectToLogin />
-                    </IfAuthenticated>
-                  </AdminRouteOrganizationContextProvider>
-                </RoleContextProvider>
+                <AdminRouteOrganizationContextProvider>
+                  <IfAuthenticated>
+                    <IfHasRole role={OrgUserRole.Administrator}>
+                      <ProtectedRoute
+                        component={SubSignInLoader}
+                        path={SubSignInRoute.path}
+                        role={"admin"}
+                      />
+                    </IfHasRole>
+                  </IfAuthenticated>
+                  <IfAuthenticated not>
+                    <RedirectToLogin />
+                  </IfAuthenticated>
+                </AdminRouteOrganizationContextProvider>
               </Route>
               <Route path={AppChromeRoute.path}>
                 <RoleContextProvider>
