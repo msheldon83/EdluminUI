@@ -245,8 +245,8 @@ export function Table<T extends object>(props: TableProps<T>) {
           props.title ? (
             <div className={classes.tableTitle}>{props.title}</div>
           ) : (
-            ""
-          )
+              ""
+            )
         }
         columns={allColumns}
         data={data}

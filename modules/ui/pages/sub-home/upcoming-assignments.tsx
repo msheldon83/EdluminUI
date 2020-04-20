@@ -10,6 +10,7 @@ import {
   addDays,
   format,
   isEqual,
+  isToday,
   parseISO,
   getDay,
   startOfDay,
@@ -221,6 +222,21 @@ export const UpcomingAssignments: React.FC<Props> = props => {
     );
 
   const calendarDates = disabledDates.concat(pastDays).concat(activeDates);
+  const todayIndex = calendarDates.findIndex(o => isToday(o.date));
+  if (todayIndex === -1) {
+    calendarDates.push({
+      date: new Date(),
+      buttonProps: { className: classes.today },
+    });
+  } else {
+    const today = calendarDates[todayIndex];
+    calendarDates[todayIndex] = {
+      date: today.date,
+      buttonProps: {
+        className: `${classes.today} ${today.buttonProps.className}`,
+      },
+    };
+  }
 
   const preloadDate = (dates: Date[]) => {
     const baseRoute = SubAvailabilityRoute.generate({});
@@ -352,5 +368,9 @@ const useStyles = makeStyles(theme => ({
   },
   availableAfterDate: {
     background: `linear-gradient(to right bottom, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
+  },
+  today: {
+    border: "solid black 1px",
+    fontWeight: "bold",
   },
 }));
