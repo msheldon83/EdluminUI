@@ -15,7 +15,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { OptionType } from "ui/components/form/select-new";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
@@ -114,7 +114,8 @@ export const PersonViewHeader: React.FC<Props> = props => {
   const canEditThisOrgUser = (
     permissions: OrgUserPermissions[],
     isSysAdmin: boolean,
-    orgId?: string
+    orgId?: string,
+    forRole?: Role | null | undefined
   ) =>
     canEditOrgUser(
       permissions,
@@ -124,13 +125,15 @@ export const PersonViewHeader: React.FC<Props> = props => {
       orgUser.isReplacementEmployee,
       orgUser.isShadowRecord,
       orgId,
-      orgUser.shadowFromOrgId
+      orgUser.shadowFromOrgId,
+      forRole
     );
 
   const canDeleteThisOrgUser = (
     permissions: OrgUserPermissions[],
     isSysAdmin: boolean,
-    orgId?: string
+    orgId?: string,
+    forRole?: Role | null | undefined
   ) =>
     canDeleteOrgUser(
       permissions,
@@ -139,7 +142,8 @@ export const PersonViewHeader: React.FC<Props> = props => {
       orgUser.isEmployee,
       orgUser.isReplacementEmployee,
       orgId,
-      orgUser.isShadowRecord
+      orgUser.isShadowRecord,
+      forRole
     );
 
   const editable = props.editing === null;

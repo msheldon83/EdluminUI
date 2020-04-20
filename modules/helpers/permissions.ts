@@ -74,10 +74,11 @@ export const canViewAsSysAdmin = (
 export const canViewAbsVacNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
 
   if (
     !userPerms?.includes(PermissionEnum.AbsVacView) &&
@@ -91,10 +92,11 @@ export const canViewAbsVacNavLink = (
 export const canViewDailyReportNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (!userPerms?.includes(PermissionEnum.AbsVacView)) {
     return false;
   }
@@ -104,10 +106,11 @@ export const canViewDailyReportNavLink = (
 export const canViewVerifyNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (!userPerms?.includes(PermissionEnum.AbsVacVerify)) {
     return false;
   }
@@ -116,10 +119,11 @@ export const canViewVerifyNavLink = (
 export const canViewAnalyticsReportsNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   //perform permission checks
 
   return true;
@@ -127,10 +131,11 @@ export const canViewAnalyticsReportsNavLink = (
 export const canViewSchoolsNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !userPerms?.includes(PermissionEnum.LocationView) &&
     !userPerms?.includes(PermissionEnum.LocationGroupView)
@@ -143,10 +148,11 @@ export const canViewSchoolsNavLink = (
 export const canViewSchoolsGroupsNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   /* if (!userPerms?.includes(PermissionEnum.LocationView)) {
     return false;
   } */
@@ -156,10 +162,11 @@ export const canViewSchoolsGroupsNavLink = (
 export const canViewPeopleNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !userPerms?.includes(PermissionEnum.EmployeeView) &&
     !userPerms?.includes(PermissionEnum.SubstituteView) &&
@@ -173,10 +180,11 @@ export const canViewPeopleNavLink = (
 export const canViewCalendarsNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (!userPerms?.includes(PermissionEnum.CalendarChangeView)) {
     return false;
   }
@@ -186,10 +194,11 @@ export const canViewCalendarsNavLink = (
 export const canViewConfigNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !userPerms?.includes(PermissionEnum.GeneralSettingsView) &&
     !userPerms?.includes(PermissionEnum.ScheduleSettingsView) &&
@@ -204,10 +213,11 @@ export const canViewConfigNavLink = (
 export const canViewSecurityNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !userPerms?.includes(PermissionEnum.PermissionSetView) &&
     !userPerms?.includes(PermissionEnum.ExternalConnectionsView)
@@ -220,10 +230,11 @@ export const canViewSecurityNavLink = (
 export const canViewOrganizationsNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   //perform permission checks
 
   return true;
@@ -233,10 +244,11 @@ export const canViewOrganizationsNavLink = (
 export const canViewEmpMyScheduleNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   //perform permission checks
 
   return true;
@@ -244,10 +256,11 @@ export const canViewEmpMyScheduleNavLink = (
 export const canViewPTOBalancesNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
-  if (isSysAdmin) return true; //if org id was passed check if orgid is in list of orgs user has access to (admin)
-  const userPerms = getUserPermissions(permissions, orgId);
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (!userPerms?.includes(PermissionEnum.EmployeeViewBalances)) {
     return false;
   }
@@ -257,10 +270,11 @@ export const canViewPTOBalancesNavLink = (
 export const canViewEmpSubPrefNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
 
   if (!userPerms?.includes(PermissionEnum.EmployeeSaveFavoriteSubs)) {
     return false;
@@ -273,10 +287,11 @@ export const canViewEmpSubPrefNavLink = (
 export const canViewSubMyScheduleNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
 
   //perform permission checks
 
@@ -285,10 +300,11 @@ export const canViewSubMyScheduleNavLink = (
 export const canViewSubSubPrefNavLink = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
 
   //perform permission checks
 
@@ -357,10 +373,10 @@ export const canEditAbsence = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  role?: Role | null | undefined
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId, role);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
@@ -406,10 +422,11 @@ export const canRemoveSub = (
 export const canViewMultiplePeopleRoles = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   const roleViewPermissions = userPerms?.filter(
     x =>
       x === PermissionEnum.EmployeeView ||
@@ -427,7 +444,8 @@ export const canEditOrgUser = (
   isReplacementEmployee: boolean,
   isShadowRecord: boolean,
   orgId?: string,
-  shadowFromOrgId?: string | null
+  shadowFromOrgId?: string | null,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) {
     return true;
@@ -435,9 +453,9 @@ export const canEditOrgUser = (
 
   let userPerms = [] as PermissionEnum[];
   if (isShadowRecord) {
-    userPerms = getUserPermissions(permissions, shadowFromOrgId);
+    userPerms = getUserPermissions(permissions, shadowFromOrgId, forRole);
   } else {
-    userPerms = getUserPermissions(permissions, orgId);
+    userPerms = getUserPermissions(permissions, orgId, forRole);
   }
 
   const canEditAdmin =
@@ -458,7 +476,8 @@ export const canDeleteOrgUser = (
   isEmployee: boolean,
   isReplacementEmployee: boolean,
   orgId?: string,
-  isShadowRecord?: boolean
+  isShadowRecord?: boolean,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) {
     return true;
@@ -468,7 +487,7 @@ export const canDeleteOrgUser = (
     return false;
   }
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   const canDeleteAdmin =
     isAdmin && !!userPerms?.includes(PermissionEnum.AdminDelete);
   const canDeleteEmployee =
@@ -483,39 +502,42 @@ export const canDeleteOrgUser = (
 export const canCreateAdmin = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   return !!userPerms?.includes(PermissionEnum.AdminSave);
 };
 
 export const canCreateEmployee = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   return !!userPerms?.includes(PermissionEnum.EmployeeSave);
 };
 
 export const canCreateSubstitute = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) {
     return true;
   }
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   return !!userPerms?.includes(PermissionEnum.SubstituteSave);
 };
 
@@ -523,6 +545,7 @@ export const canEditEmployee = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
+  forRole?: Role | null | undefined,
   context?: any
 ) => {
   if (isSysAdmin) {
@@ -531,7 +554,7 @@ export const canEditEmployee = (
 
   if (context?.isShadowRecord) return false;
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   return !!userPerms?.includes(PermissionEnum.EmployeeSave);
 };
 
@@ -539,6 +562,7 @@ export const canEditSub = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
+  forRole?: Role | null | undefined,
   context?: any
 ) => {
   if (isSysAdmin) {
@@ -547,9 +571,9 @@ export const canEditSub = (
 
   let userPerms = [] as PermissionEnum[];
   if (context?.isShadowRecord) {
-    userPerms = getUserPermissions(permissions, context?.shadowFromOrgId);
+    userPerms = getUserPermissions(permissions, context?.shadowFromOrgId, forRole);
   } else {
-    userPerms = getUserPermissions(permissions, orgId);
+    userPerms = getUserPermissions(permissions, orgId, forRole);
   }
 
   return !!userPerms?.includes(PermissionEnum.SubstituteSave);
@@ -559,6 +583,7 @@ export const canEditAdmin = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
+  forRole?: Role | null | undefined,
   context?: any
 ) => {
   if (isSysAdmin) {
@@ -567,7 +592,7 @@ export const canEditAdmin = (
 
   if (context?.isShadowRecord) return false;
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   return !!userPerms?.includes(PermissionEnum.AdminSave);
 };
 
@@ -575,6 +600,7 @@ export const canEditPermissionSet = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
+  forRole?: Role | null | undefined,
   context?: any
 ) => {
   if (isSysAdmin) {
@@ -583,6 +609,6 @@ export const canEditPermissionSet = (
 
   if (context?.isShadowRecord) return false;
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   return !!userPerms?.includes(PermissionEnum.PermissionSetSave);
 };

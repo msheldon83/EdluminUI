@@ -12,7 +12,7 @@ import {
   canAssignSub,
   canEditAbsence,
 } from "helpers/permissions";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
@@ -64,8 +64,16 @@ export const DailyReportDetail: React.FC<Props> = props => {
       permissions: (
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
-        orgId?: string
-      ) => canEditAbsence(props.detail.date, permissions, isSysAdmin, orgId),
+        orgId?: string,
+        forRole?: Role | null | undefined
+      ) =>
+        canEditAbsence(
+          props.detail.date,
+          permissions,
+          isSysAdmin,
+          orgId,
+          forRole
+        ),
     },
   ];
   if (props.detail.state !== "noSubRequired") {
@@ -85,13 +93,29 @@ export const DailyReportDetail: React.FC<Props> = props => {
         ? (
             permissions: OrgUserPermissions[],
             isSysAdmin: boolean,
-            orgId?: string
-          ) => canRemoveSub(props.detail.date, permissions, isSysAdmin, orgId)
+            orgId?: string,
+            forRole?: Role | null | undefined
+          ) =>
+            canRemoveSub(
+              props.detail.date,
+              permissions,
+              isSysAdmin,
+              orgId,
+              forRole
+            )
         : (
             permissions: OrgUserPermissions[],
             isSysAdmin: boolean,
-            orgId?: string
-          ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId),
+            orgId?: string,
+            forRole?: Role | null | undefined
+          ) =>
+            canAssignSub(
+              props.detail.date,
+              permissions,
+              isSysAdmin,
+              orgId,
+              forRole
+            ),
     });
   }
   return (
