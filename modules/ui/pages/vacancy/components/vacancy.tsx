@@ -585,13 +585,15 @@ export const VacancyUI: React.FC<Props> = props => {
                         )}
                       </div>
                       {onDelete && vacancyExists && !dirty && (
-                        <Button
-                          onClick={() => onDelete()}
-                          variant="text"
-                          className={classes.deleteButton}
-                        >
-                          {t("Delete")}
-                        </Button>
+                        <Can do={[PermissionEnum.AbsVacDelete]}>
+                          <Button
+                            onClick={() => onDelete()}
+                            variant="text"
+                            className={classes.deleteButton}
+                          >
+                            {t("Delete")}
+                          </Button>
+                        </Can>
                       )}
                       {vacancyExists && dirty && !vacancy.isClosed && (
                         <Button
