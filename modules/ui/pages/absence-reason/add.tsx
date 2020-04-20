@@ -76,7 +76,6 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             orgId: params.organizationId,
             ...basicInfo,
             allowNegativeBalance,
-            isBucket: false,
             absenceReasonTrackingId,
             isRestricted,
             appliesToAssignmentTypes: AssignmentType.ContractAssignment,

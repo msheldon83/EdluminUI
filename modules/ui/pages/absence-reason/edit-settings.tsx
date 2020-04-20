@@ -72,7 +72,6 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
           id: reason.id,
           rowVersion: reason.rowVersion,
           allowNegativeBalance,
-          isBucket: false,
           description,
           isRestricted,
           absenceReasonTrackingId,
