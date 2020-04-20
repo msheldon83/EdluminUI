@@ -7,7 +7,6 @@ mutation updateAbsenceReason($absenceReason: AbsenceReasonUpdateInput!) {
       name
       description
       expired
-      isBucket
       appliesToAssignmentTypes
       absenceReasonTrackingTypeId
       allowNegativeBalance
