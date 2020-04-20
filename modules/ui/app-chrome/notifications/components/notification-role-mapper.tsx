@@ -3,23 +3,29 @@ import { Link } from "react-router-dom";
 import { Can } from "ui/components/auth/can";
 import { CanDo } from "ui/components/auth/types";
 import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
-import { AdminNotificationLink } from "./admin";
+import { AdminNotificationLink } from "./notification-links/admin";
 
 type Props = {
-  objectTypeId: ObjectType;
-  objectKey: string;
   orgUserRole: OrgUserRole;
   orgId: string;
+  notification: {
+    id: string;
+    title?: string | null;
+    content?: string | null;
+    viewed: boolean;
+    createdUtc: string;
+    objectTypeId: ObjectType;
+    objectKey: string;
+  };
 };
 
-export const NotificationLink: React.FC<Props> = props => {
+export const NotificationRoleMapper: React.FC<Props> = props => {
   switch (props.orgUserRole) {
     case OrgUserRole.Administrator:
       return (
         <AdminNotificationLink
-          objectTypeId={props.objectTypeId}
-          objectKey={props.objectKey}
           orgId={props.orgId}
+          notification={props.notification}
         />
       );
     case OrgUserRole.Employee:

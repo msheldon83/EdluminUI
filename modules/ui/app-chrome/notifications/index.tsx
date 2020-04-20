@@ -4,7 +4,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetNotifications } from "./graphql/get-notifications.gen";
 import { compact } from "lodash-es";
-import { Notification } from "./components/notification";
+import { NotificationRoleMapper } from "ui/app-chrome/notifications/components/notification-role-mapper";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { getOrgIdFromRoute } from "core/org-context";
@@ -74,7 +74,7 @@ export const NotificationsUI: React.FC<Props> = props => {
           notifications.map((n, i) => {
             return (
               <React.Fragment key={i}>
-                <Notification
+                <NotificationRoleMapper
                   key={i}
                   notification={n}
                   orgId={orgId ?? ""}
