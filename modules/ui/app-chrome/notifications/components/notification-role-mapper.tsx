@@ -20,6 +20,8 @@ type Props = {
 };
 
 export const NotificationRoleMapper: React.FC<Props> = props => {
+  console.log(props);
+
   switch (props.orgUserRole) {
     case OrgUserRole.Administrator:
       return (
@@ -30,20 +32,21 @@ export const NotificationRoleMapper: React.FC<Props> = props => {
         />
       );
     case OrgUserRole.Employee:
-      <EmployeeNotificationLink
-        orgId={props.orgId}
-        notification={props.notification}
-        markAsViewed={props.markAsViewed}
-      />;
-
-      return <></>;
+      return (
+        <EmployeeNotificationLink
+          orgId={props.orgId}
+          notification={props.notification}
+          markAsViewed={props.markAsViewed}
+        />
+      );
     case OrgUserRole.ReplacementEmployee:
-      <ReplacementEmployeeNotificationLink
-        orgId={props.orgId}
-        notification={props.notification}
-        markAsViewed={props.markAsViewed}
-      />;
-      return <></>;
+      return (
+        <ReplacementEmployeeNotificationLink
+          orgId={props.orgId}
+          notification={props.notification}
+          markAsViewed={props.markAsViewed}
+        />
+      );
   }
 
   return <></>;

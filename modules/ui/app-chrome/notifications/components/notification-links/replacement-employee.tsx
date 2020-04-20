@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Divider } from "@material-ui/core";
 import * as React from "react";
 import { DateFormatter } from "helpers/date";
 import { ObjectType } from "graphql/server-types.gen";
@@ -32,55 +32,54 @@ export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
   const formattedDate = DateFormatter(notification.createdUtc, t);
   const htmlContent = HtmlContent(notification, formattedDate);
 
+  let route;
+
   const hideLink =
-    notification.title?.includes("Deleted") ||
-    notification.title?.includes("Cancelled");
+    (notification.content?.includes("Deleted") ||
+      notification.content?.includes("Cancelled") ||
+      notification.content?.includes("deleted") ||
+      notification.content?.includes("cancelled")) ??
+    false;
+
+  console.log(hideLink);
 
   switch (props.notification.objectTypeId) {
     case ObjectType.Absence:
-      const absence = SubSpecificAssignmentRoute.generate({
+      route = SubSpecificAssignmentRoute.generate({
         assignmentId: props.notification.objectKey,
       });
-      return (
-        <>
-          {hideLink ? (
-            <Link
-              to={absence}
-              className={classes.hyperlink}
-              onClick={() => {
-                props.markAsViewed(notification.id);
-              }}
-            >
-              {htmlContent}
-            </Link>
-          ) : (
-            <>{htmlContent}</>
-          )}
-        </>
-      );
+      break;
     case ObjectType.Vacancy:
-      const vacancy = SubSpecificAssignmentRoute.generate({
+      route = SubSpecificAssignmentRoute.generate({
         assignmentId: props.notification.objectKey,
       });
-      return (
-        <>
-          {hideLink ? (
-            <Link
-              to={vacancy}
-              className={classes.hyperlink}
-              onClick={() => {
-                props.markAsViewed(notification.id);
-              }}
-            >
-              {htmlContent}
-            </Link>
-          ) : (
-            <>{htmlContent}</>
-          )}
-        </>
-      );
+      break;
+    case ObjectType.Assignment:
+      route = SubSpecificAssignmentRoute.generate({
+        assignmentId: props.notification.objectKey,
+      });
+      break;
   }
-  return <></>;
+  return (
+    <>
+      {!hideLink && route ? (
+        <Link
+          to={route}
+          className={classes.hyperlink}
+          onClick={() => {
+            const v = props.markAsViewed(notification.id);
+          }}
+        >
+          {htmlContent}
+        </Link>
+      ) : (
+        <>
+          <div>{htmlContent}</div>
+        </>
+      )}
+      <Divider className={classes.divider} />
+    </>
+  );
 };
 
 const useStyles = makeStyles(theme => ({
@@ -100,6 +99,11 @@ const useStyles = makeStyles(theme => ({
   dateText: {
     color: theme.customColors.medLightGray,
   },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+  },
   hyperlink: {
     textDecoration: "none",
     "&:link": {
@@ -118,7 +122,7 @@ const HtmlContent = (notification: Notification, formattedDate: string) => {
       <div className={classes.container}>
         <ViewedIcon viewed={notification.viewed} />
         <div className={classes.textContainer}>
-          <div className={classes.titleText}>{notification.title}</div>
+          {/* <div className={classes.titleText}>{notification.title}</div> */}
           <div>{notification.content}</div>
           <div className={classes.dateText}>{formattedDate}</div>
         </div>

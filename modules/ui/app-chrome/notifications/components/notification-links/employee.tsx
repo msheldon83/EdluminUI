@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Divider } from "@material-ui/core";
 import * as React from "react";
 import { DateFormatter } from "helpers/date";
 import { ObjectType } from "graphql/server-types.gen";
@@ -32,34 +32,42 @@ export const EmployeeNotificationLink: React.FC<Props> = props => {
   const formattedDate = DateFormatter(notification.createdUtc, t);
   const htmlContent = HtmlContent(notification, formattedDate);
 
+  let route;
+
   const hideLink =
-    notification.title?.includes("Deleted") ||
-    notification.title?.includes("Cancelled");
+    (notification.content?.includes("Deleted") ||
+      notification.content?.includes("Cancelled") ||
+      notification.content?.includes("deleted") ||
+      notification.content?.includes("cancelled")) ??
+    false;
 
   switch (props.notification.objectTypeId) {
     case ObjectType.Absence:
-      const absenceEdit = EmployeeEditAbsenceRoute.generate({
+      route = EmployeeEditAbsenceRoute.generate({
         absenceId: props.notification.objectKey,
       });
-      return (
-        <>
-          {hideLink ? (
-            <Link
-              to={absenceEdit}
-              className={classes.hyperlink}
-              onClick={() => {
-                props.markAsViewed(notification.id);
-              }}
-            >
-              {htmlContent}
-            </Link>
-          ) : (
-            <>{htmlContent}</>
-          )}
-        </>
-      );
+      break;
   }
-  return <></>;
+  return (
+    <>
+      {!hideLink && route ? (
+        <Link
+          to={route}
+          className={classes.hyperlink}
+          onClick={() => {
+            props.markAsViewed(notification.id);
+          }}
+        >
+          {htmlContent}
+        </Link>
+      ) : (
+        <>
+          <div>{htmlContent}</div>
+        </>
+      )}
+      <Divider className={classes.divider} />
+    </>
+  );
 };
 
 const useStyles = makeStyles(theme => ({
@@ -69,6 +77,11 @@ const useStyles = makeStyles(theme => ({
     "&:hover": {
       backgroundColor: theme.customColors.lightGray,
     },
+  },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
   textContainer: {
     paddingLeft: theme.spacing(2),

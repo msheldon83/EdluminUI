@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Divider } from "@material-ui/core";
 import * as React from "react";
 import { DateFormatter } from "helpers/date";
 import { ObjectType } from "graphql/server-types.gen";
@@ -29,34 +29,29 @@ export const AdminNotificationLink: React.FC<Props> = props => {
   const classes = useStyles();
   const notification = props.notification;
 
+  let route;
   const formattedDate = DateFormatter(notification.createdUtc, t);
   const htmlContent = HtmlContent(notification, formattedDate);
 
   switch (props.notification.objectTypeId) {
     case ObjectType.Absence:
-      const absenceEdit = AdminEditAbsenceRoute.generate({
+      route = AdminEditAbsenceRoute.generate({
         organizationId: props.orgId,
         absenceId: props.notification.objectKey,
       });
-      return (
-        <Link
-          to={absenceEdit}
-          className={classes.hyperlink}
-          onClick={() => {
-            props.markAsViewed(notification.id);
-          }}
-        >
-          {htmlContent}
-        </Link>
-      );
+      break;
     case ObjectType.Vacancy:
-      const vacancyEdit = AdminEditAbsenceRoute.generate({
+      route = AdminEditAbsenceRoute.generate({
         organizationId: props.orgId,
         absenceId: props.notification.objectKey,
       });
-      return (
+      break;
+  }
+  return (
+    <>
+      {route ? (
         <Link
-          to={vacancyEdit}
+          to={route}
           className={classes.hyperlink}
           onClick={() => {
             props.markAsViewed(notification.id);
@@ -64,9 +59,14 @@ export const AdminNotificationLink: React.FC<Props> = props => {
         >
           {htmlContent}
         </Link>
-      );
-  }
-  return <></>;
+      ) : (
+        <>
+          <div>{htmlContent}</div>
+        </>
+      )}
+      <Divider className={classes.divider} />
+    </>
+  );
 };
 
 const useStyles = makeStyles(theme => ({
@@ -82,6 +82,11 @@ const useStyles = makeStyles(theme => ({
   },
   titleText: {
     fontWeight: 600,
+  },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
   dateText: {
     color: theme.customColors.medLightGray,

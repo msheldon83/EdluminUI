@@ -2,12 +2,14 @@ import * as React from "react";
 import { makeStyles, Divider, Popover } from "@material-ui/core";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useRouteParams } from "ui/routes/definition";
 import { GetNotifications } from "./graphql/get-notifications.gen";
 import { compact } from "lodash-es";
 import { NotificationRoleMapper } from "ui/app-chrome/notifications/components/notification-role-mapper";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { getOrgIdFromRoute } from "core/org-context";
+import { AppChromeRoute } from "ui/routes/app-chrome";
 import { MarkSingleNotificationViewed } from "./graphql/mark-single-notification-viewed.gen";
 
 type Props = {
@@ -20,9 +22,7 @@ export const NotificationsUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const orgId = getOrgIdFromRoute();
-
-  const userAccess = useMyUserAccess();
-  const orgUser = userAccess?.me?.user?.orgUsers?.find(e => e?.orgId === orgId);
+  const params = useRouteParams(AppChromeRoute);
 
   const [markSingleNoticationAsViewed] = useMutationBundle(
     MarkSingleNotificationViewed,
@@ -38,11 +38,12 @@ export const NotificationsUI: React.FC<Props> = props => {
     return props.onClose();
   };
 
-  const orgUserRole = orgUser?.isAdmin
-    ? OrgUserRole.Administrator
-    : orgUser?.isEmployee
-    ? OrgUserRole.Employee
-    : OrgUserRole.ReplacementEmployee;
+  const orgUserRole =
+    params.role === "admin"
+      ? OrgUserRole.Administrator
+      : params.role === "employee"
+      ? OrgUserRole.Employee
+      : OrgUserRole.ReplacementEmployee;
 
   const { open, anchorElement, onClose } = props;
 
@@ -56,6 +57,8 @@ export const NotificationsUI: React.FC<Props> = props => {
     getNotifications.state === "DONE"
       ? compact(getNotifications.data.inAppNotification?.paged?.results)
       : [];
+
+  // Sort by Not Viewed first
 
   const id = open ? "notifications-popover" : undefined;
 
@@ -86,20 +89,21 @@ export const NotificationsUI: React.FC<Props> = props => {
         {notifications.length === 0 ? (
           <div>{t("No notifications")}</div>
         ) : (
-          notifications.map((n, i) => {
-            return (
-              <React.Fragment key={i}>
-                <NotificationRoleMapper
-                  key={i}
-                  notification={n}
-                  orgId={orgId ?? ""}
-                  orgUserRole={orgUserRole}
-                  markAsViewed={markAsViewed}
-                />
-                <Divider className={classes.divider} />
-              </React.Fragment>
-            );
-          })
+          notifications
+            .filter(e => e.viewed === false)
+            .map((n, i) => {
+              return (
+                <React.Fragment key={i}>
+                  <NotificationRoleMapper
+                    key={i}
+                    notification={n}
+                    orgId={orgId ?? ""}
+                    orgUserRole={orgUserRole}
+                    markAsViewed={markAsViewed}
+                  />
+                </React.Fragment>
+              );
+            })
         )}
       </div>
     </Popover>
