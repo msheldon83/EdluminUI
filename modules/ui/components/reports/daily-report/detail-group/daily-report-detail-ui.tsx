@@ -47,25 +47,29 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
   return (
     <div className={[classes.container, props.className].join(" ")}>
       {!props.detail.isClosed && (
-        <Can
-          do={(
-            permissions: OrgUserPermissions[],
-            isSysAdmin: boolean,
-            orgId?: string
-          ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)}
-        >
-          <Checkbox
-            color="primary"
-            className={clsx({
-              [classes.hidden]: props.hideCheckbox,
-              [classes.checkbox]: true,
-            })}
-            checked={props.isChecked}
-            onChange={e => {
-              props.updateSelectedDetails(props.detail, e.target.checked);
-            }}
-          />
-        </Can>
+        <div className={classes.checkbox}>
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string
+            ) =>
+              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
+            }
+          >
+            <Checkbox
+              color="primary"
+              className={clsx({
+                [classes.hidden]: props.hideCheckbox,
+                [classes.checkbox]: true,
+              })}
+              checked={props.isChecked}
+              onChange={e => {
+                props.updateSelectedDetails(props.detail, e.target.checked);
+              }}
+            />
+          </Can>
+        </div>
       )}
       {props.detail.isClosed && (
         <div className={classes.closedSection}>
@@ -190,7 +194,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                 absVacId={props.detail.id}
                 absVacType={props.detail.type}
                 absVacDate={props.detail.date}
-                >
+              >
                 {t("Assign")}
               </AbsVacAssignLink>
             )}
@@ -203,22 +207,24 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           })}
         </div>
       </div>
-      <div>
+      <div className={classes.confirmationNumbers}>
         <div>
-          <AbsVacLink
-            orgId={props.detail.orgId}
-            absVacId={props.detail.id}
-            absVacType={props.detail.type}
-            linkClass={classes.action}
+          <div>
+            <AbsVacLink
+              orgId={props.detail.orgId}
+              absVacId={props.detail.id}
+              absVacType={props.detail.type}
+              linkClass={classes.action}
             />
+          </div>
+          {props.detail.assignmentId && (
+            <div
+              className={classes.detailSubText}
+            >{`#C${props.detail.assignmentId}`}</div>
+          )}
         </div>
-        {props.detail.assignmentId && (
-          <div
-            className={classes.detailSubText}
-          >{`#C${props.detail.assignmentId}`}</div>
-        )}
       </div>
-      <div>
+      <div className={classes.actionCell}>
         <ActionMenu options={props.rowActions} />
       </div>
     </div>
@@ -283,10 +289,22 @@ const useStyles = makeStyles(theme => ({
       display: "none",
     },
   },
+  confirmationNumbers: {
+    "@media print": {
+      paddingRight: theme.typography.pxToRem(16),
+    },
+  },
   action: {
     cursor: "pointer",
   },
+  actionCell: {
+    width: theme.typography.pxToRem(45),
+    "@media print": {
+      display: "none",
+    },
+  },
   checkbox: {
+    width: theme.typography.pxToRem(35),
     "@media print": {
       display: "none",
     },
