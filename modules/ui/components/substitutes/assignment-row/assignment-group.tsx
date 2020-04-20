@@ -134,11 +134,12 @@ export const AssignmentGroup: React.FC<Props> = props => {
           <div className={classes.container}>
             {props.vacancyDetails.map((a, i) => (
               <AssignmentGroupDetail
+                orgId={a.vacancy!.organization.id}
                 dayPortion={a.dayPortion}
                 payInfoLabel={a.payInfo?.label ?? ""}
                 startTimeLocal={a.startTimeLocal ?? ""}
                 endTimeLocal={a.endTimeLocal ?? ""}
-                locationName={a.location?.name ?? ""}
+                location={a.location?.name ? a.location as {name: string; id: string} : undefined}
                 shadeRow={i % 2 != 0}
                 key={i}
                 onCancel={() =>

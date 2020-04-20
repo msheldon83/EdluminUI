@@ -17,13 +17,14 @@ export type AssignmentVacancyDetails = {
   } | null;
   location: {
     name?: string;
+    id: string;
   } | null;
   payInfo?: { label?: string | null } | null;
   vacancy: {
     id: string;
     payInfoSummary?: { summaryLabel?: string | null } | null;
     notesToReplacement?: string | null;
-    organization: { name?: string };
+    organization: { id: string ; name?: string };
     position: {
       title?: string;
     } | null;
