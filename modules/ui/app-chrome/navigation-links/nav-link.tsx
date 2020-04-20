@@ -16,7 +16,6 @@ import { Link, useRouteMatch } from "react-router-dom";
 import { SubNavLink } from "./sub-nav-link";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
-import { Role } from "ui/components/auth/types";
 
 type Props = SubNavItemType & {
   icon: JSX.Element;
@@ -31,7 +30,6 @@ type SubNavItemType = {
   className?: string;
   exact?: boolean;
   permissions?: PermissionEnum[];
-  forRole?: Role;
 };
 
 export const NavLink: React.FC<Props> = props => {
@@ -130,13 +128,9 @@ export const NavLink: React.FC<Props> = props => {
           className={subNavClasses}
         >
           {subNavItems.map(s => {
-            const { permissions, forRole, ...subNavProps } = s;
+            const { permissions, ...subNavProps } = s;
             return permissions ? (
-              <Can
-                do={permissions}
-                forRole={forRole ?? undefined}
-                key={subNavProps.route}
-              >
+              <Can do={permissions} key={subNavProps.route}>
                 <SubNavLink
                   {...subNavProps}
                   setSubNavMatches={setSubNavMatchesCallback}

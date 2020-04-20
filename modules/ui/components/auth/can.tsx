@@ -8,19 +8,13 @@ import { useRole } from "core/role-context";
 type Props = {
   do: CanDo;
   orgId?: string;
-  forRole?: Role;
   not?: boolean;
   context?: any;
 };
 
 export const Can: React.FC<Props> = props => {
   const canDoFn = useCanDo();
-  const canDoThis = canDoFn(
-    props.do,
-    props.orgId,
-    props.context,
-    props.forRole
-  );
+  const canDoThis = canDoFn(props.do, props.orgId, props.context);
 
   return canDoThis === !props.not ? <>{props.children}</> : null;
 };
@@ -33,11 +27,9 @@ export const useCanDo = () => {
   const fn = (
     canDo: CanDo,
     orgId?: string | null | undefined,
-    context?: any,
-    forRole?: Role | null | undefined
+    context?: any
   ) => {
     orgId = orgId ?? contextOrgId;
-    forRole = forRole ?? contextRole;
     context = context ?? undefined;
 
     const canDoThis = CanHelper(
@@ -46,7 +38,7 @@ export const useCanDo = () => {
       userAccess?.isSysAdmin ?? false,
       orgId ?? undefined,
       context ?? undefined,
-      forRole ?? undefined
+      contextRole ?? undefined
     );
 
     return canDoThis;
