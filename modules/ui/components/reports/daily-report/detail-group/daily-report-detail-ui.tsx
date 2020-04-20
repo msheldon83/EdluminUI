@@ -15,7 +15,7 @@ import { Detail } from "../helpers";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
+import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import PermDeviceInformationIcon from "@material-ui/icons/PermDeviceInformation";
 import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
@@ -52,9 +52,16 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
             do={(
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
+              orgId?: string,
+              forRole?: Role | null | undefined
             ) =>
-              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
+              canAssignSub(
+                props.detail.date,
+                permissions,
+                isSysAdmin,
+                orgId,
+                forRole
+              )
             }
           >
             <Checkbox

@@ -1,9 +1,9 @@
 import { makeStyles, Typography, Button, Divider } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { Can } from "ui/components/auth/can";
-import { canAssignSub } from "helpers/permissions";
+import { canAssignSub, canAssignSub } from "helpers/permissions";
 
 type Props = {
   assignmentStartTime: Date;
@@ -26,9 +26,16 @@ export const UnfilledBanner: React.FC<Props> = props => {
             do={(
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
+              orgId?: string,
+              forRole?: Role | null | undefined
             ) =>
-              canAssignSub(assignmentStartTime, permissions, isSysAdmin, orgId)
+              canAssignSub(
+                assignmentStartTime,
+                permissions,
+                isSysAdmin,
+                orgId,
+                forRole
+              )
             }
           >
             <Button

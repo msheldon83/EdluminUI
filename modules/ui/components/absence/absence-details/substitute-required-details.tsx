@@ -23,7 +23,7 @@ import { SelectNew } from "ui/components/form/select-new";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 import { AbsenceDetailsFormData } from ".";
 import { NoteField } from "./notes-field";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canAssignSub, canReassignSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
 import {
@@ -315,13 +315,15 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                       do={(
                         permissions: OrgUserPermissions[],
                         isSysAdmin: boolean,
-                        orgId?: string
+                        orgId?: string,
+                        forRole?: Role | null | undefined
                       ) =>
                         canAssignSub(
                           parseISO(vacancies[0].startDate),
                           permissions,
                           isSysAdmin,
-                          orgId
+                          orgId,
+                          forRole
                         )
                       }
                     >
@@ -344,13 +346,15 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                           do={(
                             permissions: OrgUserPermissions[],
                             isSysAdmin: boolean,
-                            orgId?: string
+                            orgId?: string,
+                            forRole?: Role | null | undefined
                           ) =>
                             canReassignSub(
                               parseISO(vacancies[0].startDate),
                               permissions,
                               isSysAdmin,
-                              orgId
+                              orgId,
+                              forRole
                             )
                           }
                         >

@@ -18,7 +18,7 @@ import { useState, useCallback } from "react";
 import { not } from "helpers";
 import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
-import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
+import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
@@ -87,9 +87,16 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             do={(
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
+              orgId?: string,
+              forRole?: Role | null | undefined
             ) =>
-              canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)
+              canAssignSub(
+                props.detail.date,
+                permissions,
+                isSysAdmin,
+                orgId,
+                forRole
+              )
             }
           >
             <Checkbox
@@ -201,7 +208,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                     absVacId={props.detail.id}
                     absVacType={props.detail.type}
                     absVacDate={props.detail.date}
-                    >
+                  >
                     {t("Assign")}
                   </AbsVacAssignLink>
                 )}
@@ -220,7 +227,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   absVacId={props.detail.id}
                   absVacType={props.detail.type}
                   linkClass={classes.action}
-                  />
+                />
               </div>
               {props.detail.assignmentId && (
                 <div

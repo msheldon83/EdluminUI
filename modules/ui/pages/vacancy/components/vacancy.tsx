@@ -23,7 +23,7 @@ import { VacancyStepParams } from "helpers/step-params";
 import { Formik } from "formik";
 import { VacancyDetailSection } from "./vacancy-details-section";
 import { ContentFooter } from "ui/components/content-footer";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
 import { parseISO, isSameDay, format } from "date-fns";
@@ -608,13 +608,15 @@ export const VacancyUI: React.FC<Props> = props => {
                           do={(
                             permissions: OrgUserPermissions[],
                             isSysAdmin: boolean,
-                            orgId?: string
+                            orgId?: string,
+                            forRole?: Role | null | undefined
                           ) =>
                             canAssignSub(
                               parseISO(new Date().toString()),
                               permissions,
                               isSysAdmin,
-                              orgId
+                              orgId,
+                              forRole
                             )
                           }
                         >
