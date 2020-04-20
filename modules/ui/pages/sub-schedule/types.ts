@@ -24,7 +24,7 @@ export type AssignmentVacancyDetails = {
     id: string;
     payInfoSummary?: { summaryLabel?: string | null } | null;
     notesToReplacement?: string | null;
-    organization: { id: string ; name?: string };
+    organization: { name?: string };
     position: {
       title?: string;
     } | null;

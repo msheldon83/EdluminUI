@@ -107,11 +107,9 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
         <div>
           <div>
             <span className={props.detail.isClosed ? classes.closedText : ""}>
-            {props.detail.type === "absence" ?
-                props.detail.absenceReason
-             :
-                props.detail.vacancyReason
-            }
+              {props.detail.type === "absence"
+                ? props.detail.absenceReason
+                : props.detail.vacancyReason}
             </span>
           </div>
           <div className={classes.detailSubText}>
@@ -188,7 +186,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                 absVacId={props.detail.id}
                 absVacType={props.detail.type}
                 absVacDate={props.detail.date}
-                >
+              >
                 {t("Assign")}
               </AbsVacAssignLink>
             )}
@@ -208,7 +206,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
             absVacId={props.detail.id}
             absVacType={props.detail.type}
             linkClass={classes.action}
-            />
+          />
         </div>
         {props.detail.assignmentId && (
           <div

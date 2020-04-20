@@ -81,7 +81,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
     </div>
   );
 
-  const condClosed = props.detail.isClosed ? classes.closedText : ""
+  const condClosed = props.detail.isClosed ? classes.closedText : "";
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.group}>
@@ -124,20 +124,16 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 </EmployeeLink>
               </div>
               <div className={classes.detailSubText}>
-                <span
-                  className={condClosed}
-                >
+                <span className={condClosed}>
                   {props.detail.position?.name}
                 </span>
               </div>
             </>
           ) : (
             <div>
-            <span
-              className={condClosed}
-            >
-              {`${t("Vacancy")}: ${props.detail.position?.name}`}
-            </span>
+              <span className={condClosed}>
+                {`${t("Vacancy")}: ${props.detail.position?.name}`}
+              </span>
             </div>
           )}
         </div>
@@ -146,12 +142,14 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           <div className={classes.absenceReason}>
             <div>
               <span className={condClosed}>
-              {props.detail.type === "absence" ? props.detail.absenceReason : props.detail.vacancyReason}
+                {props.detail.type === "absence"
+                  ? props.detail.absenceReason
+                  : props.detail.vacancyReason}
               </span>
             </div>
             <div className={classes.detailSubText}>
               <span className={condClosed}>
-              {props.vacancyDate ?? props.detail.dateRange}
+                {props.vacancyDate ?? props.detail.dateRange}
               </span>
             </div>
           </div>
@@ -178,9 +176,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   {props.detail.location?.name}
                 </LocationLink>
               </div>
-              <div
-                className={classes.detailSubText}
-              >
+              <div className={classes.detailSubText}>
                 <span className={condClosed}>
                   {`${props.detail.startTime} - ${props.detail.endTime}`}
                 </span>
@@ -188,9 +184,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             </div>
             <div className={classes.item}>
               <div>
-                <span className={condClosed}>
-                  {props.detail.created}
-                </span>
+                <span className={condClosed}>{props.detail.created}</span>
               </div>
             </div>
           </div>
@@ -200,9 +194,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.item}>
               {props.detail.state === "noSubRequired" && (
                 <div className={classes.detailSubText}>
-                  <span className={condClosed}>
-                    {t("Sub not required")}
-                  </span>
+                  <span className={condClosed}>{t("Sub not required")}</span>
                 </div>
               )}
               {props.detail.state !== "noSubRequired" &&
@@ -230,7 +222,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   </div>
                 )}
               {props.detail.isClosed && (
-                <span className={classes.closedText}>{t("Sub not required")}</span>
+                <span className={classes.closedText}>
+                  {t("Sub not required")}
+                </span>
               )}
               {props.detail.state !== "noSubRequired" &&
                 !props.detail.isClosed &&
@@ -240,7 +234,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                     absVacId={props.detail.id}
                     absVacType={props.detail.type}
                     absVacDate={props.detail.date}
-                    >
+                  >
                     {t("Assign")}
                   </AbsVacAssignLink>
                 )}
@@ -259,7 +253,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   absVacId={props.detail.id}
                   absVacType={props.detail.type}
                   linkClass={classes.action}
-                  />
+                />
               </div>
               {props.detail.assignmentId && (
                 <div

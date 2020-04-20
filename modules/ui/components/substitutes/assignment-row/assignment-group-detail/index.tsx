@@ -3,8 +3,7 @@ import { CancelDialog } from "../cancel-dialog";
 import { AssignmentGroupDetailUI } from "./assignment-group-detail-ui";
 
 type Props = {
-  orgId: string;
-  location?: {name: string; id: string};
+  locationName: string;
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;

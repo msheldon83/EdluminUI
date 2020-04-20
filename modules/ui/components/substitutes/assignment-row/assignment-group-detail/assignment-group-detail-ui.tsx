@@ -7,11 +7,9 @@ import { DetailDayPartDisplay } from "ui/components/substitutes/detail-day-part-
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { MobileOnly, DesktopOnly } from "ui/components/mobile-helpers";
-import { LocationLink } from "ui/components/links/locations"
 
 type Props = {
-  orgId: string;
-  location?: {name: string ; id: string};
+  locationName: string;
   startTimeLocal: string;
   endTimeLocal: string;
   dayPortion: number;
@@ -43,7 +41,7 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
         </div>
 
         <div className={classes.location}>
-          <Typography className={classes.text}>{props.location ? <LocationLink orgId={props.orgId} locationId={props.location.id}>{props.location.name}</LocationLink> : ""}</Typography>
+          <Typography className={classes.text}>{props.locationName}</Typography>
         </div>
 
         <DetailDayPartDisplay
@@ -88,7 +86,7 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
         </div>
 
         <div className={classes.locationAndCancelContainer}>
-          <Typography className={classes.text}>{props.location ? props.location.name : ""}</Typography>
+          <Typography className={classes.text}>{props.locationName}</Typography>
           <Can do={[PermissionEnum.AbsVacRemoveSubDay]}>
             {!props.forSpecificAssignment && (
               <TextButton
