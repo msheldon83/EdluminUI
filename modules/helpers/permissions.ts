@@ -9,7 +9,7 @@ export const can = (
   isSysAdmin: boolean,
   orgId?: string | null | undefined,
   context?: any,
-  role?: Role | null | undefined
+  forRole?: Role | null | undefined
 ) => {
   // Sys Admins rule the world
   if (isSysAdmin) return true;
@@ -20,13 +20,14 @@ export const can = (
       userPermissions,
       isSysAdmin,
       orgId ?? undefined,
+      forRole ?? undefined,
       context ?? undefined
     );
   }
 
   // We were provided a list of permissions to check
   // Make sure the User has at least one of the permissions in at least one of their Orgs
-  const userPerms = getUserPermissions(userPermissions, orgId, role);
+  const userPerms = getUserPermissions(userPermissions, orgId, forRole);
   return userPerms.some((el: any) => {
     return canDo.includes(el);
   });
@@ -76,7 +77,7 @@ export const canViewAbsVacNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId, "admin");
+  const userPerms = getUserPermissions(permissions, orgId);
 
   if (
     !userPerms?.includes(PermissionEnum.AbsVacView) &&
@@ -93,7 +94,7 @@ export const canViewDailyReportNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId, "admin");
+  const userPerms = getUserPermissions(permissions, orgId);
   if (!userPerms?.includes(PermissionEnum.AbsVacView)) {
     return false;
   }
@@ -300,11 +301,11 @@ export const canAssignSub = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  role?: Role
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
 
-  const userPerms = getUserPermissions(permissions, orgId, role);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
@@ -327,11 +328,11 @@ export const canReassignSub = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  role?: Role
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
 
-  const userPerms = getUserPermissions(permissions, orgId, role);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
@@ -356,7 +357,7 @@ export const canEditAbsence = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  role?: Role
+  role?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId, role);
@@ -381,10 +382,10 @@ export const canRemoveSub = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  role?: Role
+  forRole?: Role | null | undefined
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId, role);
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
