@@ -367,14 +367,16 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                   </>
                 )}
 
-                <Button
-                  variant="outlined"
-                  onClick={() => setStep("edit")}
-                  disabled={props.disableEditingDatesAndTimes}
-                >
-                  <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
-                  <MobileOnly>{t("Edit Details")}</MobileOnly>
-                </Button>
+                <Can do={[PermissionEnum.AbsVacSave]}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setStep("edit")}
+                    disabled={props.disableEditingDatesAndTimes}
+                  >
+                    <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
+                    <MobileOnly>{t("Edit Details")}</MobileOnly>
+                  </Button>
+                </Can>
               </div>
             )}
           </>
