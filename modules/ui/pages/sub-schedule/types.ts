@@ -17,7 +17,6 @@ export type AssignmentVacancyDetails = {
   } | null;
   location: {
     name?: string;
-    id: string;
   } | null;
   payInfo?: { label?: string | null } | null;
   vacancy: {
