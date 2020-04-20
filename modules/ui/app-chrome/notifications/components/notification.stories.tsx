@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Notification } from "./notification";
+import { NotificationRoleMapper } from "./notification-role-mapper";
 import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import { Divider } from "@material-ui/core";
 
@@ -8,16 +8,24 @@ export default {
 };
 
 export const BasicNotificationStory = () => {
+  const [
+    subNotificationsAnchor,
+    setSubNotificationsAnchor,
+  ] = React.useState<null | HTMLElement>(null);
+
+  const markAsViewed = async (notificationId: string) => {};
+
   return (
     <>
       {notifications.map((n, i) => {
         return (
           <>
-            <Notification
+            <NotificationRoleMapper
               key={i}
               notification={n}
               orgId={"1111"}
               orgUserRole={OrgUserRole.Administrator}
+              markAsViewed={markAsViewed}
             />
             <Divider />
           </>

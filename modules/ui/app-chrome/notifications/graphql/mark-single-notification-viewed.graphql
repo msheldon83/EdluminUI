@@ -1,0 +1,5 @@
+mutation MarkSingleNotificationViewed($notificationId: ID!) {
+  inAppNotification {
+    markSingleNotificationViewed(notificationId: $notificationId)
+  }
+}

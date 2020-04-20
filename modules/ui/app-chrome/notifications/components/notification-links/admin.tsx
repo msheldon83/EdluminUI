@@ -10,10 +10,11 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   orgId: string;
-  notification: organization;
+  notification: Notification;
+  markAsViewed: (notificationId: string) => Promise<any>;
 };
 
-type organization = {
+type Notification = {
   id: string;
   title?: string | null;
   content?: string | null;
@@ -24,26 +25,12 @@ type organization = {
 };
 
 export const AdminNotificationLink: React.FC<Props> = props => {
-  const classes = useStyles();
   const { t } = useTranslation();
+  const classes = useStyles();
   const notification = props.notification;
 
   const formattedDate = DateFormatter(notification.createdUtc, t);
-
-  const htmlContent = () => {
-    return (
-      <>
-        <div className={classes.container}>
-          <ViewedIcon viewed={notification.viewed} />
-          <div className={classes.textContainer}>
-            <div className={classes.titleText}>{notification.title}</div>
-            <div>{notification.content}</div>
-            <div className={classes.dateText}>{formattedDate}</div>
-          </div>
-        </div>
-      </>
-    );
-  };
+  const htmlContent = HtmlContent(notification, formattedDate);
 
   switch (props.notification.objectTypeId) {
     case ObjectType.Absence:
@@ -52,9 +39,15 @@ export const AdminNotificationLink: React.FC<Props> = props => {
         absenceId: props.notification.objectKey,
       });
       return (
-        <>
-          <a href={absenceEdit}>{htmlContent}</a>
-        </>
+        <Link
+          to={absenceEdit}
+          className={classes.hyperlink}
+          onClick={() => {
+            props.markAsViewed(notification.id);
+          }}
+        >
+          {htmlContent}
+        </Link>
       );
     case ObjectType.Vacancy:
       const vacancyEdit = AdminEditAbsenceRoute.generate({
@@ -62,9 +55,15 @@ export const AdminNotificationLink: React.FC<Props> = props => {
         absenceId: props.notification.objectKey,
       });
       return (
-        <>
-          <a href={vacancyEdit}>{htmlContent}</a>
-        </>
+        <Link
+          to={vacancyEdit}
+          className={classes.hyperlink}
+          onClick={() => {
+            props.markAsViewed(notification.id);
+          }}
+        >
+          {htmlContent}
+        </Link>
       );
   }
   return <></>;
@@ -74,6 +73,9 @@ const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
     padding: theme.spacing(2),
+    "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
+    },
   },
   textContainer: {
     paddingLeft: theme.spacing(2),
@@ -84,4 +86,29 @@ const useStyles = makeStyles(theme => ({
   dateText: {
     color: theme.customColors.medLightGray,
   },
+  hyperlink: {
+    textDecoration: "none",
+    "&:link": {
+      color: theme.customColors.black,
+    },
+    "&:visited": {
+      color: theme.customColors.black,
+    },
+  },
 }));
+
+const HtmlContent = (notification: Notification, formattedDate: string) => {
+  const classes = useStyles();
+  return (
+    <>
+      <div className={classes.container}>
+        <ViewedIcon viewed={notification.viewed} />
+        <div className={classes.textContainer}>
+          <div className={classes.titleText}>{notification.title}</div>
+          <div>{notification.content}</div>
+          <div className={classes.dateText}>{formattedDate}</div>
+        </div>
+      </div>
+    </>
+  );
+};

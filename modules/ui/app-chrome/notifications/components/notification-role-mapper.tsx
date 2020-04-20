@@ -1,9 +1,8 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { Can } from "ui/components/auth/can";
-import { CanDo } from "ui/components/auth/types";
 import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import { AdminNotificationLink } from "./notification-links/admin";
+import { EmployeeNotificationLink } from "./notification-links/employee";
+import { ReplacementEmployeeNotificationLink } from "./notification-links/replacement-employee";
 
 type Props = {
   orgUserRole: OrgUserRole;
@@ -17,6 +16,7 @@ type Props = {
     objectTypeId: ObjectType;
     objectKey: string;
   };
+  markAsViewed: (notificationId: string) => Promise<any>;
 };
 
 export const NotificationRoleMapper: React.FC<Props> = props => {
@@ -26,13 +26,23 @@ export const NotificationRoleMapper: React.FC<Props> = props => {
         <AdminNotificationLink
           orgId={props.orgId}
           notification={props.notification}
+          markAsViewed={props.markAsViewed}
         />
       );
     case OrgUserRole.Employee:
-      //Employee Component
+      <EmployeeNotificationLink
+        orgId={props.orgId}
+        notification={props.notification}
+        markAsViewed={props.markAsViewed}
+      />;
 
       return <></>;
     case OrgUserRole.ReplacementEmployee:
+      <ReplacementEmployeeNotificationLink
+        orgId={props.orgId}
+        notification={props.notification}
+        markAsViewed={props.markAsViewed}
+      />;
       return <></>;
   }
 

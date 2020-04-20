@@ -1,13 +1,14 @@
 import * as React from "react";
 import { makeStyles, Divider, Popover } from "@material-ui/core";
 import { useMyUserAccess } from "reference-data/my-user-access";
-import { usePagedQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetNotifications } from "./graphql/get-notifications.gen";
 import { compact } from "lodash-es";
 import { NotificationRoleMapper } from "ui/app-chrome/notifications/components/notification-role-mapper";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { getOrgIdFromRoute } from "core/org-context";
+import { MarkSingleNotificationViewed } from "./graphql/mark-single-notification-viewed.gen";
 
 type Props = {
   open: boolean;
@@ -22,6 +23,20 @@ export const NotificationsUI: React.FC<Props> = props => {
 
   const userAccess = useMyUserAccess();
   const orgUser = userAccess?.me?.user?.orgUsers?.find(e => e?.orgId === orgId);
+
+  const [markSingleNoticationAsViewed] = useMutationBundle(
+    MarkSingleNotificationViewed,
+    {}
+  );
+
+  const markAsViewed = async (notificationId: string) => {
+    const response = await markSingleNoticationAsViewed({
+      variables: {
+        notificationId: notificationId,
+      },
+    });
+    return props.onClose();
+  };
 
   const orgUserRole = orgUser?.isAdmin
     ? OrgUserRole.Administrator
@@ -54,10 +69,10 @@ export const NotificationsUI: React.FC<Props> = props => {
       marginThreshold={20}
       anchorOrigin={{
         vertical: "bottom",
-        horizontal: "center",
+        horizontal: "left",
       }}
       transformOrigin={{
-        vertical: -10,
+        vertical: 0,
         horizontal: 285,
       }}
       PaperProps={{
@@ -79,6 +94,7 @@ export const NotificationsUI: React.FC<Props> = props => {
                   notification={n}
                   orgId={orgId ?? ""}
                   orgUserRole={orgUserRole}
+                  markAsViewed={markAsViewed}
                 />
                 <Divider className={classes.divider} />
               </React.Fragment>
@@ -95,6 +111,8 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "center",
     display: "block",
     width: "100%",
+    overflowY: "auto",
+    maxHeight: "600px",
   },
   divider: {
     color: theme.customColors.gray,
