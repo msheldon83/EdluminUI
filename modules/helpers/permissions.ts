@@ -1,6 +1,6 @@
 import { PermissionEnum } from "graphql/server-types.gen";
 import { isPast, isToday, isFuture } from "date-fns";
-import { OrgUserPermissions, CanDo } from "ui/components/auth/types";
+import { OrgUserPermissions, CanDo, Role } from "ui/components/auth/types";
 import { flatMap, uniq } from "lodash-es";
 
 export const can = (
@@ -8,7 +8,8 @@ export const can = (
   userPermissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string | null | undefined,
-  context?: any
+  context?: any,
+  role?: Role | null | undefined
 ) => {
   // Sys Admins rule the world
   if (isSysAdmin) return true;
@@ -25,7 +26,7 @@ export const can = (
 
   // We were provided a list of permissions to check
   // Make sure the User has at least one of the permissions in at least one of their Orgs
-  const userPerms = getUserPermissions(userPermissions, orgId);
+  const userPerms = getUserPermissions(userPermissions, orgId, role);
   return userPerms.some((el: any) => {
     return canDo.includes(el);
   });
@@ -33,17 +34,30 @@ export const can = (
 
 const getUserPermissions = (
   permissions: OrgUserPermissions[],
-  orgId?: string | null | undefined
+  orgId?: string | null | undefined,
+  role?: Role | null | undefined
 ): PermissionEnum[] => {
+  let permissionsByOrg = permissions.slice(0);
   if (orgId) {
-    // If org id was passed, return permissions for that Org
-    // Will return an empty list if we can't find the Org Id in OrgUserPermissions
-    return permissions.find(e => e.orgId == orgId)?.permissions ?? [];
+    // If org id was passed, filter down to that Org
+    permissionsByOrg = permissionsByOrg.filter(e => e.orgId === orgId);
   }
 
-  // When we don't have an Org Id, return a list of all of the
-  // permissions that the User has across Organizations
-  const allPermissions = uniq(flatMap(permissions.map(p => p.permissions)));
+  if (role) {
+    // Return all permissions for the specified role
+    return uniq(
+      flatMap(
+        permissionsByOrg.map(
+          p => p.permissionsByRole.find(r => r.role === role)?.permissions ?? []
+        )
+      )
+    );
+  }
+
+  // Return all of the permissions we have remaining
+  const allPermissions = uniq(
+    flatMap(permissionsByOrg.map(p => p.permissions))
+  );
   return allPermissions;
 };
 
@@ -62,7 +76,7 @@ export const canViewAbsVacNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, "admin");
 
   if (
     !userPerms?.includes(PermissionEnum.AbsVacView) &&
@@ -79,7 +93,7 @@ export const canViewDailyReportNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, "admin");
   if (!userPerms?.includes(PermissionEnum.AbsVacView)) {
     return false;
   }
@@ -285,11 +299,12 @@ export const canAssignSub = (
   absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  role?: Role
 ) => {
   if (isSysAdmin) return true;
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, role);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
@@ -311,11 +326,12 @@ export const canReassignSub = (
   absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  role?: Role
 ) => {
   if (isSysAdmin) return true;
 
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, role);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
@@ -339,10 +355,11 @@ export const canEditAbsence = (
   absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  role?: Role
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, role);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
@@ -363,10 +380,11 @@ export const canRemoveSub = (
   absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
-  orgId?: string
+  orgId?: string,
+  role?: Role
 ) => {
   if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId);
+  const userPerms = getUserPermissions(permissions, orgId, role);
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
