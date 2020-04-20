@@ -37,8 +37,8 @@ export const useCanDo = () => {
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
       orgId ?? undefined,
-      context ?? undefined,
-      contextRole ?? undefined
+      contextRole ?? undefined,
+      context ?? undefined
     );
 
     return canDoThis;
