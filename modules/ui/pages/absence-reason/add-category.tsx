@@ -23,10 +23,12 @@ import { AbsenceReasonSettings } from "./absence-reason-settings";
 import { AddBasicInfo } from "./add-basic-info";
 import { CreateAbsenceReason } from "./graphql/create-absence-reason.gen";
 import { GetAbsenceReasonsDocument } from "reference-data/get-absence-reasons.gen";
+import { GetAbsenceReasonCategoryDocument } from "./graphql/get-absence-reason-category.gen";
+import { CreateAbsenceReasonCategory } from "./graphql/create-absence-reason-category.gen";
 
 type Props = {};
 
-export const AbsenceReasonAddPage: React.FC<Props> = props => {
+export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const classes = useStyles();
@@ -37,27 +39,35 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
     query: GetAbsenceReasonsDocument,
     variables: { orgId: params.organizationId },
   };
+  const absenceReasonCategoriesReferenceQuery = {
+    query: GetAbsenceReasonCategoryDocument,
+    variables: { orgId: params.organizationId },
+  };
 
-  const namePlaceholder = t("Professional Development");
+  const namePlaceholder = " ";
   const [basicInfo, setBasicInfo] = React.useState<{
     name: string;
     externalId?: string;
   } | null>(null);
 
-  const [createAbsenceReason] = useMutationBundle(CreateAbsenceReason, {
-    refetchQueries: [absenceReasonsReferenceQuery],
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
+  const [createAbsenceReasonCategory] = useMutationBundle(
+    CreateAbsenceReasonCategory,
+    {
+      refetchQueries: [
+        absenceReasonsReferenceQuery,
+        absenceReasonCategoriesReferenceQuery,
+      ],
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
 
   const settingsOnSubmit = useCallback(
     async (updatedValues: {
       allowNegativeBalance: boolean;
       description?: string;
-      isRestricted: boolean;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
-      requireNotesToAdmin: boolean;
     }) => {
       if (!basicInfo) {
         return;
@@ -66,25 +76,20 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         allowNegativeBalance,
         absenceReasonTrackingTypeId: absenceReasonTrackingId,
         description,
-        isRestricted,
-        requireNotesToAdmin,
       } = updatedValues;
 
-      const result = await createAbsenceReason({
+      const result = await createAbsenceReasonCategory({
         variables: {
-          absenceReason: {
+          absenceReasonCategory: {
             orgId: params.organizationId,
             ...basicInfo,
             allowNegativeBalance,
             absenceReasonTrackingId,
-            isRestricted,
-            appliesToAssignmentTypes: AssignmentType.ContractAssignment,
             description,
-            requireNotesToAdmin: requireNotesToAdmin,
           },
         },
       });
-      const id = result.data?.orgRef_AbsenceReason?.create?.id;
+      const id = result.data?.orgRef_AbsenceReasonCategory?.create?.id;
       if (id) {
         history.push(
           AbsenceReasonViewEditRoute.generate({
@@ -94,7 +99,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         );
       }
     },
-    [createAbsenceReason, basicInfo, params, history]
+    [createAbsenceReasonCategory, basicInfo, params, history]
   );
 
   const steps: Array<Step> = [
@@ -104,6 +109,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       content: (setStep: React.Dispatch<React.SetStateAction<number>>) => {
         return (
           <AddBasicInfo
+            isCategory={true}
             namePlaceholder={namePlaceholder}
             name={basicInfo?.name ?? ""}
             externalId={basicInfo?.externalId}
@@ -132,6 +138,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       content: () => {
         return (
           <AbsenceReasonSettings
+            isCategory={true}
             allowNegativeBalance={false}
             absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
             requireNotesToAdmin={false}
@@ -151,8 +158,8 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.header}>
-        <PageTitle title={t("Create new absence reason")} />
-        <Typography variant="h1">
+        <PageTitle title={t("Create new absence reason category")} />
+        <Typography variant="h1" className={classes.title}>
           {basicInfo?.name || (
             <span className={classes.placeholder}>{namePlaceholder}</span>
           )}
@@ -174,5 +181,8 @@ const useStyles = makeStyles(theme => ({
   placeholder: {
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
+  },
+  title: {
+    minHeight: theme.typography.pxToRem(55),
   },
 }));

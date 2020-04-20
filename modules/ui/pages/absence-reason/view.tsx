@@ -68,7 +68,6 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
         absenceReason: {
           id: absenceReason.id,
           rowVersion: absenceReason.rowVersion,
-          isBucket: absenceReason.isBucket,
           allowNegativeBalance: absenceReason.allowNegativeBalance,
           isRestricted: absenceReason.isRestricted,
           ...values,
@@ -88,6 +87,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       absenceReasonTrackingTypeId={
         absenceReason.absenceReasonTrackingTypeId || undefined
       }
+      category={absenceReason.category || undefined}
       id={absenceReason.id}
       updateNameOrExternalId={updateAbsenceReason}
       onDelete={deleteAbsenceReasonCallback}

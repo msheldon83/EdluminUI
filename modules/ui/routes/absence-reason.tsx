@@ -32,6 +32,22 @@ export const AbsenceReasonAddLoader = asyncComponent({
   name: "AbsenceReasonAddPage",
 });
 
+export const AbsenceReasonCategoryAddRoute = defineSubRoute(
+  AbsenceReasonRoute,
+  "/category/add",
+  []
+);
+
+export const AbsenceReasonCategoryAddLoader = asyncComponent({
+  resolve: async () => {
+    const AbsenceReasonCategoryAddPage = (
+      await import("ui/pages/absence-reason/add-category")
+    ).AbsenceReasonCategoryAddPage;
+    return AbsenceReasonCategoryAddPage;
+  },
+  name: "AbsenceReasonCategoryAddPage",
+});
+
 // View/Edit
 export const AbsenceReasonViewEditRoute = defineSubRoute(
   AbsenceReasonRoute,

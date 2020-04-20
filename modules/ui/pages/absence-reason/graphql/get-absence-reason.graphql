@@ -10,13 +10,17 @@ query GetAbsenceReason($absenceReasonId: ID!) {
       appliesToAssignmentTypes
       absenceReasonTrackingTypeId
       allowNegativeBalance
-      isBucket
       appliesToAssignmentTypes
       limitPerDay
       prioritySequence
       expired
       isRestricted
       requireNotesToAdmin
+      absenceReasonCategoryId
+      category {
+        id
+        name
+      }
     }
   }
 }

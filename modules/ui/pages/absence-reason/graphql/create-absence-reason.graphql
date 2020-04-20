@@ -10,13 +10,16 @@ mutation CreateAbsenceReason($absenceReason: AbsenceReasonCreateInput!) {
       appliesToAssignmentTypes
       absenceReasonTrackingTypeId
       allowNegativeBalance
-      isBucket
       appliesToAssignmentTypes
       limitPerDay
       prioritySequence
       expired
       isRestricted
       requireNotesToAdmin
+      category {
+        id
+        name
+      }
     }
   }
 }

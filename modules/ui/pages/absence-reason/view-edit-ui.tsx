@@ -31,6 +31,7 @@ type Props = {
   description?: string;
   allowNegativeBalance: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+  category?: { id: string; name: string };
   updateNameOrExternalId: (values: {
     name?: string | null;
     externalId?: string | null;
@@ -174,6 +175,12 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
             </Typography>
             <Typography variant="body1">
               {displayBool(props.requireNotesToAdmin)}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">{t("Category")}</Typography>
+            <Typography variant="body1">
+              {!props.category ? t("None") : props.category?.name}
             </Typography>
           </Grid>
         </Grid>

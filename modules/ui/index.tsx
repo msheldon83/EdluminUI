@@ -26,6 +26,8 @@ import {
   AbsenceReasonViewEditLoader,
   AbsenceReasonEditSettingsRoute,
   AbsenceReasonEditSettingsLoader,
+  AbsenceReasonCategoryAddLoader,
+  AbsenceReasonCategoryAddRoute,
 } from "./routes/absence-reason";
 import {
   AccountingCodeLoader,
@@ -898,6 +900,14 @@ export const App = hot(function() {
                                   <ProtectedRoute
                                     component={AbsenceReasonAddLoader}
                                     path={AbsenceReasonAddRoute.path}
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={AbsenceReasonCategoryAddLoader}
+                                    path={AbsenceReasonCategoryAddRoute.path}
                                     role={"admin"}
                                     permissions={[
                                       PermissionEnum.AbsVacSettingsSave,

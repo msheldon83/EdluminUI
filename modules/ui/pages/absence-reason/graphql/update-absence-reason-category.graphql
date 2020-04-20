@@ -1,0 +1,16 @@
+mutation updateAbsenceReasonCategory(
+  $absenceReasonCategory: AbsenceReasonCategoryUpdateInput!
+) {
+  orgRef_AbsenceReasonCategory {
+    update(absenceReasonCategory: $absenceReasonCategory) {
+      id
+      rowVersion
+      externalId
+      name
+      description
+      expired
+      absenceReasonTrackingTypeId
+      allowNegativeBalance
+    }
+  }
+}

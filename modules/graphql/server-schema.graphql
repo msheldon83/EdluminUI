@@ -202,14 +202,12 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   expired: Boolean!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
-  isBucket: Boolean!
   isRestricted: Boolean!
   appliesToAssignmentTypes: AssignmentType
   limitPerDay: Int
-  parentAbsenceReasonId: ID
-  parentAbsenceReason: AbsenceReason
+  absenceReasonCategoryId: ID
+  category: AbsenceReasonCategory
   prioritySequence: Int
-  childrenAbsenceReasons: [AbsenceReason]
   requireNotesToAdmin: Boolean
 }
 
@@ -267,6 +265,48 @@ input AbsenceReasonBalanceUpdateInput {
   ignoreWarnings: Boolean
 }
 
+type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean!
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+}
+
+input AbsenceReasonCategoryCreateInput {
+  orgId: ID
+  name: String!
+  description: String
+  externalId: String
+  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+}
+
+input AbsenceReasonCategoryUpdateInput {
+  id: ID!
+  rowVersion: String!
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+}
+
 input AbsenceReasonCreateInput {
   orgId: ID
   name: String!
@@ -275,10 +315,9 @@ input AbsenceReasonCreateInput {
   appliesToAssignmentTypes: AssignmentType
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
-  isBucket: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
-  parentAbsenceReasonId: Int
+  absenceReasonCategoryId: Int
   prioritySequence: Int
   requireNotesToAdmin: Boolean
 }
@@ -299,10 +338,9 @@ input AbsenceReasonUpdateInput {
   appliesToAssignmentTypes: AssignmentType
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
-  isBucket: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
-  parentAbsenceReasonId: ID
+  absenceReasonCategoryId: ID
   prioritySequence: Int
   requireNotesToAdmin: Boolean
 }
@@ -1384,8 +1422,26 @@ type DataImportOptions {
 
 type DataImportQueries {
   byId(id: ID!): DataImport
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): [DataImport]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): PagedDataImport
+  all(
+    orgId: ID
+    orgIds: [ID]
+    sortBy: [SortDetailsInput]
+    status: DataImportStatus
+    type: DataImportType
+    fromDate: Date
+    toDate: Date
+  ): [DataImport]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+    status: DataImportStatus
+    type: DataImportType
+    fromDate: Date
+    toDate: Date
+  ): PagedDataImport
 }
 
 type DataImportRow implements ModelObjectInterface & OrgObjectInterface {
@@ -2143,6 +2199,9 @@ enum EventType {
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
+  ABSENCE_REASON_CATEGORY_CREATED
+  ABSENCE_REASON_CATEGORY_UPDATED
+  ABSENCE_REASON_CATEGORY_DELETED
 }
 
 enum FeatureFlag {
@@ -2184,7 +2243,7 @@ type GlobalSearchTypeDef {
   ownerId: ID!
   objectTypeId: ObjectType!
   orgId: ID!
-  createdUtc: DateTime
+  createdUtc: DateTime!
   objectJson: String!
 }
 
@@ -2491,6 +2550,7 @@ type Mutation {
   vacancy: VacancyMutations
   workDayPattern: WorkDayPatternMutations
   workDaySchedule: WorkDayScheduleMutations
+  orgRef_AbsenceReasonCategory: OrgRef_AbsenceReasonCategoryMutations
   orgRef_AbsenceReason: OrgRef_AbsenceReasonMutations
   orgRef_AccountingCode: OrgRef_AccountingCodeMutations
   orgRef_CalendarChangeReason: OrgRef_CalendarChangeReasonMutations
@@ -2608,6 +2668,7 @@ enum ObjectType {
   SAVED_VIEW
   DATA_IMPORT
   VACANCY_REASON
+  ABSENCE_REASON_CATEGORY
   APPLICATION
 }
 
@@ -2816,6 +2877,34 @@ interface OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+}
+
+type OrgRef_AbsenceReasonCategoryMutations {
+  create(
+    absenceReasonCategory: AbsenceReasonCategoryCreateInput!
+  ): AbsenceReasonCategory
+  update(
+    absenceReasonCategory: AbsenceReasonCategoryUpdateInput!
+  ): AbsenceReasonCategory
+  delete(absenceReasonCategoryId: ID!): Boolean
+}
+
+type OrgRef_AbsenceReasonCategoryQueries {
+  byId(id: ID!): AbsenceReasonCategory
+  all(
+    orgId: ID
+    orgIds: [ID]
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): [AbsenceReasonCategory]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    includeExpired: Boolean
+    sortBy: [SortDetailsInput]
+  ): PagedAbsenceReasonCategory
 }
 
 type OrgRef_AbsenceReasonMutations {
@@ -3237,6 +3326,15 @@ type PagedAbsence {
 type PagedAbsenceReason {
   _info: [ReturnMessage]
   results: [AbsenceReason]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedAbsenceReasonCategory {
+  _info: [ReturnMessage]
+  results: [AbsenceReasonCategory]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4456,6 +4554,7 @@ type Query {
   location: LocationQueries
   organization: OrganizationQueries
   organizationRelationship: OrganizationRelationshipQueries
+  orgRef_AbsenceReasonCategory: OrgRef_AbsenceReasonCategoryQueries
   orgRef_AbsenceReason: OrgRef_AbsenceReasonQueries
   orgRef_AccountingCode: OrgRef_AccountingCodeQueries
   orgRef_CalendarChangeReason: OrgRef_CalendarChangeReasonQueries

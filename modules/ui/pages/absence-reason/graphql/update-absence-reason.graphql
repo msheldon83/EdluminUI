@@ -7,12 +7,16 @@ mutation updateAbsenceReason($absenceReason: AbsenceReasonUpdateInput!) {
       name
       description
       expired
-      isBucket
       appliesToAssignmentTypes
       absenceReasonTrackingTypeId
       allowNegativeBalance
       isRestricted
       requireNotesToAdmin
+      absenceReasonCategoryId
+      category {
+        id
+        name
+      }
     }
   }
 }
