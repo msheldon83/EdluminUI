@@ -3,7 +3,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { Can } from "ui/components/auth/can";
-import { canAssignSub, canAssignSub } from "helpers/permissions";
+import { canAssignSub } from "helpers/permissions";
 
 type Props = {
   assignmentStartTime: Date;
