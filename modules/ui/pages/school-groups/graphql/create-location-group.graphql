@@ -1,0 +1,9 @@
+mutation CreateLocationGroup($locationGroup: LocationGroupCreateInput!) {
+  locationGroup {
+    create(locationGroup: $locationGroup) {
+      id
+      name
+      externalId
+    }
+  }
+}

@@ -1,10 +1,10 @@
 import { Grid, Button, makeStyles } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useHistory } from "react-router";
-import { PageTitle } from "ui/components/page-title";
-import { LocationGroupsRoute } from "ui/routes/location-groups";
 import { useRouteParams } from "ui/routes/definition";
+import { PageTitle } from "ui/components/page-title";
+import { LocationGroupAddRoute } from "ui/routes/location-groups";
+import { Link } from "react-router-dom";
 import { LocationGroupsUI } from "./ui";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
@@ -14,6 +14,7 @@ type Props = {};
 export const LocationGroups: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const params = useRouteParams(LocationGroupAddRoute);
 
   return (
     <>
@@ -29,8 +30,8 @@ export const LocationGroups: React.FC<Props> = props => {
           <Grid item>
             <Button
               variant="contained"
-              //component={Link}
-              //to={ROUTE_GOES_HERE.generate(params)} Generate correct Route for ADD
+              component={Link}
+              to={LocationGroupAddRoute.generate(params)}
             >
               {t("Add School Group")}
             </Button>
