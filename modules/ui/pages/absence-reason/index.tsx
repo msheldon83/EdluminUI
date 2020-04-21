@@ -172,19 +172,17 @@ export const AbsenceReason: React.FC<{}> = () => {
           </Grid>
         </Can>
       </Grid>
-      <Grid item container className={classes.tableHeader}>
+      <Grid
+        item
+        container
+        className={[classes.tableHeader, classes.firstRow].join(" ")}
+      >
         <Grid
           className={classes.reasonCount}
           item
           xs={9}
         >{`${absenceReasonsCount} ${t("Absence Reasons")}`}</Grid>
         <Grid item xs={3}>
-          Search
-        </Grid>
-      </Grid>
-
-      <Grid item container className={classes.tableHeader} justify="flex-end">
-        <Grid item>
           <FormControlLabel
             control={
               <Checkbox
@@ -222,30 +220,6 @@ export const AbsenceReason: React.FC<{}> = () => {
           return displayAbsenceReasonGroup(g, i);
         })}
       </Grid>
-      {/* <Table
-        title={`${absenceReasonsCount} ${t("Absence Reasons")}`}
-        columns={columns}
-        data={absenceReasons}
-        selection={false}
-        onRowClick={(event, absenceReason) => {
-          if (!absenceReason) return;
-          const newParams = {
-            ...params,
-            absenceReasonId: absenceReason.id,
-          };
-          history.push(AbsenceReasonViewEditRoute.generate(newParams));
-        }}
-        options={{
-          search: true,
-        }}
-        showIncludeExpired={true}
-        onIncludeExpiredChange={checked => {
-          setIncludeExpired(checked);
-        }}
-        expiredRowCheck={(rowData: GetAllAbsenceReasonsWithinOrg.All) =>
-          rowData.expired
-        }
-      />*/}
     </>
   );
 };
@@ -262,6 +236,10 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.white,
     paddingLeft: theme.typography.pxToRem(24),
     paddingRight: theme.typography.pxToRem(8),
+  },
+  firstRow: {
+    paddingTop: theme.typography.pxToRem(10),
+    paddingBottom: theme.typography.pxToRem(25),
   },
   reasonCount: {
     fontSize: "1.5rem",
