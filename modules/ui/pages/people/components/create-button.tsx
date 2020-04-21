@@ -15,7 +15,7 @@ import {
   canCreateEmployee,
   canCreateSubstitute,
 } from "helpers/permissions";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 
 export const CreateButton: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -42,8 +42,9 @@ export const CreateButton: React.FC<{}> = props => {
             permissions: (
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
-            ) => canCreateEmployee(permissions, isSysAdmin, orgId),
+              orgId?: string,
+              forRole?: Role | null | undefined
+            ) => canCreateEmployee(permissions, isSysAdmin, orgId, forRole),
           },
           {
             name: t("Substitute"),
@@ -57,8 +58,9 @@ export const CreateButton: React.FC<{}> = props => {
             permissions: (
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
-            ) => canCreateSubstitute(permissions, isSysAdmin, orgId),
+              orgId?: string,
+              forRole?: Role | null | undefined
+            ) => canCreateSubstitute(permissions, isSysAdmin, orgId, forRole),
           },
           {
             name: t("Admin"),
@@ -72,8 +74,9 @@ export const CreateButton: React.FC<{}> = props => {
             permissions: (
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
-            ) => canCreateAdmin(permissions, isSysAdmin, orgId),
+              orgId?: string,
+              forRole?: Role | null | undefined
+            ) => canCreateAdmin(permissions, isSysAdmin, orgId, forRole),
           },
         ]}
       />

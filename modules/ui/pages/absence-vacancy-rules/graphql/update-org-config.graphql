@@ -1,0 +1,19 @@
+mutation UpdateOrgConfig($orgConfig: OrganizationUpdateInput!) {
+  organization {
+    update(organization: $orgConfig) {
+      id
+      orgId
+      rowVersion
+      config {
+        featureFlags
+        minutesBeforeStartAbsenceCanBeCreated
+        minLeadTimeMinutesToCancelVacancy
+        minutesRelativeToStartVacancyCanBeFilled
+        minorConflictThresholdMinutes
+        requestedSubCutoffMinutes
+        minRequestedEmployeeHoldMinutes
+        maxRequestedEmployeeHoldMinutes
+      }
+    }
+  }
+}

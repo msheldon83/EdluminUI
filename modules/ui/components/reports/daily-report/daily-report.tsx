@@ -53,7 +53,7 @@ import {
 } from "./helpers";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 
 type Props = {
   orgId: string;
@@ -160,6 +160,7 @@ export const DailyReport: React.FC<Props> = props => {
   if (dailyReportDetails) {
     const mappedDetails = MapDailyReportDetails(
       dailyReportDetails,
+      props.orgId,
       new Date(filters.date),
       filters.showAbsences,
       filters.showVacancies,
@@ -620,8 +621,9 @@ const displaySwabSubsAction = (
         do={(
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
-          orgId?: string
-        ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
+          orgId?: string,
+          forRole?: Role | null | undefined
+        ) => canAssignSub(absDate, permissions, isSysAdmin, orgId, forRole)}
       >
         {button}
       </Can>
@@ -635,8 +637,9 @@ const displaySwabSubsAction = (
       do={(
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
-        orgId?: string
-      ) => canAssignSub(absDate, permissions, isSysAdmin, orgId)}
+        orgId?: string,
+        forRole?: Role | null | undefined
+      ) => canAssignSub(absDate, permissions, isSysAdmin, orgId, forRole)}
     >
       <Tooltip
         title={t("Substitutes can only be swapped between 2 Absences")}

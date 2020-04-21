@@ -15,8 +15,11 @@ import { Detail } from "../helpers";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
+import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import PermDeviceInformationIcon from "@material-ui/icons/PermDeviceInformation";
+import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
+import { LocationLink } from "ui/components/links/locations";
+import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
 
 type Props = {
   detail: Detail;
@@ -27,12 +30,6 @@ type Props = {
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
-  goToAbsenceEdit: (absenceId: string) => void;
-  goToAbsenceEditAssign: (absenceId: string) => void;
-  goToVacancyEdit: (absenceId: string) => void;
-  goToVacancyEditAssign: (absenceId: string) => void;
-  goToPersonView: (orgUserId: string | undefined) => void;
-  goToLocationView: (locationId: string | undefined) => void;
   hideCheckbox: boolean;
   isChecked: boolean;
   rowActions: {
@@ -50,25 +47,36 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
   return (
     <div className={[classes.container, props.className].join(" ")}>
       {!props.detail.isClosed && (
-        <Can
-          do={(
-            permissions: OrgUserPermissions[],
-            isSysAdmin: boolean,
-            orgId?: string
-          ) => canAssignSub(props.detail.date, permissions, isSysAdmin, orgId)}
-        >
-          <Checkbox
-            color="primary"
-            className={clsx({
-              [classes.hidden]: props.hideCheckbox,
-              [classes.checkbox]: true,
-            })}
-            checked={props.isChecked}
-            onChange={e => {
-              props.updateSelectedDetails(props.detail, e.target.checked);
-            }}
-          />
-        </Can>
+        <div className={classes.checkbox}>
+          <Can
+            do={(
+              permissions: OrgUserPermissions[],
+              isSysAdmin: boolean,
+              orgId?: string,
+              forRole?: Role | null | undefined
+            ) =>
+              canAssignSub(
+                props.detail.date,
+                permissions,
+                isSysAdmin,
+                orgId,
+                forRole
+              )
+            }
+          >
+            <Checkbox
+              color="primary"
+              className={clsx({
+                [classes.hidden]: props.hideCheckbox,
+                [classes.checkbox]: true,
+              })}
+              checked={props.isChecked}
+              onChange={e => {
+                props.updateSelectedDetails(props.detail, e.target.checked);
+              }}
+            />
+          </Can>
+        </div>
       )}
       {props.detail.isClosed && (
         <div className={classes.closedSection}>
@@ -80,23 +88,14 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <Can do={[PermissionEnum.EmployeeView]}>
-                  <Link
-                    className={classes.action}
-                    onClick={() =>
-                      props.goToPersonView(props.detail.employee?.id)
-                    }
-                  >
-                    {props.detail.employee?.name}
-                  </Link>
-                </Can>
-                <Can not do={[PermissionEnum.EmployeeView]}>
-                  <span
-                    className={props.detail.isClosed ? classes.closedText : ""}
-                  >
-                    {props.detail.employee?.name}
-                  </span>
-                </Can>
+                <EmployeeLink
+                  orgId={props.detail.orgId}
+                  orgUserId={props.detail.employee?.id}
+                  linkClass={classes.action}
+                  textClass={props.detail.isClosed ? classes.closedText : ""}
+                >
+                  {props.detail.employee?.name}
+                </EmployeeLink>
               </div>
               <div className={classes.detailSubText}>
                 <span
@@ -138,21 +137,14 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.locationSection}>
         <div>
           <div>
-            <Can do={[PermissionEnum.LocationView]}>
-              <Link
-                className={classes.action}
-                onClick={() =>
-                  props.goToLocationView(props.detail.location?.id)
-                }
-              >
-                {props.detail.location?.name}
-              </Link>
-            </Can>
-            <Can not do={[PermissionEnum.LocationView]}>
-              <span className={props.detail.isClosed ? classes.closedText : ""}>
-                {props.detail.location?.name}
-              </span>
-            </Can>
+            <LocationLink
+              orgId={props.detail.orgId}
+              locationId={props.detail.location?.id}
+              linkClass={classes.action}
+              textClass={props.detail.isClosed ? classes.closedText : ""}
+            >
+              {props.detail.location?.name}
+            </LocationLink>
           </div>
           <div className={classes.detailSubText}>
             <span
@@ -178,19 +170,13 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
               <div>
-                <Can do={[PermissionEnum.SubstituteView]}>
-                  <Link
-                    className={classes.action}
-                    onClick={() =>
-                      props.goToPersonView(props.detail.substitute?.id)
-                    }
-                  >
-                    {props.detail.substitute.name}
-                  </Link>
-                </Can>
-                <Can not do={[PermissionEnum.EmployeeView]}>
+                <SubstituteLink
+                  orgId={props.detail.orgId}
+                  orgUserId={props.detail.substitute.id}
+                  linkClass={classes.action}
+                >
                   {props.detail.substitute.name}
-                </Can>
+                </SubstituteLink>
               </div>
               {props.detail.substitute.phone && (
                 <div className={classes.subPhoneInfoIcon}>
@@ -210,37 +196,14 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.state !== "noSubRequired" &&
             !props.detail.isClosed &&
             !props.detail.substitute && (
-              <Can
-                do={(
-                  permissions: OrgUserPermissions[],
-                  isSysAdmin: boolean,
-                  orgId?: string
-                ) =>
-                  canAssignSub(
-                    props.detail.date,
-                    permissions,
-                    isSysAdmin,
-                    orgId
-                  )
-                }
+              <AbsVacAssignLink
+                orgId={props.detail.orgId}
+                absVacId={props.detail.id}
+                absVacType={props.detail.type}
+                absVacDate={props.detail.date}
               >
-                {props.detail.type === "absence" && (
-                  <Link
-                    className={classes.action}
-                    onClick={() => props.goToAbsenceEditAssign(props.detail.id)}
-                  >
-                    {t("Assign")}
-                  </Link>
-                )}
-                {props.detail.type === "vacancy" && (
-                  <Link
-                    className={classes.action}
-                    onClick={() => props.goToVacancyEditAssign(props.detail.id)}
-                  >
-                    {t("Assign")}
-                  </Link>
-                )}
-              </Can>
+                {t("Assign")}
+              </AbsVacAssignLink>
             )}
           {props.detail.subTimes.map((st, i) => {
             return (
@@ -251,27 +214,24 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           })}
         </div>
       </div>
-      <div>
+      <div className={classes.confirmationNumbers}>
         <div>
-          {props.detail.type === "absence" ? (
-            <Link
-              className={classes.action}
-              onClick={() => props.goToAbsenceEdit(props.detail.id)}
-            >{`#${props.detail.id}`}</Link>
-          ) : (
-            <Link
-              className={classes.action}
-              onClick={() => props.goToVacancyEdit(props.detail.id)}
-            >{`#V${props.detail.id}`}</Link>
+          <div>
+            <AbsVacLink
+              orgId={props.detail.orgId}
+              absVacId={props.detail.id}
+              absVacType={props.detail.type}
+              linkClass={classes.action}
+            />
+          </div>
+          {props.detail.assignmentId && (
+            <div
+              className={classes.detailSubText}
+            >{`#C${props.detail.assignmentId}`}</div>
           )}
         </div>
-        {props.detail.assignmentId && (
-          <div
-            className={classes.detailSubText}
-          >{`#C${props.detail.assignmentId}`}</div>
-        )}
       </div>
-      <div>
+      <div className={classes.actionCell}>
         <ActionMenu options={props.rowActions} />
       </div>
     </div>
@@ -336,10 +296,22 @@ const useStyles = makeStyles(theme => ({
       display: "none",
     },
   },
+  confirmationNumbers: {
+    "@media print": {
+      paddingRight: theme.typography.pxToRem(16),
+    },
+  },
   action: {
     cursor: "pointer",
   },
+  actionCell: {
+    width: theme.typography.pxToRem(45),
+    "@media print": {
+      display: "none",
+    },
+  },
   checkbox: {
+    width: theme.typography.pxToRem(35),
     "@media print": {
       display: "none",
     },

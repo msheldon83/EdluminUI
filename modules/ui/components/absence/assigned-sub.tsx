@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Vacancy } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
 import { useState, useMemo, useCallback } from "react";
 import { getGroupedVacancyDetails } from "./helpers";
@@ -113,13 +113,15 @@ export const AssignedSub: React.FC<Props> = props => {
               do={(
                 permissions: OrgUserPermissions[],
                 isSysAdmin: boolean,
-                orgId?: string
+                orgId?: string,
+                forRole?: Role | null | undefined
               ) =>
                 canReassignSub(
                   props.assignmentStartDate,
                   permissions,
                   isSysAdmin,
-                  orgId
+                  orgId,
+                  forRole
                 )
               }
             >
@@ -137,13 +139,15 @@ export const AssignedSub: React.FC<Props> = props => {
               do={(
                 permissions: OrgUserPermissions[],
                 isSysAdmin: boolean,
-                orgId?: string
+                orgId?: string,
+                forRole?: Role | null | undefined
               ) =>
                 canRemoveSub(
                   props.assignmentStartDate,
                   permissions,
                   isSysAdmin,
-                  orgId
+                  orgId,
+                  forRole
                 )
               }
             >

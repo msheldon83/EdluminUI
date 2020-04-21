@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -121,8 +121,9 @@ export const LocationViewPage: React.FC<{}> = props => {
         editPermissions={(
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
-          orgId?: string
-        ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId)}
+          orgId?: string,
+          forRole?: Role | null | undefined,
+        ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId, forRole)}
         actions={[
           {
             name: t("Change History"),
@@ -143,8 +144,9 @@ export const LocationViewPage: React.FC<{}> = props => {
         editPermissions={(
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
-          orgId?: string
-        ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId)}
+          orgId?: string,
+          forRole?: Role | null | undefined,
+        ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId, forRole)}
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}

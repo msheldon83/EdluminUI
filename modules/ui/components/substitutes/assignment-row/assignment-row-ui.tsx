@@ -5,7 +5,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentDetailsUI } from "ui/components/substitutes/assignment-details/assignment-details-ui";
 import { Can } from "ui/components/auth/can";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { NotesPopper } from "../notes-popper";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
@@ -111,13 +111,15 @@ export const AssignmentRowUI: React.FC<Props> = props => {
             do={(
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
+              orgId?: string,
+              forRole?: Role | null | undefined
             ) =>
               canRemoveSub(
                 parseISO(props.startTime),
                 permissions,
                 isSysAdmin,
-                orgId
+                orgId,
+                forRole
               )
             }
           >

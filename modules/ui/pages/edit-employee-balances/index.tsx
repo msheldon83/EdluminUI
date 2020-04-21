@@ -1,12 +1,9 @@
 import * as React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { makeStyles, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import {
-  useAllSchoolYearOptions,
-  useAllSchoolYears,
-} from "reference-data/school-years";
+import { useAllSchoolYears } from "reference-data/school-years";
 import {
   useAbsenceReasonOptions,
   useAbsenceReasons,
@@ -14,8 +11,6 @@ import {
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { PageTitle } from "ui/components/page-title";
-import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { SelectNew } from "ui/components/form/select-new";
 import { GetOrgUserById } from "ui/pages/people/graphql/get-orguser-by-id.gen";
 import { PeopleEmployeeBalancesEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
@@ -28,10 +23,11 @@ import { DeleteAbsenceReasonBalance } from "./graphql/delete-balance.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
-  EmployeeInput,
   AbsenceReasonBalanceCreateInput,
   AbsenceReasonBalanceUpdateInput,
 } from "graphql/server-types.gen";
+import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
+import { compact } from "lodash-es";
 
 export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
@@ -97,12 +93,8 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const employee =
     getEmployee.state === "DONE" ? getEmployee.data.orgUser?.byId : null;
 
-  const schoolYearOptions = useAllSchoolYearOptions(params.organizationId);
-  const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
-  const [schoolYearId, setSchoolYearId] = useState<string | undefined>(
-    currentSchoolYear?.id
-  );
-  useEffect(() => setSchoolYearId(currentSchoolYear?.id), [currentSchoolYear]);
+  const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
+
   const allSchoolYears = useAllSchoolYears(params.organizationId);
   const firstDayOfSelectedSchoolYear = useMemo(
     () => allSchoolYears.find(x => x.id === schoolYearId)?.startDate,
@@ -122,9 +114,12 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   });
 
   const balances =
-    getAbsenceReasonBalances.state === "LOADING"
-      ? []
-      : getAbsenceReasonBalances.data?.absenceReasonBalance?.byEmployeeId ?? [];
+    getAbsenceReasonBalances.state === "DONE" &&
+    getAbsenceReasonBalances.data?.absenceReasonBalance?.byEmployeeId
+      ? compact(
+          getAbsenceReasonBalances.data?.absenceReasonBalance?.byEmployeeId
+        )
+      : [];
 
   const allAbsenceReasonOptions = useAbsenceReasonOptions(
     params.organizationId
@@ -137,9 +132,10 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   }, [balances, allAbsenceReasonOptions]);
   const allAbsenceReasons = useAbsenceReasons(params.organizationId);
 
-  const selectedSchoolYear = schoolYearOptions.find(
-    (sy: any) => sy.value === schoolYearId
-  ) ?? { value: "", label: "" };
+  // Clear the creating new if switching school years
+  useEffect(() => {
+    setCreatingNew(false);
+  }, [schoolYearId]);
 
   return (
     <>
@@ -147,15 +143,10 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
       <PageTitle title={t("Time off balances")} />
       <Section>
         <div className={classes.schoolYearSelect}>
-          <SelectNew
-            label={t("School year")}
-            value={selectedSchoolYear}
-            multiple={false}
-            options={schoolYearOptions}
-            withResetValue={false}
-            onChange={e => {
-              setSchoolYearId(e.value.toString());
-            }}
+          <SchoolYearSelect
+            orgId={params.organizationId}
+            selectedSchoolYearId={schoolYearId}
+            setSelectedSchoolYearId={setSchoolYearId}
           />
         </div>
         <div className={classes.tableContainer}>
