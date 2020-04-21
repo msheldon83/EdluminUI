@@ -4,7 +4,8 @@ import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 import { canAssignSub } from "helpers/permissions";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute, EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
+import { useRole } from "core/role-context"
 
 type GeneralProps = {
   orgId: string;
@@ -22,6 +23,8 @@ type AbsenceProps = GeneralProps & {
 const absString = (id?: string) => `#${id}` ?? "";
 const vacString = (id?: string) => `#V${id}` ?? "";
 
+const absenceRoute = (role: Role | null) => role === "admin" ? AdminEditAbsenceRoute : EmployeeEditAbsenceRoute
+
 export const AbsenceLink: React.FC<AbsenceProps> = ({
   orgId,
   absenceId,
@@ -29,10 +32,11 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
   children = absString(absenceId),
   ...props
 }) => {
+  const role = useRole();
   if (absenceId === undefined) {
     return <span className={props.textClass}> {children} </span>;
   }
-  const urlStr = AdminEditAbsenceRoute.generate({
+  const urlStr = absenceRoute(role).generate({
     organizationId: orgId,
     absenceId: absenceId,
   });
@@ -103,10 +107,11 @@ export const AbsenceAssignLink: React.FC<AbsenceAssignProps> = ({
   state,
   ...props
 }) => {
+  const role = useRole();
   if (absenceId === undefined) {
     return <span className={props.textClass}> {props.children} </span>;
   }
-  const urlStr = `${AdminEditAbsenceRoute.generate({
+  const urlStr = `${absenceRoute(role).generate({
     organizationId: orgId,
     absenceId,
   })}?step=preAssignSub`;
