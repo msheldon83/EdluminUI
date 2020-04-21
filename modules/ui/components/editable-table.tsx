@@ -5,6 +5,7 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import { useMemo } from "react";
 import { can } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
+import { useRole } from "core/role-context";
 
 type Props<T extends object> = TableProps<T> & {
   onRowAdd?: {
@@ -27,6 +28,7 @@ export function EditableTable<T extends object>(props: Props<T>) {
   const { onRowAdd, onRowUpdate, onRowDelete, ...tableProps } = props;
   const userAccess = useMyUserAccess();
   const organizationId = useOrganizationId();
+  const contextRole = useRole();
 
   // Handle any permission checking to see if we can Add
   const onRowAddAction = useMemo(() => {
@@ -40,14 +42,15 @@ export function EditableTable<T extends object>(props: Props<T>) {
         props.onRowAdd.permissions,
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        organizationId
+        organizationId,
+        contextRole ?? undefined
       )
     ) {
       return props.onRowAdd.action;
     }
 
     return undefined;
-  }, [props.onRowAdd, organizationId, userAccess]);
+  }, [props.onRowAdd, organizationId, userAccess, contextRole]);
 
   // Handle any permission checking to see if we can Update
   const onRowUpdateAction = useMemo(() => {
@@ -61,14 +64,15 @@ export function EditableTable<T extends object>(props: Props<T>) {
         props.onRowUpdate.permissions,
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        organizationId
+        organizationId,
+        contextRole ?? undefined
       )
     ) {
       return props.onRowUpdate.action;
     }
 
     return undefined;
-  }, [props.onRowUpdate, organizationId, userAccess]);
+  }, [props.onRowUpdate, organizationId, userAccess, contextRole]);
 
   // Handle any permission checking to see if we can Delete
   const onRowDeleteAction = useMemo(() => {
@@ -82,14 +86,15 @@ export function EditableTable<T extends object>(props: Props<T>) {
         props.onRowDelete.permissions,
         userAccess?.permissionsByOrg ?? [],
         userAccess?.isSysAdmin ?? false,
-        organizationId
+        organizationId,
+        contextRole ?? undefined
       )
     ) {
       return props.onRowDelete.action;
     }
 
     return undefined;
-  }, [props.onRowDelete, organizationId, userAccess]);
+  }, [props.onRowDelete, organizationId, userAccess, contextRole]);
 
   return (
     <Table

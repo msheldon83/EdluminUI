@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { AssignedSub } from "./assigned-sub";
 import { useMemo } from "react";
 import { Vacancy } from "graphql/server-types.gen";
-import { OrgUserPermissions } from "../auth/types";
+import { OrgUserPermissions, Role } from "../auth/types";
 import { canAssignSub } from "helpers/permissions";
 import { Can } from "../auth/can";
 import { AssignmentOnDate } from "./types";
@@ -74,14 +74,16 @@ export const VacancyDetailRow: React.FC<Props> = props => {
                   do={(
                     permissions: OrgUserPermissions[],
                     isSysAdmin: boolean,
-                    orgId?: string
+                    orgId?: string,
+                    forRole?: Role | null | undefined
                   ) =>
                     canAssignSub(
                       groupedDetail.assignmentStartTime ??
                         groupedDetail.startDate,
                       permissions,
                       isSysAdmin,
-                      orgId
+                      orgId,
+                      forRole
                     )
                   }
                 >

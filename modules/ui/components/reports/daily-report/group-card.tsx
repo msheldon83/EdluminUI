@@ -71,9 +71,10 @@ export const GroupCard: React.FC<Props> = props => {
     */
     percentValue = 100 - round((uniqueEmployees.length / data.total) * 100, 2);
     const percentPresent = round(Math.abs(percentValue - 100), 2);
-    percentLabel = isNaN(percentPresent)
-      ? data.label
-      : `${data.label} (${percentPresent}% ${t("absent")})`;
+    percentLabel =
+      isNaN(percentPresent) || !isFinite(percentPresent)
+        ? data.label
+        : `${data.label} (${percentPresent}% ${t("absent")})`;
   }
 
   return (

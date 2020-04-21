@@ -2,7 +2,8 @@ import * as React from "react";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { can as CanHelper } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
-import { CanDo } from "./types";
+import { CanDo, Role } from "./types";
+import { useRole } from "core/role-context";
 
 type Props = {
   do: CanDo;
@@ -21,6 +22,7 @@ export const Can: React.FC<Props> = props => {
 export const useCanDo = () => {
   const userAccess = useMyUserAccess();
   const contextOrgId = useOrganizationId();
+  const contextRole = useRole();
 
   const fn = (
     canDo: CanDo,
@@ -35,6 +37,7 @@ export const useCanDo = () => {
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
       orgId ?? undefined,
+      contextRole ?? undefined,
       context ?? undefined
     );
 

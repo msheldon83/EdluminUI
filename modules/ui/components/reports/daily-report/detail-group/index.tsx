@@ -118,7 +118,10 @@ const useStyles = makeStyles(theme => ({
     flex: 4,
   },
   confirmationNumber: {
-    paddingRight: theme.spacing(8),
+    paddingRight: theme.typography.pxToRem(64),
+    "@media print": {
+      paddingRight: theme.typography.pxToRem(32),
+    },
   },
   shadedRow: {
     background: theme.customColors.lightGray,
