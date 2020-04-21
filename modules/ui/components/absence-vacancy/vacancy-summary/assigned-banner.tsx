@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AssignmentWithDetails, Assignment } from "./types";
 import { Can } from "ui/components/auth/can";
 import { AccountCircleOutlined } from "@material-ui/icons";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -87,13 +87,15 @@ export const AssignedBanner: React.FC<Props> = props => {
               do={(
                 permissions: OrgUserPermissions[],
                 isSysAdmin: boolean,
-                orgId?: string
+                orgId?: string,
+                forRole?: Role | null | undefined
               ) =>
                 canReassignSub(
                   assignmentStartTime,
                   permissions,
                   isSysAdmin,
-                  orgId
+                  orgId,
+                  forRole
                 )
               }
             >
@@ -111,9 +113,16 @@ export const AssignedBanner: React.FC<Props> = props => {
             do={(
               permissions: OrgUserPermissions[],
               isSysAdmin: boolean,
-              orgId?: string
+              orgId?: string,
+              forRole?: Role | null | undefined
             ) =>
-              canRemoveSub(assignmentStartTime, permissions, isSysAdmin, orgId)
+              canRemoveSub(
+                assignmentStartTime,
+                permissions,
+                isSysAdmin,
+                orgId,
+                forRole
+              )
             }
           >
             <Button

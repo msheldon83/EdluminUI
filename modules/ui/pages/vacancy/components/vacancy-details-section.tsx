@@ -9,6 +9,7 @@ import {
   PayCode,
   AccountingCode,
   VacancyReason,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -31,6 +32,7 @@ import { SelectVacancyDateDialog } from "./vacancy-date-picker-dialog";
 import { Input } from "ui/components/form/input";
 import { VacancyDetailsFormData } from "../helpers/types";
 import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   orgId: string;
@@ -472,15 +474,17 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               </Grid>
               {!readOnly && (
                 <Grid item xs={4}>
-                  <Button
-                    className={classes.selectDateButton}
-                    onClick={() => {
-                      setIsSelectDatesOpen(true);
-                    }}
-                    variant="contained"
-                  >
-                    {t("Select Dates")}
-                  </Button>
+                  <Can do={[PermissionEnum.AbsVacSave]}>
+                    <Button
+                      className={classes.selectDateButton}
+                      onClick={() => {
+                        setIsSelectDatesOpen(true);
+                      }}
+                      variant="contained"
+                    >
+                      {t("Select Dates")}
+                    </Button>
+                  </Can>
                 </Grid>
               )}
             </Grid>

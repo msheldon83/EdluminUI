@@ -1,6 +1,6 @@
 import * as React from "react";
 import { pickUrl, BaseLink } from "./base";
-import { CanDo, OrgUserPermissions } from "ui/components/auth/types";
+import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 import { canAssignSub } from "helpers/permissions";
@@ -19,8 +19,8 @@ type AbsenceProps = GeneralProps & {
 
 // Backticked defaults seem to confuse my syntax highligher,
 // so I'm just defining these separately to avoid the headache
-const absString = (id?: string) => `#${id}` ?? ""
-const vacString = (id?: string) => `#V${id}` ?? ""
+const absString = (id?: string) => `#${id}` ?? "";
+const vacString = (id?: string) => `#V${id}` ?? "";
 
 export const AbsenceLink: React.FC<AbsenceProps> = ({
   orgId,
@@ -40,7 +40,8 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
       to={{ ...pickUrl(urlStr), state: state }}
-      {...props}>
+      {...props}
+    >
       {children}
     </BaseLink>
   );
@@ -68,7 +69,8 @@ export const VacancyLink: React.FC<VacancyProps> = ({
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
       to={{ ...pickUrl(urlStr), state: state }}
-      {...props}>
+      {...props}
+    >
       {children}
     </BaseLink>
   );
@@ -113,8 +115,9 @@ export const AbsenceAssignLink: React.FC<AbsenceAssignProps> = ({
       permissions={(
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
-        orgId?: string
-      ) => canAssignSub(absenceDate, permissions, isSysAdmin, orgId)}
+        orgId?: string,
+        forRole?: Role | null | undefined
+      ) => canAssignSub(absenceDate, permissions, isSysAdmin, orgId, forRole)}
       to={{ ...pickUrl(urlStr), state: state }}
       displayText={false}
       {...props}
@@ -145,8 +148,9 @@ export const VacancyAssignLink: React.FC<VacancyAssignProps> = ({
       permissions={(
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
-        orgId?: string
-      ) => canAssignSub(vacancyDate, permissions, isSysAdmin, orgId)}
+        orgId?: string,
+        forRole?: Role | null | undefined
+      ) => canAssignSub(vacancyDate, permissions, isSysAdmin, orgId, forRole)}
       to={{ ...pickUrl(urlStr), state: state }}
       displayText={false}
       {...props}
