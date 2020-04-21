@@ -40,6 +40,7 @@ type Props = {
     onClick: () => void;
     permissions?: CanDo;
   }[];
+  vacancyDate?: string;
 };
 
 export const MobileDailyReportDetailUI: React.FC<Props> = props => {
@@ -79,6 +80,8 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
       )}
     </div>
   );
+
+  const condClosed = props.detail.isClosed ? classes.closedText : "";
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.group}>
@@ -102,7 +105,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <Checkbox
               color="primary"
               className={clsx({
-                [classes.hidden]: props.hideCheckbox,
+                [classes.hidden]: props.hideCheckbox || props.detail.isClosed,
                 [classes.checkbox]: true,
               })}
               checked={props.isChecked}
@@ -120,24 +123,39 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   orgId={props.detail.orgId}
                   orgUserId={props.detail.employee?.id}
                   linkClass={classes.action}
+                  textClass={condClosed}
                 >
                   {props.detail.employee?.name}
                 </EmployeeLink>
               </div>
               <div className={classes.detailSubText}>
-                {props.detail.position?.title}
+                <span className={condClosed}>
+                  {props.detail.position?.name}
+                </span>
               </div>
             </>
           ) : (
-            <div>{props.detail.position?.title}</div>
+            <div>
+              <span className={condClosed}>
+                {`${t("Vacancy")}: ${props.detail.position?.name}`}
+              </span>
+            </div>
           )}
         </div>
 
         <div className={classes.itemContainer}>
           <div className={classes.absenceReason}>
-            <div>{props.detail.absenceReason}</div>
+            <div>
+              <span className={condClosed}>
+                {props.detail.type === "absence"
+                  ? props.detail.absenceReason
+                  : props.detail.vacancyReason}
+              </span>
+            </div>
             <div className={classes.detailSubText}>
-              {props.detail.dateRange}
+              <span className={condClosed}>
+                {props.vacancyDate ?? props.detail.dateRange}
+              </span>
             </div>
           </div>
           <div className={classes.toggle}>
@@ -158,16 +176,21 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   orgId={props.detail.orgId}
                   locationId={props.detail.location?.id}
                   linkClass={classes.action}
+                  textClass={condClosed}
                 >
                   {props.detail.location?.name}
                 </LocationLink>
               </div>
-              <div
-                className={classes.detailSubText}
-              >{`${props.detail.startTime} - ${props.detail.endTime}`}</div>
+              <div className={classes.detailSubText}>
+                <span className={condClosed}>
+                  {`${props.detail.startTime} - ${props.detail.endTime}`}
+                </span>
+              </div>
             </div>
             <div className={classes.item}>
-              <div>{props.detail.created}</div>
+              <div>
+                <span className={condClosed}>{props.detail.created}</span>
+              </div>
             </div>
           </div>
 
@@ -175,7 +198,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               {props.detail.state === "noSubRequired" && (
-                <div className={classes.detailSubText}>{t("Not required")}</div>
+                <div className={classes.detailSubText}>
+                  <span className={condClosed}>{t("Sub not required")}</span>
+                </div>
               )}
               {props.detail.state !== "noSubRequired" &&
                 props.detail.substitute && (
@@ -201,7 +226,13 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                     )}
                   </div>
                 )}
+              {props.detail.isClosed && (
+                <span className={classes.closedText}>
+                  {t("Sub not required")}
+                </span>
+              )}
               {props.detail.state !== "noSubRequired" &&
+                !props.detail.isClosed &&
                 !props.detail.substitute && (
                   <AbsVacAssignLink
                     orgId={props.detail.orgId}
@@ -289,5 +320,9 @@ const useStyles = makeStyles(theme => ({
   },
   hidden: {
     visibility: "hidden",
+  },
+  closedText: {
+    fontStyle: "italic",
+    color: "#9E9E99",
   },
 }));
