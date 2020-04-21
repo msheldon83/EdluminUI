@@ -4,8 +4,11 @@ import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 import { canAssignSub } from "helpers/permissions";
-import { AdminEditAbsenceRoute, EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
-import { useRole } from "core/role-context"
+import {
+  AdminEditAbsenceRoute,
+  EmployeeEditAbsenceRoute,
+} from "ui/routes/edit-absence";
+import { useRole } from "core/role-context";
 
 type GeneralProps = {
   orgId: string;
@@ -23,7 +26,15 @@ type AbsenceProps = GeneralProps & {
 const absString = (id?: string) => `#${id}` ?? "";
 const vacString = (id?: string) => `#V${id}` ?? "";
 
-const absenceRoute = (role: Role | null) => role === "admin" ? AdminEditAbsenceRoute : EmployeeEditAbsenceRoute
+const absenceRoute = (role: Role | null, orgId: string, absenceId: string) => {
+  if (role === "admin") {
+    return AdminEditAbsenceRoute.generate({
+      organizationId: orgId,
+      absenceId,
+    });
+  }
+  return EmployeeEditAbsenceRoute.generate({ absenceId });
+};
 
 export const AbsenceLink: React.FC<AbsenceProps> = ({
   orgId,
@@ -36,10 +47,7 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
   if (absenceId === undefined) {
     return <span className={props.textClass}> {children} </span>;
   }
-  const urlStr = absenceRoute(role).generate({
-    organizationId: orgId,
-    absenceId: absenceId,
-  });
+  const urlStr = absenceRoute(role, orgId, absenceId);
   return (
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
@@ -111,10 +119,7 @@ export const AbsenceAssignLink: React.FC<AbsenceAssignProps> = ({
   if (absenceId === undefined) {
     return <span className={props.textClass}> {props.children} </span>;
   }
-  const urlStr = `${absenceRoute(role).generate({
-    organizationId: orgId,
-    absenceId,
-  })}?step=preAssignSub`;
+  const urlStr = `${absenceRoute(role, orgId, absenceId)}?step=preAssignSub`;
   return (
     <BaseLink
       permissions={(
