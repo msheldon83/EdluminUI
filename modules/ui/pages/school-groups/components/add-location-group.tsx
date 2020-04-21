@@ -14,7 +14,7 @@ import { Input } from "ui/components/form/input";
 type Props = {
   locationGroup: LocationGroupCreateInput;
   namePlaceholder: string;
-  onSubmit: (name: string, description?: string | null | undefined) => void;
+  onSubmit: (locationGroup: LocationGroupCreateInput) => void;
   onCancel: () => void;
   onNameChange: (name: string) => void;
 };
@@ -35,6 +35,7 @@ export const AddLocationGroup: React.FC<Props> = props => {
           .nullable()
           .required(t("Name is required")),
         description: Yup.string().nullable(),
+        externalId: Yup.string().nullable(),
       }),
     [t]
   );
@@ -45,7 +46,7 @@ export const AddLocationGroup: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          props.onSubmit(data.name, data.description);
+          props.onSubmit(data.name, data.description, data.externalId);
         }}
       >
         {({ handleSubmit, handleChange, submitForm, values }) => (
@@ -70,16 +71,28 @@ export const AddLocationGroup: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
                 <Input
-                  label={t("Description")}
+                  label={t("External Id")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
-                    name: "description",
+                    name: "externalId",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     fullWidth: true,
                   }}
                 />
               </Grid>
+            </Grid>
+            <Grid item xs={6}>
+              <Input
+                label={t("Description")}
+                InputComponent={FormTextField}
+                inputComponentProps={{
+                  name: "description",
+                  margin: isMobile ? "normal" : "none",
+                  variant: "outlined",
+                  fullWidth: true,
+                }}
+              />
             </Grid>
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}

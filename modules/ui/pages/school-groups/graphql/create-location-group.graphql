@@ -2,8 +2,10 @@ mutation CreateLocationGroup($locationGroup: LocationGroupCreateInput!) {
   locationGroup {
     create(locationGroup: $locationGroup) {
       id
+      orgId
       name
       externalId
+      description
     }
   }
 }

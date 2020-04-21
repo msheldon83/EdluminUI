@@ -4,14 +4,14 @@ import { useTranslation } from "react-i18next";
 import { PageTitle } from "ui/components/page-title";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
-import { useQueryBundle } from "graphql/hooks";
-import { Typography, makeStyles } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { AddLocationGroup } from "./components/add-location-group";
 import { useSnackbar } from "hooks/use-snackbar";
 import { LocationGroupCreateInput } from "graphql/server-types.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
   LocationGroupsRoute,
+  LocationGroupAddRoute,
   LocationGroupViewRoute,
 } from "ui/routes/location-groups";
 import { GetLocationGroupsDocument } from "reference-data/get-location-groups.gen";
@@ -19,11 +19,12 @@ import { CreateLocationGroup } from "./graphql/create-location-group.gen";
 
 export const LocationGroupAddPage: React.FC<{}> = props => {
   const history = useHistory();
-  const params = useRouteParams(LocationGroupsRoute);
+  const params = useRouteParams(LocationGroupAddRoute);
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
+  const classes = useStyles();
   const [name, setName] = React.useState<string | null>(null);
-  const namePlaceholder = t("Glenbrook North High School");
+  const namePlaceholder = t("Middle School");
 
   const [locationGroup, setLocationGroup] = React.useState<
     LocationGroupCreateInput
@@ -31,15 +32,10 @@ export const LocationGroupAddPage: React.FC<{}> = props => {
     orgId: params.organizationId,
     name: "",
     description: null,
+    externalId: null,
   });
 
-  const locationGroupsReferenceDataQuery = {
-    query: GetLocationGroupsDocument,
-    varaibles: { orgId: params.organizationId },
-  };
-
   const [createLocationGroup] = useMutationBundle(CreateLocationGroup, {
-    refetchQueries: [locationGroupsReferenceDataQuery],
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -50,41 +46,62 @@ export const LocationGroupAddPage: React.FC<{}> = props => {
       variables: {
         locationGroup: {
           ...locationGroup,
+          name: locationGroup.name,
           description:
             locationGroup.description &&
             locationGroup.description.trim().length === 0
               ? null
               : locationGroup.description,
+          externalId:
+            locationGroup.externalId &&
+            locationGroup.externalId.trim().length === 0
+              ? null
+              : locationGroup.externalId,
         },
       },
     });
-    return result?.data?.locationGroup?.create?.id;
+
+    console.log(result);
+
+    return result?.data?.locationGroup?.create;
   };
 
   return (
-    <AddLocationGroup
-      locationGroup={locationGroup}
-      onSubmit={async (name: string, description?: string | null) => {
-        const newLocationGroup = {
-          ...locationGroup,
-          name: name,
-          description: description,
-        };
-        setLocationGroup(newLocationGroup);
-        const id = await create(newLocationGroup);
-        const viewParams = {
-          ...params,
-          locationGroupId: id!,
-        };
-        history.push(LocationGroupViewRoute.generate(viewParams));
-      }}
-      onCancel={() => {
-        const url = LocationGroupsRoute.generate(params);
-        history.push(url);
-      }}
-      onNameChange={name => setName(name)}
-      namePlaceholder={namePlaceholder}
-    />
+    <>
+      <div className={classes.header}>
+        <PageTitle title={t("Create new school group")} />
+        <Typography variant="h1">
+          {name || (
+            <span className={classes.placeholder}>{namePlaceholder}</span>
+          )}
+        </Typography>
+      </div>
+
+      <AddLocationGroup
+        locationGroup={locationGroup}
+        onSubmit={async (locationGroup: LocationGroupCreateInput) => {
+          const newLocationGroup = {
+            ...locationGroup,
+            name: name,
+            externalId: externalId,
+            description: description,
+          };
+          setLocationGroup(newLocationGroup);
+          const result = await create(newLocationGroup);
+          const viewParams = {
+            organizationId: result!.orgId,
+            locationGroupId: result!.id,
+          };
+          history.push(LocationGroupViewRoute.generate(viewParams));
+        }}
+        onCancel={() => {
+          const url = LocationGroupsRoute.generate(params);
+          history.push(url);
+        }}
+        onNameChange={name => setName(name)}
+        namePlaceholder={namePlaceholder}
+      />
+    </>
   );
 };
 

@@ -3,7 +3,10 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
 import { PageTitle } from "ui/components/page-title";
-import { LocationGroupAddRoute } from "ui/routes/location-groups";
+import {
+  LocationGroupAddRoute,
+  LocationGroupsRoute,
+} from "ui/routes/location-groups";
 import { Link } from "react-router-dom";
 import { LocationGroupsUI } from "./ui";
 import { Can } from "ui/components/auth/can";
@@ -14,7 +17,7 @@ type Props = {};
 export const LocationGroups: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(LocationGroupAddRoute);
+  const params = useRouteParams(LocationGroupsRoute);
 
   return (
     <>

@@ -1032,6 +1032,14 @@ export const App = hot(function() {
                                       ]}
                                     />
                                     <ProtectedRoute
+                                      component={LocationGroupAddLoader}
+                                      path={LocationGroupAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.LocationGroupSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
                                       component={LocationGroupSubPrefLoader}
                                       path={LocationGroupSubPrefRoute.path}
                                       role={"admin"}
@@ -1053,14 +1061,6 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.LocationGroupView,
-                                      ]}
-                                    />
-                                    <ProtectedRoute
-                                      component={LocationGroupAddLoader}
-                                      path={LocationGroupAddRoute.path}
-                                      role={"admin"}
-                                      permissions={[
-                                        PermissionEnum.LocationGroupSave,
                                       ]}
                                     />
                                     <ProtectedRoute
