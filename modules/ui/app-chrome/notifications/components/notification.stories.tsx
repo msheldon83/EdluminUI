@@ -1,6 +1,6 @@
 import * as React from "react";
 import { NotificationRoleMapper } from "./notification-role-mapper";
-import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
+import { ObjectType } from "graphql/server-types.gen";
 import { Divider } from "@material-ui/core";
 
 export default {
@@ -13,7 +13,7 @@ export const BasicNotificationStory = () => {
     setSubNotificationsAnchor,
   ] = React.useState<null | HTMLElement>(null);
 
-  const markAsViewed = async (notificationId: string) => {};
+  const markSingleNotificationAsViewed = async (notificationId: string) => {};
 
   return (
     <>
@@ -24,8 +24,8 @@ export const BasicNotificationStory = () => {
               key={i}
               notification={n}
               orgId={"1111"}
-              orgUserRole={OrgUserRole.Administrator}
-              markAsViewed={markAsViewed}
+              contextRole={"admin"}
+              markSingleNotificationAsViewed={markSingleNotificationAsViewed}
             />
             <Divider />
           </>

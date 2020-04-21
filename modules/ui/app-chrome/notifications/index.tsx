@@ -1,15 +1,13 @@
 import * as React from "react";
 import { makeStyles, Divider, Popover } from "@material-ui/core";
-import { useMyUserAccess } from "reference-data/my-user-access";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useRouteParams } from "ui/routes/definition";
 import { GetNotifications } from "./graphql/get-notifications.gen";
 import { compact } from "lodash-es";
 import { NotificationRoleMapper } from "ui/app-chrome/notifications/components/notification-role-mapper";
-import { OrgUserRole } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
+import { useRole } from "core/role-context";
 import { getOrgIdFromRoute } from "core/org-context";
-import { AppChromeRoute } from "ui/routes/app-chrome";
+import { TextButton } from "ui/components/text-button";
 import { MarkSingleNotificationViewed } from "./graphql/mark-single-notification-viewed.gen";
 
 type Props = {
@@ -22,14 +20,15 @@ export const NotificationsUI: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const orgId = getOrgIdFromRoute();
-  const params = useRouteParams(AppChromeRoute);
+  const contextRole = useRole();
+  const [showAll, setShowAll] = React.useState<boolean>(false);
 
   const [markSingleNoticationAsViewed] = useMutationBundle(
     MarkSingleNotificationViewed,
     {}
   );
 
-  const markAsViewed = async (notificationId: string) => {
+  const markSingleNotificationAsViewed = async (notificationId: string) => {
     const response = await markSingleNoticationAsViewed({
       variables: {
         notificationId: notificationId,
@@ -37,13 +36,6 @@ export const NotificationsUI: React.FC<Props> = props => {
     });
     return props.onClose();
   };
-
-  const orgUserRole =
-    params.role === "admin"
-      ? OrgUserRole.Administrator
-      : params.role === "employee"
-      ? OrgUserRole.Employee
-      : OrgUserRole.ReplacementEmployee;
 
   const { open, anchorElement, onClose } = props;
 
@@ -59,6 +51,13 @@ export const NotificationsUI: React.FC<Props> = props => {
       : [];
 
   const id = open ? "notifications-popover" : undefined;
+
+  const filteredNotifications = (showAll: boolean, notifications: any) => {
+    if (!showAll) return notifications.filter((e: any) => e.viewed === false);
+    return notifications;
+  };
+
+  const markAllNotificationsAsViewed = () => {};
 
   return (
     <Popover
@@ -83,27 +82,45 @@ export const NotificationsUI: React.FC<Props> = props => {
     >
       <div className={classes.container}>
         <div className={classes.headerText}>{t("Notifications")}</div>
+        {notifications.length !== 0 && (
+          <TextButton
+            className={classes.markAsRead}
+            onClick={() => markAllNotificationsAsViewed()}
+          >
+            {t("Mark all as Read")}
+          </TextButton>
+        )}
         <Divider className={classes.divider} variant={"fullWidth"} />
         {notifications.length === 0 ? (
           <div>{t("No notifications")}</div>
         ) : (
-          notifications
-            .filter(e => e.viewed === false)
-            .map((n, i) => {
+          filteredNotifications(showAll, notifications).map(
+            (n: any, i: any) => {
               return (
                 <React.Fragment key={i}>
                   <NotificationRoleMapper
                     key={i}
                     notification={n}
                     orgId={orgId ?? ""}
-                    orgUserRole={orgUserRole}
-                    markAsViewed={markAsViewed}
+                    contextRole={contextRole}
+                    markSingleNotificationAsViewed={
+                      markSingleNotificationAsViewed
+                    }
                   />
                 </React.Fragment>
               );
-            })
+            }
+          )
         )}
       </div>
+      {notifications.length !== 0 && (
+        <TextButton
+          className={classes.showAllNotifications}
+          onClick={() => setShowAll(!showAll)}
+        >
+          {showAll ? t("Hide Old Notifications") : t("Show All Notifications")}
+        </TextButton>
+      )}
     </Popover>
   );
 };
@@ -112,9 +129,11 @@ const useStyles = makeStyles(theme => ({
   container: {
     justifyContent: "center",
     display: "block",
-    width: "100%",
+    width: "95%",
     overflowY: "auto",
     maxHeight: "600px",
+    position: "absolute",
+    top: "10px",
   },
   divider: {
     color: theme.customColors.gray,
@@ -123,7 +142,9 @@ const useStyles = makeStyles(theme => ({
   },
   popover: {
     alignItems: "center",
+    position: "relative",
     display: "flex",
+    height: "650px",
     padding: theme.spacing(2),
     width: theme.typography.pxToRem(400),
     boxShadow:
@@ -133,5 +154,17 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 500,
     fontSize: theme.typography.pxToRem(18),
     textAlign: "center",
+    display: "inline-block",
+  },
+  markAsRead: {
+    display: "inline-block",
+    float: "right",
+    marginRight: "10px",
+  },
+  showAllNotifications: {
+    position: "absolute",
+    bottom: "0px",
+    width: "100%",
+    marginBottom: "10px",
   },
 }));

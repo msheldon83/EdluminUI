@@ -11,7 +11,7 @@ import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 type Props = {
   orgId: string;
   notification: Notification;
-  markAsViewed: (notificationId: string) => Promise<any>;
+  markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
 };
 
 type Notification = {
@@ -67,7 +67,7 @@ export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
           to={route}
           className={classes.hyperlink}
           onClick={() => {
-            const v = props.markAsViewed(notification.id);
+            const v = props.markSingleNotificationAsViewed(notification.id);
           }}
         >
           {htmlContent}

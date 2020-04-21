@@ -1,17 +1,19 @@
 /* eslint-disable no-case-declarations */
 import { makeStyles, Divider } from "@material-ui/core";
 import * as React from "react";
+import { Can } from "ui/components/auth/can";
 import { DateFormatter } from "helpers/date";
 import { ObjectType } from "graphql/server-types.gen";
 import { ViewedIcon } from "ui/app-chrome/notifications/components/viewed-icon";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   orgId: string;
   notification: Notification;
-  markAsViewed: (notificationId: string) => Promise<any>;
+  markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
 };
 
 type Notification = {
@@ -50,15 +52,17 @@ export const AdminNotificationLink: React.FC<Props> = props => {
   return (
     <>
       {route ? (
-        <Link
-          to={route}
-          className={classes.hyperlink}
-          onClick={() => {
-            props.markAsViewed(notification.id);
-          }}
-        >
-          {htmlContent}
-        </Link>
+        <Can do={[PermissionEnum.AbsVacView]}>
+          <Link
+            to={route}
+            className={classes.hyperlink}
+            onClick={() => {
+              props.markSingleNotificationAsViewed(notification.id);
+            }}
+          >
+            {htmlContent}
+          </Link>
+        </Can>
       ) : (
         <>
           <div>{htmlContent}</div>
