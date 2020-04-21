@@ -48,6 +48,8 @@ export const NotificationsUI: React.FC<Props> = props => {
         notificationIds: notificationIds,
       },
     });
+    setShowAll(false);
+    return props.onClose();
   };
 
   const { open, anchorElement, onClose } = props;
@@ -65,10 +67,9 @@ export const NotificationsUI: React.FC<Props> = props => {
 
   const id = open ? "notifications-popover" : undefined;
 
-  const filteredNotifications = (showAll: boolean, notifications: any) => {
-    if (!showAll) return notifications.filter((e: any) => e.viewed === false);
-    return notifications;
-  };
+  const filteredNotifications = showAll
+    ? notifications
+    : notifications.filter((e: any) => e.viewed === false);
 
   return (
     <Popover
@@ -88,12 +89,15 @@ export const NotificationsUI: React.FC<Props> = props => {
       }}
       PaperProps={{
         square: true,
-        className: classes.popover,
+        className:
+          filteredNotifications.length === 0
+            ? classes.smallPopover
+            : classes.largePopover,
       }}
     >
       <div className={classes.container}>
         <div className={classes.headerText}>{t("Notifications")}</div>
-        {notifications.length !== 0 && (
+        {filteredNotifications.length !== 0 && (
           <TextButton
             className={classes.markAsRead}
             onClick={() => markAllAsViewed()}
@@ -102,34 +106,31 @@ export const NotificationsUI: React.FC<Props> = props => {
           </TextButton>
         )}
         <Divider className={classes.divider} variant={"fullWidth"} />
-        {notifications.length === 0 ? (
+        {filteredNotifications.length === 0 ? (
           <div>{t("No notifications")}</div>
         ) : (
-          filteredNotifications(showAll, notifications).map(
-            (n: any, i: any) => {
-              return (
-                <React.Fragment key={i}>
-                  <NotificationRoleMapper
-                    key={i}
-                    notification={n}
-                    orgId={orgId ?? ""}
-                    contextRole={contextRole}
-                    markSingleNotificationAsViewed={markSingleAsViewed}
-                  />
-                </React.Fragment>
-              );
-            }
-          )
+          filteredNotifications.map((n: any, i: any) => {
+            return (
+              <React.Fragment key={i}>
+                <NotificationRoleMapper
+                  key={i}
+                  notification={n}
+                  orgId={orgId ?? ""}
+                  contextRole={contextRole}
+                  markSingleNotificationAsViewed={markSingleAsViewed}
+                />
+              </React.Fragment>
+            );
+          })
         )}
       </div>
-      {notifications.length !== 0 && (
-        <TextButton
-          className={classes.showAllNotifications}
-          onClick={() => setShowAll(!showAll)}
-        >
-          {showAll ? t("Hide Old Notifications") : t("Show All Notifications")}
-        </TextButton>
-      )}
+
+      <TextButton
+        className={classes.showAllNotifications}
+        onClick={() => setShowAll(!showAll)}
+      >
+        {showAll ? t("Hide Old Notifications") : t("Show All Notifications")}
+      </TextButton>
     </Popover>
   );
 };
@@ -149,11 +150,21 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
-  popover: {
+  largePopover: {
     alignItems: "center",
     position: "relative",
     display: "flex",
     height: "650px",
+    padding: theme.spacing(2),
+    width: theme.typography.pxToRem(400),
+    boxShadow:
+      "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24)",
+  },
+  smallPopover: {
+    alignItems: "center",
+    position: "relative",
+    display: "flex",
+    height: "110px",
     padding: theme.spacing(2),
     width: theme.typography.pxToRem(400),
     boxShadow:

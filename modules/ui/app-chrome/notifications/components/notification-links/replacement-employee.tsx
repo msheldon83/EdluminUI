@@ -41,8 +41,6 @@ export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
       notification.content?.includes("cancelled")) ??
     false;
 
-  console.log(hideLink);
-
   switch (props.notification.objectTypeId) {
     case ObjectType.Absence:
       route = SubSpecificAssignmentRoute.generate({
