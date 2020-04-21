@@ -1,9 +1,17 @@
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, OrgUserRole } from "graphql/server-types.gen";
 
 export type OrgUserPermissions = {
   orgId: string;
   permissions: PermissionEnum[];
+  permissionsByRole: RolePermissions[];
 };
+
+export type RolePermissions = {
+  role: Role;
+  permissions: PermissionEnum[];
+};
+
+export type Role = "admin" | "employee" | "substitute";
 
 export type CanDo =
   | PermissionEnum[]
@@ -11,5 +19,6 @@ export type CanDo =
       permissions: OrgUserPermissions[],
       isSysAdmin: boolean,
       orgId?: string | undefined,
+      forRole?: Role | null | undefined,
       context?: any
     ) => boolean);

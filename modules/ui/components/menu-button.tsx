@@ -6,6 +6,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { can } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
 import { CanDo } from "./auth/types";
+import { useRole } from "core/role-context";
 
 type Props = {
   options: Array<Option>;
@@ -24,6 +25,7 @@ export const MenuButton: React.FC<Props> = props => {
   const open = Boolean(anchorEl);
   const userAccess = useMyUserAccess();
   const contextOrgId = useOrganizationId();
+  const contextRole = useRole();
   const [selectedIndex, setSelectedIndex] = React.useState(
     props.selectedIndex ?? 0
   );
@@ -45,7 +47,8 @@ export const MenuButton: React.FC<Props> = props => {
       o.permissions,
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
-      contextOrgId ?? undefined
+      contextOrgId ?? undefined,
+      contextRole ?? undefined
     );
   });
 

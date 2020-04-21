@@ -4,6 +4,7 @@ import { can as CanHelper } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
 import { Tab, TabProps, makeStyles } from "@material-ui/core";
 import { CanDo } from "./auth/types";
+import { useRole } from "core/role-context";
 
 type Props = {
   permissions: CanDo;
@@ -13,13 +14,15 @@ export const PermittedTab: React.FC<Props> = props => {
   const classes = useStyles();
   const userAccess = useMyUserAccess();
   const orgId = useOrganizationId();
+  const contextRole = useRole();
   const { permissions, ...tabProps } = props;
 
   const showTab = CanHelper(
     permissions,
     userAccess?.permissionsByOrg ?? [],
     userAccess?.isSysAdmin ?? false,
-    orgId ?? undefined
+    orgId ?? undefined,
+    contextRole ?? undefined
   );
 
   return showTab ? (

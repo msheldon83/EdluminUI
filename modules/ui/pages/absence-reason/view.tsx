@@ -68,7 +68,6 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
         absenceReason: {
           id: absenceReason.id,
           rowVersion: absenceReason.rowVersion,
-          isBucket: absenceReason.isBucket,
           allowNegativeBalance: absenceReason.allowNegativeBalance,
           isRestricted: absenceReason.isRestricted,
           ...values,

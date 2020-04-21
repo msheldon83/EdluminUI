@@ -432,13 +432,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
               )}
             </div>
             {props.onDelete && !props.isFormDirty && (
-              <Button
-                onClick={() => props.onDelete!()}
-                variant="text"
-                className={classes.deleteButton}
-              >
-                {t("Delete")}
-              </Button>
+              <Can do={[PermissionEnum.AbsVacDelete]}>
+                <Button
+                  onClick={() => props.onDelete!()}
+                  variant="text"
+                  className={classes.deleteButton}
+                >
+                  {t("Delete")}
+                </Button>
+              </Can>
             )}
             {props.onCancel && props.isFormDirty && !props.isClosed && (
               <Button

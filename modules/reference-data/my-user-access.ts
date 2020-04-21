@@ -34,6 +34,20 @@ export const useMyUserAccess = (): MyUserAccess | null => {
                   ...(ou.substitute?.permissions ?? []),
                 ])
               ) ?? [],
+            permissionsByRole: [
+              {
+                role: "admin",
+                permissions: compact(ou.administrator?.permissions ?? []),
+              },
+              {
+                role: "employee",
+                permissions: compact(ou.employee?.permissions ?? []),
+              },
+              {
+                role: "substitute",
+                permissions: compact(ou.substitute?.permissions ?? []),
+              },
+            ],
           }
         : null
     )

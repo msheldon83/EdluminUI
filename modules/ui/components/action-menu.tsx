@@ -8,6 +8,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { can } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
 import { CanDo } from "./auth/types";
+import { useRole } from "core/role-context";
 
 type Props = {
   options: Array<Option>;
@@ -26,6 +27,7 @@ export const ActionMenu: React.FC<Props> = props => {
   const open = Boolean(anchorEl);
   const userAccess = useMyUserAccess();
   const contextOrgId = useOrganizationId();
+  const contextRole = useRole();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -44,7 +46,8 @@ export const ActionMenu: React.FC<Props> = props => {
       o.permissions,
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
-      contextOrgId ?? undefined
+      contextOrgId ?? undefined,
+      contextRole ?? undefined
     );
   });
 

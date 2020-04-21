@@ -166,14 +166,12 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   expired: Boolean!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
-  isBucket: Boolean!
   isRestricted: Boolean!
   appliesToAssignmentTypes: AssignmentType
   limitPerDay: Int
-  parentAbsenceReasonId: ID
-  parentAbsenceReason: AbsenceReason
+  absenceReasonCategoryId: ID
+  category: AbsenceReasonCategory
   prioritySequence: Int
-  childrenAbsenceReasons: [AbsenceReason]
   requireNotesToAdmin: Boolean
 }
 
@@ -227,6 +225,48 @@ input AbsenceReasonBalanceUpdateInput {
   ignoreWarnings: Boolean
 }
 
+type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  name: String!
+  description: String
+  validUntil: Date
+  expired: Boolean!
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+}
+
+input AbsenceReasonCategoryCreateInput {
+  orgId: ID
+  name: String!
+  description: String
+  externalId: String
+  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+}
+
+input AbsenceReasonCategoryUpdateInput {
+  id: ID!
+  rowVersion: String!
+  name: String
+  description: String
+  externalId: String
+  expired: Boolean
+  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
+  allowNegativeBalance: Boolean!
+}
+
 input AbsenceReasonCreateInput {
   orgId: ID
   name: String!
@@ -235,10 +275,9 @@ input AbsenceReasonCreateInput {
   appliesToAssignmentTypes: AssignmentType
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
-  isBucket: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
-  parentAbsenceReasonId: Int
+  absenceReasonCategoryId: Int
   prioritySequence: Int
   requireNotesToAdmin: Boolean
 }
@@ -259,10 +298,9 @@ input AbsenceReasonUpdateInput {
   appliesToAssignmentTypes: AssignmentType
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
-  isBucket: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
-  parentAbsenceReasonId: ID
+  absenceReasonCategoryId: ID
   prioritySequence: Int
   requireNotesToAdmin: Boolean
 }
@@ -1345,6 +1383,7 @@ enum DataImportStatus {
   IMPORT_FAILURE
   IMPORTED
   PERMANENT_FAILURE
+  QUEUED_FOR_PROCESSING
 }
 
 enum DataImportType {
@@ -2003,6 +2042,9 @@ enum EventType {
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
+  ABSENCE_REASON_CATEGORY_CREATED
+  ABSENCE_REASON_CATEGORY_UPDATED
+  ABSENCE_REASON_CATEGORY_DELETED
 }
 
 enum FeatureFlag {
@@ -2352,6 +2394,7 @@ type Mutation {
   vacancy: VacancyMutations
   workDayPattern: WorkDayPatternMutations
   workDaySchedule: WorkDayScheduleMutations
+  orgRef_AbsenceReasonCategory: OrgRef_AbsenceReasonCategoryMutations
   orgRef_AbsenceReason: OrgRef_AbsenceReasonMutations
   orgRef_AccountingCode: OrgRef_AccountingCodeMutations
   orgRef_CalendarChangeReason: OrgRef_CalendarChangeReasonMutations
@@ -2474,6 +2517,7 @@ enum ObjectType {
   SAVED_VIEW
   DATA_IMPORT
   VACANCY_REASON
+  ABSENCE_REASON_CATEGORY
   APPLICATION
 }
 
@@ -2668,6 +2712,18 @@ interface OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+}
+
+type OrgRef_AbsenceReasonCategoryMutations {
+  create(absenceReasonCategory: AbsenceReasonCategoryCreateInput!): AbsenceReasonCategory
+  update(absenceReasonCategory: AbsenceReasonCategoryUpdateInput!): AbsenceReasonCategory
+  delete(absenceReasonCategoryId: ID!): Boolean
+}
+
+type OrgRef_AbsenceReasonCategoryQueries {
+  byId(id: ID!): AbsenceReasonCategory
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReasonCategory]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReasonCategory
 }
 
 type OrgRef_AbsenceReasonMutations {
@@ -2928,6 +2984,15 @@ type PagedAbsence {
 type PagedAbsenceReason {
   _info: [ReturnMessage]
   results: [AbsenceReason]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedAbsenceReasonCategory {
+  _info: [ReturnMessage]
+  results: [AbsenceReasonCategory]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4081,6 +4146,7 @@ type Query {
   location: LocationQueries
   organization: OrganizationQueries
   organizationRelationship: OrganizationRelationshipQueries
+  orgRef_AbsenceReasonCategory: OrgRef_AbsenceReasonCategoryQueries
   orgRef_AbsenceReason: OrgRef_AbsenceReasonQueries
   orgRef_AccountingCode: OrgRef_AccountingCodeQueries
   orgRef_CalendarChangeReason: OrgRef_CalendarChangeReasonQueries
@@ -4195,6 +4261,13 @@ type RefCustomFieldVisibility {
   description: String
 }
 
+type RefDataImportType {
+  _info: [ReturnMessage]
+  enumValue: DataImportType
+  name: String!
+  description: String
+}
+
 type RefDateRangeType {
   _info: [ReturnMessage]
   enumValue: DateRangeType
@@ -4230,6 +4303,7 @@ type ReferenceDataQueries {
   customFieldSetTypes: [RefCustomFieldSetType]
   currencies: [RefCurrency]
   dateRangeTypes: [RefDateRangeType]
+  dataImportTypes: [RefDataImportType]
   densityUnits: [RefDensityUnit]
   dimensionUnits: [RefDimensionUnit]
   featureFlags: [RefFeatureFlag]

@@ -42,6 +42,7 @@ import { useOrganizationId } from "core/org-context";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { PaginationInfo } from "graphql/hooks";
 import { useIsMobile } from "hooks";
+import { useRole } from "core/role-context";
 
 export type TableProps<T extends object> = {
   title?: string;
@@ -112,6 +113,7 @@ export function Table<T extends object>(props: TableProps<T>) {
   const { t } = useTranslation();
   const userAccess = useMyUserAccess();
   const organizationId = useOrganizationId();
+  const contextRole = useRole();
   const [includeExpired, setIncludeExpired] = React.useState(false);
   const [data, setData] = React.useState(props.data);
   const pagination = props.pagination;
@@ -134,11 +136,12 @@ export function Table<T extends object>(props: TableProps<T>) {
           c.permissions,
           userAccess?.permissionsByOrg ?? [],
           userAccess?.isSysAdmin ?? false,
-          organizationId
+          organizationId,
+          contextRole ?? undefined
         ),
       };
     });
-  }, [props.columns, organizationId, userAccess]);
+  }, [props.columns, organizationId, userAccess, contextRole]);
 
   // Handle permission checks for selection if specified
   const selection = useMemo(() => {
@@ -153,9 +156,16 @@ export function Table<T extends object>(props: TableProps<T>) {
       props.selectionPermissions,
       userAccess?.permissionsByOrg ?? [],
       userAccess?.isSysAdmin ?? false,
-      organizationId
+      organizationId,
+      contextRole ?? undefined
     );
-  }, [props.selection, props.selectionPermissions, organizationId, userAccess]);
+  }, [
+    props.selection,
+    props.selectionPermissions,
+    organizationId,
+    userAccess,
+    contextRole,
+  ]);
 
   // Handle any permission checks to determine if we need to hide any columns
   const allActions: TableAction<T>[] | undefined = useMemo(() => {
@@ -174,11 +184,12 @@ export function Table<T extends object>(props: TableProps<T>) {
           a.permissions,
           userAccess?.permissionsByOrg ?? [],
           userAccess?.isSysAdmin ?? false,
-          organizationId
+          organizationId,
+          contextRole ?? undefined
         ),
       };
     });
-  }, [props.actions, organizationId, userAccess]);
+  }, [props.actions, organizationId, userAccess, contextRole]);
   const anyActionsVisible: boolean = useMemo(() => {
     return !!allActions?.find(a => !a.hidden);
   }, [allActions]);
