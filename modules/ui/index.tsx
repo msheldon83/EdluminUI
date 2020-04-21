@@ -28,6 +28,10 @@ import {
   AbsenceReasonEditSettingsLoader,
   AbsenceReasonCategoryAddLoader,
   AbsenceReasonCategoryAddRoute,
+  AbsenceReasonCategoryViewEditRoute,
+  AbsenceReasonCategoryViewEditLoader,
+  AbsenceReasonCategoryEditSettingsLoader,
+  AbsenceReasonCategoryEditSettingsRoute,
 } from "./routes/absence-reason";
 import {
   AccountingCodeLoader,
@@ -914,11 +918,35 @@ export const App = hot(function() {
                                     ]}
                                   />
                                   <ProtectedRoute
+                                    component={
+                                      AbsenceReasonCategoryEditSettingsLoader
+                                    }
+                                    path={
+                                      AbsenceReasonCategoryEditSettingsRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
                                     component={AbsenceReasonEditSettingsLoader}
                                     path={AbsenceReasonEditSettingsRoute.path}
                                     role={"admin"}
                                     permissions={[
                                       PermissionEnum.AbsVacSettingsSave,
+                                    ]}
+                                  />
+                                  <ProtectedRoute
+                                    component={
+                                      AbsenceReasonCategoryViewEditLoader
+                                    }
+                                    path={
+                                      AbsenceReasonCategoryViewEditRoute.path
+                                    }
+                                    role={"admin"}
+                                    permissions={[
+                                      PermissionEnum.AbsVacSettingsView,
                                     ]}
                                   />
                                   <ProtectedRoute

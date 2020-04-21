@@ -9,6 +9,7 @@ import {
   AbsenceReasonAddRoute,
   AbsenceReasonCategoryAddRoute,
   AbsenceReasonViewEditRoute,
+  AbsenceReasonCategoryViewEditRoute,
 } from "ui/routes/absence-reason";
 import { Link } from "react-router-dom";
 import { compact } from "lodash-es";
@@ -65,6 +66,15 @@ export const AbsenceReason: React.FC<{}> = () => {
           container
           key={`${i}-group`}
           className={classes.categoryTitle}
+          onClick={() => {
+            const newParams = {
+              ...params,
+              absenceReasonCategoryId: group.id,
+            };
+            history.push(
+              AbsenceReasonCategoryViewEditRoute.generate(newParams)
+            );
+          }}
         >
           <Grid item xs={4}>
             {t(group.name)}
@@ -292,6 +302,7 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.typography.pxToRem(18),
   },
   categoryTitle: {
+    cursor: "pointer",
     color: theme.customColors.darkBlue,
     borderTop: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray

@@ -1,10 +1,7 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useMutationBundle } from "graphql/hooks";
-import {
-  AbsenceReasonTrackingTypeId,
-  AssignmentType,
-} from "graphql/server-types.gen";
+import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 import * as React from "react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,17 +11,16 @@ import { Step, TabbedHeader } from "ui/components/tabbed-header";
 import {
   AbsenceReasonAddRoute,
   AbsenceReasonRoute,
-  AbsenceReasonViewEditRoute,
+  AbsenceReasonCategoryViewEditRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { AbsenceReasonSettings } from "./absence-reason-settings";
 import { AddBasicInfo } from "./add-basic-info";
-import { CreateAbsenceReason } from "./graphql/create-absence-reason.gen";
 import { GetAbsenceReasonsDocument } from "reference-data/get-absence-reasons.gen";
 import { GetAbsenceReasonCategoryDocument } from "./graphql/get-absence-reason-category.gen";
 import { CreateAbsenceReasonCategory } from "./graphql/create-absence-reason-category.gen";
+import { AbsenceReasonCategorySettings } from "./absence-reason-categories-settings";
 
 type Props = {};
 
@@ -89,15 +85,16 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
           },
         },
       });
-      const id = result.data?.orgRef_AbsenceReasonCategory?.create?.id;
+      history.push(AbsenceReasonRoute.generate(params));
+      /*const id = result.data?.orgRef_AbsenceReasonCategory?.create?.id;
       if (id) {
         history.push(
-          AbsenceReasonViewEditRoute.generate({
+          AbsenceReasonCategoryViewEditRoute.generate({
             ...params,
-            absenceReasonId: id,
+            absenceReasonCategoryId: id,
           })
         );
-      }
+      }*/
     },
     [createAbsenceReasonCategory, basicInfo, params, history]
   );
@@ -137,13 +134,10 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
       name: t("Settings"),
       content: () => {
         return (
-          <AbsenceReasonSettings
-            isCategory={true}
+          <AbsenceReasonCategorySettings
             allowNegativeBalance={false}
             absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
-            requireNotesToAdmin={false}
             description={""}
-            isRestricted={false}
             onSubmit={settingsOnSubmit}
             onCancel={() => {
               history.push(AbsenceReasonRoute.generate(params));

@@ -68,6 +68,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
       requireNotesToAdmin,
       absenceReasonCategoryId,
     } = updatedValues;
+
     const result = await mutation({
       variables: {
         absenceReason: {
@@ -78,7 +79,9 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
           isRestricted,
           absenceReasonTrackingId,
           requireNotesToAdmin,
-          absenceReasonCategoryId,
+          absenceReasonCategoryId: absenceReasonCategoryId
+            ? absenceReasonCategoryId
+            : null,
         },
       },
     });

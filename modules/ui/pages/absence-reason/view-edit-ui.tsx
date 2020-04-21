@@ -17,6 +17,8 @@ import {
   AbsenceReasonEditSettingsRoute,
   AbsenceReasonRoute,
   AbsenceReasonViewEditRoute,
+  AbsenceReasonCategoryEditSettingsRoute,
+  AbsenceReasonCategoryViewEditRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
 import * as yup from "yup";
@@ -26,8 +28,8 @@ type Props = {
   externalId?: string;
   name: string;
   rowVersion: string;
-  isRestricted: boolean;
-  requireNotesToAdmin: boolean;
+  isRestricted?: boolean;
+  requireNotesToAdmin?: boolean;
   description?: string;
   allowNegativeBalance: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
@@ -37,6 +39,7 @@ type Props = {
     externalId?: string | null;
   }) => Promise<any>;
   onDelete: () => void;
+  isCategory?: boolean;
 };
 
 export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
@@ -45,7 +48,11 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
 
   const history = useHistory();
-  const params = useRouteParams(AbsenceReasonViewEditRoute);
+  const params = useRouteParams(
+    props.isCategory
+      ? AbsenceReasonCategoryViewEditRoute
+      : AbsenceReasonViewEditRoute
+  );
   const [editing, setEditing] = useState<string | null>(null);
 
   const translateTracking = useCallback(
@@ -136,9 +143,9 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               text: t("Edit"),
               visible: !editing,
               execute: () => {
-                const editSettingsUrl = AbsenceReasonEditSettingsRoute.generate(
-                  params
-                );
+                const editSettingsUrl = props.isCategory
+                  ? AbsenceReasonCategoryEditSettingsRoute.generate(params)
+                  : AbsenceReasonEditSettingsRoute.generate(params);
                 history.push(editSettingsUrl);
               },
               permissions: [PermissionEnum.AbsVacSettingsSave],
@@ -163,26 +170,34 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               {displayBool(props.allowNegativeBalance)}
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6">{t("Restrict absence reason")}</Typography>
-            <Typography variant="body1">
-              {displayBool(props.isRestricted)}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6">
-              {t("Require notes to administrators")}
-            </Typography>
-            <Typography variant="body1">
-              {displayBool(props.requireNotesToAdmin)}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="h6">{t("Category")}</Typography>
-            <Typography variant="body1">
-              {!props.category ? t("None") : props.category?.name}
-            </Typography>
-          </Grid>
+          {props.isRestricted && (
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">
+                {t("Restrict absence reason")}
+              </Typography>
+              <Typography variant="body1">
+                {displayBool(props.isRestricted)}
+              </Typography>
+            </Grid>
+          )}
+          {props.requireNotesToAdmin && (
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">
+                {t("Require notes to administrators")}
+              </Typography>
+              <Typography variant="body1">
+                {displayBool(props.requireNotesToAdmin)}
+              </Typography>
+            </Grid>
+          )}
+          {!props.isCategory && (
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">{t("Category")}</Typography>
+              <Typography variant="body1">
+                {!props.category ? t("None") : props.category?.name}
+              </Typography>
+            </Grid>
+          )}
         </Grid>
       </Section>
     </>
