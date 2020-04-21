@@ -1,5 +1,6 @@
 import * as React from "react";
-import { makeStyles, Grid } from "@material-ui/core";
+import { useMemo } from "react";
+import { makeStyles, Divider } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -9,9 +10,14 @@ import {
   NotificationPreferenceInput,
   NotificationMethod,
 } from "graphql/server-types.gen";
-import { PreferenceRow } from "./preference-row";
 import { Formik } from "formik";
 import { useNotificationReasons } from "reference-data/notification-reasons";
+import {
+  groupNotificationPreferencesByRole,
+  GroupedNotificationPreferences,
+} from "./notification-preferences/preference-helper";
+import { NotificationGroup } from "./notification-preferences/notification-preference-group";
+import { getDisplayName } from "ui/components/enumHelpers";
 
 type Props = {
   preferences: {
@@ -36,9 +42,6 @@ export const NotificationPreferences: React.FC<Props> = props => {
   const userNotificationReasons = allNotificationReasons.filter(v => {
     if (v?.enumValue) return userNotificationReasonIds.includes(v.enumValue);
   });
-  if (!userNotificationReasons || userNotificationReasons.length < 1) {
-    return <></>;
-  }
 
   const showEmailColumn = userNotificationReasons.some(x =>
     x.methodsOfDelivery.find(y => y.method === NotificationMethod.Email)
@@ -53,6 +56,13 @@ export const NotificationPreferences: React.FC<Props> = props => {
   const showInAppColumn = userNotificationReasons.some(x =>
     x.methodsOfDelivery.find(y => y.method === NotificationMethod.InApp)
   );
+
+  if (!userNotificationReasons || userNotificationReasons.length < 1) {
+    return <></>;
+  }
+
+  const multipleRoles =
+    new Set(userNotificationReasons.map(x => x.appliesToRole)).size > 1;
 
   return (
     <>
@@ -73,50 +83,27 @@ export const NotificationPreferences: React.FC<Props> = props => {
           <form onSubmit={handleSubmit}>
             <Section>
               <SectionHeader title={t("Notification Preferences")} />
-              <Grid
-                container
-                spacing={1}
-                item
-                xs={12}
-                alignItems="center"
-                className={classes.headerRow}
-              >
-                <Grid item xs={6}>
-                  <div className={classes.headerText}>
-                    {t("Notification reason")}
-                  </div>
-                </Grid>
-                {showEmailColumn && (
-                  <Grid item xs={1}>
-                    <div className={classes.headerText}>{t("Email")}</div>
-                  </Grid>
-                )}
-                {showSmsColumn && (
-                  <Grid item xs={1}>
-                    <div className={classes.headerText}>{t("Sms")}</div>
-                  </Grid>
-                )}
-                {showInAppColumn && (
-                  <Grid item xs={3}>
-                    <div className={classes.headerText}>{`${t("In app")} (${t(
-                      "coming soon"
-                    )})`}</div>
-                  </Grid>
-                )}
-              </Grid>
-              {values.notificationPreferences.map((r, i) => {
+              {groupNotificationPreferencesByRole(
+                values.notificationPreferences,
+                userNotificationReasons
+              ).map((gnp: GroupedNotificationPreferences, i) => {
                 return (
-                  <PreferenceRow
-                    key={i}
-                    notificationPreference={r}
-                    onSubmit={submitForm}
-                    shadeRow={i % 2 == 1}
-                    setFieldValue={setFieldValue}
-                    index={i}
-                    showEmailColumn={showEmailColumn}
-                    showSmsColumn={showSmsColumn}
-                    showInAppColumn={showInAppColumn}
-                  />
+                  <>
+                    <NotificationGroup
+                      key={i}
+                      showEmailColumn={showEmailColumn}
+                      showSmsColumn={showSmsColumn}
+                      showInAppColumn={showInAppColumn}
+                      onSubmit={submitForm}
+                      role={
+                        multipleRoles
+                          ? getDisplayName("orgUserRole", gnp.role, t)
+                          : undefined
+                      }
+                      setFieldValue={setFieldValue}
+                      notificationPreferences={gnp.preferences}
+                    />
+                  </>
                 );
               })}
             </Section>
@@ -134,5 +121,9 @@ const useStyles = makeStyles(theme => ({
   },
   headerText: {
     fontWeight: 500,
+  },
+  divider: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
 }));
