@@ -105,12 +105,10 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <Checkbox
               color="primary"
               className={clsx({
-                [classes.hidden]: props.hideCheckbox,
+                [classes.hidden]: props.hideCheckbox || props.detail.isClosed,
                 [classes.checkbox]: true,
               })}
-              checked={!props.detail.isClosed && props.isChecked}
-              disabled={props.detail.isClosed}
-              indeterminate={props.detail.isClosed}
+              checked={props.isChecked}
               onChange={e => {
                 props.updateSelectedDetails(props.detail, e.target.checked);
               }}
