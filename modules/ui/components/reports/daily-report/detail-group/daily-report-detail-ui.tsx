@@ -117,19 +117,15 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.reasonSection}>
         <div>
           <div>
-            {props.detail.type === "absence" ? (
-              <span className={props.detail.isClosed ? classes.closedText : ""}>
-                {props.detail.absenceReason}
-              </span>
-            ) : (
-              <span className={props.detail.isClosed ? classes.closedText : ""}>
-                {props.detail.vacancyReason}
-              </span>
-            )}
+            <span className={props.detail.isClosed ? classes.closedText : ""}>
+              {props.detail.type === "absence"
+                ? props.detail.absenceReason
+                : props.detail.vacancyReason}
+            </span>
           </div>
           <div className={classes.detailSubText}>
             <span className={props.detail.isClosed ? classes.closedText : ""}>
-              {props.vacancyDate ? props.vacancyDate : props.detail.dateRange}
+              {props.vacancyDate ?? props.detail.dateRange}
             </span>
           </div>
         </div>

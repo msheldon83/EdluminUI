@@ -3,6 +3,7 @@ import { pickUrl, BaseLink } from "./base";
 import { CanDo } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
+import { named } from "helpers/named";
 
 type Props = {
   orgId: string;
@@ -34,5 +35,11 @@ const PeopleLink: (perms: CanDo) => React.FC<Props> = perms => ({
   );
 };
 
-export const EmployeeLink = PeopleLink([PermissionEnum.EmployeeView]);
-export const SubstituteLink = PeopleLink([PermissionEnum.SubstituteView]);
+export const EmployeeLink = named(
+  "EmployeeLink",
+  PeopleLink([PermissionEnum.EmployeeView])
+);
+export const SubstituteLink = named(
+  "SubstituteLink",
+  PeopleLink([PermissionEnum.SubstituteView])
+);
