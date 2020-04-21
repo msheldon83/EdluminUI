@@ -46,6 +46,7 @@ type Props = {
       }
     | null
     | undefined;
+  locationIds?: string[];
   accountingCodeId?: string | null | undefined;
   positionSchedule: Schedule[] | null | undefined;
   onSave: (position: PositionInput) => Promise<unknown>;
@@ -88,7 +89,7 @@ export const PositionEditUI: React.FC<Props> = props => {
     [contracts]
   );
 
-  const accountingCodes = useAccountingCodes(params.organizationId);
+  const accountingCodes = useAccountingCodes(params.organizationId, props.locationIds);
   const accountingCodeOptions: OptionType[] = useMemo(
     () => accountingCodes.map(p => ({ label: p.name, value: p.id })),
     [accountingCodes]
