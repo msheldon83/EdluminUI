@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { Location as Loc, PermissionEnum } from "graphql/server-types.gen";
 import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
-import { OrgUserPermissions } from "ui/components/auth/types";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
 import { LocationGroupSubPrefRoute } from "ui/routes/location-groups";
 
@@ -42,13 +42,15 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
         editPermissions={(
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
-          orgId?: string
+          orgId?: string,
+          forRole?: Role | null | undefined
         ) =>
           can(
             [PermissionEnum.LocationGroupSave],
             permissions,
             isSysAdmin,
-            orgId
+            orgId,
+            forRole
           )
         }
       />

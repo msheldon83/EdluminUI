@@ -127,9 +127,10 @@ export const NavLink: React.FC<Props> = props => {
           component="ul"
           className={subNavClasses}
         >
-          {subNavItems.map(subNavProps => {
-            return subNavProps?.permissions ? (
-              <Can do={subNavProps?.permissions} key={subNavProps.route}>
+          {subNavItems.map(s => {
+            const { permissions, ...subNavProps } = s;
+            return permissions ? (
+              <Can do={permissions} key={subNavProps.route}>
                 <SubNavLink
                   {...subNavProps}
                   setSubNavMatches={setSubNavMatchesCallback}
