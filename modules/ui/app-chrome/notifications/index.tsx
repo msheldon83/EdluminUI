@@ -58,8 +58,6 @@ export const NotificationsUI: React.FC<Props> = props => {
       ? compact(getNotifications.data.inAppNotification?.paged?.results)
       : [];
 
-  // Sort by Not Viewed first
-
   const id = open ? "notifications-popover" : undefined;
 
   return (
