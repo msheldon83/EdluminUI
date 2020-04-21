@@ -14,7 +14,6 @@ import {
   LocationGroupAddRoute,
   LocationGroupViewRoute,
 } from "ui/routes/location-groups";
-import { GetLocationGroupsDocument } from "reference-data/get-location-groups.gen";
 import { CreateLocationGroup } from "./graphql/create-location-group.gen";
 
 export const LocationGroupAddPage: React.FC<{}> = props => {
@@ -61,8 +60,6 @@ export const LocationGroupAddPage: React.FC<{}> = props => {
       },
     });
 
-    console.log(result);
-
     return result?.data?.locationGroup?.create;
   };
 
@@ -82,9 +79,9 @@ export const LocationGroupAddPage: React.FC<{}> = props => {
         onSubmit={async (locationGroup: LocationGroupCreateInput) => {
           const newLocationGroup = {
             ...locationGroup,
-            name: name,
-            externalId: externalId,
-            description: description,
+            name: locationGroup.name,
+            description: locationGroup.description,
+            externalId: locationGroup.externalId,
           };
           setLocationGroup(newLocationGroup);
           const result = await create(newLocationGroup);

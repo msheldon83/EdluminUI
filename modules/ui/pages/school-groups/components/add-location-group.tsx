@@ -46,7 +46,13 @@ export const AddLocationGroup: React.FC<Props> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          props.onSubmit(data.name, data.description, data.externalId);
+          const locationGroup: LocationGroupCreateInput = {
+            ...props.locationGroup,
+            name: data.name,
+            description: data.description,
+            externalId: data.externalId,
+          };
+          props.onSubmit(locationGroup);
         }}
       >
         {({ handleSubmit, handleChange, submitForm, values }) => (
@@ -77,22 +83,25 @@ export const AddLocationGroup: React.FC<Props> = props => {
                     name: "externalId",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
+                    helperText: t("Usually used for data integrations"),
                     fullWidth: true,
                   }}
                 />
               </Grid>
             </Grid>
-            <Grid item xs={6}>
-              <Input
-                label={t("Description")}
-                InputComponent={FormTextField}
-                inputComponentProps={{
-                  name: "description",
-                  margin: isMobile ? "normal" : "none",
-                  variant: "outlined",
-                  fullWidth: true,
-                }}
-              />
+            <Grid container spacing={isMobile ? 2 : 8}>
+              <Grid item xs={6}>
+                <Input
+                  label={t("Description")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "description",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
             </Grid>
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
