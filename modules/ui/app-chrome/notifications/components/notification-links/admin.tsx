@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
   orgId: string;
@@ -43,9 +44,9 @@ export const AdminNotificationLink: React.FC<Props> = props => {
       });
       break;
     case ObjectType.Vacancy:
-      route = AdminEditAbsenceRoute.generate({
+      route = VacancyViewRoute.generate({
         organizationId: props.orgId,
-        absenceId: props.notification.objectKey,
+        vacancyId: props.notification.objectKey,
       });
       break;
   }
