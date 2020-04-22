@@ -46,7 +46,6 @@ type Props = {
       }
     | null
     | undefined;
-  locationIds?: string[];
   accountingCodeId?: string | null | undefined;
   positionSchedule: Schedule[] | null | undefined;
   onSave: (position: PositionInput) => Promise<unknown>;
