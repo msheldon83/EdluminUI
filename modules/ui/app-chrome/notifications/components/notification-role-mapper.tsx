@@ -25,13 +25,13 @@ type Props = {
 };
 
 export const NotificationRoleMapper: React.FC<Props> = props => {
-  const n = props.notification;
-  switch (n.forOrgUserRole) {
+  const notification = props.notification;
+  switch (notification.forOrgUserRole) {
     case OrgUserRole.Administrator:
       return (
         <AdminNotificationLink
           multipleOrgs={props.multipleOrgs}
-          notification={props.notification}
+          notification={notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />
       );
@@ -39,7 +39,7 @@ export const NotificationRoleMapper: React.FC<Props> = props => {
       return (
         <EmployeeNotificationLink
           multipleOrgs={props.multipleOrgs}
-          notification={props.notification}
+          notification={notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />
       );
@@ -47,7 +47,7 @@ export const NotificationRoleMapper: React.FC<Props> = props => {
       return (
         <ReplacementEmployeeNotificationLink
           multipleOrgs={props.multipleOrgs}
-          notification={props.notification}
+          notification={notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />
       );
