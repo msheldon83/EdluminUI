@@ -284,6 +284,14 @@ export const PositionEditUI: React.FC<Props> = props => {
           const validAccountingCodes = getValidAccountingCodes(
             getScheduledLocationIds(values.schedules)
           );
+          if (
+            values.accountingCodeId !== "" &&
+            !validAccountingCodes.some(
+              code => code.value === values.accountingCodeId
+            )
+          ) {
+            setFieldValue("accountingCodeId", "");
+          }
           return (
             <form onSubmit={handleSubmit}>
               <Section>
