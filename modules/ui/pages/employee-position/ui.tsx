@@ -89,17 +89,27 @@ export const PositionEditUI: React.FC<Props> = props => {
     [contracts]
   );
 
-  const accountingCodes = useAccountingCodes(params.organizationId, props.locationIds);
-  const accountingCodeOptions: OptionType[] = useMemo(
-    () => accountingCodes.map(p => ({ label: p.name, value: p.id })),
-    [accountingCodes]
-  );
-
   const locations = useLocations(params.organizationId);
   const locationOptions: OptionType[] = useMemo(
     () => locations.map(p => ({ label: p.name, value: p.id })),
     [locations]
   );
+
+  const getScheduledLocationIds = (schedules: Schedule[]) => {
+    const scheduledLocationIds: Set<string> = new Set();
+    (schedules ?? []).forEach(ps =>
+      ps.periods.forEach(p => scheduledLocationIds.add(p.locationId))
+    );
+    return Array.from(scheduledLocationIds);
+  };
+
+  const accountingCodes = useAccountingCodes(params.organizationId);
+  const getValidAccountingCodes: (
+    locationIds: string[]
+  ) => OptionType[] = locationIds =>
+    accountingCodes
+      .filter(p => !p.locationId || locationIds.includes(p.locationId))
+      .map(p => ({ label: p.name, value: p.id }));
 
   const getBellSchedules = useQueryBundle(GetBellSchedules, {
     fetchPolicy: "cache-first",
@@ -271,305 +281,320 @@ export const PositionEditUI: React.FC<Props> = props => {
           setFieldValue,
           handleBlur,
           errors,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Section>
-              <SectionHeader title={t("Position")} />
-              <Grid container spacing={2}>
-                <Grid item container spacing={2}>
-                  <Grid item xs={4}>
-                    <Typography>{t("Position Type")}</Typography>
-                    <SelectNew
-                      key={`positiontype-input`}
-                      value={{
-                        value: values.positionTypeId,
-                        label:
-                          positionTypeOptions.find(
-                            e => e.value && e.value === values.positionTypeId
-                          )?.label || "",
-                      }}
-                      multiple={false}
-                      onChange={(value: OptionType) => {
-                        const id = (value as OptionTypeBase).value.toString();
-                        const pt = positionTypes.find(x => x.id === id);
-                        if (pt?.needsReplacement) {
-                          setFieldValue(
-                            "needsReplacement",
-                            pt.needsReplacement
-                          );
+        }) => {
+          const validAccountingCodes = getValidAccountingCodes(
+            getScheduledLocationIds(values.schedules)
+          );
+          return (
+            <form onSubmit={handleSubmit}>
+              <Section>
+                <SectionHeader title={t("Position")} />
+                <Grid container spacing={2}>
+                  <Grid item container spacing={2}>
+                    <Grid item xs={4}>
+                      <Typography>{t("Position Type")}</Typography>
+                      <SelectNew
+                        key={`positiontype-input`}
+                        value={{
+                          value: values.positionTypeId,
+                          label:
+                            positionTypeOptions.find(
+                              e => e.value && e.value === values.positionTypeId
+                            )?.label || "",
+                        }}
+                        multiple={false}
+                        onChange={(value: OptionType) => {
+                          const id = (value as OptionTypeBase).value.toString();
+                          const pt = positionTypes.find(x => x.id === id);
+                          if (pt?.needsReplacement) {
+                            setFieldValue(
+                              "needsReplacement",
+                              pt.needsReplacement
+                            );
+                          }
+                          if (pt?.defaultContractId) {
+                            setFieldValue("contractId", pt.defaultContractId);
+                          }
+                          if (props.setPositionTypeName) {
+                            props.setPositionTypeName(value.label);
+                          }
+                          setFieldValue("positionTypeId", id);
+                        }}
+                        options={positionTypeOptions}
+                        inputStatus={
+                          errors.positionTypeId ? "error" : undefined
                         }
-                        if (pt?.defaultContractId) {
-                          setFieldValue("contractId", pt.defaultContractId);
+                        validationMessage={errors.positionTypeId}
+                        withResetValue={false}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography>{t("Title")}</Typography>
+                      <Input
+                        value={values.title}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          placeholder: `E.g Language Arts`,
+                          name: "title",
+                          id: "title",
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item container spacing={2}>
+                    <Grid item xs={4}>
+                      <Typography>{t("Needs Replacement")}</Typography>
+                      <SelectNew
+                        value={needsReplacementOptions.find(
+                          e => e.value && e.value === values.needsReplacement
+                        )}
+                        multiple={false}
+                        onChange={(value: OptionType) => {
+                          const id = (value as OptionTypeBase).value;
+                          setFieldValue("needsReplacement", id);
+                        }}
+                        options={needsReplacementOptions}
+                        withResetValue={false}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography>{t("Accounting Code")}</Typography>
+                      <SelectNew
+                        key={`accountingcode-input`}
+                        value={{
+                          value: values.accountingCodeId,
+                          label:
+                            validAccountingCodes.find(
+                              e =>
+                                e.value && e.value === values.accountingCodeId
+                            )?.label || "",
+                        }}
+                        multiple={false}
+                        onChange={(value: OptionType) => {
+                          const id = (value as OptionTypeBase).value;
+                          setFieldValue("accountingCodeId", id);
+                        }}
+                        options={validAccountingCodes}
+                        withResetValue={true}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item container spacing={2}>
+                    <Grid item xs={4}>
+                      <Typography>{t("Contract")}</Typography>
+                      <SelectNew
+                        key={`contract-input`}
+                        value={{
+                          value: values.contractId,
+                          label:
+                            contractOptions.find(
+                              e => e.value && e.value === values.contractId
+                            )?.label || "",
+                        }}
+                        multiple={false}
+                        onChange={(value: OptionType) => {
+                          const id = (value as OptionTypeBase).value;
+                          setFieldValue("contractId", id);
+                        }}
+                        options={contractOptions}
+                        inputStatus={errors.contractId ? "error" : undefined}
+                        validationMessage={errors.contractId}
+                        withResetValue={false}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography>{t("Hours in full day")}</Typography>
+                      <Input
+                        value={values.hoursPerFullWorkDay}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          placeholder: `E.g 8`,
+                          name: "hoursPerFullWorkDay",
+                          id: "hoursPerFullWorkDay",
+                          fullWidth: false,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <Divider className={classes.divider} />
+                  </Grid>
+                  <Grid item xs={10}>
+                    {values.schedules.map((schedule: Schedule, i) => {
+                      const otherSchedules = values.schedules.filter(
+                        (s, index) => {
+                          if (index !== i) {
+                            return s;
+                          }
                         }
-                        if (props.setPositionTypeName) {
-                          props.setPositionTypeName(value.label);
-                        }
-                        setFieldValue("positionTypeId", id);
-                      }}
-                      options={positionTypeOptions}
-                      inputStatus={errors.positionTypeId ? "error" : undefined}
-                      validationMessage={errors.positionTypeId}
-                      withResetValue={false}
-                    />
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography>{t("Title")}</Typography>
-                    <Input
-                      value={values.title}
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        placeholder: `E.g Language Arts`,
-                        name: "title",
-                        id: "title",
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid item container spacing={2}>
-                  <Grid item xs={4}>
-                    <Typography>{t("Needs Replacement")}</Typography>
-                    <SelectNew
-                      value={needsReplacementOptions.find(
-                        e => e.value && e.value === values.needsReplacement
-                      )}
-                      multiple={false}
-                      onChange={(value: OptionType) => {
-                        const id = (value as OptionTypeBase).value;
-                        setFieldValue("needsReplacement", id);
-                      }}
-                      options={needsReplacementOptions}
-                      withResetValue={false}
-                    />
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography>{t("Accounting Code")}</Typography>
-                    <SelectNew
-                      key={`accountingcode-input`}
-                      value={{
-                        value: values.accountingCodeId,
-                        label:
-                          accountingCodeOptions.find(
-                            e => e.value && e.value === values.accountingCodeId
-                          )?.label || "",
-                      }}
-                      multiple={false}
-                      onChange={(value: OptionType) => {
-                        const id = (value as OptionTypeBase).value;
-                        setFieldValue("accountingCodeId", id);
-                      }}
-                      options={accountingCodeOptions}
-                      withResetValue={true}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid item container spacing={2}>
-                  <Grid item xs={4}>
-                    <Typography>{t("Contract")}</Typography>
-                    <SelectNew
-                      key={`contract-input`}
-                      value={{
-                        value: values.contractId,
-                        label:
-                          contractOptions.find(
-                            e => e.value && e.value === values.contractId
-                          )?.label || "",
-                      }}
-                      multiple={false}
-                      onChange={(value: OptionType) => {
-                        const id = (value as OptionTypeBase).value;
-                        setFieldValue("contractId", id);
-                      }}
-                      options={contractOptions}
-                      inputStatus={errors.contractId ? "error" : undefined}
-                      validationMessage={errors.contractId}
-                      withResetValue={false}
-                    />
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Typography>{t("Hours in full day")}</Typography>
-                    <Input
-                      value={values.hoursPerFullWorkDay}
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        placeholder: `E.g 8`,
-                        name: "hoursPerFullWorkDay",
-                        id: "hoursPerFullWorkDay",
-                        fullWidth: false,
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid item xs={10}>
-                  <Divider className={classes.divider} />
-                </Grid>
-                <Grid item xs={10}>
-                  {values.schedules.map((schedule: Schedule, i) => {
-                    const otherSchedules = values.schedules.filter(
-                      (s, index) => {
-                        if (index !== i) {
-                          return s;
-                        }
-                      }
-                    );
-                    const disabledDaysOfWeek =
-                      flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? []) ??
-                      [];
+                      );
+                      const disabledDaysOfWeek =
+                        flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? []) ??
+                        [];
 
-                    return (
-                      <div key={`schedule-${i}`}>
-                        {i != 0 && <Divider className={classes.divider} />}
-                        <ScheduleUI
-                          index={i}
-                          errors={errors}
-                          multipleSchedules={values.schedules.length > 1}
-                          lastSchedule={i === values.schedules.length - 1}
-                          onDelete={() => {
-                            values.schedules.splice(i, 1);
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          schedule={schedule}
-                          locationOptions={locationOptions}
-                          bellSchedules={bellSchedules}
-                          onCheckScheduleVaries={() => {
-                            values.schedules.push(
-                              buildNewSchedule(false, true)
-                            );
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onAddSchedule={() => {
-                            values.schedules.push(
-                              buildNewSchedule(false, true)
-                            );
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onRemoveSchool={index => {
-                            values.schedules[i].periods.splice(index, 1);
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onAddSchool={() => {
-                            values.schedules[i].periods[0].allDay = false;
-                            values.schedules[i].periods.push(
-                              buildNewPeriod(false)
-                            );
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          disabledDaysOfWeek={disabledDaysOfWeek}
-                          onCheckDayOfWeek={(dow: DayOfWeek) => {
-                            const dayIndex = schedule.daysOfTheWeek.indexOf(
-                              dow
-                            );
-                            if (dayIndex != -1) {
-                              schedule.daysOfTheWeek.splice(dayIndex, 1);
-                            } else {
-                              schedule.daysOfTheWeek.push(dow);
-                            }
-                            values.schedules[i] = schedule;
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onChangeLocation={(
-                            locationId: string,
-                            index: number
-                          ) => {
-                            const locationGroupId =
-                              locations.find(x => x.id === locationId)
-                                ?.locationGroupId ?? "";
-                            values.schedules[i].periods[
-                              index
-                            ].locationId = locationId;
-                            values.schedules[i].periods[
-                              index
-                            ].locationGroupId = locationGroupId;
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onChangeBellSchedule={(
-                            bellScheduleId: string,
-                            index: number
-                          ) => {
-                            values.schedules[i].periods[
-                              index
-                            ].bellScheduleId = bellScheduleId;
-                            if (
-                              values.schedules[i].periods[index].allDay &&
-                              bellScheduleId !== "custom"
-                            ) {
-                              const bellSchedule = bellSchedules.find(
-                                x => x?.id === bellScheduleId
+                      return (
+                        <div key={`schedule-${i}`}>
+                          {i != 0 && <Divider className={classes.divider} />}
+                          <ScheduleUI
+                            index={i}
+                            errors={errors}
+                            multipleSchedules={values.schedules.length > 1}
+                            lastSchedule={i === values.schedules.length - 1}
+                            onDelete={() => {
+                              values.schedules.splice(i, 1);
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            schedule={schedule}
+                            locationOptions={locationOptions}
+                            bellSchedules={bellSchedules}
+                            onCheckScheduleVaries={() => {
+                              values.schedules.push(
+                                buildNewSchedule(false, true)
                               );
-                              values.schedules[i].periods[index].startPeriodId =
-                                bellSchedule!.periods![0]!.id ?? undefined;
-                              values.schedules[i].periods[index].endPeriodId =
-                                bellSchedule!.periods![
-                                  bellSchedule!.periods!.length - 1
-                                ]!.id ?? undefined;
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onAddSchedule={() => {
+                              values.schedules.push(
+                                buildNewSchedule(false, true)
+                              );
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onRemoveSchool={index => {
+                              values.schedules[i].periods.splice(index, 1);
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onAddSchool={() => {
+                              values.schedules[i].periods[0].allDay = false;
+                              values.schedules[i].periods.push(
+                                buildNewPeriod(false)
+                              );
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            disabledDaysOfWeek={disabledDaysOfWeek}
+                            onCheckDayOfWeek={(dow: DayOfWeek) => {
+                              const dayIndex = schedule.daysOfTheWeek.indexOf(
+                                dow
+                              );
+                              if (dayIndex != -1) {
+                                schedule.daysOfTheWeek.splice(dayIndex, 1);
+                              } else {
+                                schedule.daysOfTheWeek.push(dow);
+                              }
+                              values.schedules[i] = schedule;
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onChangeLocation={(
+                              locationId: string,
+                              index: number
+                            ) => {
+                              const locationGroupId =
+                                locations.find(x => x.id === locationId)
+                                  ?.locationGroupId ?? "";
+                              values.schedules[i].periods[
+                                index
+                              ].locationId = locationId;
+                              values.schedules[i].periods[
+                                index
+                              ].locationGroupId = locationGroupId;
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onChangeBellSchedule={(
+                              bellScheduleId: string,
+                              index: number
+                            ) => {
+                              values.schedules[i].periods[
+                                index
+                              ].bellScheduleId = bellScheduleId;
+                              if (
+                                values.schedules[i].periods[index].allDay &&
+                                bellScheduleId !== "custom"
+                              ) {
+                                const bellSchedule = bellSchedules.find(
+                                  x => x?.id === bellScheduleId
+                                );
+                                values.schedules[i].periods[
+                                  index
+                                ].startPeriodId =
+                                  bellSchedule!.periods![0]!.id ?? undefined;
+                                values.schedules[i].periods[index].endPeriodId =
+                                  bellSchedule!.periods![
+                                    bellSchedule!.periods!.length - 1
+                                  ]!.id ?? undefined;
+                                values.schedules[i].periods[
+                                  index
+                                ].startTime = null;
+                                values.schedules[i].periods[
+                                  index
+                                ].endTime = null;
+                              }
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onCheckAllDay={(allDay: boolean) => {
+                              values.schedules[i].periods[0].allDay = allDay;
+                              if (
+                                allDay &&
+                                values.schedules[i].periods[0].bellScheduleId
+                              ) {
+                                const bellSchedule = bellSchedules.find(
+                                  x =>
+                                    x?.id ===
+                                    values.schedules[i].periods[0]
+                                      .bellScheduleId
+                                );
+                                values.schedules[i].periods[0].startPeriodId =
+                                  bellSchedule!.periods![0]!.id ?? undefined;
+                                values.schedules[i].periods[0].endPeriodId =
+                                  bellSchedule!.periods![
+                                    bellSchedule!.periods!.length - 1
+                                  ]!.id ?? undefined;
+                                values.schedules[i].periods[0].startTime = null;
+                                values.schedules[i].periods[0].endTime = null;
+                              } else if (!allDay) {
+                                values.schedules[
+                                  i
+                                ].periods[0].startPeriodId = undefined;
+                                values.schedules[
+                                  i
+                                ].periods[0].endPeriodId = undefined;
+                              }
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onChangeStartPeriod={(
+                              startPeriodId: string,
+                              index: number
+                            ) => {
+                              values.schedules[i].periods[
+                                index
+                              ].startPeriodId = startPeriodId;
                               values.schedules[i].periods[
                                 index
                               ].startTime = null;
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                            onChangeEndPeriod={(
+                              endPeriodId: string,
+                              index: number
+                            ) => {
+                              values.schedules[i].periods[
+                                index
+                              ].endPeriodId = endPeriodId;
                               values.schedules[i].periods[index].endTime = null;
-                            }
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onCheckAllDay={(allDay: boolean) => {
-                            values.schedules[i].periods[0].allDay = allDay;
-                            if (
-                              allDay &&
-                              values.schedules[i].periods[0].bellScheduleId
-                            ) {
-                              const bellSchedule = bellSchedules.find(
-                                x =>
-                                  x?.id ===
-                                  values.schedules[i].periods[0].bellScheduleId
-                              );
-                              values.schedules[i].periods[0].startPeriodId =
-                                bellSchedule!.periods![0]!.id ?? undefined;
-                              values.schedules[i].periods[0].endPeriodId =
-                                bellSchedule!.periods![
-                                  bellSchedule!.periods!.length - 1
-                                ]!.id ?? undefined;
-                              values.schedules[i].periods[0].startTime = null;
-                              values.schedules[i].periods[0].endTime = null;
-                            } else if (!allDay) {
-                              values.schedules[
-                                i
-                              ].periods[0].startPeriodId = undefined;
-                              values.schedules[
-                                i
-                              ].periods[0].endPeriodId = undefined;
-                            }
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onChangeStartPeriod={(
-                            startPeriodId: string,
-                            index: number
-                          ) => {
-                            values.schedules[i].periods[
-                              index
-                            ].startPeriodId = startPeriodId;
-                            values.schedules[i].periods[index].startTime = null;
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                          onChangeEndPeriod={(
-                            endPeriodId: string,
-                            index: number
-                          ) => {
-                            values.schedules[i].periods[
-                              index
-                            ].endPeriodId = endPeriodId;
-                            values.schedules[i].periods[index].endTime = null;
-                            setFieldValue("schedules", values.schedules);
-                          }}
-                        />
-                      </div>
-                    );
-                  })}
+                              setFieldValue("schedules", values.schedules);
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </Grid>
                 </Grid>
-              </Grid>
-              <ActionButtons
-                submit={{ text: props.submitLabel, execute: submitForm }}
-                cancel={{ text: t("Cancel"), execute: props.onCancel }}
-              />
-            </Section>
-          </form>
-        )}
+                <ActionButtons
+                  submit={{ text: props.submitLabel, execute: submitForm }}
+                  cancel={{ text: t("Cancel"), execute: props.onCancel }}
+                />
+              </Section>
+            </form>
+          );
+        }}
       </Formik>
     </>
   );
