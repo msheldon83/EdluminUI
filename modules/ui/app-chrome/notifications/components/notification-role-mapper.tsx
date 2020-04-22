@@ -1,12 +1,10 @@
 import * as React from "react";
-import { ObjectType } from "graphql/server-types.gen";
+import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import { AdminNotificationLink } from "./notification-links/admin";
 import { EmployeeNotificationLink } from "./notification-links/employee";
 import { ReplacementEmployeeNotificationLink } from "./notification-links/replacement-employee";
 
 type Props = {
-  contextRole: string | null;
-  orgId: string;
   notification: {
     id: string;
     title?: string | null;
@@ -15,32 +13,36 @@ type Props = {
     createdUtc: string;
     objectTypeId: ObjectType;
     objectKey: string;
+    isLinkable: boolean;
+    orgId: string;
+    forOrgUserRole: OrgUserRole;
+    organization: {
+      name: string;
+    };
   };
   markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
 };
 
 export const NotificationRoleMapper: React.FC<Props> = props => {
-  switch (props.contextRole) {
-    case "admin":
+  const n = props.notification;
+  switch (n.forOrgUserRole) {
+    case OrgUserRole.Administrator:
       return (
         <AdminNotificationLink
-          orgId={props.orgId}
           notification={props.notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />
       );
-    case "employee":
+    case OrgUserRole.Employee:
       return (
         <EmployeeNotificationLink
-          orgId={props.orgId}
           notification={props.notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />
       );
-    case "substitute":
+    case OrgUserRole.ReplacementEmployee:
       return (
         <ReplacementEmployeeNotificationLink
-          orgId={props.orgId}
           notification={props.notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />

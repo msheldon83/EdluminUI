@@ -1406,6 +1406,7 @@ enum DataImportType {
   SUBSTITUTE
   VACANCY
   ABSENCE_REASON_BALANCE
+  ABSENCE_REASON_CATEGORY
 }
 
 scalar Date
@@ -2125,8 +2126,11 @@ type InAppNotification implements ModelObjectInterface {
   content: String
   objectTypeId: ObjectType!
   objectKey: ID!
+  isLinkable: Boolean!
+  forOrgUserRole: OrgUserRole
   viewed: Boolean!
-  orgId: Int
+  orgId: Int!
+  organization: Organization!
 }
 
 type InAppNotificationMutations {
@@ -2545,6 +2549,7 @@ type Organization implements ModelObjectInterface & OrgObjectInterface & DomainO
 
 type organizationConfig {
   _info: [ReturnMessage]
+  id: ID!
   organizationTypeId: OrganizationType
   defaultUnitType: UnitType
   defaultDensityUnit: DensityUnit

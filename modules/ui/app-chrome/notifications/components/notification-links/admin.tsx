@@ -3,7 +3,7 @@ import { makeStyles, Divider } from "@material-ui/core";
 import * as React from "react";
 import { Can } from "ui/components/auth/can";
 import { DateFormatter } from "helpers/date";
-import { ObjectType } from "graphql/server-types.gen";
+import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import { ViewedIcon } from "ui/app-chrome/notifications/components/viewed-icon";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -12,7 +12,6 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
-  orgId: string;
   notification: Notification;
   markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
 };
@@ -25,6 +24,12 @@ type Notification = {
   createdUtc: string;
   objectTypeId: ObjectType;
   objectKey: string;
+  isLinkable: boolean;
+  orgId: string;
+  forOrgUserRole: OrgUserRole;
+  organization: {
+    name: string;
+  };
 };
 
 export const AdminNotificationLink: React.FC<Props> = props => {
@@ -36,17 +41,17 @@ export const AdminNotificationLink: React.FC<Props> = props => {
   const formattedDate = DateFormatter(notification.createdUtc, t);
   const htmlContent = HtmlContent(notification, formattedDate);
 
-  switch (props.notification.objectTypeId) {
+  switch (notification.objectTypeId) {
     case ObjectType.Absence:
       route = AdminEditAbsenceRoute.generate({
-        organizationId: props.orgId,
-        absenceId: props.notification.objectKey,
+        organizationId: notification.orgId,
+        absenceId: notification.objectKey,
       });
       break;
     case ObjectType.Vacancy:
       route = VacancyViewRoute.generate({
-        organizationId: props.orgId,
-        vacancyId: props.notification.objectKey,
+        organizationId: notification.orgId,
+        vacancyId: notification.objectKey,
       });
       break;
   }

@@ -3,7 +3,7 @@ import { makeStyles, Divider } from "@material-ui/core";
 import * as React from "react";
 import { Can } from "ui/components/auth/can";
 import { DateFormatter } from "helpers/date";
-import { ObjectType } from "graphql/server-types.gen";
+import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import { ViewedIcon } from "ui/app-chrome/notifications/components/viewed-icon";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -11,7 +11,6 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
-  orgId: string;
   notification: Notification;
   markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
 };
@@ -24,6 +23,12 @@ type Notification = {
   createdUtc: string;
   objectTypeId: ObjectType;
   objectKey: string;
+  isLinkable: boolean;
+  orgId: string;
+  forOrgUserRole: OrgUserRole;
+  organization: {
+    name: string;
+  };
 };
 
 export const EmployeeNotificationLink: React.FC<Props> = props => {
@@ -36,13 +41,6 @@ export const EmployeeNotificationLink: React.FC<Props> = props => {
 
   let route;
 
-  const hideLink =
-    (notification.content?.includes("Deleted") ||
-      notification.content?.includes("Cancelled") ||
-      notification.content?.includes("deleted") ||
-      notification.content?.includes("cancelled")) ??
-    false;
-
   switch (props.notification.objectTypeId) {
     case ObjectType.Absence:
       route = EmployeeEditAbsenceRoute.generate({
@@ -52,7 +50,7 @@ export const EmployeeNotificationLink: React.FC<Props> = props => {
   }
   return (
     <>
-      {!hideLink && route ? (
+      {notification.isLinkable && route ? (
         <Can do={[PermissionEnum.AbsVacView]}>
           <Link
             to={route}
