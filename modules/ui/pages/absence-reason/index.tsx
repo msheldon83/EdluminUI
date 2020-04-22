@@ -31,6 +31,8 @@ import { GetAllAbsenceReasonCategoriesWithinOrg } from "./graphql/get-absence-re
 import { mergeCatgoriesAndReasons } from "./helpers";
 import { GroupedCategory } from "./types";
 import { string } from "yup";
+import { Check, Minimize } from "@material-ui/icons";
+import { getDisplayName } from "ui/components/enumHelpers";
 
 export const AbsenceReason: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -60,20 +62,22 @@ export const AbsenceReason: React.FC<{}> = () => {
 
   const displayAbsenceReasonGroup = (group: GroupedCategory, i: number) => {
     const result = (
-      <>
+      <React.Fragment key={i}>
         <Grid
           item
           container
           key={`${i}-group`}
           className={classes.categoryTitle}
           onClick={() => {
-            const newParams = {
-              ...params,
-              absenceReasonCategoryId: group.id,
-            };
-            history.push(
-              AbsenceReasonCategoryViewEditRoute.generate(newParams)
-            );
+            if (group.id !== "0") {
+              const newParams = {
+                ...params,
+                absenceReasonCategoryId: group.id,
+              };
+              history.push(
+                AbsenceReasonCategoryViewEditRoute.generate(newParams)
+              );
+            }
           }}
         >
           <Grid item xs={4}>
@@ -82,8 +86,8 @@ export const AbsenceReason: React.FC<{}> = () => {
           <Grid item xs={3}>
             {group.externalId}
           </Grid>
-          <Grid item xs={3}>
-            {group.allowNegativeBalance}
+          <Grid item xs={3} className={classes.allowNegativeBalanceCol}>
+            {group.allowNegativeBalance ? <Check /> : <Minimize />}
           </Grid>
           <Grid item xs={2}>
             {group.trackingType}
@@ -110,16 +114,22 @@ export const AbsenceReason: React.FC<{}> = () => {
               <Grid item xs={3}>
                 {c.externalId}
               </Grid>
-              <Grid item xs={3}>
-                {c.allowNegativeBalance}
+              <Grid item xs={3} className={classes.allowNegativeBalanceCol}>
+                {c.allowNegativeBalance ? <Check /> : <Minimize />}
               </Grid>
               <Grid item xs={2}>
-                {c.absenceReasonTrackingTypeId}
+                {c.absenceReasonTrackingTypeId
+                  ? getDisplayName(
+                      "absenceReasonTrackingTypeId",
+                      c.absenceReasonTrackingTypeId,
+                      t
+                    )
+                  : ""}
               </Grid>
             </Grid>
           );
         })}
-      </>
+      </React.Fragment>
     );
     return result;
   };
@@ -293,5 +303,8 @@ const useStyles = makeStyles(theme => ({
   },
   nameColumn: {
     paddingLeft: theme.typography.pxToRem(20),
+  },
+  allowNegativeBalanceCol: {
+    paddingLeft: theme.typography.pxToRem(50),
   },
 }));
