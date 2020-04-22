@@ -24,6 +24,7 @@ export const BasicNotificationStory = () => {
               key={i}
               notification={n}
               markSingleNotificationAsViewed={markSingleNotificationAsViewed}
+              multipleOrgs={true}
             />
             <Divider />
           </>

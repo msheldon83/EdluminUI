@@ -20,6 +20,7 @@ type Props = {
       name: string;
     };
   };
+  multipleOrgs: boolean;
   markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
 };
 
@@ -29,6 +30,7 @@ export const NotificationRoleMapper: React.FC<Props> = props => {
     case OrgUserRole.Administrator:
       return (
         <AdminNotificationLink
+          multipleOrgs={props.multipleOrgs}
           notification={props.notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />
@@ -36,6 +38,7 @@ export const NotificationRoleMapper: React.FC<Props> = props => {
     case OrgUserRole.Employee:
       return (
         <EmployeeNotificationLink
+          multipleOrgs={props.multipleOrgs}
           notification={props.notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />
@@ -43,6 +46,7 @@ export const NotificationRoleMapper: React.FC<Props> = props => {
     case OrgUserRole.ReplacementEmployee:
       return (
         <ReplacementEmployeeNotificationLink
+          multipleOrgs={props.multipleOrgs}
           notification={props.notification}
           markSingleNotificationAsViewed={props.markSingleNotificationAsViewed}
         />

@@ -14,6 +14,7 @@ import { VacancyViewRoute } from "ui/routes/vacancy";
 type Props = {
   notification: Notification;
   markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
+  multipleOrgs: boolean;
 };
 
 type Notification = {
@@ -39,7 +40,11 @@ export const AdminNotificationLink: React.FC<Props> = props => {
 
   let route;
   const formattedDate = DateFormatter(notification.createdUtc, t);
-  const htmlContent = HtmlContent(notification, formattedDate);
+  const htmlContent = HtmlContent(
+    notification,
+    formattedDate,
+    props.multipleOrgs
+  );
 
   switch (notification.objectTypeId) {
     case ObjectType.Absence:
@@ -112,7 +117,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const HtmlContent = (notification: Notification, formattedDate: string) => {
+const HtmlContent = (
+  notification: Notification,
+  formattedDate: string,
+  multipleOrgs: boolean
+) => {
   const classes = useStyles();
   return (
     <>
@@ -122,6 +131,11 @@ const HtmlContent = (notification: Notification, formattedDate: string) => {
           <div className={classes.titleText}>{notification.title}</div>
           <div>{notification.content}</div>
           <div className={classes.dateText}>{formattedDate}</div>
+          {multipleOrgs && (
+            <div className={classes.dateText}>
+              {notification.organization.name}
+            </div>
+          )}
         </div>
       </div>
     </>

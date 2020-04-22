@@ -50,7 +50,7 @@ export const NotificationsUI: React.FC<Props> = props => {
   };
 
   const markAllAsViewed = async () => {
-    const notificationIds = notifications.map(e => e.id);
+    const notificationIds = filteredNotifications.map(e => e.id);
     const response = await markAllNotificationsAsViewed({
       variables: {
         notificationIds: notificationIds,
@@ -75,9 +75,8 @@ export const NotificationsUI: React.FC<Props> = props => {
 
   const id = open ? "notifications-popover" : undefined;
 
-  console.log(notifications);
-
   const orgIds = uniqBy(notifications, "orgId");
+  const multipleOrgs = orgIds.length > 1 ?? true;
 
   const filteredNotifications = showAll
     ? notifications.filter((e: any) => e.forOrgUserRole === orgUserRole)
@@ -129,6 +128,7 @@ export const NotificationsUI: React.FC<Props> = props => {
                 <NotificationRoleMapper
                   key={i}
                   notification={n}
+                  multipleOrgs={multipleOrgs}
                   markSingleNotificationAsViewed={markSingleAsViewed}
                 />
               </React.Fragment>

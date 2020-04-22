@@ -13,6 +13,7 @@ import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
 type Props = {
   notification: Notification;
   markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
+  multipleOrgs: boolean;
 };
 
 type Notification = {
@@ -37,7 +38,11 @@ export const EmployeeNotificationLink: React.FC<Props> = props => {
   const notification = props.notification;
 
   const formattedDate = DateFormatter(notification.createdUtc, t);
-  const htmlContent = HtmlContent(notification, formattedDate);
+  const htmlContent = HtmlContent(
+    notification,
+    formattedDate,
+    props.multipleOrgs
+  );
 
   let route;
 
@@ -51,17 +56,15 @@ export const EmployeeNotificationLink: React.FC<Props> = props => {
   return (
     <>
       {notification.isLinkable && route ? (
-        <Can do={[PermissionEnum.AbsVacView]}>
-          <Link
-            to={route}
-            className={classes.hyperlink}
-            onClick={() => {
-              props.markSingleNotificationAsViewed(notification.id);
-            }}
-          >
-            {htmlContent}
-          </Link>
-        </Can>
+        <Link
+          to={route}
+          className={classes.hyperlink}
+          onClick={() => {
+            props.markSingleNotificationAsViewed(notification.id);
+          }}
+        >
+          {htmlContent}
+        </Link>
       ) : (
         <>
           <div>{htmlContent}</div>
@@ -105,7 +108,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const HtmlContent = (notification: Notification, formattedDate: string) => {
+const HtmlContent = (
+  notification: Notification,
+  formattedDate: string,
+  multipleOrgs: boolean
+) => {
   const classes = useStyles();
   return (
     <>
@@ -115,6 +122,11 @@ const HtmlContent = (notification: Notification, formattedDate: string) => {
           <div className={classes.titleText}>{notification.title}</div>
           <div>{notification.content}</div>
           <div className={classes.dateText}>{formattedDate}</div>
+          {multipleOrgs && (
+            <div className={classes.dateText}>
+              {notification.organization.name}
+            </div>
+          )}
         </div>
       </div>
     </>

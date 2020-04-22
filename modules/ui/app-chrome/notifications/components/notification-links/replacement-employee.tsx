@@ -11,6 +11,7 @@ import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 type Props = {
   notification: Notification;
   markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
+  multipleOrgs: boolean;
 };
 
 type Notification = {
@@ -35,7 +36,11 @@ export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
   const notification = props.notification;
 
   const formattedDate = DateFormatter(notification.createdUtc, t);
-  const htmlContent = HtmlContent(notification, formattedDate);
+  const htmlContent = HtmlContent(
+    notification,
+    formattedDate,
+    props.multipleOrgs
+  );
 
   let route;
 
@@ -111,16 +116,25 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const HtmlContent = (notification: Notification, formattedDate: string) => {
+const HtmlContent = (
+  notification: Notification,
+  formattedDate: string,
+  multipleOrgs: boolean
+) => {
   const classes = useStyles();
   return (
     <>
       <div className={classes.container}>
         <ViewedIcon viewed={notification.viewed} />
         <div className={classes.textContainer}>
-          {/* <div className={classes.titleText}>{notification.title}</div> */}
+          <div className={classes.titleText}>{notification.title}</div>
           <div>{notification.content}</div>
           <div className={classes.dateText}>{formattedDate}</div>
+          {multipleOrgs && (
+            <div className={classes.dateText}>
+              {notification.organization.name}
+            </div>
+          )}
         </div>
       </div>
     </>
