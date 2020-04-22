@@ -5,6 +5,7 @@ import { Formik } from "formik";
 import Maybe from "graphql/tsutils/Maybe";
 import { useIsMobile } from "hooks";
 import * as React from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
 import { Spacing } from "ui/components/spacing";
@@ -12,7 +13,6 @@ import { Padding } from "ui/components/padding";
 import { CrossFade } from "ui/components/cross-fade";
 import { ActionMenu, Option } from "./action-menu";
 import { TextButton } from "./text-button";
-import { PermissionEnum } from "graphql/server-types.gen";
 import { useMemo } from "react";
 import { Can } from "./auth/can";
 import { CanDo } from "./auth/types";
@@ -40,6 +40,12 @@ export const PageHeader: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [editing, setEditing] = React.useState(false);
+
+  useEffect(() => {
+    if (props.editable) {
+      setEditing(false);
+    }
+  }, [props.editable]);
 
   const activateButton = useMemo(() => {
     return (

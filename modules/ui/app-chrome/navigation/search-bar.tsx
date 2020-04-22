@@ -45,11 +45,12 @@ export const SearchBar: React.FC<Props> = props => {
   const { t } = useTranslation();
   const userAccess = useMyUserAccess();
   const params = useRouteParams(AppChromeRoute);
-  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
   const history = useHistory();
 
   const orgId = getOrgIdFromRoute();
-  const orgIds = orgId ? [orgId] : undefined;
+  const onOrgSwitcher =
+    window.location.pathname.split("/")[3] === "organizations";
+  const orgIds = onOrgSwitcher ? undefined : orgId ? [orgId] : undefined;
 
   const [loading, updateLoading] = React.useState(false);
   const [openDrawer, updateOpenDrawer] = React.useState(false);
@@ -91,48 +92,52 @@ export const SearchBar: React.FC<Props> = props => {
       ? searchResults?.data?.organization?.search
       : [];
 
-  const handleAbsVacOnClick = (id: string, isNormalVacancy: boolean) => {
+  const handleAbsVacOnClick = (
+    id: string,
+    isNormalVacancy: boolean,
+    orgId: string
+  ) => {
     onClose();
     if (params.role === "admin") {
       if (isNormalVacancy) {
-        goToAdminVacancyEdit(id);
+        goToAdminVacancyEdit(id, orgId);
       } else {
-        goToAdminAbsenceEdit(id);
+        goToAdminAbsenceEdit(id, orgId);
       }
     } else {
       goToEmployeeAbsenceEdit(id);
     }
   };
 
-  const handleLocationOnClick = (id: string) => {
+  const handleLocationOnClick = (id: string, orgId: string) => {
     onClose();
     const url = LocationViewRoute.generate({
-      organizationId: window.location.pathname.split("/")[2],
+      organizationId: orgId,
       locationId: id,
     });
     history.push(url);
   };
 
-  const handleOrgUserOnClick = (id: string) => {
+  const handleOrgUserOnClick = (id: string, orgId: string) => {
     onClose();
     const url = PersonViewRoute.generate({
-      organizationId: window.location.pathname.split("/")[2],
+      organizationId: orgId,
       orgUserId: id,
     });
     history.push(url);
   };
 
-  const goToAdminAbsenceEdit = (absenceId: string) => {
+  const goToAdminAbsenceEdit = (absenceId: string, orgId: string) => {
     const url = AdminEditAbsenceRoute.generate({
-      organizationId: window.location.pathname.split("/")[2],
+      organizationId: orgId,
       absenceId,
     });
     history.push(url);
   };
 
-  const goToAdminVacancyEdit = (vacancyId: string) => {
+  const goToAdminVacancyEdit = (vacancyId: string, orgId: string) => {
     const url = VacancyViewRoute.generate({
-      organizationId: window.location.pathname.split("/")[2],
+      organizationId: orgId,
       vacancyId,
     });
     history.push(url);
@@ -206,7 +211,8 @@ export const SearchBar: React.FC<Props> = props => {
           onClick={() =>
             handleAbsVacOnClick(
               result.ownerId,
-              attributes.isNormalVacancy === 1
+              attributes.isNormalVacancy === 1,
+              result.orgId
             )
           }
         >
@@ -248,7 +254,9 @@ export const SearchBar: React.FC<Props> = props => {
 
     return (
       <Grid className={classes.resultItem} item xs={12} key={i}>
-        <div onClick={() => handleLocationOnClick(result.ownerId)}>
+        <div
+          onClick={() => handleLocationOnClick(result.ownerId, result.orgId)}
+        >
           <div className={classes.header}>
             {nameArray.map(a => {
               return a;
@@ -303,7 +311,7 @@ export const SearchBar: React.FC<Props> = props => {
 
     return (
       <Grid className={classes.resultItem} item xs={12} key={i}>
-        <div onClick={() => handleOrgUserOnClick(result.ownerId)}>
+        <div onClick={() => handleOrgUserOnClick(result.ownerId, result.orgId)}>
           <div className={classes.header}>
             {nameArray.map(a => {
               return a;

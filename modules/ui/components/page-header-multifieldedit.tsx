@@ -3,6 +3,7 @@ import { Check, Clear, Edit } from "@material-ui/icons";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
 import { CrossFade } from "ui/components/cross-fade";
@@ -43,6 +44,12 @@ export const PageHeaderMultiField: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [editing, setEditing] = React.useState(false);
+
+  useEffect(() => {
+    if (props.editable) {
+      setEditing(false);
+    }
+  }, [props.editable]);
 
   const activateButton = useMemo(() => {
     return (
