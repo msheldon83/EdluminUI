@@ -114,12 +114,6 @@ export const EmployeePosition: React.FC<Props> = props => {
       })),
       daysOfTheWeek: ps.daysOfTheWeek,
     }));
-  const locationIds: Set<string> = new Set();
-  positionSchedule.forEach(ps =>
-    ps.periods.forEach(p =>
-      locationIds.add(p.locationId)
-    )
-  )
 
   return (
     <>
@@ -131,7 +125,6 @@ export const EmployeePosition: React.FC<Props> = props => {
       </div>
       <PositionEditUI
         position={position}
-        locationIds={Array.from(locationIds)}
         accountingCodeId={
           position?.accountingCodeAllocations
             ? position.accountingCodeAllocations[0]?.accountingCodeId
