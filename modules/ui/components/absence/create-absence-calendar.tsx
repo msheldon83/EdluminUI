@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
-import { isSameDay } from "date-fns";
+import { isSameDay, isToday } from "date-fns";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import * as React from "react";
 import { useMemo } from "react";
@@ -39,7 +39,7 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
     [disabledDateObjs, dateDisabledClass]
   );
 
-  const existingDateClass = `${classes.existingDate} existingDate`
+  const existingDateClass = `${classes.existingDate} existingDate`;
   const customExistingAbsenceDates = useMemo(
     () =>
       disabledDateObjs
@@ -50,7 +50,7 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
         .map(date => {
           return {
             date,
-            buttonProps: { className: existingDateClass},
+            buttonProps: { className: existingDateClass },
           };
         }),
     [disabledDateObjs, existingDateClass, selectedAbsenceDates]
@@ -67,18 +67,33 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
       }),
     [selectedAbsenceDates, selectedDateClass]
   );
-  const customDates = useMemo(
-    () =>
-      customSelectedAbsenceDates
-        .concat(customDatesDisabled)
-        .concat(customExistingAbsenceDates),
 
-    [
-      customDatesDisabled,
-      customExistingAbsenceDates,
-      customSelectedAbsenceDates,
-    ]
-  );
+  const customDates = useMemo(() => {
+    const ranges = customSelectedAbsenceDates
+      .concat(customDatesDisabled)
+      .concat(customExistingAbsenceDates);
+    const todayIndex = ranges.findIndex(o => isToday(o.date));
+    if (todayIndex === -1) {
+      ranges.push({
+        date: new Date(),
+        buttonProps: { className: classes.today },
+      });
+    } else {
+      const today = ranges[todayIndex];
+      ranges[todayIndex] = {
+        date: today.date,
+        buttonProps: {
+          className: `${classes.today} ${today.buttonProps.className}`,
+        },
+      };
+    }
+    return ranges;
+  }, [
+    classes.today,
+    customDatesDisabled,
+    customExistingAbsenceDates,
+    customSelectedAbsenceDates,
+  ]);
 
   const handleSelectDates = (dates: Date[]) => {
     // This component does not allow date selection if there is no month selection
@@ -135,5 +150,10 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.main,
       color: theme.customColors.white,
     },
+  },
+
+  today: {
+    border: "solid black 1px",
+    fontWeight: "bold",
   },
 }));

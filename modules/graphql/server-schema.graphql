@@ -2462,6 +2462,7 @@ input LocationGroupCreateInput {
   orgId: ID!
   name: String!
   description: String
+  externalId: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
 }
@@ -2489,6 +2490,7 @@ input LocationGroupUpdateInput {
   rowVersion: String!
   name: String
   description: String
+  externalId: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
   substitutePreferences: SubstitutePreferencesInput
@@ -2657,6 +2659,7 @@ enum NotificationReason {
   SUB_ASSIGNED_BY_SELF
   SUB_REMOVED_BY_OTHER
   SUB_REMOVED_BY_SELF
+  SUB_ASSIGNMENT_UPDATED_BY_OTHER
   EMP_SUB_ASSIGNED_BY_ANY
   EMP_SUB_REMOVED_BY_ANY
   ADMIN_SUB_ASSIGNED_BY_ANY
@@ -6304,39 +6307,10 @@ type VacancyQueries {
   ): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
-  subJobSearch(
-    id: ID!
-    availableJobsOnly: Boolean
-    showNonPreferredJobs: Boolean
-    orgIds: [ID]
-    locationIds: [ID]
-    positionTypeIds: [ID]
-    limit: Int
-    offset: Int
-  ): PagedSubJobSearch
-  vacancyNotificationLogByVacancy(vacancyId: ID!): [VacancyNotificationLog]
-  vacancyNotificationLogByUser(
-    userId: ID!
-    fromDate: Date
-    toDate: Date
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-  ): PagedVacancyNotificationLog
-  replacementEmployeesForVacancy(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    vacancyId: ID
-    vacancyDetailIds: [ID]
-    vacancy: VacancyCreateInput
-    name: String
-    qualified: [VacancyQualification]
-    available: [VacancyAvailability]
-    favoritesOnly: Boolean
-    replacementEmployeeId: ID
-  ): PagedVacancySubSearchQueryResult
+  subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
+  vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]
+  vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   activityLog(id: ID!): ActivityLog
 }
 

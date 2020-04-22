@@ -17,7 +17,7 @@ type Props = {
   forSpecificAssignment?: boolean;
 };
 
-/* The purpose of this component is to handle the data coming out of 
+/* The purpose of this component is to handle the data coming out of
     of graphql in one place, rather than clutter any component that 
     uses it. */
 export const AssignmentRow: React.FC<Props> = props => {
