@@ -88,22 +88,20 @@ export const NotificationPreferences: React.FC<Props> = props => {
                 userNotificationReasons
               ).map((gnp: GroupedNotificationPreferences, i) => {
                 return (
-                  <>
-                    <NotificationGroup
-                      key={i}
-                      showEmailColumn={showEmailColumn}
-                      showSmsColumn={showSmsColumn}
-                      showInAppColumn={showInAppColumn}
-                      onSubmit={submitForm}
-                      role={
-                        multipleRoles
-                          ? getDisplayName("orgUserRole", gnp.role, t)
-                          : undefined
-                      }
-                      setFieldValue={setFieldValue}
-                      notificationPreferences={gnp.preferences}
-                    />
-                  </>
+                  <NotificationGroup
+                    key={i}
+                    showEmailColumn={showEmailColumn}
+                    showSmsColumn={showSmsColumn}
+                    showInAppColumn={showInAppColumn}
+                    onSubmit={submitForm}
+                    role={
+                      multipleRoles
+                        ? getDisplayName("orgUserRole", gnp.role, t)
+                        : undefined
+                    }
+                    setFieldValue={setFieldValue}
+                    notificationPreferences={gnp.preferences}
+                  />
                 );
               })}
             </Section>
