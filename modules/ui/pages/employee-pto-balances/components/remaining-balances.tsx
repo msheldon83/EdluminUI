@@ -97,7 +97,11 @@ export const RemainingBalances: React.FC<Props> = props => {
                 <Grid item xs={12} key={index}>
                   <SingleBalance
                     key={index}
-                    name={balance?.absenceReason?.name ?? ""}
+                    name={
+                      balance?.absenceReason?.name ??
+                      `Category: ${balance?.absenceReasonCategory?.name}` ??
+                      ""
+                    }
                     initialBalance={balance?.initialBalance ?? 0}
                     usedBalance={
                       balance?.usedBalance - balance?.plannedBalance ?? 0

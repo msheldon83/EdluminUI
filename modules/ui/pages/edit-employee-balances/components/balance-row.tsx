@@ -15,7 +15,7 @@ import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { DatePicker } from "ui/components/form/date-picker";
 import { parseISO, isBefore, isAfter } from "date-fns";
-import { round } from "lodash-es";
+import { round, values } from "lodash-es";
 import * as yup from "yup";
 import { ConfirmNegativeBalance } from "./confirm-negative-balance";
 
@@ -26,6 +26,12 @@ type Props = {
     schoolYearId: string;
     rowVersion?: string | null;
     absenceReason?: {
+      id: string;
+      name: string;
+      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+      allowNegativeBalance: boolean;
+    } | null;
+    absenceReasonCategory?: {
       id: string;
       name: string;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
@@ -53,6 +59,12 @@ type Props = {
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
     allowNegativeBalance?: boolean | null;
   }[];
+  absenceReasonCategories: {
+    id: string;
+    name: string;
+    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+    allowNegativeBalance?: boolean | null;
+  }[];
   creatingNew: boolean;
   setCreatingNew: React.Dispatch<React.SetStateAction<boolean>>;
   startOfSchoolYear: string;
@@ -67,8 +79,12 @@ export const BalanceRow: React.FC<Props> = props => {
   const [changes, setChanges] = useState(false);
 
   const absenceReasonBalance = props.absenceReasonBalance;
+
   const [absenceReasonId, setAbsenceReasonId] = useState(
     absenceReasonBalance?.absenceReason?.id
+  );
+  const [absenceReasonCategoryId, setAbsenceReasonCategoryId] = useState(
+    absenceReasonBalance?.absenceReasonCategory?.id
   );
 
   const handleClickRemove = async () => {
@@ -81,13 +97,25 @@ export const BalanceRow: React.FC<Props> = props => {
 
   const creatingNew = props.creatingNew;
   const absenceReasons = props.absenceReasons;
+  const absenceReasonCategories = props.absenceReasonCategories;
 
   const selectedReason = useMemo(
     () =>
       creatingNew
-        ? absenceReasons.find(x => x.id === absenceReasonId)
-        : absenceReasonBalance?.absenceReason,
-    [absenceReasonBalance, absenceReasonId, absenceReasons, creatingNew]
+        ? absenceReasonId
+          ? absenceReasons.find(x => x.id === absenceReasonId)
+          : absenceReasonCategories.find(x => x.id === absenceReasonCategoryId)
+        : absenceReasonId
+        ? absenceReasonBalance?.absenceReason
+        : absenceReasonBalance?.absenceReasonCategory,
+    [
+      absenceReasonBalance,
+      absenceReasonId,
+      absenceReasonCategoryId,
+      absenceReasons,
+      absenceReasonCategories,
+      creatingNew,
+    ]
   );
 
   const balanceTypeLabel = useMemo(
@@ -105,6 +133,7 @@ export const BalanceRow: React.FC<Props> = props => {
     <Formik
       initialValues={{
         absenceReasonId: absenceReasonId,
+        absenceReasonCategoryId: absenceReasonCategoryId,
         balance: absenceReasonBalance?.initialBalance ?? 0,
         asOf: absenceReasonBalance?.balanceAsOf
           ? parseISO(absenceReasonBalance?.balanceAsOf)
@@ -126,7 +155,8 @@ export const BalanceRow: React.FC<Props> = props => {
               orgId: props.orgId,
               employeeId: absenceReasonBalance?.employeeId,
               schoolYearId: absenceReasonBalance?.schoolYearId,
-              absenceReasonId: data.absenceReasonId,
+              absenceReasonId: data.absenceReasonId ?? null,
+              absenceReasonCategoryId: data.absenceReasonCategoryId ?? null,
               initialBalance: data.balance,
               balanceAsOf: data.asOf,
               ignoreWarnings: data.ignoreWarnings,
@@ -146,7 +176,8 @@ export const BalanceRow: React.FC<Props> = props => {
               id: absenceReasonBalance?.id ?? "",
               rowVersion: absenceReasonBalance?.rowVersion ?? "",
               schoolYearId: absenceReasonBalance?.schoolYearId,
-              absenceReasonId: data.absenceReasonId,
+              absenceReasonId: data.absenceReasonId ?? null,
+              absenceReasonCategoryId: data.absenceReasonCategoryId ?? null,
               initialBalance: data.balance,
               balanceAsOf: data.asOf,
               ignoreWarnings: data.ignoreWarnings,
@@ -159,7 +190,16 @@ export const BalanceRow: React.FC<Props> = props => {
         absenceReasonId: yup
           .string()
           .nullable()
-          .required(t("A reason must be selected")),
+          .test("reasonSelected", t("A reason must be selected"), function(
+            value
+          ) {
+            if (!value && !absenceReasonCategoryId) {
+              return this.createError({
+                message: t("A reason must be selected"),
+              });
+            }
+            return true;
+          }),
         balance: yup
           .number()
           .nullable()
@@ -203,22 +243,38 @@ export const BalanceRow: React.FC<Props> = props => {
                 <SelectNew
                   name="absenceReasonId"
                   value={
-                    props.reasonOptions.find(
-                      e => e.value && e.value === values.absenceReasonId
-                    ) ?? { label: "", value: "" }
+                    values.absenceReasonId
+                      ? props.reasonOptions.find(
+                          e => e.value && e.value === values.absenceReasonId
+                        ) ?? { label: "", value: "" }
+                      : values.absenceReasonCategoryId
+                      ? props.reasonOptions.find(
+                          e =>
+                            e.value &&
+                            e.value === values.absenceReasonCategoryId
+                        ) ?? { label: "", value: "" }
+                      : { label: "", value: "" }
                   }
                   multiple={false}
                   onChange={(value: any) => {
-                    setAbsenceReasonId(value.value);
-                    setFieldValue("absenceReasonId", value.value);
+                    if (value.label.includes("Category: ")) {
+                      setAbsenceReasonCategoryId(value.value);
+                      setFieldValue("absenceReasonCategoryId", value.value);
+                    } else {
+                      setAbsenceReasonId(value.value);
+                      setFieldValue("absenceReasonId", value.value);
+                    }
+
                     setChanges(true);
                   }}
                   options={props.reasonOptions}
                   withResetValue={false}
                   inputStatus={errors.absenceReasonId ? "error" : "default"}
                 />
-              ) : (
+              ) : absenceReasonId ? (
                 absenceReasonBalance?.absenceReason?.name
+              ) : (
+                `Category: ${absenceReasonBalance?.absenceReasonCategory?.name}`
               )}
             </div>
             <div className={classes.balanceValueContainer}>

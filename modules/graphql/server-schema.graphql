@@ -222,8 +222,10 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   employeeId: ID!
   schoolYearId: ID!
   schoolYear: SchoolYear
-  absenceReasonId: ID!
+  absenceReasonId: ID
   absenceReason: AbsenceReason
+  absenceReasonCategoryId: ID
+  absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
   usedBalance: Decimal!
@@ -236,6 +238,7 @@ input AbsenceReasonBalanceCreateInput {
   employeeId: ID
   schoolYearId: ID
   absenceReasonId: ID
+  absenceReasonCategoryId: ID
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
@@ -260,6 +263,7 @@ input AbsenceReasonBalanceUpdateInput {
   rowVersion: String!
   schoolYearId: ID
   absenceReasonId: ID
+  absenceReasonCategoryId: ID
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
