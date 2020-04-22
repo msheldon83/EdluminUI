@@ -12,6 +12,7 @@ import { makeStyles } from "@material-ui/core";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
 import { LocationGroupSubPrefRoute } from "ui/routes/location-groups";
+import { LocationGroupLocations } from "./components/location-group-locations";
 
 export const LocationGroupViewPage: React.FC<{}> = props => {
   const params = useRouteParams(LocationGroupViewRoute);
@@ -61,6 +62,10 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
         isSubHeader={true}
         editable={true}
       />
+      <div className={classes.content}>
+        <LocationGroupLocations locations={locationGroup.locations} />
+      </div>
+
       <div className={classes.content}>
         {locationGroup && (
           <SubstitutePrefCard
