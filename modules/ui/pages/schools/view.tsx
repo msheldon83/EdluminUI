@@ -5,7 +5,7 @@ import Maybe from "graphql/tsutils/Maybe";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
 import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LocationViewRoute } from "ui/routes/locations";
 import { useHistory } from "react-router";
 import * as yup from "yup";
@@ -34,6 +34,12 @@ export const LocationViewPage: React.FC<{}> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const [editing, setEditing] = useState<string | null>(null);
+
+  // If the school changes because we've searched for a school and selected them
+  // set editing to false so that we close all editing sections and reset the forms
+  useEffect(() => {
+    setEditing(null);
+  }, [params.locationId]);
 
   const locationsReferenceDataQuery = {
     query: GetLocationsDocument,
@@ -122,8 +128,16 @@ export const LocationViewPage: React.FC<{}> = props => {
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
           orgId?: string,
-          forRole?: Role | null | undefined,
-        ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId, forRole)}
+          forRole?: Role | null | undefined
+        ) =>
+          can(
+            [PermissionEnum.LocationSave],
+            permissions,
+            isSysAdmin,
+            orgId,
+            forRole
+          )
+        }
         actions={[
           {
             name: t("Change History"),
@@ -145,8 +159,16 @@ export const LocationViewPage: React.FC<{}> = props => {
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
           orgId?: string,
-          forRole?: Role | null | undefined,
-        ) => can([PermissionEnum.LocationSave], permissions, isSysAdmin, orgId, forRole)}
+          forRole?: Role | null | undefined
+        ) =>
+          can(
+            [PermissionEnum.LocationSave],
+            permissions,
+            isSysAdmin,
+            orgId,
+            forRole
+          )
+        }
         validationSchema={yup.object().shape({
           value: yup.string().nullable(),
         })}
