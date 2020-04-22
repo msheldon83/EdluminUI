@@ -2,7 +2,6 @@ import * as React from "react";
 import { makeStyles, Divider, Popover } from "@material-ui/core";
 import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetNotifications } from "./graphql/get-notifications.gen";
-import { OrgUserRole } from "graphql/server-types.gen";
 import { compact, uniqBy } from "lodash-es";
 import { NotificationRoleMapper } from "ui/app-chrome/notifications/components/notification-role-mapper";
 import { useTranslation } from "react-i18next";
@@ -24,13 +23,6 @@ export const NotificationsUI: React.FC<Props> = props => {
   const orgId = getOrgIdFromRoute();
   const contextRole = useRole();
   const [showAll, setShowAll] = React.useState<boolean>(false);
-
-  const orgUserRole =
-    contextRole === "admin"
-      ? OrgUserRole.Administrator
-      : contextRole === "employee"
-      ? OrgUserRole.Employee
-      : OrgUserRole.ReplacementEmployee;
 
   const [markSingleNoticationAsViewed] = useMutationBundle(
     MarkSingleNotificationViewed
@@ -75,14 +67,11 @@ export const NotificationsUI: React.FC<Props> = props => {
 
   const id = open ? "notifications-popover" : undefined;
 
-  const orgIds = uniqBy(notifications, "orgId");
-  const multipleOrgs = orgIds.length > 1 ?? true;
+  const multipleOrgs = uniqBy(notifications, "orgId").length > 1;
 
   const filteredNotifications = showAll
-    ? notifications.filter((e: any) => e.forOrgUserRole === orgUserRole)
-    : notifications.filter(
-        (e: any) => e.viewed === false && e.forOrgUserRole === orgUserRole
-      );
+    ? notifications
+    : notifications.filter((e: any) => e.viewed === false);
 
   return (
     <Popover

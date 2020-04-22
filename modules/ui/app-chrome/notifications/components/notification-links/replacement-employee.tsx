@@ -45,16 +45,6 @@ export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
   let route;
 
   switch (props.notification.objectTypeId) {
-    case ObjectType.Absence:
-      route = SubSpecificAssignmentRoute.generate({
-        assignmentId: props.notification.objectKey,
-      });
-      break;
-    case ObjectType.Vacancy:
-      route = SubSpecificAssignmentRoute.generate({
-        assignmentId: props.notification.objectKey,
-      });
-      break;
     case ObjectType.Assignment:
       route = SubSpecificAssignmentRoute.generate({
         assignmentId: props.notification.objectKey,
