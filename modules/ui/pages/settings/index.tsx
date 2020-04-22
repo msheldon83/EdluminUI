@@ -10,6 +10,7 @@ import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { GeneralSettingsRoute } from "ui/routes/general-settings";
 import { BellScheduleVariantsRoute } from "ui/routes/bell-schedule-variants";
 import { CalendarChangeReasonRoute } from "ui/routes/calendar/event-reasons";
+import { HoursToDaysRoute } from "ui/routes/hours-to-days";
 import { BellScheduleRoute } from "ui/routes/bell-schedule";
 import { ReplacementAttributeRoute } from "ui/routes/replacement-attribute";
 import { AbsenceReasonRoute } from "ui/routes/absence-reason";
@@ -80,6 +81,11 @@ export const SettingsPage: React.FC<{}> = props => {
         />
       ),
       route: CalendarChangeReasonRoute,
+    },
+    {
+      name: t("Hours-to-days Conversion"),
+      icon: <span>Placeholder</span>,
+      route: HoursToDaysRoute,
     },
   ];
 
