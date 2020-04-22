@@ -65,7 +65,6 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
       <div className={classes.content}>
         <LocationGroupLocations locations={locationGroup.locations} />
       </div>
-
       <div className={classes.content}>
         {locationGroup && (
           <SubstitutePrefCard
