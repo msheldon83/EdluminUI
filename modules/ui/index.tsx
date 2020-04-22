@@ -166,6 +166,8 @@ import {
   LocationGroupViewRoute,
   LocationGroupSubPrefLoader,
   LocationGroupSubPrefRoute,
+  LocationGroupAddLoader,
+  LocationGroupAddRoute,
 } from "./routes/location-groups";
 import {
   LocationsLoader,
@@ -1027,6 +1029,14 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.LocationView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={LocationGroupAddLoader}
+                                      path={LocationGroupAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.LocationGroupSave,
                                       ]}
                                     />
                                     <ProtectedRoute

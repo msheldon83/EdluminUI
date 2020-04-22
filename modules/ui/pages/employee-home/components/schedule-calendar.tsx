@@ -5,7 +5,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { useMemo } from "react";
-import { eachDayOfInterval } from "date-fns";
+import { eachDayOfInterval, isToday } from "date-fns";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 
 type Props = {
@@ -33,7 +33,7 @@ export const ScheduleCalendar: React.FC<Props> = props => {
 
   const disabledDates = props.disabledDates.map(date => ({
     date,
-    buttonProps: { className: `${classes.dateDisabled} dateDisabled`},
+    buttonProps: { className: `${classes.dateDisabled} dateDisabled` },
   }));
 
   const absenceDates = absentDays.map(date => ({
@@ -42,6 +42,21 @@ export const ScheduleCalendar: React.FC<Props> = props => {
   }));
 
   const customDates = disabledDates.concat(absenceDates);
+  const todayIndex = customDates.findIndex(o => isToday(o.date));
+  if (todayIndex === -1) {
+    customDates.push({
+      date: new Date(),
+      buttonProps: { className: classes.today },
+    });
+  } else {
+    const today = customDates[todayIndex];
+    customDates[todayIndex] = {
+      date: today.date,
+      buttonProps: {
+        className: `${classes.today} ${today.buttonProps.className}`,
+      },
+    };
+  }
 
   return (
     <Section className={classes.container}>
@@ -72,5 +87,9 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.primary.main,
       color: theme.customColors.white,
     },
+  },
+  today: {
+    border: "solid black 1px",
+    fontWeight: "bold",
   },
 }));
