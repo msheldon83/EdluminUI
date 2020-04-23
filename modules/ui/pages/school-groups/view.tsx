@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
-import { GetLocationGroupById } from "./graphql/get-location-groups-by-id.gen";
+import { GetLocationGroupById } from "./graphql/get-location-group-by-id.gen";
 import { useRouteParams } from "ui/routes/definition";
+import Maybe from "graphql/tsutils/Maybe";
 import {
   LocationGroupViewRoute,
   LocationGroupsRoute,
@@ -11,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { Location as Loc, PermissionEnum } from "graphql/server-types.gen";
 import { PageHeader } from "ui/components/page-header";
 import { makeStyles } from "@material-ui/core";
+import * as yup from "yup";
 import { useHistory } from "react-router";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { can } from "helpers/permissions";
@@ -19,6 +21,12 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { LocationGroupLocations } from "./components/location-group-locations";
 import { DeleteLocationGroup } from "./graphql/delete-location-group.gen";
+import { UpdateLocationGroup } from "./graphql/update-location-group.gen";
+
+const editableSections = {
+  name: "edit-name",
+  externalId: "edit-external-id",
+};
 
 export const LocationGroupViewPage: React.FC<{}> = props => {
   const params = useRouteParams(LocationGroupViewRoute);
@@ -26,6 +34,7 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
   const classes = useStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
+  const [editing, setEditing] = React.useState<string | null>(null);
 
   const getLocationGroup = useQueryBundle(GetLocationGroupById, {
     variables: {
@@ -52,20 +61,60 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
     }
   }, [deleteLocationGroupMutation, history, params]);
 
+  const [updateLocation] = useMutationBundle(UpdateLocationGroup, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+    refetchQueries: ["GetLocationGroupById"],
+  });
+
   if (getLocationGroup.state === "LOADING") {
     return <></>;
   }
   const locationGroup: any | undefined =
     getLocationGroup?.data?.locationGroup?.byId ?? undefined;
 
+  const updateName = async (name: string) => {
+    await updateLocation({
+      variables: {
+        locationGroup: {
+          id: locationGroup.id,
+          rowVersion: locationGroup.rowVersion,
+          name,
+        },
+      },
+    });
+  };
+
+  const updateExternalId = async (externalId?: string | null) => {
+    await updateLocation({
+      variables: {
+        locationGroup: {
+          id: locationGroup.id,
+          rowVersion: locationGroup.rowVersion,
+          externalId,
+        },
+      },
+    });
+  };
+
   return (
     <div>
       <PageHeader
         text={locationGroup.name}
-        label={"name"}
+        label={t("Name")}
         showLabel={false}
         isSubHeader={false}
-        editable={true}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.name)}
+        validationSchema={yup.object().shape({
+          value: yup.string().required(t("Name is required")),
+        })}
+        onCancel={() => setEditing(null)}
+        onSubmit={async (value: Maybe<string>) => {
+          await updateName(value!);
+          setEditing(null);
+        }}
         editPermissions={(
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
@@ -107,9 +156,32 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
       <PageHeader
         text={locationGroup.externalId}
         label={t("External ID")}
-        showLabel={true}
+        editable={editing === null}
+        onEdit={() => setEditing(editableSections.externalId)}
+        editPermissions={(
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string,
+          forRole?: Role | null | undefined
+        ) =>
+          can(
+            [PermissionEnum.LocationSave],
+            permissions,
+            isSysAdmin,
+            orgId,
+            forRole
+          )
+        }
+        validationSchema={yup.object().shape({
+          value: yup.string().nullable(),
+        })}
+        onSubmit={async (value: Maybe<string>) => {
+          await updateExternalId(value);
+          setEditing(null);
+        }}
+        onCancel={() => setEditing(null)}
         isSubHeader={true}
-        editable={true}
+        showLabel={true}
       />
       <div className={classes.content}>
         <LocationGroupLocations locations={locationGroup.locations} />

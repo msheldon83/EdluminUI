@@ -149,7 +149,7 @@ export const LocationViewPage: React.FC<{}> = props => {
             permissions: [PermissionEnum.LocationDelete],
           },
         ]}
-      ></PageHeader>
+      />
       <PageHeader
         text={location.externalId}
         label={t("External ID")}
@@ -179,7 +179,7 @@ export const LocationViewPage: React.FC<{}> = props => {
         onCancel={() => setEditing(null)}
         isSubHeader={true}
         showLabel={true}
-      ></PageHeader>
+      />
       <div className={classes.content}>
         {location && (
           <LocationsInformation location={location}></LocationsInformation>
