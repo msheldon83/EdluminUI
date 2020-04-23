@@ -19,6 +19,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { LocationGroupLocations } from "./components/location-group-locations";
 import { DeleteLocationGroup } from "./graphql/delete-location-group.gen";
+import { LocationGroups } from ".";
 
 export const LocationGroupViewPage: React.FC<{}> = props => {
   const params = useRouteParams(LocationGroupViewRoute);
@@ -47,7 +48,6 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
       awaitRefetchQueries: true,
       refetchQueries: ["GetAllLocationGroupsWithinOrg"],
     });
-
     if (!result.errors) {
       history.push(LocationGroupsRoute.generate(params));
     }
@@ -88,7 +88,19 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
           },
           {
             name: t("Delete"),
-            onClick: deleteLocationGroup,
+            onClick: () => {
+              if (locationGroup.locations.length > 0) {
+                openSnackbar({
+                  message: t(
+                    "The School Group cannot be deleted because it is still used by active Schools"
+                  ),
+                  dismissable: true,
+                  status: "error",
+                });
+              } else {
+                const result = deleteLocationGroup();
+              }
+            },
             permissions: [PermissionEnum.LocationGroupDelete],
           },
         ]}
