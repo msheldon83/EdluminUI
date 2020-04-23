@@ -2285,6 +2285,7 @@ type LocationGroup implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   replacementStartOffsetMinutes: Int
   replacementEndOffsetMinutes: Int
+  locations: [Location]
   substitutePreferences: SubstitutePreferences!
 }
 

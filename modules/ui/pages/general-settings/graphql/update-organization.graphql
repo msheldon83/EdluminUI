@@ -7,6 +7,7 @@ mutation UpdateOrganization($organization: OrganizationUpdateInput!) {
       externalId
       timeZoneId
       config {
+        id
         absenceSubContact {
           email
           name

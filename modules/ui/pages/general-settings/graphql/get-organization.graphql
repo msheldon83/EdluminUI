@@ -7,6 +7,7 @@ query GetOrganizationById($id: ID!) {
       externalId
       timeZoneId
       config {
+        id
         absenceSubContact {
           email
           name
