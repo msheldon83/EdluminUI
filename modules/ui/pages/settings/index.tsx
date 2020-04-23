@@ -23,7 +23,7 @@ import { PayCodeRoute } from "ui/routes/pay-code";
 import { ContractsRoute } from "ui/routes/contracts";
 import { DataImportRoute } from "ui/routes/data-import";
 import { Typography } from "@material-ui/core";
-import { Contacts, Tune, Loop } from "@material-ui/icons";
+import { Contacts, Tune, Loop, WatchLater } from "@material-ui/icons";
 import { Can } from "ui/components/auth/can";
 import { canViewAsSysAdmin } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
@@ -84,7 +84,11 @@ export const SettingsPage: React.FC<{}> = props => {
     },
     {
       name: t("Hours-to-days Conversion"),
-      icon: <span>Placeholder</span>,
+      icon: (
+        <WatchLater
+          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        />
+      ),
       route: HoursToDaysRoute,
     },
   ];
