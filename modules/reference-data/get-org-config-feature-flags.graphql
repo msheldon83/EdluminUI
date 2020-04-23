@@ -3,6 +3,7 @@ query GetOrgConfigFeatureFlags($orgId: ID!) {
     byId(id: $orgId) {
       id
       config {
+        id
         featureFlags
       }
     }

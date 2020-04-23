@@ -5,6 +5,7 @@ query AllOrganizations($limit: Int, $offset: Int, $searchText: String) {
         id
         name
         config {
+          id
           organizationTypeId
         }
       }
