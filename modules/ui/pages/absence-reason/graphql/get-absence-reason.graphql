@@ -16,6 +16,11 @@ query GetAbsenceReason($absenceReasonId: ID!) {
       expired
       isRestricted
       requireNotesToAdmin
+      absenceReasonCategoryId
+      category {
+        id
+        name
+      }
     }
   }
 }

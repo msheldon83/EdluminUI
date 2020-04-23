@@ -1,6 +1,14 @@
 import * as React from "react";
 import { useState, useMemo } from "react";
-import { Grid, makeStyles, Divider } from "@material-ui/core";
+import {
+  Grid,
+  makeStyles,
+  Divider,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+  Typography,
+} from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { DataImportRoute, DataImportViewRoute } from "ui/routes/data-import";
 import { useRouteParams } from "ui/routes/definition";
@@ -15,13 +23,16 @@ import { format, addDays } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { ImportFilters } from "./components/import-filters";
 import { DataImportStatus, DataImportType } from "graphql/server-types.gen";
-import { CreateExpansionPanel } from "./components/create-expansion-panel";
+import { ImportDataForm } from "./components/import-data-form";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Section } from "ui/components/section";
 
 export const DataImportPage: React.FC<{}> = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const classes = useStyles();
   const params = useRouteParams(DataImportRoute);
+  const [panelOpened, setPanelOpened] = React.useState(false);
 
   const [importStatusFilter, setImportStatusFilter] = useState<
     DataImportStatus | undefined
@@ -44,9 +55,19 @@ export const DataImportPage: React.FC<{}> = () => {
         type: importTypeFilter,
         fromDate: fromDate,
         toDate: toDate,
+        sortBy: [
+          {
+            sortByPropertyName: "id",
+            sortAscending: false,
+          },
+        ],
       },
     }
   );
+
+  const refetchImports = async () => {
+    await getImports.refetch();
+  };
 
   const dataImports =
     getImports.state === "DONE"
@@ -93,6 +114,10 @@ export const DataImportPage: React.FC<{}> = () => {
 
   const dataImportCount = pagination.totalCount;
 
+  const onImportClose = () => {
+    setPanelOpened(false);
+  };
+
   return (
     <>
       <Grid
@@ -106,8 +131,26 @@ export const DataImportPage: React.FC<{}> = () => {
           <PageTitle title={t("Data imports")} />
         </Grid>
       </Grid>
-      <CreateExpansionPanel />
-      <div className={classes.tableContainer}>
+      <Section className={classes.container}>
+        <ExpansionPanel expanded={panelOpened}>
+          <ExpansionPanelSummary
+            onClick={event => {
+              setPanelOpened(!panelOpened);
+            }}
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography variant="h5">{t("Import data")}</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            <ImportDataForm
+              orgId={params.organizationId}
+              onClose={onImportClose}
+              refetchImports={refetchImports}
+            />
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+      </Section>
+      <Section>
         <ImportFilters
           selectedStatusId={importStatusFilter}
           setSelectedStatusId={setImportStatusFilter}
@@ -136,7 +179,7 @@ export const DataImportPage: React.FC<{}> = () => {
           }}
           pagination={pagination}
         />
-      </div>
+      </Section>
     </>
   );
 };
@@ -166,5 +209,8 @@ const useStyles = makeStyles(theme => ({
   divider: {
     color: theme.customColors.gray,
     marginTop: theme.spacing(2),
+  },
+  container: {
+    padding: 0,
   },
 }));

@@ -11,6 +11,7 @@ import PeopleIcon from "@material-ui/icons/People";
 import SettingsIcon from "@material-ui/icons/Settings";
 import SwapCallsIcon from "@material-ui/icons/SwapCalls";
 import TimelineIcon from "@material-ui/icons/Timeline";
+import StorageIcon from "@material-ui/icons/Storage";
 import {
   canViewAbsVacNavLink,
   canViewAnalyticsReportsNavLink,
@@ -21,6 +22,7 @@ import {
   canViewPTOBalancesNavLink,
   canViewSchoolsNavLink,
   canViewSecurityNavLink,
+  canViewDataManagementNavLink,
 } from "helpers/permissions";
 import { PermissionEnum, FeatureFlag } from "graphql/server-types.gen";
 import * as React from "react";
@@ -41,6 +43,7 @@ import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets"
 import { NavLink } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
 import { VacancyCreateRoute } from "ui/routes/vacancy";
+import { DataImportRoute } from "ui/routes/data-import";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 
 type Props = {
@@ -212,6 +215,27 @@ export const SecurityNavLink: React.FC<Props> = props => {
               paramsSecurityManagedOrganizations
             ),
             permissions: [PermissionEnum.ExternalConnectionsView],
+          },
+        ]}
+        {...props}
+      />
+    </Can>
+  );
+};
+
+export const DataManagementNavLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  const paramsDataImports = useRouteParams(DataImportRoute);
+  return (
+    <Can do={canViewDataManagementNavLink} orgId={props.orgId}>
+      <NavLink
+        title={t("Data Management")}
+        icon={<StorageIcon />}
+        subNavItems={[
+          {
+            title: t("Imports"),
+            route: DataImportRoute.generate(paramsDataImports),
+            permissions: [PermissionEnum.DataImport],
           },
         ]}
         {...props}
