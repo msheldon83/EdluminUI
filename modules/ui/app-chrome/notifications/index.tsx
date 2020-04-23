@@ -131,13 +131,14 @@ export const NotificationsUI: React.FC<Props> = props => {
           })
         )}
       </div>
-
-      <TextButton
-        className={classes.showAllNotifications}
-        onClick={() => setShowAll(!showAll)}
-      >
-        {showAll ? t("Hide Old Notifications") : t("Show All Notifications")}
-      </TextButton>
+      {notifications.length > 0 && (
+        <TextButton
+          className={classes.showAllNotifications}
+          onClick={() => setShowAll(!showAll)}
+        >
+          {showAll ? t("Hide Old Notifications") : t("Show All Notifications")}
+        </TextButton>
+      )}
     </Popover>
   );
 };
