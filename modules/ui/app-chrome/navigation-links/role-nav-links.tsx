@@ -31,12 +31,13 @@ import {
   SecurityNavLink,
   SubPreferencesNavLink,
   MobileSearchNavLink,
+  DataManagementNavLink,
 } from "./custom-nav-links";
 import { SettingsRoute } from "ui/routes/settings";
 import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
 import { LocationsRoute } from "ui/routes/locations";
+import { DataImportRoute } from "ui/routes/data-import";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
-import { tbd, adminTbd } from "ui/routes/tbd";
 import { AnalyticsReportsDailyReportRoute } from "ui/routes/analytics-reports";
 import { useIsMobile } from "hooks";
 import {
@@ -193,6 +194,12 @@ export const AdminNavLinks: React.FC<Props> = props => {
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
             route={SettingsRoute.generate(params)}
+            orgId={params.organizationId}
+          />
+          <DataManagementNavLink
+            onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
+            route={DataImportRoute.generate(params)}
             orgId={params.organizationId}
           />
           <SecurityNavLink

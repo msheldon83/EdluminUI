@@ -9,7 +9,7 @@ export const can = (
   isSysAdmin: boolean,
   orgId?: string | null | undefined,
   forRole?: Role | null | undefined,
-  context?: any  
+  context?: any
 ) => {
   // Sys Admins rule the world
   if (isSysAdmin) return true;
@@ -238,6 +238,21 @@ export const canViewOrganizationsNavLink = (
   //perform permission checks
 
   return true;
+};
+
+export const canViewDataManagementNavLink = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) return true;
+  // TODO: UnComment when we release to customers
+  // const userPerms = getUserPermissions(permissions, orgId);
+  // if (!userPerms?.includes(PermissionEnum.DataImport)) {
+  //   return false;
+  // }
+
+  return false;
 };
 
 /* emp left nav helpers */

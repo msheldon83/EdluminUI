@@ -20,13 +20,10 @@ import { SubstituteSettingsRoute } from "ui/routes/substitute-settings";
 import { AccountingCodeRoute } from "ui/routes/accounting-code";
 import { PayCodeRoute } from "ui/routes/pay-code";
 import { ContractsRoute } from "ui/routes/contracts";
-import { DataImportRoute } from "ui/routes/data-import";
 import { Typography } from "@material-ui/core";
 import { Contacts, Tune, Loop } from "@material-ui/icons";
 import { Can } from "ui/components/auth/can";
-import { canViewAsSysAdmin } from "helpers/permissions";
 import { PermissionEnum } from "graphql/server-types.gen";
-import ImportExportIcon from "@material-ui/icons/ImportExport";
 
 //Create Routes for Pages
 export const SettingsPage: React.FC<{}> = props => {
@@ -174,15 +171,6 @@ export const SettingsPage: React.FC<{}> = props => {
     },
   ];
 
-  //Other for SysAdmins
-  const configSysAdminRoutes = [
-    {
-      name: t("Data imports"),
-      icon: <ImportExportIcon />, // TODO: Get a real icon for this
-      route: DataImportRoute,
-    },
-  ]; // TODO: when ready to release to public, move to general area?
-
   return (
     <>
       <PageTitle title={t("Settings")} />
@@ -285,35 +273,6 @@ export const SettingsPage: React.FC<{}> = props => {
           xs={12}
         >
           {configFinanceAdminRoutes.map((r, i) => {
-            return (
-              <Link
-                key={i}
-                to={r.route.generate(params)}
-                className={classes.textDecoration}
-              >
-                <Grid className={classes.paddingRight}>
-                  <Paper className={classes.paper}>
-                    {r.icon}
-                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
-                  </Paper>
-                </Grid>
-              </Link>
-            );
-          })}
-        </Grid>
-      </Can>
-      <Can do={canViewAsSysAdmin}>
-        <Typography className={classes.header} variant="h4">
-          {t("Other")}
-        </Typography>
-        <Grid
-          container
-          className={(classes.root, classes.padding)}
-          spacing={3}
-          item
-          xs={12}
-        >
-          {configSysAdminRoutes.map((r, i) => {
             return (
               <Link
                 key={i}
