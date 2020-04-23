@@ -28,6 +28,6 @@ export const NotificationIcon: React.FC<Props> = props => {
   return unreadNotificationCount === 0 ? (
     <NotificationsNoneIcon />
   ) : (
-    <NotificationsNoneIcon /> // TODO: swap this out for the icon from Figma
+    <img src={require("ui/icons/notifications-indicator.svg")} />
   );
 };

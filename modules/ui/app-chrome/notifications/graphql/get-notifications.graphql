@@ -24,6 +24,11 @@ query GetNotifications(
         objectTypeId
         objectKey
         createdUtc
+        isLinkable
+        forOrgUserRole
+        organization {
+          name
+        }
       }
     }
   }
