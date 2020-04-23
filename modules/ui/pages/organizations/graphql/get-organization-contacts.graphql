@@ -9,6 +9,7 @@ query GetOrganizationContactsByUserId($id: ID!) {
           id
           name
           config {
+            id
             absenceEmployeeContact {
               name
               email
