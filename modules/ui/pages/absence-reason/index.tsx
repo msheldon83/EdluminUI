@@ -13,8 +13,6 @@ import {
 } from "ui/routes/absence-reason";
 import { Link } from "react-router-dom";
 import { compact, sortBy } from "lodash-es";
-import { Table } from "ui/components/table";
-import { Column } from "material-table";
 import { GetAllAbsenceReasonsWithinOrg } from "ui/pages/absence-reason/graphql/get-absence-reasons.gen";
 import { useRouteParams } from "ui/routes/definition";
 import {
@@ -30,7 +28,6 @@ import { Can } from "ui/components/auth/can";
 import { GetAllAbsenceReasonCategoriesWithinOrg } from "./graphql/get-absence-reason-categories.gen";
 import { mergeCatgoriesAndReasons } from "./helpers";
 import { GroupedCategory } from "./types";
-import { string } from "yup";
 import { Check, Minimize } from "@material-ui/icons";
 import { getDisplayName } from "ui/components/enumHelpers";
 
@@ -87,11 +84,25 @@ export const AbsenceReason: React.FC<{}> = () => {
           <Grid item xs={3}>
             {group.externalId}
           </Grid>
-          <Grid item xs={3} className={classes.allowNegativeBalanceCol}>
-            {group.allowNegativeBalance ? <Check /> : <Minimize />}
-          </Grid>
+          {group.allowNegativeBalance ? (
+            <Grid item xs={3} className={classes.negativeBalanceColCheck}>
+              {" "}
+              <Check />{" "}
+            </Grid>
+          ) : (
+            <Grid item xs={3} className={classes.negativeBalanceColMin}>
+              <Minimize />
+            </Grid>
+          )}
+
           <Grid item xs={2}>
-            {group.trackingType}
+            {group.trackingType
+              ? getDisplayName(
+                  "absenceReasonTrackingTypeId",
+                  group.trackingType,
+                  t
+                )
+              : ""}
           </Grid>
         </Grid>
         {sortedChildren.map((c, x) => {
@@ -115,9 +126,17 @@ export const AbsenceReason: React.FC<{}> = () => {
               <Grid item xs={3}>
                 {c.externalId}
               </Grid>
-              <Grid item xs={3} className={classes.allowNegativeBalanceCol}>
-                {c.allowNegativeBalance ? <Check /> : <Minimize />}
-              </Grid>
+              {c.allowNegativeBalance ? (
+                <Grid item xs={3} className={classes.negativeBalanceColCheck}>
+                  {" "}
+                  <Check />{" "}
+                </Grid>
+              ) : (
+                <Grid item xs={3} className={classes.negativeBalanceColMin}>
+                  <Minimize />
+                </Grid>
+              )}
+
               <Grid item xs={2}>
                 {c.absenceReasonTrackingTypeId
                   ? getDisplayName(
@@ -165,7 +184,7 @@ export const AbsenceReason: React.FC<{}> = () => {
         <Can do={[PermissionEnum.AbsVacSettingsSave]}>
           <Grid item xs={2}>
             <Button
-              variant="contained"
+              variant="outlined"
               component={Link}
               to={AbsenceReasonCategoryAddRoute.generate(params)}
             >
@@ -247,6 +266,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.white,
     paddingLeft: theme.typography.pxToRem(24),
     paddingRight: theme.typography.pxToRem(8),
+    paddingBottom: theme.typography.pxToRem(10),
   },
   firstRow: {
     paddingTop: theme.typography.pxToRem(10),
@@ -274,10 +294,11 @@ const useStyles = makeStyles(theme => ({
       theme.customColors.medLightGray
     }`,
     backgroundColor: theme.customColors.white,
-    paddingTop: theme.typography.pxToRem(18),
-    paddingBottom: theme.typography.pxToRem(18),
+    paddingTop: theme.typography.pxToRem(12),
+    paddingBottom: theme.typography.pxToRem(11),
     paddingLeft: theme.typography.pxToRem(24),
     paddingRight: theme.typography.pxToRem(8),
+    lineHeight: theme.typography.pxToRem(28),
   },
   alternateRow: {
     cursor: "pointer",
@@ -287,8 +308,9 @@ const useStyles = makeStyles(theme => ({
     }`,
     paddingLeft: theme.typography.pxToRem(24),
     paddingRight: theme.typography.pxToRem(8),
-    paddingTop: theme.typography.pxToRem(18),
-    paddingBottom: theme.typography.pxToRem(18),
+    paddingTop: theme.typography.pxToRem(12),
+    paddingBottom: theme.typography.pxToRem(11),
+    lineHeight: theme.typography.pxToRem(28),
   },
   categoryTitle: {
     cursor: "pointer",
@@ -296,16 +318,22 @@ const useStyles = makeStyles(theme => ({
     borderTop: `${theme.typography.pxToRem(1)} solid ${
       theme.customColors.medLightGray
     }`,
-    backgroundColor: theme.customColors.yellow4,
-    paddingTop: theme.typography.pxToRem(18),
-    paddingBottom: theme.typography.pxToRem(18),
+    backgroundColor: "#E5E5E5",
+    paddingTop: theme.typography.pxToRem(12),
+    paddingBottom: theme.typography.pxToRem(8),
     paddingLeft: theme.typography.pxToRem(24),
     paddingRight: theme.typography.pxToRem(8),
+    lineHeight: theme.typography.pxToRem(28),
   },
   nameColumn: {
     paddingLeft: theme.typography.pxToRem(20),
   },
-  allowNegativeBalanceCol: {
+  negativeBalanceColCheck: {
     paddingLeft: theme.typography.pxToRem(50),
+    marginBottom: theme.typography.pxToRem(-5),
+  },
+  negativeBalanceColMin: {
+    paddingLeft: theme.typography.pxToRem(50),
+    marginTop: theme.typography.pxToRem(-8),
   },
 }));
