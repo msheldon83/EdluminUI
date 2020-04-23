@@ -2,6 +2,7 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Redirect, useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
@@ -29,7 +30,15 @@ export const PersonViewPage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
 
   const params = useRouteParams(PersonViewRoute);
+
   const [editing, setEditing] = React.useState<string | null>(null);
+
+  // If the org user changes because we've searched for an org user and selected them
+  // set editing to false so that we close all editing sections and reset the forms
+  useEffect(() => {
+    setEditing(null);
+  }, [params.orgUserId]);
+
   const [selectedRole, setSelectedRole] = React.useState<OrgUserRole | null>(
     null
   );
