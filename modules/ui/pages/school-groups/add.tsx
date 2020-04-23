@@ -30,7 +30,6 @@ export const LocationGroupAddPage: React.FC<{}> = props => {
   >({
     orgId: params.organizationId,
     name: "",
-    description: null,
     externalId: null,
   });
 
@@ -46,11 +45,6 @@ export const LocationGroupAddPage: React.FC<{}> = props => {
         locationGroup: {
           ...locationGroup,
           name: locationGroup.name,
-          description:
-            locationGroup.description &&
-            locationGroup.description.trim().length === 0
-              ? null
-              : locationGroup.description,
           externalId:
             locationGroup.externalId &&
             locationGroup.externalId.trim().length === 0
@@ -80,7 +74,6 @@ export const LocationGroupAddPage: React.FC<{}> = props => {
           const newLocationGroup = {
             ...locationGroup,
             name: locationGroup.name,
-            description: locationGroup.description,
             externalId: locationGroup.externalId,
           };
           setLocationGroup(newLocationGroup);

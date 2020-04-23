@@ -5,7 +5,6 @@ mutation CreateLocationGroup($locationGroup: LocationGroupCreateInput!) {
       orgId
       name
       externalId
-      description
     }
   }
 }
