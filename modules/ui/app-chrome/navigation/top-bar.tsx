@@ -68,10 +68,7 @@ export const TopBar: React.FC<Props> = props => {
                   edge="end"
                   classes={iconButtonClasses}
                   onClick={event => {
-                    // TODO: Remove this check when we have InApp Notifications in prod
-                    if (Config.isDevFeatureOnly) {
-                      setSubNotificationsAnchor(event.currentTarget);
-                    }
+                    setSubNotificationsAnchor(event.currentTarget);
                   }}
                 >
                   <NotificationIcon />
