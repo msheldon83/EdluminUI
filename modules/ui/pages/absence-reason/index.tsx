@@ -12,7 +12,7 @@ import {
   AbsenceReasonCategoryViewEditRoute,
 } from "ui/routes/absence-reason";
 import { Link } from "react-router-dom";
-import { compact } from "lodash-es";
+import { compact, sortBy } from "lodash-es";
 import { Table } from "ui/components/table";
 import { Column } from "material-table";
 import { GetAllAbsenceReasonsWithinOrg } from "ui/pages/absence-reason/graphql/get-absence-reasons.gen";
@@ -61,6 +61,7 @@ export const AbsenceReason: React.FC<{}> = () => {
   }
 
   const displayAbsenceReasonGroup = (group: GroupedCategory, i: number) => {
+    const sortedChildren = sortBy(group.children, [c => c.name]);
     const result = (
       <React.Fragment key={i}>
         <Grid
@@ -93,7 +94,7 @@ export const AbsenceReason: React.FC<{}> = () => {
             {group.trackingType}
           </Grid>
         </Grid>
-        {group.children?.map((c, x) => {
+        {sortedChildren.map((c, x) => {
           return (
             <Grid
               item
