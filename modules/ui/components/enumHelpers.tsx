@@ -207,6 +207,10 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Validated"),
     },
     {
+      name: "dataImportStatus.QUEUED_FOR_PROCESSING",
+      displayName: t("Queued for processing"),
+    },
+    {
       name: "dataImportStatus.IMPORTING",
       displayName: t("Importing"),
     },
