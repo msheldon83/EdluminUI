@@ -14,7 +14,7 @@ import { Section } from "ui/components/section";
 type Props = {};
 
 type Case = {
-  minutes: number;
+  maxMinutes: number;
   name: string;
   dayFraction: number;
 };
@@ -37,7 +37,7 @@ export const HoursToDays: React.FC<Props> = props => {
   const dummyData: HoursToDaysData = {
     cases: [
       {
-        minutes: 360,
+        maxMinutes: 360,
         name: "First",
         dayFraction: 0.5,
       },
@@ -68,7 +68,7 @@ export const HoursToDays: React.FC<Props> = props => {
       "cases",
       currentCases.concat([
         {
-          minutes: last.minutes + 1,
+          maxMinutes: last.maxMinutes + 1,
           name: "",
           dayFraction: last.dayFraction,
         },
@@ -87,9 +87,9 @@ export const HoursToDays: React.FC<Props> = props => {
             .array()
             .of(
               yup.object().shape({
-                minutes: yup
+                maxMinutes: yup
                   .number()
-                  .min(0, "Minutes must be non-negative")
+                  .min(0, "maxMinutes must be non-negative")
                   .max(60 * 24, "There's only so many hours in a day!")
                   .required(),
                 name: yup.string().required("Name must be non-empty"),
@@ -113,14 +113,14 @@ export const HoursToDays: React.FC<Props> = props => {
                   }
                   if (
                     i == cases.length - 1 ||
-                    current.minutes < cases[i + 1].minutes
+                    current.maxMinutes < cases[i + 1].maxMinutes
                   ) {
                     return acc;
                   }
                   return new yup.ValidationError(
                     t("Time durations out of order"),
                     null,
-                    `${this.path}.${i + 1}.minutes`
+                    `${this.path}.${i + 1}.maxMinutes`
                   );
                 };
                 const res = cases.reduce(reducer, true);
@@ -185,7 +185,7 @@ export const HoursToDays: React.FC<Props> = props => {
                     headerText={
                       values.cases.length
                         ? `Greater than ${formatMinutes(
-                            values.cases[values.cases.length - 1].minutes
+                            values.cases[values.cases.length - 1].maxMinutes
                           )}`
                         : "All hours"
                     }

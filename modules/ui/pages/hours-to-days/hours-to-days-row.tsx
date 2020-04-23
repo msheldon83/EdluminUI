@@ -14,7 +14,11 @@ type Props = {
   className?: string;
   keyPrefix: string;
   headerText?: string;
-  error?: FormikErrors<{ minutes: number; name: string; dayFraction: number }>;
+  error?: FormikErrors<{
+    maxMinutes: number;
+    name: string;
+    dayFraction: number;
+  }>;
   deleteThisRow?: () => void;
 };
 
@@ -43,9 +47,9 @@ export const HoursToDaysRow: React.FC<Props> = ({
         {!headerText && (
           <FormikDurationInput
             placeholder={t("hh:mm")}
-            name={`${keyPrefix}.minutes`}
-            inputStatus={error?.minutes ? "error" : "default"}
-            validationMessage={error?.minutes}
+            name={`${keyPrefix}.maxMinutes`}
+            inputStatus={error?.maxMinutes ? "error" : "default"}
+            validationMessage={error?.maxMinutes}
           />
         )}
         {headerText && <span>{headerText}</span>}
