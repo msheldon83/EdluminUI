@@ -95,7 +95,7 @@ export const AbsenceReason: React.FC<{}> = () => {
             </Grid>
           )}
 
-          <Grid item xs={2}>
+          <Grid item xs={2} className={classes.trackingCol}>
             {group.trackingType
               ? getDisplayName(
                   "absenceReasonTrackingTypeId",
@@ -137,7 +137,7 @@ export const AbsenceReason: React.FC<{}> = () => {
                 </Grid>
               )}
 
-              <Grid item xs={2}>
+              <Grid item xs={2} className={classes.trackingCol}>
                 {c.absenceReasonTrackingTypeId
                   ? getDisplayName(
                       "absenceReasonTrackingTypeId",
@@ -335,5 +335,8 @@ const useStyles = makeStyles(theme => ({
   negativeBalanceColMin: {
     paddingLeft: theme.typography.pxToRem(50),
     marginTop: theme.typography.pxToRem(-8),
+  },
+  trackingCol: {
+    paddingLeft: theme.typography.pxToRem(3),
   },
 }));
