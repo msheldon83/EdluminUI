@@ -61,6 +61,7 @@ export const HoursToDaysRow: React.FC<Props> = ({
             name: `${keyPrefix}.name`,
             id: `${keyPrefix}.name`,
             fullWidth: true,
+            className: classes.textInput,
           }}
         />
       </Grid>
@@ -71,6 +72,7 @@ export const HoursToDaysRow: React.FC<Props> = ({
             name: `${keyPrefix}.dayFraction`,
             id: `${keyPrefix}.dayFraction`,
             fullWidth: true,
+            className: classes.textInput,
           }}
         />
       </Grid>
@@ -81,5 +83,8 @@ export const HoursToDaysRow: React.FC<Props> = ({
 const useStyles = makeStyles(theme => ({
   rowCell: {
     paddingRight: theme.spacing(4),
+  },
+  textInput: {
+    backgroundColor: theme.customColors.white,
   },
 }));
