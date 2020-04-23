@@ -19,7 +19,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { usePayCodes } from "reference-data/pay-codes";
 import { OptionTypeBase } from "react-select/src/types";
-import { DurationInput } from "ui/components/form/duration-input";
+import { FormikDurationInput } from "ui/components/form/formik-duration-input";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -340,13 +340,9 @@ export const Settings: React.FC<Props> = props => {
                   )}
                 </FormHelperText>
                 <div className={classes.minAbsenceDurationLabel}>
-                  <DurationInput
+                  <FormikDurationInput
                     label={t("Minimum absence duration")}
                     name="minAbsenceDurationMinutes"
-                    value={values.minAbsenceDurationMinutes.toString()}
-                    onChange={(value: number) =>
-                      setFieldValue("minAbsenceDurationMinutes", value)
-                    }
                     inputStatus={
                       errors.minAbsenceDurationMinutes ? "error" : "default"
                     }
