@@ -26,6 +26,12 @@ import {
   AbsenceReasonViewEditLoader,
   AbsenceReasonEditSettingsRoute,
   AbsenceReasonEditSettingsLoader,
+  AbsenceReasonCategoryAddLoader,
+  AbsenceReasonCategoryAddRoute,
+  AbsenceReasonCategoryViewEditRoute,
+  AbsenceReasonCategoryViewEditLoader,
+  AbsenceReasonCategoryEditSettingsLoader,
+  AbsenceReasonCategoryEditSettingsRoute,
 } from "./routes/absence-reason";
 import {
   AccountingCodeLoader,
@@ -957,6 +963,26 @@ export const App = hot(function() {
                                       ]}
                                     />
                                     <ProtectedRoute
+                                      component={AbsenceReasonCategoryAddLoader}
+                                      path={AbsenceReasonCategoryAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AbsenceReasonCategoryEditSettingsLoader
+                                      }
+                                      path={
+                                        AbsenceReasonCategoryEditSettingsRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
                                       component={
                                         AbsenceReasonEditSettingsLoader
                                       }
@@ -964,6 +990,18 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.AbsVacSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AbsenceReasonCategoryViewEditLoader
+                                      }
+                                      path={
+                                        AbsenceReasonCategoryViewEditRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute

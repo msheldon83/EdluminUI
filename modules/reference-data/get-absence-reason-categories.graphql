@@ -1,5 +1,8 @@
-query GetAllAbsenceReasonsWithinOrg($orgId: ID, $includeExpired: Boolean) {
-  orgRef_AbsenceReason {
+query GetAllAbsenceReasonCategories(
+  $orgId: ID
+  $includeExpired: Boolean
+) {
+  orgRef_AbsenceReasonCategory {
     all(orgId: $orgId, includeExpired: $includeExpired) {
       id
       name
@@ -7,11 +10,8 @@ query GetAllAbsenceReasonsWithinOrg($orgId: ID, $includeExpired: Boolean) {
       externalId
       description
       expired
-      isRestricted
-      requireNotesToAdmin
       absenceReasonTrackingTypeId
       allowNegativeBalance
-      absenceReasonCategoryId
     }
   }
 }

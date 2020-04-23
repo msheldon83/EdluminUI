@@ -6,6 +6,7 @@ query GetDataImports(
   $type: DataImportType
   $fromDate: Date
   $toDate: Date
+  $sortBy: [SortDetailsInput]
 ) {
   dataImport {
     paged(
@@ -16,6 +17,7 @@ query GetDataImports(
       type: $type
       fromDate: $fromDate
       toDate: $toDate
+      sortBy: $sortBy
     ) {
       offset
       limit

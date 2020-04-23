@@ -1,0 +1,15 @@
+query GetAbsenceReasonCategory($absenceReasonCategoryId: ID!) {
+  orgRef_AbsenceReasonCategory {
+    byId(id: $absenceReasonCategoryId) {
+      id
+      externalId
+      rowVersion
+      name
+      description
+      validUntil
+      absenceReasonTrackingTypeId
+      allowNegativeBalance
+      expired
+    }
+  }
+}

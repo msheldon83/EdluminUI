@@ -32,6 +32,22 @@ export const AbsenceReasonAddLoader = asyncComponent({
   name: "AbsenceReasonAddPage",
 });
 
+export const AbsenceReasonCategoryAddRoute = defineSubRoute(
+  AbsenceReasonRoute,
+  "/category/add",
+  []
+);
+
+export const AbsenceReasonCategoryAddLoader = asyncComponent({
+  resolve: async () => {
+    const AbsenceReasonCategoryAddPage = (
+      await import("ui/pages/absence-reason/add-category")
+    ).AbsenceReasonCategoryAddPage;
+    return AbsenceReasonCategoryAddPage;
+  },
+  name: "AbsenceReasonCategoryAddPage",
+});
+
 // View/Edit
 export const AbsenceReasonViewEditRoute = defineSubRoute(
   AbsenceReasonRoute,
@@ -49,6 +65,22 @@ export const AbsenceReasonViewEditLoader = asyncComponent({
   name: "AbsenceReasonViewEditPage",
 });
 
+export const AbsenceReasonCategoryViewEditRoute = defineSubRoute(
+  AbsenceReasonRoute,
+  "category/:absenceReasonCategoryId",
+  ["absenceReasonCategoryId"]
+);
+
+export const AbsenceReasonCategoryViewEditLoader = asyncComponent({
+  resolve: async () => {
+    const AbsenceReasonCategoryViewEditPage = (
+      await import("ui/pages/absence-reason/view-category")
+    ).AbsenceReasonCategoryViewEditPage;
+    return AbsenceReasonCategoryViewEditPage;
+  },
+  name: "AbsenceReasonCategoryViewEditPage",
+});
+
 // Edit Settings
 export const AbsenceReasonEditSettingsRoute = defineSubRoute(
   AbsenceReasonViewEditRoute,
@@ -64,4 +96,20 @@ export const AbsenceReasonEditSettingsLoader = asyncComponent({
     return AbsenceReasonEditSettingsPage;
   },
   name: "AbsenceReasonEditSettingsPage",
+});
+
+export const AbsenceReasonCategoryEditSettingsRoute = defineSubRoute(
+  AbsenceReasonCategoryViewEditRoute,
+  "/edit-settings",
+  []
+);
+
+export const AbsenceReasonCategoryEditSettingsLoader = asyncComponent({
+  resolve: async () => {
+    const AbsenceReasonCategoryEditSettingsPage = (
+      await import("ui/pages/absence-reason/edit-category-settings")
+    ).AbsenceReasonCategoryEditSettingsPage;
+    return AbsenceReasonCategoryEditSettingsPage;
+  },
+  name: "AbsenceReasonCategoryEditSettingsPage",
 });
