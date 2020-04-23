@@ -43,9 +43,7 @@ export const NotificationGroupHeader: React.FC<Props> = props => {
         )}
         {props.showInAppColumn && (
           <Grid item xs={3}>
-            <div className={classes.headerText}>{`${t("In app")} (${t(
-              "coming soon"
-            )})`}</div>
+            <div className={classes.headerText}>{t("In app")}</div>
           </Grid>
         )}
       </Grid>
