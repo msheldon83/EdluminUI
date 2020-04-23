@@ -1,0 +1,9 @@
+query GetDataImportTypes {
+  referenceData {
+    dataImportTypes {
+      name
+      enumValue
+      description
+    }
+  }
+}
