@@ -159,6 +159,14 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Ignored"),
     },
     {
+      name: "absenceReasonTrackingTypeId.HOURLY",
+      displayName: t("Hourly"),
+    },
+    {
+      name: "absenceReasonTrackingTypeId.DAILY",
+      displayName: t("Daily"),
+    },
+    {
       name: "dataImportStatus.CREATED",
       displayName: t("Created"),
     },

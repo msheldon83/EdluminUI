@@ -1,8 +1,12 @@
-query GetAbsenceReasons($orgId: ID!) {
+query GetAbsenceReasons($orgId: ID) {
   orgRef_AbsenceReason {
     all(orgId: $orgId) {
       id
       name
+      rowVersion
+      externalId
+      description
+      expired
       absenceReasonTrackingTypeId
       allowNegativeBalance
       requireNotesToAdmin

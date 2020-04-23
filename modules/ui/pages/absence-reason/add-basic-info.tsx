@@ -17,6 +17,7 @@ type Props = {
   onSubmit: (name: string, externalId?: string) => void;
   onCancel: () => void;
   onNameChange: (name: string) => void;
+  isCategory?: boolean;
 };
 
 export const AddBasicInfo: React.FC<Props> = props => {
@@ -54,7 +55,11 @@ export const AddBasicInfo: React.FC<Props> = props => {
             <Grid container spacing={isMobile ? 2 : 8}>
               <Grid item xs={12} sm={6} lg={6}>
                 <Input
-                  label={t("Absence reason name")}
+                  label={
+                    props.isCategory
+                      ? t("Absence reason category name")
+                      : t("Absence reason name")
+                  }
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     placeholder: `E.g ${props.namePlaceholder}`,
