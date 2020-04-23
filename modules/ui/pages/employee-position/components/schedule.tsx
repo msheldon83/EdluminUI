@@ -128,7 +128,7 @@ export const ScheduleUI: React.FC<Props> = props => {
               <IconButton
                 onClick={() => {
                   window.open(
-                    "https://help.redroverk12.com/hc/en-us/articles/360038845372",
+                    "https://help.redroverk12.com/hc/en-us/articles/360039620212-How-to-Build-or-Adjust-a-Traveling-Teacher-s-Schedule",
                     "_blank"
                   );
                 }}
