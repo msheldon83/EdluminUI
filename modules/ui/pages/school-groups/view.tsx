@@ -19,7 +19,6 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { LocationGroupLocations } from "./components/location-group-locations";
 import { DeleteLocationGroup } from "./graphql/delete-location-group.gen";
-import { LocationGroups } from ".";
 
 export const LocationGroupViewPage: React.FC<{}> = props => {
   const params = useRouteParams(LocationGroupViewRoute);
