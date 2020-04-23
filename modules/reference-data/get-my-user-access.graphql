@@ -26,6 +26,7 @@ query GetMyUserAccess {
             id
             name
             config {
+              id
               organizationTypeId
             }
           }

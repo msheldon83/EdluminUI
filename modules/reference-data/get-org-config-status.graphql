@@ -3,6 +3,7 @@ query GetOrgConfigStatus($orgId: ID!) {
     byId(id: $orgId) {
       id
       config {
+        id
         organizationTypeId
       }
     }

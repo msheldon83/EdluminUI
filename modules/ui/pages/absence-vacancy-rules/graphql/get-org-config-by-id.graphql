@@ -5,6 +5,7 @@ query GetOrgConfigById($id: ID!) {
       orgId
       rowVersion
       config {
+        id
         featureFlags
         minutesBeforeStartAbsenceCanBeCreated
         minLeadTimeMinutesToCancelVacancy

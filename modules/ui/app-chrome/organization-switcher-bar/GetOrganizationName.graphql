@@ -4,6 +4,7 @@ query GetOrganizationName($id: ID!) {
       id
       name
       config {
+        id
         organizationTypeId
       }
     }
