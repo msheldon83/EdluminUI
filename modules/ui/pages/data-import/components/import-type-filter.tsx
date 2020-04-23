@@ -1,36 +1,20 @@
 import * as React from "react";
-import { useMemo } from "react";
 import { SelectNew } from "ui/components/form/select-new";
 import { useTranslation } from "react-i18next";
 import { DataImportType } from "graphql/server-types.gen";
-import { getDisplayName } from "ui/components/enumHelpers";
+import { useDataImportTypeOptions } from "reference-data/data-import-types";
 
 type Props = {
   selectedTypeId?: DataImportType;
   setSelectedTypeId: (typeId?: DataImportType) => void;
+  includeAllOption?: boolean;
 };
 
 export const ImportTypeFilter: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const { setSelectedTypeId, selectedTypeId } = props;
+  const { setSelectedTypeId, selectedTypeId, includeAllOption = true } = props;
 
-  const typeOptions = useMemo(() => {
-    const types = Object.values(DataImportType);
-
-    const options = types
-      .map(x => {
-        if (x === DataImportType.Invalid) {
-          return { label: t("(All)"), value: "0" };
-        } else {
-          return {
-            label: getDisplayName("dataImportType", x, t) ?? "",
-            value: x.toString(),
-          };
-        }
-      })
-      .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
-    return options;
-  }, [t]);
+  const typeOptions = useDataImportTypeOptions(t, includeAllOption);
 
   const selectedType =
     selectedTypeId === undefined
@@ -40,7 +24,7 @@ export const ImportTypeFilter: React.FC<Props> = props => {
   return (
     <SelectNew
       label={t("Import type")}
-      value={selectedType}
+      value={selectedType ?? { label: "", value: "" }}
       multiple={false}
       options={typeOptions}
       withResetValue={false}
