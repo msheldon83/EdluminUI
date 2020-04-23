@@ -1,17 +1,22 @@
 import {
   isAfter,
   isValid,
-  format,
   parseISO,
   isWithinInterval,
   isEqual,
   isDate,
+  format,
+  formatDistance,
+  addDays,
+  startOfDay,
+  formatRelative,
   isYesterday,
   isToday,
   isTomorrow,
   differenceInCalendarDays,
   isSameDay,
 } from "date-fns";
+import { useMemo } from "react";
 import { differenceWith } from "lodash-es";
 
 export type PolymorphicDateType = Date | string | undefined;
@@ -227,4 +232,19 @@ export const sortDates = (date1: Date, date2: Date) => {
     earlier: new Date(Math.min(_date1, _date2)),
     later: new Date(Math.max(_date1, _date2)),
   };
+};
+
+export const DateFormatter = (createdUtc: string, t: any) => {
+  return useMemo(() => {
+    const now = new Date();
+    const notificationDate = new Date(createdUtc);
+
+    if (isEqual(startOfDay(now), startOfDay(notificationDate))) {
+      return `${formatDistance(notificationDate, now)} ${t("ago")}`;
+    } else if (startOfDay(notificationDate) > addDays(startOfDay(now), -6)) {
+      return formatRelative(notificationDate, now);
+    } else {
+      return format(notificationDate, "MMM d, yyyy");
+    }
+  }, [createdUtc, t]);
 };
