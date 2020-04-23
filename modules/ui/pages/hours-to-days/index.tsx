@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { Button, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
@@ -16,14 +17,14 @@ type Props = {};
 type Case = {
   maxMinutes: number;
   name: string;
-  dayFraction: number;
+  dayEquivalent: number;
 };
 
 type HoursToDaysData = {
   cases: Case[];
   catchAll: {
     name: string;
-    dayFraction: number;
+    dayEquivalent: number;
   };
 };
 
@@ -39,12 +40,12 @@ export const HoursToDays: React.FC<Props> = props => {
       {
         maxMinutes: 360,
         name: "First",
-        dayFraction: 0.5,
+        dayEquivalent: 0.5,
       },
     ],
     catchAll: {
       name: "Last",
-      dayFraction: 1,
+      dayEquivalent: 1,
     },
   };
 
@@ -70,7 +71,7 @@ export const HoursToDays: React.FC<Props> = props => {
         {
           maxMinutes: last.maxMinutes + 1,
           name: "",
-          dayFraction: last.dayFraction,
+          dayEquivalent: last.dayEquivalent,
         },
       ])
     );
@@ -93,10 +94,10 @@ export const HoursToDays: React.FC<Props> = props => {
                   .max(60 * 24, "There's only so many hours in a day!")
                   .required(),
                 name: yup.string().required("Name must be non-empty"),
-                dayFraction: yup
+                dayEquivalent: yup
                   .number()
-                  .min(0, "dayFraction must be non-negative")
-                  .max(1, "dayFraction can be at most 1")
+                  .min(0, "dayEquivalent must be non-negative")
+                  .max(1, "dayEquivalent can be at most 1")
                   .required(),
               })
             )
@@ -129,10 +130,10 @@ export const HoursToDays: React.FC<Props> = props => {
             }),
           catchAll: yup.object().shape({
             name: yup.string().required("Name must be non-empty"),
-            dayFraction: yup
+            dayEquivalent: yup
               .number()
-              .min(0, "dayFraction must be non-negative")
-              .max(1, "dayFraction can be at most 1")
+              .min(0, "dayEquivalent must be non-negative")
+              .max(1, "dayEquivalent can be at most 1")
               .required(),
           }),
         })}

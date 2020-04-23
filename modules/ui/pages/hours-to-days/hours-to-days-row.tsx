@@ -10,21 +10,21 @@ import { FormikDurationInput } from "ui/components/form/formik-duration-input";
 
 type Props = {
   name: string;
-  dayFraction: number;
+  dayEquivalent: number;
   className?: string;
   keyPrefix: string;
   headerText?: string;
   error?: FormikErrors<{
     maxMinutes: number;
     name: string;
-    dayFraction: number;
+    dayEquivalent: number;
   }>;
   deleteThisRow?: () => void;
 };
 
 export const HoursToDaysRow: React.FC<Props> = ({
   name,
-  dayFraction,
+  dayEquivalent,
   className,
   keyPrefix,
   headerText,
@@ -69,8 +69,8 @@ export const HoursToDaysRow: React.FC<Props> = ({
         <Input
           InputComponent={FormTextField}
           inputComponentProps={{
-            name: `${keyPrefix}.dayFraction`,
-            id: `${keyPrefix}.dayFraction`,
+            name: `${keyPrefix}.dayEquivalent`,
+            id: `${keyPrefix}.dayEquivalent`,
             fullWidth: true,
             className: classes.textInput,
           }}
