@@ -32,7 +32,10 @@ export const NotificationsUI: React.FC<Props> = props => {
   );
 
   const [markAllNotificationsAsViewed] = useMutationBundle(
-    MarkAllNotificationsViewed
+    MarkSingleNotificationViewed,
+    {
+      refetchQueries: ["GetUnreadNotificationCount"],
+    }
   );
 
   const markSingleAsViewed = async (notificationId: string) => {
