@@ -17,7 +17,7 @@ export function buildGraphqlClient(opts: {
     ...opts,
   };
   const cache = new InMemoryCache();
-  const restLink = new RestLink({ uri: "/api" });
+  const restLink = new RestLink({ uri: Config.restUri });
   const links = [...compact([prefixLink]), restLink, createHttpLink({ uri })];
   const link = ApolloLink.from(links);
   const client = new ApolloClient({
