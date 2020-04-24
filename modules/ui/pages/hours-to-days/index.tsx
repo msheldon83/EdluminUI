@@ -197,8 +197,8 @@ export const HoursToDays: React.FC<Props> = props => {
                 },
               }),
             catchAll: yup.object().shape({
-              maxMinutes: yup.number().required("Required"),
-              name: yup.string().required("Required"),
+              maxMinutes: yup.number().required(t("Required")),
+              name: yup.string().required(t("Required")),
               dayEquivalent: yup
                 .number()
                 .min(0, t("Day equivalent must be non-negative"))
