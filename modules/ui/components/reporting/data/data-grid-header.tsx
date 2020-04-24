@@ -131,7 +131,7 @@ const useStyles = makeStyles(theme => ({
   },
   headerMenu: {
     width: 200,
-    marginTop: 50,
+    marginTop: 25,
     color: "rgba(255,255,255, 1)",
     background: "rgba(5, 0, 57, 0.8)",
     boxShadow: "0px 4px 7px rgba(0, 0, 0, 0.25)",

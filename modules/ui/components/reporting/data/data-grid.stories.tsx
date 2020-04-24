@@ -104,7 +104,7 @@ export const Ordered = () => {
               orderBy: [
                 {
                   expression: {
-                    displayName: "Absence Start Time",
+                    displayName: "Hours of Absence",
                   },
                   direction: Direction.Asc,
                 },
@@ -121,18 +121,6 @@ export const Ordered = () => {
 
 const rawData: any[][] = [
   [
-    "4/24/2020",
-    "10:00 AM",
-    "5:00 PM",
-    7,
-    "10:00 AM",
-    "3:00 PM",
-    5,
-    "Haven Elementary School",
-    "100284",
-    "184656",
-  ],
-  [
     "3/10/2020",
     "8:00 AM",
     "4:00 PM",
@@ -141,6 +129,18 @@ const rawData: any[][] = [
     "3:00 PM",
     5,
     "West Chester Middle School",
+    "100284",
+    "184656",
+  ],
+  [
+    "9/18/2019",
+    "8:30 AM",
+    "5:00 PM",
+    8.5,
+    "10:00 AM",
+    "3:00 PM",
+    5,
+    "Haven Elementary School",
     "100284",
     "184656",
   ],
@@ -158,9 +158,9 @@ const rawData: any[][] = [
   ],
   [
     "9/18/2019",
-    "8:30 AM",
+    "8:00 AM",
     "5:00 PM",
-    8.5,
+    9,
     "10:00 AM",
     "3:00 PM",
     5,
@@ -181,10 +181,10 @@ const rawData: any[][] = [
     "184656",
   ],
   [
-    "9/18/2019",
-    "8:00 AM",
+    "4/24/2020",
+    "10:00 AM",
     "5:00 PM",
-    9,
+    7,
     "10:00 AM",
     "3:00 PM",
     5,
@@ -214,7 +214,7 @@ const dataColumnIndexMap = {
     displayName: "Substitute End Time",
   },
   "6": {
-    displayName: "Hours of Absence",
+    displayName: "Hours of Assignment",
   },
   "7": {
     displayName: "School Name",
