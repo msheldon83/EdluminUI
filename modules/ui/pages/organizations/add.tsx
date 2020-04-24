@@ -2,9 +2,10 @@ import * as React from "react";
 import { PageTitle } from "ui/components/page-title";
 import { useHistory } from "react-router";
 import { ShowErrors } from "ui/components/error-helpers";
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useMemo } from "react";
+import { OptionType } from "ui/components/form/select-new";
 import { useTimezones } from "reference-data/timezones";
 import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
@@ -13,10 +14,12 @@ import {
   OrganizationType,
   FeatureFlag,
 } from "graphql/server-types.gen";
+import { compact } from "lodash-es";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
 import { CreateOrganization } from "./graphql/create-organization.gen";
 import { Typography, makeStyles } from "@material-ui/core";
 import { AddBasicInfo } from "./components/add-info";
+import { GetAllStaffingProviders } from "./graphql/get-staffing-providers.gen";
 
 export const OrganizationAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -28,8 +31,27 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   const timeZones = useTimezones();
   const namePlaceholder = t("Glenbrook");
 
-  //Current Staffing Partner OrgId for EduStaff
-  const eduStaffOrgId = Config.isDevFeatureOnly ? "1046" : "1003";
+  const getStaffingProviders = useQueryBundle(GetAllStaffingProviders, {
+    fetchPolicy: "cache-first",
+  });
+
+  const staffingProviders = useMemo(() => {
+    if (
+      getStaffingProviders.state === "DONE" &&
+      getStaffingProviders.data?.organization?.staffingProviders
+    ) {
+      return (
+        compact(getStaffingProviders.data?.organization?.staffingProviders) ??
+        []
+      );
+    }
+    return [];
+  }, [getStaffingProviders]);
+
+  const staffingProviderOptions: OptionType[] = staffingProviders.map(a => ({
+    label: a?.organization.name ?? "",
+    value: a?.organization.id ?? "",
+  }));
 
   const [createOrganization] = useMutationBundle(CreateOrganization, {
     onError: error => {
@@ -96,7 +118,10 @@ export const OrganizationAddPage: React.FC<{}> = props => {
   }, [t]);
 
   const timeZoneOptions = timeZones.map(c => {
-    return { label: c.name, value: c.enumValue ?? "" };
+    return {
+      label: c.name,
+      value: c.enumValue ?? "",
+    };
   });
 
   return (
@@ -112,7 +137,7 @@ export const OrganizationAddPage: React.FC<{}> = props => {
       <AddBasicInfo
         namePlaceholder={namePlaceholder}
         organizationTypes={orgTypes}
-        relatesToOrganizationId={eduStaffOrgId}
+        staffingProviderOptions={staffingProviderOptions}
         timeZoneOptions={timeZoneOptions}
         featureFlagOptions={featureFlagOptions}
         onSubmit={async (newOrganization: OrganizationCreateInput) => {
