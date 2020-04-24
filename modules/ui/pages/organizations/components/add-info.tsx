@@ -32,7 +32,7 @@ type Props = {
   onSubmit: (organizationCreateInput: OrganizationCreateInput) => Promise<any>;
   onCancel: () => void;
   onNameChange: (name: string) => void;
-  relatesToOrganizationId: string;
+  staffingProviderOptions: OptionType[];
   timeZoneOptions: OptionType[];
   organizationTypes: OptionType[];
   featureFlagOptions: OptionType[];
@@ -50,7 +50,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
     superUserFirstName: props?.organization?.superUserFirstName || "",
     superUserLastName: props?.organization?.superUserLastName || "",
     superUserLoginEmail: props?.organization?.superUserLoginEmail || "",
-    isEdustaffOrg: false,
+    relatesToOrganizationId: "",
     timeZoneId:
       props?.organization?.timeZoneId || TimeZone.EasternStandardTimeUsCanada,
     featureFlags: props?.organization?.config?.featureFlags || [
@@ -156,9 +156,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
             superUserLoginEmail: data.superUserLoginEmail,
             timeZoneId: data.timeZoneId,
             seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
-            relatesToOrganizationId: data.isEdustaffOrg
-              ? props.relatesToOrganizationId
-              : undefined,
+            relatesToOrganizationId: data.relatesToOrganizationId,
             config: {
               defaultCountry: CountryCode.Us,
               featureFlags: data.featureFlags,
@@ -342,18 +340,30 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={values.isEdustaffOrg}
-                      onChange={e => {
-                        setFieldValue("isEdustaffOrg", e.target.checked);
-                      }}
-                      value={values.isEdustaffOrg}
-                      color="primary"
-                    />
-                  }
-                  label={t("Is this an Edustaff Org?")}
+                <SelectNew
+                  label={t("Staffing Provider")}
+                  name={"relatesToOrganizationId"}
+                  value={{
+                    value: values.relatesToOrganizationId ?? "",
+                    label:
+                      props.staffingProviderOptions.find(
+                        a => a.value === values.relatesToOrganizationId
+                      )?.label || "",
+                  }}
+                  options={props.staffingProviderOptions}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("relatesToOrganizationId", selectedValue);
+                  }}
+                  doSort={false}
+                  multiple={false}
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
