@@ -25,6 +25,7 @@ import { DataImportRowData } from "./components/row-data";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { RowStatusFilter } from "./components/row-status-filter";
 import { DataImportRowStatus } from "graphql/server-types.gen";
+import { useDataImportTypes } from "reference-data/data-import-types";
 
 export const DataImportViewPage: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -53,6 +54,8 @@ export const DataImportViewPage: React.FC<{}> = () => {
     }
   );
 
+  const dataImportTypes = useDataImportTypes();
+
   const dataImport =
     getImport.state === "DONE" ? getImport.data.dataImport?.byId : undefined;
 
@@ -76,17 +79,15 @@ export const DataImportViewPage: React.FC<{}> = () => {
           dataImport.totalRowCount === 1 ? t("row") : t("rows")
         }`;
 
+  const dataImportTypeLabel = dataImportTypes.find(
+    o => o.enumValue === dataImport.dataImportTypeId
+  )?.description;
+
   return (
     <>
       <Grid container alignItems="center" justify="space-between">
         <Grid item>
-          <PageTitle
-            title={`${getDisplayName(
-              "dataImportType",
-              dataImport.dataImportTypeId,
-              t
-            )} ${t("data import")}`}
-          />
+          <PageTitle title={`${dataImportTypeLabel} ${t("data import")}`} />
         </Grid>
         {dataImport.fileUpload && (
           <Grid item>
