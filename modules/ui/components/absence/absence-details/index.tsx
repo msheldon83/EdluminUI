@@ -91,6 +91,7 @@ type Props = {
   disableEditingDatesAndTimes?: boolean;
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
+  replacementEmail?: string;
   onRemoveReplacement: (
     assignmentId?: string,
     assignmentRowVersion?: string,
@@ -367,6 +368,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             assignmentStartDate={assignmentStartTime ?? startDate}
             vacancies={props.vacancies}
             assignmentsByDate={assignmentsByDate}
+            email={props.replacementEmail}
           />
         )}
 

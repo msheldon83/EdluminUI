@@ -112,6 +112,7 @@ query GetAbsence($id: ID!) {
               id
               firstName
               lastName
+              email
             }
           }
           accountingCodeAllocations {

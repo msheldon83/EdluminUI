@@ -290,12 +290,14 @@ export const EditAbsence: React.FC<Props> = props => {
 
   let replacementEmployeeId: string | undefined;
   let replacementEmployeeName: string | undefined;
+  let replacementEmail: string | undefined;
 
   // @ts-ignore
   const assignedEmployee = vacancy?.details[0]?.assignment?.employee;
   if (assignedEmployee) {
     replacementEmployeeId = assignedEmployee.id;
     replacementEmployeeName = `${assignedEmployee.firstName} ${assignedEmployee.lastName}`;
+    replacementEmail = assignedEmployee.email ?? undefined;
   }
 
   const processedUsage: AbsenceReasonUsageData[] = (() => {
@@ -376,6 +378,7 @@ export const EditAbsence: React.FC<Props> = props => {
         absenceDetailsIdsByDate={absenceDetailsIdsByDate}
         replacementEmployeeId={replacementEmployeeId}
         replacementEmployeeName={replacementEmployeeName}
+        replacementEmail={replacementEmail}
         actingAsEmployee={props.actingAsEmployee}
         startTimeLocal={detail.startTimeLocal}
         endTimeLocal={detail.endTimeLocal}
