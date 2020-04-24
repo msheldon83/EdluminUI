@@ -117,6 +117,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
                 props.onAssignSubClick!(vacancyDetailIds, subName)
               }
               assignmentsByDate={props.assignmentsByDate}
+              email={groupedDetail.assignmentEmployeeEmail}
             />
           )}
         </Grid>
