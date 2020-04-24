@@ -55,6 +55,10 @@ export const HoursToDays: React.FC<Props> = props => {
     return <></>;
   }
 
+  const onCancel = async () => {
+    history.push(HoursToDaysRoute.generate(params));
+  };
+
   const updateConversions = async (conversions: DayConversion[]) => {
     const updateObject = {
       variables: {
@@ -71,7 +75,7 @@ export const HoursToDays: React.FC<Props> = props => {
 
     const result = response.data?.organization?.update;
     if (result) {
-      history.push(HoursToDaysRoute.generate(params));
+      await onCancel();
     }
   };
 
@@ -313,6 +317,11 @@ export const HoursToDays: React.FC<Props> = props => {
   );
 };
 
+const printId = (a: any) => {
+  console.log(a);
+  return a;
+};
+
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
@@ -320,7 +329,7 @@ const useStyles = makeStyles(theme => ({
     width: "70%",
   },
   row: {
-    padding: theme.spacing(1),
+    padding: printId(theme).spacing(1),
   },
   headerCell: {
     paddingRight: theme.spacing(4),
@@ -331,5 +340,6 @@ const useStyles = makeStyles(theme => ({
   submit: {
     marginLeft: "auto",
     marginTop: "auto",
+    backgroundColor: theme.customColors.edluminSlate,
   },
 }));

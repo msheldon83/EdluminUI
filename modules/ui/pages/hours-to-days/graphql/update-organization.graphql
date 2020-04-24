@@ -2,7 +2,7 @@ mutation UpdateOrganization($organization: OrganizationUpdateInput!) {
   organization {
     update(organization: $organization) {
       orgId
-      #rowVersion
+      rowVersion
       config {
         vacancyDayConversions {
           name
