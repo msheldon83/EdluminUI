@@ -14,6 +14,7 @@ query GetDataImportById($id: ID!) {
       fileUpload {
         id
         originalFileDownloadUrlSas
+        uploadedFileName
       }
     }
   }

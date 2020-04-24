@@ -103,6 +103,12 @@ export const DataImportViewPage: React.FC<{}> = () => {
       <Section>
         <Grid container spacing={2}>
           <Grid item xs={3}>
+            <div className={classes.labelText}>{t("File name")}</div>
+            <div className={classes.text}>
+              {dataImport.fileUpload?.uploadedFileName ?? t("Not Available")}
+            </div>
+          </Grid>
+          <Grid item xs={3}>
             <div className={classes.labelText}>{t("Import status")}</div>
             <div className={classes.text}>
               {getDisplayName(
