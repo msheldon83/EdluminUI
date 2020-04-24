@@ -50,7 +50,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
     superUserFirstName: props?.organization?.superUserFirstName || "",
     superUserLastName: props?.organization?.superUserLastName || "",
     superUserLoginEmail: props?.organization?.superUserLoginEmail || "",
-    relatesToOrganizationId: "",
+    relatesToOrganizationId: undefined,
     timeZoneId:
       props?.organization?.timeZoneId || TimeZone.EasternStandardTimeUsCanada,
     featureFlags: props?.organization?.config?.featureFlags || [
@@ -148,15 +148,13 @@ export const AddBasicInfo: React.FC<Props> = props => {
           await props.onSubmit({
             name: data.name.trim(),
             externalId:
-              data.externalId && data.externalId.trim().length === 0
-                ? null
-                : data.externalId,
+              data.externalId.trim().length > 0 ? data.externalId : undefined,
             superUserFirstName: data.superUserFirstName.trim(),
             superUserLastName: data.superUserLastName.trim(),
             superUserLoginEmail: data.superUserLoginEmail,
             timeZoneId: data.timeZoneId,
             seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
-            relatesToOrganizationId: data.relatesToOrganizationId,
+            relatesToOrganizationId: data.relatesToOrganizationId ?? undefined,
             config: {
               defaultCountry: CountryCode.Us,
               featureFlags: data.featureFlags,
