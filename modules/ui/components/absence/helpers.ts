@@ -88,6 +88,7 @@ export type ReplacementEmployeeForVacancy = {
   employeeId: string;
   firstName: string;
   lastName: string;
+  email?: string;
   assignmentId: string;
   assignmentRowVersion: string;
 };
@@ -115,6 +116,7 @@ export const getReplacementEmployeeForVacancy = (
     employeeId: assignment.employee?.id ?? "",
     firstName: assignment.employee?.firstName || "",
     lastName: assignment.employee?.lastName || "",
+    email: assignment.employee?.email ?? undefined,
     assignmentId: assignment.id,
     assignmentRowVersion: assignment.rowVersion,
   };
@@ -140,6 +142,7 @@ export type VacancyDetailsGroup = DetailsGroup<VacancyDetailsItem> & {
   assignmentEmployeeId?: string;
   assignmentEmployeeFirstName?: string;
   assignmentEmployeeLastName?: string;
+  assignmentEmployeeEmail?: string;
 };
 
 type DetailsItem = {
@@ -382,6 +385,7 @@ export const getVacancyDetailsGrouping = (
         assignmentEmployeeId: value[0].assignmentEmployeeId,
         assignmentEmployeeFirstName: value[0].assignmentEmployeeFirstName,
         assignmentEmployeeLastName: value[0].assignmentEmployeeLastName,
+        assignmentEmployeeEmail: value[0].assignmentEmployeeEmail,
       });
     }
   });
@@ -552,6 +556,7 @@ export const getGroupedVacancyDetails = (
               d.assignmentEmployeeId = match.assignmentEmployeeId;
               d.assignmentEmployeeFirstName = match.assignmentEmployeeFirstName;
               d.assignmentEmployeeLastName = match.assignmentEmployeeLastName;
+              d.assignmentEmployeeEmail = match.assignmentEmployeeEmail;
             }
           });
       }

@@ -88,6 +88,7 @@ type Props = {
   absenceDetailsIdsByDate: Record<string, string>;
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
+  replacementEmail?: string;
   locationIds?: string[];
   startTimeLocal: string;
   endTimeLocal: string;
@@ -662,6 +663,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               disableEditingDatesAndTimes={!canEdit}
               replacementEmployeeId={props.replacementEmployeeId}
               replacementEmployeeName={props.replacementEmployeeName}
+              replacementEmail={props.replacementEmail}
               onRemoveReplacement={props.cancelAssignments}
               locationIds={props.locationIds}
               returnUrl={props.returnUrl}
