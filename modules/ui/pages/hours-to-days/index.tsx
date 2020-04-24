@@ -151,14 +151,14 @@ export const HoursToDays: React.FC<Props> = props => {
                 yup.object().shape({
                   maxMinutes: yup
                     .number()
-                    .min(0, "Up to must be non-negative")
-                    .max(1439, "Up to must be less than 24 hours")
-                    .required("Required"),
-                  name: yup.string().required("Name must be non-empty"),
+                    .min(0, t("Up to must be non-negative"))
+                    .max(1439, t("Up to must be less than 24 hours"))
+                    .required(t("Required")),
+                  name: yup.string().required(t("Name must be non-empty")),
                   dayEquivalent: yup
                     .number()
-                    .min(0, "Day equivalent must be non-negative")
-                    .required("Required"),
+                    .min(0, t("Day equivalent must be non-negative"))
+                    .required(t("Required")),
                 })
               )
               .test({
@@ -201,8 +201,8 @@ export const HoursToDays: React.FC<Props> = props => {
               name: yup.string().required("Required"),
               dayEquivalent: yup
                 .number()
-                .min(0, "Day equivalent must be non-negative")
-                .required("Required"),
+                .min(0, t("Day equivalent must be non-negative"))
+                .required(t("Required")),
             }),
           })
           .test({
@@ -227,9 +227,9 @@ export const HoursToDays: React.FC<Props> = props => {
             <form onSubmit={handleSubmit}>
               <Section>
                 <h4>
-                  For position types that are paid in days, the assignment pay
-                  amount will be rounded up to the nearest day equivalent
-                  defined below
+                  {t(
+                    "For position types that are paid in days, the assignment pay amount will be rounded up to the nearest day equivalent defined below"
+                  )}
                 </h4>
                 <div className={classes.container}>
                   <div>
@@ -237,13 +237,13 @@ export const HoursToDays: React.FC<Props> = props => {
                       <Grid item container>
                         <Grid item xs={1} className={classes.headerCell} />
                         <Grid item xs={3} className={classes.headerCell}>
-                          Up to
+                          {t("Up to")}
                         </Grid>
                         <Grid item xs={4} className={classes.headerCell}>
-                          Display Name
+                          {t("Display Name")}
                         </Grid>
                         <Grid item xs={4} className={classes.headerCell}>
-                          Day equivalent
+                          {t("Day equivalent")}
                         </Grid>
                       </Grid>
                       {values.conversions.map((c, i) => (
@@ -280,12 +280,12 @@ export const HoursToDays: React.FC<Props> = props => {
                         )}
                         headerText={
                           values.conversions.length
-                            ? `Greater than ${formatMinutes(
+                            ? `${t("Greater than")} ${formatMinutes(
                                 values.conversions[
                                   values.conversions.length - 1
                                 ].maxMinutes
                               )}`
-                            : "All hours"
+                            : t("All hours") ?? ""
                         }
                       />
                     </Grid>
@@ -317,11 +317,6 @@ export const HoursToDays: React.FC<Props> = props => {
   );
 };
 
-const printId = (a: any) => {
-  console.log(a);
-  return a;
-};
-
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
@@ -329,7 +324,7 @@ const useStyles = makeStyles(theme => ({
     width: "70%",
   },
   row: {
-    padding: printId(theme).spacing(1),
+    padding: theme.spacing(1),
   },
   headerCell: {
     paddingRight: theme.spacing(4),
