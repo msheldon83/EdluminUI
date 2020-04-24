@@ -46,7 +46,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
 
   const initialValues = {
     name: props?.organization?.name || "",
-    externalId: props?.organization?.externalId || undefined,
+    externalId: props?.organization?.externalId || null,
     superUserFirstName: props?.organization?.superUserFirstName || "",
     superUserLastName: props?.organization?.superUserLastName || "",
     superUserLoginEmail: props?.organization?.superUserLoginEmail || "",
