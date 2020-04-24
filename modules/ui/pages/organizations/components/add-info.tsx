@@ -147,10 +147,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
         onSubmit={async (data: any) => {
           await props.onSubmit({
             name: data.name.trim(),
-            externalId:
-              data.externalId && data.externalId.trim().length === 0
-                ? null
-                : data.externalId,
+            externalId: data.externalId ?? undefined,
             superUserFirstName: data.superUserFirstName.trim(),
             superUserLastName: data.superUserLastName.trim(),
             superUserLoginEmail: data.superUserLoginEmail,
