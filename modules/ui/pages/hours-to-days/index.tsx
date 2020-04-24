@@ -14,7 +14,7 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetOrganizationById } from "./graphql/get-organization.gen";
 import { UpdateOrganization } from "./graphql/update-organization.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { HoursToDaysRoute } from "ui/routes/hours-to-days";
+import { SettingsRoute } from "ui/routes/settings";
 import { Section } from "ui/components/section";
 import { ShowErrors } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
@@ -33,7 +33,7 @@ const formatMinutes = (minutes?: number) =>
 export const HoursToDays: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(HoursToDaysRoute);
+  const params = useRouteParams(SettingsRoute);
   const { openSnackbar } = useSnackbar();
   const history = useHistory();
   const getOrganization = useQueryBundle(GetOrganizationById, {
@@ -56,7 +56,7 @@ export const HoursToDays: React.FC<Props> = props => {
   }
 
   const onCancel = async () => {
-    history.push(HoursToDaysRoute.generate(params));
+    history.push(SettingsRoute.generate(params));
   };
 
   const updateConversions = async (conversions: DayConversion[]) => {
@@ -73,7 +73,7 @@ export const HoursToDays: React.FC<Props> = props => {
     };
     const response = await updateOrg(updateObject);
 
-    const result = response.data?.organization?.update;
+    const result = response?.data?.organization?.update;
     if (result) {
       await onCancel();
     }
