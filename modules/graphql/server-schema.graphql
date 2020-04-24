@@ -735,6 +735,7 @@ type BasicEmployee implements ModelObjectInterface & OrgObjectInterface {
   lastName: String!
   phoneNumber: String
   formattedPhone: String
+  email: String
 }
 
 type BasicOrganization implements ModelObjectInterface & OrgObjectInterface {
@@ -6313,10 +6314,42 @@ type VacancyQueries {
   ): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
-  subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
-  vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]
-  vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
-  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
+  subJobSearch(
+    id: ID!
+    availableJobsOnly: Boolean
+    showNonPreferredJobs: Boolean
+    orgIds: [ID]
+    locationIds: [ID]
+    positionTypeIds: [ID]
+    limit: Int
+    offset: Int
+  ): PagedSubJobSearch
+  vacancyNotificationLogByVacancy(
+    vacancyId: ID!
+    sortBy: [SortDetailsInput]
+  ): [VacancyNotificationLog]
+  vacancyNotificationLogByUser(
+    userId: ID!
+    fromDate: Date
+    toDate: Date
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+  ): PagedVacancyNotificationLog
+  replacementEmployeesForVacancy(
+    orgId: ID!
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+    vacancyId: ID
+    vacancyDetailIds: [ID]
+    vacancy: VacancyCreateInput
+    name: String
+    qualified: [VacancyQualification]
+    available: [VacancyAvailability]
+    favoritesOnly: Boolean
+    replacementEmployeeId: ID
+  ): PagedVacancySubSearchQueryResult
   activityLog(id: ID!): ActivityLog
 }
 

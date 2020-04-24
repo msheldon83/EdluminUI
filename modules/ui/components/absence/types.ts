@@ -5,6 +5,7 @@ type AssignmentInfo = {
   assignmentEmployeeId?: string;
   assignmentEmployeeFirstName?: string;
   assignmentEmployeeLastName?: string;
+  assignmentEmployeeEmail?: string;
 };
 
 export type VacancyDetail = {
