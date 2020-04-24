@@ -7,5 +7,6 @@ module.exports = {
   auth0_scope: "openid profile email",
   auth0_clock_skew_leeway_seconds: 3600,
   apiUrl: "https://devapi.edlumin.com/graphql",
+  restUrl: "https://devapi.edlumin.com/api",
   isDevFeatureOnly: true,
 };

@@ -5,6 +5,7 @@ mutation UpdateOrgConfig($orgConfig: OrganizationUpdateInput!) {
       orgId
       rowVersion
       config {
+        id
         featureFlags
         minutesBeforeStartAbsenceCanBeCreated
         minLeadTimeMinutesToCancelVacancy

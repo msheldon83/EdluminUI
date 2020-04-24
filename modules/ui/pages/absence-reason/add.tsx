@@ -75,6 +75,8 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
           absenceReason: {
             orgId: params.organizationId,
             ...basicInfo,
+            externalId:
+              basicInfo?.externalId === "" ? null : basicInfo?.externalId,
             allowNegativeBalance,
             absenceReasonTrackingId,
             isRestricted,

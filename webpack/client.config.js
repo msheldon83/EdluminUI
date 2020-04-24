@@ -134,6 +134,7 @@ module.exports = {
       "Config.Auth0.clockSkewLeewaySeconds": JSON.stringify(
         config.get("auth0_clock_skew_leeway_seconds")
       ),
+      "Config.restUri": JSON.stringify(config.get("restUrl")),
       "Config.apiUri": JSON.stringify(config.get("apiUrl")),
       "Config.isDevFeatureOnly": JSON.stringify(config.get("isDevFeatureOnly")),
 

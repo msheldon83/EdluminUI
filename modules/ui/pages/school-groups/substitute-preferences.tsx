@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetLocationGroupById } from "./graphql/get-location-groups-by-id.gen";
+import { GetLocationGroupById } from "./graphql/get-location-group-by-id.gen";
 import { UpdateLocationGroup } from "./graphql/update-location-group.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationGroupSubPrefRoute } from "ui/routes/location-groups";

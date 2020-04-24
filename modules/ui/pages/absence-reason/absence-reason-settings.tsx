@@ -196,6 +196,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
             </Typography>
             <SelectNew
               name="absenceReasonCategoryId"
+              className={classes.categorySelector}
               multiple={false}
               options={absenceReasonCategoryOptions}
               value={{
@@ -232,5 +233,8 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   label: {
     marginTop: theme.spacing(4),
+  },
+  categorySelector: {
+    width: theme.typography.pxToRem(500),
   },
 }));

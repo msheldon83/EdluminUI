@@ -1,4 +1,5 @@
 import i18next = require("i18next");
+import { camelCase, upperFirst } from "lodash-es";
 
 type EnumDefinition = {
   name: string;
@@ -159,6 +160,14 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Ignored"),
     },
     {
+      name: "absenceReasonTrackingTypeId.HOURLY",
+      displayName: t("Hourly"),
+    },
+    {
+      name: "absenceReasonTrackingTypeId.DAILY",
+      displayName: t("Daily"),
+    },
+    {
       name: "dataImportStatus.CREATED",
       displayName: t("Created"),
     },
@@ -205,6 +214,10 @@ const buildEnumMap = (t: i18next.TFunction) => {
     {
       name: "dataImportStatus.VALIDATED",
       displayName: t("Validated"),
+    },
+    {
+      name: "dataImportStatus.QUEUED_FOR_PROCESSING",
+      displayName: t("Queued for processing"),
     },
     {
       name: "dataImportStatus.IMPORTING",
@@ -347,4 +360,10 @@ export const getDisplayName = (
   const enumKey = `${propertyName}.${enumValue}`;
   const match = enumMap.find(e => e.name === enumKey);
   return match ? match.displayName : null;
+};
+
+// Converts an enum from "ABSENCE_REASON" to "AbsenceReason"
+// This is useful for converting our enums from the GraphQl schema to match the serverside enums.
+export const formatEnumString = (enumValue: string) => {
+  return upperFirst(camelCase(enumValue));
 };

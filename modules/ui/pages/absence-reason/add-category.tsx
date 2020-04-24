@@ -79,22 +79,17 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
           absenceReasonCategory: {
             orgId: params.organizationId,
             ...basicInfo,
+            externalId:
+              basicInfo?.externalId === "" ? null : basicInfo?.externalId,
             allowNegativeBalance,
             absenceReasonTrackingId,
             description,
           },
         },
       });
-      history.push(AbsenceReasonRoute.generate(params));
-      /*const id = result.data?.orgRef_AbsenceReasonCategory?.create?.id;
-      if (id) {
-        history.push(
-          AbsenceReasonCategoryViewEditRoute.generate({
-            ...params,
-            absenceReasonCategoryId: id,
-          })
-        );
-      }*/
+      if (result.data?.orgRef_AbsenceReasonCategory?.create) {
+        history.push(AbsenceReasonRoute.generate(params));
+      }
     },
     [createAbsenceReasonCategory, basicInfo, params, history]
   );

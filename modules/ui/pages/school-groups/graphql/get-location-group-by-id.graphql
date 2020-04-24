@@ -5,6 +5,11 @@ query GetLocationGroupById($locationGroupId: ID!) {
       name
       externalId
       rowVersion
+      locations {
+        id
+        orgId
+        name
+      }
       substitutePreferences {
         blockedSubstitutes {
           id

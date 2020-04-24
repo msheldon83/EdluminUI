@@ -230,10 +230,10 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                             values.contracts.includes(e.value.toString())
                         ) ?? [{ label: "", id: "" }]
                       }
-                      onChange={(value: OptionType[]) => {
-                        const ids: number[] = value
-                          ? value.map((v: OptionType) => Number(v.value))
-                          : [];
+                      onChange={e => {
+                        const ids = e.map((v: OptionType) =>
+                          v.value.toString()
+                        );
                         setFieldValue("contracts", ids);
                       }}
                       options={contractOptions}

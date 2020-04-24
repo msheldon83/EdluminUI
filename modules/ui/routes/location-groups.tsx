@@ -13,6 +13,22 @@ export const LocationGroupViewRoute = defineSubRoute(
   ["locationGroupId"]
 );
 
+// Add
+export const LocationGroupAddRoute = defineSubRoute(
+  LocationGroupsRoute,
+  "/add",
+  []
+);
+
+export const LocationGroupAddLoader = asyncComponent({
+  resolve: async () => {
+    const LocationGroupAddPage = (await import("ui/pages/school-groups/add"))
+      .LocationGroupAddPage;
+    return LocationGroupAddPage;
+  },
+  name: "LocationGroupAddPage",
+});
+
 export const LocationGroupSubPrefRoute = defineSubRoute(
   LocationGroupViewRoute,
   "/substitute-preferences"
