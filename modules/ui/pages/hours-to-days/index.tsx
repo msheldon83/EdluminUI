@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
+import { useHistory } from "react-router";
 import { Button, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { Formik } from "formik";
@@ -8,137 +8,217 @@ import clsx from "clsx";
 import * as yup from "yup";
 import { startOfDay, format } from "date-fns";
 import { FormikErrors } from "formik";
-import { PageTitle } from "ui/components/page-title";
-import { HoursToDaysRow } from "./hours-to-days-row";
+import { useSnackbar } from "hooks/use-snackbar";
+import { DayConversion as RawDayConversion } from "graphql/server-types.gen";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { GetOrganizationById } from "./graphql/get-organization.gen";
+import { UpdateOrganization } from "./graphql/update-organization.gen";
+import { useRouteParams } from "ui/routes/definition";
+import { HoursToDaysRoute } from "ui/routes/hours-to-days";
 import { Section } from "ui/components/section";
+import { ShowErrors } from "ui/components/error-helpers";
+import { PageTitle } from "ui/components/page-title";
+import { HoursToDaysRow } from "./components/hours-to-days-row";
+import { DayConversion, HoursToDaysData } from "./types";
 
 type Props = {};
 
-type Case = {
-  maxMinutes: number;
-  name: string;
-  dayEquivalent: number;
-};
-
-type HoursToDaysData = {
-  cases: Case[];
-  catchAll: {
-    name: string;
-    dayEquivalent: number;
-  };
-};
-
-const formatMinutes = (minutes: number) =>
-  `${Math.floor(minutes / 60)}:${(minutes % 60).toString().padStart(2, "0")}`;
+const formatMinutes = (minutes?: number) =>
+  minutes
+    ? `${Math.floor(minutes / 60)}:${(minutes % 60)
+        .toString()
+        .padStart(2, "0")}`
+    : "...";
 
 export const HoursToDays: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-
-  const dummyData: HoursToDaysData = {
-    cases: [
-      {
-        maxMinutes: 360,
-        name: "First",
-        dayEquivalent: 0.5,
-      },
-    ],
-    catchAll: {
-      name: "Last",
-      dayEquivalent: 1,
+  const params = useRouteParams(HoursToDaysRoute);
+  const { openSnackbar } = useSnackbar();
+  const history = useHistory();
+  const getOrganization = useQueryBundle(GetOrganizationById, {
+    variables: { id: params.organizationId },
+  });
+  const [updateOrg] = useMutationBundle(UpdateOrganization, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
     },
+  });
+
+  if (getOrganization.state === "LOADING") {
+    return <></>;
+  }
+
+  const organization = getOrganization?.data?.organization?.byId;
+
+  if (!organization) {
+    return <></>;
+  }
+
+  const updateConversions = async (conversions: DayConversion[]) => {
+    const updateObject = {
+      variables: {
+        organization: {
+          orgId: params.organizationId,
+          rowVersion: organization.rowVersion,
+          config: {
+            vacancyDayConversions: conversions,
+          },
+        },
+      },
+    };
+    const response = await updateOrg(updateObject);
+
+    const result = response.data?.organization?.update;
+    if (result) {
+      history.push(HoursToDaysRoute.generate(params));
+    }
   };
 
-  const today = startOfDay(new Date());
   const deleteRow = (
-    currentCases: Case[],
+    currentConversions: Partial<DayConversion>[],
     setFieldValue: (field: keyof HoursToDaysData, value: any) => void,
     i: number
   ) => () => {
-    setFieldValue(
-      "cases",
-      currentCases.slice(0, i).concat(currentCases.slice(i + 1))
-    );
+    currentConversions.splice(i, 1);
+    setFieldValue("conversions", currentConversions);
   };
   const addRow = (
-    currentCases: Case[],
+    currentConversions: Partial<DayConversion>[],
+    currentCatchAll: Partial<DayConversion>,
     setFieldValue: (field: keyof HoursToDaysData, value: any) => void
   ) => () => {
-    const last = currentCases[currentCases.length - 1];
-    setFieldValue(
-      "cases",
-      currentCases.concat([
-        {
-          maxMinutes: last.maxMinutes + 1,
-          name: "",
-          dayEquivalent: last.dayEquivalent,
-        },
-      ])
-    );
+    currentCatchAll.maxMinutes = undefined;
+    currentConversions.push(currentCatchAll);
+    setFieldValue("conversions", currentConversions);
+    setFieldValue("catchAll", {
+      maxMinutes: 1440,
+    });
+  };
+
+  // Initial Value creation
+
+  // Sanitizes data to ensure the last conversion has a maxMinutes of 1440 (24 hours)
+  const ensureCatchAll = (conversions: Partial<DayConversion>[]) => {
+    const last =
+      conversions.length === 0 ? null : conversions[conversions.length - 1];
+    if (!last || !last.maxMinutes || last.maxMinutes < 1440) {
+      conversions.push({
+        maxMinutes: 1440,
+      });
+    }
+    return conversions;
+  };
+
+  const initialConversions = ensureCatchAll(
+    (organization.config?.vacancyDayConversions ?? []).map(input =>
+      input
+        ? {
+            name: input.name,
+            maxMinutes: input.maxMinutes,
+            dayEquivalent: input.dayEquivalent,
+          }
+        : {}
+    )
+  );
+
+  const initialValues: HoursToDaysData = {
+    conversions: initialConversions.slice(0, -1),
+    catchAll: initialConversions[initialConversions.length - 1],
   };
 
   return (
     <>
       <PageTitle title={t("Hours-to-days conversion")} />
       <Formik
-        initialValues={dummyData}
-        onSubmit={() => {}}
-        validationSchema={yup.object().shape({
-          cases: yup
-            .array()
-            .of(
-              yup.object().shape({
-                maxMinutes: yup
-                  .number()
-                  .min(0, "maxMinutes must be non-negative")
-                  .max(60 * 24, "There's only so many hours in a day!")
-                  .required(),
-                name: yup.string().required("Name must be non-empty"),
-                dayEquivalent: yup
-                  .number()
-                  .min(0, "dayEquivalent must be non-negative")
-                  .max(1, "dayEquivalent can be at most 1")
-                  .required(),
+        initialValues={initialValues}
+        onSubmit={async data => {
+          const unified = data.conversions.concat(
+            data.catchAll
+          ) as DayConversion[];
+          await updateConversions(unified);
+        }}
+        validationSchema={yup
+          .object()
+          .shape({
+            conversions: yup
+              .array()
+              .of(
+                yup.object().shape({
+                  maxMinutes: yup
+                    .number()
+                    .min(0, "Up to must be non-negative")
+                    .max(1439, "Up to must be less than 24 hours")
+                    .required("Required"),
+                  name: yup.string().required("Name must be non-empty"),
+                  dayEquivalent: yup
+                    .number()
+                    .min(0, "Day equivalent must be non-negative")
+                    .required("Required"),
+                })
+              )
+              .test({
+                name: "minutesOrderedCheck",
+                test: function test(conversions: DayConversion[]) {
+                  for (let i = 0; i < conversions.length - 1; i++) {
+                    if (
+                      conversions[i].maxMinutes >= conversions[i + 1].maxMinutes
+                    ) {
+                      return new yup.ValidationError(
+                        t("Time durations out of order"),
+                        null,
+                        `${this.path}.${i + 1}.maxMinutes`
+                      );
+                    }
+                  }
+                  return true;
+                },
               })
-            )
-            .test({
-              name: "timesOrderedCheck",
-              test: function test(cases: Case[]) {
-                const reducer = (
-                  acc: boolean | yup.ValidationError,
-                  current: Case,
-                  i: number
-                ) => {
-                  if (!acc) {
-                    return acc;
+              .test({
+                name: "dayOrderedCheck",
+                test: function test(conversions: DayConversion[]) {
+                  for (let i = 0; i < conversions.length - 1; i++) {
+                    if (
+                      conversions[i].dayEquivalent >=
+                      conversions[i + 1].dayEquivalent
+                    ) {
+                      return new yup.ValidationError(
+                        t("Day equivalents out of order"),
+                        null,
+                        `${this.path}.${i + 1}.dayEquivalent`
+                      );
+                    }
                   }
-                  if (
-                    i == cases.length - 1 ||
-                    current.maxMinutes < cases[i + 1].maxMinutes
-                  ) {
-                    return acc;
-                  }
-                  return new yup.ValidationError(
-                    t("Time durations out of order"),
-                    null,
-                    `${this.path}.${i + 1}.maxMinutes`
-                  );
-                };
-                const res = cases.reduce(reducer, true);
-                return res;
-              },
+                  return true;
+                },
+              }),
+            catchAll: yup.object().shape({
+              maxMinutes: yup.number().required("Required"),
+              name: yup.string().required("Required"),
+              dayEquivalent: yup
+                .number()
+                .min(0, "Day equivalent must be non-negative")
+                .required("Required"),
             }),
-          catchAll: yup.object().shape({
-            name: yup.string().required("Name must be non-empty"),
-            dayEquivalent: yup
-              .number()
-              .min(0, "dayEquivalent must be non-negative")
-              .max(1, "dayEquivalent can be at most 1")
-              .required(),
-          }),
-        })}
+          })
+          .test({
+            name: "catch all order",
+            test: function test(value: HoursToDaysData) {
+              if (
+                value.conversions[value.conversions.length - 1]
+                  .dayEquivalent! >= value.catchAll.dayEquivalent!
+              ) {
+                return new yup.ValidationError(
+                  t("Day equivalents out of order"),
+                  null,
+                  `conversions.${value.conversions.length - 1}.dayEquivalent`
+                );
+              }
+              return true;
+            },
+          })}
       >
-        {({ values, handleSubmit, setFieldValue, errors }) => {
+        {({ values, handleSubmit, submitForm, setFieldValue, errors }) => {
           return (
             <form onSubmit={handleSubmit}>
               <Section>
@@ -147,59 +227,83 @@ export const HoursToDays: React.FC<Props> = props => {
                   amount will be rounded up to the nearest day equivalent
                   defined below
                 </h4>
-                <Grid container className={classes.rowContainer}>
-                  <Grid item container>
-                    <Grid item xs={1} className={classes.headerCell} />
-                    <Grid item xs={3} className={classes.headerCell}>
-                      Up to
+                <div className={classes.container}>
+                  <div>
+                    <Grid container>
+                      <Grid item container>
+                        <Grid item xs={1} className={classes.headerCell} />
+                        <Grid item xs={3} className={classes.headerCell}>
+                          Up to
+                        </Grid>
+                        <Grid item xs={4} className={classes.headerCell}>
+                          Display Name
+                        </Grid>
+                        <Grid item xs={4} className={classes.headerCell}>
+                          Day equivalent
+                        </Grid>
+                      </Grid>
+                      {values.conversions.map((c, i) => (
+                        <HoursToDaysRow
+                          key={`conversions.${i}`}
+                          keyPrefix={`conversions.${i}`}
+                          className={clsx(
+                            i % 2
+                              ? [classes.row, classes.shadedRow]
+                              : classes.row
+                          )}
+                          deleteThisRow={deleteRow(
+                            values.conversions,
+                            setFieldValue,
+                            i
+                          )}
+                          error={
+                            errors?.conversions &&
+                            Array.isArray(errors.conversions)
+                              ? (errors.conversions[i] as FormikErrors<
+                                  DayConversion
+                                >)
+                              : undefined
+                          }
+                        />
+                      ))}
+                      <HoursToDaysRow
+                        keyPrefix={`catchAll`}
+                        error={errors?.catchAll ? errors.catchAll : undefined}
+                        className={clsx(
+                          values.conversions.length % 2
+                            ? [classes.row, classes.shadedRow]
+                            : classes.row
+                        )}
+                        headerText={
+                          values.conversions.length
+                            ? `Greater than ${formatMinutes(
+                                values.conversions[
+                                  values.conversions.length - 1
+                                ].maxMinutes
+                              )}`
+                            : "All hours"
+                        }
+                      />
                     </Grid>
-                    <Grid item xs={4} className={classes.headerCell}>
-                      Display Name
-                    </Grid>
-                    <Grid item xs={4} className={classes.headerCell}>
-                      Day equivalent
-                    </Grid>
-                  </Grid>
-                  {values.cases.map((c, i) => (
-                    <HoursToDaysRow
-                      key={`cases.${i}`}
-                      keyPrefix={`cases.${i}`}
-                      className={clsx(
-                        i % 2 ? [classes.row, classes.shadedRow] : classes.row
+                    <Button
+                      variant="outlined"
+                      onClick={addRow(
+                        values.conversions,
+                        values.catchAll,
+                        setFieldValue
                       )}
-                      deleteThisRow={deleteRow(values.cases, setFieldValue, i)}
-                      error={
-                        errors && errors.cases && Array.isArray(errors.cases)
-                          ? (errors.cases[i] as FormikErrors<Case>)
-                          : undefined
-                      }
-                      {...c}
-                    />
-                  ))}
-                  <HoursToDaysRow
-                    keyPrefix={`catchAll`}
-                    className={clsx(
-                      values.cases.length % 2
-                        ? [classes.row, classes.shadedRow]
-                        : classes.row
-                    )}
-                    headerText={
-                      values.cases.length
-                        ? `Greater than ${formatMinutes(
-                            values.cases[values.cases.length - 1].maxMinutes
-                          )}`
-                        : "All hours"
-                    }
-                    error={errors?.catchAll}
-                    {...values.catchAll}
-                  />
-                </Grid>
-                <Button
-                  variant="outlined"
-                  onClick={addRow(values.cases, setFieldValue)}
-                >
-                  {t("Add row")}
-                </Button>
+                    >
+                      {t("Add row")}
+                    </Button>
+                  </div>
+                  <Button
+                    onClick={submitForm}
+                    variant="contained"
+                    className={classes.submit}
+                  >
+                    {t("Save")}
+                  </Button>
+                </div>
               </Section>
             </form>
           );
@@ -210,9 +314,10 @@ export const HoursToDays: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  rowContainer: {
+  container: {
+    display: "flex",
+    flexDirection: "column",
     width: "70%",
-    paddingRight: theme.spacing(4),
   },
   row: {
     padding: theme.spacing(1),
@@ -222,5 +327,9 @@ const useStyles = makeStyles(theme => ({
   },
   shadedRow: {
     background: theme.customColors.lightGray,
+  },
+  submit: {
+    marginLeft: "auto",
+    marginTop: "auto",
   },
 }));

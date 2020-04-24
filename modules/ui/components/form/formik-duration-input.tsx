@@ -17,7 +17,7 @@ export const FormikDurationInput: React.FC<Props> = props => {
   return (
     <DurationInput
       {...props}
-      value={field.value.toString()}
+      value={field?.value?.toString() ?? ""}
       onChange={(value: number) => setFieldValue(props.name, value)}
       placeholder={placeholder}
     />
