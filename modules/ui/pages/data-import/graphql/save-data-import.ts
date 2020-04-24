@@ -3,7 +3,7 @@ import { DataImportType } from "graphql/server-types.gen";
 
 export type DataImportOptions = {
   orgId: string;
-  dataImportTypeId: DataImportType;
+  dataImportTypeId: string;
   parseOnly?: boolean;
   validateOnly?: boolean;
   ignoreWarnings?: boolean;

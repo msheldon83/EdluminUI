@@ -23,6 +23,7 @@ import {
 import { ImportTypeFilter } from "./import-type-filter";
 import { DataImportType } from "graphql/server-types.gen";
 import { ActionButtons } from "ui/components/action-buttons";
+import { formatEnumString } from "ui/components/enumHelpers";
 
 type Props = {
   orgId: string;
@@ -87,7 +88,7 @@ export const ImportDataForm: React.FC<Props> = props => {
           const result = await onSaveDataImport({
             importOptions: {
               orgId: props.orgId,
-              dataImportTypeId: data.importTypeId,
+              dataImportTypeId: formatEnumString(data.importTypeId.toString()),
               parseOnly: data.importAction === "parse",
               validateOnly: data.importAction === "validate",
               notificationEmailAddresses:
