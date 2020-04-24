@@ -7,27 +7,17 @@ import { FormikErrors } from "formik";
 import { FormikDurationInput } from "ui/components/form/formik-duration-input";
 import { ClearedInput } from "./cleared-input";
 
-type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
-type XOR<T, U> = T | U extends object
-  ? (Without<T, U> & U) | (Without<U, T> & T)
-  : T | U;
-
 type Props = {
   keyPrefix: string;
   className?: string;
+  headerText?: string;
+  deleteThisRow?: () => void;
   error?: FormikErrors<{
     maxMinutes: number;
     name: string;
     dayEquivalent: number;
   }>;
-} & XOR<
-  {
-    headerText: string;
-  },
-  {
-    deleteThisRow: () => void;
-  }
->;
+};
 
 export const HoursToDaysRow: React.FC<Props> = props => {
   const classes = useStyles();
