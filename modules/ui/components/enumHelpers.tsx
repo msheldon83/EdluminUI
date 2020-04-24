@@ -1,4 +1,5 @@
 import i18next = require("i18next");
+import { camelCase, upperFirst } from "lodash-es";
 
 type EnumDefinition = {
   name: string;
@@ -359,4 +360,10 @@ export const getDisplayName = (
   const enumKey = `${propertyName}.${enumValue}`;
   const match = enumMap.find(e => e.name === enumKey);
   return match ? match.displayName : null;
+};
+
+// Converts an enum from "ABSENCE_REASON" to "AbsenceReason"
+// This is useful for converting our enums from the GraphQl schema to match the serverside enums.
+export const formatEnumString = (enumValue: string) => {
+  return upperFirst(camelCase(enumValue));
 };
