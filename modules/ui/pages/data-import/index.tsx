@@ -77,6 +77,13 @@ export const DataImportPage: React.FC<{}> = () => {
   const columns: Column<GetDataImports.Results>[] = [
     { title: t("Id"), field: "id", sorting: false },
     {
+      title: t("File name"),
+      render: data => {
+        return data.fileUpload?.uploadedFileName ?? t("Not Available");
+      },
+      sorting: false,
+    },
+    {
       title: t("Created"),
       render: data => {
         return format(new Date(data.createdUtc), "MMM d, h:mm:ss a");
