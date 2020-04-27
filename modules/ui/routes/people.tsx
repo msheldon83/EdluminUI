@@ -146,7 +146,7 @@ export const PeopleReplacementCriteriaEditLoader = asyncComponent({
   resolve: async () => {
     const PeopleReplacementCriteriaEdit = (
       await import(
-        "ui/pages/people/components/employee/edit-replacement-critieria"
+        "ui/pages/people/components/employee/edit-replacement-criteria"
       )
     ).PeopleReplacementCriteriaEdit;
     return PeopleReplacementCriteriaEdit;
