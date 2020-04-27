@@ -104,8 +104,8 @@ type Props = {
   returnUrl?: string;
   assignmentsByDate: AssignmentOnDate[];
   closedDates?:
-    | Maybe<Pick<AbsenceDetail, "id" | "startDate"> | null | undefined>[]
-    | null;
+  | Maybe<Pick<AbsenceDetail, "id" | "startDate"> | null | undefined>[]
+  | null;
   isClosed: boolean;
 };
 
@@ -121,14 +121,6 @@ type EditAbsenceFormData = {
   accountingCode?: string;
   payCode?: string;
 };
-
-/*
- * We're allowing @ts-ignore comments in this file because of a difficult problem.
- * It appears that something to do with the generated types for GetAbsence cause
- * spurious errors to be emitted from typescript. Hopefully this is an isolated
- * problem. If not, we'll need to figure out a proper fix.
- */
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
 
 export const EditAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -181,10 +173,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     absenceReason: props.absenceReason.id.toString(),
     dayPart: props.dayPart,
     payCode:
-      // @ts-ignore
       props.initialVacancies[0]?.details[0]?.payCodeId?.toString() ?? undefined,
     accountingCode:
-      // @ts-ignore
       props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCode?.id?.toString() ??
       undefined,
     hourlyStartTime:
@@ -335,7 +325,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ignoreAbsenceId: props.absenceId,
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
-    onError: () => {},
+    onError: () => { },
   });
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
@@ -358,21 +348,21 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   const initialAbsenceUsageData = props.initialAbsenceUsageData;
   const projectedAbsenceUsage =
     getProjectedAbsenceUsage.state === "DONE" ||
-    getProjectedAbsenceUsage.state === "UPDATING"
+      getProjectedAbsenceUsage.state === "UPDATING"
       ? compact(
-          flatMap(
-            getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
-            d => d?.reasonUsages?.map(ru => ru)
-          )
+        flatMap(
+          getProjectedAbsenceUsage.data.absence?.projectedAbsence?.details,
+          d => d?.reasonUsages?.map(ru => ru)
         )
+      )
       : [];
 
   const projectedVacancies =
     getProjectedVacancies.state === "DONE" ||
-    getProjectedVacancies.state === "UPDATING"
+      getProjectedVacancies.state === "UPDATING"
       ? (compact(
-          getProjectedVacancies.data?.absence?.projectedVacancies ?? []
-        ) as Vacancy[])
+        getProjectedVacancies.data?.absence?.projectedVacancies ?? []
+      ) as Vacancy[])
       : null;
 
   const onChangedVacancies = useCallback(
@@ -444,8 +434,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       openSnackbar({
         message: props.returnUrl
           ? t("Absence #{{absenceId}} has been updated", {
-              absenceId: absence.id,
-            })
+            absenceId: absence.id,
+          })
           : t("The absence has been updated"),
         dismissable: true,
         status: "success",
@@ -791,15 +781,15 @@ const buildAbsenceUpdateInput = (
       payCodeId: !detailsHaveDifferentPayCodeSelections
         ? undefined
         : v.payCodeId
-        ? v.payCodeId
-        : null,
+          ? v.payCodeId
+          : null,
       // If any of the Details have Accounting Codes selected we'll include those selections
       // here on the detail or send null when one doesn't have any Accounting Code selected
       accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
         : v.accountingCodeId
-        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
-        : [],
+          ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
+          : [],
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
@@ -845,21 +835,21 @@ const buildAbsenceUpdateInput = (
         accountingCodeAllocations: detailsHaveDifferentAccountingCodeSelections
           ? undefined
           : formValues.accountingCode
-          ? [
+            ? [
               {
                 accountingCodeId: formValues.accountingCode,
                 allocation: 1.0,
               },
             ]
-          : [],
+            : [],
         // When the details have Pay Code selections, we won't send a Pay Code on
         // the Vacancy. When they don't we'll take the single selection in Sub Details
         // and send that if there is one or null to clear out all selections on the Details.
         payCodeId: detailsHaveDifferentPayCodeSelections
           ? undefined
           : formValues.payCode
-          ? formValues.payCode
-          : null,
+            ? formValues.payCode
+            : null,
       },
     ],
   };
