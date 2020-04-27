@@ -27,24 +27,27 @@ export const NotificationsUI: React.FC<Props> = props => {
   const [markSingleNoticationAsViewed] = useMutationBundle(
     MarkSingleNotificationViewed,
     {
-      refetchQueries: ["GetUnreadNotificationCount"],
+      refetchQueries: ["GetUnreadNotificationCount", "GetNotifications"],
     }
   );
 
   const [markAllNotificationsAsViewed] = useMutationBundle(
     MarkAllNotificationsViewed,
     {
-      refetchQueries: ["GetUnreadNotificationCount"],
+      refetchQueries: ["GetUnreadNotificationCount", "GetNotifications"],
     }
   );
 
-  const markSingleAsViewed = async (notificationId: string) => {
+  const markSingleAsViewed = async (
+    notificationId: string,
+    isLinkable: boolean
+  ) => {
     const response = await markSingleNoticationAsViewed({
       variables: {
         notificationId: notificationId,
       },
     });
-    return props.onClose();
+    if (isLinkable) return props.onClose();
   };
 
   const markAllAsViewed = async () => {
