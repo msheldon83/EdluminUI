@@ -293,9 +293,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   confirmationNumbers: {
-    "@media print": {
-      paddingRight: theme.typography.pxToRem(16),
-    },
+    width: "120px",
   },
   action: {
     cursor: "pointer",
