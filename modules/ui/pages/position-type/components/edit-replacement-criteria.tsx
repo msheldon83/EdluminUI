@@ -197,7 +197,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
           to={PositionTypeViewRoute.generate(params)}
           className={classes.link}
         >
-          {t("Return to position settings")}
+          {t("Return to position type")}
         </Link>
       </div>
       <ReplacementCriteriaUI
