@@ -1,4 +1,6 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "ui/pages/people/graphql/employee/save-employee.gen";
 import { Redirect } from "react-router";
@@ -19,6 +21,7 @@ type Props = {};
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   const params = useRouteParams(PersonViewRoute);
 
   const [updateEmployee] = useMutationBundle(SaveEmployee, {
@@ -231,6 +234,11 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   return (
     <>
+      <div className={classes.linkPadding}>
+        <Link to={PersonViewRoute.generate(params)} className={classes.link}>
+          {t("Return to employee profile")}
+        </Link>
+      </div>
       <SectionHeader
         className={classes.leftPadding}
         title={employee?.firstName + " " + employee?.lastName}
@@ -261,5 +269,14 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   leftPadding: {
     paddingLeft: theme.spacing(1),
+  },
+  linkPadding: {
+    padding: "10px 0px 15px 10px",
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
   },
 }));
