@@ -1,5 +1,8 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Redirect } from "react-router";
+import { makeStyles } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import { UpdatePositionType } from "ui/pages/position-type/graphql/update-position-type.gen";
@@ -20,6 +23,8 @@ type Props = {};
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PositionTypeViewRoute);
+  const classes = useStyles();
+  const { t } = useTranslation();
 
   const [updatePositionType] = useMutationBundle(UpdatePositionType, {
     onError: error => {
@@ -187,6 +192,14 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   return (
     <>
+      <div className={classes.linkPadding}>
+        <Link
+          to={PositionTypeViewRoute.generate(params)}
+          className={classes.link}
+        >
+          {t("Return to position settings")}
+        </Link>
+      </div>
       <ReplacementCriteriaUI
         mustHave={mustHave}
         preferToHave={preferToHave}
@@ -209,3 +222,15 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    padding: "10px 0px 15px 10px",
+  },
+}));
