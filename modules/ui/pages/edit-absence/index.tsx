@@ -268,9 +268,9 @@ export const EditAbsence: React.FC<Props> = props => {
 
   const details =
     data?.details &&
-      data?.details.length === 0 &&
-      data?.closedDetails &&
-      data?.closedDetails.length > 0
+    data?.details.length === 0 &&
+    data?.closedDetails &&
+    data?.closedDetails.length > 0
       ? data?.closedDetails
       : data?.details ?? [];
   const detail = details[0];

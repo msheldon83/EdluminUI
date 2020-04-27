@@ -51,11 +51,11 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     label,
     multiple = false,
     value = multiple ? [] : undefined,
-    onChange = () => { },
+    onChange = () => {},
     name,
     disabled = false,
-    onBlur = () => { },
-    onFocus = () => { },
+    onBlur = () => {},
+    onFocus = () => {},
     inputStatus = "default",
     validationMessage,
     placeholder,
@@ -101,11 +101,11 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
   const optionsWithReset = withResetValue
     ? ([
-      {
-        label: RESET_LABEL,
-        value: "",
-      },
-    ] as Array<OptionType>).concat(sortedOptions)
+        {
+          label: RESET_LABEL,
+          value: "",
+        },
+      ] as Array<OptionType>).concat(sortedOptions)
     : sortedOptions;
 
   // Determine if the multi select display has over flow
