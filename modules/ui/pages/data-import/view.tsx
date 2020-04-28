@@ -138,7 +138,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
         </div>
         <div className={classes.headerContainer}>
           <div className={classes.headerColumn}>{t("Row #")}</div>
-          <div className={classes.headerColumn}>{t("Status")}</div>
+          <div className={classes.headerColumn}>{t("Row status")}</div>
         </div>
         {dataImportRows.map((row, i) => (
           <ExpansionPanel defaultExpanded={false} key={i}>
@@ -154,6 +154,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
               <DataImportRowData
                 columnNames={dataImport?.columnNames ?? []}
                 columns={row.columnValues ?? []}
+                messages={row.messages}
               />
             </ExpansionPanelDetails>
           </ExpansionPanel>
