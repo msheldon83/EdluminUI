@@ -31,7 +31,7 @@ export const OrganizationList: React.FC<Props> = props => {
           actions={[
             {
               text: t("Edit"),
-              visible: false, // !props.editing, // TODO: Remove this comment when we are ready to finish the edit page
+              visible: !props.editing,
               execute: () => {
                 const editSettingsUrl = PeopleSubRelatedOrgsEditRoute.generate(
                   params
