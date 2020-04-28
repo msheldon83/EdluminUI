@@ -3,6 +3,7 @@ import {
   makeStyles,
   FormControlLabel,
   Checkbox,
+  Tooltip,
 } from "@material-ui/core";
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
@@ -10,6 +11,7 @@ import { useIsMobile } from "hooks";
 import { OptionTypeBase } from "react-select/src/types";
 import Button from "@material-ui/core/Button";
 import * as React from "react";
+import InfoIcon from "@material-ui/icons/Info";
 import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
@@ -50,6 +52,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
     superUserFirstName: props?.organization?.superUserFirstName || "",
     superUserLastName: props?.organization?.superUserLastName || "",
     superUserLoginEmail: props?.organization?.superUserLoginEmail || "",
+    seedOptionalData: props?.organization?.seedOptionalData || false,
     relatesToOrganizationId: undefined,
     timeZoneId:
       props?.organization?.timeZoneId || TimeZone.EasternStandardTimeUsCanada,
@@ -155,6 +158,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
             timeZoneId: data.timeZoneId,
             seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
             relatesToOrganizationId: data.relatesToOrganizationId ?? undefined,
+            seedOptionalData: data.seedOptionalData,
             config: {
               defaultCountry: CountryCode.Us,
               featureFlags: data.featureFlags,
@@ -384,6 +388,38 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12}>
                 <SectionHeader title={t("Non-required setup info")} />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={values.seedOptionalData}
+                      value={values.seedOptionalData}
+                      onChange={e =>
+                        setFieldValue("seedOptionalData", e.target.checked)
+                      }
+                    />
+                  }
+                  label={t("Seed Optional Data")}
+                />
+                <Tooltip
+                  title={
+                    <div className={overrideStyles.tooltip}>
+                      {t(
+                        "Optional Seeded Data includes: Position Type, Endorsements, Absence Reasons, & Standard Bell Schedule."
+                      )}
+                    </div>
+                  }
+                  placement="right-start"
+                >
+                  <InfoIcon
+                    color="primary"
+                    style={{
+                      fontSize: "16px",
+                    }}
+                  />
+                </Tooltip>
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
@@ -685,5 +721,8 @@ const rootStyles = makeStyles(theme => ({
   },
   cell: {
     paddingRight: "15px !important",
+  },
+  tooltip: {
+    padding: theme.spacing(2),
   },
 }));
