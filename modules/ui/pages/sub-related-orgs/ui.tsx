@@ -10,21 +10,34 @@ import {
 import { useMemo } from "react";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { GetRelatedOrgs } from "./graphql/get-relatedorgs.gen";
+import { useState } from "react";
+import { GetRelatedOrgs } from "./graphql/get-related-orgs.gen";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useQueryBundle } from "graphql/hooks";
+import { DistrictSearch } from "./components/district-search";
 
 type Props = {
   relatedOrgIds: Array<string | null | undefined> | null | undefined;
   orgId: string;
+  allDistrictAttributes: string[];
   onAdd: (orgId: string) => Promise<unknown>;
   onRemove: (orgId: string) => Promise<unknown>;
 };
 
-export const RelatedOrgsUI: React.FC<Props> = props => {
+export const ManageDistrictsUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [searchText, setSearchText] = useState<string | undefined>();
+
+  //Search for District Query
+  // const getDistricts = useQueryBundle(GetAllLocationsWithinOrg, {
+  //   variables: {
+  //     orgId: params.organizationId,
+  //     locationGroups: props.locationGroupFilter,
+  //     searchText: props.searchText,
+  //   },
+  // });
 
   const getRelatedOrgs = useQueryBundle(GetRelatedOrgs, {
     variables: {
@@ -52,38 +65,36 @@ export const RelatedOrgsUI: React.FC<Props> = props => {
     [relatedOrgs, props.orgId, props.relatedOrgIds]
   );
 
-  // TODO: this page needs styling
   return (
     <>
       <Grid container spacing={2}>
         <Grid item xs={12} md={6} lg={6}>
           <Section>
-            <SectionHeader title={t("Related Organizations")} />
-            {props.relatedOrgIds?.map((o, i) => {
-              const org = relatedOrgs.find(x => x.id === o);
+            <SectionHeader title={t("Add a district")} />
+            <DistrictSearch searchText={searchText} />
+          </Section>
+        </Grid>
+        <Grid item xs={12} md={6} lg={6}>
+          <Section>
+            <SectionHeader title={t("All district attributes")} />
+            {props.allDistrictAttributes.length === 0 ? (
+              <div>{t("No district attributes")}</div>
+            ) : (
+              props.allDistrictAttributes?.map((n, i) => <div key={i}>{n}</div>)
+            )}
+          </Section>
+        </Grid>
+        <Grid item xs={12}>
+          <Section>
+            <SectionHeader title={t("Selected Organizations")} />
+            {selectableOrganizations?.map((o, i) => {
+              const org = relatedOrgs.find(x => x.id === o.id);
               if (org?.id) {
                 return (
                   <div key={i}>
                     {org.name}
                     <TextButton onClick={() => props.onRemove(org.id ?? "")}>
                       {t("Remove")}
-                    </TextButton>
-                  </div>
-                );
-              }
-            })}
-          </Section>
-        </Grid>
-        <Grid item xs={12} md={6} lg={6}>
-          <Section>
-            <SectionHeader title={t("Organizations")} />
-            {selectableOrganizations.map((o, i) => {
-              if (o?.id) {
-                return (
-                  <div key={i}>
-                    {o.name}
-                    <TextButton onClick={() => props.onAdd(o.id ?? "")}>
-                      {t("Add")}
                     </TextButton>
                   </div>
                 );

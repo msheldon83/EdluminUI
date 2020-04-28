@@ -2,19 +2,17 @@ import * as React from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { useTranslation } from "react-i18next";
-import { RelatedOrgsUI } from "./ui";
+import { ManageDistrictsUI } from "./ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetSubstituteRelatedOrgs } from "./graphql/get-subrelatedorgs.gen";
-import { AddRelatedOrg } from "./graphql/add-relatedorg.gen";
-import { RemoveRelatedOrg } from "./graphql/remove-relatedorg.gen";
+import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
+import { AddRelatedOrg } from "./graphql/add-related-org.gen";
+import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
 import { PeopleSubRelatedOrgsEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
-type Props = {};
-
-export const SubRelatedOrgsEditPage: React.FC<Props> = props => {
+export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PeopleSubRelatedOrgsEditRoute);
@@ -48,6 +46,9 @@ export const SubRelatedOrgsEditPage: React.FC<Props> = props => {
 
   const relatedOrgs = orgUser.relatedOrgIds ?? [];
 
+  //TODO:
+  const allDistrictAttributes = [""];
+
   const handleAdd = async (orgId: string) => {
     await addRelatedOrg({
       variables: {
@@ -70,15 +71,18 @@ export const SubRelatedOrgsEditPage: React.FC<Props> = props => {
 
   return (
     <>
-      <div className={classes.header}>
-        <PageTitle title={`${orgUser?.firstName} ${orgUser?.lastName}`} />
+      <div className={classes.container}>
+        <Typography className={classes.header} variant="h4">
+          {`${orgUser?.firstName} ${orgUser?.lastName}`}
+        </Typography>
         <Typography variant="h1">{t("Districts")}</Typography>
       </div>
-      <RelatedOrgsUI
+      <ManageDistrictsUI
         relatedOrgIds={relatedOrgs}
         onAdd={handleAdd}
         onRemove={handleRemove}
         orgId={params.organizationId}
+        allDistrictAttributes={allDistrictAttributes}
       />
     </>
   );
@@ -86,6 +90,11 @@ export const SubRelatedOrgsEditPage: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
+    marginBottom: theme.spacing(2),
+    fontSize: theme.typography.pxToRem(24),
+    fontWeight: 400,
+  },
+  container: {
     marginBottom: theme.spacing(2),
   },
 }));
