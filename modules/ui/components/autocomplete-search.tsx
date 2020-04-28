@@ -2,13 +2,17 @@ import * as React from "react";
 import { Input } from "ui/components/form/input";
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect } from "react";
+import TextField from "@material-ui/core/TextField";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDeferredState } from "hooks";
 
 type Props = {
+  options: string[]; // TODO:
   setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
+  onClick: () => Promise<void>;
 };
 
-export const DistrictSearch: React.FC<Props> = props => {
+export const AutoCompleteSearch: React.FC<Props> = props => {
   const { t } = useTranslation();
   const setSearchText = props.setSearchText;
 
@@ -28,12 +32,26 @@ export const DistrictSearch: React.FC<Props> = props => {
     [setPendingSearchText]
   );
 
+  //AutoComplete Component with Action on Select
+
   return (
-    <Input
-      label={t("Search")}
-      value={pendingSearchText}
-      onChange={updateSearchText}
-      placeholder={t("District name")}
-    />
+    <>
+      <div style={{ width: 300 }}>
+        <Autocomplete
+          id="autocomplete-on-select"
+          freeSolo
+          //options={top100Films.map(option => option.title)} TODO:
+          renderInput={params => (
+            <TextField
+              {...params}
+              label="freeSolo"
+              margin="normal"
+              variant="outlined"
+              //onClick={} TODO: Add current object to
+            />
+          )}
+        />
+      </div>
+    </>
   );
 };

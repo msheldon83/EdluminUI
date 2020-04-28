@@ -15,7 +15,7 @@ import { GetRelatedOrgs } from "./graphql/get-related-orgs.gen";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useQueryBundle } from "graphql/hooks";
-import { DistrictSearch } from "./components/district-search";
+import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 
 type Props = {
   relatedOrgIds: Array<string | null | undefined> | null | undefined;
@@ -71,7 +71,7 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
         <Grid item xs={12} md={6} lg={6}>
           <Section>
             <SectionHeader title={t("Add a district")} />
-            <DistrictSearch searchText={searchText} />
+            <AutoCompleteSearch searchText={searchText} />
           </Section>
         </Grid>
         <Grid item xs={12} md={6} lg={6}>
