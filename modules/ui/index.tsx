@@ -98,6 +98,8 @@ import { SettingsLoader, SettingsRoute } from "./routes/settings";
 import {
   AnalyticsReportsDailyReportRoute,
   AnalyticsReportsDailyReportLoader,
+  AnalyticsReportsAbsentEmployeeRoute,
+  AnalyticsReportsAbsentEmployeeLoader
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -1198,6 +1200,15 @@ export const App = hot(function() {
                                         AnalyticsReportsDailyReportRoute.path
                                       }
                                       role={"admin"}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AnalyticsReportsAbsentEmployeeLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsAbsentEmployeeRoute.path
+                                      }
+                                      role={"sysadmin"}
                                     />
                                   </Switch>
                                 </AdminRouteOrganizationContextProvider>
