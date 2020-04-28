@@ -1888,6 +1888,7 @@ enum EventType {
   ACCESS_GRANTED
   ACCESS_UPDATED
   ORGANIZATION_USER_RELATIONSHIP_UPDATED
+  ORGANIZATION_USER_ROLE_REMOVED
   SCHOOL_YEAR_CREATED
   SCHOOL_YEAR_UPDATED
   SCHOOL_YEAR_DELETED
@@ -2941,6 +2942,7 @@ type OrgUserMutations {
   saveEmployee(employee: EmployeeInput!): OrgUser
   addSubPreference(subPreference: SubstitutePreferenceInput!): ReplacementPoolMember
   removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
+  removeOrgUserRole(orgUserId: ID!, orgUserRole: OrgUserRole!): OrgUser
 }
 
 type OrgUserQueries {
