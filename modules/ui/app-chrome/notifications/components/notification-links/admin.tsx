@@ -13,7 +13,10 @@ import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
   notification: Notification;
-  markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
+  markSingleNotificationAsViewed: (
+    notificationId: string,
+    isLinkable: boolean
+  ) => Promise<any>;
   multipleOrgs: boolean;
 };
 
@@ -68,7 +71,10 @@ export const AdminNotificationLink: React.FC<Props> = props => {
             to={route}
             className={classes.hyperlink}
             onClick={() => {
-              props.markSingleNotificationAsViewed(notification.id);
+              props.markSingleNotificationAsViewed(
+                notification.id,
+                notification.isLinkable
+              );
             }}
           >
             {htmlContent}
@@ -76,7 +82,17 @@ export const AdminNotificationLink: React.FC<Props> = props => {
         </Can>
       ) : (
         <>
-          <div>{htmlContent}</div>
+          <div
+            className={classes.hyperlink}
+            onClick={() => {
+              props.markSingleNotificationAsViewed(
+                notification.id,
+                notification.isLinkable
+              );
+            }}
+          >
+            {htmlContent}
+          </div>
         </>
       )}
       <Divider className={classes.divider} />

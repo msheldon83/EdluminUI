@@ -11,7 +11,10 @@ import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
 
 type Props = {
   notification: Notification;
-  markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
+  markSingleNotificationAsViewed: (
+    notificationId: string,
+    isLinkable: boolean
+  ) => Promise<any>;
   multipleOrgs: boolean;
 };
 
@@ -59,14 +62,27 @@ export const EmployeeNotificationLink: React.FC<Props> = props => {
           to={route}
           className={classes.hyperlink}
           onClick={() => {
-            props.markSingleNotificationAsViewed(notification.id);
+            props.markSingleNotificationAsViewed(
+              notification.id,
+              notification.isLinkable
+            );
           }}
         >
           {htmlContent}
         </Link>
       ) : (
         <>
-          <div>{htmlContent}</div>
+          <div
+            className={classes.hyperlink}
+            onClick={() => {
+              props.markSingleNotificationAsViewed(
+                notification.id,
+                notification.isLinkable
+              );
+            }}
+          >
+            {htmlContent}
+          </div>
         </>
       )}
       <Divider className={classes.divider} />
