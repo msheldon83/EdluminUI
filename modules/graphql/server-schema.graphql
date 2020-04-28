@@ -1888,6 +1888,7 @@ enum EventType {
   ACCESS_GRANTED
   ACCESS_UPDATED
   ORGANIZATION_USER_RELATIONSHIP_UPDATED
+  ORGANIZATION_USER_ROLE_REMOVED
   SCHOOL_YEAR_CREATED
   SCHOOL_YEAR_UPDATED
   SCHOOL_YEAR_DELETED
@@ -2638,7 +2639,6 @@ input OrganizationCreateInput {
   superUserLastName: String!
   timeZoneId: TimeZone
   seedOrgDataOption: SeedOrgDataOptionEnum
-  seedOptionalData: Boolean!
   config: organizationConfigInput
 }
 
@@ -2653,6 +2653,7 @@ type OrganizationQueries {
   paged(limit: Int, offset: Int, searchText: String): PagedOrganization
   search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
   staffingProviders: [Organization]
+  searchDelegatesToOrganizations(orgId: ID!, searchText: String): [Organization]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -2940,6 +2941,7 @@ type OrgUserMutations {
   saveEmployee(employee: EmployeeInput!): OrgUser
   addSubPreference(subPreference: SubstitutePreferenceInput!): ReplacementPoolMember
   removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
+  removeOrgUserRole(orgUserId: ID!, orgUserRole: OrgUserRole!): OrgUser
 }
 
 type OrgUserQueries {
