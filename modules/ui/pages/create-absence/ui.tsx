@@ -427,6 +427,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         {step === "absence" && (
           <>
             <AbsenceVacancyHeader
+              orgId={props.organizationId}
               pageHeader={t("Create absence")}
               subHeader={employeeName}
               actingAsEmployee={actingAsEmployee}

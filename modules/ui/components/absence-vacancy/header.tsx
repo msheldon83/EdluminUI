@@ -1,8 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Button, Typography, makeStyles } from "@material-ui/core";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
+  orgId: string;
+  employeeId?: string;
   pageHeader: string;
   subHeader: string;
   actingAsEmployee?: boolean;
@@ -19,7 +22,11 @@ export const AbsenceVacancyHeader: React.FC<Props> = props => {
       <div>
         <Typography variant="h5">{props.pageHeader}</Typography>
         {!props.actingAsEmployee && (
-          <Typography variant="h1">{props.subHeader}</Typography>
+          <Typography variant="h1">
+            <EmployeeLink orgId={props.orgId} orgUserId={props.employeeId}>
+              {props.subHeader}
+            </EmployeeLink>
+          </Typography>
         )}
       </div>
 
