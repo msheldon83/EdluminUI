@@ -1323,6 +1323,10 @@ type DataImport implements ModelObjectInterface & OrgObjectInterface {
   notificationEmailAddresses: [String]
 }
 
+type DataImportMutations {
+  update(dataImport: DataImportUpdateInput!): DataImport
+}
+
 type DataImportQueries {
   byId(id: ID!): DataImport
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): [DataImport]
@@ -1409,6 +1413,17 @@ enum DataImportType {
   ABSENCE_REASON_BALANCE
   ABSENCE_REASON_CATEGORY
   WORK_DAY_SCHEDULE
+}
+
+input DataImportUpdateInput {
+  id: ID!
+  parseOnly: Boolean
+  validateOnly: Boolean
+  maxValidationErrors: Int
+  maxParseErrors: Int
+  maxImportErrors: Int
+  notificationEmailAddresses: [String]
+  reRun: Boolean
 }
 
 scalar Date
@@ -1888,6 +1903,7 @@ enum EventType {
   ACCESS_GRANTED
   ACCESS_UPDATED
   ORGANIZATION_USER_RELATIONSHIP_UPDATED
+  ORGANIZATION_USER_ROLE_REMOVED
   SCHOOL_YEAR_CREATED
   SCHOOL_YEAR_UPDATED
   SCHOOL_YEAR_DELETED
@@ -2033,6 +2049,7 @@ enum EventType {
   DATA_IMPORT_FILE_UPLOADED
   DATA_IMPORT_STARTED
   DATA_IMPORT_FINISHED
+  DATA_IMPORT_UPDATED
   LOCATION_GROUP_CREATED
   LOCATION_GROUP_UPDATED
   LOCATION_GROUP_DELETED
@@ -2382,6 +2399,7 @@ type Mutation {
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
   customField: CustomFieldMutations
+  dataImport: DataImportMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
   inAppNotification: InAppNotificationMutations
@@ -2638,6 +2656,7 @@ input OrganizationCreateInput {
   superUserLastName: String!
   timeZoneId: TimeZone
   seedOrgDataOption: SeedOrgDataOptionEnum
+  seedOptionalData: Boolean
   config: organizationConfigInput
 }
 
@@ -2939,6 +2958,7 @@ type OrgUserMutations {
   saveEmployee(employee: EmployeeInput!): OrgUser
   addSubPreference(subPreference: SubstitutePreferenceInput!): ReplacementPoolMember
   removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
+  removeOrgUserRole(orgUserId: ID!, orgUserRole: OrgUserRole!): OrgUser
 }
 
 type OrgUserQueries {
@@ -5738,42 +5758,10 @@ type VacancyQueries {
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
-  subJobSearch(
-    id: ID!
-    availableJobsOnly: Boolean
-    showNonPreferredJobs: Boolean
-    orgIds: [ID]
-    locationIds: [ID]
-    positionTypeIds: [ID]
-    limit: Int
-    offset: Int
-  ): PagedSubJobSearch
-  vacancyNotificationLogByVacancy(
-    vacancyId: ID!
-    sortBy: [SortDetailsInput]
-  ): [VacancyNotificationLog]
-  vacancyNotificationLogByUser(
-    userId: ID!
-    fromDate: Date
-    toDate: Date
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-  ): PagedVacancyNotificationLog
-  replacementEmployeesForVacancy(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    vacancyId: ID
-    vacancyDetailIds: [ID]
-    vacancy: VacancyCreateInput
-    name: String
-    qualified: [VacancyQualification]
-    available: [VacancyAvailability]
-    favoritesOnly: Boolean
-    replacementEmployeeId: ID
-  ): PagedVacancySubSearchQueryResult
+  subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
+  vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]
+  vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   activityLog(id: ID!): ActivityLog
 }
 
