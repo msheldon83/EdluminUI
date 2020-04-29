@@ -102,6 +102,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           )}
           {groupedDetail.assignmentId && props.onAssignSubClick && (
             <AssignedSub
+              orgId={props.orgId}
               subText={t("assigned")}
               disableReplacementInteractions={
                 props.disableReplacementInteractions
