@@ -9,17 +9,12 @@ import { Formik } from "formik";
 import { NotificationPreferences } from "./components/notification-preferences";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import {
-  UserUpdateInput,
-  UserPreferencesInput,
-  TimeZone,
-} from "graphql/server-types.gen";
+import { UserUpdateInput, TimeZone } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
 import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
 import { VerifyPhoneNumber } from "ui/pages/profile/graphql/verify-phone-number.gen";
-import { debounce } from "lodash-es";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
 import { phoneRegExp } from "helpers/regexp";
@@ -124,20 +119,6 @@ export const ProfilePage: React.FC<{}> = props => {
       autoHideDuration: 10000,
     });
   };
-
-  const onUpdatePreferences = debounce(
-    useCallback(
-      async (preferences: UserPreferencesInput) => {
-        await onUpdateUser({
-          id: myUser?.id ?? "",
-          rowVersion: myUser?.rowVersion ?? "",
-          preferences: preferences,
-        });
-      },
-      [myUser, onUpdateUser]
-    ),
-    2000
-  );
 
   const notificationPreferencesForUser =
     compact(myUser?.preferences?.notificationPreferences) ?? [];
