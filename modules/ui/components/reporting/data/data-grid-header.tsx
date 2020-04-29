@@ -51,17 +51,7 @@ export const DataGridHeader: React.FC<Props> = props => {
     [classes.action, classes.headerCell]
   );
 
-  const menuItems = [
-    t("Rename column"),
-    t("Sort A > Z"),
-    t("Sort Z > A"),
-    t("Add filter"),
-    t("Group by column"),
-    t("Lock column"),
-    t("Add column before"),
-    t("Add column after"),
-    t("Delete column"),
-  ];
+  const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
 
   return (
     <>
