@@ -15,6 +15,7 @@ type Props = {
   };
   linkClass?: string;
   textClass?: string;
+  color?: "blue" | "black";
   displayText?: boolean;
 };
 
@@ -36,13 +37,19 @@ export const BaseLink: React.FC<Props> = ({
   linkClass = "",
   textClass = "",
   displayText = true,
+  color = "blue",
 }) => {
   const classes = useStyles();
   return (
     <>
       <Can do={permissions}>
         <Link
-          className={clsx(classes.root, classes.underlineHover, linkClass)}
+          className={clsx(
+            classes.root,
+            classes.underlineHover,
+            linkClass,
+            classes[color]
+          )}
           to={to}
         >
           {children}
@@ -60,9 +67,7 @@ export const BaseLink: React.FC<Props> = ({
 // Classes are yoinked from M-UI's Link
 const useStyles = makeStyles(theme => ({
   /* Styles applied to the root element. */
-  root: {
-    color: theme.customColors.blue,
-  },
+  root: {},
   /* Styles applied to the root element if `underline="none"`. */
   underlineNone: {
     textDecoration: "none",
@@ -104,4 +109,12 @@ const useStyles = makeStyles(theme => ({
   },
   /* Pseudo-class applied to the root element if the link is keyboard focused. */
   focusVisible: {},
+
+  // Added to M-UI class; want to be able to change color
+  blue: {
+    color: theme.customColors.blue,
+  },
+  black: {
+    color: theme.customColors.black,
+  },
 }));
