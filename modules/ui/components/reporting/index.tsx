@@ -6,15 +6,22 @@ import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
 
 type Props = {
-  rql: string;
+  rdl: string;
   orgIds: string[];
 };
 
 export const Report: React.FC<Props> = props => {
   const [report, setReport] = React.useState<ReportDefinition>();
+  const { rdl, orgIds } = props;
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
+    variables: {
+      input: {
+        orgIds,
+        queryText: rdl,
+      },
+    },
     onError: error => {
       console.error(error);
       //ShowErrors(error, openSnackbar); // TODO: Parse error codes into better messages

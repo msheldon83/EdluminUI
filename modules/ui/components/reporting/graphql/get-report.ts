@@ -6,7 +6,7 @@ export type ReportQueryInput = {
 };
 
 export const GetReportDocument = gql`
-  query GetReport($input: ReportQueryInput!, $formSerializer: any) {
+  query GetReport($input: ReportQueryInput!) {
     getReport(input: $input)
       @rest(type: "GetReport", path: "/report/run", method: "POST") {
       data
