@@ -1323,6 +1323,10 @@ type DataImport implements ModelObjectInterface & OrgObjectInterface {
   notificationEmailAddresses: [String]
 }
 
+type DataImportMutations {
+  update(dataImport: DataImportUpdateInput!): DataImport
+}
+
 type DataImportQueries {
   byId(id: ID!): DataImport
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): [DataImport]
@@ -1409,6 +1413,17 @@ enum DataImportType {
   ABSENCE_REASON_BALANCE
   ABSENCE_REASON_CATEGORY
   WORK_DAY_SCHEDULE
+}
+
+input DataImportUpdateInput {
+  id: ID!
+  parseOnly: Boolean
+  validateOnly: Boolean
+  maxValidationErrors: Int
+  maxParseErrors: Int
+  maxImportErrors: Int
+  notificationEmailAddresses: [String]
+  reRun: Boolean
 }
 
 scalar Date
@@ -2034,6 +2049,7 @@ enum EventType {
   DATA_IMPORT_FILE_UPLOADED
   DATA_IMPORT_STARTED
   DATA_IMPORT_FINISHED
+  DATA_IMPORT_UPDATED
   LOCATION_GROUP_CREATED
   LOCATION_GROUP_UPDATED
   LOCATION_GROUP_DELETED
@@ -2383,6 +2399,7 @@ type Mutation {
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
   customField: CustomFieldMutations
+  dataImport: DataImportMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
   inAppNotification: InAppNotificationMutations
@@ -2654,7 +2671,6 @@ type OrganizationQueries {
   paged(limit: Int, offset: Int, searchText: String): PagedOrganization
   search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
   staffingProviders: [Organization]
-  searchDelegatesToOrganizations(orgId: ID!, searchText: String): [Organization]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {
