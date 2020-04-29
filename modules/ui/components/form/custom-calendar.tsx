@@ -29,7 +29,8 @@ type CustomCalendarProps = {
   }>;
   variant?: "weeks" | "month";
   onMonthChange?: (date: Date) => void;
-  monthNavigation?: boolean;
+  previousMonthNavigation?: boolean;
+  nextMonthNavigation?: boolean;
   classes?: Classes;
 };
 
@@ -46,7 +47,8 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     month = new Date(),
     customDates = [],
     onMonthChange = () => {},
-    monthNavigation = false,
+    previousMonthNavigation = false,
+    nextMonthNavigation = false,
     variant = "weeks",
     classes: customClasses = {},
   } = props;
@@ -244,7 +246,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     <section className={classes.calendar} style={style}>
       <header className={classes.header}>
         <span className={classes.monthNavButton}>
-          {monthNavigation && (
+          {previousMonthNavigation && (
             <IconButton
               arial-label="view previous month"
               onClick={handlePreviousMonthClick}
@@ -255,7 +257,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         </span>
 
         <span role="heading" className={classes.dayRange}>
-          {monthNavigation ? (
+          {nextMonthNavigation || previousMonthNavigation ? (
             <Button
               onClick={handleCurrentMonthClick}
               className={classes.titleButton}
@@ -268,7 +270,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         </span>
 
         <span className={classes.monthNavButton}>
-          {monthNavigation && (
+          {nextMonthNavigation && (
             <IconButton
               arial-label="view next month"
               onClick={handleNextMonthClick}
@@ -331,7 +333,9 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     backgroundColor: props =>
       props.contained ? theme.customColors.white : "none",
     border: props =>
-      props.contained ? "1px solid rgba(0, 0, 0, 0.23)" : "none",
+      props.contained
+        ? `1px solid ${theme.customColors.edluminSubText}`
+        : "none",
     borderRadius: theme.typography.pxToRem(4),
     overflow: "hidden",
     padding: props => (props.contained ? theme.spacing(3) : 0),
