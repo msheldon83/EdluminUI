@@ -274,7 +274,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: `${theme.typography.pxToRem(45)} !important`,
     display: "flex",
     width: "100%",
-    alignItems: "left",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     [theme.breakpoints.down("sm")]: {
       alignItems: "stretch",
@@ -342,6 +342,7 @@ const useStyles = makeStyles(theme => ({
   highlighted: {
     color: `${theme.customColors.white} !important`,
     backgroundColor: `${theme.customColors.darkBlueGray} !important`,
+    alignItems: "center",
   },
   tooltip: {
     padding: theme.spacing(2),

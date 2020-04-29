@@ -82,7 +82,11 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
     </div>
   );
 
-  const condClosed = props.detail.isClosed ? classes.closedText : "";
+  const condClosed = props.highlighted
+    ? ""
+    : props.detail.isClosed
+    ? classes.closedText
+    : "";
   return (
     <div
       className={
@@ -133,7 +137,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   : props.detail.vacancyReason}
               </span>
             </div>
-            <div className={classes.detailSubText}>
+            <div className={props.highlighted ? "" : classes.detailSubText}>
               <span className={condClosed}>
                 {props.vacancyDate ?? props.detail.dateRange}
               </span>
@@ -165,7 +169,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   </LocationLink>
                 )}
               </div>
-              <div className={classes.detailSubText}>
+              <div className={props.highlighted ? "" : classes.detailSubText}>
                 <span className={condClosed}>
                   {`${props.detail.startTime} - ${props.detail.endTime}`}
                 </span>
@@ -181,7 +185,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           <div className={classes.group}>
             <div className={classes.item}>
               {props.detail.state === "noSubRequired" && (
-                <div className={classes.detailSubText}>
+                <div className={props.highlighted ? "" : classes.detailSubText}>
                   <span className={condClosed}>{t("Sub not required")}</span>
                 </div>
               )}
@@ -238,7 +242,10 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               )}
               {props.detail.subTimes.map((st, i) => {
                 return (
-                  <div className={classes.detailSubText} key={i}>
+                  <div
+                    className={props.highlighted ? "" : classes.detailSubText}
+                    key={i}
+                  >
                     {`${st.startTime} - ${st.endTime}`}
                   </div>
                 );
@@ -256,7 +263,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               </div>
               {props.detail.assignmentId && (
                 <div
-                  className={classes.detailSubText}
+                  className={props.highlighted ? "" : classes.detailSubText}
                 >{`#C${props.detail.assignmentId}`}</div>
               )}
             </div>
