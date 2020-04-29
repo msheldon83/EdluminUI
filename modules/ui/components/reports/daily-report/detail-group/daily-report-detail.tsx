@@ -149,8 +149,6 @@ export const DailyReportDetail: React.FC<Props> = props => {
         <MobileDailyReportDetailUI
           {...props}
           rowActions={rowActions}
-          hideCheckbox={disableSwapSub}
-          isChecked={isChecked}
           highlighted={isChecked}
           swapMode={disableSwapSub ? "notswapable" : "swapable"}
           swapSubs={props.swapSubs}
