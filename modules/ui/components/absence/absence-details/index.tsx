@@ -374,6 +374,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <div className={classes.subDetailsContainer}>
           <SubstituteRequiredDetails
+            orgId={props.organizationId}
             disableReplacementInteractions={
               props.disableReplacementInteractions
             }
