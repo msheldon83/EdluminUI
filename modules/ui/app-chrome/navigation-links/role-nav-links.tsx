@@ -49,7 +49,6 @@ import {
   EmpMobileSearchRoute,
 } from "ui/routes/mobile-search";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
-import { usePermissionSets } from "reference-data/permission-sets";
 
 type Props = {
   navBarExpanded: boolean;
