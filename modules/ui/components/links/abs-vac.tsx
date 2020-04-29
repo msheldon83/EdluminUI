@@ -15,6 +15,7 @@ type GeneralProps = {
   state?: any;
   linkClass?: string;
   textClass?: string;
+  color?: "blue" | "black";
 };
 
 type AbsenceProps = GeneralProps & {

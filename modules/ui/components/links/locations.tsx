@@ -10,6 +10,7 @@ type Props = {
   state?: any;
   linkClass?: string;
   textClass?: string;
+  color?: "blue" | "black";
 };
 
 export const LocationLink: React.FC<Props> = ({

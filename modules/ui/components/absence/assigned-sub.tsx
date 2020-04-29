@@ -12,8 +12,10 @@ import { getGroupedVacancyDetails } from "./helpers";
 import { flatMap, uniq } from "lodash-es";
 import { AssignmentOnDate } from "./types";
 import { MailOutline } from "@material-ui/icons";
+import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
+  orgId: string;
   employeeId: string;
   employeeName: string;
   vacancies: Vacancy[];
@@ -31,6 +33,7 @@ type Props = {
   disableReplacementInteractions?: boolean;
   showLinkButton?: boolean;
   email?: string;
+  shouldLink?: boolean;
 };
 
 export const AssignedSub: React.FC<Props> = props => {
@@ -99,7 +102,12 @@ export const AssignedSub: React.FC<Props> = props => {
           <AccountCircleOutlined fontSize="large" />
           <div className={classes.name}>
             <Typography variant="h6" className={classes.nameLabel}>
-              {props.employeeName}
+              <SubstituteLink
+                orgId={props.orgId}
+                orgUserId={props.shouldLink ? props.employeeId : undefined}
+              >
+                {props.employeeName}
+              </SubstituteLink>
             </Typography>
             <Can do={[PermissionEnum.SubstituteViewEmail]}>
               {props.email && (
