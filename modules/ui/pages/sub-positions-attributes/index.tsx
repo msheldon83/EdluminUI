@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { Typography } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
-import { PageTitle } from "ui/components/page-title";
 import { GetSubstituteById } from "../people/graphql/substitute/get-substitute-by-id.gen";
 import {
   SubPositionTypesAndAttributesEdit,
@@ -18,14 +17,13 @@ import { AddEmployeeEndorsement } from "ui/components/employee/graphql/add-endor
 import { RemoveEmployeeEndorsement } from "ui/components/employee/graphql/remove-endorsement.gen";
 import { UpdateEmployeeEndorsement } from "ui/components/employee/graphql/update-endorsement.gen";
 import { useSnackbar } from "hooks/use-snackbar";
-import { Link } from "react-router-dom";
 import { parseISO } from "date-fns";
+import { SubstituteLinkHeader } from "ui/components/link-headers/substitute";
 
 type Props = {};
 
 export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const isMobile = useIsMobile();
   const params = useRouteParams(PersonViewRoute);
   const { openSnackbar } = useSnackbar();
@@ -134,15 +132,11 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
 
   return (
     <>
-      <div className={classes.headerLink}>
-        <Typography variant="h5">{fullName}</Typography>
-        <div className={classes.linkPadding}>
-          <Link to={PersonViewRoute.generate(params)} className={classes.link}>
-            {t("Return to details")}
-          </Link>
-        </div>
-      </div>
-      <PageTitle title={t("Position types & Attributes")} />
+      <SubstituteLinkHeader
+        title={t("Position types & Attributes")}
+        subtitle={fullName}
+        params={params}
+      />
       <SubPositionTypesAndAttributesEdit
         organizationId={params.organizationId}
         orgUserId={params.orgUserId}
@@ -154,20 +148,3 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  headerLink: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  link: {
-    color: theme.customColors.blue,
-    "&:visited": {
-      color: theme.customColors.blue,
-    },
-  },
-  linkPadding: {
-    paddingRight: theme.spacing(2),
-  },
-}));
