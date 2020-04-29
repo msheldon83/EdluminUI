@@ -4,6 +4,7 @@ import { ReportDefinition } from "./types";
 import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
+import { LoadingDataGrid } from "./data/loading-data-grid";
 
 type Props = {
   rdl: string;
@@ -28,15 +29,15 @@ export const Report: React.FC<Props> = props => {
     },
   });
 
-  console.log(reportResponse);
-
-  if (!report) {
-    return <></>;
-  }
+  React.useEffect(() => {
+    if (reportResponse.state === "DONE") {
+      setReport(reportResponse.data.report);
+    }
+  }, [reportResponse.state]);
 
   return (
     <AppConfig contentWidth="100%">
-      <DataGrid reportDefinition={report} />
+      {!report ? <LoadingDataGrid /> : <DataGrid reportDefinition={report} />}
     </AppConfig>
   );
 };
