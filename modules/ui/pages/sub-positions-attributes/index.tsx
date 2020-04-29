@@ -18,7 +18,7 @@ import { RemoveEmployeeEndorsement } from "ui/components/employee/graphql/remove
 import { UpdateEmployeeEndorsement } from "ui/components/employee/graphql/update-endorsement.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { parseISO } from "date-fns";
-import { SubstituteLinkHeader } from "ui/components/link-headers/substitute";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 type Props = {};
 
@@ -128,13 +128,11 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     return <></>;
   }
 
-  const fullName = substitute?.firstName + " " + substitute?.lastName;
-
   return (
     <>
-      <SubstituteLinkHeader
+      <PersonLinkHeader
         title={t("Position types & Attributes")}
-        subtitle={fullName}
+        person={substitute ?? undefined}
         params={params}
       />
       <SubPositionTypesAndAttributesEdit

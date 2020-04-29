@@ -5,19 +5,30 @@ import { PersonViewRoute } from "ui/routes/people";
 
 type Props = {
   title: string;
-  subtitle?: string;
+  person?: {
+    firstName: string;
+    lastName: string;
+  };
   params: {
     organizationId: string;
     orgUserId: string;
   };
 };
 
-export const SubstituteLinkHeader: React.FC<Props> = ({ params, ...props }) => {
+export const PersonLinkHeader: React.FC<Props> = ({
+  params,
+  person,
+  ...props
+}) => {
   const { t } = useTranslation();
+  const subtitle = person
+    ? person.firstName + " " + person.lastName
+    : undefined;
   return (
     <LinkHeader
       to={PersonViewRoute.generate(params)}
       linkText={t("Return to details")}
+      subtitle={subtitle}
       {...props}
     />
   );
