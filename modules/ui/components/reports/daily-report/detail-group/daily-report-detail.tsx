@@ -25,6 +25,7 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   vacancyDate?: string;
+  swapSubs?: (detail: Detail) => void;
 };
 
 export const DailyReportDetail: React.FC<Props> = props => {
@@ -40,7 +41,10 @@ export const DailyReportDetail: React.FC<Props> = props => {
   const existingUnfilledSelection = !!props.selectedDetails.find(
     d => d.state === "unfilled"
   );
-  const hideCheckbox =
+
+  const disableSwapSub =
+    (props.selectedDetails.length === 0 && !props.detail.substitute) ||
+    props.detail.isClosed ||
     props.detail.isMultiDay ||
     props.detail.state === "noSubRequired" ||
     (!isChecked &&
@@ -118,21 +122,46 @@ export const DailyReportDetail: React.FC<Props> = props => {
             ),
     });
   }
+  if (!disableSwapSub) {
+    rowActions.push({
+      name: t("Swap Sub"),
+      onClick: async () => {
+        props.updateSelectedDetails(props.detail, true);
+      },
+      permissions: (
+        permissions: OrgUserPermissions[],
+        isSysAdmin: boolean,
+        orgId?: string,
+        forRole?: Role | null | undefined
+      ) =>
+        canAssignSub(
+          props.detail.date,
+          permissions,
+          isSysAdmin,
+          orgId,
+          forRole
+        ),
+    });
+  }
   return (
     <>
       {isMobile ? (
         <MobileDailyReportDetailUI
           {...props}
           rowActions={rowActions}
-          hideCheckbox={hideCheckbox}
+          hideCheckbox={disableSwapSub}
           isChecked={isChecked}
+          highlighted={isChecked}
+          swapMode={disableSwapSub ? "notswapable" : "swapable"}
+          swapSubs={props.swapSubs}
         />
       ) : (
         <DailyReportDetailUI
           {...props}
           rowActions={rowActions}
-          hideCheckbox={hideCheckbox}
-          isChecked={isChecked}
+          highlighted={isChecked}
+          swapMode={disableSwapSub ? "notswapable" : "swapable"}
+          swapSubs={props.swapSubs}
         />
       )}
     </>

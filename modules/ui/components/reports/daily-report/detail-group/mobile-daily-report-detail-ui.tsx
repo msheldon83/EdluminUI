@@ -2,8 +2,6 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   makeStyles,
-  Checkbox,
-  Link,
   Tooltip,
   Collapse,
   IconButton,
@@ -16,10 +14,8 @@ import InfoIcon from "@material-ui/icons/Info";
 import { ExpandMore, ExpandLess } from "@material-ui/icons";
 import { useState, useCallback } from "react";
 import { not } from "helpers";
-import { canAssignSub } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
-import { PermissionEnum } from "graphql/server-types.gen";
 import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
 import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
@@ -28,27 +24,32 @@ type Props = {
   detail: Detail;
   className?: string;
   selectedDetails: Detail[];
-  updateSelectedDetails: (detail: Detail, add: boolean) => void;
   removeSub: (
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
-  hideCheckbox: boolean;
-  isChecked: boolean;
   rowActions: {
     name: string;
     onClick: () => void;
     permissions?: CanDo;
   }[];
   vacancyDate?: string;
+  highlighted?: boolean;
+  swapMode?: "swapable" | "notswapable";
+  swapSubs?: (detail: Detail) => void;
+  showDetails?: boolean;
 };
 
 export const MobileDailyReportDetailUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isPrinting = useMediaQuery("@media print");
-  const [showingDetailsState, setIsShowingDetails] = useState(false);
+  const [showingDetailsState, setIsShowingDetails] = useState(
+    props.showDetails ?? false
+  );
   const showingDetails = isPrinting || showingDetailsState;
+
+  const inSwapMode = props.selectedDetails.length > 0;
 
   const toggleExpandDetails = useCallback(() => setIsShowingDetails(not), [
     setIsShowingDetails,
@@ -83,52 +84,32 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
 
   const condClosed = props.detail.isClosed ? classes.closedText : "";
   return (
-    <div className={[classes.container, props.className].join(" ")}>
+    <div
+      className={
+        props.highlighted
+          ? [classes.highlighted, classes.container, props.className].join(" ")
+          : [classes.container, props.className].join(" ")
+      }
+    >
       <div className={classes.group}>
-        <div className={classes.checkboxSpacing}>
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string,
-              forRole?: Role | null | undefined
-            ) =>
-              canAssignSub(
-                props.detail.date,
-                permissions,
-                isSysAdmin,
-                orgId,
-                forRole
-              )
-            }
-          >
-            <Checkbox
-              color="primary"
-              className={clsx({
-                [classes.hidden]: props.hideCheckbox || props.detail.isClosed,
-                [classes.checkbox]: true,
-              })}
-              checked={props.isChecked}
-              onChange={e => {
-                props.updateSelectedDetails(props.detail, e.target.checked);
-              }}
-            />
-          </Can>
-        </div>
         <div className={classes.item}>
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <EmployeeLink
-                  orgId={props.detail.orgId}
-                  orgUserId={props.detail.employee?.id}
-                  linkClass={classes.action}
-                  textClass={condClosed}
-                >
-                  {props.detail.employee?.name}
-                </EmployeeLink>
+                {props.highlighted || inSwapMode ? (
+                  props.detail.employee?.name
+                ) : (
+                  <EmployeeLink
+                    orgId={props.detail.orgId}
+                    orgUserId={props.detail.employee?.id}
+                    linkClass={classes.action}
+                    textClass={condClosed}
+                  >
+                    {props.detail.employee?.name}
+                  </EmployeeLink>
+                )}
               </div>
-              <div className={classes.detailSubText}>
+              <div className={props.highlighted ? "" : classes.detailSubText}>
                 <span className={condClosed}>
                   {props.detail.position?.name}
                 </span>
@@ -169,17 +150,20 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
       {showingDetails && (
         <Collapse in={showingDetails}>
           <div className={classes.group}>
-            <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               <div>
-                <LocationLink
-                  orgId={props.detail.orgId}
-                  locationId={props.detail.location?.id}
-                  linkClass={classes.action}
-                  textClass={condClosed}
-                >
-                  {props.detail.location?.name}
-                </LocationLink>
+                {props.highlighted || inSwapMode ? (
+                  props.detail.location?.name
+                ) : (
+                  <LocationLink
+                    orgId={props.detail.orgId}
+                    locationId={props.detail.location?.id}
+                    linkClass={classes.action}
+                    textClass={condClosed}
+                  >
+                    {props.detail.location?.name}
+                  </LocationLink>
+                )}
               </div>
               <div className={classes.detailSubText}>
                 <span className={condClosed}>
@@ -195,7 +179,6 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
           </div>
 
           <div className={classes.group}>
-            <div className={classes.checkboxSpacing} />
             <div className={classes.item}>
               {props.detail.state === "noSubRequired" && (
                 <div className={classes.detailSubText}>
@@ -206,13 +189,17 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 props.detail.substitute && (
                   <div className={classes.subWithPhone}>
                     <div>
-                      <SubstituteLink
-                        orgId={props.detail.orgId}
-                        orgUserId={props.detail.substitute?.id}
-                        linkClass={classes.action}
-                      >
-                        {props.detail.substitute.name}
-                      </SubstituteLink>
+                      {props.highlighted || inSwapMode ? (
+                        props.detail.substitute.name
+                      ) : (
+                        <SubstituteLink
+                          orgId={props.detail.orgId}
+                          orgUserId={props.detail.substitute?.id}
+                          linkClass={classes.action}
+                        >
+                          {props.detail.substitute.name}
+                        </SubstituteLink>
+                      )}
                     </div>
                     {props.detail.substitute.phone && (
                       <div className={classes.subPhoneInfoIcon}>
@@ -233,7 +220,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               )}
               {props.detail.state !== "noSubRequired" &&
                 !props.detail.isClosed &&
-                !props.detail.substitute && (
+                !props.detail.substitute &&
+                !props.highlighted &&
+                !inSwapMode && (
                   <AbsVacAssignLink
                     orgId={props.detail.orgId}
                     absVacId={props.detail.id}
@@ -243,6 +232,10 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                     {t("Assign")}
                   </AbsVacAssignLink>
                 )}
+              {((!props.detail.substitute && props.highlighted) ||
+                (!props.detail.substitute && inSwapMode)) && (
+                <>{t("Unassigned")}</>
+              )}
               {props.detail.subTimes.map((st, i) => {
                 return (
                   <div className={classes.detailSubText} key={i}>
@@ -258,6 +251,7 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   absVacId={props.detail.id}
                   absVacType={props.detail.type}
                   linkClass={classes.action}
+                  disabled={props.highlighted || inSwapMode}
                 />
               </div>
               {props.detail.assignmentId && (
@@ -267,9 +261,56 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               )}
             </div>
           </div>
-          {actionButtons}
+          {!props.highlighted && !inSwapMode ? actionButtons : <></>}
         </Collapse>
       )}
+
+      {inSwapMode &&
+        props.swapMode === "swapable" &&
+        props.swapSubs &&
+        !props.highlighted && (
+          <div className={classes.actionButtons}>
+            <Button
+              variant="contained"
+              onClick={e => {
+                e.stopPropagation();
+                if (props.swapSubs) {
+                  props.swapSubs(props.detail);
+                }
+              }}
+            >
+              {t("Swap")}
+            </Button>
+          </div>
+        )}
+      {inSwapMode &&
+        props.swapMode === "notswapable" &&
+        props.swapSubs &&
+        !props.highlighted && (
+          <div className={classes.actionButtons}>
+            <Tooltip
+              title={
+                <div className={classes.tooltip}>
+                  {props.detail.isMultiDay
+                    ? t(
+                        "Swapping subs for multiday assignments is not supported.”"
+                      )
+                    : props.detail.state === "noSubRequired"
+                    ? t("A substitute is not required.")
+                    : t("Can not swap subs.")}
+                </div>
+              }
+              placement="right-start"
+            >
+              <InfoIcon
+                color="primary"
+                style={{
+                  marginLeft: "22px",
+                }}
+              />
+            </Tooltip>
+          </div>
+        )}
     </div>
   );
 };
@@ -277,7 +318,6 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: { display: "flex", width: "100%", flexDirection: "column" },
   group: { display: "flex", width: "100%" },
-  checkboxSpacing: { width: theme.typography.pxToRem(42), flexGrow: 0 },
   absenceReason: {
     flex: 4,
   },
@@ -313,16 +353,18 @@ const useStyles = makeStyles(theme => ({
   action: {
     cursor: "pointer",
   },
-  checkbox: {
-    "@media print": {
-      display: "none",
-    },
-  },
   hidden: {
     visibility: "hidden",
   },
   closedText: {
     fontStyle: "italic",
     color: "#9E9E99",
+  },
+  highlighted: {
+    color: `${theme.customColors.white} !important`,
+    backgroundColor: `${theme.customColors.darkBlueGray} !important`,
+  },
+  tooltip: {
+    padding: theme.spacing(2),
   },
 }));
