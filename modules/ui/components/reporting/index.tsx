@@ -48,11 +48,12 @@ const convertReportDefinitionInputToRdl = (
   const rdlPieces: string[] = [];
   rdlPieces.push(`QUERY FROM ${input.from}`);
   if (input.filter && input.filter.length > 0) {
-    rdlPieces.push(`WHERE ${input.filter.join(",")}`);
+    rdlPieces.push(`WHERE ${input.filter.join(", ")}`);
   }
-  rdlPieces.push(`SELECT ${input.select.join(",")}`);
+  rdlPieces.push(`SELECT ${input.select.join(", ")}`);
   if (input.orderBy && input.orderBy.length > 0) {
-    rdlPieces.push(`ORDER BY ${input.orderBy.join(",")}`);
+    rdlPieces.push(`ORDER BY ${input.orderBy.join(", ")}`);
   }
-  return rdlPieces.join(" ");
+  const rdlString = rdlPieces.join(" ");
+  return rdlString;
 };

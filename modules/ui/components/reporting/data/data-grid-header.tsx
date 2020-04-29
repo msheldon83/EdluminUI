@@ -51,7 +51,7 @@ export const DataGridHeader: React.FC<Props> = props => {
     [classes.action, classes.headerCell]
   );
 
-  const menuItems = [t("Sort A > Z"), t("Sort Z > A"), t("Lock column")];
+  const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
 
   return (
     <>
