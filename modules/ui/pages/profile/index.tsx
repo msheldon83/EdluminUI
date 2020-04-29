@@ -5,12 +5,14 @@ import { UpdateLoginEmail } from "./graphql/UpdateLoginEmail.gen";
 import { UpdateUser } from "./graphql/UpdateUser.gen";
 import { ResetPassword } from "./graphql/ResetPassword.gen";
 import { ProfileBasicInfo } from "./components/basic-info";
+import { Formik } from "formik";
 import { NotificationPreferences } from "./components/notification-preferences";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
   UserUpdateInput,
   UserPreferencesInput,
+  TimeZone,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { useMyUserAccess } from "reference-data/my-user-access";
@@ -20,6 +22,8 @@ import { VerifyPhoneNumber } from "ui/pages/profile/graphql/verify-phone-number.
 import { debounce } from "lodash-es";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
+import { phoneRegExp } from "helpers/regexp";
+import * as yup from "yup";
 
 export const ProfilePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
@@ -148,23 +152,75 @@ export const ProfilePage: React.FC<{}> = props => {
     return <></>;
   }
 
+  const cleanPhoneNumber = (phoneNumber: string) => {
+    return phoneNumber.replace(/\D/g, "");
+  };
+
   return (
     <>
-      <ProfileBasicInfo
-        user={myUser}
-        onUpdateLoginEmail={onUpdateLoginEmail}
-        onVerifyPhoneNumber={onVerifyPhoneNumber}
-        onUpdateUser={onUpdateUser}
-        onResetPassword={onResetPassword}
-      />
-      {!myUser?.isSystemAdministrator && (
-        <NotificationPreferences
-          preferences={{
-            notificationPreferences: notificationPreferencesForUser,
-          }}
-          onUpdatePreferences={onUpdatePreferences}
-        />
-      )}
+      <Formik
+        initialValues={{
+          firstName: myUser.firstName,
+          lastName: myUser.lastName,
+          phone: myUser.phone ?? "",
+          timeZoneId: myUser.timeZoneId?.toString() ?? "",
+          notificationPreferences: notificationPreferencesForUser,
+        }}
+        onSubmit={async data =>
+          await onUpdateUser({
+            id: myUser.id,
+            rowVersion: myUser.rowVersion,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone:
+              data.phone.trim().length === 0
+                ? null
+                : cleanPhoneNumber(data.phone),
+            timeZoneId: data.timeZoneId as TimeZone,
+            preferences: {
+              notificationPreferences: data.notificationPreferences
+                ? data.notificationPreferences.map(x => ({
+                    notificationReasonId: x.notificationReasonId,
+                    receiveEmailNotifications: x.receiveEmailNotifications,
+                    receiveInAppNotifications: x.receiveInAppNotifications,
+                    receiveSmsNotifications: x.receiveSmsNotifications,
+                  }))
+                : undefined,
+            },
+          })
+        }
+        validationSchema={yup.object().shape({
+          firstName: yup.string().required(t("First name is required")),
+          lastName: yup.string().required(t("Last name is required")),
+          timeZoneId: yup.string().required(t("Time zone is required")),
+          phone: yup
+            .string()
+            .nullable()
+            .required(t("Phone number is required")) // TODO: Only require this if the user has a replacmenet Employee role
+            .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+        })}
+      >
+        {({ handleSubmit, submitForm, values, setFieldValue }) => (
+          <form onSubmit={handleSubmit}>
+            <ProfileBasicInfo
+              user={myUser}
+              formValues={values}
+              onUpdateLoginEmail={onUpdateLoginEmail}
+              onVerifyPhoneNumber={onVerifyPhoneNumber}
+              setFieldValue={setFieldValue}
+              onResetPassword={onResetPassword}
+              submitForm={submitForm}
+            />
+            {!myUser?.isSystemAdministrator && (
+              <NotificationPreferences
+                notificationPreferences={values.notificationPreferences}
+                setFieldValue={setFieldValue}
+                submitForm={submitForm}
+              />
+            )}
+          </form>
+        )}
+      </Formik>
     </>
   );
 };

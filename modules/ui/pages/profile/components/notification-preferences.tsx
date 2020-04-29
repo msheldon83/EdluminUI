@@ -1,16 +1,14 @@
 import * as React from "react";
 import { useMemo } from "react";
-import { makeStyles, Divider } from "@material-ui/core";
+import { makeStyles, Divider, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useIsMobile } from "hooks";
 import {
-  UserPreferencesInput,
   NotificationPreferenceInput,
   NotificationMethod,
 } from "graphql/server-types.gen";
-import { Formik } from "formik";
 import { useNotificationReasons } from "reference-data/notification-reasons";
 import {
   groupNotificationPreferencesByRole,
@@ -20,10 +18,9 @@ import { NotificationGroup } from "./notification-preferences/notification-prefe
 import { getDisplayName } from "ui/components/enumHelpers";
 
 type Props = {
-  preferences: {
-    notificationPreferences: NotificationPreferenceInput[];
-  };
-  onUpdatePreferences: (preferences: UserPreferencesInput) => Promise<any>;
+  notificationPreferences: NotificationPreferenceInput[];
+  setFieldValue: Function;
+  submitForm: () => Promise<any>;
 };
 
 export const NotificationPreferences: React.FC<Props> = props => {
@@ -31,10 +28,10 @@ export const NotificationPreferences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
 
-  const { preferences } = props;
+  const { notificationPreferences } = props;
 
   const allNotificationReasons = useNotificationReasons();
-  const userNotificationReasonIds = preferences.notificationPreferences.map(
+  const userNotificationReasonIds = notificationPreferences.map(
     x => x.notificationReasonId
   );
 
@@ -66,48 +63,34 @@ export const NotificationPreferences: React.FC<Props> = props => {
 
   return (
     <>
-      <Formik
-        initialValues={{ ...preferences }}
-        onSubmit={async data => {
-          await props.onUpdatePreferences({
-            notificationPreferences: data.notificationPreferences.map(x => ({
-              notificationReasonId: x.notificationReasonId,
-              receiveEmailNotifications: x.receiveEmailNotifications,
-              receiveInAppNotifications: x.receiveInAppNotifications,
-              receiveSmsNotifications: x.receiveSmsNotifications,
-            })),
-          });
-        }}
-      >
-        {({ handleSubmit, submitForm, values, setFieldValue }) => (
-          <form onSubmit={handleSubmit}>
-            <Section>
-              <SectionHeader title={t("Notification Preferences")} />
-              {groupNotificationPreferencesByRole(
-                values.notificationPreferences,
-                userNotificationReasons
-              ).map((gnp: GroupedNotificationPreferences, i) => {
-                return (
-                  <NotificationGroup
-                    key={i}
-                    showEmailColumn={showEmailColumn}
-                    showSmsColumn={showSmsColumn}
-                    showInAppColumn={showInAppColumn}
-                    onSubmit={submitForm}
-                    role={
-                      multipleRoles
-                        ? getDisplayName("orgUserRole", gnp.role, t)
-                        : undefined
-                    }
-                    setFieldValue={setFieldValue}
-                    notificationPreferences={gnp.preferences}
-                  />
-                );
-              })}
-            </Section>
-          </form>
-        )}
-      </Formik>
+      <Section>
+        <SectionHeader title={t("Notification Preferences")} />
+        {groupNotificationPreferencesByRole(
+          notificationPreferences,
+          userNotificationReasons
+        ).map((gnp: GroupedNotificationPreferences, i) => {
+          return (
+            <NotificationGroup
+              key={i}
+              showEmailColumn={showEmailColumn}
+              showSmsColumn={showSmsColumn}
+              showInAppColumn={showInAppColumn}
+              role={
+                multipleRoles
+                  ? getDisplayName("orgUserRole", gnp.role, t)
+                  : undefined
+              }
+              setFieldValue={props.setFieldValue}
+              notificationPreferences={gnp.preferences}
+            />
+          );
+        })}
+        <div className={classes.button}>
+          <Button onClick={props.submitForm} variant="contained">
+            {t("Save")}
+          </Button>
+        </div>
+      </Section>
     </>
   );
 };
@@ -123,5 +106,10 @@ const useStyles = makeStyles(theme => ({
   divider: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  button: {
+    display: "flex",
+    marginTop: theme.spacing(2),
+    justifyContent: "flex-end",
   },
 }));
