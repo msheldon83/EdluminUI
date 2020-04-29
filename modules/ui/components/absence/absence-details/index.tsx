@@ -357,6 +357,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         {props.replacementEmployeeId && !isSplitVacancy && (
           <AssignedSub
+            orgId={props.organizationId}
             disableReplacementInteractions={
               props.disableReplacementInteractions
             }
@@ -374,6 +375,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <div className={classes.subDetailsContainer}>
           <SubstituteRequiredDetails
+            orgId={props.organizationId}
             disableReplacementInteractions={
               props.disableReplacementInteractions
             }

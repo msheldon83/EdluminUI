@@ -334,6 +334,7 @@ export const AssignSub: React.FC<Props> = props => {
         >
           {props.vacancies && !isForVacancy && (
             <VacancyDetails
+              orgId={props.orgId}
               vacancies={props.vacancies}
               vacancyDetailIds={vacancyDetailIdsToAssign}
               positionName={props.positionName}

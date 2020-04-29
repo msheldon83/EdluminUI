@@ -16,6 +16,7 @@ type GeneralProps = {
   linkClass?: string;
   textClass?: string;
   disabled?: boolean;
+  color?: "blue" | "black";
 };
 
 type AbsenceProps = GeneralProps & {
