@@ -26,7 +26,7 @@ type Props = {
   view: "list" | "calendar";
   employeeId: string;
   orgId: string;
-  pageTitle: string;
+  pageTitle: string | JSX.Element;
   cancelAbsence: (absenceId: string) => Promise<void>;
   calendarViewRoute: string;
   listViewRoute: string;
@@ -86,12 +86,19 @@ export const AbsenceSchedule: React.FC<Props> = props => {
     return <></>;
   }
 
+  const header =
+    typeof props.pageTitle === "string" ? (
+      <PageTitle title={t(props.pageTitle)} />
+    ) : (
+      props.pageTitle
+    );
+
   return (
     <div>
       <div className={classes.sticky}>
         <Grid container justify="space-between" alignItems="center">
-          <Grid item>
-            <PageTitle title={t(props.pageTitle)} />
+          <Grid item xs={12}>
+            {header}
           </Grid>
           {props.actingAsEmployee && (
             <Can do={[PermissionEnum.AbsVacSave]}>
