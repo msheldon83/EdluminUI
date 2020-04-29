@@ -1,26 +1,32 @@
 import * as React from "react";
+import { makeStyles } from "@material-ui/core";
 import { Input } from "ui/components/form/input";
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect } from "react";
+import { OptionType } from "ui/components/form/select-new";
 import TextField from "@material-ui/core/TextField";
+import { OptionTypeBase } from "react-select/src/types";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDeferredState } from "hooks";
 
 type Props = {
-  options: string[]; // TODO:
+  options: OptionType[];
   setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
-  onClick: () => Promise<void>;
+  onClick: (id: string) => void;
+  placeholder?: string;
+  searchText?: string | undefined;
 };
 
 export const AutoCompleteSearch: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
   const setSearchText = props.setSearchText;
 
   const [
     searchText,
     pendingSearchText,
     setPendingSearchText,
-  ] = useDeferredState<string | undefined>(undefined, 200);
+  ] = useDeferredState<string | undefined>(undefined, 300);
   useEffect(() => {
     setSearchText(searchText);
   }, [setSearchText, searchText]);
@@ -32,26 +38,41 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
     [setPendingSearchText]
   );
 
-  //AutoComplete Component with Action on Select
-
   return (
     <>
-      <div style={{ width: 300 }}>
-        <Autocomplete
-          id="autocomplete-on-select"
-          freeSolo
-          //options={top100Films.map(option => option.title)} TODO:
-          renderInput={params => (
-            <TextField
-              {...params}
-              label="freeSolo"
-              margin="normal"
-              variant="outlined"
-              //onClick={} TODO: Add current object to
-            />
-          )}
-        />
-      </div>
+      <Autocomplete
+        id="autocomplete-on-select"
+        freeSolo
+        selectOnFocus
+        clearOnEscape
+        autoComplete={true}
+        getOptionLabel={o => {
+          return o.label;
+        }}
+        options={props.options}
+        renderInput={params => (
+          <TextField
+            {...params}
+            label={props.placeholder}
+            margin="normal"
+            variant="outlined"
+            className={classes.searchInput}
+            onChange={(e: any) => updateSearchText(e)}
+          />
+        )}
+        onChange={(e: React.ChangeEvent<{}>, selection: OptionType | null) => {
+          const selectedValue = selection?.value ?? "";
+
+          if (selectedValue !== "") props.onClick(selectedValue.toString());
+          props.options.length = 0;
+        }}
+      />
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  searchInput: {
+    width: "100%",
+  },
+}));

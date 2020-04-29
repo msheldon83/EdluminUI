@@ -83,6 +83,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         onRemove={handleRemove}
         orgId={params.organizationId}
         allDistrictAttributes={allDistrictAttributes}
+        isAdmin={true}
       />
     </>
   );
