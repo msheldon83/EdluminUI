@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { Typography, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PositionEditUI } from "./ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -18,6 +18,7 @@ import { useHistory } from "react-router";
 import { compact } from "lodash-es";
 import { sortDaysOfWeek, compareDaysOfWeek } from "helpers/day-of-week";
 import { secondsToIsoString } from "helpers/time";
+import { EmployeeLinkHeader } from "ui/components/link-headers/employee";
 
 type Props = {};
 
@@ -25,7 +26,6 @@ export const EmployeePosition: React.FC<Props> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PeopleEmployeePositionEditRoute);
-  const classes = useStyles();
   const history = useHistory();
 
   const [positionTypeName, setPositionTypeName] = useState<string | undefined>(
@@ -117,12 +117,11 @@ export const EmployeePosition: React.FC<Props> = props => {
 
   return (
     <>
-      <div className={classes.header}>
-        <div className={classes.name}>
-          {`${orgUser?.firstName} ${orgUser?.lastName}`}
-        </div>
-        <Typography variant="h1">{positionTypeLabel}</Typography>
-      </div>
+      <EmployeeLinkHeader
+        title={positionTypeLabel}
+        employee={orgUser}
+        params={params}
+      />
       <PositionEditUI
         position={position}
         accountingCodeId={
@@ -141,12 +140,3 @@ export const EmployeePosition: React.FC<Props> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  name: {
-    fontSize: theme.typography.pxToRem(24),
-  },
-  header: {
-    marginBottom: theme.spacing(2),
-  },
-}));
