@@ -13,7 +13,7 @@ import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index"
 import { useRouteParams } from "ui/routes/definition";
 import { Employee } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
-import { EmployeeLinkHeader } from "ui/components/link-headers/employee";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 type Props = {};
 
@@ -234,9 +234,9 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   return (
     <>
-      <EmployeeLinkHeader
+      <PersonLinkHeader
         title={`Replacement Criteria${title ? " - " + title : ""}`}
-        employee={employee}
+        person={employee}
         params={params}
       />
       <ReplacementCriteriaUI

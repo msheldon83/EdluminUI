@@ -26,7 +26,7 @@ import {
 } from "graphql/server-types.gen";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { compact } from "lodash-es";
-import { EmployeeLinkHeader } from "ui/components/link-headers/employee";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
@@ -138,9 +138,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
 
   return (
     <>
-      <EmployeeLinkHeader
+      <PersonLinkHeader
         title={t("Time off balances")}
-        employee={employee ?? undefined}
+        person={employee ?? undefined}
         params={params}
       />
       <Section>

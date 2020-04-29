@@ -18,7 +18,7 @@ import { useHistory } from "react-router";
 import { compact } from "lodash-es";
 import { sortDaysOfWeek, compareDaysOfWeek } from "helpers/day-of-week";
 import { secondsToIsoString } from "helpers/time";
-import { EmployeeLinkHeader } from "ui/components/link-headers/employee";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 type Props = {};
 
@@ -117,9 +117,9 @@ export const EmployeePosition: React.FC<Props> = props => {
 
   return (
     <>
-      <EmployeeLinkHeader
+      <PersonLinkHeader
         title={positionTypeLabel}
-        employee={orgUser}
+        person={orgUser}
         params={params}
       />
       <PositionEditUI
