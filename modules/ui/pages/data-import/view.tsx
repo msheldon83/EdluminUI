@@ -3,19 +3,24 @@ import { useState } from "react";
 import {
   Grid,
   makeStyles,
-  IconButton,
   ExpansionPanel,
   ExpansionPanelSummary,
   ExpansionPanelDetails,
+  Button,
 } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { ExpandMore } from "@material-ui/icons";
 import { Section } from "ui/components/section";
 import { PageTitle } from "ui/components/page-title";
-import { DataImportViewRoute } from "ui/routes/data-import";
+import { DataImportViewRoute, DataImportRoute } from "ui/routes/data-import";
 import { useRouteParams } from "ui/routes/definition";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useQueryBundle, usePagedQueryBundle } from "graphql/hooks";
+import {
+  useQueryBundle,
+  usePagedQueryBundle,
+  useMutationBundle,
+} from "graphql/hooks";
 import { GetDataImportById } from "./graphql/get-data-import-byid.gen";
 import { GetDataImportRows } from "./graphql/get-data-import-rows.gen";
 import { compact } from "lodash-es";
@@ -24,17 +29,43 @@ import { getDisplayName } from "ui/components/enumHelpers";
 import { DataImportRowData } from "./components/row-data";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { RowStatusFilter } from "./components/row-status-filter";
-import { DataImportRowStatus } from "graphql/server-types.gen";
+import {
+  DataImportRowStatus,
+  DataImportStatus,
+} from "graphql/server-types.gen";
 import { useDataImportTypes } from "reference-data/data-import-types";
+import { UpdateDataImport } from "./graphql/update-data-import.gen";
+import { ShowErrors } from "ui/components/error-helpers";
+import { useSnackbar } from "hooks/use-snackbar";
 
 export const DataImportViewPage: React.FC<{}> = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(DataImportViewRoute);
+  const { openSnackbar } = useSnackbar();
 
   const [rowStatusFilter, setRowStatusFilter] = useState<
     DataImportRowStatus | undefined
   >(undefined);
+
+  const [updateDataImport] = useMutationBundle(UpdateDataImport, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const onRetryDataImport = async (validateOnly: boolean, reRun: boolean) => {
+    await updateDataImport({
+      variables: {
+        dataImport: {
+          id: params.dataImportId,
+          parseOnly: false,
+          validateOnly,
+          reRun,
+        },
+      },
+    });
+  };
 
   const getImport = useQueryBundle(GetDataImportById, {
     variables: {
@@ -89,6 +120,9 @@ export const DataImportViewPage: React.FC<{}> = () => {
 
   return (
     <>
+      <Link to={DataImportRoute.generate(params)} className={classes.link}>
+        {t("Return to all data imports")}
+      </Link>
       <Grid container alignItems="center" justify="space-between">
         <Grid item>
           <PageTitle title={`${dataImportTypeLabel} ${t("data import")}`} />
@@ -96,8 +130,6 @@ export const DataImportViewPage: React.FC<{}> = () => {
         {countOfErrorRows > 0 && (
           <TextButton
             href={`${Config.restUri}/DataImport/FailedRows/${params.dataImportId}`}
-            target={"_blank"}
-            rel={"noreferrer"}
           >
             {t("Download failed rows")}
           </TextButton>
@@ -106,8 +138,6 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <Grid item>
             <TextButton
               href={dataImport.fileUpload?.originalFileDownloadUrlSas ?? ""}
-              target={"_blank"}
-              rel={"noreferrer"}
             >
               {t("Download original file")}
             </TextButton>
@@ -138,6 +168,40 @@ export const DataImportViewPage: React.FC<{}> = () => {
               {format(new Date(dataImport.createdUtc), "MMM d yyyy, h:mm:ss a")}
             </div>
           </Grid>
+          {dataImport.dataImportStatusId === DataImportStatus.Parsed && (
+            <Grid item xs={2}>
+              <Button
+                variant="contained"
+                onClick={() => onRetryDataImport(true, true)}
+              >
+                {t("Validate")}
+              </Button>
+            </Grid>
+          )}
+          {(dataImport.dataImportStatusId === DataImportStatus.Validated ||
+            dataImport.dataImportStatusId === DataImportStatus.Parsed) && (
+            <Grid item xs={2}>
+              <Button
+                variant="contained"
+                onClick={() => onRetryDataImport(false, true)}
+              >
+                {t("Import")}
+              </Button>
+            </Grid>
+          )}
+          {(dataImport.dataImportStatusId ===
+            DataImportStatus.PartiallyImported ||
+            dataImport.dataImportStatusId ===
+              DataImportStatus.ImportFailure) && (
+            <Grid item xs={2}>
+              <Button
+                variant="contained"
+                onClick={() => onRetryDataImport(false, true)}
+              >
+                {t("Retry import")}
+              </Button>
+            </Grid>
+          )}
           {dataImport.messages && dataImport.messages.length > 0 && (
             <Grid item xs={12}>
               <div className={classes.labelText}>{t("Error messages:")}</div>
@@ -225,5 +289,11 @@ const useStyles = makeStyles(theme => ({
   rowNumColumn: {
     paddingLeft: theme.spacing(1),
     flex: 1,
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
   },
 }));
