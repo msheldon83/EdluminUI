@@ -1208,7 +1208,7 @@ export const App = hot(function() {
                                       path={
                                         AnalyticsReportsAbsentEmployeeRoute.path
                                       }
-                                      role={"sysadmin"}
+                                      role={"sysAdmin"}
                                     />
                                   </Switch>
                                 </AdminRouteOrganizationContextProvider>
