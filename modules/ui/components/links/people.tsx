@@ -11,6 +11,7 @@ type Props = {
   state?: any;
   linkClass?: string;
   textClass?: string;
+  color?: "blue" | "black";
 };
 
 const PeopleLink: (perms: CanDo) => React.FC<Props> = perms => ({

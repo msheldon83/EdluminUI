@@ -252,6 +252,7 @@ export const View: React.FC<Props> = props => {
                 {absence.vacancies && (
                   <>
                     <VacancyDetails
+                      orgId={props.orgId}
                       vacancies={absence.vacancies as Vacancy[]}
                       equalWidthDetails
                       disabledDates={disabledDates}
