@@ -184,8 +184,6 @@ export const EditVacancies: React.FC<Props> = props => {
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
           <AbsenceVacancyHeader
-            orgId={props.orgId}
-            employeeId={props.employeeId}
             pageHeader={pageHeader}
             subHeader={props.employeeName}
             actingAsEmployee={props.actingAsEmployee}
