@@ -25,7 +25,6 @@ type Props = {
 
 export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const params = useRouteParams(EmployeeAbsScheduleRoute);
   const { openSnackbar } = useSnackbar();
 
@@ -98,5 +97,3 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
     </div>
   );
 };
-
-const useStyles = makeStyles(theme => ({}));
