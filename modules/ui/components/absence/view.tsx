@@ -222,6 +222,7 @@ export const View: React.FC<Props> = props => {
             <Grid item container xs={12}>
               {replacementEmployeeInformation && (
                 <AssignedSub
+                  orgId={props.orgId}
                   employeeId={replacementEmployeeInformation.employeeId}
                   employeeName={`${replacementEmployeeInformation.firstName} ${replacementEmployeeInformation.lastName}`}
                   subText={
@@ -252,6 +253,7 @@ export const View: React.FC<Props> = props => {
                 {absence.vacancies && (
                   <>
                     <VacancyDetails
+                      orgId={props.orgId}
                       vacancies={absence.vacancies as Vacancy[]}
                       equalWidthDetails
                       disabledDates={disabledDates}

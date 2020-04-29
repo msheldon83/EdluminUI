@@ -13,6 +13,7 @@ import { AssignmentOnDate } from "./types";
 import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 
 type Props = {
+  orgId: string;
   groupedDetail: VacancyDetailsGroup;
   vacancies: Vacancy[];
   isSplitVacancy: boolean;
@@ -100,6 +101,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           )}
           {groupedDetail.assignmentId && props.onAssignSubClick && (
             <AssignedSub
+              orgId={props.orgId}
               subText={t("assigned")}
               disableReplacementInteractions={
                 props.disableReplacementInteractions
