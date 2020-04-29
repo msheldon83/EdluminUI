@@ -76,7 +76,7 @@ export const DataGrid: React.FC<Props> = props => {
             <div>
               <div>
                 <DataGridHeader
-                  selects={metadata.query.selects}
+                  columns={metadata.query.selects.map(s => s.displayName)}
                   numberOfLockedColumns={numberOfLockedColumns}
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}

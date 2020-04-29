@@ -1,17 +1,16 @@
 import * as React from "react";
 import { makeStyles, Menu, MenuItem } from "@material-ui/core";
 import { ArrowDropDown } from "@material-ui/icons";
-import { DataExpression } from "../types";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
 
 type Props = {
-  selects: DataExpression[];
-  numberOfLockedColumns: number;
-  onScroll: MultiGridProps["onScroll"];
-  scrollLeft: MultiGridProps["scrollLeft"];
+  columns: string[];
   width: MultiGridProps["width"];
   columnWidth: MultiGridProps["columnWidth"];
+  numberOfLockedColumns?: number;
+  onScroll?: MultiGridProps["onScroll"];
+  scrollLeft?: MultiGridProps["scrollLeft"];
 };
 
 export const DataGridHeader: React.FC<Props> = props => {
@@ -20,12 +19,12 @@ export const DataGridHeader: React.FC<Props> = props => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const {
-    selects,
-    numberOfLockedColumns,
+    columns,
     onScroll,
     scrollLeft,
     width,
     columnWidth,
+    numberOfLockedColumns = 0,
   } = props;
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -37,11 +36,10 @@ export const DataGridHeader: React.FC<Props> = props => {
   };
 
   const headerCellRenderer = React.useCallback(
-    (selects: DataExpression[], { columnIndex, key, style }: GridCellProps) => {
-      const headerDisplayName = selects[columnIndex]?.displayName;
+    (columns: string[], { columnIndex, key, style }: GridCellProps) => {
       return (
         <div key={key} style={style} className={classes.headerCell}>
-          <div>{headerDisplayName}</div>
+          <div>{columns[columnIndex]}</div>
           <div onClick={handleMenuClick} className={classes.action}>
             <ArrowDropDown />
           </div>
@@ -62,9 +60,9 @@ export const DataGridHeader: React.FC<Props> = props => {
         columnWidth={columnWidth}
         fixedColumnCount={numberOfLockedColumns}
         fixedRowCount={1}
-        cellRenderer={props => headerCellRenderer(selects, props)}
+        cellRenderer={props => headerCellRenderer(columns, props)}
         estimatedColumnSize={120}
-        columnCount={selects.length}
+        columnCount={columns.length}
         height={50}
         rowHeight={50}
         rowCount={1}

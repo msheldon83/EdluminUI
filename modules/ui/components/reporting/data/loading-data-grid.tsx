@@ -2,9 +2,13 @@ import * as React from "react";
 import { AutoSizer, MultiGrid, GridCellProps } from "react-virtualized";
 import { makeStyles, CircularProgress } from "@material-ui/core";
 import clsx from "clsx";
+import { DataGridHeader } from "./data-grid-header";
 
 export const LoadingDataGrid: React.FC<{}> = props => {
   const classes = useStyles();
+  const rowCount = 100;
+  const columnCount = 20;
+  const columnWidth = 120;
 
   return (
     <>
@@ -13,17 +17,28 @@ export const LoadingDataGrid: React.FC<{}> = props => {
       </div>
       <AutoSizer>
         {({ width, height }) => (
-          <MultiGrid
-            columnWidth={120}
-            columnCount={30}
-            height={height}
-            rowHeight={50}
-            rowCount={100}
-            width={width}
-            cellRenderer={props => cellRenderer(props, classes)}
-            style={{ opacity: 0.8 }}
-            styleBottomRightGrid={{ overflowY: "hidden" }}
-          />
+          <div>
+            <div>
+              <DataGridHeader
+                columns={[...Array(columnCount).map(x => "...")]}
+                width={width}
+                columnWidth={columnWidth}
+              />
+            </div>
+            <div>
+              <MultiGrid
+                columnWidth={columnWidth}
+                columnCount={columnCount}
+                height={height}
+                rowHeight={50}
+                rowCount={rowCount}
+                width={width}
+                cellRenderer={props => cellRenderer(props, classes)}
+                style={{ opacity: 0.7 }}
+                styleBottomRightGrid={{ overflowY: "hidden" }}
+              />
+            </div>
+          </div>
         )}
       </AutoSizer>
     </>
