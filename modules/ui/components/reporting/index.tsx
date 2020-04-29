@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { ReportDefinition, ReportDefinitionInput } from "./types";
+import { ReportDefinition, ReportDefinitionInput, Direction } from "./types";
 import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
@@ -52,7 +52,14 @@ const convertReportDefinitionInputToRdl = (
   }
   rdlPieces.push(`SELECT ${input.select.join(", ")}`);
   if (input.orderBy && input.orderBy.length > 0) {
-    rdlPieces.push(`ORDER BY ${input.orderBy.join(", ")}`);
+    rdlPieces.push(
+      `ORDER BY ${input.orderBy
+        .map(
+          o =>
+            `${o.expression} ${o.direction === Direction.Asc ? "ASC" : "DESC"}`
+        )
+        .join(", ")}`
+    );
   }
   const rdlString = rdlPieces.join(" ");
   return rdlString;

@@ -1,7 +1,10 @@
 export type ReportDefinitionInput = {
   from: string;
   select: string[];
-  orderBy?: string[];
+  orderBy?: {
+    expression: string;
+    direction: Direction;
+  }[];
   filter?: string[];
 };
 

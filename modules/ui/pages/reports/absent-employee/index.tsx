@@ -3,7 +3,10 @@ import { PageTitle } from "ui/components/page-title";
 import { Report } from "ui/components/reporting";
 import { useOrganizationId } from "core/org-context";
 import { useTranslation } from "react-i18next";
-import { ReportDefinitionInput } from "ui/components/reporting/types";
+import {
+  ReportDefinitionInput,
+  Direction,
+} from "ui/components/reporting/types";
 
 export const AbsentEmployeeReport: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -28,6 +31,13 @@ export const AbsentEmployeeReport: React.FC<{}> = () => {
       "IsFilled",
       "AbsenceId",
       "VacancyId",
+    ],
+    filter: ["Date > '3/1/2020'"],
+    orderBy: [
+      {
+        expression: "Date",
+        direction: Direction.Desc,
+      },
     ],
   };
 
