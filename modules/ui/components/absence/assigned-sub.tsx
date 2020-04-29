@@ -33,6 +33,7 @@ type Props = {
   disableReplacementInteractions?: boolean;
   showLinkButton?: boolean;
   email?: string;
+  shouldLink?: boolean;
 };
 
 export const AssignedSub: React.FC<Props> = props => {
@@ -101,7 +102,10 @@ export const AssignedSub: React.FC<Props> = props => {
           <AccountCircleOutlined fontSize="large" />
           <div className={classes.name}>
             <Typography variant="h6" className={classes.nameLabel}>
-              <SubstituteLink orgId={props.orgId} orgUserId={props.employeeId}>
+              <SubstituteLink
+                orgId={props.orgId}
+                orgUserId={props.shouldLink ? props.employeeId : undefined}
+              >
                 {props.employeeName}
               </SubstituteLink>
             </Typography>

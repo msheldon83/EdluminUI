@@ -247,6 +247,7 @@ export const View: React.FC<Props> = props => {
                   assignmentStartDate={assignmentStartTime ?? absenceStartDate}
                   vacancies={vacancies}
                   assignmentsByDate={[]}
+                  shouldLink={true}
                 />
               )}
               <div className={classes.substituteDetailsSection}>
