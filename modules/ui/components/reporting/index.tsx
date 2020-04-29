@@ -1,26 +1,26 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { ReportDefinition } from "./types";
+import { ReportDefinition, ReportDefinitionInput } from "./types";
 import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
 import { LoadingDataGrid } from "./data/loading-data-grid";
 
 type Props = {
-  rdl: string;
+  input: ReportDefinitionInput;
   orgIds: string[];
 };
 
 export const Report: React.FC<Props> = props => {
   const [report, setReport] = React.useState<ReportDefinition>();
-  const { rdl, orgIds } = props;
+  const { input, orgIds } = props;
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
     variables: {
       input: {
         orgIds,
-        queryText: rdl,
+        queryText: convertReportDefinitionInputToRdl(input),
       },
     },
     onError: error => {
@@ -40,4 +40,19 @@ export const Report: React.FC<Props> = props => {
       {!report ? <LoadingDataGrid /> : <DataGrid reportDefinition={report} />}
     </AppConfig>
   );
+};
+
+const convertReportDefinitionInputToRdl = (
+  input: ReportDefinitionInput
+): string => {
+  const rdlPieces: string[] = [];
+  rdlPieces.push(`QUERY FROM ${input.from}`);
+  if (input.filter && input.filter.length > 0) {
+    rdlPieces.push(`WHERE ${input.filter.join(",")}`);
+  }
+  rdlPieces.push(`SELECT ${input.select.join(",")}`);
+  if (input.orderBy && input.orderBy.length > 0) {
+    rdlPieces.push(`ORDER BY ${input.orderBy.join(",")}`);
+  }
+  return rdlPieces.join(" ");
 };

@@ -1,3 +1,10 @@
+export type ReportDefinitionInput = {
+  from: string;
+  select: string[];
+  orderBy?: string[];
+  filter?: string[];
+};
+
 export type ReportDefinition = {
   data: ReportData;
   metadata: ReportMetadata;
