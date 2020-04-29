@@ -5,15 +5,17 @@ import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
 import { LoadingDataGrid } from "./data/loading-data-grid";
+import { FilterBar } from "./filters/filter-bar";
 
 type Props = {
   input: ReportDefinitionInput;
   orgIds: string[];
+  filterKeysOverride?: string[];
 };
 
 export const Report: React.FC<Props> = props => {
   const [report, setReport] = React.useState<ReportDefinition>();
-  const { input, orgIds } = props;
+  const { input, orgIds, filterKeysOverride } = props;
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
@@ -37,7 +39,17 @@ export const Report: React.FC<Props> = props => {
 
   return (
     <AppConfig contentWidth="100%">
-      {!report ? <LoadingDataGrid /> : <DataGrid reportDefinition={report} />}
+      {!report ? (
+        <LoadingDataGrid />
+      ) : (
+        <>
+          <FilterBar
+            reportDefinition={report}
+            filterKeysOverride={filterKeysOverride}
+          />
+          <DataGrid reportDefinition={report} />
+        </>
+      )}
     </AppConfig>
   );
 };

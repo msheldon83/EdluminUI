@@ -41,10 +41,25 @@ export const AbsentEmployeeReport: React.FC<{}> = () => {
     ],
   };
 
+  const filterKeysOverride = [
+    "Date",
+    "LocationId",
+    "AbsenceReasonId",
+    "VacancyReasonId",
+    "EmployeeId",
+    "PositionTypeId",
+    "IsAbsence",
+    "IsVacancy",
+  ];
+
   return (
     <>
       <PageTitle title={t("Absent Employee")} />
-      <Report input={reportInput} orgIds={[organizationId?.toString() ?? ""]} />
+      <Report
+        input={reportInput}
+        orgIds={[organizationId?.toString() ?? ""]}
+        filterKeysOverride={filterKeysOverride}
+      />
     </>
   );
 };

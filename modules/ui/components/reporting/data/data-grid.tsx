@@ -3,7 +3,6 @@ import {
   ReportDefinition,
   GroupedData,
   DataExpression,
-  ReportData,
   OrderByField,
   SubtotalField,
   Direction,
