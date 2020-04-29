@@ -44,6 +44,7 @@ export const VacancyActivityLog: React.FC<{}> = props => {
   return (
     <>
       <AbsenceVacancyHeader
+        orgId={params.organizationId}
         actingAsEmployee={false}
         subHeader={positionTitle}
         pageHeader={`${t("Activity log")} #V${params.vacancyId}`}

@@ -486,6 +486,7 @@ export const AssignSub: React.FC<Props> = props => {
         }}
       />
       <AbsenceVacancyHeader
+        orgId={props.orgId}
         pageHeader={pageHeader}
         subHeader={props.employeeName ?? ""}
         actingAsEmployee={props.actingAsEmployee}
