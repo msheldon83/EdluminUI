@@ -31,6 +31,7 @@ import {
 import { VacancyDetails } from "./vacancy-details";
 import { ShowErrors } from "../error-helpers";
 import { AssignmentOnDate } from "./types";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   orgId: string;
@@ -151,7 +152,12 @@ export const View: React.FC<Props> = props => {
             {absence.employee && (
               <div>
                 <Typography variant="h6">
-                  {`${absence.employee.firstName} ${absence.employee.lastName}`}
+                  <EmployeeLink
+                    orgId={props.orgId}
+                    orgUserId={absence.employee.id}
+                  >
+                    {`${absence.employee.firstName} ${absence.employee.lastName}`}
+                  </EmployeeLink>
                 </Typography>
               </div>
             )}
