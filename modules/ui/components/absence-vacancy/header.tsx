@@ -18,7 +18,7 @@ export const AbsenceVacancyHeader: React.FC<Props> = props => {
     <div className={classes.confAndReturnContainer}>
       <div>
         <Typography variant="h5">{props.pageHeader}</Typography>
-        {!props.subHeader && (
+        {props.subHeader && (
           <Typography variant="h1">{props.subHeader}</Typography>
         )}
       </div>
