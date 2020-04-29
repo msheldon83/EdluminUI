@@ -175,7 +175,7 @@ export const ImportDataForm: React.FC<Props> = props => {
                   )}
                 </div>
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 <div className={classes.label}>{t("Import action")}</div>
                 <RadioGroup
                   value={values.importAction}
@@ -184,19 +184,19 @@ export const ImportDataForm: React.FC<Props> = props => {
                   <FormControlLabel
                     value={"parse"}
                     control={<Radio color="primary" />}
-                    label={t("Parse only")}
+                    label={t("Check file headers, no import")}
                     labelPlacement="end"
                   />
                   <FormControlLabel
                     value={"validate"}
                     control={<Radio color="primary" />}
-                    label={t("Validate only")}
+                    label={t("Check file data, no import")}
                     labelPlacement="end"
                   />
                   <FormControlLabel
                     value={"import"}
                     control={<Radio color="primary" />}
-                    label={t("Import")}
+                    label={t("Import data")}
                     labelPlacement="end"
                   />
                 </RadioGroup>

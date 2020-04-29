@@ -8,6 +8,7 @@ import {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
 } from "@material-ui/core";
+import { TextButton } from "ui/components/text-button";
 import { ExpandMore } from "@material-ui/icons";
 import { Section } from "ui/components/section";
 import { PageTitle } from "ui/components/page-title";
@@ -20,7 +21,6 @@ import { GetDataImportRows } from "./graphql/get-data-import-rows.gen";
 import { compact } from "lodash-es";
 import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
-import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import { DataImportRowData } from "./components/row-data";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { RowStatusFilter } from "./components/row-status-filter";
@@ -83,21 +83,34 @@ export const DataImportViewPage: React.FC<{}> = () => {
     o => o.enumValue === dataImport.dataImportTypeId
   )?.description;
 
+  const countOfErrorRows = dataImportRows.filter(
+    x => x.rowStatusId === DataImportRowStatus.ImportFailure
+  ).length;
+
   return (
     <>
       <Grid container alignItems="center" justify="space-between">
         <Grid item>
           <PageTitle title={`${dataImportTypeLabel} ${t("data import")}`} />
         </Grid>
+        {countOfErrorRows > 0 && (
+          <TextButton
+            href={`${Config.restUri}/DataImport/FailedRows/${params.dataImportId}`}
+            target={"_blank"}
+            rel={"noreferrer"}
+          >
+            {t("Download failed rows")}
+          </TextButton>
+        )}
         {dataImport.fileUpload && (
           <Grid item>
-            <IconButton
+            <TextButton
               href={dataImport.fileUpload?.originalFileDownloadUrlSas ?? ""}
               target={"_blank"}
               rel={"noreferrer"}
             >
-              <CloudDownloadIcon />
-            </IconButton>
+              {t("Download original file")}
+            </TextButton>
           </Grid>
         )}
       </Grid>
@@ -122,9 +135,17 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <Grid item xs={3}>
             <div className={classes.labelText}>{t("Created at")}</div>
             <div className={classes.text}>
-              {format(new Date(dataImport.createdUtc), "MMM d, h:mm:ss a")}
+              {format(new Date(dataImport.createdUtc), "MMM d yyyy, h:mm:ss a")}
             </div>
           </Grid>
+          {dataImport.messages && dataImport.messages.length > 0 && (
+            <Grid item xs={12}>
+              <div className={classes.labelText}>{t("Error messages:")}</div>
+              {dataImport.messages.map((m, i) => {
+                return <div key={i}>{m}</div>;
+              })}
+            </Grid>
+          )}
         </Grid>
       </Section>
       <Section>

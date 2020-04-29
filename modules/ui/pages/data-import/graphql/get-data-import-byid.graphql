@@ -11,6 +11,7 @@ query GetDataImportById($id: ID!) {
       dataImportTypeId
       parseOnly
       validateOnly
+      messages
       fileUpload {
         id
         originalFileDownloadUrlSas
