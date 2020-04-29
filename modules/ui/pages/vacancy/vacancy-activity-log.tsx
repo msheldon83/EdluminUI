@@ -27,7 +27,6 @@ export const VacancyActivityLog: React.FC<{}> = props => {
   });
   const vacancy =
     getVacancy.state !== "LOADING" ? getVacancy?.data?.vacancy?.byId : null;
-  const positionTitle = vacancy?.position?.title ?? "";
 
   const onReturn = () => {
     history.push(VacancyViewRoute.generate(params));
@@ -44,9 +43,7 @@ export const VacancyActivityLog: React.FC<{}> = props => {
   return (
     <>
       <AbsenceVacancyHeader
-        orgId={params.organizationId}
-        actingAsEmployee={false}
-        subHeader={positionTitle}
+        subHeader={vacancy?.position?.title}
         pageHeader={`${t("Activity log")} #V${params.vacancyId}`}
         onCancel={onReturn}
         isForVacancy={true}
