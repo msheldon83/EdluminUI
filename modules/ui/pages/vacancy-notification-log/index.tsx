@@ -16,6 +16,7 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { GetVacancyById } from "./graphql/get-vacancy-byid.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
+import { EmployeeLink } from "ui/components/links/people";
 
 export const VacancyNotificationLogIndex: React.FC<{}> = props => {
   const classes = useStyles();
@@ -38,9 +39,17 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
   const headerId = isNormalVacancy
     ? `#V${vacancy?.id}`
     : `#${vacancy?.absenceId}`;
-  const subHeader = isNormalVacancy
-    ? vacancy?.position?.title
-    : `${vacancy?.absence?.employee?.firstName} ${vacancy?.absence?.employee?.lastName}`;
+
+  const subHeader = isNormalVacancy ? (
+    vacancy?.position?.title
+  ) : (
+    <EmployeeLink
+      orgId={params.organizationId}
+      orgUserId={vacancy?.absence?.employee?.id}
+    >
+      {`${vacancy?.absence?.employee?.firstName} ${vacancy?.absence?.employee?.lastName}`}
+    </EmployeeLink>
+  );
 
   const onReturn = () => {
     if (isNormalVacancy) {

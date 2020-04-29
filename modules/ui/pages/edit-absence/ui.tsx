@@ -713,6 +713,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={setStep}
           disabledDates={disabledDates}
+          isEdit={true}
         />
       )}
       {step === "preAssignSub" && (
@@ -737,6 +738,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
           assignmentsByDate={props.assignmentsByDate}
+          isEdit={true}
         />
       )}
     </>

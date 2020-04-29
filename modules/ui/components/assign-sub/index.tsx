@@ -31,6 +31,7 @@ import { VacancySummaryHeader } from "../absence/vacancy-summary-header";
 import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employees-for-vacancy.gen";
 import { VacancySummary } from "../absence-vacancy/vacancy-summary";
 import { VacancySummaryDetail } from "../absence-vacancy/vacancy-summary/types";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   orgId: string;
@@ -61,6 +62,7 @@ type Props = {
   vacancyId?: string;
   orgHasPayCodesDefined?: boolean;
   orgHasAccountingCodesDefined?: boolean;
+  isEdit?: boolean;
 };
 
 export type ValidationChecks = {
@@ -432,6 +434,19 @@ export const AssignSub: React.FC<Props> = props => {
     getReplacementEmployeesForNormalVacancyQuery.state,
   ]);
 
+  const subHeader =
+    !props.actingAsEmployee && props.employeeName ? (
+      props.isEdit ? (
+        <EmployeeLink orgId={props.orgId} orgUserId={props.employeeId}>
+          {props.employeeName}
+        </EmployeeLink>
+      ) : (
+        props.employeeName
+      )
+    ) : (
+      undefined
+    );
+
   return (
     <>
       <ReassignAbsenceDialog
@@ -487,11 +502,7 @@ export const AssignSub: React.FC<Props> = props => {
       />
       <AbsenceVacancyHeader
         pageHeader={pageHeader}
-        subHeader={
-          !props.actingAsEmployee && props.employeeName
-            ? props.employeeName
-            : undefined
-        }
+        subHeader={subHeader}
         onCancel={props.onCancel}
         isForVacancy={isForVacancy}
       />
