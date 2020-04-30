@@ -6,6 +6,8 @@ import {
   Link,
   makeStyles,
   Tooltip,
+  Typography,
+  IconButton,
 } from "@material-ui/core";
 import { format, isFuture, startOfToday } from "date-fns";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -54,6 +56,10 @@ import {
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
+import { ContentFooter } from "ui/components/content-footer";
+import { DailyReportDetailUI } from "./detail-group/daily-report-detail-ui";
+import { MobileDailyReportDetailUI } from "./detail-group/mobile-daily-report-detail-ui";
+import CancelIcon from "@material-ui/icons/Cancel";
 
 type Props = {
   orgId: string;
@@ -234,6 +240,11 @@ export const DailyReport: React.FC<Props> = props => {
     setShowingFilters,
   ]);
 
+  const handleSwapSubs = async (detail: Detail) => {
+    selectedRows.push(detail);
+    await swapSubs(false);
+  };
+
   const swapSubs = async (ignoreWarnings?: boolean) => {
     if (selectedRows.length !== 2) {
       return;
@@ -257,6 +268,9 @@ export const DailyReport: React.FC<Props> = props => {
     if (result) {
       await getDailyReport.refetch();
       setSelectedRows([]);
+    } else {
+      selectedRows.pop();
+      setSelectedRows(selectedRows);
     }
   };
 
@@ -284,61 +298,78 @@ export const DailyReport: React.FC<Props> = props => {
   };
 
   return (
-    <Section className={classes.dailyReportContainer}>
-      <div
-        className={
-          isMobile ? classes.mobileHeadercontainer : classes.headerContainer
-        }
-      >
-        <Grid container>
-          <Grid item xs={6} md={12}>
-            <SectionHeader title={props.header} className={classes.header} />
-          </Grid>
-          {props.showFilters && (
-            <>
-              {isMobile && (
-                <Grid item xs={6} md={12} className={classes.noPrint}>
-                  <FilterListButton onClick={toggleFilters} />
-                </Grid>
-              )}
-              <Grid item xs={12}>
-                {isMobile ? (
-                  <>
-                    <Collapse in={showingFilters}>
+    <>
+      <Section className={classes.dailyReportContainer}>
+        <div
+          className={
+            isMobile ? classes.mobileHeadercontainer : classes.headerContainer
+          }
+        >
+          <Grid container>
+            <Grid item xs={6} md={12}>
+              <SectionHeader title={props.header} className={classes.header} />
+            </Grid>
+            {props.showFilters && (
+              <>
+                {isMobile && (
+                  <Grid item xs={6} md={12} className={classes.noPrint}>
+                    <FilterListButton onClick={toggleFilters} />
+                  </Grid>
+                )}
+                <Grid item xs={12}>
+                  {isMobile ? (
+                    <>
+                      <Collapse in={showingFilters}>
+                        <Filters orgId={props.orgId} setDate={props.setDate} />
+                        <Divider />
+                      </Collapse>
+                    </>
+                  ) : (
+                    <>
                       <Filters orgId={props.orgId} setDate={props.setDate} />
                       <Divider />
-                    </Collapse>
-                  </>
-                ) : (
-                  <>
-                    <Filters orgId={props.orgId} setDate={props.setDate} />
-                    <Divider />
-                  </>
-                )}
-              </Grid>
-            </>
-          )}
-        </Grid>
-        <Grid
-          container
-          spacing={isMobile ? 2 : 2}
-          justify="flex-start"
-          className={classes.cardContainer}
-        >
-          {props.cards.map((c, i) => {
-            let countOverride = undefined;
-            let totalOverride = undefined;
+                    </>
+                  )}
+                </Grid>
+              </>
+            )}
+          </Grid>
+          <Grid
+            container
+            spacing={isMobile ? 2 : 2}
+            justify="flex-start"
+            className={classes.cardContainer}
+          >
+            {props.cards.map((c, i) => {
+              let countOverride = undefined;
+              let totalOverride = undefined;
 
-            if (c === "total") {
-              totalOverride = totalContractedEmployeeCount ?? 0;
-            } else if (c === "awaitingVerification") {
-              countOverride = awaitingVerificationCount ?? 0;
-              totalOverride = awaitingVerificationCount ?? 0;
-            }
+              if (c === "total") {
+                totalOverride = totalContractedEmployeeCount ?? 0;
+              } else if (c === "awaitingVerification") {
+                countOverride = awaitingVerificationCount ?? 0;
+                totalOverride = awaitingVerificationCount ?? 0;
+              }
 
-            return c === "awaitingVerification" ? (
-              <Can do={[PermissionEnum.AbsVacVerify]} key={i}>
-                <Grid item xs={isMobile ? 6 : undefined}>
+              return c === "awaitingVerification" ? (
+                <Can do={[PermissionEnum.AbsVacVerify]} key={i}>
+                  <Grid item xs={isMobile ? 6 : undefined}>
+                    <GroupCard
+                      cardType={c}
+                      details={allDetails}
+                      countOverride={countOverride}
+                      totalOverride={totalOverride}
+                      onClick={(c: CardType) => {
+                        setSelectedCard(c === "total" ? undefined : c);
+                      }}
+                      activeCard={selectedCard}
+                      showPercentInLabel={c !== "awaitingVerification"}
+                      showFractionCount={false}
+                    />
+                  </Grid>
+                </Can>
+              ) : (
+                <Grid item key={i} xs={isMobile ? 6 : undefined}>
                   <GroupCard
                     cardType={c}
                     details={allDetails}
@@ -348,54 +379,93 @@ export const DailyReport: React.FC<Props> = props => {
                       setSelectedCard(c === "total" ? undefined : c);
                     }}
                     activeCard={selectedCard}
-                    showPercentInLabel={c !== "awaitingVerification"}
-                    showFractionCount={false}
+                    showPercentInLabel={true}
+                    showFractionCount={props.isHomePage && c === "unfilled"}
                   />
                 </Grid>
-              </Can>
-            ) : (
-              <Grid item key={i} xs={isMobile ? 6 : undefined}>
-                <GroupCard
-                  cardType={c}
-                  details={allDetails}
-                  countOverride={countOverride}
-                  totalOverride={totalOverride}
-                  onClick={(c: CardType) => {
-                    setSelectedCard(c === "total" ? undefined : c);
-                  }}
-                  activeCard={selectedCard}
-                  showPercentInLabel={true}
-                  showFractionCount={props.isHomePage && c === "unfilled"}
-                />
+              );
+            })}
+          </Grid>
+        </div>
+        {displaySections(
+          groupedDetails,
+          selectedCard,
+          classes,
+          t,
+          () => setSelectedCard(undefined),
+          selectedRows,
+          updateSelectedDetails,
+          swapSubs,
+          removeSub,
+          props.date,
+          props.setDate,
+          () => {
+            const url = VerifyRoute.generate(verifyRouteParams);
+            history.push(url, {
+              selectedDateTab: "older",
+            });
+          },
+          props.orgId,
+          async () => {
+            await getTotalAwaitingVerificationCount.refetch();
+          },
+          handleSwapSubs
+        )}
+      </Section>
+      {selectedRows.length > 0 && (
+        <ContentFooter>
+          <Grid
+            container
+            className={
+              isMobile
+                ? classes.swapSubContainerMobile
+                : classes.swapSubContainer
+            }
+          >
+            <Grid item container xs={12}>
+              <Grid xs={11} item>
+                <Typography variant="h6">
+                  {t("Select another absence or vacancy to swap subs")}
+                </Typography>
               </Grid>
-            );
-          })}
-        </Grid>
-      </div>
-      {displaySections(
-        groupedDetails,
-        selectedCard,
-        classes,
-        t,
-        () => setSelectedCard(undefined),
-        selectedRows,
-        updateSelectedDetails,
-        swapSubs,
-        removeSub,
-        props.date,
-        props.setDate,
-        () => {
-          const url = VerifyRoute.generate(verifyRouteParams);
-          history.push(url, {
-            selectedDateTab: "older",
-          });
-        },
-        props.orgId,
-        async () => {
-          await getTotalAwaitingVerificationCount.refetch();
-        }
+              <Grid xs={1} className={classes.swapCloseContainer} item>
+                <IconButton
+                  className={classes.swapCloseButton}
+                  key="close"
+                  aria-label="close"
+                  color="inherit"
+                  onClick={() => {
+                    setSelectedRows([]);
+                  }}
+                >
+                  <CancelIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              {isMobile ? (
+                <MobileDailyReportDetailUI
+                  detail={selectedRows[0]}
+                  selectedDetails={selectedRows}
+                  removeSub={removeSub}
+                  rowActions={[]}
+                  highlighted={true}
+                  showDetails={true}
+                />
+              ) : (
+                <DailyReportDetailUI
+                  detail={selectedRows[0]}
+                  selectedDetails={selectedRows}
+                  removeSub={removeSub}
+                  rowActions={[]}
+                  highlighted={true}
+                />
+              )}
+            </Grid>
+          </Grid>
+        </ContentFooter>
       )}
-    </Section>
+    </>
   );
 };
 
@@ -465,6 +535,29 @@ const useStyles = makeStyles(theme => ({
       color: "#2196F3",
     },
   },
+  swapSubContainer: {
+    backgroundColor: theme.customColors.darkBlueGray,
+    paddingTop: theme.typography.pxToRem(15),
+    paddingLeft: theme.typography.pxToRem(40),
+    paddingRight: theme.typography.pxToRem(43),
+    color: theme.customColors.white,
+    width: "100%",
+  },
+  swapSubContainerMobile: {
+    backgroundColor: theme.customColors.darkBlueGray,
+    paddingTop: theme.typography.pxToRem(15),
+    paddingLeft: theme.typography.pxToRem(40),
+    paddingRight: theme.typography.pxToRem(43),
+    color: theme.customColors.white,
+    width: "117%",
+    marginLeft: theme.typography.pxToRem(-53),
+  },
+  swapCloseButton: {
+    paddingTop: 0,
+  },
+  swapCloseContainer: {
+    textAlign: "right",
+  },
 }));
 
 const displaySections = (
@@ -484,7 +577,8 @@ const displaySections = (
   setDate: (date: Date) => void,
   verifyOlderAction: () => void,
   orgId: string,
-  updateVerificationCount: () => Promise<void>
+  updateVerificationCount: () => Promise<void>,
+  handleSwapSubs: (detail: Detail) => Promise<void>
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
@@ -581,6 +675,7 @@ const displaySections = (
                   updateSelectedDetails={updateSelectedDetails}
                   removeSub={removeSub}
                   vacancyDate={format(date, "MMM d")}
+                  swapSubs={handleSwapSubs}
                 />
               </div>
             );

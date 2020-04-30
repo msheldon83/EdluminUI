@@ -1389,6 +1389,7 @@ enum DataImportStatus {
   IMPORTED
   PERMANENT_FAILURE
   QUEUED_FOR_PROCESSING
+  PARSED
 }
 
 enum DataImportType {

@@ -31,11 +31,12 @@ export const DataGrid: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [groupedData, setGroupedData] = React.useState<GroupedData[]>([]);
-
   const {
     reportDefinition: { data: reportData, metadata },
   } = props;
 
+  // Convert report data into a grouped structure.
+  // A Report with no explicit groupings will result in a single group with all data.
   React.useEffect(() => {
     if (!reportData) {
       return;
@@ -44,18 +45,27 @@ export const DataGrid: React.FC<Props> = props => {
     const groupedDataResult = groupAndSortData(
       reportData.rawData,
       reportData.dataColumnIndexMap,
-      metadata.query.orderBy,
-      metadata.query.subtotalBy
+      metadata.query.orderBy ?? [],
+      metadata.query.subtotalBy ?? []
     );
     setGroupedData(groupedDataResult);
   }, [reportData, metadata.query.orderBy, metadata.query.subtotalBy]);
 
+  // We're maintaining a data structure around groups, but in order
+  // to benefit from the windowing React Virtualized gives us, we
+  // need to put all of our data into a single MultiGrid so everything
+  // ultimately ends up as a row whether that row is a group header
+  // with subtotals or just a row showing raw data
   const rows = React.useMemo(() => {
     return buildRows(groupedData);
   }, [groupedData]);
 
   const numberOfLockedColumns = React.useMemo(() => {
     return metadata.numberOfLockedColumns;
+  }, [metadata]);
+
+  const isGrouped = React.useMemo(() => {
+    return (metadata.query.subtotalBy ?? []).length > 0;
   }, [metadata]);
 
   return (
@@ -72,10 +82,7 @@ export const DataGrid: React.FC<Props> = props => {
                   scrollLeft={scrollLeft}
                   width={width}
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(
-                      params,
-                      metadata.query.subtotalBy.length > 0
-                    )
+                    calculateColumnWidth(params, isGrouped)
                   }
                 />
               </div>
@@ -86,10 +93,7 @@ export const DataGrid: React.FC<Props> = props => {
                   fixedColumnCount={numberOfLockedColumns}
                   cellRenderer={props => cellRenderer(rows, props, classes)}
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(
-                      params,
-                      metadata.query.subtotalBy.length > 0
-                    )
+                    calculateColumnWidth(params, isGrouped)
                   }
                   estimatedColumnSize={120}
                   columnCount={metadata.numberOfColumns ?? 0}

@@ -1,0 +1,16 @@
+query GetOrganizationById($id: ID!) {
+  organization {
+    byId(id: $id) {
+      id
+      rowVersion
+      config {
+        id
+        vacancyDayConversions {
+          name
+          maxMinutes
+          dayEquivalent
+        }
+      }
+    }
+  }
+}

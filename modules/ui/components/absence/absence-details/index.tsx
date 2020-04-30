@@ -357,6 +357,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         {props.replacementEmployeeId && !isSplitVacancy && (
           <AssignedSub
+            orgId={props.organizationId}
             disableReplacementInteractions={
               props.disableReplacementInteractions
             }
@@ -374,6 +375,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
         <div className={classes.subDetailsContainer}>
           <SubstituteRequiredDetails
+            orgId={props.organizationId}
             disableReplacementInteractions={
               props.disableReplacementInteractions
             }
@@ -485,7 +487,7 @@ const useStyles = makeStyles(theme => ({
   },
   contentFooter: {
     height: theme.typography.pxToRem(72),
-    width: "100%",
+    width: theme.customSpacing.contentWidth,
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
