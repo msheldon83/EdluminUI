@@ -10,7 +10,6 @@ type Props = {
   showSmsColumn: boolean;
   showInAppColumn: boolean;
   role?: string | null;
-  onSubmit: () => Promise<any>;
   setFieldValue: Function;
   notificationPreferences: NotificationPreferenceGroup[];
 };
@@ -32,7 +31,6 @@ export const NotificationGroup: React.FC<Props> = props => {
           <PreferenceRow
             key={i}
             notificationPreference={r}
-            onSubmit={props.onSubmit}
             shadeRow={i % 2 == 1}
             setFieldValue={props.setFieldValue}
             index={r.originalIndex}
