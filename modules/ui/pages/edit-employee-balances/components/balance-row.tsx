@@ -144,8 +144,7 @@ export const BalanceRow: React.FC<Props> = props => {
         if (creatingNew) {
           if (
             data.balance - (absenceReasonBalance?.usedBalance ?? 0) < 0 &&
-            !absenceReasons.find(x => x.id === data.absenceReasonId)
-              ?.allowNegativeBalance &&
+            !selectedReason?.allowNegativeBalance &&
             !data.ignoreWarnings
           ) {
             setOverrideOpen(true);
@@ -166,7 +165,7 @@ export const BalanceRow: React.FC<Props> = props => {
         } else {
           if (
             data.balance - (absenceReasonBalance?.usedBalance ?? 0) < 0 &&
-            !absenceReasonBalance?.absenceReason?.allowNegativeBalance &&
+            !selectedReason?.allowNegativeBalance &&
             !data.ignoreWarnings
           ) {
             setOverrideOpen(true);
