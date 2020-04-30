@@ -21,7 +21,7 @@ type Props = SubNavItemType & {
   icon: JSX.Element;
   subNavItems?: Array<SubNavItemType>;
   navBarExpanded: boolean;
-  orgId: string;
+  orgId?: string;
 };
 
 type SubNavItemType = {
