@@ -235,7 +235,7 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   return (
     <>
       <PersonLinkHeader
-        title={`Replacement Criteria${title ? " - " + title : ""}`}
+        title={`${t("Replacement Criteria")}${title ? " - " + title : ""}`}
         person={employee}
         params={params}
       />
