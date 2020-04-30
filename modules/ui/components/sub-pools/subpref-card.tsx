@@ -5,6 +5,7 @@ import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Employee, PermissionEnum } from "graphql/server-types.gen";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   heading: string;
@@ -61,7 +62,11 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
                   <div>{t("Not defined")}</div>
                 ) : (
                   favoriteEmployees.map((n, i) => (
-                    <div key={i}>{n.firstName + " " + n.lastName}</div>
+                    <div key={i}>
+                      <EmployeeLink orgUserId={n.id} color="black">
+                        {n.firstName + " " + n.lastName}
+                      </EmployeeLink>
+                    </div>
                   ))
                 )}
               </Grid>
@@ -75,7 +80,11 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
                   <div>{t("Not defined")}</div>
                 ) : (
                   blockedEmployees.map((n, i) => (
-                    <div key={i}>{n.firstName + " " + n.lastName}</div>
+                    <div key={i}>
+                      <EmployeeLink orgUserId={n.id} color="black">
+                        {n.firstName + " " + n.lastName}
+                      </EmployeeLink>
+                    </div>
                   ))
                 )}
               </Grid>
@@ -90,7 +99,11 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
                     <div>{t("Not defined")}</div>
                   ) : (
                     autoAssignedEmployees.map((n, i) => (
-                      <div key={i}>{n.firstName + " " + n.lastName}</div>
+                      <div key={i}>
+                        <EmployeeLink orgUserId={n.id} color="black">
+                          {n.firstName + " " + n.lastName}
+                        </EmployeeLink>
+                      </div>
                     ))
                   )}
                 </Grid>
