@@ -13,8 +13,6 @@ type Props = {
   favoriteEmployees: OrgUser[];
   blockedEmployees: OrgUser[];
   autoAssignEmployees?: OrgUser[];
-  heading: string;
-  subHeading?: string;
   orgId: string;
   onRemoveFavoriteEmployee: (orgUser: OrgUser) => void;
   onRemoveBlockedEmployee: (orgUser: OrgUser) => void;
@@ -27,7 +25,10 @@ type Props = {
   addToBlockedPermission: PermissionEnum[];
   addToFavoritePermission: PermissionEnum[];
   isLocationOnly: boolean;
-};
+} & (
+  | { heading: string; subHeading?: string }
+  | { headerComponent: JSX.Element }
+);
 
 export const SubstitutePreferences: React.FC<Props> = props => {
   const classes = useStyles();
@@ -41,12 +42,21 @@ export const SubstitutePreferences: React.FC<Props> = props => {
       .concat(props.autoAssignEmployees);
   };
 
+  const header =
+    "headerComponent" in props ? (
+      props.headerComponent
+    ) : (
+      <>
+        {props.subHeading && (
+          <Typography variant="h5">{props.subHeading}</Typography>
+        )}
+        <Typography variant="h1">{props.heading}</Typography>
+      </>
+    );
+
   return (
     <>
-      {props.subHeading && (
-        <Typography variant="h5">{props.subHeading}</Typography>
-      )}
-      <Typography variant="h1">{props.heading}</Typography>
+      {header}
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>

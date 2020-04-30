@@ -1,7 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "ui/pages/people/graphql/employee/save-employee.gen";
 import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -15,11 +13,11 @@ import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index"
 import { useRouteParams } from "ui/routes/definition";
 import { Employee } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 type Props = {};
 
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
-  const classes = useStyles();
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const params = useRouteParams(PersonViewRoute);
@@ -232,23 +230,20 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     mustNotHave
   );
 
+  const title = position?.title ?? postionType?.name;
+
   return (
     <>
-      <div className={classes.linkPadding}>
-        <Link to={PersonViewRoute.generate(params)} className={classes.link}>
-          {t("Return to employee profile")}
-        </Link>
-      </div>
-      <SectionHeader
-        className={classes.leftPadding}
-        title={employee?.firstName + " " + employee?.lastName}
+      <PersonLinkHeader
+        title={`${t("Replacement Criteria")}${title ? " - " + title : ""}`}
+        person={employee}
+        params={params}
       />
       <ReplacementCriteriaUI
         mustHave={mustHave}
         preferToHave={preferToHave}
         preferToNotHave={preferNotToHave}
         mustNotHave={mustNotHave}
-        title={position?.title ?? postionType?.name}
         orgId={params.organizationId}
         handleMust={updateMustHave}
         handleMustNot={updateMustNot}
@@ -265,18 +260,3 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  leftPadding: {
-    paddingLeft: theme.spacing(1),
-  },
-  linkPadding: {
-    padding: "10px 0px 15px 10px",
-  },
-  link: {
-    color: theme.customColors.blue,
-    "&:visited": {
-      color: theme.customColors.blue,
-    },
-  },
-}));

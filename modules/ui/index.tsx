@@ -57,6 +57,7 @@ import {
   BellScheduleVariantsLoader,
   BellScheduleVariantsRoute,
 } from "./routes/bell-schedule-variants";
+import { HoursToDaysLoader, HoursToDaysRoute } from "./routes/hours-to-days";
 import {
   CalendarChangeReasonLoader,
   CalendarChangeReasonRoute,
@@ -881,6 +882,14 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={BellScheduleVariantsLoader}
                                       path={BellScheduleVariantsRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ScheduleSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={HoursToDaysLoader}
+                                      path={HoursToDaysRoute.path}
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ScheduleSettingsView,

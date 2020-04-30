@@ -428,8 +428,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           <>
             <AbsenceVacancyHeader
               pageHeader={t("Create absence")}
-              subHeader={employeeName}
-              actingAsEmployee={actingAsEmployee}
+              subHeader={!actingAsEmployee ? employeeName : undefined}
             />
             <Section className={classes.absenceDetails}>
               <ErrorBanner
