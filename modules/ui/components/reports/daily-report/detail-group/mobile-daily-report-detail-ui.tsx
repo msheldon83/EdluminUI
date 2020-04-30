@@ -120,7 +120,6 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <>
               <div>
                 <EmployeeLink
-                  orgId={props.detail.orgId}
                   orgUserId={props.detail.employee?.id}
                   linkClass={classes.action}
                   textClass={condClosed}
@@ -173,7 +172,6 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.item}>
               <div>
                 <LocationLink
-                  orgId={props.detail.orgId}
                   locationId={props.detail.location?.id}
                   linkClass={classes.action}
                   textClass={condClosed}
@@ -207,7 +205,6 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                   <div className={classes.subWithPhone}>
                     <div>
                       <SubstituteLink
-                        orgId={props.detail.orgId}
                         orgUserId={props.detail.substitute?.id}
                         linkClass={classes.action}
                       >
@@ -235,7 +232,6 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
                 !props.detail.isClosed &&
                 !props.detail.substitute && (
                   <AbsVacAssignLink
-                    orgId={props.detail.orgId}
                     absVacId={props.detail.id}
                     absVacType={props.detail.type}
                     absVacDate={props.detail.date}
@@ -254,7 +250,6 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
             <div className={classes.item}>
               <div>
                 <AbsVacLink
-                  orgId={props.detail.orgId}
                   absVacId={props.detail.id}
                   absVacType={props.detail.type}
                   linkClass={classes.action}

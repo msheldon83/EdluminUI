@@ -9,9 +9,10 @@ import {
   EmployeeEditAbsenceRoute,
 } from "ui/routes/edit-absence";
 import { useRole } from "core/role-context";
+import { useOrganizationId } from "core/org-context";
 
 type GeneralProps = {
-  orgId: string;
+  orgId?: string;
   state?: any;
   linkClass?: string;
   textClass?: string;
@@ -27,10 +28,14 @@ type AbsenceProps = GeneralProps & {
 const absString = (id?: string) => `#${id}` ?? "";
 const vacString = (id?: string) => `#V${id}` ?? "";
 
-const absenceRoute = (role: Role | null, orgId: string, absenceId: string) => {
+const absenceRoute = (
+  role: Role | null,
+  orgId: string | null,
+  absenceId: string
+) => {
   if (role === "admin") {
     return AdminEditAbsenceRoute.generate({
-      organizationId: orgId,
+      organizationId: orgId!,
       absenceId,
     });
   }
@@ -45,10 +50,11 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
   ...props
 }) => {
   const role = useRole();
+  const contextOrgId = useOrganizationId();
   if (absenceId === undefined) {
     return <span className={props.textClass}> {children} </span>;
   }
-  const urlStr = absenceRoute(role, orgId, absenceId);
+  const urlStr = absenceRoute(role, orgId ?? contextOrgId, absenceId);
   return (
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
@@ -71,11 +77,12 @@ export const VacancyLink: React.FC<VacancyProps> = ({
   children = vacString(vacancyId),
   ...props
 }) => {
+  const contextOrgId = useOrganizationId();
   if (vacancyId === undefined) {
     return <span className={props.textClass}> {children} </span>;
   }
   const urlStr = VacancyViewRoute.generate({
-    organizationId: orgId,
+    organizationId: orgId ?? contextOrgId!,
     vacancyId,
   });
   return (
@@ -117,10 +124,15 @@ export const AbsenceAssignLink: React.FC<AbsenceAssignProps> = ({
   ...props
 }) => {
   const role = useRole();
+  const contextOrgId = useOrganizationId();
   if (absenceId === undefined) {
     return <span className={props.textClass}> {props.children} </span>;
   }
-  const urlStr = `${absenceRoute(role, orgId, absenceId)}?step=preAssignSub`;
+  const urlStr = `${absenceRoute(
+    role,
+    orgId ?? contextOrgId,
+    absenceId
+  )}?step=preAssignSub`;
   return (
     <BaseLink
       permissions={(
@@ -147,11 +159,12 @@ export const VacancyAssignLink: React.FC<VacancyAssignProps> = ({
   state,
   ...props
 }) => {
+  const contextOrgId = useOrganizationId();
   if (vacancyId === undefined) {
     return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = `${VacancyViewRoute.generate({
-    organizationId: orgId,
+    organizationId: orgId ?? contextOrgId!,
     vacancyId,
   })}?step=preAssignSub`;
   return (

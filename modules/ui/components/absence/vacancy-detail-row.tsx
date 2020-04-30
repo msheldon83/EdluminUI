@@ -157,7 +157,6 @@ export const VacancyDetailRow: React.FC<Props> = props => {
             <div key={i}>
               {`${d.startTime} - ${d.endTime}`}
               <LocationLink
-                orgId={props.orgId}
                 locationId={d.locationId ?? undefined}
                 linkClass={classes.subScheduleLocation}
                 textClass={classes.subScheduleLocation}

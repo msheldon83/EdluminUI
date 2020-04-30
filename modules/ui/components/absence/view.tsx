@@ -152,10 +152,7 @@ export const View: React.FC<Props> = props => {
             {absence.employee && (
               <div>
                 <Typography variant="h6">
-                  <EmployeeLink
-                    orgId={props.orgId}
-                    orgUserId={absence.employee.id}
-                  >
+                  <EmployeeLink orgUserId={absence.employee.id}>
                     {`${absence.employee.firstName} ${absence.employee.lastName}`}
                   </EmployeeLink>
                 </Typography>
