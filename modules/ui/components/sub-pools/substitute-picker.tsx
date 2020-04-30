@@ -159,11 +159,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
             return (
               <Grid item className={className} xs={12} key={i}>
                 <Typography className={classes.userName}>
-                  <SubstituteLink
-                    orgId={props.orgId}
-                    orgUserId={user.id}
-                    color="black"
-                  >
+                  <SubstituteLink orgUserId={user.id} color="black">
                     {name}
                   </SubstituteLink>
                 </Typography>

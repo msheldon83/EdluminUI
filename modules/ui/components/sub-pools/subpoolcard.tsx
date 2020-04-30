@@ -10,7 +10,6 @@ import { Can } from "../auth/can";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
-  orgId: string;
   title: string;
   orgUsers?: OrgUser[] | null;
   blocked: boolean;
@@ -46,11 +45,7 @@ export const SubPoolCard: React.FC<Props> = props => {
               return (
                 <Grid item className={className} xs={12} key={i}>
                   <Typography className={classes.userName}>
-                    <SubstituteLink
-                      orgId={props.orgId}
-                      orgUserId={user.id}
-                      color="black"
-                    >
+                    <SubstituteLink orgUserId={user.id} color="black">
                       {name}
                     </SubstituteLink>
                   </Typography>
