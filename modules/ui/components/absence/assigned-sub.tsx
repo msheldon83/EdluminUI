@@ -15,7 +15,6 @@ import { MailOutline } from "@material-ui/icons";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
-  orgId: string;
   employeeId: string;
   employeeName: string;
   vacancies: Vacancy[];
@@ -103,7 +102,6 @@ export const AssignedSub: React.FC<Props> = props => {
           <div className={classes.name}>
             <Typography variant="h6" className={classes.nameLabel}>
               <SubstituteLink
-                orgId={props.orgId}
                 orgUserId={props.shouldLink ? props.employeeId : undefined}
               >
                 {props.employeeName}
