@@ -108,7 +108,6 @@ export const VacancyConfirmation: React.FC<Props> = props => {
           </Grid>
           <Grid item xs={6}>
             <VacancySummary
-              orgId={orgId}
               vacancySummaryDetails={vacancySummaryDetails}
               onCancelAssignment={onCancelAssignment}
               notesForSubstitute={notes}

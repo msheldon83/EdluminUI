@@ -11,7 +11,6 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
-  orgId: string;
   assignmentWithDetails: AssignmentWithDetails;
   assignmentStartTime: Date;
   onReassignClick?: () => void;
@@ -75,7 +74,6 @@ export const AssignedBanner: React.FC<Props> = props => {
             <Typography variant="h6">
               {props.readOnly ? (
                 <SubstituteLink
-                  orgId={props.orgId}
                   orgUserId={assignmentWithDetails.assignment?.employee?.id}
                 >
                   {employeeName}

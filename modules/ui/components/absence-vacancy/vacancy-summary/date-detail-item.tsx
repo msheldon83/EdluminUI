@@ -5,7 +5,6 @@ import { DateDetail } from "./types";
 import { LocationLink } from "ui/components/links/locations";
 
 type Props = {
-  orgId: string;
   detail: DateDetail;
   showPayCodes: boolean;
   showAccountingCodes: boolean;
@@ -37,11 +36,7 @@ export const DateDetailItem: React.FC<Props> = props => {
       <div className={classes.rightColumn}>
         {props.readOnly ? (
           <div>
-            <LocationLink
-              orgId={props.orgId}
-              locationId={detail.locationId}
-              color="black"
-            >
+            <LocationLink locationId={detail.locationId} color="black">
               {detail.locationName}
             </LocationLink>
           </div>

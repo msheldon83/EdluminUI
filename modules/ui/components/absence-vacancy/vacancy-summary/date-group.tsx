@@ -5,7 +5,6 @@ import { DateDetailItem } from "./date-detail-item";
 import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 
 type Props = {
-  orgId: string;
   dateDetails: DateDetails;
   showAbsenceTimes: boolean;
   showPayCodes: boolean;
@@ -40,7 +39,6 @@ export const DateGroup: React.FC<Props> = props => {
           {dateDetails.details.map((d, i) => {
             return (
               <DateDetailItem
-                orgId={props.orgId}
                 key={i}
                 detail={d}
                 showPayCodes={showPayCodes}
