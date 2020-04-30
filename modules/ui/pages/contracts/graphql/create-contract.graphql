@@ -1,0 +1,12 @@
+mutation CreateContract($contract: ContractCreateInput!) {
+  contract {
+    create(contract: $contract) {
+      id
+      name
+      rowVersion
+      externalId
+      numberOfDays
+      workDayPatternId
+    }
+  }
+}

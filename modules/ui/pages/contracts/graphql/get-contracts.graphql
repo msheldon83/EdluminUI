@@ -1,0 +1,15 @@
+query GetAllContractsInOrg($orgId: ID, $includeExpired: Boolean) {
+  contract {
+    all(orgId: $orgId, includeExpired: $includeExpired) {
+      id
+      name
+      expired
+      externalId
+      rowVersion
+      isDeleted
+      validUntil
+      numberOfDays
+      workDayPatternId
+    }
+  }
+}

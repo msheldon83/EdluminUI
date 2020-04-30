@@ -20,3 +20,16 @@ export function useWorkDayPatterns(orgId?: string) {
     return [];
   }, [getWorkDayPatterns]);
 }
+
+export function useWorkDayPatternOptions(orgId?: string) {
+  const patterns = useWorkDayPatterns(orgId);
+
+  return useMemo(
+    () =>
+      patterns.map(p => ({
+        label: p.name,
+        value: p.id,
+      })),
+    [patterns]
+  );
+}
