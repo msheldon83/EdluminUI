@@ -12,7 +12,6 @@ import { useNotificationReasons } from "reference-data/notification-reasons";
 
 type Props = {
   notificationPreference: NotificationPreferenceInput;
-  onSubmit: () => Promise<any>;
   setFieldValue: Function;
   shadeRow: boolean;
   index: number;
@@ -67,7 +66,6 @@ export const PreferenceRow: React.FC<Props> = props => {
                     `notificationPreferences[${props.index}].receiveEmailNotifications`,
                     e.target.checked
                   );
-                  await props.onSubmit();
                 }}
                 disabled={
                   notificationReason.methodsOfDelivery.find(
@@ -91,7 +89,6 @@ export const PreferenceRow: React.FC<Props> = props => {
                     `notificationPreferences[${props.index}].receiveSmsNotifications`,
                     e.target.checked
                   );
-                  await props.onSubmit();
                 }}
                 disabled={
                   notificationReason.methodsOfDelivery.find(
@@ -115,7 +112,6 @@ export const PreferenceRow: React.FC<Props> = props => {
                     `notificationPreferences[${props.index}].receiveInAppNotifications`,
                     e.target.checked
                   );
-                  await props.onSubmit();
                 }}
                 disabled={
                   notificationReason.methodsOfDelivery.find(
