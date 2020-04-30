@@ -9,8 +9,6 @@ import {
   useAbsenceReasons,
 } from "reference-data/absence-reasons";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
-import { PageTitle } from "ui/components/page-title";
 import { GetOrgUserById } from "ui/pages/people/graphql/get-orguser-by-id.gen";
 import { PeopleEmployeeBalancesEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
@@ -28,6 +26,7 @@ import {
 } from "graphql/server-types.gen";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { compact } from "lodash-es";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
@@ -139,8 +138,11 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
 
   return (
     <>
-      <SectionHeader title={`${employee?.firstName} ${employee?.lastName}`} />
-      <PageTitle title={t("Time off balances")} />
+      <PersonLinkHeader
+        title={t("Time off balances")}
+        person={employee ?? undefined}
+        params={params}
+      />
       <Section>
         <div className={classes.schoolYearSelect}>
           <SchoolYearSelect

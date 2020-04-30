@@ -1389,6 +1389,7 @@ enum DataImportStatus {
   IMPORTED
   PERMANENT_FAILURE
   QUEUED_FOR_PROCESSING
+  PARSED
 }
 
 enum DataImportType {
@@ -2671,6 +2672,7 @@ type OrganizationQueries {
   paged(limit: Int, offset: Int, searchText: String): PagedOrganization
   search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
   staffingProviders: [Organization]
+  searchDelegatesToOrganizations(orgId: ID!, searchText: String): [Organization]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {
