@@ -13,7 +13,7 @@ import { UserUpdateInput, TimeZone } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useTranslation } from "react-i18next";
-import { GetUserById } from "ui/pages/users/graphql/get-user-by-id.gen";
+import { GetUserById } from "./graphql/get-user-by-id.gen";
 import { VerifyPhoneNumber } from "ui/pages/profile/graphql/verify-phone-number.gen";
 import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";

@@ -1,0 +1,27 @@
+query GetUserById($id: ID!) {
+  user {
+    byId(id: $id) {
+      id
+      firstName
+      middleName
+      lastName
+      isSystemAdministrator
+      loginEmail
+      phone
+      formattedPhone
+      timeZoneId
+      rowVersion
+      phoneIsValidForSms
+      stopSmsUntilUtc
+      suspendSmsUntilUtc
+      preferences {
+        notificationPreferences {
+          notificationReasonId
+          receiveInAppNotifications
+          receiveEmailNotifications
+          receiveSmsNotifications
+        }
+      }
+    }
+  }
+}
