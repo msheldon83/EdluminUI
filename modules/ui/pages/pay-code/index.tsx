@@ -11,6 +11,7 @@ import {
   PayCodeCreateInput,
   PayCodeUpdateInput,
   PermissionEnum,
+  DataImportType,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -23,6 +24,8 @@ import { DeletePayCode } from "./graphql/delete-pay-code.gen";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { useOrganizationId } from "core/org-context";
 import { GetPayCodesDocument } from "reference-data/get-pay-codes.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -188,6 +191,15 @@ export const PayCode: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("Pay Codes")} />
         </Grid>
+        <Can do={[PermissionEnum.FinanceSettingsSave]}>
+          <Grid item>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.PayCode}
+              label={t("Import pay codes")}
+            />
+          </Grid>
+        </Can>
       </Grid>
       <EditableTable
         title={`${payCodesCount} ${t("Pay Codes")}`}

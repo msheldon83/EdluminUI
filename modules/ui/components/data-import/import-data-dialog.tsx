@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Typography,
   makeStyles,
 } from "@material-ui/core";
 import { ImportDataForm } from "./import-data-form";
@@ -28,9 +27,7 @@ export const ImportDataDialog: React.FC<Props> = props => {
       fullWidth={true}
       maxWidth={"md"}
     >
-      <DialogTitle>
-        <Typography variant="h5">{t("Import data")}</Typography>
-      </DialogTitle>
+      <DialogTitle>{t("Import data")}</DialogTitle>
       <DialogContent>
         <ImportDataForm
           orgId={props.orgId}
