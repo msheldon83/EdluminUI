@@ -88,18 +88,20 @@ export const AbsenceSchedule: React.FC<Props> = props => {
 
   const header =
     typeof props.pageTitle === "string" ? (
-      <PageTitle title={t(props.pageTitle)} />
+      <Grid item>
+        <PageTitle title={t(props.pageTitle)} />
+      </Grid>
     ) : (
-      props.pageTitle
+      <Grid item xs={12}>
+        props.pageTitle
+      </Grid>
     );
 
   return (
     <div>
       <div className={classes.sticky}>
         <Grid container justify="space-between" alignItems="center">
-          <Grid item xs={12}>
-            {header}
-          </Grid>
+          {header}
           {props.actingAsEmployee && (
             <Can do={[PermissionEnum.AbsVacSave]}>
               <Grid item>
