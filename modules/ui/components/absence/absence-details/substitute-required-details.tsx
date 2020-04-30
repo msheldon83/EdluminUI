@@ -33,7 +33,6 @@ import {
 import { VacancyDetail, AssignmentOnDate } from "../types";
 
 type Props = {
-  orgId: string;
   setValue: SetValue;
   vacancies: Vacancy[];
   vacancyDetails: VacancyDetail[];
@@ -189,7 +188,6 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
     <>
       {wantsReplacement && (
         <VacancyDetails
-          orgId={props.orgId}
           vacancies={vacancies}
           disabledDates={props.disabledDates}
           onCancelAssignment={props.onCancelAssignment}

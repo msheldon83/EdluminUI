@@ -10,6 +10,7 @@ import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { GeneralSettingsRoute } from "ui/routes/general-settings";
 import { BellScheduleVariantsRoute } from "ui/routes/bell-schedule-variants";
 import { CalendarChangeReasonRoute } from "ui/routes/calendar/event-reasons";
+import { HoursToDaysRoute } from "ui/routes/hours-to-days";
 import { BellScheduleRoute } from "ui/routes/bell-schedule";
 import { ReplacementAttributeRoute } from "ui/routes/replacement-attribute";
 import { AbsenceReasonRoute } from "ui/routes/absence-reason";
@@ -21,7 +22,7 @@ import { AccountingCodeRoute } from "ui/routes/accounting-code";
 import { PayCodeRoute } from "ui/routes/pay-code";
 import { ContractsRoute } from "ui/routes/contracts";
 import { Typography } from "@material-ui/core";
-import { Contacts, Tune, Loop } from "@material-ui/icons";
+import { Contacts, Tune, Loop, WatchLater } from "@material-ui/icons";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 
@@ -77,6 +78,15 @@ export const SettingsPage: React.FC<{}> = props => {
         />
       ),
       route: CalendarChangeReasonRoute,
+    },
+    {
+      name: t("Hours-to-days Conversion"),
+      icon: (
+        <WatchLater
+          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        />
+      ),
+      route: HoursToDaysRoute,
     },
   ];
 

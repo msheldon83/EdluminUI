@@ -14,7 +14,6 @@ import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/compo
 import { LocationLink } from "ui/components/links/locations";
 
 type Props = {
-  orgId: string;
   groupedDetail: VacancyDetailsGroup;
   vacancies: Vacancy[];
   isSplitVacancy: boolean;
@@ -102,7 +101,6 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           )}
           {groupedDetail.assignmentId && props.onAssignSubClick && (
             <AssignedSub
-              orgId={props.orgId}
               subText={t("assigned")}
               disableReplacementInteractions={
                 props.disableReplacementInteractions
@@ -157,7 +155,6 @@ export const VacancyDetailRow: React.FC<Props> = props => {
             <div key={i}>
               {`${d.startTime} - ${d.endTime}`}
               <LocationLink
-                orgId={props.orgId}
                 locationId={d.locationId ?? undefined}
                 linkClass={classes.subScheduleLocation}
                 textClass={classes.subScheduleLocation}

@@ -17,6 +17,7 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   vacancyDate?: string;
+  swapSubs?: (detail: Detail) => void;
 };
 
 export const DailyReportDetailsGroup: React.FC<Props> = props => {
@@ -54,6 +55,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
         removeSub={removeSub}
         key={`${panelId}-${i}`}
         vacancyDate={hasClosedAbs ? props.vacancyDate : undefined}
+        swapSubs={props.swapSubs}
       />
     );
   });
@@ -75,6 +77,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
           <div className={classes.date}>{t("Created")}</div>
           <div className={classes.substituteSection}>{t("Substitute")}</div>
           <div className={classes.confirmationNumber}>{t("Conf#")}</div>
+          <div className={classes.actionColumn}></div>
         </div>
       </DesktopOnly>
       <MobileOnly>
@@ -119,11 +122,9 @@ const useStyles = makeStyles(theme => ({
   },
   confirmationNumber: {
     width: "120px",
-    marginRight: theme.typography.pxToRem(45),
-
-    "@media print": {
-      marginRight: 0,
-    },
+  },
+  actionColumn: {
+    width: theme.typography.pxToRem(85),
   },
   shadedRow: {
     background: theme.customColors.lightGray,
