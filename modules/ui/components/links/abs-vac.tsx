@@ -52,7 +52,7 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
   const urlStr = absenceRoute(role, orgId, absenceId);
 
   if (props.disabled) {
-    return <>{absString(absenceId)}</>;
+    return <span className={props.textClass}>{absString(absenceId)}</span>;
   }
   return (
     <BaseLink
@@ -84,7 +84,7 @@ export const VacancyLink: React.FC<VacancyProps> = ({
     vacancyId,
   });
   if (props.disabled) {
-    return <>{vacString(vacancyId)}</>;
+    return <span className={props.textClass}>{vacString(vacancyId)}</span>;
   }
   return (
     <BaseLink
