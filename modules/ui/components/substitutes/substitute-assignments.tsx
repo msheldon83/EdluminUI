@@ -18,7 +18,7 @@ import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
 
 type Props = {
   view: "list" | "calendar";
-  pageTitle: string;
+  pageTitle: string | JSX.Element;
   userId: string;
   listViewRoute: string;
   calendarViewRoute: string;
@@ -61,13 +61,22 @@ export const SubstituteAssignments: React.FC<Props> = props => {
     [setSelectedDate]
   );
 
+  const header =
+    typeof props.pageTitle === "string" ? (
+      <Grid item>
+        <PageTitle title={t(props.pageTitle)} />
+      </Grid>
+    ) : (
+      <Grid item xs={12}>
+        {props.pageTitle}
+      </Grid>
+    );
+
   return (
     <>
       <div className={props.view === "calendar" ? classes.sticky : ""}>
         <Grid container justify="space-between" alignItems="center">
-          <Grid item>
-            <PageTitle title={t(props.pageTitle)} />
-          </Grid>
+          {header}
           {!props.viewingAsAdmin && (
             <Grid item>
               <Button
