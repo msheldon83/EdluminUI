@@ -206,7 +206,7 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
               </div>
             </Grid>
             <Grid item xs={12}>
-              <div onClick={() => props.onResetPassword()}>
+              <div>
                 <div className={classes.labelContainer}>
                   <div>
                     {t("Password")}
