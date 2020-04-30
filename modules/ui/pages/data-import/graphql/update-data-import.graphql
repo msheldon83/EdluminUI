@@ -1,6 +1,6 @@
-query GetDataImportById($id: ID!) {
+mutation UpdateDataImport($dataImport: DataImportUpdateInput!) {
   dataImport {
-    byId(id: $id) {
+    update(dataImport: $dataImport) {
       id
       dataImportStatusId
       createdUtc
@@ -12,11 +12,6 @@ query GetDataImportById($id: ID!) {
       parseOnly
       validateOnly
       messages
-      fileUpload {
-        id
-        originalFileDownloadUrlSas
-        uploadedFileName
-      }
     }
   }
 }
