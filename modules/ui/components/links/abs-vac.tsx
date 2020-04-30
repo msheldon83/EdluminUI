@@ -16,6 +16,7 @@ type GeneralProps = {
   state?: any;
   linkClass?: string;
   textClass?: string;
+  disabled?: boolean;
   color?: "blue" | "black";
 };
 
@@ -55,6 +56,10 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
     return <span className={props.textClass}> {children} </span>;
   }
   const urlStr = absenceRoute(role, orgId ?? contextOrgId, absenceId);
+
+  if (props.disabled) {
+    return <span className={props.textClass}>{absString(absenceId)}</span>;
+  }
   return (
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
@@ -85,6 +90,9 @@ export const VacancyLink: React.FC<VacancyProps> = ({
     organizationId: orgId ?? contextOrgId!,
     vacancyId,
   });
+  if (props.disabled) {
+    return <span className={props.textClass}>{vacString(vacancyId)}</span>;
+  }
   return (
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
