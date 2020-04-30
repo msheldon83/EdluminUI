@@ -4,6 +4,7 @@ query GetOrganizationById($id: ID!) {
       id
       rowVersion
       config {
+        id
         vacancyDayConversions {
           name
           maxMinutes

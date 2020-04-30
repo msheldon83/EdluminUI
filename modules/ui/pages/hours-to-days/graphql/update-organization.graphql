@@ -4,6 +4,7 @@ mutation UpdateOrganization($organization: OrganizationUpdateInput!) {
       orgId
       rowVersion
       config {
+        id
         vacancyDayConversions {
           name
           maxMinutes
