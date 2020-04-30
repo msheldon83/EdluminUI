@@ -6,6 +6,7 @@ import { DateGroup } from "./date-group";
 import { makeStyles } from "@material-ui/core";
 
 type Props = {
+  orgId: string;
   assignmentWithDetails: AssignmentWithDetails;
   isPartiallyFilled: boolean;
   showPayCodes: boolean;
@@ -15,6 +16,7 @@ type Props = {
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   disableActions?: boolean;
   detailsOnly?: boolean;
+  readOnly: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
@@ -38,10 +40,12 @@ export const AssignmentGroup: React.FC<Props> = props => {
   return (
     <div className={isAssigned ? classes.filledGroup : classes.unfilledGroup}>
       <DateGroup
+        orgId={props.orgId}
         dateDetails={assignmentWithDetails}
         showAbsenceTimes={showAbsenceTimes}
         showPayCodes={showPayCodes}
         showAccountingCodes={showAccountingCodes}
+        readOnly={props.readOnly}
       />
       {!detailsOnly && (
         <>
@@ -58,6 +62,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           )}
           {isAssigned && (
             <AssignedBanner
+              orgId={props.orgId}
               assignmentWithDetails={assignmentWithDetails}
               assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
               onReassignClick={
@@ -67,6 +72,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
               }
               onCancelAssignment={onCancelAssignment}
               disableActions={disableActions}
+              readOnly={props.readOnly}
             />
           )}
         </>

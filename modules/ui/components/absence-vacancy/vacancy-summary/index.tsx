@@ -8,6 +8,7 @@ import { AssignmentGroup } from "./assignment-group";
 import { uniqWith } from "lodash-es";
 
 type Props = {
+  orgId?: string;
   vacancySummaryDetails: VacancySummaryDetail[];
   showPayCodes: boolean;
   showAccountingCodes: boolean;
@@ -19,6 +20,7 @@ type Props = {
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
   divRef?: React.RefObject<HTMLDivElement>;
+  readOnly?: boolean;
 };
 
 export const VacancySummary: React.FC<Props> = props => {
@@ -80,6 +82,7 @@ export const VacancySummary: React.FC<Props> = props => {
       <div className={classes.assignmentGroupsContainer}>
         {assignmentGroups.map((a, i) => (
           <AssignmentGroup
+            orgId={props.orgId ?? ""}
             key={i}
             assignmentWithDetails={a}
             isPartiallyFilled={isPartiallyFilled}
@@ -90,6 +93,7 @@ export const VacancySummary: React.FC<Props> = props => {
             detailsOnly={detailsOnly}
             showPayCodes={showPayCodes}
             showAccountingCodes={showAccountingCodes}
+            readOnly={props.orgId && props.readOnly ? true : false}
           />
         ))}
       </div>

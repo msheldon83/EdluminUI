@@ -2,11 +2,14 @@ import { makeStyles } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DateDetail } from "./types";
+import { LocationLink } from "ui/components/links/locations";
 
 type Props = {
+  orgId: string;
   detail: DateDetail;
   showPayCodes: boolean;
   showAccountingCodes: boolean;
+  readOnly: boolean;
 };
 
 export const DateDetailItem: React.FC<Props> = props => {
@@ -32,7 +35,19 @@ export const DateDetailItem: React.FC<Props> = props => {
         )}
       </div>
       <div className={classes.rightColumn}>
-        <div>{detail.locationName}</div>
+        {props.readOnly ? (
+          <div>
+            <LocationLink
+              orgId={props.orgId}
+              locationId={detail.locationId}
+              color="black"
+            >
+              {detail.locationName}
+            </LocationLink>
+          </div>
+        ) : (
+          <div>{detail.locationName}</div>
+        )}
         {showAccountingCodes && (
           <div>
             {`${t("Acct")}: ${accountingCodeDisplayName ?? ""}`}
