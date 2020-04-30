@@ -1,7 +1,5 @@
 import * as React from "react";
-import { PageTitle } from "ui/components/page-title";
 import { Grid, makeStyles } from "@material-ui/core";
-import { PageHeader } from "ui/components/page-header";
 import { useIsMobile } from "hooks";
 import { useTranslation } from "react-i18next";
 import { ReplacementCriteriaView } from "./components/replacement-criteria-view";
@@ -15,7 +13,6 @@ type Props = {
   preferToNotHave: Attribute[];
   mustNotHave: Attribute[];
   availableAttributes?: Attribute[];
-  title: string | undefined;
   orgId: string;
   handleMust: (ids: string[]) => Promise<boolean>;
   handleMustNot: (ids: string[]) => Promise<boolean>;
@@ -44,11 +41,6 @@ export const ReplacementCriteriaUI: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={t("Replacement Criteria")} withoutHeading={!isMobile} />
-      <PageHeader
-        text={t("Replacement Criteria - ") + props.title}
-        label={t("Name")}
-      />
       <Grid container className={classes.topPadding}>
         <Grid
           container

@@ -17,13 +17,13 @@ import {
   PositionTypeViewRoute,
   PositionTypeRoute,
 } from "ui/routes/position-type";
+import { LinkHeader } from "ui/components/link-headers/base";
 
 type Props = {};
 
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PositionTypeViewRoute);
-  const classes = useStyles();
   const { t } = useTranslation();
 
   const [updatePositionType] = useMutationBundle(UpdatePositionType, {
@@ -192,20 +192,16 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   return (
     <>
-      <div className={classes.linkPadding}>
-        <Link
-          to={PositionTypeViewRoute.generate(params)}
-          className={classes.link}
-        >
-          {t("Return to position type")}
-        </Link>
-      </div>
+      <LinkHeader
+        title={positionType?.name}
+        linkText={t("Return to position type")}
+        to={PositionTypeViewRoute.generate(params)}
+      />
       <ReplacementCriteriaUI
         mustHave={mustHave}
         preferToHave={preferToHave}
         preferToNotHave={preferNotToHave}
         mustNotHave={mustNotHave}
-        title={positionType?.name}
         orgId={params.organizationId}
         handleMust={updateMustHave}
         handleMustNot={updateMustNot}
@@ -222,15 +218,3 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  link: {
-    color: theme.customColors.blue,
-    "&:visited": {
-      color: theme.customColors.blue,
-    },
-  },
-  linkPadding: {
-    padding: "10px 0px 15px 10px",
-  },
-}));
