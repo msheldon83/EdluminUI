@@ -61,6 +61,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
         <Grid item xs={6}>
           <Grid item xs={12}>
             <SubPoolCard
+              orgId={props.orgId}
               title={props.favoriteHeading}
               blocked={false}
               orgUsers={props.favoriteEmployees}
@@ -70,6 +71,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
           </Grid>
           <Grid item xs={12}>
             <SubPoolCard
+              orgId={props.orgId}
               title={props.blockedHeading}
               blocked={true}
               orgUsers={props.blockedEmployees}
@@ -80,6 +82,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
           {props.isLocationOnly && props.onRemoveAutoAssignedEmployee && (
             <Grid item xs={12}>
               <SubPoolCard
+                orgId={props.orgId}
                 title={props.autoAssignHeading ?? ""} // Auto Assign List?
                 blocked={false}
                 orgUsers={props.autoAssignEmployees}

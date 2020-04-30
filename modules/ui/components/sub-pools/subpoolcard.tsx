@@ -7,8 +7,10 @@ import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
+import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
+  orgId: string;
   title: string;
   orgUsers?: OrgUser[] | null;
   blocked: boolean;
@@ -43,7 +45,15 @@ export const SubPoolCard: React.FC<Props> = props => {
               ].join(" ");
               return (
                 <Grid item className={className} xs={12} key={i}>
-                  <Typography className={classes.userName}>{name}</Typography>
+                  <Typography className={classes.userName}>
+                    <SubstituteLink
+                      orgId={props.orgId}
+                      orgUserId={user.id}
+                      color="black"
+                    >
+                      {name}
+                    </SubstituteLink>
+                  </Typography>
                   <Can do={props.removePermission}>
                     <TextButton
                       className={classes.actionLink}
