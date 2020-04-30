@@ -9,7 +9,6 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
 import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
-import { LocationLinkHeader } from "ui/components/link-headers/location";
 
 export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
   const params = useRouteParams(LocationSubPrefRoute);
@@ -136,15 +135,6 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     return <></>;
   }
   const location: any = getLocation?.data?.location?.byId ?? undefined;
-
-  const headerComponent = (
-    <LocationLinkHeader
-      title={t("Substitute Preferences")}
-      locationName={location.name as string}
-      params={params}
-    />
-  );
-
   return (
     <>
       <SubstitutePreferences
@@ -157,7 +147,8 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         autoAssignEmployees={
           location.substitutePreferences.autoAssignedSubstitutes
         }
-        headerComponent={headerComponent}
+        heading={t("Substitute Preferences")}
+        subHeading={location.name}
         isLocationOnly={true}
         orgId={params.organizationId}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
