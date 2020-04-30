@@ -222,7 +222,6 @@ const useStyles = makeStyles(theme => ({
   },
   contentFooter: {
     width: "100%",
-    maxWidth: theme.customSpacing.contentWidth,
   },
 
   navWidthExpanded: {

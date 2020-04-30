@@ -17,6 +17,7 @@ import { parseISO } from "date-fns";
 import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 type Props = {
   view: "list" | "calendar";
@@ -24,7 +25,6 @@ type Props = {
 
 export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const params = useRouteParams(EmployeeAbsScheduleRoute);
   const { openSnackbar } = useSnackbar();
 
@@ -79,7 +79,13 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
           employeeId={params.orgUserId}
           orgId={params.organizationId}
           cancelAbsence={cancelAbsence}
-          pageTitle={`${orgUser.firstName} ${orgUser.lastName}'s Schedule`}
+          pageTitle={
+            <PersonLinkHeader
+              title={`${orgUser.firstName} ${orgUser.lastName}'s Schedule`}
+              person={orgUser}
+              params={params}
+            />
+          }
           calendarViewRoute={EmployeeAbsScheduleCalendarViewRoute.generate(
             params
           )}
@@ -91,6 +97,3 @@ export const EmployeeAbsenceSchedulePage: React.FC<Props> = props => {
     </div>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-}));

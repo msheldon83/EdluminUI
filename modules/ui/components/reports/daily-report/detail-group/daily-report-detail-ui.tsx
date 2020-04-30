@@ -1,83 +1,48 @@
-import {
-  Checkbox,
-  Grid,
-  Link,
-  makeStyles,
-  Tooltip,
-  Chip,
-} from "@material-ui/core";
-/* import InfoIcon from "@material-ui/icons/Info"; */
-import clsx from "clsx";
+import { makeStyles, Tooltip, Chip, Button } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMenu } from "ui/components/action-menu";
 import { Detail } from "../helpers";
-import { Can } from "ui/components/auth/can";
-import { canAssignSub } from "helpers/permissions";
-import { PermissionEnum } from "graphql/server-types.gen";
-import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
+import { CanDo } from "ui/components/auth/types";
 import PermDeviceInformationIcon from "@material-ui/icons/PermDeviceInformation";
 import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
 import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
+import InfoIcon from "@material-ui/icons/Info";
 
 type Props = {
   detail: Detail;
   className?: string;
   selectedDetails: Detail[];
-  updateSelectedDetails: (detail: Detail, add: boolean) => void;
   removeSub: (
     assignmentId?: string,
     assignmentRowVersion?: string
   ) => Promise<void>;
-  hideCheckbox: boolean;
-  isChecked: boolean;
   rowActions: {
     name: string;
     onClick: () => void;
     permissions?: CanDo;
   }[];
   vacancyDate?: string;
+  highlighted?: boolean;
+  swapMode?: "swapable" | "notswapable";
+  swapSubs?: (detail: Detail) => void;
 };
 
 export const DailyReportDetailUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  const inSwapMode = props.selectedDetails.length > 0;
+
   return (
-    <div className={[classes.container, props.className].join(" ")}>
-      {!props.detail.isClosed && (
-        <div className={classes.checkbox}>
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string,
-              forRole?: Role | null | undefined
-            ) =>
-              canAssignSub(
-                props.detail.date,
-                permissions,
-                isSysAdmin,
-                orgId,
-                forRole
-              )
-            }
-          >
-            <Checkbox
-              color="primary"
-              className={clsx({
-                [classes.hidden]: props.hideCheckbox,
-                [classes.checkbox]: true,
-              })}
-              checked={props.isChecked}
-              onChange={e => {
-                props.updateSelectedDetails(props.detail, e.target.checked);
-              }}
-            />
-          </Can>
-        </div>
-      )}
+    <div
+      className={
+        props.highlighted
+          ? [classes.highlighted, classes.container, props.className].join(" ")
+          : [classes.container, props.className].join(" ")
+      }
+    >
       {props.detail.isClosed && (
         <div className={classes.closedSection}>
           <Chip label={t("Closed")} />
@@ -88,16 +53,19 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.type === "absence" ? (
             <>
               <div>
-                <EmployeeLink
-                  orgId={props.detail.orgId}
-                  orgUserId={props.detail.employee?.id}
-                  linkClass={classes.action}
-                  textClass={props.detail.isClosed ? classes.closedText : ""}
-                >
-                  {props.detail.employee?.name}
-                </EmployeeLink>
+                {props.highlighted || inSwapMode ? (
+                  props.detail.employee?.name
+                ) : (
+                  <EmployeeLink
+                    orgUserId={props.detail.employee?.id}
+                    linkClass={classes.action}
+                    textClass={props.detail.isClosed ? classes.closedText : ""}
+                  >
+                    {props.detail.employee?.name}
+                  </EmployeeLink>
+                )}
               </div>
-              <div className={classes.detailSubText}>
+              <div className={props.highlighted ? "" : classes.detailSubText}>
                 <span
                   className={props.detail.isClosed ? classes.closedText : ""}
                 >
@@ -123,7 +91,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                 : props.detail.vacancyReason}
             </span>
           </div>
-          <div className={classes.detailSubText}>
+          <div className={props.highlighted ? "" : classes.detailSubText}>
             <span className={props.detail.isClosed ? classes.closedText : ""}>
               {props.vacancyDate ?? props.detail.dateRange}
             </span>
@@ -133,16 +101,19 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.locationSection}>
         <div>
           <div>
-            <LocationLink
-              orgId={props.detail.orgId}
-              locationId={props.detail.location?.id}
-              linkClass={classes.action}
-              textClass={props.detail.isClosed ? classes.closedText : ""}
-            >
-              {props.detail.location?.name}
-            </LocationLink>
+            {props.highlighted || inSwapMode ? (
+              props.detail.location?.name
+            ) : (
+              <LocationLink
+                locationId={props.detail.location?.id}
+                linkClass={classes.action}
+                textClass={props.detail.isClosed ? classes.closedText : ""}
+              >
+                {props.detail.location?.name}
+              </LocationLink>
+            )}
           </div>
-          <div className={classes.detailSubText}>
+          <div className={props.highlighted ? "" : classes.detailSubText}>
             <span
               className={props.detail.isClosed ? classes.closedText : ""}
             >{`${props.detail.startTime} - ${props.detail.endTime}`}</span>
@@ -157,7 +128,7 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.substituteSection}>
         <div>
           {props.detail.state === "noSubRequired" && (
-            <div className={classes.detailSubText}>
+            <div className={props.highlighted ? "" : classes.detailSubText}>
               <span className={props.detail.isClosed ? classes.closedText : ""}>
                 {t("Not required")}
               </span>
@@ -166,13 +137,16 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           {props.detail.state !== "noSubRequired" && props.detail.substitute && (
             <div className={classes.subWithPhone}>
               <div>
-                <SubstituteLink
-                  orgId={props.detail.orgId}
-                  orgUserId={props.detail.substitute.id}
-                  linkClass={classes.action}
-                >
-                  {props.detail.substitute.name}
-                </SubstituteLink>
+                {props.highlighted || inSwapMode ? (
+                  props.detail.substitute.name
+                ) : (
+                  <SubstituteLink
+                    orgUserId={props.detail.substitute.id}
+                    linkClass={classes.action}
+                  >
+                    {props.detail.substitute.name}
+                  </SubstituteLink>
+                )}
               </div>
               {props.detail.substitute.phone && (
                 <div className={classes.subPhoneInfoIcon}>
@@ -191,9 +165,10 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           )}
           {props.detail.state !== "noSubRequired" &&
             !props.detail.isClosed &&
-            !props.detail.substitute && (
+            !props.detail.substitute &&
+            !props.highlighted &&
+            !inSwapMode && (
               <AbsVacAssignLink
-                orgId={props.detail.orgId}
                 absVacId={props.detail.id}
                 absVacType={props.detail.type}
                 absVacDate={props.detail.date}
@@ -201,9 +176,14 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                 {t("Assign")}
               </AbsVacAssignLink>
             )}
+          {((!props.detail.substitute && props.highlighted) ||
+            (!props.detail.substitute && inSwapMode)) && <>{t("Unassigned")}</>}
           {props.detail.subTimes.map((st, i) => {
             return (
-              <div className={classes.detailSubText} key={i}>
+              <div
+                className={props.highlighted ? "" : classes.detailSubText}
+                key={i}
+              >
                 {`${st.startTime} - ${st.endTime}`}
               </div>
             );
@@ -214,22 +194,71 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
         <div>
           <div>
             <AbsVacLink
-              orgId={props.detail.orgId}
               absVacId={props.detail.id}
               absVacType={props.detail.type}
               linkClass={classes.action}
+              disabled={props.highlighted || inSwapMode}
             />
           </div>
           {props.detail.assignmentId && (
             <div
-              className={classes.detailSubText}
+              className={props.highlighted ? "" : classes.detailSubText}
             >{`#C${props.detail.assignmentId}`}</div>
           )}
         </div>
       </div>
-      <div className={classes.actionCell}>
-        <ActionMenu options={props.rowActions} />
-      </div>
+      {!inSwapMode && (
+        <div className={classes.actionCell}>
+          <ActionMenu options={props.rowActions} />
+        </div>
+      )}
+      {inSwapMode &&
+        props.swapMode === "swapable" &&
+        props.swapSubs &&
+        !props.highlighted && (
+          <div className={classes.actionCell}>
+            <Button
+              variant="contained"
+              onClick={e => {
+                e.stopPropagation();
+                if (props.swapSubs) {
+                  props.swapSubs(props.detail);
+                }
+              }}
+            >
+              {t("Swap")}
+            </Button>
+          </div>
+        )}
+      {inSwapMode &&
+        props.swapMode === "notswapable" &&
+        props.swapSubs &&
+        !props.highlighted && (
+          <div className={classes.actionCell}>
+            <Tooltip
+              title={
+                <div className={classes.tooltip}>
+                  {props.detail.isMultiDay
+                    ? t(
+                        "Swapping subs for multiday assignments is not supported.”"
+                      )
+                    : props.detail.state === "noSubRequired"
+                    ? t("A substitute is not required.")
+                    : t("Can not swap subs.")}
+                </div>
+              }
+              placement="right-start"
+            >
+              <InfoIcon
+                color="primary"
+                style={{
+                  marginLeft: "22px",
+                }}
+              />
+            </Tooltip>
+          </div>
+        )}
+      {props.highlighted && <div className={classes.actionCell}></div>}
     </div>
   );
 };
@@ -237,9 +266,10 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(2),
+    paddingLeft: `${theme.typography.pxToRem(45)} !important`,
     display: "flex",
     width: "100%",
-    alignItems: "left",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     [theme.breakpoints.down("sm")]: {
       alignItems: "stretch",
@@ -299,18 +329,17 @@ const useStyles = makeStyles(theme => ({
     cursor: "pointer",
   },
   actionCell: {
-    width: theme.typography.pxToRem(45),
+    width: theme.typography.pxToRem(85),
     "@media print": {
       display: "none",
     },
   },
-  checkbox: {
-    width: theme.typography.pxToRem(35),
-    "@media print": {
-      display: "none",
-    },
+  highlighted: {
+    color: `${theme.customColors.white} !important`,
+    backgroundColor: `${theme.customColors.darkBlueGray} !important`,
+    alignItems: "center",
   },
-  hidden: {
-    visibility: "hidden",
+  tooltip: {
+    padding: theme.spacing(2),
   },
 }));

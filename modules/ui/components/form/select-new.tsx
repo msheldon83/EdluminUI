@@ -273,13 +273,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
                     v => getOptionValue(v) !== getOptionValue(valueItem)
                   );
 
-                  /*
-                    The generics used for safety here were taking to long to solve the error
-                    showing here. But, it's impossible for this to throw an error here.
-                  */
-                  // eslint-disable-next-line
-                  // @ts-ignore
-                  onChange(newValues);
+                  (onChange as (o: OptionType[]) => void)(newValues);
                 }}
                 className={classes.selectionChip}
               />

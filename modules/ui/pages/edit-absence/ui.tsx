@@ -123,14 +123,6 @@ type EditAbsenceFormData = {
   payCode?: string;
 };
 
-/*
- * We're allowing @ts-ignore comments in this file because of a difficult problem.
- * It appears that something to do with the generated types for GetAbsence cause
- * spurious errors to be emitted from typescript. Hopefully this is an isolated
- * problem. If not, we'll need to figure out a proper fix.
- */
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
-
 export const EditAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -182,10 +174,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     absenceReason: props.absenceReason.id.toString(),
     dayPart: props.dayPart,
     payCode:
-      // @ts-ignore
       props.initialVacancies[0]?.details[0]?.payCodeId?.toString() ?? undefined,
     accountingCode:
-      // @ts-ignore
       props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCode?.id?.toString() ??
       undefined,
     hourlyStartTime:
@@ -581,9 +571,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   ]);
 
   const subHeader = !props.actingAsEmployee ? (
-    <EmployeeLink orgId={props.organizationId} orgUserId={props.employeeId}>
-      {employeeName}
-    </EmployeeLink>
+    <EmployeeLink orgUserId={props.employeeId}>{employeeName}</EmployeeLink>
   ) : (
     undefined
   );

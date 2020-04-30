@@ -10,7 +10,10 @@ export const useOrganizationId = () => useContext(OrganizationContext);
 export const AdminRouteOrganizationContextProvider: React.FC = props => {
   const { supplyOrganizationId } = usePageTitleContext();
   const { organizationId } = useRouteParams(AdminChromeRoute);
-  useEffect(() => supplyOrganizationId(organizationId), [organizationId]);
+  useEffect(() => supplyOrganizationId(organizationId), [
+    organizationId,
+    supplyOrganizationId,
+  ]);
   return (
     <OrganizationContext.Provider value={organizationId}>
       {props.children}
