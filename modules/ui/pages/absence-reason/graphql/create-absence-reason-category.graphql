@@ -1,0 +1,17 @@
+mutation CreateAbsenceReasonCategory(
+  $absenceReasonCategory: AbsenceReasonCategoryCreateInput!
+) {
+  orgRef_AbsenceReasonCategory {
+    create(absenceReasonCategory: $absenceReasonCategory) {
+      id
+      externalId
+      rowVersion
+      name
+      description
+      validUntil
+      absenceReasonTrackingTypeId
+      allowNegativeBalance
+      expired
+    }
+  }
+}

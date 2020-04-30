@@ -26,6 +26,12 @@ import {
   AbsenceReasonViewEditLoader,
   AbsenceReasonEditSettingsRoute,
   AbsenceReasonEditSettingsLoader,
+  AbsenceReasonCategoryAddLoader,
+  AbsenceReasonCategoryAddRoute,
+  AbsenceReasonCategoryViewEditRoute,
+  AbsenceReasonCategoryViewEditLoader,
+  AbsenceReasonCategoryEditSettingsLoader,
+  AbsenceReasonCategoryEditSettingsRoute,
 } from "./routes/absence-reason";
 import {
   AccountingCodeLoader,
@@ -93,6 +99,8 @@ import { SettingsLoader, SettingsRoute } from "./routes/settings";
 import {
   AnalyticsReportsDailyReportRoute,
   AnalyticsReportsDailyReportLoader,
+  AnalyticsReportsAbsentEmployeeRoute,
+  AnalyticsReportsAbsentEmployeeLoader
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -966,6 +974,26 @@ export const App = hot(function() {
                                       ]}
                                     />
                                     <ProtectedRoute
+                                      component={AbsenceReasonCategoryAddLoader}
+                                      path={AbsenceReasonCategoryAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AbsenceReasonCategoryEditSettingsLoader
+                                      }
+                                      path={
+                                        AbsenceReasonCategoryEditSettingsRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
                                       component={
                                         AbsenceReasonEditSettingsLoader
                                       }
@@ -973,6 +1001,18 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.AbsVacSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AbsenceReasonCategoryViewEditLoader
+                                      }
+                                      path={
+                                        AbsenceReasonCategoryViewEditRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
@@ -1169,6 +1209,15 @@ export const App = hot(function() {
                                         AnalyticsReportsDailyReportRoute.path
                                       }
                                       role={"admin"}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AnalyticsReportsAbsentEmployeeLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsAbsentEmployeeRoute.path
+                                      }
+                                      role={"sysAdmin"}
                                     />
                                   </Switch>
                                 </AdminRouteOrganizationContextProvider>

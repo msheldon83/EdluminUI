@@ -3,6 +3,7 @@ query GetOrgConfigVacancyDayConversions($orgId: ID!) {
     byId(id: $orgId) {
       id
       config {
+        id
         vacancyDayConversions {
           name
           maxMinutes

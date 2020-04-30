@@ -1,4 +1,5 @@
 import i18next = require("i18next");
+import { camelCase, upperFirst } from "lodash-es";
 
 type EnumDefinition = {
   name: string;
@@ -159,6 +160,14 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Ignored"),
     },
     {
+      name: "absenceReasonTrackingTypeId.HOURLY",
+      displayName: t("Hourly"),
+    },
+    {
+      name: "absenceReasonTrackingTypeId.DAILY",
+      displayName: t("Daily"),
+    },
+    {
       name: "dataImportStatus.CREATED",
       displayName: t("Created"),
     },
@@ -207,6 +216,10 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Validated"),
     },
     {
+      name: "dataImportStatus.QUEUED_FOR_PROCESSING",
+      displayName: t("Queued for processing"),
+    },
+    {
       name: "dataImportStatus.IMPORTING",
       displayName: t("Importing"),
     },
@@ -225,78 +238,6 @@ const buildEnumMap = (t: i18next.TFunction) => {
     {
       name: "dataImportStatus.PERMANENT_FAILURE",
       displayName: t("Permanent failure"),
-    },
-    {
-      name: "dataImportType.ABSENCE",
-      displayName: t("Absence"),
-    },
-    {
-      name: "dataImportType.ABSENCE_REASON",
-      displayName: t("Absence reason"),
-    },
-    {
-      name: "dataImportType.ACCOUNTING_CODE",
-      displayName: t("Accounting code"),
-    },
-    {
-      name: "dataImportType.ADMINISTRATOR",
-      displayName: t("Administrator"),
-    },
-    {
-      name: "dataImportType.CALENDAR_CHANGE",
-      displayName: t("Calendar change"),
-    },
-    {
-      name: "dataImportType.CALENDAR_CHANGE_REASON",
-      displayName: t("Calendar change reason"),
-    },
-    {
-      name: "dataImportType.CONTRACT",
-      displayName: t("Contract"),
-    },
-    {
-      name: "dataImportType.EMPLOYEE",
-      displayName: t("Employee"),
-    },
-    {
-      name: "dataImportType.ENDORSEMENT",
-      displayName: t("Endorsement"),
-    },
-    {
-      name: "dataImportType.LOCATION",
-      displayName: t("Location"),
-    },
-    {
-      name: "dataImportType.LOCATION_GROUP",
-      displayName: t("Location group"),
-    },
-    {
-      name: "dataImportType.PAY_CODE",
-      displayName: t("Pay code"),
-    },
-    {
-      name: "dataImportType.POSITION_TYPE",
-      displayName: t("Position type"),
-    },
-    {
-      name: "dataImportType.REPLACEMENT_CRITERIA_CONFIG",
-      displayName: t("Replacement criteria config"),
-    },
-    {
-      name: "dataImportType.REPLACEMENT_POOL_CONFIG",
-      displayName: t("Replacement pool config"),
-    },
-    {
-      name: "dataImportType.SUBSTITUTE",
-      displayName: t("Substitute"),
-    },
-    {
-      name: "dataImportType.VACANCY",
-      displayName: t("Vacancy"),
-    },
-    {
-      name: "dataImportType.ABSENCE_REASON_BALANCE",
-      displayName: t("Absence reason balance"),
     },
     {
       name: "dataImportRowStatus.CREATED",
@@ -347,4 +288,10 @@ export const getDisplayName = (
   const enumKey = `${propertyName}.${enumValue}`;
   const match = enumMap.find(e => e.name === enumKey);
   return match ? match.displayName : null;
+};
+
+// Converts an enum from "ABSENCE_REASON" to "AbsenceReason"
+// This is useful for converting our enums from the GraphQl schema to match the serverside enums.
+export const formatEnumString = (enumValue: string) => {
+  return upperFirst(camelCase(enumValue));
 };

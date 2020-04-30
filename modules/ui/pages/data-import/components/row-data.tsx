@@ -5,15 +5,21 @@ import { Maybe } from "graphql/server-types.gen";
 type Props = {
   columnNames: Maybe<string>[];
   columns: Maybe<string>[];
+  messages?: Maybe<string>[] | null;
 };
 
 export const DataImportRowData: React.FC<Props> = props => {
   const classes = useStyles();
 
-  const { columnNames, columns } = props;
+  const { columnNames, columns, messages } = props;
   return (
     <div>
       <Grid container spacing={1}>
+        {messages &&
+          messages.length > 0 &&
+          messages.map((m, i) => {
+            return <div key={i}>{m}</div>;
+          })}
         {columns.map((c, i) => {
           return (
             <Grid

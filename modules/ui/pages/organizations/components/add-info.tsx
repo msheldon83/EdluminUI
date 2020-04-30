@@ -3,6 +3,7 @@ import {
   makeStyles,
   FormControlLabel,
   Checkbox,
+  Tooltip,
 } from "@material-ui/core";
 import { Formik } from "formik";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
@@ -10,6 +11,7 @@ import { useIsMobile } from "hooks";
 import { OptionTypeBase } from "react-select/src/types";
 import Button from "@material-ui/core/Button";
 import * as React from "react";
+import InfoIcon from "@material-ui/icons/Info";
 import { useTranslation } from "react-i18next";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
@@ -32,7 +34,7 @@ type Props = {
   onSubmit: (organizationCreateInput: OrganizationCreateInput) => Promise<any>;
   onCancel: () => void;
   onNameChange: (name: string) => void;
-  relatesToOrganizationId: string;
+  staffingProviderOptions: OptionType[];
   timeZoneOptions: OptionType[];
   organizationTypes: OptionType[];
   featureFlagOptions: OptionType[];
@@ -50,7 +52,8 @@ export const AddBasicInfo: React.FC<Props> = props => {
     superUserFirstName: props?.organization?.superUserFirstName || "",
     superUserLastName: props?.organization?.superUserLastName || "",
     superUserLoginEmail: props?.organization?.superUserLoginEmail || "",
-    isEdustaffOrg: false,
+    seedOptionalData: props?.organization?.seedOptionalData || false,
+    relatesToOrganizationId: undefined,
     timeZoneId:
       props?.organization?.timeZoneId || TimeZone.EasternStandardTimeUsCanada,
     featureFlags: props?.organization?.config?.featureFlags || [
@@ -148,17 +151,14 @@ export const AddBasicInfo: React.FC<Props> = props => {
           await props.onSubmit({
             name: data.name.trim(),
             externalId:
-              data.externalId && data.externalId.trim().length === 0
-                ? null
-                : data.externalId,
+              data.externalId.trim().length > 0 ? data.externalId : undefined,
             superUserFirstName: data.superUserFirstName.trim(),
             superUserLastName: data.superUserLastName.trim(),
             superUserLoginEmail: data.superUserLoginEmail,
             timeZoneId: data.timeZoneId,
             seedOrgDataOption: SeedOrgDataOptionEnum.SeedAsynchronously,
-            relatesToOrganizationId: data.isEdustaffOrg
-              ? props.relatesToOrganizationId
-              : undefined,
+            relatesToOrganizationId: data.relatesToOrganizationId ?? undefined,
+            seedOptionalData: data.seedOptionalData,
             config: {
               defaultCountry: CountryCode.Us,
               featureFlags: data.featureFlags,
@@ -342,18 +342,30 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={values.isEdustaffOrg}
-                      onChange={e => {
-                        setFieldValue("isEdustaffOrg", e.target.checked);
-                      }}
-                      value={values.isEdustaffOrg}
-                      color="primary"
-                    />
-                  }
-                  label={t("Is this an Edustaff Org?")}
+                <SelectNew
+                  label={t("Staffing Provider")}
+                  name={"relatesToOrganizationId"}
+                  value={{
+                    value: values.relatesToOrganizationId ?? "",
+                    label:
+                      props.staffingProviderOptions.find(
+                        a => a.value === values.relatesToOrganizationId
+                      )?.label || "",
+                  }}
+                  options={props.staffingProviderOptions}
+                  onChange={(e: OptionType) => {
+                    let selectedValue = null;
+                    if (e) {
+                      if (Array.isArray(e)) {
+                        selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                      } else {
+                        selectedValue = (e as OptionTypeBase).value;
+                      }
+                    }
+                    setFieldValue("relatesToOrganizationId", selectedValue);
+                  }}
+                  doSort={false}
+                  multiple={false}
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
@@ -376,6 +388,38 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12}>
                 <SectionHeader title={t("Non-required setup info")} />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={values.seedOptionalData}
+                      value={values.seedOptionalData}
+                      onChange={e =>
+                        setFieldValue("seedOptionalData", e.target.checked)
+                      }
+                    />
+                  }
+                  label={t("Seed Optional Data")}
+                />
+                <Tooltip
+                  title={
+                    <div className={overrideStyles.tooltip}>
+                      {t(
+                        "Optional Seeded Data includes: Position Type, Endorsements, Absence Reasons, & Standard Bell Schedule."
+                      )}
+                    </div>
+                  }
+                  placement="right-start"
+                >
+                  <InfoIcon
+                    color="primary"
+                    style={{
+                      fontSize: "16px",
+                    }}
+                  />
+                </Tooltip>
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
@@ -677,5 +721,8 @@ const rootStyles = makeStyles(theme => ({
   },
   cell: {
     paddingRight: "15px !important",
+  },
+  tooltip: {
+    padding: theme.spacing(2),
   },
 }));

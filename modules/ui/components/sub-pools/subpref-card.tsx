@@ -52,7 +52,6 @@ export const SubstitutePrefCard: React.FC<Props> = props => {
             },
           ]}
         />
-
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={5}>
             {favoriteEmployees && (

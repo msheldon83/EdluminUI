@@ -43,7 +43,8 @@ export const VacancyConfirmation: React.FC<Props> = props => {
   const params = useRouteParams(VacancyCreateRoute);
 
   React.useEffect(() => {
-    window.scrollTo(0, 0);
+    const container = document.getElementById("main-container");
+    if (container) container.scrollTop = 0;
   }, []);
 
   const {

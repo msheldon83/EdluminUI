@@ -1,8 +1,8 @@
 import * as React from "react";
-import { makeStyles, Button, Typography } from "@material-ui/core";
+import { makeStyles, Button, Typography, Link } from "@material-ui/core";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
-import { Vacancy } from "graphql/server-types.gen";
+import { Vacancy, PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
@@ -11,8 +11,11 @@ import { useState, useMemo, useCallback } from "react";
 import { getGroupedVacancyDetails } from "./helpers";
 import { flatMap, uniq } from "lodash-es";
 import { AssignmentOnDate } from "./types";
+import { MailOutline } from "@material-ui/icons";
+import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
+  orgId: string;
   employeeId: string;
   employeeName: string;
   vacancies: Vacancy[];
@@ -29,6 +32,8 @@ type Props = {
   ) => Promise<void>;
   disableReplacementInteractions?: boolean;
   showLinkButton?: boolean;
+  email?: string;
+  shouldLink?: boolean;
 };
 
 export const AssignedSub: React.FC<Props> = props => {
@@ -96,7 +101,22 @@ export const AssignedSub: React.FC<Props> = props => {
         <div className={classes.details}>
           <AccountCircleOutlined fontSize="large" />
           <div className={classes.name}>
-            <Typography variant="h6">{props.employeeName}</Typography>
+            <Typography variant="h6" className={classes.nameLabel}>
+              <SubstituteLink
+                orgId={props.orgId}
+                orgUserId={props.shouldLink ? props.employeeId : undefined}
+              >
+                {props.employeeName}
+              </SubstituteLink>
+            </Typography>
+            <Can do={[PermissionEnum.SubstituteViewEmail]}>
+              {props.email && (
+                <Button
+                  startIcon={<MailOutline />}
+                  href={`mailto:${props.email}`}
+                />
+              )}
+            </Can>
             {props.subText && (
               <div className={classes.subText}>{props.subText}</div>
             )}
@@ -184,6 +204,9 @@ const useStyles = makeStyles(theme => ({
   },
   name: {
     marginLeft: theme.spacing(2),
+  },
+  nameLabel: {
+    display: "inline-block",
   },
   subText: {
     fontSize: theme.typography.pxToRem(12),

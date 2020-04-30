@@ -1,0 +1,17 @@
+mutation UpdateDataImport($dataImport: DataImportUpdateInput!) {
+  dataImport {
+    update(dataImport: $dataImport) {
+      id
+      dataImportStatusId
+      createdUtc
+      nextAttemptUtc
+      numAttempts
+      totalRowCount
+      columnNames
+      dataImportTypeId
+      parseOnly
+      validateOnly
+      messages
+    }
+  }
+}

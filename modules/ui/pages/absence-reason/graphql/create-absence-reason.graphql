@@ -16,6 +16,10 @@ mutation CreateAbsenceReason($absenceReason: AbsenceReasonCreateInput!) {
       expired
       isRestricted
       requireNotesToAdmin
+      category {
+        id
+        name
+      }
     }
   }
 }

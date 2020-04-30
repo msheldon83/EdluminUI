@@ -10,6 +10,7 @@ import { AssignmentOnDate } from "./types";
 import { uniqBy } from "lodash-es";
 
 type Props = {
+  orgId: string;
   vacancies: Vacancy[];
   vacancyDetailIds?: string[];
   positionName?: string | null | undefined;
@@ -112,6 +113,7 @@ export const VacancyDetails: React.FC<Props> = props => {
               className={classes.detailRow}
             >
               <VacancyDetailRow
+                orgId={props.orgId}
                 groupedDetail={g}
                 vacancies={props.vacancies}
                 isSplitVacancy={isSplitVacancy}

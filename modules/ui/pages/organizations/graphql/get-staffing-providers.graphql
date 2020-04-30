@@ -1,0 +1,10 @@
+query GetAllStaffingProviders {
+  organization {
+    staffingProviders {
+      organization {
+        id
+        name
+      }
+    }
+  }
+}

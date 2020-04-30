@@ -12,6 +12,11 @@ mutation updateAbsenceReason($absenceReason: AbsenceReasonUpdateInput!) {
       allowNegativeBalance
       isRestricted
       requireNotesToAdmin
+      absenceReasonCategoryId
+      category {
+        id
+        name
+      }
     }
   }
 }

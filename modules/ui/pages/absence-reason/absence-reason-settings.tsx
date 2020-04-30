@@ -17,17 +17,18 @@ import {
   Typography,
 } from "@material-ui/core";
 import * as yup from "yup";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { useAbsenceReasonCategoryOptions } from "reference-data/absence-reason-categories";
+import { OptionTypeBase } from "react-select";
 
 type Props = {
   description?: string;
   allowNegativeBalance: boolean;
   isRestricted: boolean;
-  // isBucket: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   requireNotesToAdmin: boolean;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
-    // isBucket: boolean;
     isRestricted: boolean;
     description?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
@@ -35,6 +36,8 @@ type Props = {
   }) => Promise<void>;
   onCancel: () => void;
   className?: string;
+  absenceReasonCategoryId?: string;
+  orgId: string;
 };
 
 export const AbsenceReasonSettings: React.FC<Props> = props => {
@@ -46,10 +49,14 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
     "description",
     "allowNegativeBalance",
     "isRestricted",
-    // "isBucket",
     "absenceReasonTrackingTypeId",
     "requireNotesToAdmin",
+    "absenceReasonCategoryId",
   ]);
+
+  const absenceReasonCategoryOptions = useAbsenceReasonCategoryOptions(
+    props.orgId
+  );
 
   return (
     <Section className={props.className}>
@@ -58,7 +65,6 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
         initialValues={initialValues}
         onSubmit={props.onSubmit}
         validationSchema={yup.object().shape({
-          // isBucket: yup.boolean(),
           allowNegativeBalances: yup.boolean(),
           isRestricted: yup.boolean(),
         })}
@@ -104,7 +110,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
 
             <Typography variant="h6" className={classes.label}>
               {t(
-                "Should a balance for this absence reason be allowed to go negative?"
+                "Should a balance be allowed to go negative for this absence reason?"
               )}
             </Typography>
             <RadioGroup
@@ -132,6 +138,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                 labelPlacement="end"
               />
             </RadioGroup>
+
             <Typography variant="h6" className={classes.label}>
               {t("Is this absence reason restricted?")}
             </Typography>
@@ -157,6 +164,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                 labelPlacement="end"
               />
             </RadioGroup>
+
             <Typography variant="h6" className={classes.label}>
               {t("Require notes to administrator?")}
             </Typography>
@@ -183,32 +191,33 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
               />
             </RadioGroup>
 
-            {/* 1.22.20 ML - Hide until we have absence reason buckets */}
-            {/* <Typography variant="h6" className={classes.label}>
-              {t("Is this reason used to hold a category balance?")}
+            <Typography variant="h6" className={classes.label}>
+              {t("Which category is this absence reason a part of?")}
             </Typography>
-            <RadioGroup
-              aria-label="isBucket"
-              name="isBucket"
-              value={values.isBucket}
-              onChange={e => {
-                setFieldValue("isBucket", e.target.value === "true");
+            <SelectNew
+              name="absenceReasonCategoryId"
+              className={classes.categorySelector}
+              multiple={false}
+              options={absenceReasonCategoryOptions}
+              value={{
+                value: values.absenceReasonCategoryId ?? "",
+                label:
+                  absenceReasonCategoryOptions.find(
+                    (c: any) => c.value === values.absenceReasonCategoryId
+                  )?.label || "",
               }}
-              row={!isMobile}
-            >
-              <FormControlLabel
-                value={false}
-                control={<Radio color="primary" />}
-                label={t("No")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={true}
-                control={<Radio color="primary" />}
-                label={t("Yes")}
-                labelPlacement="end"
-              />
-            </RadioGroup> */}
+              onChange={(e: OptionType) => {
+                let selectedValue = null;
+                if (e) {
+                  if (Array.isArray(e)) {
+                    selectedValue = (e as Array<OptionTypeBase>)[0].value;
+                  } else {
+                    selectedValue = (e as OptionTypeBase).value;
+                  }
+                }
+                setFieldValue("absenceReasonCategoryId", selectedValue);
+              }}
+            />
 
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
@@ -224,5 +233,8 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   label: {
     marginTop: theme.spacing(4),
+  },
+  categorySelector: {
+    width: theme.typography.pxToRem(500),
   },
 }));

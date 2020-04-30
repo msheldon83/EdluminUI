@@ -47,33 +47,37 @@ export const LocationsInformation: React.FC<Props> = props => {
         ]}
       />
       <Grid container spacing={2}>
-        <Grid container item xs={12} spacing={2}>
-          <Typography variant="h6">{t("Address")}</Typography>
+        <Grid container item xs={5} spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h6">{t("Address")}</Typography>
+          </Grid>
+          <Grid item xs={12} className={classes.label}>
+            <Typography>
+              {`${props.location.address1 ?? ""} ${props.location.address2 ??
+                ""}`}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} className={classes.label}>
+            <Typography>
+              {`${props.location.city ?? ""}, ${props.location.state ??
+                ""} ${props.location.postalCode ?? ""}`}
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid container item xs={12} className={classes.label}>
-          <Typography>
-            {`${props.location.address1 ?? ""} ${props.location.address2 ??
-              ""}`}
-          </Typography>
-        </Grid>
-        <Grid container item xs={12} className={classes.label}>
-          <Typography>
-            {`${props.location.city ?? ""}, ${props.location.state ??
-              ""} ${props.location.postalCode ?? ""}`}
-          </Typography>
-        </Grid>
-        <Grid container item xs={12} spacing={2} className={classes.label}>
-          <Typography variant="h6">{t("Phone")}</Typography>
-        </Grid>
-        <Grid container item xs={12} spacing={2} className={classes.label}>
-          <Typography>{`${props.location.formattedPhone ?? ""}`}</Typography>
-        </Grid>
-        <Grid container item xs={12} spacing={2} className={classes.label}>
-          <Typography variant="h6">{t("School Group")}</Typography>
-        </Grid>
-        <Grid container item xs={12} spacing={2} className={classes.label}>
-          <Typography>{`${props.location.locationGroup?.name ??
-            ""}`}</Typography>
+        <Grid container item xs={5} spacing={2}>
+          <Grid item xs={12} container spacing={2} className={classes.label}>
+            <Typography variant="h6">{t("Phone")}</Typography>
+          </Grid>
+          <Grid item xs={12} container spacing={2} className={classes.label}>
+            <Typography>{`${props.location.formattedPhone ?? ""}`}</Typography>
+          </Grid>
+          <Grid item xs={12} container spacing={2} className={classes.label}>
+            <Typography variant="h6">{t("School Group")}</Typography>
+          </Grid>
+          <Grid item xs={12} container spacing={2} className={classes.label}>
+            <Typography>{`${props.location.locationGroup?.name ??
+              ""}`}</Typography>
+          </Grid>
         </Grid>
       </Grid>
     </Section>

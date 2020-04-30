@@ -25,7 +25,7 @@ export const AddLocationGroup: React.FC<Props> = props => {
 
   const initialValues = {
     name: props.locationGroup.name,
-    description: props.locationGroup.description || "",
+    externalId: props.locationGroup.externalId || "",
   };
 
   const validateBasicDetails = React.useMemo(
@@ -34,7 +34,6 @@ export const AddLocationGroup: React.FC<Props> = props => {
         name: Yup.string()
           .nullable()
           .required(t("Name is required")),
-        description: Yup.string().nullable(),
         externalId: Yup.string().nullable(),
       }),
     [t]
@@ -49,7 +48,6 @@ export const AddLocationGroup: React.FC<Props> = props => {
           const locationGroup: LocationGroupCreateInput = {
             ...props.locationGroup,
             name: data.name,
-            description: data.description,
             externalId: data.externalId,
           };
           props.onSubmit(locationGroup);
@@ -84,20 +82,6 @@ export const AddLocationGroup: React.FC<Props> = props => {
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
                     helperText: t("Usually used for data integrations"),
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={isMobile ? 2 : 8}>
-              <Grid item xs={6}>
-                <Input
-                  label={t("Description")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "description",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
                     fullWidth: true,
                   }}
                 />

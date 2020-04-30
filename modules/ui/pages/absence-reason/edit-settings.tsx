@@ -54,6 +54,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
     isRestricted: boolean;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     requireNotesToAdmin: boolean;
+    absenceReasonCategoryId?: string;
   }) => {
     if (getAbsenceReason.state !== "DONE") {
       return;
@@ -65,7 +66,9 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
       isRestricted,
       absenceReasonTrackingTypeId: absenceReasonTrackingId,
       requireNotesToAdmin,
+      absenceReasonCategoryId,
     } = updatedValues;
+
     const result = await mutation({
       variables: {
         absenceReason: {
@@ -76,6 +79,9 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
           isRestricted,
           absenceReasonTrackingId,
           requireNotesToAdmin,
+          absenceReasonCategoryId: absenceReasonCategoryId
+            ? absenceReasonCategoryId
+            : null,
         },
       },
     });
@@ -105,11 +111,15 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
           absenceReason.absenceReasonTrackingTypeId || undefined
         }
         requireNotesToAdmin={absenceReason.requireNotesToAdmin ?? false}
+        absenceReasonCategoryId={
+          absenceReason.absenceReasonCategoryId || undefined
+        }
         onSubmit={updateAbsenceReason}
         onCancel={() => {
           history.push(AbsenceReasonViewEditRoute.generate(params));
         }}
         className={classes.content}
+        orgId={params.organizationId}
       />
     </>
   );

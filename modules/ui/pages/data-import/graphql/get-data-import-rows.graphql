@@ -22,6 +22,7 @@ query GetDataImportRows(
         columnValues
         rowNumber
         rowStatusId
+        messages
       }
     }
   }

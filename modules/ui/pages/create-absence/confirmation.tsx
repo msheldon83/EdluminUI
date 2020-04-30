@@ -38,7 +38,8 @@ export const Confirmation: React.FC<Props> = props => {
   );
 
   React.useEffect(() => {
-    window.scrollTo(0, 0);
+    const container = document.getElementById("main-container");
+    if (container) container.scrollTop = 0;
   }, []);
 
   const editUrl = useMemo(() => {
