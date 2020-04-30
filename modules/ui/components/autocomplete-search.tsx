@@ -1,11 +1,9 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
-import { Input } from "ui/components/form/input";
 import { useTranslation } from "react-i18next";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { OptionType } from "ui/components/form/select-new";
 import TextField from "@material-ui/core/TextField";
-import { OptionTypeBase } from "react-select/src/types";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDeferredState } from "hooks";
 
@@ -13,6 +11,7 @@ type Props = {
   options: OptionType[];
   setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
   onClick: (id: string) => void;
+  useLabel?: boolean;
   placeholder?: string;
   searchText?: string | undefined;
 };
@@ -40,6 +39,8 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
 
   return (
     <>
+      {props.useLabel && <div className={classes.boldFont}>{t("Search")}</div>}
+
       <Autocomplete
         id="autocomplete-on-select"
         freeSolo
@@ -74,5 +75,8 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   searchInput: {
     width: "100%",
+  },
+  boldFont: {
+    fontWeight: 600,
   },
 }));

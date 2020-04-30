@@ -1,8 +1,7 @@
 import * as React from "react";
 import { Typography, makeStyles } from "@material-ui/core";
-import { PageTitle } from "ui/components/page-title";
 import { useTranslation } from "react-i18next";
-import { ManageDistrictsUI } from "./ui";
+import { ManageDistrictsUI } from "../../components/manage-districts/ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
 import { AddRelatedOrg } from "./graphql/add-related-org.gen";
@@ -44,12 +43,25 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const relatedOrgs = orgUser.relatedOrgIds ?? [];
+  const relatedOrgs = orgUser?.relatedOrganizations ?? [];
 
-  //TODO:
-  const allDistrictAttributes = [""];
+  //TODO: Create string in format "Attribute (Expires April 23, 2019)"
+  const allDistrictAttributes = orgUser.employee?.endorsements ?? [];
+  const formattedDistrictAttributes =
+    allDistrictAttributes.length > 0
+      ? allDistrictAttributes
+          .filter(x => !x?.endorsement.expires)
+          .map(
+            o =>
+              o?.endorsement.name +
+              `${t("(Expires ")} ${o?.endorsement.validUntil} ${t(")")}`
+          )
+          .toString()
+      : [];
 
-  const handleAdd = async (orgId: string) => {
+  console.log(formattedDistrictAttributes);
+
+  const handleAddOrg = async (orgId: string) => {
     await addRelatedOrg({
       variables: {
         orgUserId: params.orgUserId,
@@ -59,7 +71,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     await getSubRelatedOrgs.refetch();
   };
 
-  const handleRemove = async (orgId: string) => {
+  const handleRemoveOrg = async (orgId: string) => {
     await removeRelatedOrg({
       variables: {
         orgUserId: params.orgUserId,
@@ -67,6 +79,26 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       },
     });
     await getSubRelatedOrgs.refetch();
+  };
+
+  const handleAddAttribute = async (attributeId: string) => {
+    // await addRelatedOrg({
+    //   variables: {
+    //     orgUserId: params.orgUserId,
+    //     relatedOrgId: orgId,
+    //   },
+    // });
+    // await getSubRelatedOrgs.refetch();
+  };
+  const handleRemoveAttribute = async (orgId: string) => {
+    //TODO:
+    // await removeRelatedOrg({
+    //   variables: {
+    //     orgUserId: params.orgUserId,
+    //     relatedOrgId: orgId,
+    //   },
+    // });
+    // await getSubRelatedOrgs.refetch();
   };
 
   return (
@@ -78,11 +110,13 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         <Typography variant="h1">{t("Districts")}</Typography>
       </div>
       <ManageDistrictsUI
-        relatedOrgIds={relatedOrgs}
-        onAdd={handleAdd}
-        onRemove={handleRemove}
+        relatedOrgs={relatedOrgs}
+        onAddOrg={handleAddOrg}
+        onRemoveOrg={handleRemoveOrg}
+        onAddAttribute={handleAddAttribute}
+        onRemoveAttribute={handleRemoveAttribute}
         orgId={params.organizationId}
-        allDistrictAttributes={allDistrictAttributes}
+        allDistrictAttributes={formattedDistrictAttributes as string[]}
         isAdmin={true}
       />
     </>
