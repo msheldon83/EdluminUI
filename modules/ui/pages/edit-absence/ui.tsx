@@ -61,6 +61,7 @@ import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   firstName: string;
@@ -569,6 +570,14 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     t,
   ]);
 
+  const subHeader = !props.actingAsEmployee ? (
+    <EmployeeLink orgId={props.organizationId} orgUserId={props.employeeId}>
+      {employeeName}
+    </EmployeeLink>
+  ) : (
+    undefined
+  );
+
   return (
     <>
       <DiscardChangesDialog
@@ -609,9 +618,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         >
           <div className={classes.titleContainer}>
             <AbsenceVacancyHeader
-              subHeader={employeeName}
+              subHeader={subHeader}
               pageHeader={`${t("Edit absence")} #${props.absenceId}`}
-              actingAsEmployee={props.actingAsEmployee}
             />
             <div className={classes.headerMenu}>
               <ActionMenu
@@ -695,6 +703,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={setStep}
           disabledDates={disabledDates}
+          isEdit={true}
         />
       )}
       {step === "preAssignSub" && (
@@ -719,6 +728,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
           assignmentsByDate={props.assignmentsByDate}
+          isEdit={true}
         />
       )}
     </>

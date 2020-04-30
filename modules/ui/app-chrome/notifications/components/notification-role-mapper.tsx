@@ -21,7 +21,10 @@ type Props = {
     };
   };
   multipleOrgs: boolean;
-  markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
+  markSingleNotificationAsViewed: (
+    notificationId: string,
+    isLinkable: boolean
+  ) => Promise<any>;
 };
 
 export const NotificationRoleMapper: React.FC<Props> = props => {

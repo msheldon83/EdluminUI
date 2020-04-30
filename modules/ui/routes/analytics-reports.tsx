@@ -7,6 +7,7 @@ export const AnalyticsReportsRoute = defineSubRoute(
   "/reports"
 );
 
+// Daily Report
 export const AnalyticsReportsDailyReportRoute = defineSubRoute(
   AnalyticsReportsRoute,
   "/daily-report",
@@ -20,4 +21,21 @@ export const AnalyticsReportsDailyReportLoader = asyncComponent({
     return DailyReportPage;
   },
   name: "DailyReport",
+});
+
+// Absent Employee Report
+export const AnalyticsReportsAbsentEmployeeRoute = defineSubRoute(
+  AnalyticsReportsRoute,
+  "/absent-employee",
+  []
+);
+
+export const AnalyticsReportsAbsentEmployeeLoader = asyncComponent({
+  resolve: async () => {
+    const AbsentEmployeeReport = (
+      await import("ui/pages/reports/absent-employee")
+    ).AbsentEmployeeReport;
+    return AbsentEmployeeReport;
+  },
+  name: "AbsentEmployeeReport",
 });

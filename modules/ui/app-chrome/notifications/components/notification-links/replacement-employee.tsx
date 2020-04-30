@@ -7,10 +7,14 @@ import { ViewedIcon } from "ui/app-chrome/notifications/components/viewed-icon";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
+import { not } from "helpers";
 
 type Props = {
   notification: Notification;
-  markSingleNotificationAsViewed: (notificationId: string) => Promise<any>;
+  markSingleNotificationAsViewed: (
+    notificationId: string,
+    isLinkable: boolean
+  ) => Promise<any>;
   multipleOrgs: boolean;
 };
 
@@ -58,14 +62,27 @@ export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
           to={route}
           className={classes.hyperlink}
           onClick={() => {
-            const v = props.markSingleNotificationAsViewed(notification.id);
+            const v = props.markSingleNotificationAsViewed(
+              notification.id,
+              notification.isLinkable
+            );
           }}
         >
           {htmlContent}
         </Link>
       ) : (
         <>
-          <div>{htmlContent}</div>
+          <div
+            className={classes.hyperlink}
+            onClick={() => {
+              props.markSingleNotificationAsViewed(
+                notification.id,
+                notification.isLinkable
+              );
+            }}
+          >
+            {htmlContent}
+          </div>
         </>
       )}
       <Divider className={classes.divider} />
