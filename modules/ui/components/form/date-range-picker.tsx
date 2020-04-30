@@ -2,115 +2,220 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import Paper from "@material-ui/core/Paper";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import Fade from "@material-ui/core/Fade";
-import Popper from "@material-ui/core/Popper";
 import addMonth from "date-fns/addMonths";
+import addWeeks from "date-fns/addWeeks";
+import addDays from "date-fns/addDays";
+import startOfWeek from "date-fns/startOfWeek";
+import endOfWeek from "date-fns/endOfWeek";
+import startOfMonth from "date-fns/startOfMonth";
+import endOfMonth from "date-fns/endOfMonth";
+import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import { DateInput } from "./date-input";
-import { CustomCalendar as Calendar } from "./custom-calendar";
-import { SelectNew as Select } from "./select-new";
+import { CustomCalendar as Calendar, CustomDate } from "./custom-calendar";
+import { SelectNew as Select, OptionType } from "./select-new";
+
+type DateRange = {
+  start: Date;
+  end: Date;
+};
+
+type PresetRange = OptionType & {
+  range: () => DateRange;
+};
+
+const presetRanges = [
+  {
+    label: "Next week",
+    value: "next-week",
+    range() {
+      const nextWeek = addWeeks(new Date(), 1);
+
+      return {
+        start: startOfWeek(nextWeek),
+        end: endOfWeek(nextWeek),
+      };
+    },
+  },
+  {
+    label: "Last week",
+    value: "last-week",
+    range() {
+      const lastWeek = addWeeks(new Date(), -1);
+
+      return {
+        start: startOfWeek(lastWeek),
+        end: endOfWeek(lastWeek),
+      };
+    },
+  },
+  {
+    label: "Last 90 days",
+    value: "last-90-days",
+    range() {
+      const today = new Date();
+
+      return {
+        start: addDays(today, -89),
+        end: today,
+      };
+    },
+  },
+  {
+    label: "This month",
+    value: "this-month",
+    range() {
+      const today = new Date();
+
+      return {
+        start: startOfMonth(today),
+        end: endOfMonth(today),
+      };
+    },
+  },
+];
 
 export const DateRangePicker = () => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const [month, setMonth] = React.useState(new Date());
-  const [showPopover, setShowPopover] = React.useState(true);
-
-  const buttonRef = React.useRef(document.createElement("button"));
+  const [startMonth, setStartMonth] = React.useState(new Date());
+  const [customDates, setCustomDates] = React.useState<CustomDate[]>([]);
+  const [startDateInput, setStartDateInput] = React.useState<
+    Date | string | undefined
+  >();
+  const [endDateInput, setEndDateInput] = React.useState<
+    Date | string | undefined
+  >();
+  const [selectedPreset, setSelectedPreset] = React.useState<
+    PresetRange | undefined
+  >();
 
   const handleMonthChange = (month: Date) => {
-    setMonth(month);
+    setStartMonth(month);
+  };
+
+  const setRange = ({ start, end }: DateRange) => {
+    const newCustomDates = eachDayOfInterval({ start, end }).map(date => {
+      return {
+        date,
+        buttonProps: {
+          style: {
+            background: "red",
+          },
+        },
+      };
+    });
+
+    /*
+      TODO:
+
+      Right now, this assumes that we want the end of date the range to be in
+      the month on the right side. That's not necessarily the case if the range
+      is only a month long. It should probably set it according to which side it's closest
+      to. For example, if the range is set the a month previous to what's visible, set it
+      on the left, etc.
+    */
+    setStartMonth(addMonth(end, -1));
+
+    setCustomDates(newCustomDates);
+
+    setStartDateInput(start);
+    setEndDateInput(end);
+  };
+
+  const handleStartDateInputChange = (start: Date) => {
+    const end = customDates[customDates.length - 1]?.date ?? start;
+
+    setRange({ start, end });
+  };
+
+  const handlePresetChange = (selection: OptionType) => {
+    // Reset
+    if (!selection || selection.label === "-") {
+      return setCustomDates([]);
+    }
+
+    const presetRange = selection as PresetRange;
+
+    const { start, end } = presetRange.range();
+
+    setSelectedPreset(presetRange);
+    setRange({ start, end });
   };
 
   return (
-    <>
-      <button ref={buttonRef} onClick={() => setShowPopover(!showPopover)}>
-        Open
-      </button>
-      <Popper
-        transition
-        anchorEl={buttonRef.current}
-        open={showPopover}
-        placement="bottom-start"
-      >
-        {({ TransitionProps }) => (
-          <Fade {...TransitionProps} timeout={150}>
-            <div>
-              <ClickAwayListener
-                mouseEvent="onMouseDown"
-                onClickAway={() => setShowPopover(false)}
-              >
-                <Paper className={classes.popoverContainer} elevation={0}>
-                  <div className={classes.dateRangeSelectContainer}>
-                    <Select
-                      options={[]}
-                      label={t("Date Range")}
-                      multiple={false}
-                    />
-                  </div>
-                  <div className={classes.dateInputContainer}>
-                    <DateInput
-                      className={classes.startDateInput}
-                      onChange={(date: string) => {}}
-                      onValidDate={(date: Date) => {}}
-                      label={t("From")}
-                    />
+    <div className={classes.container}>
+      <div className={classes.dateRangeSelectContainer}>
+        <Select
+          value={selectedPreset}
+          options={presetRanges}
+          label={t("Date Range")}
+          multiple={false}
+          onChange={handlePresetChange}
+        />
+      </div>
+      <div className={classes.dateInputContainer}>
+        <DateInput
+          value={startDateInput}
+          className={classes.startDateInput}
+          onChange={setStartDateInput}
+          onValidDate={handleStartDateInputChange}
+          label={t("From")}
+        />
 
-                    <DateInput
-                      className={classes.endDateInput}
-                      onChange={(date: string) => {}}
-                      onValidDate={(date: Date) => {}}
-                      label={t("To")}
-                    />
-                  </div>
-
-                  <div className={classes.calendarsContaienr}>
-                    <div className={classes.startCalender}>
-                      <Calendar
-                        contained={false}
-                        month={month}
-                        variant="month"
-                        previousMonthNavigation
-                        onMonthChange={handleMonthChange}
-                      />
-                    </div>
-                    <div className={classes.endCalendar}>
-                      <Calendar
-                        contained={false}
-                        month={addMonth(month, 1)}
-                        variant="month"
-                        nextMonthNavigation
-                        onMonthChange={handleMonthChange}
-                      />
-                    </div>
-                  </div>
-                  <div className={classes.actions}>
-                    <div className={classes.cancelButton}>
-                      <Button variant="outlined">Cancel</Button>
-                    </div>
-                    <div>
-                      <Button variant="contained">Apply</Button>
-                    </div>
-                  </div>
-                </Paper>
-              </ClickAwayListener>
-            </div>
-          </Fade>
-        )}
-      </Popper>
-    </>
+        <DateInput
+          value={endDateInput}
+          className={classes.endDateInput}
+          onChange={setEndDateInput}
+          onValidDate={(date: Date) => {}}
+          label={t("To")}
+        />
+      </div>
+      <div className={classes.calendarsContaienr}>
+        <div className={classes.startCalender}>
+          <Calendar
+            contained={false}
+            month={startMonth}
+            variant="month"
+            previousMonthNavigation
+            onMonthChange={handleMonthChange}
+            customDates={customDates}
+          />
+        </div>
+        <div className={classes.endCalendar}>
+          <Calendar
+            contained={false}
+            month={addMonth(startMonth, 1)}
+            variant="month"
+            nextMonthNavigation
+            onMonthChange={(month: Date) => {
+              // This would force the months to jump by 2 because it's the calendar
+              // on the right side. So, the code makes sure it only moves forward by
+              // 1 month
+              handleMonthChange(addMonth(month, -1));
+            }}
+            customDates={customDates}
+          />
+        </div>
+      </div>
+      <div className={classes.actions}>
+        <div className={classes.cancelButton}>
+          <Button variant="outlined">Cancel</Button>
+        </div>
+        <div>
+          <Button variant="contained">Apply</Button>
+        </div>
+      </div>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  popoverContainer: {
+  container: {
     background: theme.customColors.white,
-    boxShadow:
-      "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24);",
-    padding: theme.spacing(2),
-    width: "700px", // TODO: need to make this work on mobile too
+    border: `1px solid ${theme.customColors.edluminSubText}`,
+    borderRadius: theme.typography.pxToRem(4),
+    padding: theme.spacing(3),
   },
   dateRangeSelectContainer: {
     paddingBottom: theme.spacing(1.5),

@@ -18,15 +18,17 @@ import startOfWeek from "date-fns/startOfWeek";
 import { inDateInterval, sortDates } from "helpers/date";
 import * as React from "react";
 
+export type CustomDate = {
+  date: Date;
+  buttonProps: ButtonProps;
+};
+
 type CustomCalendarProps = {
   contained?: boolean;
   style?: React.CSSProperties;
   onSelectDates?: (dates: Array<Date>) => void;
   month?: Date;
-  customDates?: Array<{
-    date: Date;
-    buttonProps: ButtonProps;
-  }>;
+  customDates?: CustomDate[];
   variant?: "weeks" | "month";
   onMonthChange?: (date: Date) => void;
   previousMonthNavigation?: boolean;
