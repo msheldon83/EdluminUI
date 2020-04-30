@@ -184,7 +184,7 @@ const dataCellRenderer = (
   { columnIndex, key, rowIndex, style }: GridCellProps,
   classes: any
 ) => {
-  const dataValue = data[columnIndex];
+  const dataValue = data[columnIndex] ?? "--";
   const isAlternatingRow = dataRowIndex % 2 !== 0;
   const isNormalRow = !isAlternatingRow;
 

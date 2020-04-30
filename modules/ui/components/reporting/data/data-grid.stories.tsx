@@ -262,4 +262,8 @@ const query: Query = {
   ],
   orderBy: [],
   subtotalBy: [],
+  schema: {
+    name: "test",
+    allFields: [],
+  },
 };

@@ -28,7 +28,33 @@ export type Query = {
   selects: DataExpression[];
   orderBy: OrderByField[];
   subtotalBy: SubtotalField[];
+  schema: {
+    name: string;
+    allFields: DataSourceField[];
+  };
 };
+
+export type DataSourceField = {
+  friendlyName: string;
+  dataSourceFieldName: string;
+  isRequiredFilter: boolean;
+  filterType?: FilterType;
+  filterTypeDefinition?: {
+    key: string;
+    filterDataSourceFieldName: string;
+  };
+};
+
+export enum FilterType {
+  String = 0,
+  Number = 1,
+  Decimal = 2,
+  Date = 3,
+  Time = 4,
+  DateTime = 5,
+  Boolean = 6,
+  Custom = 7,
+}
 
 export type DataExpression = {
   displayName: string;

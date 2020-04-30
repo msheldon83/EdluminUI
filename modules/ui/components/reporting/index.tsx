@@ -10,12 +10,12 @@ import { FilterBar } from "./filters/filter-bar";
 type Props = {
   input: ReportDefinitionInput;
   orgIds: string[];
-  filterKeysOverride?: string[];
+  filterFieldsOverride?: string[];
 };
 
 export const Report: React.FC<Props> = props => {
   const [report, setReport] = React.useState<ReportDefinition>();
-  const { input, orgIds, filterKeysOverride } = props;
+  const { input, orgIds, filterFieldsOverride } = props;
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
@@ -45,7 +45,7 @@ export const Report: React.FC<Props> = props => {
         <>
           <FilterBar
             reportDefinition={report}
-            filterKeysOverride={filterKeysOverride}
+            filterFieldsOverride={filterFieldsOverride}
           />
           <DataGrid reportDefinition={report} />
         </>

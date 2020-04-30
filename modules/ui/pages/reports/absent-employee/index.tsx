@@ -41,7 +41,7 @@ export const AbsentEmployeeReport: React.FC<{}> = () => {
     ],
   };
 
-  const filterKeysOverride = [
+  const filterFieldsOverride = [
     "Date",
     "LocationId",
     "AbsenceReasonId",
@@ -58,7 +58,7 @@ export const AbsentEmployeeReport: React.FC<{}> = () => {
       <Report
         input={reportInput}
         orgIds={[organizationId?.toString() ?? ""]}
-        filterKeysOverride={filterKeysOverride}
+        filterFieldsOverride={filterFieldsOverride}
       />
     </>
   );
