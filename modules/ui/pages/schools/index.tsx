@@ -10,7 +10,8 @@ import { LocationsUI } from "./ui";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, DataImportType } from "graphql/server-types.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
 
 type Props = {};
 
@@ -30,7 +31,9 @@ export const Locations: React.FC<Props> = props => {
         spacing={2}
         className={classes.header}
       >
-        <PageTitle title={t("Schools")} />
+        <Grid item>
+          <PageTitle title={t("Schools")} />
+        </Grid>
         <Can do={[PermissionEnum.LocationSave]}>
           <Grid item>
             <Button
@@ -40,6 +43,12 @@ export const Locations: React.FC<Props> = props => {
             >
               {t("Add School")}
             </Button>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.Location}
+              label={t("Import schools")}
+              className={classes.importButton}
+            />
           </Grid>
         </Can>
       </Grid>
@@ -62,5 +71,8 @@ export const Locations: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
+  },
+  importButton: {
+    marginLeft: theme.spacing(1),
   },
 }));

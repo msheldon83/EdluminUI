@@ -11,6 +11,7 @@ import {
   EndorsementCreateInput,
   EndorsementUpdateInput,
   PermissionEnum,
+  DataImportType,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -22,6 +23,8 @@ import { GetAllReplacementEndorsementsWithinOrg } from "./graphql/get-replacemen
 import { useRouteParams } from "ui/routes/definition";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { GetEndorsementsDocument } from "reference-data/get-endorsements.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -198,6 +201,15 @@ export const ReplacementAttribute: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("Replacement Attributes")} />
         </Grid>
+        <Can do={[PermissionEnum.AbsVacSettingsSave]}>
+          <Grid item>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.Endorsement}
+              label={t("Import attributes")}
+            />
+          </Grid>
+        </Can>
       </Grid>
       <EditableTable
         title={`${replacementEndorsementsCount} ${t("Replacement Attributes")}`}

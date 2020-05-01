@@ -23,10 +23,12 @@ import { ShowErrors } from "ui/components/error-helpers";
 import {
   AbsenceReasonBalanceCreateInput,
   AbsenceReasonBalanceUpdateInput,
+  DataImportType,
 } from "graphql/server-types.gen";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { compact } from "lodash-es";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
 
 export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
@@ -144,12 +146,21 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
         params={params}
       />
       <Section>
-        <div className={classes.schoolYearSelect}>
-          <SchoolYearSelect
-            orgId={params.organizationId}
-            selectedSchoolYearId={schoolYearId}
-            setSelectedSchoolYearId={setSchoolYearId}
-          />
+        <div className={classes.filterRow}>
+          <div className={classes.schoolYearSelect}>
+            <SchoolYearSelect
+              orgId={params.organizationId}
+              selectedSchoolYearId={schoolYearId}
+              setSelectedSchoolYearId={setSchoolYearId}
+            />
+          </div>
+          <div>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.AbsenceReasonBalance}
+              label={t("Import balances")}
+            />
+          </div>
         </div>
         <div className={classes.tableContainer}>
           <BalanceHeaderRow />
@@ -207,10 +218,16 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
 const useStyles = makeStyles(theme => ({
   schoolYearSelect: {
     width: 200,
-    paddingBottom: theme.spacing(2),
   },
   tableContainer: {
     border: "1px solid #F5F5F5",
     marginBottom: theme.spacing(2),
+  },
+  filterRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    width: "100%",
+    paddingBottom: theme.spacing(2),
   },
 }));
