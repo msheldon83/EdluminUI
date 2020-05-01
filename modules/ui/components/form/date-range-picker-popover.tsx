@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
@@ -15,32 +15,39 @@ export const DateRangePickerPopover = () => {
 
   return (
     <>
-    <button ref={buttonRef} onClick={() => {}/*setShowPopover(!showPopover)*/}>
-      Open
-    </button>
-    <Popper
-      transition
-      anchorEl={buttonRef.current}
-      open={false}
-      placement="bottom-start"
-    >
-      {({ TransitionProps }) => (
-        <Fade {...TransitionProps} timeout={150}>
-          <div>
-            <ClickAwayListener
-              mouseEvent="onMouseDown"
-              onClickAway={() => {/*setShowPopover(false)*/}}
-            >
-              <Paper className={classes.popoverContainer} elevation={0}>
-              </Paper>
-            </ClickAwayListener>
-          </div>
-        </Fade>
-      )}
-    </Popper>
+      <button
+        ref={buttonRef}
+        onClick={() => {} /*setShowPopover(!showPopover)*/}
+      >
+        Open
+      </button>
+      <Popper
+        transition
+        anchorEl={buttonRef.current}
+        open={false}
+        placement="bottom-start"
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={150}>
+            <div>
+              <ClickAwayListener
+                mouseEvent="onMouseDown"
+                onClickAway={() => {
+                  /*setShowPopover(false)*/
+                }}
+              >
+                <Paper
+                  className={classes.popoverContainer}
+                  elevation={0}
+                ></Paper>
+              </ClickAwayListener>
+            </div>
+          </Fade>
+        )}
+      </Popper>
     </>
-  )
-}
+  );
+};
 
 const useStyles = makeStyles(theme => ({
   popoverContainer: {
@@ -50,4 +57,4 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     width: "700px", // TODO: need to make this work on mobile too
   },
-})
+}));
