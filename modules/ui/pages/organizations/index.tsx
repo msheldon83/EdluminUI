@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
-import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
 import { compact } from "lodash-es";
 import { Column } from "material-table";
@@ -19,7 +19,6 @@ import { Link, Redirect, useHistory } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { Table } from "ui/components/table";
 import { AllOrganizations } from "ui/pages/organizations/graphql/AllOrganizations.gen";
-import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
 import { UsersRoute } from "ui/routes/users";
@@ -28,6 +27,12 @@ import { canViewAsSysAdmin } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { OrganizationType } from "graphql/server-types.gen";
 import { Input } from "ui/components/form/input";
+import { FilterQueryParams } from "./helpers/filter-params";
+import {
+  useQueryParamIso,
+  makeQueryIso,
+  PaginationParams,
+} from "hooks/query-params";
 
 type Props = { redirectIfOneOrg?: boolean };
 
@@ -117,34 +122,70 @@ export const OrganizationsPage: React.FC<Props> = props => {
     },
   ];
 
+  const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
+
   const [
     searchText,
     pendingSearchText,
     setPendingSearchText,
-  ] = useDeferredState<string | undefined>(undefined, 200);
+  ] = useDeferredState<string | undefined>(isoFilters.searchText, 200);
+
+  /* Navigating in the browser will update the query params but not
+    the state in the UI. Here we update the pending value if the
+    param changed and disregarding value stored in state to keep them
+    in sync. */
+  React.useEffect(() => {
+    if (searchText !== isoFilters.searchText) {
+      setPendingSearchText(isoFilters.searchText);
+    }
+  }, [isoFilters.searchText]); // eslint-disable-line
+
+  /* As the value changes, update query params */
+  React.useEffect(() => {
+    if (searchText !== isoFilters.searchText) {
+      updateIsoFilters({ searchText });
+    }
+  }, [searchText]); // eslint-disable-line
+
+  const updateNameFilter = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingSearchText(event.target.value);
+    },
+    [setPendingSearchText]
+  );
+
+  const orgPaginationDefaults = makeQueryIso({
+    defaults: {
+      page: "1",
+      limit: "100",
+    },
+    iso: PaginationParams,
+  });
 
   const [getOrganizations, pagination] = usePagedQueryBundle(
     AllOrganizations,
     r => r.organization?.paged?.totalCount,
     {
       variables: {
-        searchText,
+        ...isoFilters,
       },
-      fetchPolicy: "cache-and-network",
-    }
+    },
+    orgPaginationDefaults
   );
 
   const organizations = useMemo(() => {
-    if (getOrganizations.state === "DONE") {
+    if (
+      getOrganizations.state === "DONE" ||
+      getOrganizations.state === "UPDATING"
+    ) {
       return compact(getOrganizations?.data?.organization?.paged?.results);
     }
     return [];
   }, [getOrganizations]);
 
   if (
-    getOrganizations.state !== "DONE" ||
-    !organizations ||
-    organizations.length === 0
+    getOrganizations.state === "LOADING" ||
+    !getOrganizations.data.organization?.paged?.results
   ) {
     return <></>;
   }
@@ -196,13 +237,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
         <Input
           label={t("Search")}
           value={pendingSearchText}
-          onChange={e => {
-            if (!e.target.value) {
-              setPendingSearchText(undefined);
-            } else {
-              setPendingSearchText(e.target.value);
-            }
-          }}
+          onChange={updateNameFilter}
           placeholder={t("Name or Id")}
           fullWidth={true}
         />
