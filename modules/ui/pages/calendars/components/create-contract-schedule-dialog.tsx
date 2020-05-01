@@ -28,7 +28,7 @@ type Props = {
   schoolYear?: {
     startDate: string;
     endDate: string;
-  };
+  } | null;
   orgId: string;
   contract?: {
     id: string;

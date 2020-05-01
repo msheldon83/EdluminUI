@@ -113,6 +113,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
               notesForSubstitute={notes}
               showPayCodes={orgHasPayCodesDefined}
               showAccountingCodes={orgHasAccountingCodesDefined}
+              readOnly={true}
             />
           </Grid>
         </Grid>

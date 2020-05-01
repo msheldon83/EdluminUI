@@ -15,6 +15,7 @@ type Props = {
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   disableActions?: boolean;
   detailsOnly?: boolean;
+  readOnly: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
@@ -42,6 +43,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
         showAbsenceTimes={showAbsenceTimes}
         showPayCodes={showPayCodes}
         showAccountingCodes={showAccountingCodes}
+        readOnly={props.readOnly}
       />
       {!detailsOnly && (
         <>
@@ -67,6 +69,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
               }
               onCancelAssignment={onCancelAssignment}
               disableActions={disableActions}
+              readOnly={props.readOnly}
             />
           )}
         </>
