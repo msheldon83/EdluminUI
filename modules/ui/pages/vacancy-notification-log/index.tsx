@@ -43,10 +43,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
   const subHeader = isNormalVacancy ? (
     vacancy?.position?.title
   ) : (
-    <EmployeeLink
-      orgId={params.organizationId}
-      orgUserId={vacancy?.absence?.employee?.id}
-    >
+    <EmployeeLink orgUserId={vacancy?.absence?.employee?.id}>
       {`${vacancy?.absence?.employee?.firstName} ${vacancy?.absence?.employee?.lastName}`}
     </EmployeeLink>
   );
