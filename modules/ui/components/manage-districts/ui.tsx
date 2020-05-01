@@ -5,21 +5,31 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Organization, Maybe } from "graphql/server-types.gen";
+import { Maybe, OrgUserRelationship } from "graphql/server-types.gen";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
-import { SelectedDistrict } from "./components/selected-district";
+import { SelectedDistrict } from "./components/selected-districts";
 import { SearchDelegatesToOrganizations } from "./graphql/search-related-orgs.gen";
 
 type Props = {
-  relatedOrgs: Maybe<Pick<Organization, "id" | "name" | "orgId">>[];
+  orgUserRelationships: Maybe<
+    Pick<
+      OrgUserRelationship,
+      "otherOrganization" | "orgUserRelationshipAttributes"
+    >
+  >[];
   orgId: string;
   allDistrictAttributes: string[];
+  orgEndorsements: OptionType[];
   onAddOrg: (orgId: string) => Promise<unknown>;
   onRemoveOrg: (orgId: string) => Promise<unknown>;
-  onAddAttribute: (attributeId: string) => Promise<unknown>;
-  onRemoveAttribute: (orgId: string) => Promise<unknown>;
+  onAddEndorsement: (attributeId: string) => Promise<unknown>;
+  onChangeEndorsement: (
+    endorsementId: string,
+    expirationDate: Date
+  ) => Promise<unknown>;
+  onRemoveEndorsement: (orgId: string) => Promise<unknown>;
   isAdmin?: boolean;
 };
 
@@ -28,13 +38,14 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
   const [searchText, setSearchText] = useState<string | undefined>();
 
   const {
-    relatedOrgs,
     allDistrictAttributes,
     isAdmin,
     onAddOrg,
     onRemoveOrg,
-    onAddAttribute,
-    onRemoveAttribute,
+    onAddEndorsement,
+    onChangeEndorsement,
+    onRemoveEndorsement,
+    orgUserRelationships,
   } = props;
 
   const getDistricts = useQueryBundle(SearchDelegatesToOrganizations, {
@@ -87,10 +98,11 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
       )}
       <Grid item xs={12}>
         <SelectedDistrict
-          relatedOrgs={relatedOrgs}
+          onChangeEndorsement={onChangeEndorsement}
+          orgUserRelationships={orgUserRelationships}
           onRemoveOrg={onRemoveOrg}
-          onAddAttribute={onAddAttribute}
-          onRemoveAttribute={onRemoveAttribute}
+          onAddEndorsement={onAddEndorsement}
+          onRemoveEndorsement={onRemoveEndorsement}
         />
       </Grid>
     </Grid>

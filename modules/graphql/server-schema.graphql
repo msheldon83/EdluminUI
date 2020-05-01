@@ -186,12 +186,15 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   employeeId: ID!
   schoolYearId: ID!
   schoolYear: SchoolYear
-  absenceReasonId: ID!
+  absenceReasonId: ID
   absenceReason: AbsenceReason
+  absenceReasonCategoryId: ID
+  absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
   usedBalance: Decimal!
   unusedBalance: Decimal!
+  netBalance: Decimal!
   plannedBalance: Decimal
 }
 
@@ -200,6 +203,7 @@ input AbsenceReasonBalanceCreateInput {
   employeeId: ID
   schoolYearId: ID
   absenceReasonId: ID
+  absenceReasonCategoryId: ID
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
@@ -220,6 +224,7 @@ input AbsenceReasonBalanceUpdateInput {
   rowVersion: String!
   schoolYearId: ID
   absenceReasonId: ID
+  absenceReasonCategoryId: ID
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
@@ -1389,6 +1394,7 @@ enum DataImportStatus {
   IMPORTED
   PERMANENT_FAILURE
   QUEUED_FOR_PROCESSING
+  PARSED
 }
 
 enum DataImportType {
@@ -1578,7 +1584,7 @@ type EmployeeDr {
   countryId: CountryCode
 }
 
-type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
+type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface & EmployeeEndorsementInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -1591,8 +1597,8 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   employeeId: ID!
-  expirationDate: Date
   endorsementId: ID!
+  expirationDate: Date
   endorsement: Endorsement!
 }
 
@@ -1601,6 +1607,12 @@ input EmployeeEndorsementInput {
   employeeId: ID!
   endorsementId: ID!
   expirationDate: Date
+}
+
+interface EmployeeEndorsementInterface {
+  endorsementId: ID!
+  expirationDate: Date
+  endorsement: Endorsement!
 }
 
 input EmployeeInput {
@@ -2904,8 +2916,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   permissionSets: [PermissionSet]
   permissionSetIds: [ID]
   relatedOrgIds: [ID]
-  orgUserRelationships: [OrgUserRelationship]
-  relatedOrganizations: [Organization]
+  relatedOrganizations: [OrgUserRelationship]
   isShadowRecord: Boolean!
   shadowFromOrgId: ID
   shadowFromOrgName: String
@@ -2986,14 +2997,14 @@ type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
   orgUserId: ID!
   otherOrganizationId: ID!
   otherOrganization: [BasicOrganization]
-  orgUserRelationshipAttributes: [OrgUserRelationshipAttribute]
+  attributes: [OrgUserRelationshipAttribute]
 }
 
-type OrgUserRelationshipAttribute {
+type OrgUserRelationshipAttribute implements EmployeeEndorsementInterface {
   _info: [ReturnMessage]
   endorsementId: ID!
   expires: DateTime
-  name: String
+  endorsement: Endorsement!
 }
 
 enum OrgUserRole {

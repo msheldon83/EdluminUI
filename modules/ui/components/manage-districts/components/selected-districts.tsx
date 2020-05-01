@@ -6,17 +6,24 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Organization, Maybe } from "graphql/server-types.gen";
-import clsx from "clsx";
-import { OptionType } from "ui/components/form/select-new";
-import { useQueryBundle } from "graphql/hooks";
+import { Maybe, OrgUserRelationship } from "graphql/server-types.gen";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
+import { DistrictDetail } from "./district-detail";
 
 type Props = {
-  relatedOrgs: Maybe<Pick<Organization, "id" | "name" | "orgId">>[];
+  orgUserRelationships: Maybe<
+    Pick<
+      OrgUserRelationship,
+      "otherOrganization" | "orgUserRelationshipAttributes"
+    >
+  >[];
   onRemoveOrg: (orgId: string) => Promise<unknown>;
-  onAddAttribute: (attributeId: string) => Promise<unknown>;
-  onRemoveAttribute: (orgId: string) => Promise<unknown>;
+  onAddEndorsement: (endorsementId: string) => Promise<unknown>;
+  onRemoveEndorsement: (endorsementId: string) => Promise<unknown>;
+  onChangeEndorsement: (
+    endorsementId: string,
+    expirationDate: Date
+  ) => Promise<unknown>;
 };
 
 export const SelectedDistrict: React.FC<Props> = props => {
@@ -24,7 +31,13 @@ export const SelectedDistrict: React.FC<Props> = props => {
   const { t } = useTranslation();
   const [searchText, setSearchText] = useState<string | undefined>();
 
-  const { relatedOrgs, onRemoveOrg, onRemoveAttribute, onAddAttribute } = props;
+  const {
+    orgUserRelationships,
+    onRemoveOrg,
+    onChangeEndorsement,
+    onRemoveEndorsement,
+    onAddEndorsement,
+  } = props;
 
   return (
     <Section>
@@ -37,30 +50,42 @@ export const SelectedDistrict: React.FC<Props> = props => {
       </Grid>
       <Grid item xs={4} container className={classes.inline}></Grid>
       <Divider />
-      {relatedOrgs.length === 0 ? (
+      {orgUserRelationships.length === 0 ? (
         <div>{t("No selected districts")}</div>
       ) : (
-        relatedOrgs?.map((n, i) => (
+        orgUserRelationships?.map((n, i) => (
           <div key={i}>
             <Grid item xs={12}>
               <Grid item xs={4} container className={classes.inline}>
-                {n?.name}
+                {n?.otherOrganization?.[i]?.name}
               </Grid>
               <Grid item xs={4} container className={classes.inline}>
                 <AutoCompleteSearch
                   searchText={searchText}
-                  onClick={onAddAttribute}
+                  onClick={onAddEndorsement}
                   options={}
                   setSearchText={setSearchText}
                   placeholder={t("search")}
                   useLabel={false}
                 />
-                {/* For Reach on all attributes */}
+                {n?.orgUserRelationshipAttributes?.length === 0 ? (
+                  <div>{t("Search attributes to add")}</div>
+                ) : (
+                  n?.orgUserRelationshipAttributes?.map((endorsement, j) => (
+                    <DistrictDetail
+                      onChangeEndorsement={onChangeEndorsement}
+                      onRemoveEndorsement={onRemoveEndorsement}
+                      endorsement={endorsement}
+                    />
+                  ))
+                )}
               </Grid>
               <Grid item xs={4} container className={classes.inline}>
                 <TextButton
                   className={classes.floatRight}
-                  onClick={() => onRemoveOrg(n?.id ?? "")}
+                  onClick={() =>
+                    onRemoveOrg(n?.otherOrganization?.[i]?.id ?? "")
+                  }
                 >
                   {t("Remove")}
                 </TextButton>
