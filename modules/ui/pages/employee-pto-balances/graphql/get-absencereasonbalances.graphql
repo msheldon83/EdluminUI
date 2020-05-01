@@ -11,6 +11,12 @@ query GetAbsenceReasonBalances($employeeId: ID!, $schoolYearId: ID) {
         name
         absenceReasonTrackingTypeId
         allowNegativeBalance
+        category {
+          id
+          name
+          absenceReasonTrackingTypeId
+          allowNegativeBalance
+        }
       }
       absenceReasonCategoryId
       absenceReasonCategory {
@@ -23,6 +29,7 @@ query GetAbsenceReasonBalances($employeeId: ID!, $schoolYearId: ID) {
       usedBalance
       unusedBalance
       plannedBalance
+      netBalance
       balanceAsOf
     }
   }
