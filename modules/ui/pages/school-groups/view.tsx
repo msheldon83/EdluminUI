@@ -103,7 +103,7 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
   return (
     <div>
       <Link to={LocationGroupsRoute.generate(params)} className={classes.link}>
-        Return to school groups
+        {t("Return to school groups")}
       </Link>
       <PageHeader
         text={locationGroup.name}
@@ -217,7 +217,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   link: {
-    padding: "8px",
+    padding: theme.spacing(1),
     color: theme.customColors.blue,
     textDecoration: "none",
     "&:hover": {

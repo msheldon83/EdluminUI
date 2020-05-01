@@ -112,7 +112,7 @@ export const LocationViewPage: React.FC<{}> = props => {
   return (
     <div>
       <Link to={LocationsRoute.generate(params)} className={classes.link}>
-        Return to schools
+        {t("Return to schools")}
       </Link>
       <PageHeader
         text={location.name}
@@ -218,7 +218,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   link: {
-    padding: "8px",
+    padding: theme.spacing(1),
     color: theme.customColors.blue,
     textDecoration: "none",
     "&:hover": {
