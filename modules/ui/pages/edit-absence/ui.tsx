@@ -266,6 +266,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
 
   const useProjectedInformation =
     customizedVacancyDetails !== undefined ||
+    !isEqual(formValues.absenceReason, props.absenceReason.id) ||
     !isEqual(state.absenceDates, props.absenceDates) ||
     formValues.dayPart !== props.dayPart ||
     state.needsReplacement !== props.initialVacancies.length > 0;
