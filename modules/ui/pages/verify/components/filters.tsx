@@ -51,7 +51,7 @@ export const Filters: React.FC<Props> = props => {
             setSelectedLocationIds={onChangeLocations}
           />
         </Grid>
-        {subSources.length > 1 && (
+        {subSources.length > 0 && (
           <Grid item xs={12} sm={6} md={3} lg={3}>
             <OrgRelationshipSelect
               orgId={props.orgId}
