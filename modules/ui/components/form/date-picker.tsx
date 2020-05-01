@@ -82,7 +82,7 @@ export const DatePicker = (props: DatePickerProps) => {
 
   const showCalendarOnFocus = variant === "single-hidden";
 
-  // Calculate width of input for calendar width
+  // Calculate width of input for calendar width for use with single-hidden variant
   const startDateInputRef = React.useRef(document.createElement("div"));
   React.useLayoutEffect(() => {
     if (showCalendarOnFocus) {
@@ -346,9 +346,9 @@ export const DatePicker = (props: DatePickerProps) => {
     }
   };
 
-  return (
-    <div className={classes.datePickerWrapper}>
-      <div className={classes.keyboardInputWrapper}>
+  const renderInputs = () => {
+    return (
+      <>
         <div className={classes.startDateInput} style={startDateStyle()}>
           <DateInput
             label={startLabel || ""}
@@ -374,7 +374,13 @@ export const DatePicker = (props: DatePickerProps) => {
           />
         </div>
         {renderEndDate()}
-      </div>
+      </>
+    );
+  };
+
+  return (
+    <div className={classes.datePickerWrapper}>
+      <div className={classes.keyboardInputWrapper}>{renderInputs()}</div>
       {showCalendar && showCalendar.render()}
     </div>
   );
