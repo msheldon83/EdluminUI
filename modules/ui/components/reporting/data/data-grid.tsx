@@ -24,6 +24,7 @@ import { calculateColumnWidth, calculateRowHeight } from "../helpers";
 
 type Props = {
   reportDefinition: ReportDefinition;
+  setOrderBy: (field: OrderByField) => void;
 };
 
 export const DataGrid: React.FC<Props> = props => {
@@ -31,6 +32,7 @@ export const DataGrid: React.FC<Props> = props => {
   const classes = useStyles();
   const [groupedData, setGroupedData] = React.useState<GroupedData[]>([]);
   const {
+    setOrderBy,
     reportDefinition: { data: reportData, metadata },
   } = props;
 
@@ -83,6 +85,7 @@ export const DataGrid: React.FC<Props> = props => {
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(params, isGrouped)
                   }
+                  setOrderBy={setOrderBy}
                 />
               </div>
               <div>

@@ -1,11 +1,12 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { ReportDefinition, ReportDefinitionInput, Direction } from "./types";
+import { ReportDefinitionInput, Direction, OrderByField, DataSourceField } from "./types";
 import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
 import { LoadingDataGrid } from "./data/loading-data-grid";
-import { FilterBar } from "./filters/filter-bar";
+import { reportReducer } from "./state";
+import { ActionBar } from "./actions/action-bar";
 
 type Props = {
   input: ReportDefinitionInput;
@@ -14,8 +15,8 @@ type Props = {
 };
 
 export const Report: React.FC<Props> = props => {
-  const [report, setReport] = React.useState<ReportDefinition>();
   const { input, orgIds, filterFieldsOverride } = props;
+  const [state, dispatch] = React.useReducer(reportReducer, { filters: [] });
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
@@ -33,21 +34,42 @@ export const Report: React.FC<Props> = props => {
 
   React.useEffect(() => {
     if (reportResponse.state === "DONE") {
-      setReport(reportResponse.data.report);
+      dispatch({
+        action: "setReportDefinition",
+        reportDefinition: reportResponse.data.report,
+        filterFieldsOverride
+      });
     }
   }, [reportResponse.state]);
 
+  const setFilterValue = React.useCallback(
+    (field: DataSourceField, value: any) => {
+      dispatch({ action: "setFilter", field, value });
+    },
+    [dispatch]
+  );
+
+  const setOrderBy = React.useCallback(
+    (field: OrderByField) => {
+      dispatch({ action: "setOrderBy", field });
+    },
+    [dispatch]
+  );
+
   return (
     <AppConfig contentWidth="100%">
-      {!report ? (
+      {!state.reportDefinition ? (
         <LoadingDataGrid />
       ) : (
         <>
-          <FilterBar
-            reportDefinition={report}
-            filterFieldsOverride={filterFieldsOverride}
+          <ActionBar
+            filterFields={state.filters} 
+            setFilterValue={setFilterValue}
           />
-          <DataGrid reportDefinition={report} />
+          <DataGrid
+            reportDefinition={state.reportDefinition}
+            setOrderBy={setOrderBy}
+          />
         </>
       )}
     </AppConfig>

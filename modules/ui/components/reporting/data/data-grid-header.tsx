@@ -3,6 +3,7 @@ import { makeStyles, Menu, MenuItem } from "@material-ui/core";
 import { ArrowDropDown } from "@material-ui/icons";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
+import { OrderByField } from "../types";
 
 type Props = {
   columns: string[];
@@ -11,6 +12,7 @@ type Props = {
   numberOfLockedColumns?: number;
   onScroll?: MultiGridProps["onScroll"];
   scrollLeft?: MultiGridProps["scrollLeft"];
+  setOrderBy?: (field: OrderByField) => void;
 };
 
 export const DataGridHeader: React.FC<Props> = props => {

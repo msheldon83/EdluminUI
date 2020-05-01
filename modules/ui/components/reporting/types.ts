@@ -42,7 +42,7 @@ export type DataSourceField = {
   filterTypeDefinition?: {
     key: string;
     filterDataSourceFieldName: string;
-  };
+  }[];
 };
 
 export enum FilterType {
