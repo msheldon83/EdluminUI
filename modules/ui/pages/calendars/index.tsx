@@ -30,7 +30,6 @@ import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
 import { CreateExpansionPanel } from "./components/create-expansion-panel";
 import { CalendarView } from "./components/calendar-view";
 import { StickyHeader } from "./components/sticky-header";
-
 import {
   CalendarListViewRoute,
   CalendarCalendarViewRoute,

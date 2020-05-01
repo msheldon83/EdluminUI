@@ -1,0 +1,5 @@
+mutation DeleteContract($contractId: ID!) {
+  contract {
+    delete(contractId: $contractId)
+  }
+}
