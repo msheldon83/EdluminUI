@@ -139,6 +139,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     getListboxProps,
     getOptionProps,
     groupedOptions,
+    inputValue,
   } = useAutocomplete({
     id: `${label}-${Date.now()}`,
     getOptionSelected,
@@ -202,6 +203,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
         <div className={classes.dropdownContainer}>
           <Input
             {...autocompleteInputProps}
+            value={value === undefined ? "" : inputValue}
             inputRef={inputRef}
             disabled={disabled}
             label={label}
@@ -363,7 +365,7 @@ const useStyles = makeStyles(theme => ({
     lineHeight: theme.typography.pxToRem(32),
     listStyle: "none",
     margin: 0,
-    maxHeight: 200,
+    maxHeight: "200px",
     overflow: "auto",
     padding: 0,
     paddingBottom: theme.spacing(1.5),

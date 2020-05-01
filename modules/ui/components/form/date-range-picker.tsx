@@ -23,22 +23,87 @@ type PresetRange = OptionType & {
   range: () => DateRange;
 };
 
-export const DateRangePicker = () => {
-  const classes = useStyles();
+const usePresetRanges = () => {
   const { t } = useTranslation();
 
   // TODO: these will probably be be imported and allow the parent of the component
   // to add its own
-  const presetRanges = [
+  return [
+    /*
     {
-      label: t("Next week"),
-      value: "next-week",
+      label: t(''),
+      value: '',
       range() {
-        const nextWeek = addWeeks(new Date(), 1);
+        const start = new Date()
+        const end = new Date()
 
         return {
-          start: startOfWeek(nextWeek),
-          end: endOfWeek(nextWeek),
+          start,
+          end
+        }
+      }
+    },
+    */
+    {
+      label: t("Today"),
+      value: "today",
+      range() {
+        const start = new Date();
+        const end = new Date();
+
+        return {
+          start,
+          end,
+        };
+      },
+    },
+    {
+      label: t("This week"),
+      value: "this-week",
+      range() {
+        const today = new Date();
+
+        return {
+          start: startOfWeek(today),
+          end: endOfWeek(today),
+        };
+      },
+    },
+    {
+      label: t("This month"),
+      value: "this-month",
+      range() {
+        const today = new Date();
+
+        return {
+          start: startOfMonth(today),
+          end: endOfMonth(today),
+        };
+      },
+    },
+    // TODO:
+    {
+      label: t("This school year"),
+      value: "this-school-year",
+      range() {
+        // TODO: 7/1 - 6/30
+        const today = new Date();
+
+        return {
+          start: new Date(),
+          end: new Date(),
+        };
+      },
+    },
+    {
+      label: t("Yesterday"),
+      value: "yesterday",
+      range() {
+        const yesterday = addDays(new Date(), -1);
+
+        return {
+          start: yesterday,
+          end: yesterday,
         };
       },
     },
@@ -55,30 +120,74 @@ export const DateRangePicker = () => {
       },
     },
     {
-      label: t("Last 90 days"),
-      value: "last-90-days",
+      label: t("Last month"),
+      value: "last-month",
       range() {
-        const today = new Date();
+        const lastMonth = addMonth(new Date(), -1);
 
         return {
-          start: addDays(today, -89),
-          end: today,
+          start: startOfMonth(lastMonth),
+          end: endOfMonth(lastMonth),
+        };
+      },
+    },
+    // TODO: HOW?
+    // {
+    //   label: t("Last school year"),
+    //   value: "last-school-year",
+    //   range() {
+    //     const lastMonth = addMonth(new Date(), -1);
+
+    //     return {
+    //       start: startOfMonth(lastMonth),
+    //       end: endOfMonth(lastMonth),
+    //     };
+    //   },
+    // },
+    {
+      label: t("Tomorrow"),
+      value: "tomorrow",
+      range() {
+        const tomorrow = addDays(new Date(), 1);
+
+        return {
+          start: tomorrow,
+          end: tomorrow,
         };
       },
     },
     {
-      label: t("This month"),
-      value: "this-month",
+      label: t("Next week"),
+      value: "next-week",
       range() {
-        const today = new Date();
+        const nextWeek = addWeeks(new Date(), 1);
 
         return {
-          start: startOfMonth(today),
-          end: endOfMonth(today),
+          start: startOfWeek(nextWeek),
+          end: endOfWeek(nextWeek),
+        };
+      },
+    },
+    {
+      label: t("Next month"),
+      value: "next-month",
+      range() {
+        const nextMonth = addMonth(new Date(), 1);
+
+        return {
+          start: startOfMonth(nextMonth),
+          end: endOfMonth(nextMonth),
         };
       },
     },
   ];
+};
+
+export const DateRangePicker = () => {
+  const classes = useStyles();
+  const { t } = useTranslation();
+
+  const presetRanges = usePresetRanges();
 
   const [startMonth, setStartMonth] = React.useState(new Date());
   const [customDates, setCustomDates] = React.useState<CustomDate[]>([]);
@@ -92,9 +201,9 @@ export const DateRangePicker = () => {
     PresetRange | undefined
   >();
 
-  const handleMonthChange = (month: Date) => {
-    setStartMonth(month);
-  };
+  const resetSelectedPreset = () => setSelectedPreset(undefined);
+
+  const handleMonthChange = (month: Date) => setStartMonth(month);
 
   const setRange = ({ start, end }: DateRange) => {
     const newCustomDates = eachDayOfInterval({ start, end }).map(date => {
@@ -129,12 +238,14 @@ export const DateRangePicker = () => {
     const end = customDates[customDates.length - 1]?.date ?? start;
 
     setRange({ start, end });
+    resetSelectedPreset();
   };
 
   const handleEndDateInputChange = (end: Date) => {
     const start = customDates[0]?.date ?? end;
 
     setRange({ start, end });
+    resetSelectedPreset();
   };
 
   const handlePresetChange = (selection: OptionType) => {
