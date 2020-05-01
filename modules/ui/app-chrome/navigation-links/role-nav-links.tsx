@@ -1,5 +1,7 @@
 import * as React from "react";
+import { Can } from "ui/components/auth/can";
 import { Route, Switch } from "react-router";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import {
   AdminChromeRoute,
@@ -39,6 +41,7 @@ import { LocationsRoute } from "ui/routes/locations";
 import { DataImportRoute } from "ui/routes/data-import";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
 import { AnalyticsReportsDailyReportRoute } from "ui/routes/analytics-reports";
+import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { useIsMobile } from "hooks";
 import {
   AdminMobileSearchRoute,
@@ -143,6 +146,7 @@ export const AdminNavLinks: React.FC<Props> = props => {
   const showOrgs = useIsSystemAdminOrAdminInMultipleOrgs();
   const inOrg = !isNaN(+params.organizationId);
   const isMobile = useIsMobile();
+  const organizationId = params.organizationId;
   return (
     <>
       {inOrg && (
@@ -160,12 +164,22 @@ export const AdminNavLinks: React.FC<Props> = props => {
             route={AdminHomeRoute.generate(params)}
           />
           {/* TODO: For now we'll go directly to Absence Create */}
-          <AbsenceNavLink
-            onClick={props.onClick}
-            navBarExpanded={props.navBarExpanded}
-            route={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
-            orgId={params.organizationId}
-          />
+          <Can not do={[PermissionEnum.AbsVacSave]} orgId={organizationId}>
+            <AbsenceNavLink
+              onClick={props.onClick}
+              navBarExpanded={props.navBarExpanded}
+              route={DailyReportRoute.generate(params)}
+              orgId={params.organizationId}
+            />
+          </Can>
+          <Can do={[PermissionEnum.AbsVacSave]} orgId={organizationId}>
+            <AbsenceNavLink
+              onClick={props.onClick}
+              navBarExpanded={props.navBarExpanded}
+              route={AdminSelectEmployeeForCreateAbsenceRoute.generate(params)}
+              orgId={params.organizationId}
+            />
+          </Can>
           <AnalyticsAndReportsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}

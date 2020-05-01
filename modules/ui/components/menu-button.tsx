@@ -11,6 +11,7 @@ import { useRole } from "core/role-context";
 type Props = {
   options: Array<Option>;
   selectedIndex?: number;
+  variant?: "text" | "outlined" | "contained";
 };
 
 export type Option = {
@@ -30,6 +31,8 @@ export const MenuButton: React.FC<Props> = props => {
     props.selectedIndex ?? 0
   );
 
+  const { options, variant = "contained" } = props;
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -38,7 +41,7 @@ export const MenuButton: React.FC<Props> = props => {
     setAnchorEl(null);
   };
 
-  const filteredOptions = props.options.filter(o => {
+  const filteredOptions = options.filter(o => {
     if (!o.permissions) {
       return true;
     }
@@ -54,17 +57,15 @@ export const MenuButton: React.FC<Props> = props => {
 
   return (
     <div>
-      <ButtonGroup variant="contained" color="primary">
+      <ButtonGroup variant={variant}>
         <Button
-          color="primary"
-          size="small"
           aria-controls={open ? "split-button-menu" : undefined}
           aria-expanded={open ? "true" : undefined}
           aria-label="toggle button"
           aria-haspopup="menu"
-          onClick={props.options[selectedIndex].onClick ?? handleClick}
+          onClick={options[selectedIndex].onClick ?? handleClick}
         >
-          {props.options[selectedIndex].name}
+          {options[selectedIndex].name}
           <ArrowDropDownIcon />
         </Button>
       </ButtonGroup>

@@ -18,12 +18,15 @@ import {
   AccountingCodeCreateInput,
   AccountingCodeUpdateInput,
   PermissionEnum,
+  DataImportType,
 } from "graphql/server-types.gen";
 import * as Yup from "yup";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useLocations } from "reference-data/locations";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { GetAccountingCodesDocument } from "reference-data/get-accounting-codes.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -218,6 +221,15 @@ export const AccountingCode: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("Accounting Codes")} />
         </Grid>
+        <Can do={[PermissionEnum.FinanceSettingsSave]}>
+          <Grid item>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.AccountingCode}
+              label={t("Import accounting codes")}
+            />
+          </Grid>
+        </Can>
       </Grid>
 
       <EditableTable

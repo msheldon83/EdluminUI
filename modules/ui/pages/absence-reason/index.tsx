@@ -23,13 +23,14 @@ import {
   Checkbox,
   Typography,
 } from "@material-ui/core";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, DataImportType } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
 import { GetAllAbsenceReasonCategoriesWithinOrg } from "./graphql/get-absence-reason-categories.gen";
 import { mergeCatgoriesAndReasons } from "./helpers";
 import { GroupedCategory } from "./types";
 import { Check, Minimize } from "@material-ui/icons";
 import { getDisplayName } from "ui/components/enumHelpers";
+import { ImportDataMultiButton } from "ui/components/data-import/import-data-multi-button";
 
 export const AbsenceReason: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -173,20 +174,36 @@ export const AbsenceReason: React.FC<{}> = () => {
     <>
       <Grid
         container
-        alignItems="flex-start"
+        alignItems="center"
         justify="space-between"
         spacing={2}
         className={classes.header}
       >
-        <Grid item xs={8}>
+        <Grid item xs={6}>
           <PageTitle title={t("Absence Reasons")} />
         </Grid>
         <Can do={[PermissionEnum.AbsVacSettingsSave]}>
+          <Grid item xs={2}>
+            <ImportDataMultiButton
+              orgId={params.organizationId}
+              importTypes={[
+                {
+                  importType: DataImportType.AbsenceReason,
+                  label: t("Reasons"),
+                },
+                {
+                  importType: DataImportType.AbsenceReasonCategory,
+                  label: t("Categories"),
+                },
+              ]}
+            />
+          </Grid>
           <Grid item xs={2}>
             <Button
               variant="outlined"
               component={Link}
               to={AbsenceReasonCategoryAddRoute.generate(params)}
+              fullWidth
             >
               {t("Add Category")}
             </Button>
@@ -196,6 +213,7 @@ export const AbsenceReason: React.FC<{}> = () => {
               variant="contained"
               component={Link}
               to={AbsenceReasonAddRoute.generate(params)}
+              fullWidth
             >
               {t("Add Reason")}
             </Button>
@@ -338,5 +356,8 @@ const useStyles = makeStyles(theme => ({
   },
   trackingCol: {
     paddingLeft: theme.typography.pxToRem(3),
+  },
+  importButton: {
+    marginTop: theme.spacing(1),
   },
 }));

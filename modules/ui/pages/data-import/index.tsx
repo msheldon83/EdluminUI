@@ -23,7 +23,7 @@ import { format, addDays } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { ImportFilters } from "./components/import-filters";
 import { DataImportStatus, DataImportType } from "graphql/server-types.gen";
-import { ImportDataForm } from "./components/import-data-form";
+import { ImportDataForm } from "ui/components/data-import/import-data-form";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Section } from "ui/components/section";
 

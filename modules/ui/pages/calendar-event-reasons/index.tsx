@@ -12,6 +12,7 @@ import {
   CalendarChangeReasonCreateInput,
   CalendarChangeReasonUpdateInput,
   PermissionEnum,
+  DataImportType,
 } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -25,6 +26,8 @@ import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import { GetCalendarChangeReasonsDocument } from "reference-data/get-calendar-change-reasons.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { Can } from "ui/components/auth/can";
 
 type Props = {};
 
@@ -214,6 +217,15 @@ export const CalendarChangeReason: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("Calendar Event Reasons")} />
         </Grid>
+        <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+          <Grid item>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.CalendarChangeReason}
+              label={t("Import reasons")}
+            />
+          </Grid>
+        </Can>
       </Grid>
       <EditableTable
         title={`${CalendarChangeReasonsCount} ${t("Calendar Event Reasons")}`}

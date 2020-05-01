@@ -27,10 +27,12 @@ export function useDataImportTypeOptions(
   const dataImportTypes = useDataImportTypes();
 
   return useMemo(() => {
-    const options = dataImportTypes.map(d => ({
-      label: d?.description ?? "",
-      value: d?.enumValue?.toString() ?? "",
-    }));
+    const options = dataImportTypes
+      .map(d => ({
+        label: d?.description ?? "",
+        value: d?.enumValue?.toString() ?? "",
+      }))
+      .sort((a, b) => (a.label > b.label ? 1 : -1));
     if (addAll) options.unshift({ label: t("(All)"), value: "0" });
 
     return options;
