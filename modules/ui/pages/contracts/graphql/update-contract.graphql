@@ -1,0 +1,12 @@
+mutation UpdateContract($contract: ContractUpdateInput!) {
+  contract {
+    update(contract: $contract) {
+      id
+      name
+      rowVersion
+      externalId
+      numberOfDays
+      workDayPatternId
+    }
+  }
+}

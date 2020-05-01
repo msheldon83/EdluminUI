@@ -245,7 +245,7 @@ const buildEnumMap = (t: i18next.TFunction) => {
     },
     {
       name: "dataImportRowStatus.CREATED",
-      displayName: t("Created"),
+      displayName: t("Ready to import"),
     },
     {
       name: "dataImportRowStatus.NOTHING_TO_IMPORT",

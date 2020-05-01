@@ -33,6 +33,7 @@ import { Input } from "ui/components/form/input";
 import { VacancyDetailsFormData } from "../helpers/types";
 import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 import { Can } from "ui/components/auth/can";
+import { LocationLink } from "ui/components/links/locations";
 
 type Props = {
   orgId: string;
@@ -369,9 +370,15 @@ export const VacancyDetailSection: React.FC<Props> = props => {
               <>
                 <Typography variant="h6">{t("Location")}</Typography>
                 <Typography>
-                  {locationOptions.find(
-                    (a: any) => a.value === values.locationId
-                  )?.label || locationOptions[0].label}
+                  <LocationLink
+                    orgId={props.orgId}
+                    locationId={values.locationId}
+                    color="black"
+                  >
+                    {locationOptions.find(
+                      (a: any) => a.value === values.locationId
+                    )?.label || locationOptions[0].label}
+                  </LocationLink>
                 </Typography>
               </>
             )}
