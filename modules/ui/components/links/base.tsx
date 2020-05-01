@@ -5,6 +5,14 @@ import { Link } from "react-router-dom";
 import { Can } from "ui/components/auth/can";
 import { CanDo } from "ui/components/auth/types";
 
+export type LinkOptions = {
+  linkClass?: string;
+  textClass?: string;
+  color?: "blue" | "black";
+  displayText?: boolean;
+  disabled?: boolean;
+};
+
 type Props = {
   permissions: CanDo;
   to: {
@@ -13,11 +21,7 @@ type Props = {
     search: string;
     state?: any;
   };
-  linkClass?: string;
-  textClass?: string;
-  color?: "blue" | "black";
-  displayText?: boolean;
-};
+} & LinkOptions;
 
 // new URL() passes all props as defined, but that causes issues with Link
 // We wrap it to replace undefineds with empty strings.
@@ -38,8 +42,11 @@ export const BaseLink: React.FC<Props> = ({
   textClass = "",
   displayText = true,
   color = "blue",
+  disabled,
 }) => {
   const classes = useStyles();
+  const text = <span className={textClass}>{children}</span>;
+  if (disabled) return text;
   return (
     <>
       <Can do={permissions}>
@@ -57,7 +64,7 @@ export const BaseLink: React.FC<Props> = ({
       </Can>
       {displayText && (
         <Can not do={permissions}>
-          <span className={textClass}>{children}</span>
+          {text}
         </Can>
       )}
     </>

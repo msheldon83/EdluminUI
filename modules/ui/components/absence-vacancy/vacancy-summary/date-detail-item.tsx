@@ -34,15 +34,15 @@ export const DateDetailItem: React.FC<Props> = props => {
         )}
       </div>
       <div className={classes.rightColumn}>
-        {props.readOnly ? (
-          <div>
-            <LocationLink locationId={detail.locationId} color="black">
-              {detail.locationName}
-            </LocationLink>
-          </div>
-        ) : (
-          <div>{detail.locationName}</div>
-        )}
+        <div>
+          <LocationLink
+            locationId={detail.locationId}
+            color="black"
+            disabled={props.readOnly}
+          >
+            {detail.locationName}
+          </LocationLink>
+        </div>
         {showAccountingCodes && (
           <div>
             {`${t("Acct")}: ${accountingCodeDisplayName ?? ""}`}

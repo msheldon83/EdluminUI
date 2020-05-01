@@ -72,15 +72,12 @@ export const AssignedBanner: React.FC<Props> = props => {
           <AccountCircleOutlined fontSize="large" />
           <div className={classes.name}>
             <Typography variant="h6">
-              {props.readOnly ? (
-                <SubstituteLink
-                  orgUserId={assignmentWithDetails.assignment?.employee?.id}
-                >
-                  {employeeName}
-                </SubstituteLink>
-              ) : (
-                employeeName
-              )}
+              <SubstituteLink
+                orgUserId={assignmentWithDetails.assignment?.employee?.id}
+                disabled={props.readOnly}
+              >
+                {employeeName}
+              </SubstituteLink>
             </Typography>
             <div className={classes.subText}>
               {isExistingAssignment ? t("assigned") : t("pre-arranged")}
