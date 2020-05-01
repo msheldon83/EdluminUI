@@ -1,6 +1,11 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { ReportDefinitionInput, Direction, OrderByField, DataSourceField } from "./types";
+import {
+  ReportDefinitionInput,
+  Direction,
+  OrderByField,
+  FilterField,
+} from "./types";
 import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
@@ -16,7 +21,10 @@ type Props = {
 
 export const Report: React.FC<Props> = props => {
   const { input, orgIds, filterFieldsOverride } = props;
-  const [state, dispatch] = React.useReducer(reportReducer, { filters: [] });
+  const [state, dispatch] = React.useReducer(reportReducer, {
+    currentFilters: [],
+    filterableFields: [],
+  });
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
@@ -37,14 +45,14 @@ export const Report: React.FC<Props> = props => {
       dispatch({
         action: "setReportDefinition",
         reportDefinition: reportResponse.data.report,
-        filterFieldsOverride
+        filterFieldsOverride,
       });
     }
   }, [reportResponse.state]);
 
-  const setFilterValue = React.useCallback(
-    (field: DataSourceField, value: any) => {
-      dispatch({ action: "setFilter", field, value });
+  const setFilter = React.useCallback(
+    (filterField: FilterField) => {
+      dispatch({ action: "setFilter", filter: filterField });
     },
     [dispatch]
   );
@@ -63,8 +71,9 @@ export const Report: React.FC<Props> = props => {
       ) : (
         <>
           <ActionBar
-            filterFields={state.filters} 
-            setFilterValue={setFilterValue}
+            currentFilters={state.currentFilters}
+            filterableFields={state.filterableFields}
+            setFilter={setFilter}
           />
           <DataGrid
             reportDefinition={state.reportDefinition}

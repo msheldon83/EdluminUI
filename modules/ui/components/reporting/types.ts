@@ -26,12 +26,23 @@ export type ReportMetadata = {
 
 export type Query = {
   selects: DataExpression[];
+  filters: LogicalTerm | Formula;
   orderBy: OrderByField[];
   subtotalBy: SubtotalField[];
   schema: {
     name: string;
     allFields: DataSourceField[];
   };
+};
+
+export type LogicalTerm = {
+  operator: LogicalOperator;
+  conditions: (LogicalTerm | Formula)[];
+};
+
+export type Formula = {
+  expressionFunction: ExpressionFunction;
+  args: DataExpression[];
 };
 
 export type DataSourceField = {
@@ -42,6 +53,7 @@ export type DataSourceField = {
   filterTypeDefinition?: {
     key: string;
     filterDataSourceFieldName: string;
+    friendlyName: string;
   }[];
 };
 
@@ -54,6 +66,44 @@ export enum FilterType {
   DateTime = 5,
   Boolean = 6,
   Custom = 7,
+}
+
+export enum LogicalOperator {
+  And = 0,
+  Or = 1,
+  Not = 2,
+}
+
+export enum ExpressionFunction {
+  Add = 0,
+  Subtract = 1,
+  Multiply = 2,
+  Divide = 3,
+  Equal = 4,
+  NotEqual = 5,
+  GreaterThan = 6,
+  GreaterThanOrEqual = 7,
+  LessThan = 8,
+  LessThanOrEqual = 9,
+  ContainedIn = 10,
+  Between = 11,
+  EndsWith = 12,
+  StartsWith = 13,
+  Contains = 14,
+  Sum = 15,
+  SumIf = 16,
+  Avg = 17,
+  Count = 18,
+  CountIf = 19,
+  If = 20,
+  Not = 21,
+  Concat = 22,
+  Left = 23,
+  Right = 24,
+  Upper = 25,
+  Lower = 26,
+  DateFormat = 27,
+  Format = 28,
 }
 
 export type DataExpression = {
@@ -74,6 +124,12 @@ export type SubtotalField = {
   expression: DataExpression;
   showExpression?: DataExpression;
 };
+
+export type FilterField = {
+  field: DataSourceField;
+  expressionFunction: ExpressionFunction;
+  value?: any;
+}
 
 export type GroupedData = {
   info?: GroupInfo | null | undefined;

@@ -1,12 +1,16 @@
 import { Reducer } from "react";
-import { OrderByField, ReportDefinition, DataSourceField } from "./types";
+import {
+  OrderByField,
+  ReportDefinition,
+  DataSourceField,
+  ExpressionFunction,
+  FilterField,
+} from "./types";
 
 export type ReportState = {
   reportDefinition?: ReportDefinition;
-  filters: {
-    field: DataSourceField;
-    value?: any;
-  }[];
+  currentFilters: FilterField[];
+  filterableFields: DataSourceField[];
   orderBy?: OrderByField;
   pendingUpdates?: boolean;
 };
@@ -19,8 +23,7 @@ export type ReportActions =
     }
   | {
       action: "setFilter";
-      field: DataSourceField;
-      value: any;
+      filter: FilterField;
     }
   | {
       action: "setOrderBy";
@@ -45,31 +48,27 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         );
       }
 
+      //TODO: Process the current filters from the Report Definition and put them
+      // into the currentFilters array
+
       return {
         ...prev,
         reportDefinition: action.reportDefinition,
         pendingUpdates: false,
-        filters: filterableFields.map(f => {
-          return {
-            field: f,
-          };
-        }),
+        filterableFields: filterableFields,
       };
     }
     case "setFilter": {
-      const filters = prev.filters.filter(
-        f => f.field.dataSourceFieldName !== action.field.dataSourceFieldName
+      const filters = prev.currentFilters.filter(
+        f =>
+          f.field.dataSourceFieldName !==
+          action.filter.field.dataSourceFieldName
       );
 
+      // TODO: Maintain the ordering of the filters when doing this
       return {
         ...prev,
-        filters: [
-          ...filters,
-          {
-            field: action.field,
-            value: action.value,
-          },
-        ],
+        currentFilters: [...filters, action.filter],
         pendingUpdates: true,
       };
     }
