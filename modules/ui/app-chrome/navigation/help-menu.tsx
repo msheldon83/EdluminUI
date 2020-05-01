@@ -39,7 +39,7 @@ export const HelpMenu: React.FC<Props> = props => {
           onClick={props.onClose}
           className={classes.userMenuLink}
         />
-        {params.role !== "admin" && Config.isDevFeatureOnly && (
+        {params.role !== "admin" && (
           <OrganizationContactMenuLink
             onClick={props.onClose}
             className={classes.userMenuLink}

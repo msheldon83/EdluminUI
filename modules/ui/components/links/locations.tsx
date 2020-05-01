@@ -3,9 +3,10 @@ import { BaseLink, pickUrl } from "./base";
 import { CanDo } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { LocationViewRoute } from "ui/routes/locations";
+import { useOrganizationId } from "core/org-context";
 
 type Props = {
-  orgId: string;
+  orgId?: string;
   locationId: string | undefined;
   state?: any;
   linkClass?: string;
@@ -19,11 +20,12 @@ export const LocationLink: React.FC<Props> = ({
   state,
   ...props
 }) => {
+  const contextOrgId = useOrganizationId();
   if (locationId === undefined) {
     return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = LocationViewRoute.generate({
-    organizationId: orgId,
+    organizationId: orgId ?? contextOrgId!,
     locationId,
   });
   return (

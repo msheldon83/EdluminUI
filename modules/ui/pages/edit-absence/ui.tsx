@@ -571,9 +571,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
   ]);
 
   const subHeader = !props.actingAsEmployee ? (
-    <EmployeeLink orgId={props.organizationId} orgUserId={props.employeeId}>
-      {employeeName}
-    </EmployeeLink>
+    <EmployeeLink orgUserId={props.employeeId}>{employeeName}</EmployeeLink>
   ) : (
     undefined
   );

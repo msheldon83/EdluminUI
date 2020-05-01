@@ -336,7 +336,6 @@ export const AssignSub: React.FC<Props> = props => {
         >
           {props.vacancies && !isForVacancy && (
             <VacancyDetails
-              orgId={props.orgId}
               vacancies={props.vacancies}
               vacancyDetailIds={vacancyDetailIdsToAssign}
               positionName={props.positionName}
@@ -438,7 +437,7 @@ export const AssignSub: React.FC<Props> = props => {
   const subHeader =
     !props.actingAsEmployee && props.employeeName ? (
       props.isEdit ? (
-        <EmployeeLink orgId={props.orgId} orgUserId={props.employeeId}>
+        <EmployeeLink orgUserId={props.employeeId}>
           {props.employeeName}
         </EmployeeLink>
       ) : (
