@@ -9,6 +9,15 @@ query GetSubstituteRelatedOrgs($id: ID!) {
         orgId
         name
       }
+      orgUserRelationships {
+        id
+        otherOrganizationId
+        orgUserRelationshipAttributes {
+          endorsementId
+          name
+          expires
+        }
+      }
       employee {
         id
         endorsements {

@@ -1389,7 +1389,6 @@ enum DataImportStatus {
   IMPORTED
   PERMANENT_FAILURE
   QUEUED_FOR_PROCESSING
-  PARSED
 }
 
 enum DataImportType {
@@ -2905,6 +2904,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   permissionSets: [PermissionSet]
   permissionSetIds: [ID]
   relatedOrgIds: [ID]
+  orgUserRelationships: [OrgUserRelationship]
   relatedOrganizations: [Organization]
   isShadowRecord: Boolean!
   shadowFromOrgId: ID
@@ -2969,6 +2969,31 @@ type OrgUserQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID], invitationStatus: InvitationStatus): PagedOrgUser
   pagedSubsForPreferences(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
+}
+
+type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  orgUserId: ID!
+  otherOrganizationId: ID!
+  otherOrganization: [BasicOrganization]
+  orgUserRelationshipAttributes: [OrgUserRelationshipAttribute]
+}
+
+type OrgUserRelationshipAttribute {
+  _info: [ReturnMessage]
+  endorsementId: ID!
+  expires: DateTime
+  name: String
 }
 
 enum OrgUserRole {
