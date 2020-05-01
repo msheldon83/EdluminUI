@@ -15,7 +15,11 @@ import {
   useQueryBundle,
 } from "graphql/hooks";
 import { Column } from "material-table";
-import { CalendarDayType, PermissionEnum } from "graphql/server-types.gen";
+import {
+  CalendarDayType,
+  PermissionEnum,
+  DataImportType,
+} from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
@@ -26,7 +30,6 @@ import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
 import { CreateExpansionPanel } from "./components/create-expansion-panel";
 import { CalendarView } from "./components/calendar-view";
 import { StickyHeader } from "./components/sticky-header";
-
 import {
   CalendarListViewRoute,
   CalendarCalendarViewRoute,
@@ -38,6 +41,7 @@ import { useAllSchoolYears } from "reference-data/school-years";
 import { useContracts } from "reference-data/contracts";
 import { ContractScheduleWarning } from "./components/contract-schedule-warning";
 import { GetContractsWithoutSchedules } from "./graphql/get-contracts-without-schedules.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
 
 type Props = {
   view: "list" | "calendar";
@@ -256,15 +260,26 @@ export const Calendars: React.FC<Props> = props => {
   return (
     <>
       <div>
-        <div>
-          <Typography variant="h5">
-            {contract === undefined ? t("All Contracts") : contract?.name}
-          </Typography>
+        <Grid container alignItems="center" justify="space-between" spacing={2}>
+          <Grid item>
+            <Typography variant="h5">
+              {contract === undefined ? t("All Contracts") : contract?.name}
+            </Typography>
 
-          {schoolYear && (
-            <PageTitle title={`${t("Calendar")} ${schoolYearName}`} />
-          )}
-        </div>
+            {schoolYear && (
+              <PageTitle title={`${t("Calendar")} ${schoolYearName}`} />
+            )}
+          </Grid>
+          <Can do={[PermissionEnum.CalendarChangeSave]}>
+            <Grid item>
+              <ImportDataButton
+                orgId={params.organizationId}
+                importType={DataImportType.CalendarChange}
+                label={t("Import events")}
+              />
+            </Grid>
+          </Can>
+        </Grid>
         <ContractScheduleWarning
           showWarning={contractsWithoutSchedules.length > 0}
           schoolYearName={schoolYearName}

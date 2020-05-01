@@ -1,5 +1,8 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Redirect } from "react-router";
+import { makeStyles } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import { UpdatePositionType } from "ui/pages/position-type/graphql/update-position-type.gen";
@@ -14,12 +17,14 @@ import {
   PositionTypeViewRoute,
   PositionTypeRoute,
 } from "ui/routes/position-type";
+import { LinkHeader } from "ui/components/link-headers/base";
 
 type Props = {};
 
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PositionTypeViewRoute);
+  const { t } = useTranslation();
 
   const [updatePositionType] = useMutationBundle(UpdatePositionType, {
     onError: error => {
@@ -187,12 +192,16 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
 
   return (
     <>
+      <LinkHeader
+        title={positionType?.name}
+        linkText={t("Return to position type")}
+        to={PositionTypeViewRoute.generate(params)}
+      />
       <ReplacementCriteriaUI
         mustHave={mustHave}
         preferToHave={preferToHave}
         preferToNotHave={preferNotToHave}
         mustNotHave={mustNotHave}
-        title={positionType?.name}
         orgId={params.organizationId}
         handleMust={updateMustHave}
         handleMustNot={updateMustNot}

@@ -236,84 +236,16 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Imported"),
     },
     {
+      name: "dataImportStatus.PARSED",
+      displayName: t("Parsed"),
+    },
+    {
       name: "dataImportStatus.PERMANENT_FAILURE",
       displayName: t("Permanent failure"),
     },
     {
-      name: "dataImportType.ABSENCE",
-      displayName: t("Absence"),
-    },
-    {
-      name: "dataImportType.ABSENCE_REASON",
-      displayName: t("Absence reason"),
-    },
-    {
-      name: "dataImportType.ACCOUNTING_CODE",
-      displayName: t("Accounting code"),
-    },
-    {
-      name: "dataImportType.ADMINISTRATOR",
-      displayName: t("Administrator"),
-    },
-    {
-      name: "dataImportType.CALENDAR_CHANGE",
-      displayName: t("Calendar change"),
-    },
-    {
-      name: "dataImportType.CALENDAR_CHANGE_REASON",
-      displayName: t("Calendar change reason"),
-    },
-    {
-      name: "dataImportType.CONTRACT",
-      displayName: t("Contract"),
-    },
-    {
-      name: "dataImportType.EMPLOYEE",
-      displayName: t("Employee"),
-    },
-    {
-      name: "dataImportType.ENDORSEMENT",
-      displayName: t("Endorsement"),
-    },
-    {
-      name: "dataImportType.LOCATION",
-      displayName: t("Location"),
-    },
-    {
-      name: "dataImportType.LOCATION_GROUP",
-      displayName: t("Location group"),
-    },
-    {
-      name: "dataImportType.PAY_CODE",
-      displayName: t("Pay code"),
-    },
-    {
-      name: "dataImportType.POSITION_TYPE",
-      displayName: t("Position type"),
-    },
-    {
-      name: "dataImportType.REPLACEMENT_CRITERIA_CONFIG",
-      displayName: t("Replacement criteria config"),
-    },
-    {
-      name: "dataImportType.REPLACEMENT_POOL_CONFIG",
-      displayName: t("Replacement pool config"),
-    },
-    {
-      name: "dataImportType.SUBSTITUTE",
-      displayName: t("Substitute"),
-    },
-    {
-      name: "dataImportType.VACANCY",
-      displayName: t("Vacancy"),
-    },
-    {
-      name: "dataImportType.ABSENCE_REASON_BALANCE",
-      displayName: t("Absence reason balance"),
-    },
-    {
       name: "dataImportRowStatus.CREATED",
-      displayName: t("Created"),
+      displayName: t("Ready to import"),
     },
     {
       name: "dataImportRowStatus.NOTHING_TO_IMPORT",

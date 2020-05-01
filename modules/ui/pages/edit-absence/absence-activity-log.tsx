@@ -11,6 +11,7 @@ import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { GetAbsence } from "./graphql/get-absence.gen";
 import { ActivityLog } from "ui/components/activity-log/activity-log";
 import { compact } from "lodash-es";
+import { EmployeeLink } from "ui/components/links/people";
 
 export const AbsenceActivityLog: React.FC<{}> = props => {
   const classes = useStyles();
@@ -47,11 +48,18 @@ export const AbsenceActivityLog: React.FC<{}> = props => {
     getActivityLog?.data?.absence?.activityLog?.activityLogDetails ?? []
   );
 
+  const subHeader = absence?.employee?.id ? (
+    <EmployeeLink orgUserId={absence?.employee?.id}>
+      {employeeName}
+    </EmployeeLink>
+  ) : (
+    employeeName
+  );
+
   return (
     <>
       <AbsenceVacancyHeader
-        actingAsEmployee={false}
-        subHeader={employeeName}
+        subHeader={subHeader}
         pageHeader={`${t("Activity log")} #${params.absenceId}`}
         onCancel={onReturn}
       />

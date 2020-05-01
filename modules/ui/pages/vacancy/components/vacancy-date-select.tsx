@@ -55,7 +55,7 @@ export const VacancyDateSelect: React.FC<Props> = props => {
       computeDisabledDates(getContractScheduleDates).map(date => {
         return {
           date,
-          buttonProps: { className: disabledClass},
+          buttonProps: { className: disabledClass },
         };
       }),
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
@@ -68,7 +68,7 @@ export const VacancyDateSelect: React.FC<Props> = props => {
       props.vacancySelectedDates.map(date => {
         return {
           date,
-          buttonProps: { className: selectedClass},
+          buttonProps: { className: selectedClass },
         };
       }),
     [props.vacancySelectedDates, selectedClass]
@@ -114,7 +114,8 @@ export const VacancyDateSelect: React.FC<Props> = props => {
         <CustomCalendar
           variant="month"
           customDates={customDates}
-          monthNavigation={true}
+          previousMonthNavigation={true}
+          nextMonthNavigation={true}
           onSelectDates={handleSelectDates}
           month={props.month}
           onMonthChange={props.onMonthChange}

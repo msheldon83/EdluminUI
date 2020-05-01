@@ -19,6 +19,7 @@ type Props = {
     assignmentRowVersion?: string
   ) => Promise<void>;
   vacancyDate?: string;
+  swapSubs?: (detail: Detail) => void;
 };
 
 export const DailyReportSection: React.FC<Props> = props => {
@@ -83,6 +84,7 @@ export const DailyReportSection: React.FC<Props> = props => {
                       selectedDetails={props.selectedDetails}
                       details={s.details ?? []}
                       vacancyDate={props.vacancyDate}
+                      swapSubs={props.swapSubs}
                     />
                   </Grid>
                 </ExpansionPanelDetails>
@@ -98,6 +100,7 @@ export const DailyReportSection: React.FC<Props> = props => {
               selectedDetails={props.selectedDetails}
               details={detailGroup.details ?? []}
               vacancyDate={props.vacancyDate}
+              swapSubs={props.swapSubs}
             />
           </Grid>
         )}

@@ -5,6 +5,14 @@ import { Link } from "react-router-dom";
 import { Can } from "ui/components/auth/can";
 import { CanDo } from "ui/components/auth/types";
 
+export type LinkOptions = {
+  linkClass?: string;
+  textClass?: string;
+  color?: "blue" | "black";
+  displayText?: boolean;
+  disabled?: boolean;
+};
+
 type Props = {
   permissions: CanDo;
   to: {
@@ -13,10 +21,7 @@ type Props = {
     search: string;
     state?: any;
   };
-  linkClass?: string;
-  textClass?: string;
-  displayText?: boolean;
-};
+} & LinkOptions;
 
 // new URL() passes all props as defined, but that causes issues with Link
 // We wrap it to replace undefineds with empty strings.
@@ -36,13 +41,22 @@ export const BaseLink: React.FC<Props> = ({
   linkClass = "",
   textClass = "",
   displayText = true,
+  color = "blue",
+  disabled,
 }) => {
   const classes = useStyles();
+  const text = <span className={textClass}>{children}</span>;
+  if (disabled) return text;
   return (
     <>
       <Can do={permissions}>
         <Link
-          className={clsx(classes.root, classes.underlineHover, linkClass)}
+          className={clsx(
+            classes.root,
+            classes.underlineHover,
+            linkClass,
+            classes[color]
+          )}
           to={to}
         >
           {children}
@@ -50,7 +64,7 @@ export const BaseLink: React.FC<Props> = ({
       </Can>
       {displayText && (
         <Can not do={permissions}>
-          <span className={textClass}>{children}</span>
+          {text}
         </Can>
       )}
     </>
@@ -60,9 +74,7 @@ export const BaseLink: React.FC<Props> = ({
 // Classes are yoinked from M-UI's Link
 const useStyles = makeStyles(theme => ({
   /* Styles applied to the root element. */
-  root: {
-    color: theme.customColors.blue,
-  },
+  root: {},
   /* Styles applied to the root element if `underline="none"`. */
   underlineNone: {
     textDecoration: "none",
@@ -104,4 +116,12 @@ const useStyles = makeStyles(theme => ({
   },
   /* Pseudo-class applied to the root element if the link is keyboard focused. */
   focusVisible: {},
+
+  // Added to M-UI class; want to be able to change color
+  blue: {
+    color: theme.customColors.blue,
+  },
+  black: {
+    color: theme.customColors.black,
+  },
 }));

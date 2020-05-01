@@ -1,29 +1,29 @@
 import * as React from "react";
-import { pickUrl, BaseLink } from "./base";
+import { pickUrl, BaseLink, LinkOptions } from "./base";
 import { CanDo } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
-import { named } from "helpers/named";
+import { useOrganizationId } from "core/org-context";
 
 type Props = {
-  orgId: string;
+  orgId?: string;
   orgUserId: string | undefined;
   state?: any;
-  linkClass?: string;
-  textClass?: string;
-};
+} & LinkOptions;
 
-const PeopleLink: (perms: CanDo) => React.FC<Props> = perms => ({
+const PeopleLink: React.FC<Props & { perms: CanDo }> = ({
+  perms,
   orgId,
   orgUserId,
   state,
   ...props
 }) => {
+  const contextOrgId = useOrganizationId();
   if (orgUserId === undefined) {
     return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = PersonViewRoute.generate({
-    organizationId: orgId,
+    organizationId: orgId ?? contextOrgId!,
     orgUserId,
   });
   return (
@@ -35,11 +35,9 @@ const PeopleLink: (perms: CanDo) => React.FC<Props> = perms => ({
   );
 };
 
-export const EmployeeLink = named(
-  "EmployeeLink",
-  PeopleLink([PermissionEnum.EmployeeView])
+export const EmployeeLink: React.FC<Props> = props => (
+  <PeopleLink perms={[PermissionEnum.EmployeeView]} {...props} />
 );
-export const SubstituteLink = named(
-  "SubstituteLink",
-  PeopleLink([PermissionEnum.SubstituteView])
+export const SubstituteLink: React.FC<Props> = props => (
+  <PeopleLink perms={[PermissionEnum.SubstituteView]} {...props} />
 );

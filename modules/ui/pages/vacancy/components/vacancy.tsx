@@ -745,7 +745,7 @@ const useStyles = makeStyles(theme => ({
   },
   contentFooter: {
     height: theme.typography.pxToRem(72),
-    width: "100%",
+    width: theme.customSpacing.contentWidth,
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",

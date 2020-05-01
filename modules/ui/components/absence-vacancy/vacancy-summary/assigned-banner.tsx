@@ -8,6 +8,7 @@ import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
 import { useState, useCallback, useRef, useEffect } from "react";
+import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
@@ -15,6 +16,7 @@ type Props = {
   onReassignClick?: () => void;
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   disableActions?: boolean;
+  readOnly: boolean;
 };
 
 export const AssignedBanner: React.FC<Props> = props => {
@@ -69,7 +71,14 @@ export const AssignedBanner: React.FC<Props> = props => {
         <div className={classes.employeeInfo}>
           <AccountCircleOutlined fontSize="large" />
           <div className={classes.name}>
-            <Typography variant="h6">{employeeName}</Typography>
+            <Typography variant="h6">
+              <SubstituteLink
+                orgUserId={assignmentWithDetails.assignment?.employee?.id}
+                disabled={props.readOnly}
+              >
+                {employeeName}
+              </SubstituteLink>
+            </Typography>
             <div className={classes.subText}>
               {isExistingAssignment ? t("assigned") : t("pre-arranged")}
             </div>

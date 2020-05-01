@@ -1,5 +1,5 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
 import { SaveEmployee } from "ui/pages/people/graphql/employee/save-employee.gen";
 import { Redirect } from "react-router";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -13,12 +13,13 @@ import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index"
 import { useRouteParams } from "ui/routes/definition";
 import { Employee } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 type Props = {};
 
 export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
-  const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   const params = useRouteParams(PersonViewRoute);
 
   const [updateEmployee] = useMutationBundle(SaveEmployee, {
@@ -229,18 +230,20 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     mustNotHave
   );
 
+  const title = position?.title ?? postionType?.name;
+
   return (
     <>
-      <SectionHeader
-        className={classes.leftPadding}
-        title={employee?.firstName + " " + employee?.lastName}
+      <PersonLinkHeader
+        title={`${t("Replacement Criteria")}${title ? " - " + title : ""}`}
+        person={employee}
+        params={params}
       />
       <ReplacementCriteriaUI
         mustHave={mustHave}
         preferToHave={preferToHave}
         preferToNotHave={preferNotToHave}
         mustNotHave={mustNotHave}
-        title={position?.title ?? postionType?.name}
         orgId={params.organizationId}
         handleMust={updateMustHave}
         handleMustNot={updateMustNot}
@@ -257,9 +260,3 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  leftPadding: {
-    paddingLeft: theme.spacing(1),
-  },
-}));

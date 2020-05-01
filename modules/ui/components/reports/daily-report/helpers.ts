@@ -151,7 +151,7 @@ export const MapDailyReportDetails = (
           a.createdLocal,
           "MMM d h:mm a"
         ),
-        isMultiDay: a.details && a.details.length > 1,
+        isMultiDay: a.isMultiDay,
         substitute: assignment?.substitute
           ? {
               id: assignment.substitute.id,
@@ -225,7 +225,7 @@ export const MapDailyReportDetails = (
           "MMM d h:mm a"
         ),
         vacancyReason: vacancyDetail.vacancyReason,
-        isMultiDay: v.details && v.details.length > 1,
+        isMultiDay: v.isMultiDay,
         substitute:
           vacancyDetail.assignment && vacancyDetail.assignment.substitute
             ? {
@@ -314,7 +314,7 @@ export const MapDailyReportDetails = (
                 endTime: format(parseISO(mvd.endTimeLocal), "h:mm a"),
               };
             }),
-        isMultiDay: a.details && a.details.length > 1,
+        isMultiDay: a.isMultiDay,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
             ? {
@@ -374,7 +374,7 @@ export const MapDailyReportDetails = (
             endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
           },
         ],
-        isMultiDay: v.details && v.details.length > 1,
+        isMultiDay: v.isMultiDay,
         position: v.position
           ? {
               id: v.position.id,
@@ -461,7 +461,7 @@ export const MapDailyReportDetails = (
           a.createdLocal,
           "MMM d h:mm a"
         ),
-        isMultiDay: a.details && a.details.length > 1,
+        isMultiDay: a.details && a.isMultiDay,
         position: positionType,
         positionType: positionType,
         location: location,
@@ -534,7 +534,7 @@ export const MapDailyReportDetails = (
             a.createdLocal,
             "MMM d h:mm a"
           ),
-          isMultiDay: a.details && a.details.length > 1,
+          isMultiDay: a.isMultiDay,
           position: positionType,
           positionType: positionType,
           location: location,
@@ -571,7 +571,7 @@ export const MapDailyReportDetails = (
               endTime: format(parseISO(vacancyDetail.endTimeLocal), "h:mm a"),
             },
           ],
-          isMultiDay: a.details && a.details.length > 1,
+          isMultiDay: a.isMultiDay,
           position: a.position
             ? {
                 id: a.position.id,

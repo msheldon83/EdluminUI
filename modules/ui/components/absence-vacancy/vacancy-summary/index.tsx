@@ -19,6 +19,7 @@ type Props = {
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
   divRef?: React.RefObject<HTMLDivElement>;
+  readOnly?: boolean;
 };
 
 export const VacancySummary: React.FC<Props> = props => {
@@ -90,6 +91,7 @@ export const VacancySummary: React.FC<Props> = props => {
             detailsOnly={detailsOnly}
             showPayCodes={showPayCodes}
             showAccountingCodes={showAccountingCodes}
+            readOnly={props.readOnly ?? false}
           />
         ))}
       </div>

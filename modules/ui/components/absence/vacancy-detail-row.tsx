@@ -11,6 +11,7 @@ import { canAssignSub } from "helpers/permissions";
 import { Can } from "../auth/can";
 import { AssignmentOnDate } from "./types";
 import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
+import { LocationLink } from "ui/components/links/locations";
 
 type Props = {
   groupedDetail: VacancyDetailsGroup;
@@ -117,6 +118,7 @@ export const VacancyDetailRow: React.FC<Props> = props => {
                 props.onAssignSubClick!(vacancyDetailIds, subName)
               }
               assignmentsByDate={props.assignmentsByDate}
+              email={groupedDetail.assignmentEmployeeEmail}
             />
           )}
         </Grid>
@@ -152,9 +154,14 @@ export const VacancyDetailRow: React.FC<Props> = props => {
           return (
             <div key={i}>
               {`${d.startTime} - ${d.endTime}`}
-              <span className={classes.subScheduleLocation}>
+              <LocationLink
+                locationId={d.locationId ?? undefined}
+                linkClass={classes.subScheduleLocation}
+                textClass={classes.subScheduleLocation}
+                color="black"
+              >
                 {d.locationName}
-              </span>
+              </LocationLink>
             </div>
           );
         })}

@@ -28,6 +28,7 @@ import {
   isSameDay,
 } from "date-fns";
 import { getDateRangeDisplayTextWithDayOfWeek } from "ui/components/date-helpers";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   details: VacancyDetail[];
@@ -43,6 +44,7 @@ type Props = {
   disabledDates?: Date[];
   defaultAccountingCode?: string;
   defaultPayCode?: string;
+  isEdit?: boolean;
 };
 
 type EditVacancyFormData = {
@@ -89,6 +91,19 @@ export const EditVacancies: React.FC<Props> = props => {
     : t("Substitute details for a new absence");
 
   let shaded = false;
+
+  const subHeader = !props.actingAsEmployee ? (
+    props.isEdit ? (
+      <EmployeeLink orgUserId={props.employeeId}>
+        {props.employeeName}
+      </EmployeeLink>
+    ) : (
+      props.employeeName
+    )
+  ) : (
+    undefined
+  );
+
   return (
     <Formik
       initialValues={initialFormData}
@@ -183,11 +198,7 @@ export const EditVacancies: React.FC<Props> = props => {
     >
       {({ values, handleSubmit, errors }) => (
         <form onSubmit={handleSubmit}>
-          <AbsenceVacancyHeader
-            pageHeader={pageHeader}
-            subHeader={props.employeeName}
-            actingAsEmployee={props.actingAsEmployee}
-          />
+          <AbsenceVacancyHeader pageHeader={pageHeader} subHeader={subHeader} />
           <Section className={classes.vacancyDetails}>
             <Grid
               container

@@ -23,7 +23,7 @@ type Props = {
     id: string;
     startDate: string;
     endDate: string;
-  };
+  } | null;
   schoolYearName: string;
   contracts: {
     id: string;

@@ -61,6 +61,7 @@ import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   firstName: string;
@@ -88,6 +89,7 @@ type Props = {
   absenceDetailsIdsByDate: Record<string, string>;
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
+  replacementEmail?: string;
   locationIds?: string[];
   startTimeLocal: string;
   endTimeLocal: string;
@@ -120,14 +122,6 @@ type EditAbsenceFormData = {
   accountingCode?: string;
   payCode?: string;
 };
-
-/*
- * We're allowing @ts-ignore comments in this file because of a difficult problem.
- * It appears that something to do with the generated types for GetAbsence cause
- * spurious errors to be emitted from typescript. Hopefully this is an isolated
- * problem. If not, we'll need to figure out a proper fix.
- */
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
 
 export const EditAbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -180,10 +174,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     absenceReason: props.absenceReason.id.toString(),
     dayPart: props.dayPart,
     payCode:
-      // @ts-ignore
       props.initialVacancies[0]?.details[0]?.payCodeId?.toString() ?? undefined,
     accountingCode:
-      // @ts-ignore
       props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCode?.id?.toString() ??
       undefined,
     hourlyStartTime:
@@ -579,6 +571,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     t,
   ]);
 
+  const subHeader = !props.actingAsEmployee ? (
+    <EmployeeLink orgUserId={props.employeeId}>{employeeName}</EmployeeLink>
+  ) : (
+    undefined
+  );
+
   return (
     <>
       <DiscardChangesDialog
@@ -619,9 +617,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         >
           <div className={classes.titleContainer}>
             <AbsenceVacancyHeader
-              subHeader={employeeName}
+              subHeader={subHeader}
               pageHeader={`${t("Edit absence")} #${props.absenceId}`}
-              actingAsEmployee={props.actingAsEmployee}
             />
             <div className={classes.headerMenu}>
               <ActionMenu
@@ -663,6 +660,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               disableEditingDatesAndTimes={!canEdit}
               replacementEmployeeId={props.replacementEmployeeId}
               replacementEmployeeName={props.replacementEmployeeName}
+              replacementEmail={props.replacementEmail}
               onRemoveReplacement={props.cancelAssignments}
               locationIds={props.locationIds}
               returnUrl={props.returnUrl}
@@ -704,6 +702,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={setStep}
           disabledDates={disabledDates}
+          isEdit={true}
         />
       )}
       {step === "preAssignSub" && (
@@ -728,6 +727,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeToReplace={employeeToReplace}
           vacancyDetailIdsToAssign={vacancyDetailIdsToAssign}
           assignmentsByDate={props.assignmentsByDate}
+          isEdit={true}
         />
       )}
     </>

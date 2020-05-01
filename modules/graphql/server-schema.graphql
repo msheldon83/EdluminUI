@@ -1422,6 +1422,10 @@ type DataImport implements ModelObjectInterface & OrgObjectInterface {
   notificationEmailAddresses: [String]
 }
 
+type DataImportMutations {
+  update(dataImport: DataImportUpdateInput!): DataImport
+}
+
 type DataImportQueries {
   byId(id: ID!): DataImport
   all(
@@ -1508,6 +1512,7 @@ enum DataImportStatus {
   IMPORTED
   PERMANENT_FAILURE
   QUEUED_FOR_PROCESSING
+  PARSED
 }
 
 enum DataImportType {
@@ -1532,6 +1537,17 @@ enum DataImportType {
   ABSENCE_REASON_BALANCE
   ABSENCE_REASON_CATEGORY
   WORK_DAY_SCHEDULE
+}
+
+input DataImportUpdateInput {
+  id: ID!
+  parseOnly: Boolean
+  validateOnly: Boolean
+  maxValidationErrors: Int
+  maxParseErrors: Int
+  maxImportErrors: Int
+  notificationEmailAddresses: [String]
+  reRun: Boolean
 }
 
 scalar Date
@@ -2062,6 +2078,7 @@ enum EventType {
   ACCESS_GRANTED
   ACCESS_UPDATED
   ORGANIZATION_USER_RELATIONSHIP_UPDATED
+  ORGANIZATION_USER_ROLE_REMOVED
   SCHOOL_YEAR_CREATED
   SCHOOL_YEAR_UPDATED
   SCHOOL_YEAR_DELETED
@@ -2207,6 +2224,7 @@ enum EventType {
   DATA_IMPORT_FILE_UPLOADED
   DATA_IMPORT_STARTED
   DATA_IMPORT_FINISHED
+  DATA_IMPORT_UPDATED
   LOCATION_GROUP_CREATED
   LOCATION_GROUP_UPDATED
   LOCATION_GROUP_DELETED
@@ -2583,6 +2601,7 @@ type Mutation {
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
   customField: CustomFieldMutations
+  dataImport: DataImportMutations
   employee: EmployeeMutations
   eventQueue: EventQueueMutations
   inAppNotification: InAppNotificationMutations
@@ -2748,6 +2767,7 @@ type Organization implements ModelObjectInterface & OrgObjectInterface & DomainO
   rowVersion: String!
   name: String!
   timeZoneId: TimeZone
+  isStaffingProvider: Boolean!
   config: organizationConfig
 }
 
@@ -2838,6 +2858,7 @@ input OrganizationCreateInput {
   superUserLastName: String!
   timeZoneId: TimeZone
   seedOrgDataOption: SeedOrgDataOptionEnum
+  seedOptionalData: Boolean
   config: organizationConfigInput
 }
 
@@ -2851,6 +2872,8 @@ type OrganizationQueries {
   all(searchText: String): [Organization]
   paged(limit: Int, offset: Int, searchText: String): PagedOrganization
   search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
+  staffingProviders: [Organization]
+  searchDelegatesToOrganizations(orgId: ID!, searchText: String): [Organization]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -3296,6 +3319,7 @@ type OrgUserMutations {
     subPreference: SubstitutePreferenceInput!
   ): ReplacementPoolMember
   removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
+  removeOrgUserRole(orgUserId: ID!, orgUserRole: OrgUserRole!): OrgUser
 }
 
 type OrgUserQueries {

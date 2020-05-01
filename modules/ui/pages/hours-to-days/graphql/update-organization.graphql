@@ -1,0 +1,16 @@
+mutation UpdateOrganization($organization: OrganizationUpdateInput!) {
+  organization {
+    update(organization: $organization) {
+      orgId
+      rowVersion
+      config {
+        id
+        vacancyDayConversions {
+          name
+          maxMinutes
+          dayEquivalent
+        }
+      }
+    }
+  }
+}

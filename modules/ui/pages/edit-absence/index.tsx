@@ -24,8 +24,6 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
-
 type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
   const params = useRouteParams(AdminEditAbsenceRoute);
@@ -197,10 +195,8 @@ export const EditAbsence: React.FC<Props> = props => {
     const absenceDetails = absence.data.absence?.byId?.details;
 
     return compact(
-      // @ts-ignore
       flatMap(absence.data.absence?.byId.vacancies ?? [], v => {
-        // @ts-ignore
-        return v.details.map(d => {
+        return v!.details.map(d => {
           if (!d) return null;
 
           const absenceDetail = absenceDetails?.find(
@@ -237,10 +233,8 @@ export const EditAbsence: React.FC<Props> = props => {
     }
 
     const allVacancyDetails = compact(
-      // @ts-ignore
       flatMap(absence.data.absence?.byId.vacancies ?? [], v => {
-        // @ts-ignore
-        return v.details.map(d => {
+        return v!.details.map(d => {
           if (!d) return null;
           return {
             date: d.startDate,
@@ -262,9 +256,7 @@ export const EditAbsence: React.FC<Props> = props => {
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
-  // @ts-ignore - I think I've found a bug in typescript?
   const data = absence.data?.absence?.byId;
-  // @ts-ignore
   const vacancies = compact(data?.vacancies ?? []);
   const vacancy = vacancies[0];
   const needsReplacement =
@@ -274,7 +266,6 @@ export const EditAbsence: React.FC<Props> = props => {
   const vacancyDetails = compact(vacancy?.details ?? []);
   const assignmentId = vacancyDetails[0]?.assignment?.id;
 
-  // @ts-ignore
   const details =
     data?.details &&
     data?.details.length === 0 &&
@@ -283,19 +274,18 @@ export const EditAbsence: React.FC<Props> = props => {
       ? data?.closedDetails
       : data?.details ?? [];
   const detail = details[0];
-  // @ts-ignore
-  const reasonUsage = detail?.reasonUsages[0];
-  // @ts-ignore
+  const reasonUsage = detail?.reasonUsages ? detail.reasonUsages[0] : undefined;
   const dayPart = detail?.dayPartId ?? undefined;
 
   let replacementEmployeeId: string | undefined;
   let replacementEmployeeName: string | undefined;
+  let replacementEmail: string | undefined;
 
-  // @ts-ignore
   const assignedEmployee = vacancy?.details[0]?.assignment?.employee;
   if (assignedEmployee) {
     replacementEmployeeId = assignedEmployee.id;
     replacementEmployeeName = `${assignedEmployee.firstName} ${assignedEmployee.lastName}`;
+    replacementEmail = assignedEmployee.email ?? undefined;
   }
 
   const processedUsage: AbsenceReasonUsageData[] = (() => {
@@ -376,6 +366,7 @@ export const EditAbsence: React.FC<Props> = props => {
         absenceDetailsIdsByDate={absenceDetailsIdsByDate}
         replacementEmployeeId={replacementEmployeeId}
         replacementEmployeeName={replacementEmployeeName}
+        replacementEmail={replacementEmail}
         actingAsEmployee={props.actingAsEmployee}
         startTimeLocal={detail.startTimeLocal}
         endTimeLocal={detail.endTimeLocal}

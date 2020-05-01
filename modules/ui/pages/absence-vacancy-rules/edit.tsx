@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { Formik } from "formik";
-import { DurationInput } from "ui/components/form/duration-input";
+import { FormikDurationInput } from "ui/components/form/formik-duration-input";
 import { Input } from "ui/components/form/input";
 import { Section } from "ui/components/section";
 import { useMemo } from "react";
@@ -198,17 +198,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   {t("Employees may not enter an absence that starts within")}
                 </FormHelperText>
                 <Grid item xs={2}>
-                  <DurationInput
-                    placeholder={t("hh:mm")}
-                    name="minutesBeforeStartAbsenceCanBeCreated"
-                    value={values.minutesBeforeStartAbsenceCanBeCreated.toString()}
-                    onChange={(value: number) =>
-                      setFieldValue(
-                        "minutesBeforeStartAbsenceCanBeCreated",
-                        value
-                      )
-                    }
-                  />
+                  <FormikDurationInput name="minutesBeforeStartAbsenceCanBeCreated" />
                 </Grid>
               </div>
               <div className={classes.rowMargin}>
@@ -221,14 +211,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   )}
                 </FormHelperText>
                 <Grid item xs={2}>
-                  <DurationInput
-                    placeholder={t("hh:mm")}
-                    name="minLeadTimeMinutesToCancelVacancy"
-                    value={values.minLeadTimeMinutesToCancelVacancy.toString()}
-                    onChange={(value: number) =>
-                      setFieldValue("minLeadTimeMinutesToCancelVacancy", value)
-                    }
-                  />
+                  <FormikDurationInput name="minLeadTimeMinutesToCancelVacancy" />
                 </Grid>
               </div>
 
@@ -238,20 +221,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   {t("Allow substitutes to accept an assignment until")}
                 </FormHelperText>
                 <Grid item xs={1} className={classes.inline}>
-                  <DurationInput
-                    placeholder={t("hh:mm")}
-                    name="minutesRelativeToStartVacancyCanBeFilled"
-                    value={
-                      values?.minutesRelativeToStartVacancyCanBeFilled?.toString() ??
-                      ""
-                    }
-                    onChange={(value: number) =>
-                      setFieldValue(
-                        "minutesRelativeToStartVacancyCanBeFilled",
-                        value
-                      )
-                    }
-                  />
+                  <FormikDurationInput name="minutesRelativeToStartVacancyCanBeFilled" />
                 </Grid>
                 <Grid
                   item
@@ -319,13 +289,9 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   )}
                 </FormHelperText>
                 <Grid item xs={4}>
-                  <DurationInput
+                  <FormikDurationInput
                     placeholder={t("hh:mm    before the assignment begins")}
                     name="minorConflictThresholdMinutes"
-                    value={values.minorConflictThresholdMinutes.toString()}
-                    onChange={(value: number) =>
-                      setFieldValue("minorConflictThresholdMinutes", value)
-                    }
                   />
                 </Grid>
               </div>
@@ -336,26 +302,16 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   )}
                 </FormHelperText>
                 <Grid item xs={2}>
-                  <DurationInput
-                    placeholder={t("hh:mm")}
+                  <FormikDurationInput
                     name="minRequestedEmployeeHoldMinutes"
-                    value={values.minRequestedEmployeeHoldMinutes.toString()}
-                    onChange={(value: number) =>
-                      setFieldValue("minRequestedEmployeeHoldMinutes", value)
-                    }
                   />
                 </Grid>
               </div>
               <div>
                 <FormHelperText>{t("but not more than")}</FormHelperText>
                 <Grid item xs={2}>
-                  <DurationInput
-                    placeholder={t("hh:mm")}
+                  <FormikDurationInput
                     name="maxRequestedEmployeeHoldMinutes"
-                    value={values.maxRequestedEmployeeHoldMinutes.toString()}
-                    onChange={(value: number) =>
-                      setFieldValue("maxRequestedEmployeeHoldMinutes", value)
-                    }
                   />
                 </Grid>
               </div> */}

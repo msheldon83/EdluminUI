@@ -54,7 +54,7 @@ export const NavigationSideBar: React.FC<Props> = props => {
           size={props.expanded ? "large" : "small"}
         />
         <RoleSwitcher expanded={props.expanded} />
-        <List>
+        <List className={classes.navbar}>
           <AutoSwitchingNavLinks navBarExpanded={props.expanded} />
         </List>
       </Drawer>
@@ -67,6 +67,9 @@ const useStyles = makeStyles(theme => ({
     "@media print": {
       display: "none",
     },
+  },
+  navbar: {
+    paddingBottom: 70,
   },
   drawer: {
     background: theme.customColors.edluminSlate,

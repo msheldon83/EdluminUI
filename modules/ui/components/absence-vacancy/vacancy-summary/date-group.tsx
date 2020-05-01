@@ -9,6 +9,7 @@ type Props = {
   showAbsenceTimes: boolean;
   showPayCodes: boolean;
   showAccountingCodes: boolean;
+  readOnly: boolean;
 };
 
 export const DateGroup: React.FC<Props> = props => {
@@ -42,6 +43,7 @@ export const DateGroup: React.FC<Props> = props => {
                 detail={d}
                 showPayCodes={showPayCodes}
                 showAccountingCodes={showAccountingCodes}
+                readOnly={props.readOnly}
               />
             );
           })}

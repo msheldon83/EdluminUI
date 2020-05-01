@@ -9,6 +9,7 @@ import { GetEmployeeById } from "./graphql/employee/get-employee-by-id.gen";
 import { SaveEmployee } from "./graphql/employee/save-employee.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const params = useRouteParams(EmployeeSubstitutePreferenceRoute);
@@ -98,6 +99,14 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   }
   const employee: any = getEmployee?.data?.orgUser?.byId?.employee ?? undefined;
 
+  const headerComponent = (
+    <PersonLinkHeader
+      title={t("Substitute Preferences")}
+      person={employee}
+      params={params}
+    />
+  );
+
   return (
     <>
       <SubstitutePreferences
@@ -106,9 +115,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         searchHeading={"All Substitutes"}
         favoriteEmployees={employee.substitutePreferences?.favoriteSubstitutes}
         blockedEmployees={employee.substitutePreferences?.blockedSubstitutes}
-        heading={t("Substitute Preferences")}
-        subHeading={`${employee.firstName ?? ""} ${employee.middleName ??
-          ""} ${employee.lastName ?? ""}`}
+        headerComponent={headerComponent}
         orgId={params.organizationId}
         isLocationOnly={false}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
@@ -119,7 +126,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         removeFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
         addToBlockedPermission={[PermissionEnum.EmployeeSaveBlockedSubs]}
         addToFavoritePermission={[PermissionEnum.EmployeeSaveFavoriteSubs]}
-      ></SubstitutePreferences>
+      />
     </>
   );
 };

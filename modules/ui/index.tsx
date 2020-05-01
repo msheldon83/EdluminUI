@@ -57,6 +57,7 @@ import {
   BellScheduleVariantsLoader,
   BellScheduleVariantsRoute,
 } from "./routes/bell-schedule-variants";
+import { HoursToDaysLoader, HoursToDaysRoute } from "./routes/hours-to-days";
 import {
   CalendarChangeReasonLoader,
   CalendarChangeReasonRoute,
@@ -98,6 +99,8 @@ import { SettingsLoader, SettingsRoute } from "./routes/settings";
 import {
   AnalyticsReportsDailyReportRoute,
   AnalyticsReportsDailyReportLoader,
+  AnalyticsReportsAbsentEmployeeRoute,
+  AnalyticsReportsAbsentEmployeeLoader
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -885,6 +888,14 @@ export const App = hot(function() {
                                       ]}
                                     />
                                     <ProtectedRoute
+                                      component={HoursToDaysLoader}
+                                      path={HoursToDaysRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ScheduleSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
                                       component={AdminHomeLoader}
                                       path={AdminHomeRoute.path}
                                       role={"admin"}
@@ -1198,6 +1209,15 @@ export const App = hot(function() {
                                         AnalyticsReportsDailyReportRoute.path
                                       }
                                       role={"admin"}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AnalyticsReportsAbsentEmployeeLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsAbsentEmployeeRoute.path
+                                      }
+                                      role={"sysAdmin"}
                                     />
                                   </Switch>
                                 </AdminRouteOrganizationContextProvider>
