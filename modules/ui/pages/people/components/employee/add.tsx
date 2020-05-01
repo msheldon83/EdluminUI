@@ -22,6 +22,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
+import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
@@ -68,7 +69,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     },
   });
 
-  const getOrgUser = useQueryBundle(GetOrgUserById, {
+  const getOrgUser = useQueryBundle(GetEmployeeById, {
     variables: { id: params.orgUserId },
     skip: params.orgUserId === "new",
   });
@@ -92,6 +93,41 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           lastName: orgUser.lastName,
           externalId: orgUser.externalId,
           email: orgUser.email,
+          address1: orgUser.address1,
+          city: orgUser.city,
+          state: orgUser.state,
+          country: orgUser.country,
+          postalCode: orgUser.postalCode,
+          phoneNumber: orgUser.phoneNumber,
+          dateOfBirth: orgUser.dateOfBirth,
+          position: {
+            positionType: {
+              id: orgUser.employee?.primaryPosition?.positionTypeId,
+            },
+            title: orgUser.employee?.primaryPosition?.title,
+            needsReplacement:
+              orgUser.employee?.primaryPosition?.needsReplacement,
+            contract: {
+              id: orgUser.employee?.primaryPosition?.contractId,
+            },
+            hoursPerFullWorkDay:
+              orgUser.employee?.primaryPosition?.hoursPerFullWorkDay,
+            accountingCodeAllocations: [
+              {
+                accountingCodeId: orgUser.employee?.primaryPosition
+                  ?.accountingCodeAllocations
+                  ? orgUser.employee.primaryPosition
+                      .accountingCodeAllocations[0]?.accountingCodeId ?? ""
+                  : "",
+                allocation: orgUser.employee?.primaryPosition
+                  ?.accountingCodeAllocations
+                  ? orgUser.employee.primaryPosition
+                      .accountingCodeAllocations[0]?.allocation ?? 1
+                  : 1,
+              },
+            ],
+            schedules: orgUser.employee?.primaryPosition?.schedules,
+          },
         });
         setInitialStepNumber(1);
       }

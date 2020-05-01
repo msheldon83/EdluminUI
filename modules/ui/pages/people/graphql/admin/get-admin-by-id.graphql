@@ -3,6 +3,18 @@ query GetAdminById($id: ID!) {
     byId(id: $id) {
       id
       orgId
+      active
+      email
+      address1
+      city
+      state
+      country
+      postalCode
+      dateOfBirth
+      phoneNumber
+      firstName
+      middleName
+      lastName
       externalId
       userId
       loginEmail
@@ -11,19 +23,6 @@ query GetAdminById($id: ID!) {
       shadowFromOrgName
       administrator {
         id
-        orgId
-        active
-        email
-        address1
-        city
-        state
-        country
-        postalCode
-        dateOfBirth
-        phoneNumber
-        firstName
-        middleName
-        lastName
         isSuperUser
         permissionSet {
           id

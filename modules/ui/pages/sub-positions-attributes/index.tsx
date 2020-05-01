@@ -33,10 +33,11 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     variables: { id: params.orgUserId },
   });
 
-  const substitute =
+  const orgUser =
     getSubstituteById.state === "LOADING"
       ? undefined
-      : getSubstituteById?.data?.orgUser?.byId?.substitute;
+      : getSubstituteById?.data?.orgUser?.byId;
+  const substitute = orgUser?.substitute;
 
   const currentAttributes: Attribute[] = useMemo(() => {
     if (!substitute?.attributes) {
@@ -132,7 +133,7 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     <>
       <PersonLinkHeader
         title={t("Position types & Attributes")}
-        person={substitute ?? undefined}
+        person={orgUser ?? undefined}
         params={params}
       />
       <SubPositionTypesAndAttributesEdit

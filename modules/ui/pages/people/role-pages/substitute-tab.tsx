@@ -86,7 +86,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       ? undefined
       : getSubstitute?.data?.orgUser?.byId;
 
-  let userIsAdmin = useIsAdmin(orgUser?.substitute?.orgId);
+  let userIsAdmin = useIsAdmin(orgUser?.orgId);
   userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
 
   if (getSubstitute.state === "LOADING" || !orgUser?.substitute) {
@@ -107,9 +107,6 @@ export const SubstituteTab: React.FC<Props> = props => {
     });
     props.setEditing(null);
     await getSubstitute.refetch();
-  };
-  const onCancelSub = () => {
-    props.setEditing(null);
   };
 
   return (
@@ -172,8 +169,8 @@ export const SubstituteTab: React.FC<Props> = props => {
             ]}
           />
           <SubstituteAssignmentsListView
-            userId={orgUser?.userId?.toString()}
-            orgId={substitute.orgId.toString()}
+            userId={orgUser?.userId}
+            orgId={params.organizationId}
             startDate={startDate}
             endDate={endDate}
             limit={5}
