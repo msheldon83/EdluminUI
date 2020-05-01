@@ -3,6 +3,7 @@ import { Divider, Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
+import { OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -11,12 +12,13 @@ import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { DistrictDetail } from "./district-detail";
 
 type Props = {
-  orgUserRelationships: Maybe<
+  relatedOrganizations: Maybe<
     Pick<
       OrgUserRelationship,
       "otherOrganization" | "orgUserRelationshipAttributes"
     >
   >[];
+  orgEndorsements: OptionType[];
   onRemoveOrg: (orgId: string) => Promise<unknown>;
   onAddEndorsement: (endorsementId: string) => Promise<unknown>;
   onRemoveEndorsement: (endorsementId: string) => Promise<unknown>;
@@ -32,10 +34,11 @@ export const SelectedDistrict: React.FC<Props> = props => {
   const [searchText, setSearchText] = useState<string | undefined>();
 
   const {
-    orgUserRelationships,
+    relatedOrganizations,
     onRemoveOrg,
     onChangeEndorsement,
     onRemoveEndorsement,
+    orgEndorsements,
     onAddEndorsement,
   } = props;
 
@@ -50,10 +53,10 @@ export const SelectedDistrict: React.FC<Props> = props => {
       </Grid>
       <Grid item xs={4} container className={classes.inline}></Grid>
       <Divider />
-      {orgUserRelationships.length === 0 ? (
+      {relatedOrganizations.length === 0 ? (
         <div>{t("No selected districts")}</div>
       ) : (
-        orgUserRelationships?.map((n, i) => (
+        relatedOrganizations?.map((n, i) => (
           <div key={i}>
             <Grid item xs={12}>
               <Grid item xs={4} container className={classes.inline}>
@@ -63,7 +66,7 @@ export const SelectedDistrict: React.FC<Props> = props => {
                 <AutoCompleteSearch
                   searchText={searchText}
                   onClick={onAddEndorsement}
-                  options={}
+                  options={orgEndorsements}
                   setSearchText={setSearchText}
                   placeholder={t("search")}
                   useLabel={false}

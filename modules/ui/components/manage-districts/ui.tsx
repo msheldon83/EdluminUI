@@ -5,7 +5,11 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Maybe, OrgUserRelationship } from "graphql/server-types.gen";
+import {
+  Maybe,
+  BasicOrganization,
+  OrgUserRelationshipAttribute,
+} from "graphql/server-types.gen";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
@@ -13,11 +17,12 @@ import { SelectedDistrict } from "./components/selected-districts";
 import { SearchDelegatesToOrganizations } from "./graphql/search-related-orgs.gen";
 
 type Props = {
-  orgUserRelationships: Maybe<
-    Pick<
-      OrgUserRelationship,
-      "otherOrganization" | "orgUserRelationshipAttributes"
-    >
+  relatedOrganizations: Maybe<
+    Pick<BasicOrganization, "name" | "id"> &
+      Pick<
+        OrgUserRelationshipAttribute,
+        "endorsement" | "endorsementId" | "expirationDate"
+      >
   >[];
   orgId: string;
   allDistrictAttributes: string[];
@@ -45,7 +50,8 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
     onAddEndorsement,
     onChangeEndorsement,
     onRemoveEndorsement,
-    orgUserRelationships,
+    relatedOrganizations,
+    orgEndorsements,
   } = props;
 
   const getDistricts = useQueryBundle(SearchDelegatesToOrganizations, {
@@ -99,7 +105,8 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
       <Grid item xs={12}>
         <SelectedDistrict
           onChangeEndorsement={onChangeEndorsement}
-          orgUserRelationships={orgUserRelationships}
+          relatedOrganizations={relatedOrganizations}
+          orgEndorsements={orgEndorsements}
           onRemoveOrg={onRemoveOrg}
           onAddEndorsement={onAddEndorsement}
           onRemoveEndorsement={onRemoveEndorsement}
