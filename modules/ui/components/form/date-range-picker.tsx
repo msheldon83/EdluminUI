@@ -23,60 +23,62 @@ type PresetRange = OptionType & {
   range: () => DateRange;
 };
 
-const presetRanges = [
-  {
-    label: "Next week",
-    value: "next-week",
-    range() {
-      const nextWeek = addWeeks(new Date(), 1);
-
-      return {
-        start: startOfWeek(nextWeek),
-        end: endOfWeek(nextWeek),
-      };
-    },
-  },
-  {
-    label: "Last week",
-    value: "last-week",
-    range() {
-      const lastWeek = addWeeks(new Date(), -1);
-
-      return {
-        start: startOfWeek(lastWeek),
-        end: endOfWeek(lastWeek),
-      };
-    },
-  },
-  {
-    label: "Last 90 days",
-    value: "last-90-days",
-    range() {
-      const today = new Date();
-
-      return {
-        start: addDays(today, -89),
-        end: today,
-      };
-    },
-  },
-  {
-    label: "This month",
-    value: "this-month",
-    range() {
-      const today = new Date();
-
-      return {
-        start: startOfMonth(today),
-        end: endOfMonth(today),
-      };
-    },
-  },
-];
-
 export const DateRangePicker = () => {
   const classes = useStyles();
   const { t } = useTranslation();
+
+  // TODO: these will probably be be imported and allow the parent of the component
+  // to add its own
+  const presetRanges = [
+    {
+      label: t("Next week"),
+      value: "next-week",
+      range() {
+        const nextWeek = addWeeks(new Date(), 1);
+
+        return {
+          start: startOfWeek(nextWeek),
+          end: endOfWeek(nextWeek),
+        };
+      },
+    },
+    {
+      label: t("Last week"),
+      value: "last-week",
+      range() {
+        const lastWeek = addWeeks(new Date(), -1);
+
+        return {
+          start: startOfWeek(lastWeek),
+          end: endOfWeek(lastWeek),
+        };
+      },
+    },
+    {
+      label: t("Last 90 days"),
+      value: "last-90-days",
+      range() {
+        const today = new Date();
+
+        return {
+          start: addDays(today, -89),
+          end: today,
+        };
+      },
+    },
+    {
+      label: t("This month"),
+      value: "this-month",
+      range() {
+        const today = new Date();
+
+        return {
+          start: startOfMonth(today),
+          end: endOfMonth(today),
+        };
+      },
+    },
+  ];
 
   const [startMonth, setStartMonth] = React.useState(new Date());
   const [customDates, setCustomDates] = React.useState<CustomDate[]>([]);
@@ -129,6 +131,12 @@ export const DateRangePicker = () => {
     setRange({ start, end });
   };
 
+  const handleEndDateInputChange = (end: Date) => {
+    const start = customDates[0]?.date ?? end;
+
+    setRange({ start, end });
+  };
+
   const handlePresetChange = (selection: OptionType) => {
     // Reset
     if (!selection || selection.label === "-") {
@@ -167,7 +175,7 @@ export const DateRangePicker = () => {
           value={endDateInput}
           className={classes.endDateInput}
           onChange={setEndDateInput}
-          onValidDate={(date: Date) => {}}
+          onValidDate={handleEndDateInputChange}
           label={t("To")}
         />
       </div>
