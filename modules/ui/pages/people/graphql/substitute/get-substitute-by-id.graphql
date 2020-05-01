@@ -10,7 +10,11 @@ query GetSubstituteById($id: ID!) {
       createdUtc
       relatedOrganizations {
         id
-        name
+        otherOrganization {
+          id
+          orgId
+          name
+        }
       }
       isShadowRecord
       shadowFromOrgId

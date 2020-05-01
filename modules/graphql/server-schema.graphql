@@ -1598,7 +1598,7 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface & 
   deletedLocal: DateTime
   employeeId: ID!
   endorsementId: ID!
-  expirationDate: Date
+  expirationDate: DateTime
   endorsement: Endorsement!
 }
 
@@ -1611,7 +1611,7 @@ input EmployeeEndorsementInput {
 
 interface EmployeeEndorsementInterface {
   endorsementId: ID!
-  expirationDate: Date
+  expirationDate: DateTime
   endorsement: Endorsement!
 }
 
@@ -3003,7 +3003,7 @@ type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
 type OrgUserRelationshipAttribute implements EmployeeEndorsementInterface {
   _info: [ReturnMessage]
   endorsementId: ID!
-  expires: DateTime
+  expirationDate: DateTime
   endorsement: Endorsement!
 }
 

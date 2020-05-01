@@ -4,18 +4,20 @@ query GetSubstituteRelatedOrgs($id: ID!) {
       id
       firstName
       lastName
-      orgUserRelationships {
+      relatedOrganizations {
         id
-        otherOrganizationId
         otherOrganization {
           id
           orgId
           name
         }
-        orgUserRelationshipAttributes {
-          endorsementId
-          name
-          expires
+        attributes {
+          expirationDate
+          endorsement {
+            id
+            name
+            validUntil
+          }
         }
       }
       employee {
