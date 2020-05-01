@@ -16,8 +16,9 @@ import {
   PositionTypeRoute,
   PositionTypeViewRoute,
 } from "ui/routes/position-type";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, DataImportType } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
 
 export const PositionTypePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -79,7 +80,7 @@ export const PositionTypePage: React.FC<{}> = props => {
     <>
       <Grid
         container
-        alignItems="flex-start"
+        alignItems="center"
         justify="space-between"
         spacing={2}
         className={classes.header}
@@ -96,6 +97,12 @@ export const PositionTypePage: React.FC<{}> = props => {
             >
               {t("Add Position Type")}
             </Button>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.PositionType}
+              label={t("Import position types")}
+              className={classes.importButton}
+            />
           </Grid>
         </Can>
       </Grid>
@@ -130,5 +137,8 @@ export const PositionTypePage: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
+  },
+  importButton: {
+    marginLeft: theme.spacing(1),
   },
 }));

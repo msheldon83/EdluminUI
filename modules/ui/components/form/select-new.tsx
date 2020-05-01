@@ -43,6 +43,11 @@ export type OptionType = {
 const TAG_CHIP_CONTAINER_HEIGHT = 36;
 const RESET_LABEL = "-";
 
+export const resetOption = {
+  label: "-",
+  value: "",
+};
+
 export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const classes = useStyles();
   const theme = useTheme();

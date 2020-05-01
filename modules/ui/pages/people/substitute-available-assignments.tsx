@@ -4,7 +4,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { SubstituteAvailableAssignmentsRoute } from "ui/routes/people";
 import { useQueryBundle } from "graphql/hooks";
 import { GetOrgUserById } from "./graphql/get-orguser-by-id.gen";
-import { PageTitle } from "ui/components/page-title";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 export const SubstituteAvailableAssignmentsPage: React.FC<{}> = () => {
   const params = useRouteParams(SubstituteAvailableAssignmentsRoute);
@@ -24,7 +24,10 @@ export const SubstituteAvailableAssignmentsPage: React.FC<{}> = () => {
 
   return (
     <>
-      <PageTitle title={`${user.firstName} ${user.lastName}`} />
+      <PersonLinkHeader
+        title={`${user.firstName} ${user.lastName}`}
+        params={params}
+      />
       <AvailableAssignments viewingAsAdmin={true} userId={user.userId} />
     </>
   );

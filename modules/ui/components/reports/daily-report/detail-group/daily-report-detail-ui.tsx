@@ -57,7 +57,6 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                   props.detail.employee?.name
                 ) : (
                   <EmployeeLink
-                    orgId={props.detail.orgId}
                     orgUserId={props.detail.employee?.id}
                     linkClass={classes.action}
                     textClass={props.detail.isClosed ? classes.closedText : ""}
@@ -106,7 +105,6 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
               props.detail.location?.name
             ) : (
               <LocationLink
-                orgId={props.detail.orgId}
                 locationId={props.detail.location?.id}
                 linkClass={classes.action}
                 textClass={props.detail.isClosed ? classes.closedText : ""}
@@ -143,7 +141,6 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
                   props.detail.substitute.name
                 ) : (
                   <SubstituteLink
-                    orgId={props.detail.orgId}
                     orgUserId={props.detail.substitute.id}
                     linkClass={classes.action}
                   >
@@ -172,7 +169,6 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
             !props.highlighted &&
             !inSwapMode && (
               <AbsVacAssignLink
-                orgId={props.detail.orgId}
                 absVacId={props.detail.id}
                 absVacType={props.detail.type}
                 absVacDate={props.detail.date}
@@ -198,7 +194,6 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
         <div>
           <div>
             <AbsVacLink
-              orgId={props.detail.orgId}
               absVacId={props.detail.id}
               absVacType={props.detail.type}
               linkClass={classes.action}

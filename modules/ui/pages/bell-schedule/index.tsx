@@ -19,7 +19,8 @@ import { useRouteParams } from "ui/routes/definition";
 import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { GetAllWorkDaySchedulesWithinOrg } from "./graphql/workday-schedules.gen";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, DataImportType } from "graphql/server-types.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
 
 export const BellSchedulePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -120,6 +121,12 @@ export const BellSchedulePage: React.FC<{}> = props => {
             >
               {t("Add Bell Schedule")}
             </Button>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.WorkDaySchedule}
+              label={t("Import bell schedules")}
+              className={classes.importButton}
+            />
           </Grid>
         </Can>
       </Grid>
@@ -158,5 +165,8 @@ export const BellSchedulePage: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
+  },
+  importButton: {
+    marginLeft: theme.spacing(1),
   },
 }));

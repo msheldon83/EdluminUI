@@ -125,7 +125,7 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
         removeFavoritePermission={[PermissionEnum.LocationGroupSave]}
         addToBlockedPermission={[PermissionEnum.LocationGroupSave]}
         addToFavoritePermission={[PermissionEnum.LocationGroupSave]}
-      ></SubstitutePreferences>
+      />
     </>
   );
 };
