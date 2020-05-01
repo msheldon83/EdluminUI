@@ -1,21 +1,17 @@
 import * as React from "react";
-import { pickUrl, BaseLink } from "./base";
+import { pickUrl, BaseLink, LinkOptions } from "./base";
 import { CanDo } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
 import { useOrganizationId } from "core/org-context";
 
 type Props = {
-  perms: CanDo;
   orgId?: string;
   orgUserId: string | undefined;
   state?: any;
-  linkClass?: string;
-  textClass?: string;
-  color?: "blue" | "black";
-};
+} & LinkOptions;
 
-const PeopleLink: React.FC<Props> = ({
+const PeopleLink: React.FC<Props & { perms: CanDo }> = ({
   perms,
   orgId,
   orgUserId,
@@ -39,18 +35,9 @@ const PeopleLink: React.FC<Props> = ({
   );
 };
 
-type SpecificProps = {
-  orgId?: string;
-  orgUserId: string | undefined;
-  state?: any;
-  linkClass?: string;
-  textClass?: string;
-  color?: "blue" | "black";
-};
-
-export const EmployeeLink: React.FC<SpecificProps> = props => (
+export const EmployeeLink: React.FC<Props> = props => (
   <PeopleLink perms={[PermissionEnum.EmployeeView]} {...props} />
 );
-export const SubstituteLink: React.FC<SpecificProps> = props => (
+export const SubstituteLink: React.FC<Props> = props => (
   <PeopleLink perms={[PermissionEnum.SubstituteView]} {...props} />
 );

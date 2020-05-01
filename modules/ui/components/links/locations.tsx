@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BaseLink, pickUrl } from "./base";
+import { BaseLink, LinkOptions, pickUrl } from "./base";
 import { CanDo } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { LocationViewRoute } from "ui/routes/locations";
@@ -9,10 +9,7 @@ type Props = {
   orgId?: string;
   locationId: string | undefined;
   state?: any;
-  linkClass?: string;
-  textClass?: string;
-  color?: "blue" | "black";
-};
+} & LinkOptions;
 
 export const LocationLink: React.FC<Props> = ({
   orgId,

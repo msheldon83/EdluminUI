@@ -1,5 +1,5 @@
 import * as React from "react";
-import { pickUrl, BaseLink } from "./base";
+import { pickUrl, BaseLink, LinkOptions } from "./base";
 import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { VacancyViewRoute } from "ui/routes/vacancy";
@@ -14,11 +14,7 @@ import { useOrganizationId } from "core/org-context";
 type GeneralProps = {
   orgId?: string;
   state?: any;
-  linkClass?: string;
-  textClass?: string;
-  disabled?: boolean;
-  color?: "blue" | "black";
-};
+} & LinkOptions;
 
 type AbsenceProps = GeneralProps & {
   absenceId: string | undefined;
@@ -57,9 +53,6 @@ export const AbsenceLink: React.FC<AbsenceProps> = ({
   }
   const urlStr = absenceRoute(role, orgId ?? contextOrgId, absenceId);
 
-  if (props.disabled) {
-    return <span className={props.textClass}>{absString(absenceId)}</span>;
-  }
   return (
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
@@ -90,9 +83,6 @@ export const VacancyLink: React.FC<VacancyProps> = ({
     organizationId: orgId ?? contextOrgId!,
     vacancyId,
   });
-  if (props.disabled) {
-    return <span className={props.textClass}>{vacString(vacancyId)}</span>;
-  }
   return (
     <BaseLink
       permissions={[PermissionEnum.AbsVacView]}
