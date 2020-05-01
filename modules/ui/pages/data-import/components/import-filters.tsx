@@ -2,7 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { DataImportStatus, DataImportType } from "graphql/server-types.gen";
 import { ImportStatusFilter } from "./import-status-filter";
-import { ImportTypeFilter } from "./import-type-filter";
+import { ImportTypeFilter } from "ui/components/data-import/import-type-filter";
 import { makeStyles, Grid, InputLabel } from "@material-ui/core";
 import { DatePicker } from "ui/components/form/date-picker";
 

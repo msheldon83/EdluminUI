@@ -10,7 +10,8 @@ import {
 import { Link } from "react-router-dom";
 import { LocationGroupsUI } from "./ui";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, DataImportType } from "graphql/server-types.gen";
+import { ImportDataButton } from "ui/components/data-import/import-data-button";
 
 type Props = {};
 
@@ -28,7 +29,9 @@ export const LocationGroups: React.FC<Props> = props => {
         spacing={2}
         className={classes.header}
       >
-        <PageTitle title={t("School Groups")} />
+        <Grid item>
+          <PageTitle title={t("School Groups")} />
+        </Grid>
         <Can do={[PermissionEnum.LocationGroupSave]}>
           <Grid item>
             <Button
@@ -38,6 +41,12 @@ export const LocationGroups: React.FC<Props> = props => {
             >
               {t("Add School Group")}
             </Button>
+            <ImportDataButton
+              orgId={params.organizationId}
+              importType={DataImportType.LocationGroup}
+              label={t("Import groups")}
+              className={classes.importButton}
+            />
           </Grid>
         </Can>
       </Grid>
@@ -49,5 +58,8 @@ export const LocationGroups: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
+  },
+  importButton: {
+    marginLeft: theme.spacing(1),
   },
 }));

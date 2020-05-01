@@ -236,6 +236,10 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Imported"),
     },
     {
+      name: "dataImportStatus.PARSED",
+      displayName: t("Parsed"),
+    },
+    {
       name: "dataImportStatus.PERMANENT_FAILURE",
       displayName: t("Permanent failure"),
     },

@@ -43,7 +43,8 @@ import { AccessIcon } from "./components/access-icon";
 import { CreateButton } from "./components/create-button";
 import { Can } from "ui/components/auth/can";
 import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
-import { OrganizationType } from "graphql/server-types.gen";
+import { OrganizationType, DataImportType } from "graphql/server-types.gen";
+import { ImportDataMultiButton } from "ui/components/data-import/import-data-multi-button";
 
 type Props = {};
 
@@ -481,12 +482,12 @@ export const PeoplePage: React.FC<Props> = props => {
     <>
       <Grid
         container
-        alignItems="flex-start"
+        alignItems="center"
         justify="space-between"
         spacing={2}
         className={classes.header}
       >
-        <Grid item>
+        <Grid item xs={8}>
           <PageTitle title={t("People")} />
         </Grid>
         <Can
@@ -496,7 +497,26 @@ export const PeoplePage: React.FC<Props> = props => {
             PermissionEnum.SubstituteSave,
           ]}
         >
-          <Grid item>
+          <Grid item xs={2}>
+            <ImportDataMultiButton
+              orgId={params.organizationId}
+              importTypes={[
+                {
+                  importType: DataImportType.Administrator,
+                  label: t("Admins"),
+                },
+                {
+                  importType: DataImportType.Employee,
+                  label: t("Employees"),
+                },
+                {
+                  importType: DataImportType.Substitute,
+                  label: t("Substitutes"),
+                },
+              ]}
+            />
+          </Grid>
+          <Grid item xs={2}>
             <CreateButton />
           </Grid>
         </Can>
