@@ -20,6 +20,7 @@ import { useDeferredState } from "hooks";
 import { FilterQueryParams } from "ui/pages/people/people-filters/filter-params";
 import { useEffect } from "react";
 import { Can } from "../auth/can";
+import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
@@ -157,7 +158,11 @@ export const SubstitutePicker: React.FC<Props> = props => {
 
             return (
               <Grid item className={className} xs={12} key={i}>
-                <Typography className={classes.userName}>{name}</Typography>
+                <Typography className={classes.userName}>
+                  <SubstituteLink orgUserId={user.id} color="black">
+                    {name}
+                  </SubstituteLink>
+                </Typography>
                 <Can do={props.addToBlockedPermission}>
                   <TextButton
                     className={classes.blockActionLink}
@@ -237,7 +242,7 @@ const useStyles = makeStyles(theme => ({
   addAutoAssignActionLink: {
     float: "right",
     color: theme.customColors.blue,
-    paddingRight: theme.spacing()
+    paddingRight: theme.spacing(),
   },
   addActionLink: {
     float: "right",

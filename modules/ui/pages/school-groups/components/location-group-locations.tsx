@@ -23,9 +23,7 @@ export const LocationGroupLocations: React.FC<Props> = props => {
             ) : (
               locations.map((n, i) => (
                 <div key={i}>
-                  <LocationLink orgId={n.orgId} locationId={n.id}>
-                    {n.name}
-                  </LocationLink>
+                  <LocationLink locationId={n.id}>{n.name}</LocationLink>
                 </div>
               ))
             )}

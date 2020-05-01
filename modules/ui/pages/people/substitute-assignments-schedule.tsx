@@ -13,6 +13,7 @@ import { PeopleRoute } from "ui/routes/people";
 import { Redirect } from "react-router";
 import { useMemo } from "react";
 import { parseISO } from "date-fns";
+import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 type Props = {
   view: "list" | "calendar";
@@ -55,9 +56,15 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
       {orgUser && orgUserCreatedDate && (
         <SubstituteAssignments
           view={props.view}
-          pageTitle={`${orgUser?.substitute!.firstName} ${
-            orgUser?.substitute!.lastName
-          }'s Schedule`}
+          pageTitle={
+            <PersonLinkHeader
+              title={`${orgUser?.substitute!.firstName} ${
+                orgUser?.substitute!.lastName
+              }'s Schedule`}
+              person={orgUser?.substitute!}
+              params={params}
+            />
+          }
           userId={orgUser?.userId!.toString()}
           listViewRoute={SubstituteAssignmentScheduleListViewRoute.generate(
             params

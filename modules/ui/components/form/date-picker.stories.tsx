@@ -9,6 +9,7 @@ import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
 import { Calendar } from "./calendar";
 import { SingleMonthCalendar } from "./single-month-calendar";
 import { CustomCalendar, useToggleDatesList } from "./custom-calendar";
+import { DateRangePicker } from "./date-range-picker";
 
 export default {
   title: "Forms/Date Picker",
@@ -16,13 +17,38 @@ export default {
 
 export const DateRangePickerStory = () => {
   const classes = useStyles();
+
+  const [startDate, setStartDate] = React.useState<Date | string>(new Date());
+  const [endDate, setEndDate] = React.useState<Date | string | undefined>();
+
+  return (
+    <div className={classes.container} style={{ maxWidth: "700px" }}>
+      <DateRangePicker />
+    </div>
+  );
+};
+
+DateRangePickerStory.story = {
+  name: "Date Range Picker",
+};
+
+export const DatePickerStory = () => {
+  const classes = useStyles();
   const [startDate, setStartDate] = React.useState<Date | string>(new Date());
   const [endDate, setEndDate] = React.useState<Date | string | undefined>();
 
   return (
     <div className={classes.container}>
       <DatePicker
-        variant="range"
+        variant={select(
+          "variant",
+          {
+            Range: "range",
+            Single: "single",
+            "Single, hidden": "single-hidden",
+          },
+          "range"
+        )}
         startDate={startDate}
         endDate={endDate}
         onChange={({ startDate, endDate }) => {
@@ -43,8 +69,8 @@ export const DateRangePickerStory = () => {
   );
 };
 
-DateRangePickerStory.story = {
-  name: "Date Range",
+DatePickerStory.story = {
+  name: "Date Picker",
 };
 
 export const DatePickerExtendedRangeStory = () => {
@@ -203,7 +229,8 @@ export const CustomCalendarStory = () => {
         }}
         month={month}
         customDates={customDates}
-        monthNavigation={boolean("monthNavigation", true)}
+        previousMonthNavigation={boolean("previousMonthNavigation", true)}
+        nextMonthNavigation={boolean("nextMonthNavigation", true)}
         variant={select("variant", { Month: "month", Weeks: "weeks" }, "month")}
         onMonthChange={month => {
           setMonth(month);

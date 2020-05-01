@@ -111,11 +111,15 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
     props.onSelectDates(dates.length > 1 ? restOfDates : [initialDate]);
   };
 
+  const { monthNavigation, ...calendarProps } = props;
+
   return (
     <CustomCalendar
       variant="month"
       month={currentMonth}
-      {...props}
+      previousMonthNavigation={monthNavigation}
+      nextMonthNavigation={monthNavigation}
+      {...calendarProps}
       onSelectDates={handleSelectDates}
       customDates={customDates}
     />

@@ -8,11 +8,17 @@ type Props = {
   selectedTypeId?: DataImportType;
   setSelectedTypeId: (typeId?: DataImportType) => void;
   includeAllOption?: boolean;
+  disabled?: boolean;
 };
 
 export const ImportTypeFilter: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const { setSelectedTypeId, selectedTypeId, includeAllOption = true } = props;
+  const {
+    setSelectedTypeId,
+    selectedTypeId,
+    includeAllOption = true,
+    disabled = false,
+  } = props;
 
   const typeOptions = useDataImportTypeOptions(t, includeAllOption);
 
@@ -36,6 +42,7 @@ export const ImportTypeFilter: React.FC<Props> = props => {
         }
       }}
       doSort={false}
+      disabled={disabled}
     />
   );
 };
