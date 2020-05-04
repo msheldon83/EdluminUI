@@ -12,25 +12,29 @@ import { GetReportQuery } from "./graphql/get-report";
 import { LoadingDataGrid } from "./data/loading-data-grid";
 import { reportReducer } from "./state";
 import { ActionBar } from "./actions/action-bar";
+import { makeStyles } from "@material-ui/core";
+import { useOrganizationId } from "core/org-context";
 
 type Props = {
   input: ReportDefinitionInput;
-  orgIds: string[];
   filterFieldsOverride?: string[];
 };
 
 export const Report: React.FC<Props> = props => {
-  const { input, orgIds, filterFieldsOverride } = props;
+  const classes = useStyles();
+  const { input, filterFieldsOverride } = props;
+  const organizationId = useOrganizationId();
   const [state, dispatch] = React.useReducer(reportReducer, {
     currentFilters: [],
     filterableFields: [],
+    pendingUpdates: false,
   });
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
     variables: {
       input: {
-        orgIds,
+        orgIds: [organizationId],
         queryText: convertReportDefinitionInputToRdl(input),
       },
     },
@@ -50,9 +54,9 @@ export const Report: React.FC<Props> = props => {
     }
   }, [reportResponse.state]);
 
-  const setFilter = React.useCallback(
-    (filterField: FilterField) => {
-      dispatch({ action: "setFilter", filter: filterField });
+  const setFilters = React.useCallback(
+    (filterFields: FilterField[]) => {
+      dispatch({ action: "setFilters", filters: filterFields });
     },
     [dispatch]
   );
@@ -66,24 +70,45 @@ export const Report: React.FC<Props> = props => {
 
   return (
     <AppConfig contentWidth="100%">
-      {!state.reportDefinition ? (
-        <LoadingDataGrid />
-      ) : (
-        <>
-          <ActionBar
-            currentFilters={state.currentFilters}
-            filterableFields={state.filterableFields}
-            setFilter={setFilter}
-          />
-          <DataGrid
-            reportDefinition={state.reportDefinition}
-            setOrderBy={setOrderBy}
-          />
-        </>
-      )}
+      <div className={classes.content}>
+        {!state.reportDefinition ? (
+          <LoadingDataGrid />
+        ) : (
+          <>
+            <div className={classes.actions}>
+              <ActionBar
+                currentFilters={state.currentFilters}
+                filterableFields={state.filterableFields}
+                setFilters={setFilters}
+                refreshReport={async () => {}}
+              />
+            </div>
+            <DataGrid
+              reportDefinition={state.reportDefinition}
+              setOrderBy={setOrderBy}
+            />
+          </>
+        )}
+      </div>
     </AppConfig>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  content: {
+    width: "100%",
+    height: "100%",
+    padding: theme.spacing(3),
+    borderWidth: theme.typography.pxToRem(1),
+    borderColor: theme.customColors.sectionBorder,
+    borderStyle: "solid",
+    borderRadius: "0.25rem",
+    backgroundColor: theme.customColors.white,
+  },
+  actions: {
+    marginBottom: theme.spacing(2),
+  },
+}));
 
 const convertReportDefinitionInputToRdl = (
   input: ReportDefinitionInput

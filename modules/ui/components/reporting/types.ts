@@ -54,7 +54,7 @@ export type DataSourceField = {
     key: string;
     filterDataSourceFieldName: string;
     friendlyName: string;
-  }[];
+  };
 };
 
 export enum FilterType {
@@ -129,7 +129,7 @@ export type FilterField = {
   field: DataSourceField;
   expressionFunction: ExpressionFunction;
   value?: any;
-}
+};
 
 export type GroupedData = {
   info?: GroupInfo | null | undefined;

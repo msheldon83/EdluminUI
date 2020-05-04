@@ -12,7 +12,8 @@ export type ReportState = {
   currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   orderBy?: OrderByField;
-  pendingUpdates?: boolean;
+  pendingUpdates: boolean;
+  rdlString?: string;
 };
 
 export type ReportActions =
@@ -22,8 +23,8 @@ export type ReportActions =
       filterFieldsOverride?: string[];
     }
   | {
-      action: "setFilter";
-      filter: FilterField;
+      action: "setFilters";
+      filters: FilterField[];
     }
   | {
       action: "setOrderBy";
@@ -58,21 +59,18 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         filterableFields: filterableFields,
       };
     }
-    case "setFilter": {
-      const filters = prev.currentFilters.filter(
-        f =>
-          f.field.dataSourceFieldName !==
-          action.filter.field.dataSourceFieldName
-      );
+    case "setFilters": {
+      //TODO: Process and set the rdlString here too
 
-      // TODO: Maintain the ordering of the filters when doing this
       return {
         ...prev,
-        currentFilters: [...filters, action.filter],
+        currentFilters: [...action.filters],
         pendingUpdates: true,
       };
     }
     case "setOrderBy": {
+      //TODO: Process and set the rdlString here too
+
       return {
         ...prev,
         orderBy: action.field,
@@ -80,3 +78,5 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
     }
   }
 };
+
+//TODO: Function to build the RDL String off of currentFilters: FilterField[]; and orderBy?: OrderByField;

@@ -1,40 +1,40 @@
 import * as React from "react";
-import { DataSourceField, FilterType, FilterField } from "../types";
+import { DataSourceField, FilterField, ExpressionFunction } from "../types";
 import {
-  FormControlLabel,
-  Checkbox,
   Button,
   Popper,
   Fade,
   makeStyles,
+  ClickAwayListener,
 } from "@material-ui/core";
-import { LocationSelect } from "ui/components/reference-selects/location-select";
-import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
 import { useTranslation } from "react-i18next";
 import { FilterList } from "@material-ui/icons";
-import { flatMap } from "lodash-es";
-import { SelectNew } from "ui/components/form/select-new";
+import { FilterRow } from "./filter-row";
 
 type Props = {
   currentFilters: FilterField[];
   filterableFields: DataSourceField[];
-  setFilter: (filterField: FilterField) => void;
+  setFilters: (filterFields: FilterField[]) => void;
+  refreshReport: () => Promise<void>;
 };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { currentFilters, filterableFields, setFilter } = props;
-
-  const [filtersAnchor, setFiltersAnchor] = React.useState<null | HTMLElement>(
-    null
+  const { currentFilters, filterableFields, setFilters } = props;
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
+    currentFilters && currentFilters.length > 0
+      ? currentFilters
+      : [
+          {
+            field: filterableFields[0],
+            expressionFunction: ExpressionFunction.Equal,
+          },
+        ]
   );
-  const filtersOpen = Boolean(filtersAnchor);
-  const filtersId = filtersOpen ? "filters-popper" : undefined;
-  const handleShowFilters = (event: React.MouseEvent<HTMLElement>) => {
-    setFiltersAnchor(filtersAnchor ? null : event.currentTarget);
-  };
 
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
   const buttonText =
     currentFilters.length > 0
       ? `${t("Filtered by:")} ${currentFilters.length} ${
@@ -42,93 +42,98 @@ export const Filters: React.FC<Props> = props => {
         }`
       : t("Filter");
 
+  React.useEffect(() => {
+    const definedFilters = localFilters.filter(f => !!f.value);
+    setFilters(definedFilters);
+  }, [localFilters]);
+
+  const updateFilter = React.useCallback(
+    (filterField: FilterField, filterIndex: number) => {
+      const updatedFilters = [...localFilters];
+      updatedFilters[filterIndex] = filterField;
+      setLocalFilters(updatedFilters);
+    },
+    [localFilters, setLocalFilters]
+  );
+
+  const addFilter = React.useCallback(() => {
+    setLocalFilters(current => {
+      return [
+        ...current,
+        {
+          field: filterableFields[0],
+          expressionFunction: ExpressionFunction.Equal,
+        },
+      ];
+    });
+  }, [setLocalFilters, setLocalFilters, filterableFields]);
+
+  const removeFilter = React.useCallback(
+    (filterIndex: number) => {
+      const updatedFilters = [...localFilters];
+      updatedFilters.splice(filterIndex, 1);
+      setLocalFilters(updatedFilters);
+    },
+    [localFilters, setLocalFilters]
+  );
+
   return (
     <>
       <Button
-        id={filtersId}
         color="inherit"
         startIcon={<FilterList />}
-        onClick={handleShowFilters}
+        onClick={() => setFiltersOpen(!filtersOpen)}
         className={classes.actionButton}
+        ref={buttonRef}
       >
         {buttonText}
       </Button>
       <Popper
         transition
         open={filtersOpen}
-        anchorEl={filtersAnchor}
+        anchorEl={buttonRef.current}
         placement="bottom-start"
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
-            <div className={classes.filters}>
-              {FilterRow(true, setFilter, currentFilters, filterableFields)}
-            </div>
+            <ClickAwayListener
+              mouseEvent="onMouseDown"
+              onClickAway={() => {
+                setFiltersOpen(false);
+                // TODO: trigger refreshReport
+              }}
+            >
+              <div className={classes.filters}>
+                {localFilters.length > 0 ? (
+                  localFilters.map((f, i) => {
+                    return (
+                      <FilterRow
+                        filterField={f}
+                        filterableFields={filterableFields}
+                        updateFilter={(filterField: FilterField) =>
+                          updateFilter(filterField, i)
+                        }
+                        removeFilter={() => removeFilter(i)}
+                        isFirst={i === 0}
+                        key={i}
+                      />
+                    );
+                  })
+                ) : (
+                  <div className={classes.subText}>
+                    {t("No filters applied")}
+                  </div>
+                )}
+                <div className={classes.addFilter} onClick={addFilter}>
+                  {t("Add filter")}
+                </div>
+              </div>
+            </ClickAwayListener>
           </Fade>
         )}
       </Popper>
     </>
   );
-
-  // let filters: JSX.Element[] = [];
-  // filterFields.forEach(ff => {
-  //   switch (ff.field.filterType) {
-  //     case FilterType.Boolean:
-  //       filters.push(
-  //         <FormControlLabel
-  //           checked={ff.value ?? false}
-  //           control={
-  //             <Checkbox
-  //               onChange={(e, checked) => setFilterValue(ff.field, checked)}
-  //               color="primary"
-  //             />
-  //           }
-  //           label={ff.field.friendlyName}
-  //         />
-  //       );
-  //       break;
-  //     case FilterType.Custom:
-  //       (ff.field.filterTypeDefinition ?? []).map(ft => {
-  //         switch (ft.key) {
-  //           case "Location":
-  //             filters.push(
-  //               <LocationSelect
-  //                 orgId={"1038"}
-  //                 setSelectedLocationIds={() => {}}
-  //                 multiple={true}
-  //                 label={ff.field.friendlyName}
-  //                 includeAllOption={true}
-  //               />
-  //             );
-  //             break;
-  //           case "PositionType":
-  //             filters.push(
-  //               <PositionTypeSelect
-  //                 orgId={"1038"}
-  //                 setSelectedPositionTypeIds={() => {}}
-  //                 multiple={true}
-  //                 label={ff.field.friendlyName}
-  //                 includeAllOption={true}
-  //               />
-  //             );
-  //             break;
-  //         }
-  //       });
-  //       break;
-  //   }
-  // });
-
-  // if (filters.length === 0) {
-  //   return null;
-  // }
-
-  // return (
-  //   <>
-  //     {filters.map((f, i) => {
-  //       return <React.Fragment key={i}>{f}</React.Fragment>;
-  //     })}
-  //   </>
-  // );
 };
 
 const useStyles = makeStyles(theme => ({
@@ -144,69 +149,22 @@ const useStyles = makeStyles(theme => ({
     },
   },
   filters: {
-    width: theme.typography.pxToRem(500),
+    width: theme.typography.pxToRem(600),
     minHeight: theme.typography.pxToRem(100),
     background: theme.palette.background.paper,
     border: "1px solid #E5E5E5",
     boxSizing: "border-box",
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
     borderRadius: "4px",
+    padding: theme.spacing(2),
+  },
+  addFilter: {
+    cursor: "pointer",
+    marginTop: theme.spacing(2),
+    color: theme.customColors.primary,
+    fontWeight: 600,
+  },
+  subText: {
+    color: theme.customColors.edluminSubText,
   },
 }));
-
-const getFilterOptions = (
-  currentFilters: FilterField[],
-  filterableFields: DataSourceField[]
-) => {
-  const remainingFields = filterableFields.filter(
-    f =>
-      !currentFilters.find(
-        c => c.field.dataSourceFieldName === f.dataSourceFieldName
-      )
-  );
-
-  return flatMap(
-    remainingFields.map(f => {
-      if (!f.filterTypeDefinition) {
-        return {
-          label: f.friendlyName,
-          value: f.dataSourceFieldName,
-        };
-      }
-
-      return f.filterTypeDefinition.map(ft => {
-        return {
-          label: ft.friendlyName,
-          value: ft.filterDataSourceFieldName,
-        };
-      });
-    })
-  );
-};
-
-const FilterRow = (
-  isFirst: boolean,
-  setFilter: (filterField: FilterField) => void,
-  currentFilters: FilterField[],
-  filterableFields: DataSourceField[]
-) => {
-  const filterOptions = getFilterOptions(currentFilters, filterableFields);
-
-  return (
-    <div>
-      <div>X</div>
-      <div>Where</div>
-      <div>
-        <SelectNew
-          value={filterOptions[0]}
-          options={filterOptions}
-          onChange={() => {}}
-          multiple={false}
-          withResetValue={false}
-        />
-      </div>
-      <div>is</div>
-      <div>Special filter here</div>
-    </div>
-  );
-};

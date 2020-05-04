@@ -1,29 +1,34 @@
 import * as React from "react";
-import { ReportDefinition, DataSourceField, FilterField } from "../types";
-import { Grid } from "@material-ui/core";
+import { DataSourceField, FilterField } from "../types";
+import { makeStyles } from "@material-ui/core";
 import { Filters } from "./filters";
 
 type Props = {
   currentFilters: FilterField[];
   filterableFields: DataSourceField[];
-  setFilter: (filterField: FilterField) => void;
+  setFilters: (filterFields: FilterField[]) => void;
+  refreshReport: () => Promise<void>;
 };
 
 export const ActionBar: React.FC<Props> = props => {
-  const { currentFilters, filterableFields, setFilter } = props;
+  const classes = useStyles();
+  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
 
   return (
-    <div>
+    <div className={classes.actionBar}>
+      {/*TODO: Required Filters component here */}
       <Filters
         currentFilters={currentFilters}
         filterableFields={filterableFields}
-        setFilter={setFilter}
+        setFilters={setFilters}
+        refreshReport={refreshReport}
       />
     </div>
   );
 };
 
-// Need a row for required filters
-// Need a row for filter button, group by button (later), and Add Column (later)
-// Popover for filtering
-// Search button to the right, disabled if no pending updates
+const useStyles = makeStyles(theme => ({
+  actionBar: {
+    display: "flex",
+  },
+}));
