@@ -18,7 +18,8 @@ export const LocationLink: React.FC<Props> = ({
   ...props
 }) => {
   const contextOrgId = useOrganizationId();
-  if (locationId === undefined) {
+
+  if (!locationId || !contextOrgId) {
     return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = LocationViewRoute.generate({

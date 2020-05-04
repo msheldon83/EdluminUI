@@ -19,7 +19,7 @@ const PeopleLink: React.FC<Props & { perms: CanDo }> = ({
   ...props
 }) => {
   const contextOrgId = useOrganizationId();
-  if (orgUserId === undefined) {
+  if (!orgUserId || !contextOrgId) {
     return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = PersonViewRoute.generate({
