@@ -27,7 +27,10 @@ export const Report: React.FC<Props> = props => {
   const [state, dispatch] = React.useReducer(reportReducer, {
     reportDefinitionInput: input,
     rdlString: convertReportDefinitionInputToRdl(input),
-    currentFilters: [],
+    filters: {
+      optional: [],
+      required: [],
+    },
     filterableFields: [],
   });
 
@@ -56,8 +59,12 @@ export const Report: React.FC<Props> = props => {
   }, [reportResponse.state]);
 
   const setFilters = React.useCallback(
-    (filterFields: FilterField[]) => {
-      dispatch({ action: "setFilters", filters: filterFields });
+    (filterFields: FilterField[], areOptional: boolean) => {
+      if (areOptional) {
+        dispatch({ action: "setOptionalFilters", filters: filterFields });
+      } else {
+        dispatch({ action: "setRequiredFilters", filters: filterFields });
+      }
     },
     [dispatch]
   );
@@ -75,7 +82,10 @@ export const Report: React.FC<Props> = props => {
           <>
             <div className={classes.actions}>
               <ActionBar
-                currentFilters={state.currentFilters}
+                currentFilters={[
+                  ...state.filters.required,
+                  ...state.filters.optional,
+                ]}
                 filterableFields={state.filterableFields}
                 setFilters={setFilters}
                 refreshReport={refreshReport}

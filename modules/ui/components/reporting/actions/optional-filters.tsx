@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { FilterList } from "@material-ui/icons";
-import { FilterRow } from "./filter-row";
+import { OptionalFilterRow } from "./optional-filter-row";
 
 type Props = {
   currentFilters: FilterField[];
@@ -18,7 +18,7 @@ type Props = {
   refreshReport: () => Promise<void>;
 };
 
-export const Filters: React.FC<Props> = props => {
+export const OptionalFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { currentFilters, filterableFields, setFilters, refreshReport } = props;
@@ -68,8 +68,6 @@ export const Filters: React.FC<Props> = props => {
     });
   }, [setLocalFilters, filterableFields]);
 
-  console.log("localFilters", localFilters);
-
   const removeFilter = React.useCallback(
     (filterIndex: number) => {
       const updatedFilters = [...localFilters];
@@ -109,7 +107,7 @@ export const Filters: React.FC<Props> = props => {
                 {localFilters.length > 0 ? (
                   localFilters.map((f, i) => {
                     return (
-                      <FilterRow
+                      <OptionalFilterRow
                         filterField={f}
                         filterableFields={filterableFields}
                         updateFilter={(filterField: FilterField) =>

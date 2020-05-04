@@ -13,7 +13,10 @@ import { compact } from "lodash-es";
 export type ReportState = {
   reportDefinitionInput: ReportDefinitionInput;
   reportDefinition?: ReportDefinition;
-  currentFilters: FilterField[];
+  filters: {
+    optional: FilterField[];
+    required: FilterField[];
+  };
   filterableFields: DataSourceField[];
   orderBy?: OrderByField;
   rdlString: string;
@@ -26,7 +29,11 @@ export type ReportActions =
       filterFieldsOverride?: string[];
     }
   | {
-      action: "setFilters";
+      action: "setOptionalFilters";
+      filters: FilterField[];
+    }
+  | {
+      action: "setRequiredFilters";
       filters: FilterField[];
     }
   | {
@@ -64,13 +71,37 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         filterableFields: filterableFields,
       };
     }
-    case "setFilters": {
+    case "setOptionalFilters": {
+      const updatedFilters = {
+        ...prev.filters,
+        optional: [...action.filters],
+      };
       return {
         ...prev,
-        currentFilters: [...action.filters],
+        filters: updatedFilters,
         reportDefinitionInput: {
           ...prev.reportDefinitionInput,
-          filter: convertFiltersToStrings(action.filters),
+          filter: convertFiltersToStrings([
+            ...updatedFilters.required,
+            ...updatedFilters.optional,
+          ]),
+        },
+      };
+    }
+    case "setRequiredFilters": {
+      const updatedFilters = {
+        ...prev.filters,
+        required: [...action.filters],
+      };
+      return {
+        ...prev,
+        filters: updatedFilters,
+        reportDefinitionInput: {
+          ...prev.reportDefinitionInput,
+          filter: convertFiltersToStrings([
+            ...updatedFilters.required,
+            ...updatedFilters.optional,
+          ]),
         },
       };
     }

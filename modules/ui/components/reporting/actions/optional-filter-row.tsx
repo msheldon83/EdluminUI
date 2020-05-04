@@ -5,14 +5,12 @@ import {
   FilterField,
   ExpressionFunction,
 } from "../types";
-import { Checkbox, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { SelectNew } from "ui/components/form/select-new";
-import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
-import { LocationSelect } from "ui/components/reference-selects/location-select";
 import { Close } from "@material-ui/icons";
-import { useOrganizationId } from "core/org-context";
 import { TFunction } from "i18next";
+import { Filter } from "./filter";
 
 type Props = {
   filterField: FilterField;
@@ -22,10 +20,9 @@ type Props = {
   isFirst?: boolean;
 };
 
-export const FilterRow: React.FC<Props> = props => {
+export const OptionalFilterRow: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const organizationId = useOrganizationId();
   const {
     filterField,
     filterableFields,
@@ -52,95 +49,6 @@ export const FilterRow: React.FC<Props> = props => {
       };
     });
   }, [filterableFields]);
-
-  console.log(filterField);
-
-  const filter: JSX.Element | null = React.useMemo(() => {
-    switch (filterField.field.filterType) {
-      case FilterType.Boolean:
-        return (
-          <Checkbox
-            checked={filterField.value ?? false}
-            onChange={(e, checked) =>
-              updateFilter({
-                field: filterField.field,
-                expressionFunction: ExpressionFunction.Equal,
-                value: checked,
-              })
-            }
-            color="primary"
-          />
-        );
-      case FilterType.Custom:
-        switch (filterField.field.filterTypeDefinition?.key) {
-          case "Location":
-            return (
-              <LocationSelect
-                orgId={organizationId ?? undefined}
-                setSelectedLocationIds={locationIds => {
-                  console.log(locationIds);
-
-                  const value = locationIds ?? [];
-                  updateFilter({
-                    field: filterField.field,
-                    expressionFunction:
-                      value.length > 0
-                        ? ExpressionFunction.ContainedIn
-                        : ExpressionFunction.Equal,
-                    value: value,
-                  });
-                }}
-                selectedLocationIds={filterField.value ?? []}
-                multiple={
-                  filterField.expressionFunction ===
-                  ExpressionFunction.ContainedIn
-                }
-                includeAllOption={false}
-                key={filterField.expressionFunction}
-              />
-            );
-          case "PositionType":
-            return (
-              <PositionTypeSelect
-                orgId={organizationId ?? undefined}
-                setSelectedPositionTypeIds={positionTypeIds => {
-                  const value = positionTypeIds ?? [];
-                  updateFilter({
-                    field: filterField.field,
-                    expressionFunction:
-                      value.length > 0
-                        ? ExpressionFunction.ContainedIn
-                        : ExpressionFunction.Equal,
-                    value: value,
-                  });
-                }}
-                selectedPositionTypeIds={filterField.value ?? []}
-                multiple={
-                  filterField.expressionFunction ===
-                  ExpressionFunction.ContainedIn
-                }
-                includeAllOption={false}
-                key={filterField.expressionFunction}
-              />
-            );
-          case "Employee":
-            //TODO
-            break;
-          case "Substitute":
-            //TODO
-            break;
-          case "AbsenceReason":
-            //TODO
-            break;
-          case "VacancyReason":
-            //TODO
-            break;
-        }
-        break;
-    }
-
-    return null;
-  }, [filterField]);
 
   return (
     <div className={classes.row}>
@@ -200,7 +108,9 @@ export const FilterRow: React.FC<Props> = props => {
           />
         )}
       </div>
-      <div className={`${classes.filter} ${classes.rowItem}`}>{filter}</div>
+      <div className={`${classes.filter} ${classes.rowItem}`}>
+        <Filter filterField={filterField} updateFilter={updateFilter} />
+      </div>
     </div>
   );
 };
