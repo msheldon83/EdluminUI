@@ -6,6 +6,8 @@ import { LocationSelect } from "ui/components/reference-selects/location-select"
 import { useOrganizationId } from "core/org-context";
 import { DateRangePickerPopover } from "ui/components/form/date-range-picker-popover";
 import { DatePicker } from "ui/components/form/date-picker";
+import { AbsenceReasonSelect } from "ui/components/reference-selects/absence-reason-select";
+import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-reason-select";
 
 type Props = {
   filterField: FilterField;
@@ -113,11 +115,59 @@ export const Filter: React.FC<Props> = props => {
           //TODO
           break;
         case "AbsenceReason":
-          //TODO
-          break;
+          return (
+            <AbsenceReasonSelect
+              orgId={organizationId ?? ""}
+              setSelectedAbsenceReasonIds={absenceReasonIds => {
+                const value = absenceReasonIds ?? [];
+                updateFilter({
+                  field: filterField.field,
+                  expressionFunction:
+                    filterField.expressionFunction ?? ExpressionFunction.Equal,
+                  value: value,
+                });
+              }}
+              selectedAbsenceReasonIds={filterField.value ?? []}
+              multiple={
+                filterField.expressionFunction ===
+                ExpressionFunction.ContainedIn
+              }
+              includeAllOption={false}
+              key={filterField.expressionFunction}
+              label={
+                showLabel
+                  ? filterField.field.filterTypeDefinition?.friendlyName
+                  : undefined
+              }
+            />
+          );
         case "VacancyReason":
-          //TODO
-          break;
+          return (
+            <VacancyReasonSelect
+              orgId={organizationId ?? ""}
+              setSelectedVacancyReasonIds={vacancyReasonIds => {
+                const value = vacancyReasonIds ?? [];
+                updateFilter({
+                  field: filterField.field,
+                  expressionFunction:
+                    filterField.expressionFunction ?? ExpressionFunction.Equal,
+                  value: value,
+                });
+              }}
+              selectedVacancyReasonIds={filterField.value ?? []}
+              multiple={
+                filterField.expressionFunction ===
+                ExpressionFunction.ContainedIn
+              }
+              includeAllOption={false}
+              key={filterField.expressionFunction}
+              label={
+                showLabel
+                  ? filterField.field.filterTypeDefinition?.friendlyName
+                  : undefined
+              }
+            />
+          );
       }
       break;
   }
