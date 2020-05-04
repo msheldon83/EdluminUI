@@ -91,6 +91,7 @@ export const AdminAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <AddBasicInfo
+        orgId={params.organizationId}
         orgUser={admin}
         onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setAdmin({

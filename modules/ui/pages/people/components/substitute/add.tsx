@@ -94,6 +94,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <AddBasicInfo
+        orgId={params.organizationId}
         orgUser={substitute}
         onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setSubstitute({
