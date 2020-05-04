@@ -39,7 +39,11 @@ export const LocationSelect: React.FC<Props> = props => {
 
   const onChangeLocations = useCallback(
     value => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      const ids: string[] = value
+        ? Array.isArray(value)
+          ? value.map((v: OptionType) => v.value)
+          : [value.value]
+        : [];
       if (ids.includes("0")) {
         setSelectedLocationIds(undefined);
       } else {

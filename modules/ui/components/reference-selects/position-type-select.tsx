@@ -39,7 +39,11 @@ export const PositionTypeSelect: React.FC<Props> = props => {
 
   const onChangePositionTypes = useCallback(
     value => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      const ids: string[] = value
+        ? Array.isArray(value)
+          ? value.map((v: OptionType) => v.value)
+          : [value.value]
+        : [];
       if (ids.includes("0")) {
         setSelectedPositionTypeIds(undefined);
       } else {
