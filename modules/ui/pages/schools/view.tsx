@@ -1,4 +1,6 @@
 import * as React from "react";
+import clsx from "clsx";
+import { Link } from "react-router-dom";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { LocationsInformation } from "./components/information";
 import Maybe from "graphql/tsutils/Maybe";
@@ -109,6 +111,9 @@ export const LocationViewPage: React.FC<{}> = props => {
 
   return (
     <div>
+      <Link to={LocationsRoute.generate(params)} className={classes.link}>
+        {t("Return to schools")}
+      </Link>
       <PageHeader
         text={location.name}
         label={t("Name")}
@@ -211,5 +216,13 @@ export const LocationViewPage: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   content: {
     marginTop: theme.spacing(2),
+  },
+  link: {
+    padding: theme.spacing(1),
+    color: theme.customColors.blue,
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
   },
 }));

@@ -12,6 +12,11 @@ mutation UpdateAbsenceReasonBalance(
         id
         name
       }
+      absenceReasonCategoryId
+      absenceReasonCategory {
+        id
+        name
+      }
       balanceAsOf
       employeeId
       initialBalance

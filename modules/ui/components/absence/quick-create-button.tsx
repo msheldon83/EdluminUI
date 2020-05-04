@@ -19,7 +19,7 @@ export const QuickCreateButton: React.FC<Props> = props => {
 
   return (
     <>
-      <Can do={[PermissionEnum.AbsVacSave]}>
+      <Can do={[PermissionEnum.AbsVacSave]} orgId={params.organizationId}>
         <IconButton
           edge="end"
           classes={iconButtonClasses}
