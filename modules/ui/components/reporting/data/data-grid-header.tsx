@@ -12,7 +12,6 @@ type Props = {
   numberOfLockedColumns?: number;
   onScroll?: MultiGridProps["onScroll"];
   scrollLeft?: MultiGridProps["scrollLeft"];
-  setOrderBy?: (field: OrderByField) => void;
 };
 
 export const DataGridHeader: React.FC<Props> = props => {

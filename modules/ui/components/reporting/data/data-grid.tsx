@@ -15,7 +15,7 @@ import {
   ScrollSync,
   Index,
 } from "react-virtualized";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, CircularProgress } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { isNumber } from "lodash-es";
@@ -24,7 +24,7 @@ import { calculateColumnWidth, calculateRowHeight } from "../helpers";
 
 type Props = {
   reportDefinition: ReportDefinition;
-  setOrderBy: (field: OrderByField) => void;
+  isLoading: boolean;
 };
 
 export const DataGrid: React.FC<Props> = props => {
@@ -32,7 +32,7 @@ export const DataGrid: React.FC<Props> = props => {
   const classes = useStyles();
   const [groupedData, setGroupedData] = React.useState<GroupedData[]>([]);
   const {
-    setOrderBy,
+    isLoading,
     reportDefinition: { data: reportData, metadata },
   } = props;
 
@@ -70,50 +70,57 @@ export const DataGrid: React.FC<Props> = props => {
   }, [metadata]);
 
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <ScrollSync>
-          {({ onScroll, scrollLeft }) => (
-            <div>
-              <div>
-                <DataGridHeader
-                  columns={metadata.query.selects.map(s => s.displayName)}
-                  numberOfLockedColumns={numberOfLockedColumns}
-                  onScroll={onScroll}
-                  scrollLeft={scrollLeft}
-                  width={width}
-                  columnWidth={(params: Index) =>
-                    calculateColumnWidth(params, isGrouped)
-                  }
-                  setOrderBy={setOrderBy}
-                />
-              </div>
-              <div>
-                <MultiGrid
-                  onScroll={onScroll}
-                  scrollLeft={scrollLeft}
-                  fixedColumnCount={numberOfLockedColumns}
-                  cellRenderer={props => cellRenderer(rows, props, classes)}
-                  columnWidth={(params: Index) =>
-                    calculateColumnWidth(params, isGrouped)
-                  }
-                  estimatedColumnSize={120}
-                  columnCount={metadata.numberOfColumns ?? 0}
-                  height={height}
-                  rowHeight={(params: Index) =>
-                    calculateRowHeight(params, rows)
-                  }
-                  rowCount={rows.length}
-                  width={width}
-                  classNameBottomLeftGrid={classes.dataGridLockedColumns}
-                  classNameBottomRightGrid={classes.dataGrid}
-                />
-              </div>
-            </div>
-          )}
-        </ScrollSync>
+    <>
+      {isLoading && (
+        <div className={classes.overlay}>
+          <CircularProgress />
+        </div>
       )}
-    </AutoSizer>
+      <AutoSizer>
+        {({ width, height }) => (
+          <ScrollSync>
+            {({ onScroll, scrollLeft }) => (
+              <div>
+                <div>
+                  <DataGridHeader
+                    columns={metadata.query.selects.map(s => s.displayName)}
+                    numberOfLockedColumns={numberOfLockedColumns}
+                    onScroll={onScroll}
+                    scrollLeft={scrollLeft}
+                    width={width}
+                    columnWidth={(params: Index) =>
+                      calculateColumnWidth(params, isGrouped)
+                    }
+                  />
+                </div>
+                <div>
+                  <MultiGrid
+                    onScroll={onScroll}
+                    scrollLeft={scrollLeft}
+                    fixedColumnCount={numberOfLockedColumns}
+                    cellRenderer={props => cellRenderer(rows, props, classes)}
+                    columnWidth={(params: Index) =>
+                      calculateColumnWidth(params, isGrouped)
+                    }
+                    estimatedColumnSize={120}
+                    columnCount={metadata.numberOfColumns ?? 0}
+                    height={height}
+                    rowHeight={(params: Index) =>
+                      calculateRowHeight(params, rows)
+                    }
+                    rowCount={rows.length}
+                    width={width}
+                    classNameBottomLeftGrid={classes.dataGridLockedColumns}
+                    classNameBottomRightGrid={classes.dataGrid}
+                    style={isLoading ? { opacity: 0.5 } : undefined}
+                  />
+                </div>
+              </div>
+            )}
+          </ScrollSync>
+        )}
+      </AutoSizer>
+    </>
   );
 };
 
@@ -177,6 +184,16 @@ const useStyles = makeStyles(theme => ({
   },
   action: {
     cursor: "pointer",
+  },
+  overlay: {
+    position: "relative",
+    top: theme.typography.pxToRem(100),
+    flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
+    height: 0,
+    zIndex: 1,
   },
 }));
 

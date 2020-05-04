@@ -3,17 +3,20 @@ import {
   OrderByField,
   ReportDefinition,
   DataSourceField,
-  ExpressionFunction,
+  ReportDefinitionInput,
   FilterField,
+  ExpressionFunction,
+  Direction,
 } from "./types";
+import { compact } from "lodash-es";
 
 export type ReportState = {
+  reportDefinitionInput: ReportDefinitionInput;
   reportDefinition?: ReportDefinition;
   currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   orderBy?: OrderByField;
-  pendingUpdates: boolean;
-  rdlString?: string;
+  rdlString: string;
 };
 
 export type ReportActions =
@@ -29,6 +32,9 @@ export type ReportActions =
   | {
       action: "setOrderBy";
       field: OrderByField;
+    }
+  | {
+      action: "refreshReport";
     };
 
 export const reportReducer: Reducer<ReportState, ReportActions> = (
@@ -55,28 +61,88 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       return {
         ...prev,
         reportDefinition: action.reportDefinition,
-        pendingUpdates: false,
         filterableFields: filterableFields,
       };
     }
     case "setFilters": {
-      //TODO: Process and set the rdlString here too
-
       return {
         ...prev,
         currentFilters: [...action.filters],
-        pendingUpdates: true,
+        reportDefinitionInput: {
+          ...prev.reportDefinitionInput,
+          filter: convertFiltersToStrings(action.filters),
+        },
       };
     }
     case "setOrderBy": {
-      //TODO: Process and set the rdlString here too
-
       return {
         ...prev,
         orderBy: action.field,
+        reportDefinitionInput: {
+          ...prev.reportDefinitionInput,
+          orderBy: [
+            {
+              expression: action.field.expression.displayName,
+              direction: action.field.direction,
+            },
+          ],
+        },
+      };
+    }
+    case "refreshReport": {
+      return {
+        ...prev,
+        rdlString: convertReportDefinitionInputToRdl(
+          prev.reportDefinitionInput
+        ),
       };
     }
   }
 };
 
-//TODO: Function to build the RDL String off of currentFilters: FilterField[]; and orderBy?: OrderByField;
+const convertFiltersToStrings = (filterFields: FilterField[]): string[] => {
+  if (filterFields.length === 0) {
+    return [];
+  }
+
+  const filters = compact(
+    filterFields.map(f => {
+      const dataSourceFieldName = f.field.filterTypeDefinition
+        ? f.field.filterTypeDefinition.filterDataSourceFieldName
+        : f.field.dataSourceFieldName;
+      switch (f.expressionFunction) {
+        case ExpressionFunction.Equal:
+          const equalValue =
+            typeof f.value === "boolean" ? (f.value ? 1 : 0) : f.value;
+          return `(${dataSourceFieldName} = ${equalValue})`;
+        case ExpressionFunction.ContainedIn:
+          const inValue = Array.isArray(f.value) ? f.value.join(",") : f.value;
+          return `(${dataSourceFieldName} IN (${inValue}))`;
+      }
+    })
+  );
+  return filters;
+};
+
+export const convertReportDefinitionInputToRdl = (
+  input: ReportDefinitionInput
+): string => {
+  const rdlPieces: string[] = [];
+  rdlPieces.push(`QUERY FROM ${input.from}`);
+  if (input.filter && input.filter.length > 0) {
+    rdlPieces.push(`WHERE ${input.filter.join(" AND ")}`);
+  }
+  rdlPieces.push(`SELECT ${input.select.join(", ")}`);
+  if (input.orderBy && input.orderBy.length > 0) {
+    rdlPieces.push(
+      `ORDER BY ${input.orderBy
+        .map(
+          o =>
+            `${o.expression} ${o.direction === Direction.Asc ? "ASC" : "DESC"}`
+        )
+        .join(", ")}`
+    );
+  }
+  const rdlString = rdlPieces.join(" ");
+  return rdlString;
+};
