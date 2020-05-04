@@ -56,7 +56,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const relatedOrganizations = orgUser?.relatedOrganizations ?? [];
+  const orgUserRelationships = orgUser?.orgUserRelationships;
 
   //TODO: Create string in format "Attribute (Expires April 23, 2019)"
   const allDistrictAttributes = orgUser.employee?.endorsements ?? [];
@@ -142,7 +142,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         onAddEndorsement={handleAddEndorsement}
         onChangeEndorsement={handleOnChangeAttribute}
         onRemoveEndorsement={handleRemoveAttribute}
-        relatedOrganizations={relatedOrganizations}
+        orgUserRelationships={orgUserRelationships}
         orgEndorsements={orgEndorsements}
         orgId={params.organizationId}
         allDistrictAttributes={formattedDistrictAttributes as string[]}

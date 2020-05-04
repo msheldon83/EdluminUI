@@ -13,7 +13,7 @@ import { useRouteParams } from "ui/routes/definition";
 
 type Props = {
   editing: string | null;
-  orgs: Maybe<Pick<Organization, "otherOrganization">>[] | null;
+  orgs: Maybe<Pick<Organization, "name">>[] | null;
 };
 
 export const OrganizationList: React.FC<Props> = props => {
@@ -48,9 +48,7 @@ export const OrganizationList: React.FC<Props> = props => {
               {orgs?.length === 0 ? (
                 <div>{t("No related districts")}</div>
               ) : (
-                orgs?.map((n, i) => (
-                  <div key={i}>{n?.otherOrganization?.name}</div>
-                ))
+                orgs?.map((n, i) => <div key={i}>{n?.name}</div>)
               )}
             </Grid>
           </Grid>

@@ -4,7 +4,7 @@ query GetSubstituteRelatedOrgs($id: ID!) {
       id
       firstName
       lastName
-      relatedOrganizations {
+      orgUserRelationships {
         id
         otherOrganization {
           id

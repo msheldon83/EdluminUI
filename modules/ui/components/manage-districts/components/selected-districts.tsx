@@ -6,18 +6,14 @@ import { useTranslation } from "react-i18next";
 import { OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { Section } from "ui/components/section";
+import { Maybe, Endorsement } from "graphql/server-types.gen";
+import { CustomOrgUserRelationship } from "../helper";
 import { SectionHeader } from "ui/components/section-header";
-import { Maybe, OrgUserRelationship } from "graphql/server-types.gen";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { DistrictDetail } from "./district-detail";
 
 type Props = {
-  relatedOrganizations: Maybe<
-    Pick<
-      OrgUserRelationship,
-      "otherOrganization" | "orgUserRelationshipAttributes"
-    >
-  >[];
+  orgUserRelationships: Maybe<CustomOrgUserRelationship>[] | undefined | null;
   orgEndorsements: OptionType[];
   onRemoveOrg: (orgId: string) => Promise<unknown>;
   onAddEndorsement: (endorsementId: string) => Promise<unknown>;
@@ -34,7 +30,7 @@ export const SelectedDistrict: React.FC<Props> = props => {
   const [searchText, setSearchText] = useState<string | undefined>();
 
   const {
-    relatedOrganizations,
+    orgUserRelationships,
     onRemoveOrg,
     onChangeEndorsement,
     onRemoveEndorsement,
@@ -53,10 +49,10 @@ export const SelectedDistrict: React.FC<Props> = props => {
       </Grid>
       <Grid item xs={4} container className={classes.inline}></Grid>
       <Divider />
-      {relatedOrganizations.length === 0 ? (
+      {orgUserRelationships?.length === 0 ? (
         <div>{t("No selected districts")}</div>
       ) : (
-        relatedOrganizations?.map((n, i) => (
+        orgUserRelationships?.map((n, i) => (
           <div key={i}>
             <Grid item xs={12}>
               <Grid item xs={4} container className={classes.inline}>
@@ -71,14 +67,15 @@ export const SelectedDistrict: React.FC<Props> = props => {
                   placeholder={t("search")}
                   useLabel={false}
                 />
-                {n?.orgUserRelationshipAttributes?.length === 0 ? (
+                {n?.attributes?.length === 0 ? (
                   <div>{t("Search attributes to add")}</div>
                 ) : (
-                  n?.orgUserRelationshipAttributes?.map((endorsement, j) => (
+                  n?.attributes?.map((endorsement: any, j) => (
                     <DistrictDetail
+                      key={j}
                       onChangeEndorsement={onChangeEndorsement}
                       onRemoveEndorsement={onRemoveEndorsement}
-                      endorsement={endorsement}
+                      endorsement={endorsement?.endorsement}
                     />
                   ))
                 )}

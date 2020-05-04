@@ -2916,7 +2916,8 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   permissionSets: [PermissionSet]
   permissionSetIds: [ID]
   relatedOrgIds: [ID]
-  relatedOrganizations: [OrgUserRelationship]
+  relatedOrganizations: [Organization]
+  orgUserRelationships: [OrgUserRelationship]
   isShadowRecord: Boolean!
   shadowFromOrgId: ID
   shadowFromOrgName: String
