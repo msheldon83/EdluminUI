@@ -27,6 +27,10 @@ import {
 } from "graphql/server-types.gen";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { compact } from "lodash-es";
+import {
+  useAbsenceReasonCategoryOptions,
+  useAbsenceReasonCategories,
+} from "reference-data/absence-reason-categories";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 
@@ -125,13 +129,29 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const allAbsenceReasonOptions = useAbsenceReasonOptions(
     params.organizationId
   );
-  const absenceReasonOptions = useMemo(() => {
-    const usedReasonIds = balances.map(x => x?.absenceReasonId);
-    return allAbsenceReasonOptions.filter(
-      x => !usedReasonIds.includes(x.value)
-    );
-  }, [balances, allAbsenceReasonOptions]);
+
+  const allAbsenceReasonCategoryOptions = useAbsenceReasonCategoryOptions(
+    params.organizationId
+  );
+
+  const reasonOptions = useMemo(() => {
+    const usedAbsReasonIds = balances.map(x => x?.absenceReasonId);
+    const usedAbsReasonCatIds = balances.map(x => x?.absenceReasonCategoryId);
+
+    const absReasonCatOptions = allAbsenceReasonCategoryOptions
+      .filter(x => !usedAbsReasonCatIds.includes(x.value))
+      .map(o => {
+        return { label: `Category: ${o.label}`, value: o.value };
+      });
+
+    return allAbsenceReasonOptions
+      .filter(x => !usedAbsReasonIds.includes(x.value))
+      .concat(absReasonCatOptions);
+  }, [balances, allAbsenceReasonOptions, allAbsenceReasonCategoryOptions]);
   const allAbsenceReasons = useAbsenceReasons(params.organizationId);
+  const allAbsenceReasonCategories = useAbsenceReasonCategories(
+    params.organizationId
+  );
 
   // Clear the creating new if switching school years
   useEffect(() => {
@@ -174,8 +194,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
                 onRemove={onDeleteBalance}
                 onUpdate={onUpdateBalance}
                 onCreate={onCreateBalance}
-                reasonOptions={absenceReasonOptions}
+                reasonOptions={reasonOptions}
                 absenceReasons={allAbsenceReasons}
+                absenceReasonCategories={allAbsenceReasonCategories}
                 creatingNew={false}
                 setCreatingNew={setCreatingNew}
                 startOfSchoolYear={firstDayOfSelectedSchoolYear}
@@ -194,8 +215,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
               onRemove={onDeleteBalance}
               onUpdate={onUpdateBalance}
               onCreate={onCreateBalance}
-              reasonOptions={absenceReasonOptions}
+              reasonOptions={reasonOptions}
               absenceReasons={allAbsenceReasons}
+              absenceReasonCategories={allAbsenceReasonCategories}
               creatingNew={creatingNew}
               setCreatingNew={setCreatingNew}
               startOfSchoolYear={firstDayOfSelectedSchoolYear}
@@ -206,7 +228,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
         <Button
           variant="outlined"
           onClick={() => setCreatingNew(true)}
-          disabled={creatingNew || absenceReasonOptions.length === 0}
+          disabled={creatingNew || reasonOptions.length === 0}
         >
           {t("Add row")}
         </Button>
