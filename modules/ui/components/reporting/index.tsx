@@ -89,7 +89,9 @@ export const Report: React.FC<Props> = props => {
     <AppConfig contentWidth="100%">
       <div className={classes.content}>
         {!state.reportDefinition ? (
-          <LoadingDataGrid />
+          <LoadingDataGrid
+            numberOfColumns={state.reportDefinitionInput.select.length}
+          />
         ) : (
           <>
             <div className={classes.actions}>

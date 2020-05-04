@@ -4,11 +4,15 @@ import { makeStyles, CircularProgress } from "@material-ui/core";
 import clsx from "clsx";
 import { DataGridHeader } from "./data-grid-header";
 
-export const LoadingDataGrid: React.FC<{}> = props => {
+type Props = {
+  numberOfColumns?: number;
+};
+
+export const LoadingDataGrid: React.FC<Props> = props => {
   const classes = useStyles();
+  const columnCount = props.numberOfColumns ?? 20;
+  const columnWidth = 200;
   const rowCount = 100;
-  const columnCount = 20;
-  const columnWidth = 120;
 
   return (
     <>
