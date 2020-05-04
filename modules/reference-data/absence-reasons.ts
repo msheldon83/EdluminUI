@@ -47,7 +47,7 @@ export function useAbsenceReasonOptionsWithCategories(
   const absenceReasonOptions = useMemo(
     () =>
       absenceReasons.map(r => ({
-        label: r.category ? `${r.category.name}: ${r.name}` : r.name,
+        label: r.category ? `${r.name} (${r.category.name})` : r.name,
         value: r.id,
       })),
     [absenceReasons]
