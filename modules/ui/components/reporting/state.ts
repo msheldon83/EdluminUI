@@ -9,6 +9,7 @@ import {
   Direction,
 } from "./types";
 import { compact } from "lodash-es";
+import { format } from "date-fns";
 
 export type ReportState = {
   reportDefinitionInput: ReportDefinitionInput;
@@ -31,10 +32,12 @@ export type ReportActions =
   | {
       action: "setOptionalFilters";
       filters: FilterField[];
+      refreshReport?: boolean;
     }
   | {
       action: "setRequiredFilters";
       filters: FilterField[];
+      refreshReport?: boolean;
     }
   | {
       action: "setOrderBy";
@@ -76,7 +79,7 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         ...prev.filters,
         optional: [...action.filters],
       };
-      return {
+      const updatedState = {
         ...prev,
         filters: updatedFilters,
         reportDefinitionInput: {
@@ -87,13 +90,19 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
           ]),
         },
       };
+      if (action.refreshReport) {
+        updatedState.rdlString = convertReportDefinitionInputToRdl(
+          updatedState.reportDefinitionInput
+        );
+      }
+      return updatedState;
     }
     case "setRequiredFilters": {
       const updatedFilters = {
         ...prev.filters,
         required: [...action.filters],
       };
-      return {
+      const updatedState = {
         ...prev,
         filters: updatedFilters,
         reportDefinitionInput: {
@@ -104,6 +113,12 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
           ]),
         },
       };
+      if (action.refreshReport) {
+        updatedState.rdlString = convertReportDefinitionInputToRdl(
+          updatedState.reportDefinitionInput
+        );
+      }
+      return updatedState;
     }
     case "setOrderBy": {
       return {
@@ -143,16 +158,32 @@ const convertFiltersToStrings = (filterFields: FilterField[]): string[] => {
         : f.field.dataSourceFieldName;
       switch (f.expressionFunction) {
         case ExpressionFunction.Equal:
-          const equalValue =
-            typeof f.value === "boolean" ? (f.value ? 1 : 0) : f.value;
-          return `(${dataSourceFieldName} = ${equalValue})`;
+          const equalValue = processFilterValue(f.value);
+          return `(${dataSourceFieldName} = ${
+            Array.isArray(equalValue) ? equalValue[0] : equalValue
+          })`;
         case ExpressionFunction.ContainedIn:
-          const inValue = Array.isArray(f.value) ? f.value.join(",") : f.value;
-          return `(${dataSourceFieldName} IN (${inValue}))`;
+          const inValue = processFilterValue(f.value);
+          return `(${dataSourceFieldName} IN (${
+            Array.isArray(inValue) ? inValue.join(",") : inValue
+          }))`;
       }
     })
   );
   return filters;
+};
+
+const processFilterValue = (value: any): any => {
+  if (Array.isArray(value)) {
+    return [...value.map(v => processFilterValue(v))];
+  }
+  if (typeof value === "boolean") {
+    return value ? 1 : 0;
+  }
+  if (value instanceof Date) {
+    return `'${format(value, "MM/dd/yyyy")}'`;
+  }
+  return value;
 };
 
 export const convertReportDefinitionInputToRdl = (

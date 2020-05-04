@@ -4,15 +4,18 @@ import { FilterField, FilterType, ExpressionFunction } from "../types";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 import { useOrganizationId } from "core/org-context";
+import { DateRangePickerPopover } from "ui/components/form/date-range-picker-popover";
+import { DatePicker } from "ui/components/form/date-picker";
 
 type Props = {
   filterField: FilterField;
   updateFilter: (filterField: FilterField) => void;
+  showLabel?: boolean;
 };
 
 export const Filter: React.FC<Props> = props => {
   const organizationId = useOrganizationId();
-  const { filterField, updateFilter } = props;
+  const { filterField, updateFilter, showLabel } = props;
 
   switch (filterField.field.filterType) {
     case FilterType.Boolean:
@@ -29,6 +32,24 @@ export const Filter: React.FC<Props> = props => {
           color="primary"
         />
       );
+    case FilterType.Date:
+      const today = new Date();
+      //TODO: Replace with DateRangePickerPopover
+      //return <DateRangePickerPopover />;
+      return (
+        <DatePicker
+          startDate={filterField.value ?? today}
+          onChange={d => {
+            updateFilter({
+              field: filterField.field,
+              expressionFunction: ExpressionFunction.Equal,
+              value: d.startDate,
+            });
+          }}
+          startLabel={showLabel ? filterField.field.friendlyName : undefined}
+          variant="single-hidden"
+        />
+      );
     case FilterType.Custom:
       switch (filterField.field.filterTypeDefinition?.key) {
         case "Location":
@@ -36,15 +57,11 @@ export const Filter: React.FC<Props> = props => {
             <LocationSelect
               orgId={organizationId ?? undefined}
               setSelectedLocationIds={locationIds => {
-                console.log(locationIds);
-
                 const value = locationIds ?? [];
                 updateFilter({
                   field: filterField.field,
                   expressionFunction:
-                    value.length > 0
-                      ? ExpressionFunction.ContainedIn
-                      : ExpressionFunction.Equal,
+                    filterField.expressionFunction ?? ExpressionFunction.Equal,
                   value: value,
                 });
               }}
@@ -55,6 +72,11 @@ export const Filter: React.FC<Props> = props => {
               }
               includeAllOption={false}
               key={filterField.expressionFunction}
+              label={
+                showLabel
+                  ? filterField.field.filterTypeDefinition?.friendlyName
+                  : undefined
+              }
             />
           );
         case "PositionType":
@@ -66,9 +88,7 @@ export const Filter: React.FC<Props> = props => {
                 updateFilter({
                   field: filterField.field,
                   expressionFunction:
-                    value.length > 0
-                      ? ExpressionFunction.ContainedIn
-                      : ExpressionFunction.Equal,
+                    filterField.expressionFunction ?? ExpressionFunction.Equal,
                   value: value,
                 });
               }}
@@ -79,6 +99,11 @@ export const Filter: React.FC<Props> = props => {
               }
               includeAllOption={false}
               key={filterField.expressionFunction}
+              label={
+                showLabel
+                  ? filterField.field.filterTypeDefinition?.friendlyName
+                  : undefined
+              }
             />
           );
         case "Employee":

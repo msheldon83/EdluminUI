@@ -49,6 +49,7 @@ export type DataSourceField = {
   friendlyName: string;
   dataSourceFieldName: string;
   isRequiredFilter: boolean;
+  defaultExpressionFunction: ExpressionFunction;
   filterType?: FilterType;
   filterTypeDefinition?: {
     key: string;

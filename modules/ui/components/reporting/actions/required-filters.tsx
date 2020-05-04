@@ -3,27 +3,47 @@ import { FilterField, DataSourceField, ExpressionFunction } from "../types";
 import { Filter } from "./filter";
 
 type Props = {
-  currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (filterFields: FilterField[]) => void;
-  refreshReport: () => Promise<void>;
 };
 
 export const RequiredFilters: React.FC<Props> = props => {
   //const classes = useStyles();
-  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
-  const [localFilters, setLocalFilters] = React.useState<FilterField[]>();
+  const { filterableFields, setFilters } = props;
+  const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
+    filterableFields.map(f => {
+      return {
+        field: f,
+        expressionFunction:
+          f.defaultExpressionFunction ?? ExpressionFunction.Equal,
+      };
+    })
+  );
+
+  React.useEffect(() => {
+    const definedFilters = localFilters.filter(f => f.value !== undefined);
+    setFilters(definedFilters);
+  }, [localFilters]);
+
+  const updateFilter = React.useCallback(
+    (filterField: FilterField, filterIndex: number) => {
+      const updatedFilters = [...localFilters];
+      updatedFilters[filterIndex] = filterField;
+      setLocalFilters(updatedFilters);
+    },
+    [localFilters, setLocalFilters]
+  );
 
   return (
     <>
-      {filterableFields.map((f, i) => {
+      {localFilters.map((f, i) => {
         return (
           <Filter
-            filterField={{
-              field: f,
-              expressionFunction: ExpressionFunction.Equal,
-            }}
-            updateFilter={() => {}}
+            filterField={f}
+            updateFilter={(filterField: FilterField) =>
+              updateFilter(filterField, i)
+            }
+            showLabel={true}
             key={i}
           />
         );

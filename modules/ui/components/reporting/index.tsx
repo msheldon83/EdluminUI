@@ -59,11 +59,23 @@ export const Report: React.FC<Props> = props => {
   }, [reportResponse.state]);
 
   const setFilters = React.useCallback(
-    (filterFields: FilterField[], areOptional: boolean) => {
+    (
+      filterFields: FilterField[],
+      areOptional: boolean,
+      refreshReport?: boolean
+    ) => {
       if (areOptional) {
-        dispatch({ action: "setOptionalFilters", filters: filterFields });
+        dispatch({
+          action: "setOptionalFilters",
+          filters: filterFields,
+          refreshReport,
+        });
       } else {
-        dispatch({ action: "setRequiredFilters", filters: filterFields });
+        dispatch({
+          action: "setRequiredFilters",
+          filters: filterFields,
+          refreshReport,
+        });
       }
     },
     [dispatch]
@@ -82,10 +94,6 @@ export const Report: React.FC<Props> = props => {
           <>
             <div className={classes.actions}>
               <ActionBar
-                currentFilters={[
-                  ...state.filters.required,
-                  ...state.filters.optional,
-                ]}
                 filterableFields={state.filterableFields}
                 setFilters={setFilters}
                 refreshReport={refreshReport}
