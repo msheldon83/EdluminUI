@@ -12,6 +12,7 @@ import { PositionTypeSelect } from "ui/components/reference-selects/position-typ
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 import { Close } from "@material-ui/icons";
 import { useOrganizationId } from "core/org-context";
+import { TFunction } from "i18next";
 
 type Props = {
   filterField: FilterField;
@@ -32,6 +33,9 @@ export const FilterRow: React.FC<Props> = props => {
     removeFilter,
     isFirst = false,
   } = props;
+  const [expressionOptions, setExpressionOptions] = React.useState(
+    getExpressionOptions(t, filterField.field)
+  );
 
   const filterOptions = React.useMemo(() => {
     return filterableFields.map(f => {
@@ -44,7 +48,7 @@ export const FilterRow: React.FC<Props> = props => {
 
       return {
         label: f.filterTypeDefinition.friendlyName,
-        value: f.filterTypeDefinition.filterDataSourceFieldName,
+        value: f.dataSourceFieldName,
       };
     });
   }, [filterableFields]);
@@ -119,36 +123,23 @@ export const FilterRow: React.FC<Props> = props => {
                 key={filterField.expressionFunction}
               />
             );
+          case "Employee":
+            //TODO
+            break;
+          case "Substitute":
+            //TODO
+            break;
+          case "AbsenceReason":
+            //TODO
+            break;
+          case "VacancyReason":
+            //TODO
+            break;
         }
         break;
     }
 
     return null;
-  }, [filterField]);
-
-  const expressionOptions = React.useMemo(() => {
-    switch (filterField.field.filterType) {
-      case FilterType.Boolean:
-        return [
-          {
-            label: t("is"),
-            value: ExpressionFunction.Equal,
-          },
-        ];
-      case FilterType.Custom:
-        return [
-          {
-            label: t("is"),
-            value: ExpressionFunction.Equal,
-          },
-          {
-            label: t("is any of"),
-            value: ExpressionFunction.ContainedIn,
-          },
-        ];
-    }
-
-    return [];
   }, [filterField]);
 
   return (
@@ -161,22 +152,29 @@ export const FilterRow: React.FC<Props> = props => {
       </div>
       <div className={`${classes.filterField} ${classes.rowItem}`}>
         <SelectNew
-          value={
-            filterOptions.find(
-              fo => fo.value === filterField.field.dataSourceFieldName
-            ) ?? filterOptions[0]
-          }
+          value={filterOptions.find(
+            fo => fo.value === filterField.field.dataSourceFieldName
+          )}
           options={filterOptions}
-          onChange={v =>
-            updateFilter({
-              field:
-                filterableFields.find(f => f.dataSourceFieldName === v.value) ??
-                filterField.field,
-              expressionFunction: ExpressionFunction.Equal,
-            })
-          }
+          onChange={v => {
+            const dataSourceField = filterableFields.find(
+              f => f.dataSourceFieldName === v.value
+            );
+            if (dataSourceField) {
+              setExpressionOptions(getExpressionOptions(t, dataSourceField));
+              updateFilter({
+                field: dataSourceField,
+                expressionFunction: ExpressionFunction.Equal,
+                value:
+                  dataSourceField.filterType === FilterType.Boolean
+                    ? false
+                    : undefined,
+              });
+            }
+          }}
           multiple={false}
           withResetValue={false}
+          doSort={false}
         />
       </div>
       <div className={`${classes.expression} ${classes.rowItem}`}>
@@ -198,6 +196,7 @@ export const FilterRow: React.FC<Props> = props => {
             }
             multiple={false}
             withResetValue={false}
+            doSort={false}
           />
         )}
       </div>
@@ -211,15 +210,16 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    marginTop: theme.spacing(),
   },
   rowItem: {
     marginLeft: theme.spacing(),
   },
   logicalOperator: {
-    flexGrow: 1,
     display: "flex",
     alignItems: "center",
     fontWeight: 600,
+    width: theme.typography.pxToRem(75),
   },
   removeRow: {
     color: theme.customColors.primary,
@@ -230,12 +230,46 @@ const useStyles = makeStyles(theme => ({
     width: theme.typography.pxToRem(20),
   },
   filterField: {
-    width: theme.typography.pxToRem(200),
+    width: theme.typography.pxToRem(175),
   },
   expression: {
-    width: theme.typography.pxToRem(100),
+    width: theme.typography.pxToRem(110),
   },
   filter: {
-    width: theme.typography.pxToRem(100),
+    width: theme.typography.pxToRem(300),
   },
 }));
+
+const getExpressionOptions = (t: TFunction, field?: DataSourceField) => {
+  if (!field) {
+    return [
+      {
+        label: t("is"),
+        value: ExpressionFunction.Equal,
+      },
+    ];
+  }
+
+  switch (field.filterType) {
+    case FilterType.Boolean:
+      return [
+        {
+          label: t("is"),
+          value: ExpressionFunction.Equal,
+        },
+      ];
+    case FilterType.Custom:
+      return [
+        {
+          label: t("is"),
+          value: ExpressionFunction.Equal,
+        },
+        {
+          label: t("is any of"),
+          value: ExpressionFunction.ContainedIn,
+        },
+      ];
+  }
+
+  return [];
+};

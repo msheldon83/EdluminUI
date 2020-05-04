@@ -21,7 +21,7 @@ type Props = {
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { currentFilters, filterableFields, setFilters } = props;
+  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
     currentFilters && currentFilters.length > 0
@@ -43,7 +43,7 @@ export const Filters: React.FC<Props> = props => {
       : t("Filter");
 
   React.useEffect(() => {
-    const definedFilters = localFilters.filter(f => !!f.value);
+    const definedFilters = localFilters.filter(f => f.value !== undefined);
     setFilters(definedFilters);
   }, [localFilters]);
 
@@ -66,7 +66,9 @@ export const Filters: React.FC<Props> = props => {
         },
       ];
     });
-  }, [setLocalFilters, setLocalFilters, filterableFields]);
+  }, [setLocalFilters, filterableFields]);
+
+  console.log("localFilters", localFilters);
 
   const removeFilter = React.useCallback(
     (filterIndex: number) => {
@@ -98,9 +100,9 @@ export const Filters: React.FC<Props> = props => {
           <Fade {...TransitionProps} timeout={150}>
             <ClickAwayListener
               mouseEvent="onMouseDown"
-              onClickAway={() => {
+              onClickAway={async () => {
                 setFiltersOpen(false);
-                // TODO: trigger refreshReport
+                await refreshReport();
               }}
             >
               <div className={classes.filters}>
@@ -124,8 +126,14 @@ export const Filters: React.FC<Props> = props => {
                     {t("No filters applied")}
                   </div>
                 )}
-                <div className={classes.addFilter} onClick={addFilter}>
-                  {t("Add filter")}
+                <div>
+                  <Button
+                    onClick={addFilter}
+                    variant="text"
+                    className={classes.addFilter}
+                  >
+                    {t("Add filter")}
+                  </Button>
                 </div>
               </div>
             </ClickAwayListener>
@@ -149,7 +157,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   filters: {
-    width: theme.typography.pxToRem(600),
+    width: theme.typography.pxToRem(800),
     minHeight: theme.typography.pxToRem(100),
     background: theme.palette.background.paper,
     border: "1px solid #E5E5E5",

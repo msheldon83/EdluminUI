@@ -19,7 +19,7 @@ export const ActionBar: React.FC<Props> = props => {
       {/*TODO: Required Filters component here */}
       <Filters
         currentFilters={currentFilters}
-        filterableFields={filterableFields}
+        filterableFields={filterableFields.filter(f => !f.isRequiredFilter)}
         setFilters={setFilters}
         refreshReport={refreshReport}
       />
