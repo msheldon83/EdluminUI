@@ -3,191 +3,21 @@ import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import addMonth from "date-fns/addMonths";
-import addWeeks from "date-fns/addWeeks";
-import addDays from "date-fns/addDays";
-import startOfWeek from "date-fns/startOfWeek";
-import endOfWeek from "date-fns/endOfWeek";
-import startOfMonth from "date-fns/startOfMonth";
-import endOfMonth from "date-fns/endOfMonth";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import { DateInput } from "./date-input";
 import { CustomCalendar as Calendar, CustomDate } from "./custom-calendar";
 import { SelectNew as Select, OptionType } from "./select-new";
-
-type DateRange = {
-  start: Date;
-  end: Date;
-};
-
-type PresetRange = OptionType & {
-  range: () => DateRange;
-};
-
-const usePresetRanges = () => {
-  const { t } = useTranslation();
-
-  // TODO: these will probably be be imported and allow the parent of the component
-  // to add its own
-  return [
-    /*
-    {
-      label: t(''),
-      value: '',
-      range() {
-        const start = new Date()
-        const end = new Date()
-
-        return {
-          start,
-          end
-        }
-      }
-    },
-    */
-    {
-      label: t("Today"),
-      value: "today",
-      range() {
-        const start = new Date();
-        const end = new Date();
-
-        return {
-          start,
-          end,
-        };
-      },
-    },
-    {
-      label: t("This week"),
-      value: "this-week",
-      range() {
-        const today = new Date();
-
-        return {
-          start: startOfWeek(today),
-          end: endOfWeek(today),
-        };
-      },
-    },
-    {
-      label: t("This month"),
-      value: "this-month",
-      range() {
-        const today = new Date();
-
-        return {
-          start: startOfMonth(today),
-          end: endOfMonth(today),
-        };
-      },
-    },
-    // TODO:
-    {
-      label: t("This school year"),
-      value: "this-school-year",
-      range() {
-        // TODO: 7/1 - 6/30
-        const today = new Date();
-
-        return {
-          start: new Date(),
-          end: new Date(),
-        };
-      },
-    },
-    {
-      label: t("Yesterday"),
-      value: "yesterday",
-      range() {
-        const yesterday = addDays(new Date(), -1);
-
-        return {
-          start: yesterday,
-          end: yesterday,
-        };
-      },
-    },
-    {
-      label: t("Last week"),
-      value: "last-week",
-      range() {
-        const lastWeek = addWeeks(new Date(), -1);
-
-        return {
-          start: startOfWeek(lastWeek),
-          end: endOfWeek(lastWeek),
-        };
-      },
-    },
-    {
-      label: t("Last month"),
-      value: "last-month",
-      range() {
-        const lastMonth = addMonth(new Date(), -1);
-
-        return {
-          start: startOfMonth(lastMonth),
-          end: endOfMonth(lastMonth),
-        };
-      },
-    },
-    // TODO: HOW?
-    // {
-    //   label: t("Last school year"),
-    //   value: "last-school-year",
-    //   range() {
-    //     const lastMonth = addMonth(new Date(), -1);
-
-    //     return {
-    //       start: startOfMonth(lastMonth),
-    //       end: endOfMonth(lastMonth),
-    //     };
-    //   },
-    // },
-    {
-      label: t("Tomorrow"),
-      value: "tomorrow",
-      range() {
-        const tomorrow = addDays(new Date(), 1);
-
-        return {
-          start: tomorrow,
-          end: tomorrow,
-        };
-      },
-    },
-    {
-      label: t("Next week"),
-      value: "next-week",
-      range() {
-        const nextWeek = addWeeks(new Date(), 1);
-
-        return {
-          start: startOfWeek(nextWeek),
-          end: endOfWeek(nextWeek),
-        };
-      },
-    },
-    {
-      label: t("Next month"),
-      value: "next-month",
-      range() {
-        const nextMonth = addMonth(new Date(), 1);
-
-        return {
-          start: startOfMonth(nextMonth),
-          end: endOfMonth(nextMonth),
-        };
-      },
-    },
-  ];
-};
+import {
+  usePresetDateRanges,
+  PresetRange,
+  DateRange,
+} from "./hooks/use-preset-date-ranges";
 
 export const DateRangePicker = () => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const presetRanges = usePresetRanges();
+  const presetRanges = usePresetDateRanges();
 
   const [startMonth, setStartMonth] = React.useState(new Date());
   const [customDates, setCustomDates] = React.useState<CustomDate[]>([]);
@@ -204,6 +34,13 @@ export const DateRangePicker = () => {
   const resetSelectedPreset = () => setSelectedPreset(undefined);
 
   const handleMonthChange = (month: Date) => setStartMonth(month);
+
+  const resetRange = () => {
+    setCustomDates([]);
+
+    setStartDateInput("");
+    setEndDateInput("");
+  };
 
   const setRange = ({ start, end }: DateRange) => {
     const newCustomDates = eachDayOfInterval({ start, end }).map(date => {
@@ -251,7 +88,8 @@ export const DateRangePicker = () => {
   const handlePresetChange = (selection: OptionType) => {
     // Reset
     if (!selection || selection.label === "-") {
-      return setCustomDates([]);
+      resetRange();
+      return;
     }
 
     const presetRange = selection as PresetRange;
