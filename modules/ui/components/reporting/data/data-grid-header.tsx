@@ -16,7 +16,6 @@ type Props = {
 };
 
 export const DataGridHeader: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -28,6 +27,10 @@ export const DataGridHeader: React.FC<Props> = props => {
     columnWidth,
     numberOfLockedColumns = 0,
   } = props;
+
+  // TODO: For V1 we're not supporting this, but will want to add in items as we implement them
+  //const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
+  const menuItems: string[] = React.useMemo(() => [], []);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -42,16 +45,16 @@ export const DataGridHeader: React.FC<Props> = props => {
       return (
         <div key={key} style={style} className={classes.headerCell}>
           <div>{columns[columnIndex]}</div>
-          <div onClick={handleMenuClick} className={classes.action}>
-            <ArrowDropDown />
-          </div>
+          {menuItems && menuItems.length > 0 && (
+            <div onClick={handleMenuClick} className={classes.action}>
+              <ArrowDropDown />
+            </div>
+          )}
         </div>
       );
     },
-    [classes.action, classes.headerCell]
+    [menuItems, classes.action, classes.headerCell]
   );
-
-  const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
 
   return (
     <>
