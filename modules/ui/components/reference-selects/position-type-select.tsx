@@ -56,7 +56,7 @@ export const PositionTypeSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={selectedPositionTypes}
+      value={multiple ? selectedPositionTypes : selectedPositionTypes[0]}
       multiple={multiple}
       options={positionTypeOptions}
       withResetValue={false}
