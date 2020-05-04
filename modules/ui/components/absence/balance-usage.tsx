@@ -87,8 +87,7 @@ export const BalanceUsage: React.FC<Props> = props => {
     const negativeWarning =
       balance.usedBalance + amount > balance.initialBalance &&
       !balance.absenceReason?.allowNegativeBalance;
-    const remainingBalance =
-      balance.unusedBalance - amount > 0 ? balance.unusedBalance - amount : 0;
+    const remainingBalance = balance.unusedBalance - amount;
     return { name, trackingType, amount, negativeWarning, remainingBalance };
   }, [balance, usages]);
 
@@ -111,10 +110,7 @@ export const BalanceUsage: React.FC<Props> = props => {
     const negativeWarning =
       categoryBalance.usedBalance + amount > categoryBalance.initialBalance &&
       !categoryBalance.absenceReasonCategory?.allowNegativeBalance;
-    const remainingBalance =
-      categoryBalance.unusedBalance - amount > 0
-        ? categoryBalance.unusedBalance - amount
-        : 0;
+    const remainingBalance = categoryBalance.unusedBalance - amount;
     return { name, trackingType, amount, negativeWarning, remainingBalance };
   }, [balance, usages, employeeBalances, usageAmount]);
 
