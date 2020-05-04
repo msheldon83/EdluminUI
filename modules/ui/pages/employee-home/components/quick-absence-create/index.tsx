@@ -16,8 +16,8 @@ import useForm from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router-dom";
 import {
-  useAbsenceReasonOptions,
   useAbsenceReasons,
+  useAbsenceReasonOptionsWithCategories,
 } from "reference-data/absence-reasons";
 import {
   createAbsenceDetailInput,
@@ -126,7 +126,9 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
 
   const absenceReasons = useAbsenceReasons(props.organizationId);
 
-  const absenceReasonOptions = useAbsenceReasonOptions(props.organizationId);
+  const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
+    props.organizationId
+  );
 
   const onReasonChange = React.useCallback(
     async event => {

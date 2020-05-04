@@ -24,6 +24,7 @@ import { useHistory } from "react-router";
 import {
   useAbsenceReasonOptions,
   useAbsenceReasons,
+  useAbsenceReasonOptionsWithCategories,
 } from "reference-data/absence-reasons";
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail, AssignmentOnDate } from "ui/components/absence/types";
@@ -146,7 +147,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
       ? [{ label: props.absenceReason.name, value: props.absenceReason.id }]
       : [];
 
-  const absenceReasonOptions = useAbsenceReasonOptions(
+  const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
     organizationId,
     absenceReasonsFromProps
   );

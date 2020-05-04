@@ -10,6 +10,10 @@ query GetAbsenceReasons($orgId: ID) {
       absenceReasonTrackingTypeId
       allowNegativeBalance
       requireNotesToAdmin
+      category {
+        id
+        name
+      }
     }
   }
 }
