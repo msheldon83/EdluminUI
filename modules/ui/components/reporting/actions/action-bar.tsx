@@ -5,6 +5,7 @@ import { OptionalFilters } from "./optional-filters";
 import { RequiredFilters } from "./required-filters";
 
 type Props = {
+  currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (
     filterFields: FilterField[],
@@ -16,11 +17,12 @@ type Props = {
 
 export const ActionBar: React.FC<Props> = props => {
   const classes = useStyles();
-  const { filterableFields, setFilters, refreshReport } = props;
+  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
 
   return (
     <div className={classes.actionBar}>
       <RequiredFilters
+        currentFilters={currentFilters}
         filterableFields={filterableFields.filter(f => f.isRequiredFilter)}
         setFilters={(filterFields: FilterField[]) =>
           setFilters(filterFields, false, true)

@@ -68,6 +68,46 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       //TODO: Process the current filters from the Report Definition and put them
       // into the currentFilters array
 
+      // If setting the report definition for the first time, carry any defined
+      // filters from the ReportDefinitionInput into the matching filters list
+      if (!prev.reportDefinition && prev.reportDefinitionInput.filter) {
+        const updatedFilters: {
+          optional: FilterField[];
+          required: FilterField[];
+        } = {
+          optional: [],
+          required: [],
+        };
+        const fields = action.reportDefinition.metadata.query.schema.allFields;
+        prev.reportDefinitionInput.filter.forEach(filter => {
+          const matchingField = fields.find(
+            field => field.dataSourceFieldName === filter.fieldName
+          );
+          if (matchingField) {
+            if (matchingField.isRequiredFilter) {
+              updatedFilters.required.push({
+                field: matchingField,
+                expressionFunction: filter.expressionFunction,
+                value: filter.value,
+              });
+            } else {
+              updatedFilters.optional.push({
+                field: matchingField,
+                expressionFunction: filter.expressionFunction,
+                value: filter.value,
+              });
+            }
+          }
+        });
+
+        return {
+          ...prev,
+          reportDefinition: action.reportDefinition,
+          filterableFields: filterableFields,
+          filters: updatedFilters,
+        };
+      }
+
       return {
         ...prev,
         reportDefinition: action.reportDefinition,

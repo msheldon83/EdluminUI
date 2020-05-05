@@ -95,6 +95,10 @@ export const Report: React.FC<Props> = props => {
                 filterableFields={state.filterableFields}
                 setFilters={setFilters}
                 refreshReport={refreshReport}
+                currentFilters={[
+                  ...state.filters.required,
+                  ...state.filters.optional,
+                ]}
               />
             </div>
             <DataGrid
