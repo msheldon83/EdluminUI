@@ -2930,6 +2930,9 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   employee: Employee
   substitute: Substitute
   administrator: Administrator
+  originalEmployee: Employee
+  originalSubstitute: Substitute
+  originalAdministrator: Administrator
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!
@@ -5342,6 +5345,7 @@ type User implements ModelObjectInterface {
   phoneIsValidForSms: Boolean
   stopSmsUntilUtc: DateTime
   suspendSmsUntilUtc: DateTime
+  invitationRequestedAtUtc: DateTime
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!
