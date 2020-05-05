@@ -93,45 +93,47 @@ export const OptionalFilters: React.FC<Props> = props => {
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
-            <ClickAwayListener
-              mouseEvent="onMouseDown"
-              onClickAway={async () => {
-                setFiltersOpen(false);
-                await refreshReport();
-              }}
-            >
-              <div className={classes.filters}>
-                {localFilters.length > 0 ? (
-                  localFilters.map((f, i) => {
-                    return (
-                      <OptionalFilterRow
-                        filterField={f}
-                        filterableFields={filterableFields}
-                        updateFilter={(filterField: FilterField) =>
-                          updateFilter(filterField, i)
-                        }
-                        removeFilter={() => removeFilter(i)}
-                        isFirst={i === 0}
-                        key={i}
-                      />
-                    );
-                  })
-                ) : (
-                  <div className={classes.subText}>
-                    {t("No filters applied")}
+            <div>
+              <ClickAwayListener
+                mouseEvent="onMouseDown"
+                onClickAway={async () => {
+                  setFiltersOpen(false);
+                  await refreshReport();
+                }}
+              >
+                <div className={classes.filters}>
+                  {localFilters.length > 0 ? (
+                    localFilters.map((f, i) => {
+                      return (
+                        <OptionalFilterRow
+                          filterField={f}
+                          filterableFields={filterableFields}
+                          updateFilter={(filterField: FilterField) =>
+                            updateFilter(filterField, i)
+                          }
+                          removeFilter={() => removeFilter(i)}
+                          isFirst={i === 0}
+                          key={i}
+                        />
+                      );
+                    })
+                  ) : (
+                    <div className={classes.subText}>
+                      {t("No filters applied")}
+                    </div>
+                  )}
+                  <div>
+                    <Button
+                      onClick={addFilter}
+                      variant="text"
+                      className={classes.addFilter}
+                    >
+                      {t("Add filter")}
+                    </Button>
                   </div>
-                )}
-                <div>
-                  <Button
-                    onClick={addFilter}
-                    variant="text"
-                    className={classes.addFilter}
-                  >
-                    {t("Add filter")}
-                  </Button>
                 </div>
-              </div>
-            </ClickAwayListener>
+              </ClickAwayListener>
+            </div>
           </Fade>
         )}
       </Popper>
