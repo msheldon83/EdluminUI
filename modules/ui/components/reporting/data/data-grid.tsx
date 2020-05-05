@@ -21,6 +21,7 @@ import { isNumber } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
 import { calculateColumnWidth, calculateRowHeight } from "../helpers";
 import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 type Props = {
   reportDefinition: ReportDefinition;
@@ -81,29 +82,35 @@ export const DataGrid: React.FC<Props> = props => {
           <ScrollSync>
             {({ onScroll, scrollLeft }) => (
               <div>
-                <div>
-                  <DataGridHeader
-                    columns={metadata.query.selects.map(s => s.displayName)}
-                    numberOfLockedColumns={numberOfLockedColumns}
-                    onScroll={onScroll}
-                    scrollLeft={scrollLeft}
-                    height={50}
-                    width={width}
-                    columnWidth={(params: Index) =>
-                      calculateColumnWidth(
-                        params,
-                        isGrouped,
-                        reportData.dataColumnIndexMap
-                      )
-                    }
-                  />
-                </div>
-                <div>
+                <DataGridHeader
+                  columns={metadata.query.selects.map(s => s.displayName)}
+                  numberOfLockedColumns={numberOfLockedColumns}
+                  onScroll={onScroll}
+                  scrollLeft={scrollLeft}
+                  height={50}
+                  width={width}
+                  columnWidth={(params: Index) =>
+                    calculateColumnWidth(
+                      params,
+                      isGrouped,
+                      reportData.dataColumnIndexMap
+                    )
+                  }
+                />
+                {!isGrouped && groupedData[0]?.subtotals && (
                   <MultiGrid
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
                     fixedColumnCount={numberOfLockedColumns}
-                    cellRenderer={props => cellRenderer(rows, props, classes)}
+                    fixedRowCount={1}
+                    cellRenderer={props =>
+                      summaryHeaderRenderer(
+                        groupedData[0]?.subtotals,
+                        props,
+                        classes,
+                        t
+                      )
+                    }
                     columnWidth={(params: Index) =>
                       calculateColumnWidth(
                         params,
@@ -113,24 +120,46 @@ export const DataGrid: React.FC<Props> = props => {
                     }
                     estimatedColumnSize={120}
                     columnCount={metadata.numberOfColumns ?? 0}
-                    height={height - 50}
-                    rowHeight={(params: Index) =>
-                      calculateRowHeight(params, rows)
-                    }
-                    rowCount={rows.length}
+                    height={50}
+                    rowHeight={50}
+                    rowCount={1}
                     width={width}
                     classNameBottomLeftGrid={classes.dataGridLockedColumns}
                     classNameBottomRightGrid={classes.dataGrid}
                     style={isLoading ? { opacity: 0.5 } : undefined}
-                    noContentRenderer={() => (
-                      <div className={classes.noResults}>
-                        <Typography variant="h2">
-                          {t("No results found for applied filters")}
-                        </Typography>
-                      </div>
-                    )}
                   />
-                </div>
+                )}
+                <MultiGrid
+                  onScroll={onScroll}
+                  scrollLeft={scrollLeft}
+                  fixedColumnCount={numberOfLockedColumns}
+                  cellRenderer={props => cellRenderer(rows, props, classes)}
+                  columnWidth={(params: Index) =>
+                    calculateColumnWidth(
+                      params,
+                      isGrouped,
+                      reportData.dataColumnIndexMap
+                    )
+                  }
+                  estimatedColumnSize={120}
+                  columnCount={metadata.numberOfColumns ?? 0}
+                  height={height - (isGrouped ? 50 : 100)}
+                  rowHeight={(params: Index) =>
+                    calculateRowHeight(params, rows)
+                  }
+                  rowCount={rows.length}
+                  width={width}
+                  classNameBottomLeftGrid={classes.dataGridLockedColumns}
+                  classNameBottomRightGrid={classes.dataGrid}
+                  style={isLoading ? { opacity: 0.5 } : undefined}
+                  noContentRenderer={() => (
+                    <div className={classes.noResults}>
+                      <Typography variant="h2">
+                        {t("No results found for applied filters")}
+                      </Typography>
+                    </div>
+                  )}
+                />
               </div>
             )}
           </ScrollSync>
@@ -216,7 +245,40 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "center",
     marginTop: theme.typography.pxToRem(50),
   },
+  summaryRow: {
+    background: "rgba(61, 78, 215, 0.2)",
+  },
+  summaryRowHeader: {
+    fontWeight: 600,
+  },
 }));
+
+const summaryHeaderRenderer = (
+  subtotals: any[],
+  { columnIndex, key, style }: GridCellProps,
+  classes: any,
+  t: TFunction
+) => {
+  const cellClasses = clsx({
+    [classes.summaryRowHeader]: columnIndex === 0,
+    [classes.cell]: true,
+    [classes.summaryRow]: true,
+  });
+
+  if (columnIndex === 0) {
+    return (
+      <div key={key} style={style} className={cellClasses}>
+        {t("Summary")}
+      </div>
+    );
+  }
+
+  return (
+    <div key={key} style={style} className={cellClasses}>
+      {subtotals[columnIndex]}
+    </div>
+  );
+};
 
 const dataCellRenderer = (
   data: any[],
@@ -435,10 +497,14 @@ const sumRows = (row1: any[], row2: any[]) => {
     const item1 = row1[index];
     const item2 = row2[index];
 
-    if (!item2) {
-      row.push(isNumber(item1) ? item1 : null);
+    if (isNumber(item1) && isNumber(item2)) {
+      row.push(item1 + item2);
+    } else if (isNumber(item1)) {
+      row.push(item1);
+    } else if (isNumber(item2)) {
+      row.push(item2);
     } else {
-      row.push(isNumber(item1) && isNumber(item2) ? item1 + item2 : null);
+      row.push(null);
     }
   }
   return row;
