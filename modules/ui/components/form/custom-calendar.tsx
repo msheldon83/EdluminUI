@@ -34,6 +34,9 @@ type CustomCalendarProps = {
   previousMonthNavigation?: boolean;
   nextMonthNavigation?: boolean;
   classes?: Classes;
+  onClickDate?: (date: Date) => void;
+  onHoverDate?: (date: Date) => void;
+  onMouseLeave?: () => void;
 };
 
 type Classes = {
@@ -45,7 +48,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   const {
     contained = true,
     style = {},
-    onSelectDates,
+    onSelectDates = () => {},
     month = new Date(),
     customDates = [],
     onMonthChange = () => {},
@@ -53,6 +56,9 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     nextMonthNavigation = false,
     variant = "weeks",
     classes: customClasses = {},
+    onClickDate = () => {},
+    onHoverDate = () => {},
+    onMouseLeave = () => {}
   } = props;
 
   const classes = useStyles({ contained, onSelectDates });
@@ -120,8 +126,12 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   };
 
   const handleDateSelect = (date: Date) => {
-    if (!onSelectDates) {
+    if (!onSelectDates && !onClickDate) {
       return;
+    }
+
+    if (onClickDate) {
+      return onClickDate(date);
     }
 
     // Make it only about the actual date
@@ -129,7 +139,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
 
     // Always make sure that the start date is before the end date
     const { earlier, later } =
-      shiftPressed && lastDateSelected
+      shiftPressed && lastDateSelected !== undefined
         ? sortDates(lastDateSelected, date)
         : {
             earlier: date,
@@ -224,8 +234,13 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
             disableElevation
             onClick={() => handleDateSelect(date)}
             onKeyPress={() => handleDateSelect(date)}
-            onMouseEnter={() => setMouseOverDate(date)}
-            onMouseLeave={() => setMouseOverDate(undefined)}
+            onMouseEnter={() => {
+              setMouseOverDate(date);
+              onHoverDate(date);
+            }}
+            onMouseLeave={() => {
+              setMouseOverDate(undefined);
+            }}
             {...buttonProps}
             className={`${classNames} ${buttonClassName}`}
           >
@@ -248,7 +263,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   );
 
   return (
-    <section className={classes.calendar} style={style}>
+    <section className={classes.calendar} style={style} onMouseLeave={onMouseLeave}>
       <header className={classes.header}>
         <span className={classes.monthNavButton}>
           {previousMonthNavigation && (

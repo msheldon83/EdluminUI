@@ -1,9 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import addMonth from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
+import isWithinInterval from "date-fns/isWithinInterval";
+import addDays from "date-fns/addDays";
 import { DateInput } from "./date-input";
 import { CustomCalendar as Calendar, CustomDate } from "./custom-calendar";
 import { SelectNew as Select, OptionType } from "./select-new";
@@ -16,11 +19,16 @@ import {
 export const DateRangePicker = () => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const presetRanges = usePresetDateRanges();
 
+  const [mouseOverDate, setMouseOverDate] = React.useState<Date | undefined>();
   const [startMonth, setStartMonth] = React.useState(new Date());
   const [customDates, setCustomDates] = React.useState<CustomDate[]>([]);
+  const [highlightedDates, setHighlightedDates] = React.useState<CustomDate[]>(
+    []
+  );
   const [startDateInput, setStartDateInput] = React.useState<
     Date | string | undefined
   >();
@@ -43,18 +51,13 @@ export const DateRangePicker = () => {
   };
 
   const setRange = ({ start, end }: DateRange) => {
-    const newCustomDates = eachDayOfInterval({ start, end }).map(date => {
+    const selectedDates = eachDayOfInterval({ start, end }).map(date => {
       return {
         date,
         buttonProps: {
           style: {
             background: "red",
           },
-          // onClick(e: React.MouseEvent) {
-          //   e.preventDefault();
-
-          //   handleStartDateInputChange(date);
-          // },
         },
       };
     });
@@ -68,12 +71,51 @@ export const DateRangePicker = () => {
       to. For example, if the range is set the a month previous to what's visible, set it
       on the left, etc.
     */
-    setStartMonth(addMonth(end, -1));
+    // setStartMonth(addMonth(end, -1));
 
-    setCustomDates(newCustomDates);
+    setCustomDates(selectedDates);
 
     setStartDateInput(start);
     setEndDateInput(end);
+  };
+
+  const handleDateClick = (date: Date) => {
+    // Start picking the range
+    if (customDates.length === 0) {
+      return handleStartDateInputChange(date);
+    }
+
+    return resetRange();
+  };
+
+  const generateHighlightedDates = (start?: Date, end?: Date) => {
+    return start !== undefined && end !== undefined
+      ? eachDayOfInterval({ start, end }).map(date => {
+          return {
+            date,
+            buttonProps: {
+              style: {
+                backgroundColor: theme.customColors.lightGray,
+              },
+            },
+          };
+        })
+      : [];
+  };
+
+  const handleDateHover = (date: Date) => {
+    const newHighlightedDates = generateHighlightedDates(
+      customDates[0]?.date,
+      date
+    );
+
+    setMouseOverDate(date);
+    setHighlightedDates(newHighlightedDates);
+  };
+
+  const handleCalendarMouseLeave = () => {
+    setHighlightedDates([]);
+    setMouseOverDate(undefined);
   };
 
   const handleStartDateInputChange = (start: Date) => {
@@ -104,6 +146,10 @@ export const DateRangePicker = () => {
     setSelectedPreset(presetRange);
     setRange({ start, end });
   };
+
+  const calendarDates = React.useMemo(() => {
+    return customDates.concat(highlightedDates);
+  }, [customDates, highlightedDates]);
 
   return (
     <div className={classes.container}>
@@ -141,7 +187,10 @@ export const DateRangePicker = () => {
             variant="month"
             previousMonthNavigation
             onMonthChange={handleMonthChange}
-            customDates={customDates}
+            customDates={calendarDates}
+            onClickDate={handleDateClick}
+            onHoverDate={handleDateHover}
+            onMouseLeave={handleCalendarMouseLeave}
           />
         </div>
         <div className={classes.endCalendar}>
@@ -156,7 +205,10 @@ export const DateRangePicker = () => {
               // 1 month
               handleMonthChange(addMonth(month, -1));
             }}
-            customDates={customDates}
+            customDates={calendarDates}
+            onClickDate={handleDateClick}
+            onHoverDate={handleDateHover}
+            onMouseLeave={handleCalendarMouseLeave}
           />
         </div>
       </div>
@@ -196,7 +248,7 @@ const useStyles = makeStyles(theme => ({
   },
   startCalender: {
     flex: "1 0 auto",
-    marginRight: theme.spacing(4),
+    paddingRight: theme.spacing(4),
   },
   endCalendar: {
     flex: "1 0 auto",
