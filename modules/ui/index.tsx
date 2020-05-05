@@ -97,10 +97,12 @@ import {
 } from "./routes/general-settings";
 import { SettingsLoader, SettingsRoute } from "./routes/settings";
 import {
+  AnalyticsReportsRoute,
+  AnalyticsReportsLoader,
   AnalyticsReportsDailyReportRoute,
   AnalyticsReportsDailyReportLoader,
   AnalyticsReportsAbsencesVacanciesRoute,
-  AnalyticsReportsAbsencesVacanciesLoader
+  AnalyticsReportsAbsencesVacanciesLoader,
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -1217,6 +1219,11 @@ export const App = hot(function() {
                                       path={
                                         AnalyticsReportsAbsencesVacanciesRoute.path
                                       }
+                                      role={"sysAdmin"}
+                                    />
+                                    <ProtectedRoute
+                                      component={AnalyticsReportsLoader}
+                                      path={AnalyticsReportsRoute.path}
                                       role={"sysAdmin"}
                                     />
                                   </Switch>

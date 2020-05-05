@@ -40,7 +40,10 @@ import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absen
 import { LocationsRoute } from "ui/routes/locations";
 import { DataImportRoute } from "ui/routes/data-import";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
-import { AnalyticsReportsDailyReportRoute } from "ui/routes/analytics-reports";
+import {
+  AnalyticsReportsDailyReportRoute,
+  AnalyticsReportsRoute,
+} from "ui/routes/analytics-reports";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
 import { useIsMobile } from "hooks";
 import {
@@ -49,6 +52,7 @@ import {
   EmpMobileSearchRoute,
 } from "ui/routes/mobile-search";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
+import { canViewAsSysAdmin } from "helpers/permissions";
 
 type Props = {
   navBarExpanded: boolean;
@@ -180,12 +184,22 @@ export const AdminNavLinks: React.FC<Props> = props => {
               orgId={params.organizationId}
             />
           </Can>
-          <AnalyticsAndReportsNavLink
-            onClick={props.onClick}
-            navBarExpanded={props.navBarExpanded}
-            route={AnalyticsReportsDailyReportRoute.generate(params)}
-            orgId={params.organizationId}
-          />
+          <Can do={canViewAsSysAdmin} orgId={organizationId}>
+            <AnalyticsAndReportsNavLink
+              onClick={props.onClick}
+              navBarExpanded={props.navBarExpanded}
+              route={AnalyticsReportsRoute.generate(params)}
+              orgId={params.organizationId}
+            />
+          </Can>
+          <Can not do={canViewAsSysAdmin} orgId={organizationId}>
+            <AnalyticsAndReportsNavLink
+              onClick={props.onClick}
+              navBarExpanded={props.navBarExpanded}
+              route={AnalyticsReportsDailyReportRoute.generate(params)}
+              orgId={params.organizationId}
+            />
+          </Can>
           <SchoolsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
