@@ -67,7 +67,7 @@ export const Filter: React.FC<Props> = props => {
                   field: filterField.field,
                   expressionFunction:
                     filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value,
+                  value: value.length > 0 ? value : undefined,
                 });
               }}
               selectedLocationIds={filterField.value ?? []}
@@ -94,7 +94,7 @@ export const Filter: React.FC<Props> = props => {
                   field: filterField.field,
                   expressionFunction:
                     filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value,
+                  value: value.length > 0 ? value : undefined,
                 });
               }}
               selectedPositionTypeIds={filterField.value ?? []}
@@ -122,7 +122,7 @@ export const Filter: React.FC<Props> = props => {
                   field: filterField.field,
                   expressionFunction:
                     filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value,
+                  value: value.length > 0 ? value : undefined,
                 });
               }}
               selectedOrgUserIds={filterField.value ?? []}
@@ -150,7 +150,7 @@ export const Filter: React.FC<Props> = props => {
                   field: filterField.field,
                   expressionFunction:
                     filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value,
+                  value: value.length > 0 ? value : undefined,
                 });
               }}
               selectedOrgUserIds={filterField.value ?? []}
@@ -177,7 +177,7 @@ export const Filter: React.FC<Props> = props => {
                   field: filterField.field,
                   expressionFunction:
                     filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value,
+                  value: value.length > 0 ? value : undefined,
                 });
               }}
               selectedAbsenceReasonIds={filterField.value ?? []}
@@ -204,7 +204,7 @@ export const Filter: React.FC<Props> = props => {
                   field: filterField.field,
                   expressionFunction:
                     filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value,
+                  value: value.length > 0 ? value : undefined,
                 });
               }}
               selectedVacancyReasonIds={filterField.value ?? []}
