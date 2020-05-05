@@ -337,29 +337,30 @@ const groupAndSortData = (
   orderBy: OrderByField[],
   subtotalBy: SubtotalField[]
 ): GroupedData[] => {
-  const groupByFields = Array.from(subtotalBy);
+  const groupByFields = Array.from(subtotalBy ?? []);
   const groupBy = groupByFields[0];
   if (!groupBy) {
-    const localData = Array.from(data);
+    const localData = Array.from(data ?? []);
     if (orderBy.length > 0) {
+      // TODO: Address in V2 or move ordering to server
       // Sort the data according to our orderBy
-      const orderByColumnIndexes = orderBy.map(o =>
-        findColumnIndex(dataColumnIndexMap, o.expression)
-      );
-      localData.sort((a, b) => {
-        const equalReturnValue = 0;
-        for (let i = 0; i < orderByColumnIndexes.length; i++) {
-          const orderByColumnIndex = orderByColumnIndexes[i];
-          const sortAsc = orderBy[i].direction === Direction.Asc;
-          if (a[orderByColumnIndex] < b[orderByColumnIndex]) {
-            return sortAsc ? -1 : 1;
-          }
-          if (a[orderByColumnIndex] > b[orderByColumnIndex]) {
-            return sortAsc ? 1 : -1;
-          }
-        }
-        return equalReturnValue;
-      });
+      // const orderByColumnIndexes = orderBy.map(o =>
+      //   findColumnIndex(dataColumnIndexMap, o.expression)
+      // );
+      // localData.sort((a, b) => {
+      //   const equalReturnValue = 0;
+      //   for (let i = 0; i < orderByColumnIndexes.length; i++) {
+      //     const orderByColumnIndex = orderByColumnIndexes[i];
+      //     const sortAsc = orderBy[i].direction === Direction.Asc;
+      //     if (a[orderByColumnIndex] < b[orderByColumnIndex]) {
+      //       return sortAsc ? -1 : 1;
+      //     }
+      //     if (a[orderByColumnIndex] > b[orderByColumnIndex]) {
+      //       return sortAsc ? 1 : -1;
+      //     }
+      //   }
+      //   return equalReturnValue;
+      // });
     }
 
     return [
