@@ -3,7 +3,12 @@ import { useEffect } from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { SubstituteInput } from "graphql/server-types.gen";
+import {
+  SubstituteInput,
+  LocatorInput,
+  SubstituteAttributeInput,
+  SubstituteRelatedOrgInput,
+} from "graphql/server-types.gen";
 import { ManageDistrictsUI } from "../../components/manage-districts/ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
@@ -67,11 +72,26 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       : getSubRelatedOrgs?.data?.orgUser?.byId;
 
   const orgUserRelationships = orgUser?.orgUserRelationships;
-  useEffect(() => {
-    let subInput: SubstituteInput;
-    subInput.relatedOrgs;
 
-    setSubstitueInput();
+  useEffect(() => {
+    const relatedOrgs: SubstituteRelatedOrgInput[] =
+      orgUserRelationships?.map(o => ({
+        orgId: o?.otherOrganization.orgId ?? "",
+        attributes:
+          o?.attributes?.map(
+            x =>
+              ({
+                attribute: { id: x?.endorsementId ?? "" },
+                expires: x?.expirationDate ?? "",
+              } as SubstituteAttributeInput)
+          ) ?? ([] as SubstituteAttributeInput[]),
+      })) ?? [];
+
+    const subInput: SubstituteInput = {
+      relatedOrgs: relatedOrgs,
+    };
+
+    setSubstitueInput(subInput);
   }, [orgUserRelationships]);
 
   if (getSubRelatedOrgs.state === "LOADING" || !orgUser?.substitute) {
@@ -124,17 +144,27 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
 
   const handleAddEndorsement = async (endorsement: CustomEndorsement) => {
     //Manipulate SubstituteInput Object
+
+    console.log("1");
+
     //Call to handleUpdateSubstitute on change
+    //   if (substituteInput) handleUpdateSubstitute(substituteInput);
   };
 
   const handleRemoveAttribute = async (endorsement: CustomEndorsement) => {
     //Manipulate SubstituteInput Object
+
+    console.log("2");
     //Call to handleUpdateSubstitute on change
+    //  if (substituteInput) handleUpdateSubstitute(substituteInput);
   };
 
   const handleOnChangeAttribute = async (endorsement: CustomEndorsement) => {
     //Manipulate SubstituteInput Object
+
+    console.log("3");
     //Call to handleUpdateSubstitute on change
+    // if (substituteInput) handleUpdateSubstitute(substituteInput);
   };
 
   return (
