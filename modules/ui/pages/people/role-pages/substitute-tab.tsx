@@ -114,7 +114,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       <Information
         editing={props.editing}
         editable={canEditThisSub}
-        orgUser={substitute}
+        orgUser={orgUser}
         permissionSet={substitute.permissionSet}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
