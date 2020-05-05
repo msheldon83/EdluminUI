@@ -274,7 +274,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
-                  label={t("External Id")}
+                  label={t("Identifier")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     name: "externalId",

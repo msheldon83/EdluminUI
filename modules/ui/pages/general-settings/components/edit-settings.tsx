@@ -119,7 +119,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                 </Grid>
                 <Grid item xs={isMobile ? 12 : 4}>
                   <Input
-                    label={t("External Id")}
+                    label={t("Identifier")}
                     InputComponent={FormTextField}
                     inputComponentProps={{
                       name: "externalId",

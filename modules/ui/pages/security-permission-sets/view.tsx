@@ -245,7 +245,7 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
       />
       <PageHeader
         text={permissionSet.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={canEditPermissionSet}
