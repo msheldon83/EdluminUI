@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { Section } from "ui/components/section";
+import clsx from "clsx";
 import { Maybe, Endorsement } from "graphql/server-types.gen";
 import { CustomOrgUserRelationship } from "../helper";
 import { SectionHeader } from "ui/components/section-header";
@@ -54,9 +55,17 @@ export const SelectedDistrict: React.FC<Props> = props => {
       ) : (
         orgUserRelationships?.map((n, i) => (
           <div key={i}>
-            <Grid item xs={12}>
+            <Grid
+              item
+              xs={12}
+              className={clsx({
+                [classes.background]: i % 2,
+              })}
+            >
               <Grid item xs={4} container className={classes.inline}>
-                {n?.otherOrganization?.[i]?.name}
+                <div className={classes.paddingLeft}>
+                  {n?.otherOrganization?.name}
+                </div>
               </Grid>
               <Grid item xs={4} container className={classes.inline}>
                 <AutoCompleteSearch
@@ -68,7 +77,7 @@ export const SelectedDistrict: React.FC<Props> = props => {
                   useLabel={false}
                 />
                 {n?.attributes?.length === 0 ? (
-                  <div>{t("Search attributes to add")}</div>
+                  <div></div>
                 ) : (
                   n?.attributes?.map((endorsement: any, j) => (
                     <DistrictDetail
@@ -82,10 +91,11 @@ export const SelectedDistrict: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={4} container className={classes.inline}>
                 <TextButton
-                  className={classes.floatRight}
-                  onClick={() =>
-                    onRemoveOrg(n?.otherOrganization?.[i]?.id ?? "")
-                  }
+                  className={clsx({
+                    [classes.padding]: true,
+                    [classes.floatRight]: true,
+                  })}
+                  onClick={() => onRemoveOrg(n?.otherOrganization?.id ?? "")}
                 >
                   {t("Remove")}
                 </TextButton>
@@ -99,17 +109,19 @@ export const SelectedDistrict: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  header: {
-    marginBottom: theme.spacing(2),
-  },
-  title: {
-    marginBottom: 0,
-  },
-  cancel: { color: theme.customColors.darkRed },
   inline: {
     display: "inline-block",
   },
   floatRight: {
     float: "right",
+  },
+  padding: {
+    padding: theme.spacing(2),
+  },
+  paddingLeft: {
+    paddingLeft: theme.spacing(2),
+  },
+  background: {
+    backgroundColor: theme.customColors.lightGray,
   },
 }));

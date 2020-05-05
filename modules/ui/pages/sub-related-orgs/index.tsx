@@ -2,11 +2,13 @@ import * as React from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { SubstituteInput } from "graphql/server-types.gen";
 import { ManageDistrictsUI } from "../../components/manage-districts/ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
 import { AddRelatedOrg } from "./graphql/add-related-org.gen";
 import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
+import { AddOrgUserAttributeToSub } from "./graphql/add-org-user-attribute.gen";
 import { useEndorsements } from "reference-data/endorsements";
 import { PeopleSubRelatedOrgsEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
@@ -26,6 +28,12 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     },
   });
   const [removeRelatedOrg] = useMutationBundle(RemoveRelatedOrg, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [addEndorsement] = useMutationBundle(AddOrgUserAttributeToSub, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -94,15 +102,15 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     await getSubRelatedOrgs.refetch();
   };
 
-  const handleAddEndorsement = async (endorsementId: string) => {
-    // await addRelatedOrg({
-    //   variables: {
-    //     orgUserId: params.orgUserId,
-    //     relatedOrgId: orgId,
-    //   },
-    // });
-    // await getSubRelatedOrgs.refetch();
+  const handleAddEndorsement = async (substitute: SubstituteInput) => {
+    await addEndorsement({
+      variables: {
+        substitute: substitute,
+      },
+    });
+    await getSubRelatedOrgs.refetch();
   };
+
   const handleRemoveAttribute = async (endorsementId: string) => {
     //TODO:
     // await removeRelatedOrg({

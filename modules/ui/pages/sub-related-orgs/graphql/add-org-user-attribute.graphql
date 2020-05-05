@@ -1,0 +1,14 @@
+mutation AddOrgUserAttributeToSub($substitute: SubstituteInput!) {
+  orgUser {
+    saveSubstitute(substitute: $substitute) {
+      id
+      rowVersion
+      orgUserRelationships {
+        attributes {
+          endorsementId
+          expirationDate
+        }
+      }
+    }
+  }
+}

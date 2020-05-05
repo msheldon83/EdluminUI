@@ -12,6 +12,7 @@ query GetSubstituteRelatedOrgs($id: ID!) {
           name
         }
         attributes {
+          endorsementId
           expirationDate
           endorsement {
             id

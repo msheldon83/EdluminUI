@@ -75,6 +75,7 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   searchInput: {
     width: "100%",
+    height: "70%",
   },
   boldFont: {
     fontWeight: 600,
