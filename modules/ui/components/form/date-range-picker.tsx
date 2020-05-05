@@ -50,6 +50,11 @@ export const DateRangePicker = () => {
           style: {
             background: "red",
           },
+          // onClick(e: React.MouseEvent) {
+          //   e.preventDefault();
+
+          //   handleStartDateInputChange(date);
+          // },
         },
       };
     });
@@ -191,7 +196,7 @@ const useStyles = makeStyles(theme => ({
   },
   startCalender: {
     flex: "1 0 auto",
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(4),
   },
   endCalendar: {
     flex: "1 0 auto",
