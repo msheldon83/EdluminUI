@@ -57,8 +57,10 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
 
   const classes = useStyles({ contained, onSelectDates });
   const [shiftPressed, setShiftPressed] = React.useState(false);
-  const [lastDateSelected, setLastDateSelected] = React.useState();
-  const [mouseOverDate, setMouseOverDate] = React.useState();
+  const [lastDateSelected, setLastDateSelected] = React.useState<
+    Date | undefined
+  >();
+  const [mouseOverDate, setMouseOverDate] = React.useState<Date | undefined>();
 
   const handleKeyPress = (e: KeyboardEvent) =>
     setShiftPressed(e.key === "Shift");
@@ -135,7 +137,9 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
           };
 
     const dayRange =
-      shiftPressed && lastDateSelected && !isSameDay(lastDateSelected, date)
+      shiftPressed &&
+      lastDateSelected !== undefined &&
+      !isSameDay(lastDateSelected, date)
         ? eachDayOfInterval({ start: earlier, end: later })
         : [date];
 
@@ -146,21 +150,20 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   };
 
   const dateIsInSelectionRange = (date: Date) => {
-    try {
-      const { earlier, later } = sortDates(lastDateSelected, mouseOverDate);
-
-      return (
-        shiftPressed &&
-        lastDateSelected &&
-        mouseOverDate &&
-        inDateInterval(date, {
-          start: earlier,
-          end: later,
-        })
-      );
-    } catch (e) {
+    if (!lastDateSelected || !mouseOverDate) {
       return false;
     }
+    const { earlier, later } = sortDates(lastDateSelected, mouseOverDate);
+
+    return (
+      shiftPressed &&
+      lastDateSelected &&
+      mouseOverDate &&
+      inDateInterval(date, {
+        start: earlier,
+        end: later,
+      })
+    );
   };
 
   const handlePreviousMonthClick = React.useCallback(() => {
