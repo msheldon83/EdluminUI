@@ -36,7 +36,7 @@ export const Filter: React.FC<Props> = props => {
           color="primary"
         />
       );
-    case FilterType.Date:
+    case FilterType.Date: {
       const today = new Date();
       //TODO: Replace with DateRangePickerPopover
       //return <DateRangePickerPopover />;
@@ -54,6 +54,7 @@ export const Filter: React.FC<Props> = props => {
           variant="single-hidden"
         />
       );
+    }
     case FilterType.Custom:
       switch (filterField.field.filterTypeDefinition?.key) {
         case "Location":

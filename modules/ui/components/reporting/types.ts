@@ -5,7 +5,11 @@ export type ReportDefinitionInput = {
     expression: string;
     direction: Direction;
   }[];
-  filter?: string[];
+  filter?: {
+    fieldName: string;
+    expressionFunction: ExpressionFunction;
+    value?: any;
+  }[];
 };
 
 export type ReportDefinition = {

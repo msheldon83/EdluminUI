@@ -5,10 +5,12 @@ import { useTranslation } from "react-i18next";
 import {
   ReportDefinitionInput,
   Direction,
+  ExpressionFunction,
 } from "ui/components/reporting/types";
 
 export const AbsencesVacanciesReport: React.FC<{}> = () => {
   const { t } = useTranslation();
+  const today = React.useMemo(() => new Date(), []);
 
   const reportInput: ReportDefinitionInput = {
     from: "AbsenceAndVacancy",
@@ -29,7 +31,13 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
       "RequiresSub",
       "IsFilled",
     ],
-    filter: ["Date > '3/1/2020'"],
+    filter: [
+      {
+        fieldName: "Date",
+        expressionFunction: ExpressionFunction.Equal,
+        value: today,
+      },
+    ],
     orderBy: [
       {
         expression: "Date",

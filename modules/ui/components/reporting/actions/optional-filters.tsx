@@ -41,6 +41,7 @@ export const OptionalFilters: React.FC<Props> = props => {
   React.useEffect(() => {
     const definedFilters = localFilters.filter(f => f.value !== undefined);
     setFilters(definedFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localFilters]);
 
   const updateFilter = React.useCallback(

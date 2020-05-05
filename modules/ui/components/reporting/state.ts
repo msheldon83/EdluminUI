@@ -84,10 +84,22 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         filters: updatedFilters,
         reportDefinitionInput: {
           ...prev.reportDefinitionInput,
-          filter: convertFiltersToStrings([
-            ...updatedFilters.required,
-            ...updatedFilters.optional,
-          ]),
+          filter: [
+            ...updatedFilters.required.map(f => {
+              return {
+                fieldName: getFilterFieldName(f),
+                expressionFunction: f.expressionFunction,
+                value: f.value,
+              };
+            }),
+            ...updatedFilters.optional.map(f => {
+              return {
+                fieldName: getFilterFieldName(f),
+                expressionFunction: f.expressionFunction,
+                value: f.value,
+              };
+            }),
+          ],
         },
       };
       if (action.refreshReport) {
@@ -107,10 +119,22 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         filters: updatedFilters,
         reportDefinitionInput: {
           ...prev.reportDefinitionInput,
-          filter: convertFiltersToStrings([
-            ...updatedFilters.required,
-            ...updatedFilters.optional,
-          ]),
+          filter: [
+            ...updatedFilters.required.map(f => {
+              return {
+                fieldName: getFilterFieldName(f),
+                expressionFunction: f.expressionFunction,
+                value: f.value,
+              };
+            }),
+            ...updatedFilters.optional.map(f => {
+              return {
+                fieldName: getFilterFieldName(f),
+                expressionFunction: f.expressionFunction,
+                value: f.value,
+              };
+            }),
+          ],
         },
       };
       if (action.refreshReport) {
@@ -146,31 +170,33 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
   }
 };
 
-const convertFiltersToStrings = (filterFields: FilterField[]): string[] => {
-  if (filterFields.length === 0) {
-    return [];
-  }
+const getFilterFieldName = (filterField: FilterField): string => {
+  const dataSourceFieldName = filterField.field.filterTypeDefinition
+    ? filterField.field.filterTypeDefinition.filterDataSourceFieldName
+    : filterField.field.dataSourceFieldName;
+  return dataSourceFieldName;
+};
 
-  const filters = compact(
-    filterFields.map(f => {
-      const dataSourceFieldName = f.field.filterTypeDefinition
-        ? f.field.filterTypeDefinition.filterDataSourceFieldName
-        : f.field.dataSourceFieldName;
-      switch (f.expressionFunction) {
-        case ExpressionFunction.Equal:
-          const equalValue = processFilterValue(f.value);
-          return `(${dataSourceFieldName} = ${
-            Array.isArray(equalValue) ? equalValue[0] : equalValue
-          })`;
-        case ExpressionFunction.ContainedIn:
-          const inValue = processFilterValue(f.value);
-          return `(${dataSourceFieldName} IN (${
-            Array.isArray(inValue) ? inValue.join(",") : inValue
-          }))`;
-      }
-    })
-  );
-  return filters;
+const buildFormula = (
+  fieldName: string,
+  expressionFunction: ExpressionFunction,
+  value: any
+): string | null => {
+  switch (expressionFunction) {
+    case ExpressionFunction.Equal: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} = ${
+        Array.isArray(equalValue) ? equalValue[0] : equalValue
+      })`;
+    }
+    case ExpressionFunction.ContainedIn: {
+      const inValue = processFilterValue(value);
+      return `(${fieldName} IN (${
+        Array.isArray(inValue) ? inValue.join(",") : inValue
+      }))`;
+    }
+  }
+  return null;
 };
 
 const processFilterValue = (value: any): any => {
@@ -192,7 +218,12 @@ export const convertReportDefinitionInputToRdl = (
   const rdlPieces: string[] = [];
   rdlPieces.push(`QUERY FROM ${input.from}`);
   if (input.filter && input.filter.length > 0) {
-    rdlPieces.push(`WHERE ${input.filter.join(" AND ")}`);
+    const filterStrings = compact(
+      input.filter.map(f =>
+        buildFormula(f.fieldName, f.expressionFunction, f.value)
+      )
+    );
+    rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
   }
   rdlPieces.push(`SELECT ${input.select.join(", ")}`);
   if (input.orderBy && input.orderBy.length > 0) {
