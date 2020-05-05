@@ -11,7 +11,6 @@ export type LinkOptions = {
   color?: "blue" | "black";
   displayText?: boolean;
   disabled?: boolean;
-  target?: "_self" | "_blank";
 };
 
 type Props = {
@@ -44,7 +43,6 @@ export const BaseLink: React.FC<Props> = ({
   displayText = true,
   color = "blue",
   disabled,
-  target = "_self",
 }) => {
   const classes = useStyles();
   const text = <span className={textClass}>{children}</span>;
@@ -60,7 +58,6 @@ export const BaseLink: React.FC<Props> = ({
             classes[color]
           )}
           to={to}
-          target={target}
         >
           {children}
         </Link>
