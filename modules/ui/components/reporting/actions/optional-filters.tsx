@@ -78,7 +78,7 @@ export const OptionalFilters: React.FC<Props> = props => {
     <>
       <Button
         color="inherit"
-        startIcon={<FilterList />}
+        startIcon={<img src={require("ui/icons/reports-filter.svg")} />}
         onClick={() => setFiltersOpen(!filtersOpen)}
         className={classes.actionButton}
         ref={buttonRef}
