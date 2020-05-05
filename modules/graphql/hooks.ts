@@ -77,13 +77,15 @@ export function useQueryBundle<Result, Vars>(
     }
   }, [rawResult, options]);
 
+  const isPollingQuery = options?.pollInterval && options.pollInterval > 0;
   const isLoading =
     !(options && options.skip) &&
     (ourResult.state === "LOADING" || ourResult.state === "UPDATING");
   const startLoadingState = useLoadingState().start;
   useEffect(() => {
-    if (isLoading) return startLoadingState(false, `useQueryBundle()`);
-  }, [isLoading, startLoadingState]);
+    if (isLoading && !isPollingQuery)
+      return startLoadingState(false, `useQueryBundle()`);
+  }, [isLoading, isPollingQuery, startLoadingState]);
   if (ourResult.state == "ERROR") {
     const isUnauthorized =
       ourResult.error &&
