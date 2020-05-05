@@ -30,7 +30,7 @@ export type ReportMetadata = {
 
 export type Query = {
   selects: DataExpression[];
-  filters: LogicalTerm | Formula;
+  filters?: LogicalTerm | Formula;
   orderBy: OrderByField[];
   subtotalBy: SubtotalField[];
   schema: {
