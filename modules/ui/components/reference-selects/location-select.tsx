@@ -56,7 +56,11 @@ export const LocationSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={multiple ? selectedLocations : selectedLocations[0]}
+      value={
+        multiple
+          ? selectedLocations
+          : selectedLocations[0] ?? { value: "", label: "" }
+      }
       multiple={multiple}
       options={locationOptions}
       withResetValue={false}

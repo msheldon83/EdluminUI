@@ -56,7 +56,11 @@ export const AbsenceReasonSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={multiple ? selectedAbsenceReasons : selectedAbsenceReasons[0]}
+      value={
+        multiple
+          ? selectedAbsenceReasons
+          : selectedAbsenceReasons[0] ?? { value: "", label: "" }
+      }
       multiple={multiple}
       options={absenceReasonOptions}
       withResetValue={false}

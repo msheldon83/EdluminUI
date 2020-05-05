@@ -59,7 +59,11 @@ export const OrgUserSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={multiple ? selectedOrgUsers : selectedOrgUsers[0]}
+      value={
+        multiple
+          ? selectedOrgUsers
+          : selectedOrgUsers[0] ?? { value: "", label: "" }
+      }
       multiple={multiple}
       options={orgUserOptions}
       withResetValue={false}
