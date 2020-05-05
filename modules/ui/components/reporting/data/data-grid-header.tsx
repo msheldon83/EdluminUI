@@ -7,6 +7,7 @@ import { OrderByField } from "../types";
 
 type Props = {
   columns: string[];
+  height: MultiGridProps["height"];
   width: MultiGridProps["width"];
   columnWidth: MultiGridProps["columnWidth"];
   numberOfLockedColumns?: number;
@@ -22,6 +23,7 @@ export const DataGridHeader: React.FC<Props> = props => {
     columns,
     onScroll,
     scrollLeft,
+    height,
     width,
     columnWidth,
     numberOfLockedColumns = 0,
@@ -67,8 +69,8 @@ export const DataGridHeader: React.FC<Props> = props => {
         cellRenderer={props => headerCellRenderer(columns, props)}
         estimatedColumnSize={120}
         columnCount={columns.length}
-        height={50}
-        rowHeight={50}
+        height={height}
+        rowHeight={height}
         rowCount={1}
         classNameTopLeftGrid={classes.headerGridLockedColumns}
         classNameTopRightGrid={classes.headerGrid}

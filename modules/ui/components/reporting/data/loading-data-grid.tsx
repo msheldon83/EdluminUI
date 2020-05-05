@@ -25,6 +25,7 @@ export const LoadingDataGrid: React.FC<Props> = props => {
             <div>
               <DataGridHeader
                 columns={[...Array(columnCount).map(x => "...")]}
+                height={50}
                 width={width}
                 columnWidth={columnWidth}
               />
@@ -33,7 +34,7 @@ export const LoadingDataGrid: React.FC<Props> = props => {
               <MultiGrid
                 columnWidth={columnWidth}
                 columnCount={columnCount}
-                height={height}
+                height={height-50}
                 rowHeight={50}
                 rowCount={rowCount}
                 width={width}

@@ -52,6 +52,7 @@ export type Formula = {
 export type DataSourceField = {
   friendlyName: string;
   dataSourceFieldName: string;
+  defaultColumnWidthInPixels?: number;
   isRequiredFilter: boolean;
   defaultExpressionFunction: ExpressionFunction;
   filterType?: FilterType;
@@ -113,6 +114,7 @@ export enum ExpressionFunction {
 
 export type DataExpression = {
   displayName: string;
+  dataSourceField?: DataSourceField;
 };
 
 export type OrderByField = {

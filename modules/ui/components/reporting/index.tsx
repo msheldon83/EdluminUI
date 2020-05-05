@@ -83,24 +83,26 @@ export const Report: React.FC<Props> = props => {
 
   return (
     <AppConfig contentWidth="100%">
-      <div className={classes.content}>
-        {!state.reportDefinition ? (
+      {!state.reportDefinition ? (
+        <div className={classes.gridWrapper}>
           <LoadingDataGrid
             numberOfColumns={state.reportDefinitionInput.select.length}
           />
-        ) : (
-          <>
-            <div className={classes.actions}>
-              <ActionBar
-                filterableFields={state.filterableFields}
-                setFilters={setFilters}
-                refreshReport={refreshReport}
-                currentFilters={[
-                  ...state.filters.required,
-                  ...state.filters.optional,
-                ]}
-              />
-            </div>
+        </div>
+      ) : (
+        <>
+          <div className={classes.actions}>
+            <ActionBar
+              filterableFields={state.filterableFields}
+              setFilters={setFilters}
+              refreshReport={refreshReport}
+              currentFilters={[
+                ...state.filters.required,
+                ...state.filters.optional,
+              ]}
+            />
+          </div>
+          <div className={classes.gridWrapper}>
             <DataGrid
               reportDefinition={state.reportDefinition}
               isLoading={
@@ -108,25 +110,40 @@ export const Report: React.FC<Props> = props => {
                 reportResponse.state === "UPDATING"
               }
             />
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </AppConfig>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  content: {
-    width: "100%",
-    height: "100%",
+  actions: {
     padding: theme.spacing(3),
-    borderWidth: theme.typography.pxToRem(1),
+    borderTopWidth: theme.typography.pxToRem(1),
+    borderLeftWidth: theme.typography.pxToRem(1),
+    borderRightWidth: theme.typography.pxToRem(1),
+    borderBottomWidth: 0,
     borderColor: theme.customColors.sectionBorder,
     borderStyle: "solid",
-    borderRadius: "0.25rem",
+    borderTopLeftRadius: "0.25rem",
+    borderTopRightRadius: "0.25rem",
     backgroundColor: theme.customColors.white,
   },
-  actions: {
-    marginBottom: theme.spacing(2),
+  gridWrapper: {
+    width: "100%",
+    height: "100%",
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+    borderTopWidth: 0,
+    borderBottomWidth: theme.typography.pxToRem(1),
+    borderLeftWidth: theme.typography.pxToRem(1),
+    borderRightWidth: theme.typography.pxToRem(1),
+    borderColor: theme.customColors.sectionBorder,
+    borderStyle: "solid",
+    borderBottomLeftRadius: "0.25rem",
+    borderBottomRightRadius: "0.25rem",
+    backgroundColor: theme.customColors.white,
   },
 }));

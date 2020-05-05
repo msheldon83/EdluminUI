@@ -15,12 +15,12 @@ import {
   ScrollSync,
   Index,
 } from "react-virtualized";
-import { makeStyles, CircularProgress } from "@material-ui/core";
-import { useTranslation } from "react-i18next";
+import { makeStyles, CircularProgress, Typography } from "@material-ui/core";
 import clsx from "clsx";
 import { isNumber } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
 import { calculateColumnWidth, calculateRowHeight } from "../helpers";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   reportDefinition: ReportDefinition;
@@ -28,8 +28,8 @@ type Props = {
 };
 
 export const DataGrid: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
+  const { t } = useTranslation();
   const [groupedData, setGroupedData] = React.useState<GroupedData[]>([]);
   const {
     isLoading,
@@ -87,9 +87,14 @@ export const DataGrid: React.FC<Props> = props => {
                     numberOfLockedColumns={numberOfLockedColumns}
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
+                    height={50}
                     width={width}
                     columnWidth={(params: Index) =>
-                      calculateColumnWidth(params, isGrouped)
+                      calculateColumnWidth(
+                        params,
+                        isGrouped,
+                        reportData.dataColumnIndexMap
+                      )
                     }
                   />
                 </div>
@@ -100,11 +105,15 @@ export const DataGrid: React.FC<Props> = props => {
                     fixedColumnCount={numberOfLockedColumns}
                     cellRenderer={props => cellRenderer(rows, props, classes)}
                     columnWidth={(params: Index) =>
-                      calculateColumnWidth(params, isGrouped)
+                      calculateColumnWidth(
+                        params,
+                        isGrouped,
+                        reportData.dataColumnIndexMap
+                      )
                     }
                     estimatedColumnSize={120}
                     columnCount={metadata.numberOfColumns ?? 0}
-                    height={height}
+                    height={height - 50}
                     rowHeight={(params: Index) =>
                       calculateRowHeight(params, rows)
                     }
@@ -113,6 +122,13 @@ export const DataGrid: React.FC<Props> = props => {
                     classNameBottomLeftGrid={classes.dataGridLockedColumns}
                     classNameBottomRightGrid={classes.dataGrid}
                     style={isLoading ? { opacity: 0.5 } : undefined}
+                    noContentRenderer={() => (
+                      <div className={classes.noResults}>
+                        <Typography variant="h2">
+                          {t("No results found for applied filters")}
+                        </Typography>
+                      </div>
+                    )}
                   />
                 </div>
               </div>
@@ -194,6 +210,11 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "column",
     height: 0,
     zIndex: 1,
+  },
+  noResults: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: theme.typography.pxToRem(50),
   },
 }));
 
