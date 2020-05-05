@@ -17,7 +17,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveSubstitute } from "../../graphql/substitute/save-substitute.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
-import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id.gen";
+import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import {
@@ -91,7 +91,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   useEffect(() => {
     if (orgUser) {
       setSubAttributes(
-        orgUser.substitute?.attributes.map(o => ({
+        orgUser.originalSubstitute?.attributes.map(o => ({
           endorsementId: o.endorsement.id,
           name: o.endorsement.name,
           expirationDate: o.expirationDate,

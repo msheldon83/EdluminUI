@@ -1,0 +1,93 @@
+query GetSubstituteById($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      externalId
+      orgId
+      userId
+      active
+      email
+      address1
+      city
+      state
+      country
+      postalCode
+      dateOfBirth
+      phoneNumber
+      firstName
+      middleName
+      lastName
+      loginEmail
+      temporaryPassword
+      isShadowRecord
+      shadowFromOrgId
+      shadowFromOrgName
+      createdUtc
+      relatedOrganizations {
+        id
+        name
+      }
+      originalSubstitute {
+        id
+        permissionSet {
+          id
+          name
+          orgUserRole
+        }
+        attributes {
+          id
+          endorsement {
+            id
+            name
+            expires
+          }
+          expirationDate
+        }
+        qualifiedPositionTypes {
+          id
+          name
+        }
+        substitutePoolMembership {
+          blockedFromEmployees {
+            id
+            firstName
+            lastName
+          }
+          favoriteForEmployees {
+            id
+            firstName
+            lastName
+          }
+          blockedFromPositionTypes {
+            id
+            name
+          }
+          favoriteForPositionTypes {
+            id
+            name
+          }
+          blockedFromLocationGroups {
+            id
+            name
+          }
+          favoriteForLocationGroups {
+            id
+            name
+          }
+          blockedFromLocations {
+            id
+            name
+          }
+          favoriteForLocations {
+            id
+            name
+          }
+          autoAssignToLocations {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}

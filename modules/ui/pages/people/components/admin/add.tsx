@@ -13,10 +13,9 @@ import { AdministratorInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveAdmin } from "../../graphql/admin/save-administrator.gen";
-import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { GetAdminById } from "../../graphql/admin/get-admin-by-id.gen";
+import { GetAdminById } from "../../graphql/admin/get-admin-by-id-foradd.gen";
 
 export const AdminAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -161,17 +160,20 @@ export const AdminAddPage: React.FC<{}> = props => {
         locationGroups={[]}
         positionTypes={[]}
         allLocationIdsInScope={
-          orgUser?.administrator?.accessControl?.allLocationIdsInScope ?? false
+          orgUser?.originalAdministrator?.accessControl
+            ?.allLocationIdsInScope ?? false
         }
         allPositionTypeIdsInScope={
-          orgUser?.administrator?.accessControl?.allPositionTypeIdsInScope ??
-          false
+          orgUser?.originalAdministrator?.accessControl
+            ?.allPositionTypeIdsInScope ?? false
         }
-        locationIds={orgUser?.administrator?.accessControl?.locationIds}
+        locationIds={orgUser?.originalAdministrator?.accessControl?.locationIds}
         locationGroupIds={
-          orgUser?.administrator?.accessControl?.locationGroupIds
+          orgUser?.originalAdministrator?.accessControl?.locationGroupIds
         }
-        positionTypeIds={orgUser?.administrator?.accessControl?.positionTypeIds}
+        positionTypeIds={
+          orgUser?.originalAdministrator?.accessControl?.positionTypeIds
+        }
         isSuperUser={false}
         isCreate={true}
         onSubmit={async (orgUser: any) => {

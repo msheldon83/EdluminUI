@@ -22,7 +22,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
-import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id.gen";
+import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
@@ -102,31 +102,31 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           dateOfBirth: orgUser.dateOfBirth,
           position: {
             positionType: {
-              id: orgUser.employee?.primaryPosition?.positionTypeId,
+              id: orgUser.originalEmployee?.primaryPosition?.positionTypeId,
             },
-            title: orgUser.employee?.primaryPosition?.title,
+            title: orgUser.originalEmployee?.primaryPosition?.title,
             needsReplacement:
-              orgUser.employee?.primaryPosition?.needsReplacement,
+              orgUser.originalEmployee?.primaryPosition?.needsReplacement,
             contract: {
-              id: orgUser.employee?.primaryPosition?.contractId,
+              id: orgUser.originalEmployee?.primaryPosition?.contractId,
             },
             hoursPerFullWorkDay:
-              orgUser.employee?.primaryPosition?.hoursPerFullWorkDay,
+              orgUser.originalEmployee?.primaryPosition?.hoursPerFullWorkDay,
             accountingCodeAllocations: [
               {
-                accountingCodeId: orgUser.employee?.primaryPosition
+                accountingCodeId: orgUser.originalEmployee?.primaryPosition
                   ?.accountingCodeAllocations
-                  ? orgUser.employee.primaryPosition
+                  ? orgUser.originalEmployee.primaryPosition
                       .accountingCodeAllocations[0]?.accountingCodeId ?? ""
                   : "",
-                allocation: orgUser.employee?.primaryPosition
+                allocation: orgUser.originalEmployee?.primaryPosition
                   ?.accountingCodeAllocations
-                  ? orgUser.employee.primaryPosition
+                  ? orgUser.originalEmployee.primaryPosition
                       .accountingCodeAllocations[0]?.allocation ?? 1
                   : 1,
               },
             ],
-            schedules: orgUser.employee?.primaryPosition?.schedules,
+            schedules: orgUser.originalEmployee?.primaryPosition?.schedules,
           },
         });
         setInitialStepNumber(1);
