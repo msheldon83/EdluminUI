@@ -44,7 +44,7 @@ export const ReportsPage: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={t("Reports")} />
+      <PageTitle title={t("Analytics & Reports")} />
       <Grid
         container
         alignItems="flex-start"
