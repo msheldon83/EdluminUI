@@ -19,3 +19,9 @@ export type CustomOrgUserRelationship = {
       }>[]
     | null;
 };
+
+export type CustomEndorsement = {
+  orgId: string;
+  attributeId: string;
+  expirationDate?: Date | null;
+};

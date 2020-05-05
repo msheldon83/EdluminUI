@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useEffect } from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,7 +9,8 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
 import { AddRelatedOrg } from "./graphql/add-related-org.gen";
 import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
-import { AddOrgUserAttributeToSub } from "./graphql/add-org-user-attribute.gen";
+import { UpdateSubstitute } from "./graphql/update-substitute.gen";
+import { CustomEndorsement } from "ui/components/manage-districts/helpers";
 import { useEndorsements } from "reference-data/endorsements";
 import { PeopleSubRelatedOrgsEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
@@ -22,6 +24,10 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
   const params = useRouteParams(PeopleSubRelatedOrgsEditRoute);
   const classes = useStyles();
 
+  const [substituteInput, setSubstitueInput] = React.useState<
+    SubstituteInput
+  >();
+
   const [addRelatedOrg] = useMutationBundle(AddRelatedOrg, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -33,7 +39,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     },
   });
 
-  const [addEndorsement] = useMutationBundle(AddOrgUserAttributeToSub, {
+  const [updateSubstitute] = useMutationBundle(UpdateSubstitute, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -60,11 +66,17 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       ? undefined
       : getSubRelatedOrgs?.data?.orgUser?.byId;
 
+  const orgUserRelationships = orgUser?.orgUserRelationships;
+  useEffect(() => {
+    let subInput: SubstituteInput;
+    subInput.relatedOrgs;
+
+    setSubstitueInput();
+  }, [orgUserRelationships]);
+
   if (getSubRelatedOrgs.state === "LOADING" || !orgUser?.substitute) {
     return <></>;
   }
-
-  const orgUserRelationships = orgUser?.orgUserRelationships;
 
   //TODO: Create string in format "Attribute (Expires April 23, 2019)"
   const allDistrictAttributes = orgUser.employee?.endorsements ?? [];
@@ -81,6 +93,14 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       : [];
 
   console.log(formattedDistrictAttributes);
+
+  const handleUpdateSubstitute = async (substitute: SubstituteInput) => {
+    await updateSubstitute({
+      variables: {
+        substitute: substitute,
+      },
+    });
+  };
 
   const handleAddOrg = async (orgId: string) => {
     await addRelatedOrg({
@@ -102,38 +122,19 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     await getSubRelatedOrgs.refetch();
   };
 
-  const handleAddEndorsement = async (substitute: SubstituteInput) => {
-    await addEndorsement({
-      variables: {
-        substitute: substitute,
-      },
-    });
-    await getSubRelatedOrgs.refetch();
+  const handleAddEndorsement = async (endorsement: CustomEndorsement) => {
+    //Manipulate SubstituteInput Object
+    //Call to handleUpdateSubstitute on change
   };
 
-  const handleRemoveAttribute = async (endorsementId: string) => {
-    //TODO:
-    // await removeRelatedOrg({
-    //   variables: {
-    //     orgUserId: params.orgUserId,
-    //     relatedOrgId: orgId,
-    //   },
-    // });
-    // await getSubRelatedOrgs.refetch();
+  const handleRemoveAttribute = async (endorsement: CustomEndorsement) => {
+    //Manipulate SubstituteInput Object
+    //Call to handleUpdateSubstitute on change
   };
 
-  const handleOnChangeAttribute = async (
-    endorsementId: string,
-    expirationDate: Date
-  ) => {
-    //TODO:
-    // await removeRelatedOrg({
-    //   variables: {
-    //     orgUserId: params.orgUserId,
-    //     relatedOrgId: orgId,
-    //   },
-    // });
-    // await getSubRelatedOrgs.refetch();
+  const handleOnChangeAttribute = async (endorsement: CustomEndorsement) => {
+    //Manipulate SubstituteInput Object
+    //Call to handleUpdateSubstitute on change
   };
 
   return (

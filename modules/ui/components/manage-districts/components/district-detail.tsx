@@ -2,26 +2,36 @@ import * as React from "react";
 import clsx from "clsx";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import { Divider, Grid, makeStyles, Typography } from "@material-ui/core";
+import { CustomEndorsement } from "../helpers";
 import { DateInput } from "ui/components/form/date-input";
 
 type Props = {
-  onRemoveEndorsement: (endorsementId: string) => Promise<unknown>;
-  onChangeEndorsement: (
-    endorsementId: string,
-    expirationDate: Date
-  ) => Promise<unknown>;
+  onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
   endorsement:
     | { name: string; validUntil?: Date | null; id: string }
     | undefined
     | null;
+  orgId: string;
 };
 
 export const DistrictDetail: React.FC<Props> = props => {
   const classes = useStyles();
-  const { onRemoveEndorsement, onChangeEndorsement, endorsement } = props;
+  const {
+    onRemoveEndorsement,
+    onChangeEndorsement,
+    endorsement,
+    orgId,
+  } = props;
   const e = endorsement;
 
   console.log(e?.validUntil);
+
+  const mutationObject: CustomEndorsement = {
+    attributeId: e?.id ?? "",
+    orgId: orgId,
+    expirationDate: e?.validUntil,
+  };
 
   return (
     <>
@@ -43,7 +53,7 @@ export const DistrictDetail: React.FC<Props> = props => {
             placeholder="Expires"
             onChange={(date: string) =>
               //setFieldValue("dateOfBirth", date)
-
+              //mutationObject
               console.log(date)
             }
             onValidDate={date =>
@@ -61,7 +71,7 @@ export const DistrictDetail: React.FC<Props> = props => {
           })}
         >
           <div
-            onClick={() => onRemoveEndorsement(e?.id ?? "")}
+            onClick={() => onRemoveEndorsement(mutationObject)}
             className={classes.hyperlink}
           >
             <DeleteForeverIcon />

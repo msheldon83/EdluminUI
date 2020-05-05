@@ -1,14 +1,13 @@
 import * as React from "react";
 import { Divider, Grid, makeStyles } from "@material-ui/core";
-import { useMemo } from "react";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { Section } from "ui/components/section";
 import clsx from "clsx";
-import { Maybe, Endorsement } from "graphql/server-types.gen";
-import { CustomOrgUserRelationship } from "../helper";
+import { Maybe } from "graphql/server-types.gen";
+import { CustomOrgUserRelationship, CustomEndorsement } from "../helpers";
 import { SectionHeader } from "ui/components/section-header";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { DistrictDetail } from "./district-detail";
@@ -17,12 +16,9 @@ type Props = {
   orgUserRelationships: Maybe<CustomOrgUserRelationship>[] | undefined | null;
   orgEndorsements: OptionType[];
   onRemoveOrg: (orgId: string) => Promise<unknown>;
-  onAddEndorsement: (endorsementId: string) => Promise<unknown>;
-  onRemoveEndorsement: (endorsementId: string) => Promise<unknown>;
-  onChangeEndorsement: (
-    endorsementId: string,
-    expirationDate: Date
-  ) => Promise<unknown>;
+  onAddEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
 };
 
 export const SelectedDistrict: React.FC<Props> = props => {
@@ -85,6 +81,7 @@ export const SelectedDistrict: React.FC<Props> = props => {
                       onChangeEndorsement={onChangeEndorsement}
                       onRemoveEndorsement={onRemoveEndorsement}
                       endorsement={endorsement?.endorsement}
+                      orgId={n.otherOrganization?.orgId ?? ""}
                     />
                   ))
                 )}

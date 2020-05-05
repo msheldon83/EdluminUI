@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { OptionType } from "ui/components/form/select-new";
 import TextField from "@material-ui/core/TextField";
+import { Input } from "ui/components/form/input";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDeferredState } from "hooks";
 
@@ -52,11 +53,12 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
         }}
         options={props.options}
         renderInput={params => (
-          <TextField
+          //<TextField
+          <Input
             {...params}
             label={props.placeholder}
-            margin="normal"
-            variant="outlined"
+            //margin="normal"
+            //variant="outlined"
             className={classes.searchInput}
             onChange={(e: any) => updateSearchText(e)}
           />

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Maybe } from "graphql/server-types.gen";
-import { CustomOrgUserRelationship } from "./helper";
+import { CustomOrgUserRelationship, CustomEndorsement } from "./helpers";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
@@ -20,12 +20,9 @@ type Props = {
   orgEndorsements: OptionType[];
   onAddOrg: (orgId: string) => Promise<unknown>;
   onRemoveOrg: (orgId: string) => Promise<unknown>;
-  onAddEndorsement: (attributeId: string) => Promise<unknown>;
-  onChangeEndorsement: (
-    endorsementId: string,
-    expirationDate: Date
-  ) => Promise<unknown>;
-  onRemoveEndorsement: (orgId: string) => Promise<unknown>;
+  onAddEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
   isAdmin?: boolean;
 };
 
