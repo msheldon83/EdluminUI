@@ -48,7 +48,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
 
     if (result.data.orgUser?.verifyExternalId === false) {
       ShowGenericErrors(
-        { errors: [t("External Id is not unique")] },
+        { errors: [t("Identifier is not unique")] },
         openSnackbar
       );
       return false;
