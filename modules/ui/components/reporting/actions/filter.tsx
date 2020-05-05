@@ -8,6 +8,8 @@ import { DateRangePickerPopover } from "ui/components/form/date-range-picker-pop
 import { DatePicker } from "ui/components/form/date-picker";
 import { AbsenceReasonSelect } from "ui/components/reference-selects/absence-reason-select";
 import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-reason-select";
+import { OrgUserRole } from "graphql/server-types.gen";
+import { OrgUserSelect } from "ui/components/domain-selects/org-user-select";
 
 type Props = {
   filterField: FilterField;
@@ -109,11 +111,61 @@ export const Filter: React.FC<Props> = props => {
             />
           );
         case "Employee":
-          //TODO
-          break;
+          return (
+            <OrgUserSelect
+              orgId={organizationId ?? ""}
+              role={OrgUserRole.Employee}
+              setSelectedOrgUserIds={orgUserIds => {
+                const value = orgUserIds ?? [];
+                updateFilter({
+                  field: filterField.field,
+                  expressionFunction:
+                    filterField.expressionFunction ?? ExpressionFunction.Equal,
+                  value: value,
+                });
+              }}
+              selectedOrgUserIds={filterField.value ?? []}
+              multiple={
+                filterField.expressionFunction ===
+                ExpressionFunction.ContainedIn
+              }
+              includeAllOption={false}
+              key={filterField.expressionFunction}
+              label={
+                showLabel
+                  ? filterField.field.filterTypeDefinition?.friendlyName
+                  : undefined
+              }
+            />
+          );
         case "Substitute":
-          //TODO
-          break;
+          return (
+            <OrgUserSelect
+              orgId={organizationId ?? ""}
+              role={OrgUserRole.ReplacementEmployee}
+              setSelectedOrgUserIds={orgUserIds => {
+                const value = orgUserIds ?? [];
+                updateFilter({
+                  field: filterField.field,
+                  expressionFunction:
+                    filterField.expressionFunction ?? ExpressionFunction.Equal,
+                  value: value,
+                });
+              }}
+              selectedOrgUserIds={filterField.value ?? []}
+              multiple={
+                filterField.expressionFunction ===
+                ExpressionFunction.ContainedIn
+              }
+              includeAllOption={false}
+              key={filterField.expressionFunction}
+              label={
+                showLabel
+                  ? filterField.field.filterTypeDefinition?.friendlyName
+                  : undefined
+              }
+            />
+          );
         case "AbsenceReason":
           return (
             <AbsenceReasonSelect

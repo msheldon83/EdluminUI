@@ -8,7 +8,6 @@ type Props = {
 };
 
 export const RequiredFilters: React.FC<Props> = props => {
-  //const classes = useStyles();
   const { filterableFields, setFilters } = props;
   const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
     filterableFields.map(f => {
@@ -23,6 +22,7 @@ export const RequiredFilters: React.FC<Props> = props => {
   React.useEffect(() => {
     const definedFilters = localFilters.filter(f => f.value !== undefined);
     setFilters(definedFilters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localFilters]);
 
   const updateFilter = React.useCallback(

@@ -1,11 +1,6 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import {
-  ReportDefinitionInput,
-  Direction,
-  OrderByField,
-  FilterField,
-} from "./types";
+import { ReportDefinitionInput, FilterField } from "./types";
 import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
@@ -56,6 +51,7 @@ export const Report: React.FC<Props> = props => {
         filterFieldsOverride,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reportResponse.state]);
 
   const setFilters = React.useCallback(
@@ -78,12 +74,12 @@ export const Report: React.FC<Props> = props => {
         });
       }
     },
-    [dispatch]
+    []
   );
 
   const refreshReport = React.useCallback(async () => {
     dispatch({ action: "refreshReport" });
-  }, [dispatch]);
+  }, []);
 
   return (
     <AppConfig contentWidth="100%">
