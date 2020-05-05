@@ -7,7 +7,7 @@ import {
   Direction,
 } from "ui/components/reporting/types";
 
-export const AbsentEmployeeReport: React.FC<{}> = () => {
+export const AbsencesVacanciesReport: React.FC<{}> = () => {
   const { t } = useTranslation();
 
   const reportInput: ReportDefinitionInput = {

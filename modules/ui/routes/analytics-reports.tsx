@@ -23,19 +23,19 @@ export const AnalyticsReportsDailyReportLoader = asyncComponent({
   name: "DailyReport",
 });
 
-// Absent Employee Report
-export const AnalyticsReportsAbsentEmployeeRoute = defineSubRoute(
+// Absences & Vacancies Report
+export const AnalyticsReportsAbsencesVacanciesRoute = defineSubRoute(
   AnalyticsReportsRoute,
-  "/absent-employee",
+  "/absences-vacancies",
   []
 );
 
-export const AnalyticsReportsAbsentEmployeeLoader = asyncComponent({
+export const AnalyticsReportsAbsencesVacanciesLoader = asyncComponent({
   resolve: async () => {
-    const AbsentEmployeeReport = (
-      await import("ui/pages/reports/absent-employee")
-    ).AbsentEmployeeReport;
-    return AbsentEmployeeReport;
+    const AbsencesVacanciesReport = (
+      await import("ui/pages/reports/absences-vacancies")
+    ).AbsencesVacanciesReport;
+    return AbsencesVacanciesReport;
   },
-  name: "AbsentEmployeeReport",
+  name: "AbsencesVacanciesReport",
 });
