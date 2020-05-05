@@ -20,6 +20,8 @@ import { useTranslation } from "react-i18next";
 import { usePayCodes } from "reference-data/pay-codes";
 import { OptionTypeBase } from "react-select/src/types";
 import { FormikDurationInput } from "ui/components/form/formik-duration-input";
+import { Input } from "ui/components/form/input";
+import { TextField as FormTextField } from "ui/components/form/text-field";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -42,6 +44,7 @@ type Props = {
       id: string;
       name: string;
     };
+    code?: string | null;
   };
   submitText: string;
   onSubmit: (
@@ -51,7 +54,8 @@ type Props = {
     minAbsenceDurationMinutes: number,
     payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
     payCodeId: string | undefined | null,
-    defaultContractId: string | undefined | null
+    defaultContractId: string | undefined | null,
+    code: string | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
 };
@@ -131,6 +135,7 @@ export const Settings: React.FC<Props> = props => {
           defaultContractId: props.positionType.defaultContractId,
           payTypeId: props.positionType.payTypeId,
           payCodeId: props.positionType.payCodeId,
+          code: props.positionType.code,
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
@@ -140,7 +145,8 @@ export const Settings: React.FC<Props> = props => {
             data.minAbsenceDurationMinutes,
             data.payTypeId ? data.payTypeId : null,
             data.payCodeId ? data.payCodeId : null,
-            data.defaultContractId ? data.defaultContractId : null
+            data.defaultContractId ? data.defaultContractId : null,
+            data.code
           );
         }}
         validationSchema={yup
@@ -182,6 +188,16 @@ export const Settings: React.FC<Props> = props => {
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => {
           return (
             <form onSubmit={handleSubmit}>
+              <Typography variant="h6">{t("Code:")}</Typography>
+              <Input
+                InputComponent={FormTextField}
+                inputComponentProps={{
+                  name: "code",
+                  margin: isMobile ? "normal" : "none",
+                  variant: "outlined",
+                  fullWidth: true,
+                }}
+              />
               <Typography variant="h6">
                 {t("How will you use this position?")}
               </Typography>

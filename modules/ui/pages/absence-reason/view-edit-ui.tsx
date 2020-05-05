@@ -26,6 +26,7 @@ import * as yup from "yup";
 type Props = {
   id: string;
   externalId?: string;
+  code?: string;
   name: string;
   rowVersion: string;
   isRestricted?: boolean;
@@ -120,7 +121,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
       />
       <PageHeader
         text={props.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={[PermissionEnum.AbsVacSettingsSave]}
@@ -153,6 +154,10 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           ]}
         />
         <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h6">{t("Code")}</Typography>
+            <Typography variant="body1">{props.code}</Typography>
+          </Grid>
           <Grid item xs={12} sm={6}>
             <Typography variant="h6">{t("Description")}</Typography>
             <Typography variant="body1">{props.description}</Typography>

@@ -80,6 +80,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       rowVersion={absenceReason.rowVersion}
       name={absenceReason.name}
       externalId={absenceReason.externalId || undefined}
+      code={absenceReason.code || undefined}
       description={absenceReason.description || undefined}
       allowNegativeBalance={absenceReason.allowNegativeBalance}
       isRestricted={absenceReason.isRestricted}

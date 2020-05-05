@@ -254,7 +254,7 @@ export const AbsenceReason: React.FC<{}> = () => {
           {t("Name")}
         </Grid>
         <Grid item xs={3} className={classes.columnTitle}>
-          {t("External Id")}
+          {t("Identifier")}
         </Grid>
         <Grid item xs={3} className={classes.columnTitle}>
           {t("Allow Negative Balances")}

@@ -5,6 +5,7 @@ mutation CreateAbsenceReasonCategory(
     create(absenceReasonCategory: $absenceReasonCategory) {
       id
       externalId
+      code
       rowVersion
       name
       description

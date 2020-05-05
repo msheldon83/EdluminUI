@@ -3,6 +3,7 @@ query GetAbsenceReasonCategory($absenceReasonCategoryId: ID!) {
     byId(id: $absenceReasonCategoryId) {
       id
       externalId
+      code
       rowVersion
       name
       description

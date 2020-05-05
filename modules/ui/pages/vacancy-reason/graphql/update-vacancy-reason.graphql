@@ -4,6 +4,7 @@ mutation UpdateVacancyReason($vacancyReason: VacancyReasonUpdateInput!) {
       id
       name
       description
+      code
       rowVersion
       externalId
     }

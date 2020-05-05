@@ -85,6 +85,7 @@ export const AbsenceReasonCategoryViewEditPage: React.FC<{}> = props => {
       rowVersion={absenceReasonCategory.rowVersion}
       name={absenceReasonCategory.name}
       externalId={absenceReasonCategory.externalId || undefined}
+      code={absenceReasonCategory.code || undefined}
       description={absenceReasonCategory.description || undefined}
       allowNegativeBalance={absenceReasonCategory.allowNegativeBalance}
       absenceReasonTrackingTypeId={

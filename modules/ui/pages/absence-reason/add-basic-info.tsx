@@ -35,7 +35,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
         name: Yup.string()
           .nullable()
           .required(t("Name is required")),
-        externalId: Yup.string().nullable(),
+        externalId: Yup.string()
+          .nullable()
+          .required(t("Identifier is required")),
       }),
     [t]
   );
@@ -76,7 +78,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
                 <Input
-                  label={t("External ID")}
+                  label={t("Identifier")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     name: "externalId",
