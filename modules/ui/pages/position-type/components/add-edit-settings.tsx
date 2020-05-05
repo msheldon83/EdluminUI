@@ -188,16 +188,6 @@ export const Settings: React.FC<Props> = props => {
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => {
           return (
             <form onSubmit={handleSubmit}>
-              <Typography variant="h6">{t("Code:")}</Typography>
-              <Input
-                InputComponent={FormTextField}
-                inputComponentProps={{
-                  name: "code",
-                  margin: isMobile ? "normal" : "none",
-                  variant: "outlined",
-                  fullWidth: true,
-                }}
-              />
               <Typography variant="h6">
                 {t("How will you use this position?")}
               </Typography>
@@ -302,6 +292,18 @@ export const Settings: React.FC<Props> = props => {
                     {t("Please specify how you will use this position")}
                   </FormHelperText>
                 )}
+              <div className={classes.codeSection}>
+                <Input
+                  label={t("Code")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "code",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </div>
               <div
                 className={[
                   classes.contractSection,
@@ -483,5 +485,12 @@ const useStyles = makeStyles(theme => ({
     "& p": {
       marginLeft: 0,
     },
+  },
+  codeSection: {
+    maxWidth: "500px",
+    "& p": {
+      marginLeft: 0,
+    },
+    marginTop: theme.spacing(2),
   },
 }));

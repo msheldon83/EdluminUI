@@ -192,9 +192,9 @@ export const PayCode: React.FC<Props> = props => {
   const payCodes = compact(getPayCodes?.data?.orgRef_PayCode?.all ?? []);
   const mappedData = payCodes.map(o => ({
     ...o,
-    description: o.description,
-    externalId: o.externalId,
-    code: o.code,
+    description: o.description?.toString(),
+    externalId: o.externalId?.toString(),
+    code: o.code?.toString(),
   }));
   const payCodesCount = payCodes.length;
 

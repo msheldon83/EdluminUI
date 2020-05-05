@@ -156,7 +156,9 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <Typography variant="h6">{t("Code")}</Typography>
-            <Typography variant="body1">{props.code}</Typography>
+            <Typography variant="body1">
+              {props.code ?? t("Not defined")}
+            </Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography variant="h6">{t("Description")}</Typography>
