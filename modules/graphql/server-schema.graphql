@@ -209,6 +209,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   category: AbsenceReasonCategory
   prioritySequence: Int
   requireNotesToAdmin: Boolean
+  code: String
 }
 
 type AbsenceReasonBalance implements ModelObjectInterface {
@@ -290,6 +291,7 @@ type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface 
   expired: Boolean!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
+  code: String
 }
 
 input AbsenceReasonCategoryCreateInput {
@@ -299,6 +301,7 @@ input AbsenceReasonCategoryCreateInput {
   externalId: String
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
+  code: String
 }
 
 input AbsenceReasonCategoryUpdateInput {
@@ -310,6 +313,7 @@ input AbsenceReasonCategoryUpdateInput {
   expired: Boolean
   absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
+  code: String
 }
 
 input AbsenceReasonCreateInput {
@@ -325,6 +329,7 @@ input AbsenceReasonCreateInput {
   absenceReasonCategoryId: Int
   prioritySequence: Int
   requireNotesToAdmin: Boolean
+  code: String
 }
 
 enum AbsenceReasonTrackingTypeId {
@@ -348,6 +353,7 @@ input AbsenceReasonUpdateInput {
   absenceReasonCategoryId: ID
   prioritySequence: Int
   requireNotesToAdmin: Boolean
+  code: String
 }
 
 type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -1702,7 +1708,7 @@ type EmployeeDr {
   countryId: CountryCode
 }
 
-type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
+type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface & EmployeeEndorsementInterface {
   _info: [ReturnMessage]
   id: ID!
   createdUtc: DateTime!
@@ -1715,8 +1721,8 @@ type EmployeeEndorsement implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   employeeId: ID!
-  expirationDate: Date
   endorsementId: ID!
+  expirationDate: DateTime
   endorsement: Endorsement!
 }
 
@@ -1725,6 +1731,12 @@ input EmployeeEndorsementInput {
   employeeId: ID!
   endorsementId: ID!
   expirationDate: Date
+}
+
+interface EmployeeEndorsementInterface {
+  endorsementId: ID!
+  expirationDate: DateTime
+  endorsement: Endorsement!
 }
 
 input EmployeeInput {
@@ -3263,15 +3275,20 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   permissionSetIds: [ID]
   relatedOrgIds: [ID]
   relatedOrganizations: [Organization]
+  orgUserRelationships: [OrgUserRelationship]
   isShadowRecord: Boolean!
   shadowFromOrgId: ID
   shadowFromOrgName: String
   employee: Employee
   substitute: Substitute
   administrator: Administrator
+  originalEmployee: Employee
+  originalSubstitute: Substitute
+  originalAdministrator: Administrator
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!
+  invitationRequestedAtUtc: DateTime
 }
 
 input OrgUserCreateInput {
@@ -3361,6 +3378,32 @@ type OrgUserQueries {
     name: String
   ): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
+  verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
+}
+
+type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  orgUserId: ID!
+  otherOrganizationId: ID!
+  otherOrganization: BasicOrganization!
+  attributes: [OrgUserRelationshipAttribute]
+}
+
+type OrgUserRelationshipAttribute implements EmployeeEndorsementInterface {
+  _info: [ReturnMessage]
+  endorsementId: ID!
+  expirationDate: DateTime
+  endorsement: Endorsement!
 }
 
 enum OrgUserRole {
@@ -3832,6 +3875,7 @@ type PayCode implements ModelObjectInterface & OrgObjectInterface & DomainObject
   description: String
   validUntil: Date
   expired: Boolean!
+  code: String
 }
 
 input PayCodeCreateInput {
@@ -3839,6 +3883,7 @@ input PayCodeCreateInput {
   name: String!
   description: String
   externalId: String
+  code: String
 }
 
 input PayCodeUpdateInput {
@@ -3848,6 +3893,7 @@ input PayCodeUpdateInput {
   description: String
   externalId: String
   expired: Boolean
+  code: String
 }
 
 type PayInfo {
@@ -4526,6 +4572,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
+  code: String
   payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
 }
@@ -4542,6 +4589,7 @@ input PositionTypeCreateInput {
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
+  code: String
 }
 
 type PositionTypeDr {
@@ -4616,6 +4664,7 @@ input PositionTypeUpdateInput {
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
+  code: String
 }
 
 type QualifiedEmployeeCounts {
@@ -5719,7 +5768,7 @@ input SubstituteInput {
   inviteImmediately: Boolean
   payCodeId: ID
   attributes: [SubstituteAttributeInput]
-  relatedOrgIds: [ID]
+  relatedOrgs: [SubstituteRelatedOrgInput]
 }
 
 type SubstitutePoolMembership {
@@ -5765,6 +5814,11 @@ input SubstitutePreferencesInput {
   favoriteSubstitutes: [LocatorInput]
   blockedSubstitutes: [LocatorInput]
   autoAssignedSubstitutes: [LocatorInput]
+}
+
+input SubstituteRelatedOrgInput {
+  orgId: ID
+  attributes: [SubstituteAttributeInput]
 }
 
 input SwapVacancyAssignmentsInput {
@@ -5831,6 +5885,7 @@ type User implements ModelObjectInterface {
   phoneIsValidForSms: Boolean
   stopSmsUntilUtc: DateTime
   suspendSmsUntilUtc: DateTime
+  invitationRequestedAtUtc: DateTime
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!
@@ -6401,6 +6456,7 @@ type VacancyReason implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   validUntil: Date
   expired: Boolean!
+  code: String
 }
 
 input VacancyReasonCreateInput {
@@ -6408,6 +6464,7 @@ input VacancyReasonCreateInput {
   name: String!
   description: String
   externalId: String
+  code: String
 }
 
 input VacancyReasonUpdateInput {
@@ -6416,6 +6473,7 @@ input VacancyReasonUpdateInput {
   name: String
   description: String
   externalId: String
+  code: String
 }
 
 enum VacancyRejectionReason {
