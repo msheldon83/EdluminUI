@@ -39,7 +39,7 @@ const getThisSchoolYearDateRange = () => {
     SCHOOL_YEAR_END_MONTH_INDEX
   );
 
-  return { start, end };
+  return { start: startOfMonth(start), end: endOfMonth(end) };
 };
 
 export const usePresetDateRanges = () => {
