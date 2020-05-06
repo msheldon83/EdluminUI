@@ -13,7 +13,7 @@ export const Unauthorized: React.FC<{}> = () => {
   return isMobile ? (
     <div className={classes.container}>
       <div className={classes.mobileContainer}>
-        <div className={classes.unauthorizedText}>{t("UNAUTHORIZED")}</div>
+        <div className={classes.unauthorizedText}>{t("Unauthorized")}</div>
         <div className={classes.mobileText}>
           {t("You're not supposed to be here")}
         </div>
@@ -30,7 +30,7 @@ export const Unauthorized: React.FC<{}> = () => {
   ) : (
     <div className={classes.desktopContainer}>
       <div className={classes.textContainer}>
-        <div className={classes.unauthorizedText}>{t("UNAUTHORIZED")}</div>
+        <div className={classes.unauthorizedText}>{t("Unauthorized")}</div>
         <div className={classes.text}>
           {t("You're not supposed to be here")}
         </div>
@@ -71,6 +71,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(14),
     fontWeight: "bold",
     paddingBottom: theme.spacing(2),
+    textTransform: "uppercase",
   },
   text: {
     color: theme.customColors.black,
