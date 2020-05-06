@@ -596,12 +596,14 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={DataImportViewLoader}
                                       path={DataImportViewRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.DataImport]}
                                     />
                                     <ProtectedRoute
                                       component={DataImportLoader}
                                       path={DataImportRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.DataImport]}
                                     />
                                     <ProtectedRoute
                                       component={AdminEditAbsenceLoader}
