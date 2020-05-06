@@ -12,7 +12,7 @@ import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import { Formik } from "formik";
 import { makeStyles } from "@material-ui/core";
-import { ShowErrors } from "ui/components/error-helpers";
+import { ShowNetworkErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useMutationBundle } from "graphql/hooks";
 import {
@@ -41,7 +41,7 @@ export const ImportDataForm: React.FC<Props> = props => {
 
   const [saveDataImport] = useMutationBundle(SaveDataImportMutation, {
     onError: error => {
-      ShowErrors(error, openSnackbar); // TODO: Parse error codes into better messages
+      ShowNetworkErrors(error, openSnackbar);
     },
   });
 

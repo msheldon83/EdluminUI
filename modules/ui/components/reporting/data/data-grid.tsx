@@ -3,7 +3,6 @@ import {
   ReportDefinition,
   GroupedData,
   DataExpression,
-  ReportData,
   OrderByField,
   SubtotalField,
   Direction,
@@ -16,22 +15,25 @@ import {
   ScrollSync,
   Index,
 } from "react-virtualized";
-import { makeStyles } from "@material-ui/core";
-import { useTranslation } from "react-i18next";
+import { makeStyles, CircularProgress, Typography } from "@material-ui/core";
 import clsx from "clsx";
 import { isNumber } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
 import { calculateColumnWidth, calculateRowHeight } from "../helpers";
+import { useTranslation } from "react-i18next";
+import { TFunction } from "i18next";
 
 type Props = {
   reportDefinition: ReportDefinition;
+  isLoading: boolean;
 };
 
 export const DataGrid: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
+  const { t } = useTranslation();
   const [groupedData, setGroupedData] = React.useState<GroupedData[]>([]);
   const {
+    isLoading,
     reportDefinition: { data: reportData, metadata },
   } = props;
 
@@ -69,35 +71,79 @@ export const DataGrid: React.FC<Props> = props => {
   }, [metadata]);
 
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <ScrollSync>
-          {({ onScroll, scrollLeft }) => (
-            <div>
+    <>
+      {isLoading && (
+        <div className={classes.overlay}>
+          <CircularProgress />
+        </div>
+      )}
+      <AutoSizer>
+        {({ width, height }) => (
+          <ScrollSync>
+            {({ onScroll, scrollLeft }) => (
               <div>
                 <DataGridHeader
-                  selects={metadata.query.selects}
+                  columns={metadata.query.selects.map(s => s.displayName)}
                   numberOfLockedColumns={numberOfLockedColumns}
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
+                  height={50}
                   width={width}
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(params, isGrouped)
+                    calculateColumnWidth(
+                      params,
+                      isGrouped,
+                      reportData.dataColumnIndexMap
+                    )
                   }
                 />
-              </div>
-              <div>
+                {!isGrouped && groupedData[0]?.subtotals && (
+                  <MultiGrid
+                    onScroll={onScroll}
+                    scrollLeft={scrollLeft}
+                    fixedColumnCount={numberOfLockedColumns}
+                    fixedRowCount={1}
+                    cellRenderer={props =>
+                      summaryHeaderRenderer(
+                        groupedData[0]?.subtotals,
+                        props,
+                        classes,
+                        t
+                      )
+                    }
+                    columnWidth={(params: Index) =>
+                      calculateColumnWidth(
+                        params,
+                        isGrouped,
+                        reportData.dataColumnIndexMap
+                      )
+                    }
+                    estimatedColumnSize={120}
+                    columnCount={metadata.numberOfColumns ?? 0}
+                    height={50}
+                    rowHeight={50}
+                    rowCount={1}
+                    width={width}
+                    classNameBottomLeftGrid={classes.dataGridLockedColumns}
+                    classNameBottomRightGrid={classes.dataGrid}
+                    style={isLoading ? { opacity: 0.5 } : undefined}
+                  />
+                )}
                 <MultiGrid
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
                   fixedColumnCount={numberOfLockedColumns}
                   cellRenderer={props => cellRenderer(rows, props, classes)}
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(params, isGrouped)
+                    calculateColumnWidth(
+                      params,
+                      isGrouped,
+                      reportData.dataColumnIndexMap
+                    )
                   }
                   estimatedColumnSize={120}
                   columnCount={metadata.numberOfColumns ?? 0}
-                  height={height}
+                  height={height - (isGrouped ? 50 : 100)}
                   rowHeight={(params: Index) =>
                     calculateRowHeight(params, rows)
                   }
@@ -105,13 +151,21 @@ export const DataGrid: React.FC<Props> = props => {
                   width={width}
                   classNameBottomLeftGrid={classes.dataGridLockedColumns}
                   classNameBottomRightGrid={classes.dataGrid}
+                  style={isLoading ? { opacity: 0.5 } : undefined}
+                  noContentRenderer={() => (
+                    <div className={classes.noResults}>
+                      <Typography variant="h2">
+                        {t("No results found for applied filters")}
+                      </Typography>
+                    </div>
+                  )}
                 />
               </div>
-            </div>
-          )}
-        </ScrollSync>
-      )}
-    </AutoSizer>
+            )}
+          </ScrollSync>
+        )}
+      </AutoSizer>
+    </>
   );
 };
 
@@ -176,7 +230,55 @@ const useStyles = makeStyles(theme => ({
   action: {
     cursor: "pointer",
   },
+  overlay: {
+    position: "relative",
+    top: theme.typography.pxToRem(100),
+    flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
+    height: 0,
+    zIndex: 1,
+  },
+  noResults: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: theme.typography.pxToRem(50),
+  },
+  summaryRow: {
+    background: "rgba(61, 78, 215, 0.2)",
+  },
+  summaryRowHeader: {
+    fontWeight: 600,
+  },
 }));
+
+const summaryHeaderRenderer = (
+  subtotals: any[],
+  { columnIndex, key, style }: GridCellProps,
+  classes: any,
+  t: TFunction
+) => {
+  const cellClasses = clsx({
+    [classes.summaryRowHeader]: columnIndex === 0,
+    [classes.cell]: true,
+    [classes.summaryRow]: true,
+  });
+
+  if (columnIndex === 0) {
+    return (
+      <div key={key} style={style} className={cellClasses}>
+        {t("Summary")}
+      </div>
+    );
+  }
+
+  return (
+    <div key={key} style={style} className={cellClasses}>
+      {subtotals[columnIndex]}
+    </div>
+  );
+};
 
 const dataCellRenderer = (
   data: any[],
@@ -185,7 +287,12 @@ const dataCellRenderer = (
   { columnIndex, key, rowIndex, style }: GridCellProps,
   classes: any
 ) => {
-  const dataValue = data[columnIndex];
+  const dataValue =
+    typeof data[columnIndex] === "boolean"
+      ? data[columnIndex]
+        ? "Y"
+        : "N"
+      : data[columnIndex] ?? "--";
   const isAlternatingRow = dataRowIndex % 2 !== 0;
   const isNormalRow = !isAlternatingRow;
 
@@ -292,29 +399,30 @@ const groupAndSortData = (
   orderBy: OrderByField[],
   subtotalBy: SubtotalField[]
 ): GroupedData[] => {
-  const groupByFields = Array.from(subtotalBy);
+  const groupByFields = Array.from(subtotalBy ?? []);
   const groupBy = groupByFields[0];
   if (!groupBy) {
-    const localData = Array.from(data);
+    const localData = Array.from(data ?? []);
     if (orderBy.length > 0) {
+      // TODO: Address in V2 or move ordering to server
       // Sort the data according to our orderBy
-      const orderByColumnIndexes = orderBy.map(o =>
-        findColumnIndex(dataColumnIndexMap, o.expression)
-      );
-      localData.sort((a, b) => {
-        const equalReturnValue = 0;
-        for (let i = 0; i < orderByColumnIndexes.length; i++) {
-          const orderByColumnIndex = orderByColumnIndexes[i];
-          const sortAsc = orderBy[i].direction === Direction.Asc;
-          if (a[orderByColumnIndex] < b[orderByColumnIndex]) {
-            return sortAsc ? -1 : 1;
-          }
-          if (a[orderByColumnIndex] > b[orderByColumnIndex]) {
-            return sortAsc ? 1 : -1;
-          }
-        }
-        return equalReturnValue;
-      });
+      // const orderByColumnIndexes = orderBy.map(o =>
+      //   findColumnIndex(dataColumnIndexMap, o.expression)
+      // );
+      // localData.sort((a, b) => {
+      //   const equalReturnValue = 0;
+      //   for (let i = 0; i < orderByColumnIndexes.length; i++) {
+      //     const orderByColumnIndex = orderByColumnIndexes[i];
+      //     const sortAsc = orderBy[i].direction === Direction.Asc;
+      //     if (a[orderByColumnIndex] < b[orderByColumnIndex]) {
+      //       return sortAsc ? -1 : 1;
+      //     }
+      //     if (a[orderByColumnIndex] > b[orderByColumnIndex]) {
+      //       return sortAsc ? 1 : -1;
+      //     }
+      //   }
+      //   return equalReturnValue;
+      // });
     }
 
     return [
@@ -389,10 +497,14 @@ const sumRows = (row1: any[], row2: any[]) => {
     const item1 = row1[index];
     const item2 = row2[index];
 
-    if (!item2) {
-      row.push(isNumber(item1) ? item1 : null);
+    if (isNumber(item1) && isNumber(item2)) {
+      row.push(item1 + item2);
+    } else if (isNumber(item1)) {
+      row.push(item1);
+    } else if (isNumber(item2)) {
+      row.push(item2);
     } else {
-      row.push(isNumber(item1) && isNumber(item2) ? item1 + item2 : null);
+      row.push(null);
     }
   }
   return row;

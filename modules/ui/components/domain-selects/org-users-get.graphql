@@ -1,0 +1,10 @@
+query GetAllOrgUsersForRole($orgId: ID!, $role: [OrgUserRole]) {
+  orgUser {
+    all(orgId: $orgId, role: $role) {
+      id
+      rowVersion
+      firstName
+      lastName
+    }
+  }
+}

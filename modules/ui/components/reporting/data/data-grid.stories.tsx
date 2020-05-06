@@ -21,6 +21,28 @@ export const Basic = () => {
             numberOfLockedColumns: 0,
           },
         }}
+        isLoading={false}
+      />
+    </div>
+  );
+};
+
+export const BasicLoading = () => {
+  return (
+    <div style={{ height: "500px", width: "1500px" }}>
+      <DataGrid
+        reportDefinition={{
+          data: {
+            rawData,
+            dataColumnIndexMap,
+          },
+          metadata: {
+            query,
+            numberOfColumns: query.selects.length,
+            numberOfLockedColumns: 0,
+          },
+        }}
+        isLoading={true}
       />
     </div>
   );
@@ -50,6 +72,7 @@ export const SingleGrouping = () => {
             numberOfLockedColumns: 1,
           },
         }}
+        isLoading={false}
       />
     </div>
   );
@@ -84,36 +107,7 @@ export const MultipleGroupings = () => {
             numberOfLockedColumns: 2,
           },
         }}
-      />
-    </div>
-  );
-};
-
-export const Ordered = () => {
-  return (
-    <div style={{ height: "500px", width: "1500px" }}>
-      <DataGrid
-        reportDefinition={{
-          data: {
-            rawData,
-            dataColumnIndexMap,
-          },
-          metadata: {
-            query: {
-              ...query,
-              orderBy: [
-                {
-                  expression: {
-                    displayName: "Hours of Absence",
-                  },
-                  direction: Direction.Asc,
-                },
-              ],
-            },
-            numberOfColumns: query.selects.length,
-            numberOfLockedColumns: 0,
-          },
-        }}
+        isLoading={false}
       />
     </div>
   );
@@ -262,4 +256,8 @@ const query: Query = {
   ],
   orderBy: [],
   subtotalBy: [],
+  schema: {
+    name: "test",
+    allFields: [],
+  },
 };
