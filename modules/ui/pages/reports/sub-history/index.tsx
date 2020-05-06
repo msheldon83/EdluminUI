@@ -35,13 +35,20 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         fieldName: "Date",
         expressionFunction: ExpressionFunction.Equal,
         value: today,
+        isRequired: true,
+      },
+      {
+        fieldName: "IsFilled",
+        expressionFunction: ExpressionFunction.Equal,
+        value: true,
+        isRequired: true,
       },
     ],
     orderBy: [
-      // {
-      //   expression: "(Concat(SubFirstName,' ',SubLastName))",
-      //   direction: Direction.Asc,
-      // },
+      {
+        expression: "Concat(SubFirstName,' ',SubLastName)",
+        direction: Direction.Asc,
+      },
     ],
     subtotalBy: [
       {

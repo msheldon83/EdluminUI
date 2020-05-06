@@ -84,7 +84,7 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
             field => field.dataSourceFieldName === filter.fieldName
           );
           if (matchingField) {
-            if (matchingField.isRequiredFilter) {
+            if (matchingField.isRequiredFilter || filter.isRequired) {
               updatedFilters.required.push({
                 field: matchingField,
                 expressionFunction: filter.expressionFunction,
@@ -124,22 +124,10 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         filters: updatedFilters,
         reportDefinitionInput: {
           ...prev.reportDefinitionInput,
-          filter: [
-            ...updatedFilters.required.map(f => {
-              return {
-                fieldName: getFilterFieldName(f),
-                expressionFunction: f.expressionFunction,
-                value: f.value,
-              };
-            }),
-            ...updatedFilters.optional.map(f => {
-              return {
-                fieldName: getFilterFieldName(f),
-                expressionFunction: f.expressionFunction,
-                value: f.value,
-              };
-            }),
-          ],
+          filter: getFiltersForReportDefinitionInput(
+            updatedFilters.required,
+            updatedFilters.optional
+          ),
         },
       };
       if (action.refreshReport) {
@@ -150,31 +138,27 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       return updatedState;
     }
     case "setRequiredFilters": {
+      const filtersNotIncludedInTheIncomingList = prev.filters.required.filter(
+        f =>
+          !action.filters.find(
+            a => f.field.dataSourceFieldName === a.field.dataSourceFieldName
+          )
+      );
+
       const updatedFilters = {
         ...prev.filters,
-        required: [...action.filters],
+        required: [...action.filters, ...filtersNotIncludedInTheIncomingList],
       };
+
       const updatedState = {
         ...prev,
         filters: updatedFilters,
         reportDefinitionInput: {
           ...prev.reportDefinitionInput,
-          filter: [
-            ...updatedFilters.required.map(f => {
-              return {
-                fieldName: getFilterFieldName(f),
-                expressionFunction: f.expressionFunction,
-                value: f.value,
-              };
-            }),
-            ...updatedFilters.optional.map(f => {
-              return {
-                fieldName: getFilterFieldName(f),
-                expressionFunction: f.expressionFunction,
-                value: f.value,
-              };
-            }),
-          ],
+          filter: getFiltersForReportDefinitionInput(
+            updatedFilters.required,
+            updatedFilters.optional
+          ),
         },
       };
       if (action.refreshReport) {
@@ -208,6 +192,29 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       };
     }
   }
+};
+
+const getFiltersForReportDefinitionInput = (
+  requiredFilters: FilterField[],
+  optionalFilters: FilterField[]
+): ReportDefinitionInput["filter"] => {
+  return [
+    ...requiredFilters.map(f => {
+      return {
+        fieldName: getFilterFieldName(f),
+        expressionFunction: f.expressionFunction,
+        value: f.value,
+        isRequired: true,
+      };
+    }),
+    ...optionalFilters.map(f => {
+      return {
+        fieldName: getFilterFieldName(f),
+        expressionFunction: f.expressionFunction,
+        value: f.value,
+      };
+    }),
+  ];
 };
 
 const getFilterFieldName = (filterField: FilterField): string => {

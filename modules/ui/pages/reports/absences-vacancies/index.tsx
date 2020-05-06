@@ -37,6 +37,7 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         fieldName: "Date",
         expressionFunction: ExpressionFunction.Equal,
         value: today,
+        isRequired: true,
       },
     ],
     orderBy: [

@@ -10,6 +10,7 @@ export type ReportDefinitionInput = {
     fieldName: string;
     expressionFunction: ExpressionFunction;
     value?: any;
+    isRequired?: boolean;
   }[];
   subtotalBy?: {
     expression: string;
