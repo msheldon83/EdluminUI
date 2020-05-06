@@ -113,6 +113,7 @@ const useStyles = makeStyles(theme => ({
   headerGrid: {
     backgroundColor: "rgba(255,255,255, 1)",
     borderRight: "1px solid #E5E5E5",
+    borderLeft: "1px solid #E5E5E5",
   },
   headerCell: {
     borderTop: "1px solid #E5E5E5",

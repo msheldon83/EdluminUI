@@ -135,7 +135,9 @@ export const DataGrid: React.FC<Props> = props => {
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
                   fixedColumnCount={numberOfLockedColumns}
-                  cellRenderer={props => cellRenderer(rows, props, classes, showGroupLabels)}
+                  cellRenderer={props =>
+                    cellRenderer(rows, props, classes, showGroupLabels)
+                  }
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
                       params,
@@ -182,6 +184,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "rgba(255,255,255, 1)",
     borderRight: "1px solid #E5E5E5",
     borderBottom: "1px solid #E5E5E5",
+    borderLeft: "1px solid #E5E5E5",
   },
   mainGroupHeaderRow: {
     borderTop: "1px solid #E5E5E5",
@@ -364,7 +367,12 @@ const groupHeaderCellRenderer = (
   );
 };
 
-const cellRenderer = (rows: Row[], gridProps: GridCellProps, classes: any, showGroupLabels: boolean) => {
+const cellRenderer = (
+  rows: Row[],
+  gridProps: GridCellProps,
+  classes: any,
+  showGroupLabels: boolean
+) => {
   const row = rows[gridProps.rowIndex];
   if (Array.isArray(row.item)) {
     return dataCellRenderer(
@@ -375,7 +383,13 @@ const cellRenderer = (rows: Row[], gridProps: GridCellProps, classes: any, showG
       classes
     );
   } else {
-    return groupHeaderCellRenderer(row.item, row.level, gridProps, classes, showGroupLabels);
+    return groupHeaderCellRenderer(
+      row.item,
+      row.level,
+      gridProps,
+      classes,
+      showGroupLabels
+    );
   }
 };
 
