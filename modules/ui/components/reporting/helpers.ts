@@ -1,5 +1,5 @@
 import { Index } from "react-virtualized";
-import { Row } from "./types";
+import { Row, DataExpression } from "./types";
 
 export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
   const row = rows[index];
@@ -9,9 +9,15 @@ export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
   return 50;
 };
 
-export const calculateColumnWidth = ({ index }: Index, isGrouped: boolean) => {
+export const calculateColumnWidth = (
+  { index }: Index,
+  isGrouped: boolean,
+  dataColumnIndexMap: Record<string, DataExpression>
+) => {
   if (isGrouped && index === 0) {
     return 300;
   }
-  return 200;
+  return (
+    dataColumnIndexMap[index].dataSourceField?.defaultColumnWidthInPixels ?? 200
+  );
 };

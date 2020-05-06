@@ -1,32 +1,37 @@
 import * as React from "react";
 import { makeStyles, Menu, MenuItem } from "@material-ui/core";
 import { ArrowDropDown } from "@material-ui/icons";
-import { DataExpression } from "../types";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
+import { OrderByField } from "../types";
 
 type Props = {
-  selects: DataExpression[];
-  numberOfLockedColumns: number;
-  onScroll: MultiGridProps["onScroll"];
-  scrollLeft: MultiGridProps["scrollLeft"];
+  columns: string[];
+  height: MultiGridProps["height"];
   width: MultiGridProps["width"];
   columnWidth: MultiGridProps["columnWidth"];
+  numberOfLockedColumns?: number;
+  onScroll?: MultiGridProps["onScroll"];
+  scrollLeft?: MultiGridProps["scrollLeft"];
 };
 
 export const DataGridHeader: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const {
-    selects,
-    numberOfLockedColumns,
+    columns,
     onScroll,
     scrollLeft,
+    height,
     width,
     columnWidth,
+    numberOfLockedColumns = 0,
   } = props;
+
+  // TODO: For V1 we're not supporting this, but will want to add in items as we implement them
+  //const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
+  const menuItems: string[] = React.useMemo(() => [], []);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -37,21 +42,20 @@ export const DataGridHeader: React.FC<Props> = props => {
   };
 
   const headerCellRenderer = React.useCallback(
-    (selects: DataExpression[], { columnIndex, key, style }: GridCellProps) => {
-      const headerDisplayName = selects[columnIndex]?.displayName;
+    (columns: string[], { columnIndex, key, style }: GridCellProps) => {
       return (
         <div key={key} style={style} className={classes.headerCell}>
-          <div>{headerDisplayName}</div>
-          <div onClick={handleMenuClick} className={classes.action}>
-            <ArrowDropDown />
-          </div>
+          <div>{columns[columnIndex]}</div>
+          {menuItems && menuItems.length > 0 && (
+            <div onClick={handleMenuClick} className={classes.action}>
+              <ArrowDropDown />
+            </div>
+          )}
         </div>
       );
     },
-    [classes.action, classes.headerCell]
+    [menuItems, classes.action, classes.headerCell]
   );
-
-  const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
 
   return (
     <>
@@ -62,11 +66,11 @@ export const DataGridHeader: React.FC<Props> = props => {
         columnWidth={columnWidth}
         fixedColumnCount={numberOfLockedColumns}
         fixedRowCount={1}
-        cellRenderer={props => headerCellRenderer(selects, props)}
+        cellRenderer={props => headerCellRenderer(columns, props)}
         estimatedColumnSize={120}
-        columnCount={selects.length}
-        height={50}
-        rowHeight={50}
+        columnCount={columns.length}
+        height={height}
+        rowHeight={height}
         rowCount={1}
         classNameTopLeftGrid={classes.headerGridLockedColumns}
         classNameTopRightGrid={classes.headerGrid}
