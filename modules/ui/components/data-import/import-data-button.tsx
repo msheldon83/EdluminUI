@@ -1,10 +1,9 @@
 import * as React from "react";
 import { Button, makeStyles } from "@material-ui/core";
 import { useState } from "react";
-import { DataImportType } from "graphql/server-types.gen";
+import { DataImportType, PermissionEnum } from "graphql/server-types.gen";
 import { ImportDataDialog } from "./import-data-dialog";
 import { Can } from "ui/components/auth/can";
-import { canImportData } from "helpers/permissions";
 import { useIsMobile } from "hooks";
 
 type Props = {
@@ -27,7 +26,7 @@ export const ImportDataButton: React.FC<Props> = props => {
   return isMobile ? (
     <></>
   ) : (
-    <Can do={canImportData} orgId={props.orgId}>
+    <Can do={[PermissionEnum.DataImport]} orgId={props.orgId}>
       <ImportDataDialog
         open={open}
         importType={props.importType}

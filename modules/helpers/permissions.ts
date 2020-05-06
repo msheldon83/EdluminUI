@@ -255,21 +255,6 @@ export const canViewDataManagementNavLink = (
   return true;
 };
 
-export const canImportData = (
-  permissions: OrgUserPermissions[],
-  isSysAdmin: boolean,
-  orgId?: string
-) => {
-  if (isSysAdmin) return true;
-
-  const userPerms = getUserPermissions(permissions, orgId);
-  if (!userPerms?.includes(PermissionEnum.DataImport)) {
-    return false;
-  }
-
-  return true;
-};
-
 /* emp left nav helpers */
 export const canViewEmpMyScheduleNavLink = (
   permissions: OrgUserPermissions[],
