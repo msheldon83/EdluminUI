@@ -71,7 +71,7 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
               ? props.onClick(selectedValue.toString(), props?.orgId)
               : props.onClick(selectedValue.toString());
           }
-          props.options.length = 0;
+          //props.options.length = 0;
         }}
       />
     </>

@@ -32,6 +32,12 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     SubstituteInput
   >();
 
+  const getSubRelatedOrgs = useQueryBundle(GetSubstituteRelatedOrgs, {
+    variables: {
+      id: params.orgUserId,
+    },
+  });
+
   const [addRelatedOrg] = useMutationBundle(AddRelatedOrg, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -58,12 +64,6 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       })),
     [orgEndorsementsQueryed]
   );
-
-  const getSubRelatedOrgs = useQueryBundle(GetSubstituteRelatedOrgs, {
-    variables: {
-      id: params.orgUserId,
-    },
-  });
 
   const orgUser =
     getSubRelatedOrgs.state === "LOADING"
@@ -112,8 +112,6 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
           )
           .toString()
       : [];
-
-  //console.log(formattedDistrictAttributes);
 
   const handleUpdateSubstitute = async (substitute: SubstituteInput) => {
     await updateSubstitute({
@@ -172,8 +170,6 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
 
   const handleOnChangeAttribute = async (endorsement: CustomEndorsement) => {
     //Manipulate SubstituteInput Object
-
-    console.log("3");
     //Call to handleUpdateSubstitute on change
     // if (substituteInput) handleUpdateSubstitute(substituteInput);
   };
