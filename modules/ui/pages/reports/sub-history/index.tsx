@@ -49,6 +49,10 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         expression: "Concat(SubFirstName,' ',SubLastName)",
         direction: Direction.Asc,
       },
+      {
+        expression: "Date",
+        direction: Direction.Desc,
+      },
     ],
     subtotalBy: [
       {
