@@ -72,6 +72,9 @@ export const DataGrid: React.FC<Props> = props => {
     return (metadata.query.subtotalBy ?? []).length > 0;
   }, [metadata]);
 
+  const dataGridHeight = 50;
+  const summaryGridHeight = 50;
+
   return (
     <>
       {isLoading && (
@@ -89,7 +92,7 @@ export const DataGrid: React.FC<Props> = props => {
                   numberOfLockedColumns={numberOfLockedColumns}
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
-                  height={50}
+                  height={dataGridHeight}
                   width={width}
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
@@ -108,6 +111,7 @@ export const DataGrid: React.FC<Props> = props => {
                     cellRenderer={props =>
                       summaryHeaderRenderer(
                         groupedData[0]?.subtotals,
+                        rows.length,
                         props,
                         classes,
                         t
@@ -122,8 +126,8 @@ export const DataGrid: React.FC<Props> = props => {
                     }
                     estimatedColumnSize={120}
                     columnCount={metadata.numberOfColumns ?? 0}
-                    height={50}
-                    rowHeight={50}
+                    height={summaryGridHeight}
+                    rowHeight={summaryGridHeight}
                     rowCount={1}
                     width={width}
                     classNameBottomLeftGrid={classes.dataGridLockedColumns}
@@ -136,7 +140,7 @@ export const DataGrid: React.FC<Props> = props => {
                   scrollLeft={scrollLeft}
                   fixedColumnCount={numberOfLockedColumns}
                   cellRenderer={props =>
-                    cellRenderer(rows, props, classes, showGroupLabels)
+                    cellRenderer(rows, props, classes, t, showGroupLabels)
                   }
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
@@ -147,7 +151,12 @@ export const DataGrid: React.FC<Props> = props => {
                   }
                   estimatedColumnSize={120}
                   columnCount={metadata.numberOfColumns ?? 0}
-                  height={height - (isGrouped ? 50 : 100)}
+                  height={
+                    height -
+                    (isGrouped
+                      ? dataGridHeight
+                      : dataGridHeight + summaryGridHeight)
+                  }
                   rowHeight={(params: Index) =>
                     calculateRowHeight(params, rows)
                   }
@@ -209,6 +218,13 @@ const useStyles = makeStyles(theme => ({
     height: "100%",
     padding: 10,
   },
+  groupHeaderLayout: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  groupHeaderText: {
+    fontWeight: 600,
+  },
   groupNesting: {
     marginLeft: 10,
     height: "100%",
@@ -260,6 +276,7 @@ const useStyles = makeStyles(theme => ({
 
 const summaryHeaderRenderer = (
   subtotals: any[],
+  rowCount: number,
   { columnIndex, key, style }: GridCellProps,
   classes: any,
   t: TFunction
@@ -273,7 +290,7 @@ const summaryHeaderRenderer = (
   if (columnIndex === 0) {
     return (
       <div key={key} style={style} className={cellClasses}>
-        {t("Summary")}
+        {`${rowCount} ${rowCount === 1 ? t("row") : t("rows")}`}
       </div>
     );
   }
@@ -333,6 +350,7 @@ const groupHeaderCellRenderer = (
   level: number,
   { columnIndex, key, style }: GridCellProps,
   classes: any,
+  t: TFunction,
   showGroupLabels: boolean
 ) => {
   const dataClasses = clsx({
@@ -349,9 +367,14 @@ const groupHeaderCellRenderer = (
           {nestDivs(
             0,
             level,
-            <div className={classes.cell}>
-              {showGroupLabels && <div>{group.info?.displayName}</div>}
-              <div>{group.info?.displayValue}</div>
+            <div className={`${classes.cell} ${classes.groupHeaderLayout}`}>
+              <div className={classes.groupHeaderText}>
+                {showGroupLabels && <div>{group.info?.displayName}</div>}
+                <div>{group.info?.displayValue}</div>
+              </div>
+              <div>{`${group.data.length} ${
+                group.data.length === 1 ? t("row") : t("rows")
+              }`}</div>
             </div>,
             classes.groupNesting
           )}
@@ -371,6 +394,7 @@ const cellRenderer = (
   rows: Row[],
   gridProps: GridCellProps,
   classes: any,
+  t: TFunction,
   showGroupLabels: boolean
 ) => {
   const row = rows[gridProps.rowIndex];
@@ -388,6 +412,7 @@ const cellRenderer = (
       row.level,
       gridProps,
       classes,
+      t,
       showGroupLabels
     );
   }
