@@ -22,7 +22,6 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       "AbsStartTime",
       "AbsEndTime",
       "ReasonName",
-      "Concat(SubFirstName,' ',SubLastName) AS Substitute",
       "SubStartTime",
       "SubEndTime",
       "PayDays",
@@ -30,7 +29,6 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       "Title",
       "PositionTypeName",
       "RequiresSub",
-      "IsFilled",
     ],
     filter: [
       {
@@ -40,9 +38,15 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       },
     ],
     orderBy: [
+      // {
+      //   expression: "(Concat(SubFirstName,' ',SubLastName))",
+      //   direction: Direction.Asc,
+      // },
+    ],
+    subtotalBy: [
       {
-        expression: "(Concat(SubFirstName,' ',SubLastName))",
-        direction: Direction.Asc,
+        expression: "SubEmployeeId",
+        showExpression: "Concat(SubFirstName,' ',SubLastName) AS Substitute",
       },
     ],
   };

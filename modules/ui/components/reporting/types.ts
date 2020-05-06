@@ -11,6 +11,10 @@ export type ReportDefinitionInput = {
     expressionFunction: ExpressionFunction;
     value?: any;
   }[];
+  subtotalBy?: {
+    expression: string;
+    showExpression?: string;
+  }[];
 };
 
 // Response from the server which represents the Report

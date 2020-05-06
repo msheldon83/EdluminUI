@@ -257,6 +257,7 @@ export const convertReportDefinitionInputToRdl = (
 ): string => {
   const rdlPieces: string[] = [];
   rdlPieces.push(`QUERY FROM ${input.from}`);
+
   if (input.filter && input.filter.length > 0) {
     const filterStrings = compact(
       input.filter.map(f =>
@@ -265,7 +266,9 @@ export const convertReportDefinitionInputToRdl = (
     );
     rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
   }
+
   rdlPieces.push(`SELECT ${input.select.join(", ")}`);
+
   if (input.orderBy && input.orderBy.length > 0) {
     rdlPieces.push(
       `ORDER BY ${input.orderBy
@@ -276,6 +279,20 @@ export const convertReportDefinitionInputToRdl = (
         .join(", ")}`
     );
   }
+
+  if (input.subtotalBy && input.subtotalBy.length > 0) {
+    rdlPieces.push(
+      `WITH SUBTOTALS ${input.subtotalBy
+        .map(
+          s =>
+            `${s.expression} ${
+              s.showExpression ? `SHOW ${s.showExpression}` : ""
+            }`
+        )
+        .join(", ")}`
+    );
+  }
+
   const rdlString = rdlPieces.join(" ");
   return rdlString;
 };
