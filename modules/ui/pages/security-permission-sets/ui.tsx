@@ -66,7 +66,7 @@ export const PermissionSetUI: React.FC<Props> = props => {
       lookup: orgUserRoles,
     },
     {
-      title: t("External ID"),
+      title: t("Identifier"),
       field: "externalId",
       searchable: false,
       hidden: isMobile,

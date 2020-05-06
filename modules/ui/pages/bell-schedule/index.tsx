@@ -79,7 +79,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
       searchable: true,
     },
     {
-      title: t("External Id"),
+      title: t("Identifier"),
       field: "externalId",
       searchable: true,
       hidden: isMobile,

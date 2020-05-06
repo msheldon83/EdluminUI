@@ -7,6 +7,7 @@ mutation updateAbsenceReasonCategory(
       rowVersion
       externalId
       name
+      code
       description
       expired
       absenceReasonTrackingTypeId

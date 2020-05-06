@@ -6,6 +6,7 @@ mutation CreatePayCode($payCode: PayCodeCreateInput!) {
       rowVersion
       externalId
       description
+      code
       expired
     }
   }

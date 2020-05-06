@@ -5,6 +5,7 @@ query GetPositionTypeById($id: ID!) {
       name
       rowVersion
       externalId
+      code
       forPermanentPositions
       forStaffAugmentation
       minAbsenceDurationMinutes

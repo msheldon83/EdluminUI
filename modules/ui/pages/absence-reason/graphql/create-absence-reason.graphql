@@ -3,6 +3,7 @@ mutation CreateAbsenceReason($absenceReason: AbsenceReasonCreateInput!) {
     create(absenceReason: $absenceReason) {
       id
       externalId
+      code
       rowVersion
       name
       description

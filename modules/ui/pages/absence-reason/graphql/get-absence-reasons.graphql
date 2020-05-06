@@ -5,6 +5,7 @@ query GetAllAbsenceReasonsWithinOrg($orgId: ID, $includeExpired: Boolean) {
       name
       rowVersion
       externalId
+      code
       description
       expired
       isRestricted
