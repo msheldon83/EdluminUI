@@ -4,10 +4,14 @@ import { GetPermissionSets } from "./get-permission-sets.gen";
 import { useMemo } from "react";
 import { OrgUserRole } from "graphql/server-types.gen";
 
-export function usePermissionSets(orgId: string, roles?: Array<OrgUserRole>) {
+export function usePermissionSets(
+  orgId?: string | null,
+  roles?: Array<OrgUserRole>
+) {
   const permissionSets = useQueryBundle(GetPermissionSets, {
     fetchPolicy: "cache-first",
     variables: { orgId, roles },
+    skip: !orgId,
   });
 
   return useMemo(() => {

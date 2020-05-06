@@ -15,7 +15,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { isValid } from "date-fns";
 
 type Props = {
-  userId?: string;
+  userId?: string | null;
   orgId?: string;
   startDate: Date;
   endDate: Date;

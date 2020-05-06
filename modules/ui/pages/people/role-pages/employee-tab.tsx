@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-
 import {
   OrgUserRole,
   EmployeeInput,
@@ -73,16 +72,12 @@ export const EmployeeTab: React.FC<Props> = props => {
     await getEmployee.refetch();
   };
 
-  const onCancelEmployee = () => {
-    props.setEditing(null);
-  };
-
   return (
     <>
       <Information
         editing={props.editing}
         editable={canEditThisEmployee}
-        orgUser={employee}
+        orgUser={orgUser}
         permissionSet={employee.permissionSet}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
@@ -112,7 +107,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         title={t("Time off balances")}
         showEdit={canEditThisEmployee}
         editing={props.editing}
-        orgId={employee.orgId}
+        orgId={params.organizationId}
       />
       <ReplacementCriteria
         editing={props.editing}
@@ -136,7 +131,7 @@ export const EmployeeTab: React.FC<Props> = props => {
       />
       <UpcomingAbsences
         employeeId={employee.id}
-        orgId={employee.orgId.toString()}
+        orgId={params.organizationId}
       />
     </>
   );

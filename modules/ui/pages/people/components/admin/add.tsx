@@ -13,10 +13,9 @@ import { AdministratorInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveAdmin } from "../../graphql/admin/save-administrator.gen";
-import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
+import { GetAdminById } from "../../graphql/admin/get-admin-by-id-foradd.gen";
 
 export const AdminAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -46,7 +45,7 @@ export const AdminAddPage: React.FC<{}> = props => {
     }, // TODO: this is temporary until we build the component to set access control
   });
 
-  const getOrgUser = useQueryBundle(GetOrgUserById, {
+  const getOrgUser = useQueryBundle(GetAdminById, {
     variables: { id: params.orgUserId },
     skip: params.orgUserId === "new",
   });
@@ -70,6 +69,13 @@ export const AdminAddPage: React.FC<{}> = props => {
           lastName: orgUser.lastName,
           externalId: orgUser.externalId,
           email: orgUser.email,
+          address1: orgUser.address1,
+          city: orgUser.city,
+          state: orgUser.state,
+          country: orgUser.country,
+          postalCode: orgUser.postalCode,
+          phoneNumber: orgUser.phoneNumber,
+          dateOfBirth: orgUser.dateOfBirth,
         });
         setInitialStepNumber(2);
       }
@@ -154,11 +160,21 @@ export const AdminAddPage: React.FC<{}> = props => {
         locations={[]}
         locationGroups={[]}
         positionTypes={[]}
-        allLocationIdsInScope={false}
-        allPositionTypeIdsInScope={false}
-        locationIds={[]}
-        locationGroupIds={[]}
-        positionTypeIds={[]}
+        allLocationIdsInScope={
+          orgUser?.originalAdministrator?.accessControl
+            ?.allLocationIdsInScope ?? false
+        }
+        allPositionTypeIdsInScope={
+          orgUser?.originalAdministrator?.accessControl
+            ?.allPositionTypeIdsInScope ?? false
+        }
+        locationIds={orgUser?.originalAdministrator?.accessControl?.locationIds}
+        locationGroupIds={
+          orgUser?.originalAdministrator?.accessControl?.locationGroupIds
+        }
+        positionTypeIds={
+          orgUser?.originalAdministrator?.accessControl?.positionTypeIds
+        }
         isSuperUser={false}
         isCreate={true}
         onSubmit={async (orgUser: any) => {
