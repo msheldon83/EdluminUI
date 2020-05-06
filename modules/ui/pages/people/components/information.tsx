@@ -16,7 +16,7 @@ import {
   StateCode,
 } from "graphql/server-types.gen";
 import { formatIsoDateIfPossible } from "helpers/date";
-import { phoneRegExp } from "helpers/regexp"
+import { phoneRegExp } from "helpers/regexp";
 import { useBreakpoint } from "hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import * as React from "react";
@@ -149,9 +149,7 @@ export const Information: React.FC<Props> = props => {
 
   const initials = getInitials(props.orgUser);
 
-  const permissionSets = usePermissionSets(orgUser.orgId!.toString(), [
-    props.selectedRole,
-  ]);
+  const permissionSets = usePermissionSets(orgUser.orgId, [props.selectedRole]);
   const permissionSetOptions: OptionType[] = permissionSets
     .filter(ps => !ps.isShadowRecord)
     .map(ps => ({

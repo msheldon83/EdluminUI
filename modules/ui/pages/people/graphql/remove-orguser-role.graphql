@@ -1,0 +1,11 @@
+mutation RemoveOrgUserRole($orgUserId: ID!, $orgUserRole: OrgUserRole!) {
+  orgUser {
+    removeOrgUserRole(orgUserId: $orgUserId, orgUserRole: $orgUserRole) {
+      id
+      rowVersion
+      isReplacementEmployee
+      isEmployee
+      isAdmin
+    }
+  }
+}
