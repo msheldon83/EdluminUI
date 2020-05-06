@@ -263,6 +263,14 @@ import {
   UnauthorizedSubstituteRoleRoute,
   UnauthorizedLoader,
 } from "./routes/unauthorized";
+import {
+  NotFoundRoute,
+  NotFoundAdminRootRoute,
+  NotFoundAdminRoleRoute,
+  NotFoundEmployeeRoleRoute,
+  NotFoundSubstituteRoleRoute,
+  NotFoundLoader,
+} from "./routes/not-found";
 import { tbd, TbdLoader, adminTbd } from "./routes/tbd";
 import { AdminRouteOrganizationContextProvider } from "core/org-context";
 import {
@@ -332,6 +340,7 @@ export const App = hot(function() {
                 component={UnauthorizedLoader}
                 path={UnauthorizedRoute.path}
               />
+              <Route component={NotFoundLoader} path={NotFoundRoute.path} />
               <Route path={SubSignInRoute.path}>
                 <AdminRouteOrganizationContextProvider>
                   <IfAuthenticated>
@@ -418,9 +427,17 @@ export const App = hot(function() {
                                 path={EmpMobileSearchRoute.path}
                                 component={EmployeeMobileSearchLoader}
                               />
+                              {/* The following two routes must be the last two in this switch.  
+                              This first will match exactly and send the employee to the home page.  
+                              The second will send any unfound routes to the not found page.*/}
                               <Route
+                                exact
                                 component={EmployeeHomeLoader}
                                 path={EmployeeHomeRoute.path}
+                              />
+                              <Route
+                                path={EmployeeHomeRoute.path}
+                                component={NotFoundLoader}
                               />
                             </Switch>
                           </IfHasRole>
@@ -466,9 +483,17 @@ export const App = hot(function() {
                                 path={SubMobileSearchRoute.path}
                                 component={SubstituteMobileSearchLoader}
                               />
+                              {/* The following two routes must be the last two in this switch.  
+                              This first will match exactly and send the substitute to the home page.  
+                              The second will send any unfound routes to the not found page.*/}
                               <Route
+                                exact
                                 component={SubHomeLoader}
                                 path={SubHomeRoute.path}
+                              />
+                              <Route
+                                path={SubHomeRoute.path}
+                                component={NotFoundLoader}
                               />
                             </Switch>
                           </IfHasRole>
@@ -1226,22 +1251,35 @@ export const App = hot(function() {
                                       path={AnalyticsReportsRoute.path}
                                       role={"sysAdmin"}
                                     />
+                                    {/* This must be the last route in the list as it will handle paths that aren't found*/}
+                                    <Route
+                                      path={AdminChromeRoute.path}
+                                      component={NotFoundLoader}
+                                    />
                                   </Switch>
                                 </AdminRouteOrganizationContextProvider>
                               </Route>
 
                               {/* This route handles unknown or underspecified routes and takes the
                               admin to their organization (or a switcher) */}
-                              <Route path={AdminRootChromeRoute.path}>
+                              <Route exact path={AdminRootChromeRoute.path}>
                                 <Redirect
                                   to={AdminRootChromeRoute.generate({})}
                                 />
                               </Route>
+                              <Route
+                                component={NotFoundLoader}
+                                path={AdminRootChromeRoute.path}
+                              />
                             </Switch>
                           </IfHasRole>
                           <IfHasRole role={OrgUserRole.Administrator} not>
                             <Redirect to={UnauthorizedRoute.generate({})} />
                           </IfHasRole>
+                        </Route>
+                        {/* This is a catch all for not found routes when authenticated */}
+                        <Route path={"/"}>
+                          <Redirect to={NotFoundRoute.generate({})} />
                         </Route>
                       </Switch>
                     </AppChrome>
