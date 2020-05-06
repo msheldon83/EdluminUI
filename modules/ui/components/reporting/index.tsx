@@ -9,6 +9,8 @@ import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
 import { ActionBar } from "./actions/action-bar";
 import { makeStyles } from "@material-ui/core";
 import { useOrganizationId } from "core/org-context";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowNetworkErrors } from "../error-helpers";
 
 type Props = {
   input: ReportDefinitionInput;
@@ -17,6 +19,7 @@ type Props = {
 
 export const Report: React.FC<Props> = props => {
   const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
   const { input, filterFieldsOverride } = props;
   const organizationId = useOrganizationId();
   const [state, dispatch] = React.useReducer(reportReducer, {
@@ -38,8 +41,7 @@ export const Report: React.FC<Props> = props => {
       },
     },
     onError: error => {
-      console.error(error);
-      //ShowErrors(error, openSnackbar); // TODO: Parse error codes into better messages
+      ShowNetworkErrors(error, openSnackbar);
     },
   });
 
