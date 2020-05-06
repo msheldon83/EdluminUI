@@ -1,0 +1,7 @@
+query GetEmployeeAbsences($id: ID!, $fromDate: Date!, $toDate: Date!) {
+  employee {
+    employeeAbsenceSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      id
+    }
+  }
+}

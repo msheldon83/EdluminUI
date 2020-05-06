@@ -1,0 +1,23 @@
+query GetSubstituteAssignments(
+  $id: ID!
+  $orgId: ID
+  $fromDate: DateTime!
+  $toDate: Date!
+) {
+  employee {
+    employeeAssignmentSchedule(
+      id: $id
+      orgId: $orgId
+      fromDate: $fromDate
+      toDate: $toDate
+      includeCompletedToday: false
+    ) {
+      id
+      vacancy {
+        absence {
+          id
+        }
+      }
+    }
+  }
+}
