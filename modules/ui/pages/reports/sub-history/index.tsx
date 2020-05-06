@@ -70,7 +70,11 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
   return (
     <>
       <PageTitle title={t("Substitute History")} />
-      <Report input={reportInput} filterFieldsOverride={filterFieldsOverride} />
+      <Report
+        input={reportInput}
+        filterFieldsOverride={filterFieldsOverride}
+        showGroupLabels={false}
+      />
     </>
   );
 };

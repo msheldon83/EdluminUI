@@ -15,12 +15,13 @@ import { ShowNetworkErrors } from "../error-helpers";
 type Props = {
   input: ReportDefinitionInput;
   filterFieldsOverride?: string[];
+  showGroupLabels?: boolean;
 };
 
 export const Report: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
-  const { input, filterFieldsOverride } = props;
+  const { input, filterFieldsOverride, showGroupLabels = true } = props;
   const organizationId = useOrganizationId();
   const [state, dispatch] = React.useReducer(reportReducer, {
     reportDefinitionInput: input,
@@ -111,6 +112,7 @@ export const Report: React.FC<Props> = props => {
                 reportResponse.state === "LOADING" ||
                 reportResponse.state === "UPDATING"
               }
+              showGroupLabels={showGroupLabels}
             />
           </div>
         </>
