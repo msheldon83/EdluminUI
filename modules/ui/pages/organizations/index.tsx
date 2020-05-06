@@ -5,19 +5,20 @@ import {
   Grid,
   Chip,
   Typography,
+  withStyles,
+  createStyles,
+  Theme,
 } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import PlayForWork from "@material-ui/icons/PlayForWork";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { useIsMobile, useDeferredState } from "hooks";
 import { compact } from "lodash-es";
-import { Column } from "material-table";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Redirect, useHistory } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
-import { Table } from "ui/components/table";
 import { AllOrganizations } from "ui/pages/organizations/graphql/AllOrganizations.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { useRouteParams } from "ui/routes/definition";
@@ -27,12 +28,15 @@ import { canViewAsSysAdmin } from "helpers/permissions";
 import { Can } from "ui/components/auth/can";
 import { OrganizationType } from "graphql/server-types.gen";
 import { Input } from "ui/components/form/input";
-import { FilterQueryParams } from "./helpers/filter-params";
-import {
-  useQueryParamIso,
-  makeQueryIso,
-  PaginationParams,
-} from "hooks/query-params";
+import { makeQueryIso, PaginationParams } from "hooks/query-params";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import { PaginationControls } from "ui/components/pagination-controls";
 
 type Props = { redirectIfOneOrg?: boolean };
 
@@ -44,108 +48,11 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const userParams = useRouteParams(UsersRoute);
   const orgParams = useRouteParams(OrganizationAddRoute);
 
-  const columns: Column<AllOrganizations.Results>[] = [
-    { title: t("Id"), field: "id", sorting: false },
-    {
-      title: t("Name"),
-      field: "name",
-      sorting: false,
-      render: (rowData: AllOrganizations.Results) => {
-        return (
-          <div>
-            <Typography display="inline">{rowData.name}</Typography>{" "}
-            {rowData.config?.organizationTypeId ===
-              OrganizationType.Implementing && (
-              <Chip
-                tabIndex={-1}
-                className={classes.implementingChip}
-                label={t("Implementing")}
-              />
-            )}
-            {rowData.config?.organizationTypeId === OrganizationType.Demo && (
-              <Chip
-                tabIndex={-1}
-                className={classes.demoChip}
-                label={t("Demo")}
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      title: "",
-      field: "actions",
-      sorting: false,
-      render: (rowData: AllOrganizations.Results) => {
-        const switchOrg = () => {
-          return (
-            <div className={classes.switchAlign}>
-              {isMobile ? (
-                <IconButton
-                  component={Link}
-                  to={AdminHomeRoute.generate({
-                    organizationId: rowData.id.toString(),
-                  })}
-                >
-                  <PlayForWork />
-                </IconButton>
-              ) : (
-                <>
-                  <Button
-                    variant="contained"
-                    className={classes.switchButton}
-                    component={Link}
-                    to={AdminHomeRoute.generate({
-                      organizationId: rowData.id.toString(),
-                    })}
-                  >
-                    {t("Select")}
-                  </Button>
-                  <IconButton
-                    className={classes.switchColor}
-                    component={Link}
-                    to={AdminHomeRoute.generate({
-                      organizationId: rowData.id.toString(),
-                    })}
-                    target={"_blank"}
-                  >
-                    <LaunchIcon />
-                  </IconButton>
-                </>
-              )}
-            </div>
-          );
-        };
-        return switchOrg();
-      },
-    },
-  ];
-
-  const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
-
   const [
     searchText,
     pendingSearchText,
     setPendingSearchText,
-  ] = useDeferredState<string | undefined>(isoFilters.searchText, 200);
-
-  /* Navigating in the browser will update the query params but not
-    the state in the UI. Here we update the pending value if the
-    param changed and disregarding value stored in state to keep them
-    in sync. */
-  React.useEffect(() => {
-    if (searchText !== isoFilters.searchText) {
-      setPendingSearchText(isoFilters.searchText);
-    }
-  }, [isoFilters.searchText]); // eslint-disable-line
-
-  /* As the value changes, update query params */
-  React.useEffect(() => {
-    if (searchText !== isoFilters.searchText) {
-      updateIsoFilters({ searchText });
-    }
-  }, [searchText]); // eslint-disable-line
+  ] = useDeferredState<string | undefined>("", 200);
 
   const updateNameFilter = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,7 +74,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
     r => r.organization?.paged?.totalCount,
     {
       variables: {
-        ...isoFilters,
+        searchText,
       },
     },
     orgPaginationDefaults
@@ -243,17 +150,103 @@ export const OrganizationsPage: React.FC<Props> = props => {
         />
       </div>
       <div className={classes.table}>
-        <Table
-          // It is possible that if a user is an admin in multiple orgs and a sub in different orgs, this count will be wrong, but this is probably an unlikely scenario
-          title={`${pagination.totalCount} Records`}
-          columns={columns}
-          data={organizations}
-          selection={false}
-          options={{
-            showTitle: !isMobile,
-          }}
-          pagination={pagination}
-        />
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell colSpan={3} className={classes.recordCount}>
+                  <Typography variant="h5">{`${organizationsCount} ${t(
+                    "Records"
+                  )}`}</Typography>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={3} align="right">
+                  <PaginationControls pagination={pagination} />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <StyledTableCell className={classes.idColumn}>
+                  Id
+                </StyledTableCell>
+                <StyledTableCell>Name</StyledTableCell>
+                <StyledTableCell></StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {organizations.map(row => (
+                <StyledTableRow key={row.id}>
+                  <StyledTableCell className={classes.idColumn}>
+                    {row.id}
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <div>
+                      <Typography display="inline">{row.name}</Typography>{" "}
+                      {row.config?.organizationTypeId ===
+                        OrganizationType.Implementing && (
+                        <Chip
+                          tabIndex={-1}
+                          className={classes.implementingChip}
+                          label={t("Implementing")}
+                        />
+                      )}
+                      {row.config?.organizationTypeId ===
+                        OrganizationType.Demo && (
+                        <Chip
+                          tabIndex={-1}
+                          className={classes.demoChip}
+                          label={t("Demo")}
+                        />
+                      )}
+                    </div>
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <div className={classes.switchAlign}>
+                      {isMobile ? (
+                        <IconButton
+                          component={Link}
+                          to={AdminHomeRoute.generate({
+                            organizationId: row.id.toString(),
+                          })}
+                        >
+                          <PlayForWork />
+                        </IconButton>
+                      ) : (
+                        <>
+                          <Button
+                            variant="contained"
+                            className={classes.switchButton}
+                            component={Link}
+                            to={AdminHomeRoute.generate({
+                              organizationId: row.id.toString(),
+                            })}
+                          >
+                            {t("Select")}
+                          </Button>
+                          <IconButton
+                            className={classes.switchColor}
+                            component={Link}
+                            to={AdminHomeRoute.generate({
+                              organizationId: row.id.toString(),
+                            })}
+                            target={"_blank"}
+                          >
+                            <LaunchIcon />
+                          </IconButton>
+                        </>
+                      )}
+                    </div>
+                  </StyledTableCell>
+                </StyledTableRow>
+              ))}
+              <StyledTableRow>
+                <TableCell colSpan={3} align="right">
+                  <PaginationControls pagination={pagination} />
+                </TableCell>
+              </StyledTableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
     </>
   );
@@ -294,4 +287,36 @@ const useStyles = makeStyles(theme => ({
     paddingRight: "10px",
     display: "inline",
   },
+  idColumn: {
+    width: theme.typography.pxToRem(100),
+  },
+  recordCount: {
+    paddingLeft: theme.typography.pxToRem(24),
+    paddingTop: theme.typography.pxToRem(12),
+  },
 }));
+
+const StyledTableRow = withStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      borderTop: `1px solid ${theme.customColors.sectionBorder}`,
+      "&:nth-of-type(odd)": {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  })
+)(TableRow);
+
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    head: {
+      color: `${theme.palette.secondary.main} !important`,
+      fontSize: 14,
+      fontWeight: "bold",
+      paddingTop: 0,
+    },
+    body: {
+      color: `${theme.palette.secondary.main} !important`,
+    },
+  })
+)(TableCell);
