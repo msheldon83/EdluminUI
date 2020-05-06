@@ -46,6 +46,7 @@ query GetAllPeopleForOrg(
         phoneNumber
         inviteSent
         inviteSentAtUtc
+        invitationRequestedAtUtc
         isAccountSetup
         isShadowRecord
         shadowFromOrgId
