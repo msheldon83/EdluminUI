@@ -48,3 +48,20 @@ export const AnalyticsReportsAbsencesVacanciesLoader = asyncComponent({
   },
   name: "AbsencesVacanciesReport",
 });
+
+// Substitute History Report
+export const AnalyticsReportsSubHistoryRoute = defineSubRoute(
+  AnalyticsReportsRoute,
+  "/substitute-history",
+  []
+);
+
+export const AnalyticsReportsSubHistoryLoader = asyncComponent({
+  resolve: async () => {
+    const SubstituteHistoryReport = (
+      await import("ui/pages/reports/sub-history")
+    ).SubstituteHistoryReport;
+    return SubstituteHistoryReport;
+  },
+  name: "SubstituteHistoryReport",
+});
