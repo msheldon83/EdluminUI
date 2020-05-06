@@ -167,7 +167,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
               </TableRow>
               <TableRow>
                 <StyledTableCell className={classes.idColumn}>
-                  Id
+                  {t("Id")}
                 </StyledTableCell>
                 <StyledTableCell>Name</StyledTableCell>
                 <StyledTableCell></StyledTableCell>
