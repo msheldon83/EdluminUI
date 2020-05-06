@@ -37,6 +37,7 @@ import { useDataImportTypes } from "reference-data/data-import-types";
 import { UpdateDataImport } from "./graphql/update-data-import.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { CSVLink } from "react-csv";
 
 export const DataImportViewPage: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -114,9 +115,20 @@ export const DataImportViewPage: React.FC<{}> = () => {
     o => o.enumValue === dataImport.dataImportTypeId
   )?.description;
 
-  const countOfErrorRows = dataImportRows.filter(
+  const errorRows = dataImportRows.filter(
     x => x.rowStatusId === DataImportRowStatus.ImportFailure
-  ).length;
+  );
+  const countOfErrorRows = errorRows.length;
+
+  const columnNames = dataImport.columnNames
+    ? dataImport.columnNames.map(x => x ?? "")
+    : ([] as string[]);
+  const errorData =
+    errorRows.map(r =>
+      r.columnValues ? r.columnValues.map(x => x ?? "") : ([] as string[])
+    ) ?? ([] as string[]);
+
+  const dataImportFileName = dataImport.fileUpload?.uploadedFileName ?? "";
 
   return (
     <>
@@ -128,11 +140,20 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <PageTitle title={`${dataImportTypeLabel} ${t("data import")}`} />
         </Grid>
         {countOfErrorRows > 0 && (
-          <TextButton
-            href={`${Config.restUri}/DataImport/FailedRows/${params.dataImportId}`}
-          >
-            {t("Download failed rows")}
-          </TextButton>
+          <Grid item>
+            <CSVLink
+              headers={columnNames}
+              data={errorData}
+              filename={`${dataImportFileName.substring(
+                0,
+                dataImportFileName.length - 4
+              )}_FailedRows.csv`}
+              target="_blank"
+              className={classes.downloadLink}
+            >
+              {t("Download failed rows")}
+            </CSVLink>
+          </Grid>
         )}
         {dataImport.fileUpload && (
           <Grid item>
@@ -149,7 +170,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <Grid item xs={3}>
             <div className={classes.labelText}>{t("File name")}</div>
             <div className={classes.text}>
-              {dataImport.fileUpload?.uploadedFileName ?? t("Not Available")}
+              {dataImportFileName ?? t("Not Available")}
             </div>
           </Grid>
           <Grid item xs={3}>
@@ -237,7 +258,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <DataImportRowData
-                columnNames={dataImport?.columnNames ?? []}
+                columnNames={columnNames}
                 columns={row.columnValues ?? []}
                 messages={row.messages}
               />
@@ -289,6 +310,19 @@ const useStyles = makeStyles(theme => ({
   rowNumColumn: {
     paddingLeft: theme.spacing(1),
     flex: 1,
+  },
+  downloadLink: {
+    color: theme.customColors.blue,
+    padding: 0,
+    fontWeight: "normal",
+    textDecoration: "underline",
+    fontSize: theme.typography.pxToRem(14),
+    letterSpacing: theme.typography.pxToRem(0.5),
+
+    "&:hover": {
+      backgroundColor: "inherit",
+      textDecoration: "underline",
+    },
   },
   link: {
     color: theme.customColors.blue,
