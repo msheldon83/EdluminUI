@@ -13,7 +13,7 @@ export const ErrorUI: React.FC<{}> = () => {
   return isMobile ? (
     <div className={classes.container}>
       <div className={classes.mobileContainer}>
-        <div className={classes.unauthorizedText}>{t("Unexpected error")}</div>
+        <div className={classes.errorText}>{t("Unexpected error")}</div>
         <div className={classes.mobileText}>
           {t("I hate it when this happens!")}
         </div>
@@ -31,7 +31,7 @@ export const ErrorUI: React.FC<{}> = () => {
   ) : (
     <div className={classes.desktopContainer}>
       <div className={classes.textContainer}>
-        <div className={classes.unauthorizedText}>{t("Unexpected error")}</div>
+        <div className={classes.errorText}>{t("Unexpected error")}</div>
         <div className={classes.text}>{t("I hate it when this happens!")}</div>
         <div className={classes.subText}>{t("We'll take a look.")}</div>
         <Button
@@ -65,7 +65,7 @@ const useStyles = makeStyles(theme => ({
   textContainer: {
     width: "300px",
   },
-  unauthorizedText: {
+  errorText: {
     display: "inline-block",
     color: theme.customColors.black,
     fontSize: theme.typography.pxToRem(14),
