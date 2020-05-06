@@ -72,25 +72,6 @@ export const PeoplePage: React.FC<Props> = props => {
     iso: PaginationParams,
   });
 
-  const allPeopleReferenceDataQuery = {
-    query: GetAllPeopleForOrgDocument,
-    variables: {
-      ...filters,
-      orgId: params.organizationId,
-      role,
-      sortBy: [
-        {
-          sortByPropertyName: "lastName",
-          sortAscending: filters.lastNameSort === "asc",
-        },
-        {
-          sortByPropertyName: "firstName",
-          sortAscending: filters.firstNameSort === "asc",
-        },
-      ],
-    },
-  };
-
   const [allPeopleQuery, pagination] = usePagedQueryBundle(
     GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount,
@@ -156,7 +137,6 @@ export const PeoplePage: React.FC<Props> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
-    refetchQueries: [allPeopleReferenceDataQuery],
   });
   const invite = React.useCallback(
     async (userIds: string[], orgId: string) => {
@@ -174,9 +154,10 @@ export const PeoplePage: React.FC<Props> = props => {
           status: "success",
           autoHideDuration: 5000,
         });
+        await allPeopleQuery.refetch();
       }
     },
-    [inviteUsers, openSnackbar, t]
+    [inviteUsers, openSnackbar, t, allPeopleQuery]
   );
 
   const [
