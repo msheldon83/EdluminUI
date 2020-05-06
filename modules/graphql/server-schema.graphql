@@ -2936,6 +2936,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   inviteSentAtUtc: DateTime
   inviteSent: Boolean!
   isAccountSetup: Boolean!
+  invitationRequestedAtUtc: DateTime
 }
 
 input OrgUserCreateInput {

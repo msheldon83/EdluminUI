@@ -21,7 +21,7 @@ query GetEmployeeById($id: ID!) {
       temporaryPassword
       isShadowRecord
       shadowFromOrgName
-      employee {
+      originalEmployee {
         id
         locations {
           id

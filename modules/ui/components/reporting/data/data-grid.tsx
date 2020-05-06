@@ -26,6 +26,7 @@ import { TFunction } from "i18next";
 type Props = {
   reportDefinition: ReportDefinition;
   isLoading: boolean;
+  showGroupLabels?: boolean;
 };
 
 export const DataGrid: React.FC<Props> = props => {
@@ -35,6 +36,7 @@ export const DataGrid: React.FC<Props> = props => {
   const {
     isLoading,
     reportDefinition: { data: reportData, metadata },
+    showGroupLabels = true,
   } = props;
 
   // Convert report data into a grouped structure.
@@ -133,7 +135,7 @@ export const DataGrid: React.FC<Props> = props => {
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
                   fixedColumnCount={numberOfLockedColumns}
-                  cellRenderer={props => cellRenderer(rows, props, classes)}
+                  cellRenderer={props => cellRenderer(rows, props, classes, showGroupLabels)}
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
                       params,
@@ -327,7 +329,8 @@ const groupHeaderCellRenderer = (
   group: GroupedData,
   level: number,
   { columnIndex, key, style }: GridCellProps,
-  classes: any
+  classes: any,
+  showGroupLabels: boolean
 ) => {
   const dataClasses = clsx({
     [classes.groupHeaderFirstCell]: columnIndex === 0,
@@ -344,7 +347,7 @@ const groupHeaderCellRenderer = (
             0,
             level,
             <div className={classes.cell}>
-              <div>{group.info?.displayName}</div>
+              {showGroupLabels && <div>{group.info?.displayName}</div>}
               <div>{group.info?.displayValue}</div>
             </div>,
             classes.groupNesting
@@ -361,7 +364,7 @@ const groupHeaderCellRenderer = (
   );
 };
 
-const cellRenderer = (rows: Row[], gridProps: GridCellProps, classes: any) => {
+const cellRenderer = (rows: Row[], gridProps: GridCellProps, classes: any, showGroupLabels: boolean) => {
   const row = rows[gridProps.rowIndex];
   if (Array.isArray(row.item)) {
     return dataCellRenderer(
@@ -372,7 +375,7 @@ const cellRenderer = (rows: Row[], gridProps: GridCellProps, classes: any) => {
       classes
     );
   } else {
-    return groupHeaderCellRenderer(row.item, row.level, gridProps, classes);
+    return groupHeaderCellRenderer(row.item, row.level, gridProps, classes, showGroupLabels);
   }
 };
 

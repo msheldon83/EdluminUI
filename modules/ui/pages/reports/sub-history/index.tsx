@@ -8,7 +8,7 @@ import {
   ExpressionFunction,
 } from "ui/components/reporting/types";
 
-export const AbsencesVacanciesReport: React.FC<{}> = () => {
+export const SubstituteHistoryReport: React.FC<{}> = () => {
   const { t } = useTranslation();
   const today = React.useMemo(() => new Date(), []);
 
@@ -22,7 +22,6 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
       "AbsStartTime",
       "AbsEndTime",
       "ReasonName",
-      "Concat(SubFirstName,' ',SubLastName) AS Substitute",
       "SubStartTime",
       "SubEndTime",
       "PayDays",
@@ -30,7 +29,6 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
       "Title",
       "PositionTypeName",
       "RequiresSub",
-      "IsFilled",
     ],
     filter: [
       {
@@ -39,31 +37,48 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         value: today,
         isRequired: true,
       },
+      {
+        fieldName: "IsFilled",
+        expressionFunction: ExpressionFunction.Equal,
+        value: true,
+        isRequired: true,
+      },
     ],
     orderBy: [
       {
+        expression: "Concat(SubFirstName,' ',SubLastName)",
+        direction: Direction.Asc,
+      },
+      {
         expression: "Date",
         direction: Direction.Desc,
+      },
+    ],
+    subtotalBy: [
+      {
+        expression: "SubEmployeeId",
+        showExpression: "Concat(SubFirstName,' ',SubLastName) AS Substitute",
       },
     ],
   };
 
   const filterFieldsOverride = [
     "Date",
-    "AbsentEmployeeId",
-    "SubEmployeeId",
-    "PositionTypeId",
     "LocationId",
-    "AbsenceReasonId",
-    "VacancyReasonId",
+    "SubEmployeeId",
     "IsAbsence",
     "IsVacancy",
+    "PositionTypeId",
   ];
 
   return (
     <>
-      <PageTitle title={t("Absences & Vacancies")} />
-      <Report input={reportInput} filterFieldsOverride={filterFieldsOverride} />
+      <PageTitle title={t("Substitute History")} />
+      <Report
+        input={reportInput}
+        filterFieldsOverride={filterFieldsOverride}
+        showGroupLabels={false}
+      />
     </>
   );
 };

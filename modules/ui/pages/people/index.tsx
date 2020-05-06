@@ -33,7 +33,10 @@ import { ShadowIndicator } from "ui/components/shadow-indicator";
 import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
-import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
+import {
+  GetAllPeopleForOrg,
+  GetAllPeopleForOrgDocument,
+} from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
 import { InviteUsers } from "./graphql/invite-users.gen";
@@ -68,6 +71,7 @@ export const PeoplePage: React.FC<Props> = props => {
     },
     iso: PaginationParams,
   });
+
   const [allPeopleQuery, pagination] = usePagedQueryBundle(
     GetAllPeopleForOrg,
     r => r.orgUser?.paged?.totalCount,
@@ -150,9 +154,10 @@ export const PeoplePage: React.FC<Props> = props => {
           status: "success",
           autoHideDuration: 5000,
         });
+        await allPeopleQuery.refetch();
       }
     },
-    [inviteUsers, openSnackbar, t]
+    [inviteUsers, openSnackbar, t, allPeopleQuery]
   );
 
   const [
@@ -242,6 +247,7 @@ export const PeoplePage: React.FC<Props> = props => {
         person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
       inviteSent: person.inviteSent,
       inviteSentAtUtc: person.inviteSentAtUtc,
+      invitationRequestedAtUtc: person.invitationRequestedAtUtc,
       accountSetup: person.isAccountSetup,
       isSuperUser: person.administrator?.isSuperUser ?? false,
       isShadowRecord: person.isShadowRecord,
@@ -279,6 +285,7 @@ export const PeoplePage: React.FC<Props> = props => {
             inviteSent={o.inviteSent}
             accountSetup={o.accountSetup}
             inviteSentAtUtc={o.inviteSentAtUtc}
+            inviteRequestedAtUtc={o.invitationRequestedAtUtc}
           />
         </div>
       ),

@@ -27,7 +27,7 @@ query GetSubstituteById($id: ID!) {
         id
         name
       }
-      substitute {
+      originalSubstitute {
         id
         permissionSet {
           id

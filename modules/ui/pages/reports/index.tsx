@@ -8,6 +8,7 @@ import {
   AnalyticsReportsRoute,
   AnalyticsReportsAbsencesVacanciesRoute,
   AnalyticsReportsDailyReportRoute,
+  AnalyticsReportsSubHistoryRoute,
 } from "ui/routes/analytics-reports";
 import { BaseLink, pickUrl } from "ui/components/links/base";
 
@@ -37,6 +38,10 @@ export const ReportsPage: React.FC<Props> = props => {
         {
           name: t("Daily Report"),
           url: () => AnalyticsReportsDailyReportRoute.generate(params),
+        },
+        {
+          name: t("Substitute History"),
+          url: () => AnalyticsReportsSubHistoryRoute.generate(params),
         },
       ],
     },

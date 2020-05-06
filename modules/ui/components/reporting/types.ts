@@ -1,3 +1,4 @@
+// Structured view of the Report that is converted into RDL
 export type ReportDefinitionInput = {
   from: string;
   select: string[];
@@ -9,9 +10,15 @@ export type ReportDefinitionInput = {
     fieldName: string;
     expressionFunction: ExpressionFunction;
     value?: any;
+    isRequired?: boolean;
+  }[];
+  subtotalBy?: {
+    expression: string;
+    showExpression?: string;
   }[];
 };
 
+// Response from the server which represents the Report
 export type ReportDefinition = {
   data: ReportData;
   metadata: ReportMetadata;
@@ -138,6 +145,8 @@ export type FilterField = {
   value?: any;
 };
 
+// Structure used by the Data Grid to determine how and if
+// groups of data are defined
 export type GroupedData = {
   info?: GroupInfo | null | undefined;
   children?: GroupedData[];
@@ -145,12 +154,16 @@ export type GroupedData = {
   subtotals: any[];
 };
 
+// Contains information about how to display a group and what to group on
 export type GroupInfo = {
   displayName: string;
   displayValue: any;
   groupByValue: any;
 };
 
+// What is used to render the cells within the Data Grid
+// so all data is a row in the Grid regardless of if it
+// is a group header or an actual row of data
 export type Row = {
   level: number;
   item: any[] | GroupedData;

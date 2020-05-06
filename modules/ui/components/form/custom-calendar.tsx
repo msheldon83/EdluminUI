@@ -56,9 +56,9 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     nextMonthNavigation = false,
     variant = "weeks",
     classes: customClasses = {},
-    onClickDate = () => {},
+    onClickDate,
     onHoverDate = () => {},
-    onMouseLeave = () => {}
+    onMouseLeave = () => {},
   } = props;
 
   const classes = useStyles({ contained, onSelectDates });
@@ -263,7 +263,11 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   );
 
   return (
-    <section className={classes.calendar} style={style} onMouseLeave={onMouseLeave}>
+    <section
+      className={classes.calendar}
+      style={style}
+      onMouseLeave={onMouseLeave}
+    >
       <header className={classes.header}>
         <span className={classes.monthNavButton}>
           {previousMonthNavigation && (

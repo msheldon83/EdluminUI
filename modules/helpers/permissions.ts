@@ -246,28 +246,13 @@ export const canViewDataManagementNavLink = (
   orgId?: string
 ) => {
   if (isSysAdmin) return true;
-  // TODO: UnComment when we release to customers
-  // const userPerms = getUserPermissions(permissions, orgId);
-  // if (!userPerms?.includes(PermissionEnum.DataImport)) {
-  //   return false;
-  // }
 
-  return false;
-};
+  const userPerms = getUserPermissions(permissions, orgId);
+  if (!userPerms?.includes(PermissionEnum.DataImport)) {
+    return false;
+  }
 
-export const canImportData = (
-  permissions: OrgUserPermissions[],
-  isSysAdmin: boolean,
-  orgId?: string
-) => {
-  if (isSysAdmin) return true;
-  // TODO: UnComment when we release to customers
-  // const userPerms = getUserPermissions(permissions, orgId);
-  // if (!userPerms?.includes(PermissionEnum.DataImport)) {
-  //   return false;
-  // }
-
-  return false;
+  return true;
 };
 
 /* emp left nav helpers */

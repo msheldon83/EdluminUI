@@ -69,7 +69,7 @@ export const AdminTab: React.FC<Props> = props => {
       <Information
         editing={props.editing}
         editable={canEditThisAdmin}
-        orgUser={admin}
+        orgUser={orgUser}
         permissionSet={admin.permissionSet}
         userId={orgUser?.userId}
         loginEmail={orgUser?.loginEmail}
