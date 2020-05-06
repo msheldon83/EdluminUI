@@ -102,7 +102,7 @@ export const DataGrid: React.FC<Props> = props => {
                     )
                   }
                 />
-                {!isGrouped && groupedData[0]?.subtotals && (
+                {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (
                   <MultiGrid
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
