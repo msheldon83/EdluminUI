@@ -58,16 +58,23 @@ export const DateRangePicker = () => {
   };
 
   const setRange = ({ start, end }: DateRange) => {
-    const selectedDates = eachDayOfInterval({ start, end }).map(date => {
-      return {
-        date,
-        buttonProps: {
-          style: {
-            background: "red",
+    const selectedDates = eachDayOfInterval({ start, end }).map(
+      (date, index) => {
+        return {
+          date,
+          buttonProps: {
+            style: {
+              // TODO: make this configurable
+              background: theme.palette.primary.main,
+              color: theme.customColors.white,
+
+              // TODO: finish up when the cornders get rounded
+              borderTopLeftRadius: theme.typography.pxToRem(4),
+            },
           },
-        },
-      };
-    });
+        };
+      }
+    );
 
     const endMonth = addMonth(startMonth, 1);
     const startMonthDate = startOfMonth(startMonth);
