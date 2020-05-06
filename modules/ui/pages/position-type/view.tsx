@@ -212,10 +212,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={[PermissionEnum.FinanceSettingsSave]}
         validationSchema={yup.object().shape({
-          value: yup
-            .string()
-            .nullable()
-            .required(t("Identifier is required")),
+          value: yup.string().nullable(),
         })}
         onSubmit={async (value: Maybe<string>) => {
           await updateExternalId(value);

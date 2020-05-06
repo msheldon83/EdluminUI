@@ -36,9 +36,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
         name: Yup.string()
           .nullable()
           .required(t("Name is required")),
-        externalId: Yup.string()
-          .nullable()
-          .required(t("Identifier is required")),
+        externalId: Yup.string().nullable(),
       }),
     [t]
   );

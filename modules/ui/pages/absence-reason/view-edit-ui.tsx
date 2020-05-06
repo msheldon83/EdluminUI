@@ -126,10 +126,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={[PermissionEnum.AbsVacSettingsSave]}
         validationSchema={yup.object().shape({
-          value: yup
-            .string()
-            .nullable()
-            .required(t("Identifier is required")),
+          value: yup.string().nullable(),
         })}
         onSubmit={async v => {
           await props.updateNameOrExternalId({ externalId: v });

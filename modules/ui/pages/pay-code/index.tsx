@@ -79,9 +79,7 @@ export const PayCode: React.FC<Props> = props => {
         name: Yup.string()
           .nullable()
           .required(t("Name is required")),
-        externalId: Yup.string()
-          .nullable()
-          .required(t("Identifier is required")),
+        externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
         code: Yup.string().nullable(),
       }),
