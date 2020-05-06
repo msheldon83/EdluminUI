@@ -3007,7 +3007,7 @@ type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
   deletedLocal: DateTime
   orgUserId: ID!
   otherOrganizationId: ID!
-  otherOrganization: BasicOrganization!
+  otherOrganization: [BasicOrganization]
   attributes: [OrgUserRelationshipAttribute]
 }
 

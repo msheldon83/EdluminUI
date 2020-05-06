@@ -177,6 +177,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                           }
                           setFieldValue("periodNumberOfPeriods", selectedValue);
                         }}
+                        doSort={false}
                       />
                     </div>
                   </div>

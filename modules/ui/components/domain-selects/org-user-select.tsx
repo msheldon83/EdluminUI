@@ -2,42 +2,45 @@ import * as React from "react";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocationOptions } from "reference-data/locations";
+import { OrgUserRole } from "graphql/server-types.gen";
+import { useOrgUserOptions } from "./org-users";
 
 type Props = {
-  orgId?: string;
-  selectedLocationIds?: string[];
-  setSelectedLocationIds: (locationIds?: string[]) => void;
+  orgId: string;
+  role: OrgUserRole;
+  selectedOrgUserIds?: string[];
+  setSelectedOrgUserIds: (locationIds?: string[]) => void;
   includeAllOption?: boolean;
   label?: string;
   multiple?: boolean;
 };
 
-export const LocationSelect: React.FC<Props> = props => {
+export const OrgUserSelect: React.FC<Props> = props => {
   const { t } = useTranslation();
   const {
     orgId,
+    role,
     label,
-    selectedLocationIds,
-    setSelectedLocationIds,
+    selectedOrgUserIds,
+    setSelectedOrgUserIds,
     includeAllOption = true,
     multiple = true,
   } = props;
 
-  let locationOptions = useLocationOptions(orgId);
+  let orgUserOptions = useOrgUserOptions(orgId, role);
 
   if (includeAllOption) {
-    locationOptions = locationOptions.sort((a, b) =>
+    orgUserOptions = orgUserOptions.sort((a, b) =>
       a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
     );
-    locationOptions.unshift({ label: t("(All)"), value: "0" });
+    orgUserOptions.unshift({ label: t("(All)"), value: "0" });
   }
 
-  const selectedLocations = locationOptions.filter(
-    e => e.value && selectedLocationIds?.includes(e.value.toString())
+  const selectedOrgUsers = orgUserOptions.filter(
+    e => e.value && selectedOrgUserIds?.includes(e.value.toString())
   );
 
-  const onChangeLocations = useCallback(
+  const onChangeOrgUsers = useCallback(
     value => {
       const ids: string[] = value
         ? Array.isArray(value)
@@ -45,12 +48,12 @@ export const LocationSelect: React.FC<Props> = props => {
           : [value.value]
         : [];
       if (ids.includes("0")) {
-        setSelectedLocationIds(undefined);
+        setSelectedOrgUserIds(undefined);
       } else {
-        setSelectedLocationIds(ids);
+        setSelectedOrgUserIds(ids);
       }
     },
-    [setSelectedLocationIds]
+    [setSelectedOrgUserIds]
   );
 
   return (
@@ -58,15 +61,15 @@ export const LocationSelect: React.FC<Props> = props => {
       label={label}
       value={
         multiple
-          ? selectedLocations
-          : selectedLocations[0] ?? { value: "", label: "" }
+          ? selectedOrgUsers
+          : selectedOrgUsers[0] ?? { value: "", label: "" }
       }
       multiple={multiple}
-      options={locationOptions}
+      options={orgUserOptions}
       withResetValue={false}
-      onChange={onChangeLocations}
+      onChange={onChangeOrgUsers}
       placeholder={
-        includeAllOption && selectedLocationIds?.length === 0
+        includeAllOption && selectedOrgUserIds?.length === 0
           ? t("(All)")
           : undefined
       }

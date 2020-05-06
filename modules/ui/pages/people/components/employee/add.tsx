@@ -149,6 +149,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <AddBasicInfo
+        orgId={params.organizationId}
         orgUser={employee}
         onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setEmployee({
