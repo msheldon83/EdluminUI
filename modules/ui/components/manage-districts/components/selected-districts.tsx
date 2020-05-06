@@ -84,6 +84,7 @@ export const SelectedDistrict: React.FC<Props> = props => {
                       endorsement={endorsement?.endorsement}
                       expirationDate={endorsement?.expirationDate}
                       orgId={n.otherOrganization?.orgId ?? ""}
+                      index={j}
                     />
                   ))
                 )}

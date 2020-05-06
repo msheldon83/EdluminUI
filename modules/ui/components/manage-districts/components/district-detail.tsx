@@ -14,6 +14,7 @@ type Props = {
     | null;
   orgId: string;
   expirationDate: Date;
+  index: number;
 };
 
 export const DistrictDetail: React.FC<Props> = props => {
@@ -23,6 +24,7 @@ export const DistrictDetail: React.FC<Props> = props => {
     onChangeEndorsement,
     endorsement,
     expirationDate,
+    index,
     orgId,
   } = props;
   const e = endorsement;
@@ -31,6 +33,7 @@ export const DistrictDetail: React.FC<Props> = props => {
     id: e?.id ?? "",
     orgId: orgId,
     expirationDate: expirationDate,
+    index: index,
   };
 
   return (

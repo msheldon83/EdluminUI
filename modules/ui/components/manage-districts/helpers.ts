@@ -24,4 +24,5 @@ export type CustomEndorsement = {
   id: string;
   orgId: string;
   expirationDate?: Date | null;
+  index?: number;
 };

@@ -160,21 +160,14 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
   };
 
   const handleRemoveAttribute = async (endorsement: CustomEndorsement) => {
-    const index: number =
-      substituteInput?.relatedOrgs?.findIndex(
-        o =>
-          o?.orgId === endorsement.orgId &&
-          o?.attributes?.find(e => e?.attribute?.id === endorsement.id)
-      ) ?? -1;
-
-    console.log(index);
+    const index = endorsement.index ?? -1;
 
     if (index === -1) return;
 
     substituteInput?.relatedOrgs?.map(
       o => o?.orgId === endorsement.orgId && o?.attributes?.splice(index, 1)
     );
-    // if (substituteInput) await handleUpdateSubstitute(substituteInput);
+    if (substituteInput) await handleUpdateSubstitute(substituteInput);
   };
 
   const handleOnChangeAttribute = async (endorsement: CustomEndorsement) => {
