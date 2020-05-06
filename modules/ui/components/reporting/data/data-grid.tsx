@@ -65,8 +65,8 @@ export const DataGrid: React.FC<Props> = props => {
   }, [groupedData]);
 
   const numberOfLockedColumns = React.useMemo(() => {
-    return metadata.numberOfLockedColumns;
-  }, [metadata]);
+    return rows.length > 0 ? metadata.numberOfLockedColumns : 0;
+  }, [metadata, rows.length]);
 
   const isGrouped = React.useMemo(() => {
     return (metadata.query.subtotalBy ?? []).length > 0;
