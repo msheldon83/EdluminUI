@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Button } from "@material-ui/core";
 import { withRouter, RouteComponentProps } from "react-router";
+import { ErrorUI } from "./error";
 
 type ErrorState = {
   hasError: boolean;
@@ -37,14 +37,7 @@ class InnerErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
-      return (
-        <>
-          <h1>An error has occurred.</h1>
-          <Button variant="contained" color="primary" onClick={this.dismiss}>
-            Dismiss
-          </Button>
-        </>
-      );
+      return <ErrorUI />;
     }
 
     return this.props.children;
