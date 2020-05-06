@@ -5,7 +5,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   SubstituteInput,
-  LocatorInput,
   SubstituteAttributeInput,
   SubstituteRelatedOrgInput,
 } from "graphql/server-types.gen";
@@ -165,7 +164,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       substituteInput?.relatedOrgs?.findIndex(
         o =>
           o?.orgId === endorsement.orgId &&
-          o?.attributes?.findIndex(e => e?.attribute?.id === endorsement.id)
+          o?.attributes?.find(e => e?.attribute?.id === endorsement.id)
       ) ?? -1;
 
     console.log(index);
