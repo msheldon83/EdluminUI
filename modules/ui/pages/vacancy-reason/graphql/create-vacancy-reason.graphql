@@ -4,6 +4,7 @@ mutation CreateVacancyReason($vacancyReason: VacancyReasonCreateInput!) {
       id
       name
       description
+      code
       rowVersion
       externalId
     }

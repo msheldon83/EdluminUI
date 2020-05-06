@@ -160,7 +160,7 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
       />
       <PageHeader
         text={locationGroup.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={(

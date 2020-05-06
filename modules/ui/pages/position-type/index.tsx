@@ -40,8 +40,14 @@ export const PositionTypePage: React.FC<{}> = props => {
       searchable: true,
     },
     {
-      title: t("External Id"),
+      title: t("Identifier"),
       field: "externalId",
+      searchable: true,
+      hidden: isMobile,
+    },
+    {
+      title: t("Code"),
+      field: "code",
       searchable: true,
       hidden: isMobile,
     },

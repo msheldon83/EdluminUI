@@ -63,6 +63,7 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
     async (updatedValues: {
       allowNegativeBalance: boolean;
       description?: string;
+      code?: string;
       absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     }) => {
       if (!basicInfo) {
@@ -72,6 +73,7 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
         allowNegativeBalance,
         absenceReasonTrackingTypeId: absenceReasonTrackingId,
         description,
+        code,
       } = updatedValues;
 
       const result = await createAbsenceReasonCategory({
@@ -79,11 +81,11 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
           absenceReasonCategory: {
             orgId: params.organizationId,
             ...basicInfo,
-            externalId:
-              basicInfo?.externalId === "" ? null : basicInfo?.externalId,
+            externalId: basicInfo?.externalId,
             allowNegativeBalance,
             absenceReasonTrackingId,
             description,
+            code,
           },
         },
       });
@@ -133,6 +135,7 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
             allowNegativeBalance={false}
             absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
             description={""}
+            code={""}
             onSubmit={settingsOnSubmit}
             onCancel={() => {
               history.push(AbsenceReasonRoute.generate(params));

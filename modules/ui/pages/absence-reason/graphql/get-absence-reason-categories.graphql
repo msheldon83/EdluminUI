@@ -8,6 +8,7 @@ query GetAllAbsenceReasonCategoriesWithinOrg(
       name
       rowVersion
       externalId
+      code
       description
       expired
       absenceReasonTrackingTypeId

@@ -5,6 +5,7 @@ mutation updateAbsenceReason($absenceReason: AbsenceReasonUpdateInput!) {
       rowVersion
       externalId
       name
+      code
       description
       expired
       appliesToAssignmentTypes

@@ -275,7 +275,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
       />
       <PageHeader
         text={orgUser.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editable}
         onEdit={() => props.setEditing(editableSections.externalId)}
         editPermissions={canEditThisOrgUser}

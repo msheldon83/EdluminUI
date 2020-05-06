@@ -23,6 +23,7 @@ import { OptionTypeBase } from "react-select";
 
 type Props = {
   description?: string;
+  code?: string;
   allowNegativeBalance: boolean;
   isRestricted: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
@@ -31,6 +32,7 @@ type Props = {
     allowNegativeBalance: boolean;
     isRestricted: boolean;
     description?: string;
+    code?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     requireNotesToAdmin: boolean;
   }) => Promise<void>;
@@ -47,6 +49,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
 
   const initialValues = pick(props, [
     "description",
+    "code",
     "allowNegativeBalance",
     "isRestricted",
     "absenceReasonTrackingTypeId",
@@ -76,6 +79,16 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
               InputComponent={FormTextField}
               inputComponentProps={{
                 name: "description",
+                margin: isMobile ? "normal" : "none",
+                variant: "outlined",
+                fullWidth: true,
+              }}
+            />
+            <Input
+              label={t("Code")}
+              InputComponent={FormTextField}
+              inputComponentProps={{
+                name: "code",
                 margin: isMobile ? "normal" : "none",
                 variant: "outlined",
                 fullWidth: true,

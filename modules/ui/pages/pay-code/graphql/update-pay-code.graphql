@@ -5,6 +5,7 @@ mutation UpdatePayCode($payCode: PayCodeUpdateInput!) {
       name
       rowVersion
       description
+      code
       externalId
       expired
     }

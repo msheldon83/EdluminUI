@@ -269,7 +269,7 @@ export const MobileSearchBar: React.FC<Props> = props => {
           <div>
             {externalArray.length > 0 && (
               <>
-                <span className={classes.label}>{t("external id")}</span>
+                <span className={classes.label}>{t("identifier")}</span>
                 <span className={classes.data}>
                   {externalArray.map(a => {
                     return a;
@@ -356,7 +356,7 @@ export const MobileSearchBar: React.FC<Props> = props => {
           <div>
             {externalArray.length > 0 && (
               <>
-                <span className={classes.label}>{t("external id")}</span>
+                <span className={classes.label}>{t("identifier")}</span>
                 <span className={classes.data}>
                   {externalArray.map(a => {
                     return a;

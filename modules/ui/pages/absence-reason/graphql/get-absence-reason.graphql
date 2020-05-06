@@ -3,6 +3,7 @@ query GetAbsenceReason($absenceReasonId: ID!) {
     byId(id: $absenceReasonId) {
       id
       externalId
+      code
       rowVersion
       name
       description

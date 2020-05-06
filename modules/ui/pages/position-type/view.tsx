@@ -207,7 +207,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       />
       <PageHeader
         text={positionType.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={[PermissionEnum.FinanceSettingsSave]}
@@ -241,6 +241,10 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           ]}
         />
         <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Code")}</Typography>
+            <div>{positionType.code ?? t("Not defined")}</div>
+          </Grid>
           <Grid item xs={12} sm={6} lg={6}>
             <Typography variant="h6">{t("Use for employees")}</Typography>
             <div>{boolToDisplay(t, positionType.forPermanentPositions)}</div>

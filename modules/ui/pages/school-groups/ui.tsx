@@ -36,7 +36,7 @@ export const LocationGroupsUI: React.FC<Props> = props => {
       searchable: true,
     },
     {
-      title: t("External Id"),
+      title: t("Identifier"),
       field: "externalId",
       searchable: false,
       hidden: isMobile,

@@ -50,6 +50,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     orgId: params.organizationId,
     name: "",
     externalId: null,
+    code: null,
     forPermanentPositions: true,
     needsReplacement: NeedsReplacement.Yes,
     forStaffAugmentation: true,
@@ -98,7 +99,8 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           minAbsenceDurationMinutes: number,
           payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
           payCodeId: string | undefined | null,
-          defaultContractId?: string | null
+          defaultContractId: string | undefined | null,
+          code: string | undefined | null
         ) => {
           const newPositionType = {
             ...positionType,
@@ -109,6 +111,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             defaultContractId: defaultContractId,
             payTypeId: payTypeId,
             payCodeId: payCodeId,
+            code,
           };
           setPositionType(newPositionType);
 

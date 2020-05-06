@@ -51,6 +51,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
   const updateAbsenceReason = async (updatedValues: {
     allowNegativeBalance: boolean;
     description?: string;
+    code?: string;
     isRestricted: boolean;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     requireNotesToAdmin: boolean;
@@ -63,6 +64,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
     const {
       allowNegativeBalance,
       description,
+      code,
       isRestricted,
       absenceReasonTrackingTypeId: absenceReasonTrackingId,
       requireNotesToAdmin,
@@ -76,6 +78,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
           rowVersion: reason.rowVersion,
           allowNegativeBalance,
           description,
+          code,
           isRestricted,
           absenceReasonTrackingId,
           requireNotesToAdmin,
@@ -105,6 +108,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
 
       <AbsenceReasonSettings
         description={absenceReason.description || undefined}
+        code={absenceReason.code || undefined}
         allowNegativeBalance={absenceReason.allowNegativeBalance}
         isRestricted={absenceReason.isRestricted}
         absenceReasonTrackingTypeId={

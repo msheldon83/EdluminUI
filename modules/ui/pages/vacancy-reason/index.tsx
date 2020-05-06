@@ -67,6 +67,7 @@ export const VacancyReason: React.FC<Props> = props => {
     name: "",
     externalId: null,
     description: null,
+    code: null,
   };
 
   const columns: Column<GetAllVacancyReasonsWithinOrg.All>[] = [
@@ -77,8 +78,14 @@ export const VacancyReason: React.FC<Props> = props => {
       editable: "always",
     },
     {
-      title: t("External ID"),
+      title: t("Identifier"),
       field: "externalId",
+      hidden: isMobile,
+      editable: "always",
+    },
+    {
+      title: t("Code"),
+      field: "code",
       hidden: isMobile,
       editable: "always",
     },
@@ -98,6 +105,7 @@ export const VacancyReason: React.FC<Props> = props => {
           .required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
+        code: Yup.string().nullable(),
       }),
     [t]
   );
@@ -121,16 +129,9 @@ export const VacancyReason: React.FC<Props> = props => {
         vacancyReason: {
           ...vacancyReasonInput,
           name: vacancyReason.name,
-          externalId:
-            vacancyReason.externalId &&
-            vacancyReason.externalId.trim().length === 0
-              ? null
-              : vacancyReason.externalId,
-          description:
-            vacancyReason.description &&
-            vacancyReason.description.toString().length === 0
-              ? null
-              : vacancyReason.description,
+          externalId: vacancyReason.externalId,
+          description: vacancyReason.description,
+          code: vacancyReason.code,
         },
       },
     });
@@ -148,16 +149,9 @@ export const VacancyReason: React.FC<Props> = props => {
           id: vacancyReason.id,
           rowVersion: vacancyReason.rowVersion,
           name: vacancyReason.name,
-          externalId:
-            vacancyReason.externalId &&
-            vacancyReason.externalId.trim().length === 0
-              ? null
-              : vacancyReason.externalId,
-          description:
-            vacancyReason.description &&
-            vacancyReason.description.toString().length === 0
-              ? null
-              : vacancyReason.description,
+          externalId: vacancyReason.externalId,
+          description: vacancyReason.description,
+          code: vacancyReason.code,
         },
       },
     });
@@ -198,6 +192,7 @@ export const VacancyReason: React.FC<Props> = props => {
               name: newData.name,
               externalId: newData.externalId,
               description: newData.description,
+              code: newData.code,
             };
             const result = await addVacancyReason(newVacancyReason);
             if (!result) throw Error("Preserve Row on error");
@@ -213,6 +208,7 @@ export const VacancyReason: React.FC<Props> = props => {
               name: newData.name,
               externalId: newData.externalId,
               description: newData.description,
+              code: newData.code,
             };
             const result = await editVacancyReason(updateVacancyReason);
             if (!result) throw Error("Preserve Row on error");
