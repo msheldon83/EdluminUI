@@ -3007,7 +3007,7 @@ type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
   deletedLocal: DateTime
   orgUserId: ID!
   otherOrganizationId: ID!
-  otherOrganization: [BasicOrganization]
+  otherOrganization: BasicOrganization!
   attributes: [OrgUserRelationshipAttribute]
 }
 
@@ -5233,7 +5233,7 @@ input SubstituteInput {
   inviteImmediately: Boolean
   payCodeId: ID
   attributes: [SubstituteAttributeInput]
-  relatedOrgIds: [ID]
+  relatedOrgs: [SubstituteRelatedOrgInput]
 }
 
 type SubstitutePoolMembership {
@@ -5279,6 +5279,11 @@ input SubstitutePreferencesInput {
   favoriteSubstitutes: [LocatorInput]
   blockedSubstitutes: [LocatorInput]
   autoAssignedSubstitutes: [LocatorInput]
+}
+
+input SubstituteRelatedOrgInput {
+  orgId: ID
+  attributes: [SubstituteAttributeInput]
 }
 
 input SwapVacancyAssignmentsInput {
