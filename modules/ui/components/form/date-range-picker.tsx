@@ -5,8 +5,11 @@ import { useTheme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import addMonth from "date-fns/addMonths";
 import eachDayOfInterval from "date-fns/eachDayOfInterval";
+import isBefore from "date-fns/isBefore";
+import isAfter from "date-fns/isAfter";
 import isWithinInterval from "date-fns/isWithinInterval";
-import addDays from "date-fns/addDays";
+import startOfMonth from "date-fns/startOfMonth";
+import endOfMonth from "date-fns/endOfMonth";
 import { DateInput } from "./date-input";
 import { CustomCalendar as Calendar, CustomDate } from "./custom-calendar";
 import { SelectNew as Select, OptionType } from "./select-new";
@@ -23,9 +26,8 @@ export const DateRangePicker = () => {
 
   const presetRanges = usePresetDateRanges();
 
-  const [mouseOverDate, setMouseOverDate] = React.useState<Date | undefined>();
   const [startMonth, setStartMonth] = React.useState(new Date());
-  const [customDates, setCustomDates] = React.useState<CustomDate[]>([]);
+  const [selectedDates, setSelectedDates] = React.useState<CustomDate[]>([]);
   const [highlightedDates, setHighlightedDates] = React.useState<CustomDate[]>(
     []
   );
@@ -43,11 +45,16 @@ export const DateRangePicker = () => {
 
   const handleMonthChange = (month: Date) => setStartMonth(month);
 
-  const resetRange = () => {
-    setCustomDates([]);
+  const clearRange = () => {
+    setSelectedDates([]);
+    setHighlightedDates([]);
 
     setStartDateInput("");
     setEndDateInput("");
+  };
+
+  const restartRange = (date: Date) => {
+    setRange({ start: date, end: date });
   };
 
   const setRange = ({ start, end }: DateRange) => {
@@ -62,30 +69,67 @@ export const DateRangePicker = () => {
       };
     });
 
+    const endMonth = addMonth(startMonth, 1);
+    const startMonthDate = startOfMonth(startMonth);
+    const endMonthDate = endOfMonth(endMonth);
+
+    const dateVisible = isWithinInterval(end, {
+      start: startMonthDate,
+      end: endMonthDate,
+    });
+
     /*
-      TODO:
+      TODO: handle case where not all dates are visible when doing this
+      For example, click "last week" or "last school year" in presets may not show all days.
 
-      Right now, this assumes that we want the end of date the range to be in
-      the month on the right side. That's not necessarily the case if the range
-      is only a month long. It should probably set it according to which side it's closest
-      to. For example, if the range is set the a month previous to what's visible, set it
-      on the left, etc.
+      Need to make sure they're all visible
     */
-    // setStartMonth(addMonth(end, -1));
 
-    setCustomDates(selectedDates);
+    // End date of range will show on the left side
+    if (!dateVisible && isAfter(endMonthDate, end)) {
+      setStartMonth(end);
+    }
+
+    // End date of range will show on the right side
+    if (!dateVisible && isBefore(startMonthDate, end)) {
+      setStartMonth(addMonth(end, -1));
+    }
+
+    setSelectedDates(selectedDates);
 
     setStartDateInput(start);
     setEndDateInput(end);
   };
 
   const handleDateClick = (date: Date) => {
+    // Any change to the calendar should reset the preset dropdown
+    resetSelectedPreset();
+    setHighlightedDates([]);
+
+    const start = selectedDates[0]?.date;
+    const end = selectedDates[selectedDates.length - 1]?.date;
+
+    const dateIsAfterStart =
+      start !== undefined && end !== undefined && isBefore(start, date);
+    const isOutsideStartAndEnd =
+      start !== undefined &&
+      end !== undefined &&
+      isAfter(end, start) &&
+      !isWithinInterval(date, { start, end });
+
+    // Start the range picking over if the user has selected a range and it's
+    // clicked outside
+    if (isOutsideStartAndEnd || !dateIsAfterStart) {
+      return restartRange(date);
+    }
+
     // Start picking the range
-    if (customDates.length === 0) {
+    if (selectedDates.length === 0) {
       return handleStartDateInputChange(date);
     }
 
-    return resetRange();
+    // Set end date
+    return handleEndDateInputChange(date);
   };
 
   const generateHighlightedDates = (start?: Date, end?: Date) => {
@@ -104,29 +148,38 @@ export const DateRangePicker = () => {
   };
 
   const handleDateHover = (date: Date) => {
+    const start = selectedDates[0]?.date;
+    const dateIsBefore = start !== undefined && isBefore(date, start);
+    const hasRange = selectedDates.length > 1;
+
+    // If the user hovers over a date before the selected start date
+    // There's no need to highlight
+    if (dateIsBefore || hasRange) {
+      setHighlightedDates([]);
+      return;
+    }
+
     const newHighlightedDates = generateHighlightedDates(
-      customDates[0]?.date,
+      selectedDates[0]?.date,
       date
     );
 
-    setMouseOverDate(date);
     setHighlightedDates(newHighlightedDates);
   };
 
   const handleCalendarMouseLeave = () => {
     setHighlightedDates([]);
-    setMouseOverDate(undefined);
   };
 
   const handleStartDateInputChange = (start: Date) => {
-    const end = customDates[customDates.length - 1]?.date ?? start;
+    const end = selectedDates[selectedDates.length - 1]?.date ?? start;
 
     setRange({ start, end });
     resetSelectedPreset();
   };
 
   const handleEndDateInputChange = (end: Date) => {
-    const start = customDates[0]?.date ?? end;
+    const start = selectedDates[0]?.date ?? end;
 
     setRange({ start, end });
     resetSelectedPreset();
@@ -135,7 +188,7 @@ export const DateRangePicker = () => {
   const handlePresetChange = (selection: OptionType) => {
     // Reset
     if (!selection || selection.label === "-") {
-      resetRange();
+      clearRange();
       return;
     }
 
@@ -148,8 +201,8 @@ export const DateRangePicker = () => {
   };
 
   const calendarDates = React.useMemo(() => {
-    return customDates.concat(highlightedDates);
-  }, [customDates, highlightedDates]);
+    return selectedDates.concat(highlightedDates);
+  }, [selectedDates, highlightedDates]);
 
   return (
     <div className={classes.container}>
