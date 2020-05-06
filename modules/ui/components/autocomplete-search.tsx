@@ -11,10 +11,11 @@ import { useDeferredState } from "hooks";
 type Props = {
   options: OptionType[];
   setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
-  onClick: (id: string) => void;
+  onClick: (id: string, orgId?: string) => void;
   useLabel?: boolean;
   placeholder?: string;
   searchText?: string | undefined;
+  orgId?: string;
 };
 
 export const AutoCompleteSearch: React.FC<Props> = props => {
@@ -53,12 +54,11 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
         }}
         options={props.options}
         renderInput={params => (
-          //<TextField
-          <Input
+          <TextField
             {...params}
             label={props.placeholder}
-            //margin="normal"
-            //variant="outlined"
+            margin="normal"
+            variant="outlined"
             className={classes.searchInput}
             onChange={(e: any) => updateSearchText(e)}
           />
@@ -66,7 +66,11 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
         onChange={(e: React.ChangeEvent<{}>, selection: OptionType | null) => {
           const selectedValue = selection?.value ?? "";
 
-          if (selectedValue !== "") props.onClick(selectedValue.toString());
+          if (selectedValue !== "") {
+            const result = props?.orgId
+              ? props.onClick(selectedValue.toString(), props?.orgId)
+              : props.onClick(selectedValue.toString());
+          }
           props.options.length = 0;
         }}
       />

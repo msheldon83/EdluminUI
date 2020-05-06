@@ -9,10 +9,11 @@ type Props = {
   onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
   onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
   endorsement:
-    | { name: string; validUntil?: Date | null; id: string }
+    | { name: string; validUntil?: Date; id: string }
     | undefined
     | null;
   orgId: string;
+  expirationDate: Date;
 };
 
 export const DistrictDetail: React.FC<Props> = props => {
@@ -21,16 +22,15 @@ export const DistrictDetail: React.FC<Props> = props => {
     onRemoveEndorsement,
     onChangeEndorsement,
     endorsement,
+    expirationDate,
     orgId,
   } = props;
   const e = endorsement;
 
-  console.log(e?.validUntil);
-
-  const mutationObject: CustomEndorsement = {
-    attributeId: e?.id ?? "",
+  const customEndorsement: CustomEndorsement = {
+    id: e?.id ?? "",
     orgId: orgId,
-    expirationDate: e?.validUntil,
+    expirationDate: expirationDate,
   };
 
   return (
@@ -49,15 +49,21 @@ export const DistrictDetail: React.FC<Props> = props => {
         <Grid item xs={5} className={classes.displayInline}>
           <DateInput
             className={classes.displayInline}
-            value={e?.validUntil ?? ""}
+            value={customEndorsement?.expirationDate ?? ""}
             placeholder="Expires"
-            onChange={(date: string) =>
+            onChange={(date: string) => {
               //setFieldValue("dateOfBirth", date)
               //mutationObject
-              console.log(date)
-            }
+
+              console.log(date);
+
+              onChangeEndorsement(customEndorsement);
+            }}
             onValidDate={date =>
               //setFieldValue("dateOfBirth", date)
+
+              //this.target
+
               console.log(date)
             }
           />
@@ -71,7 +77,7 @@ export const DistrictDetail: React.FC<Props> = props => {
           })}
         >
           <div
-            onClick={() => onRemoveEndorsement(mutationObject)}
+            onClick={() => onRemoveEndorsement(customEndorsement)}
             className={classes.hyperlink}
           >
             <DeleteForeverIcon />

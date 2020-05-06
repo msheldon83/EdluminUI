@@ -29,7 +29,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
   const params = useRouteParams(PeopleSubRelatedOrgsEditRoute);
   const classes = useStyles();
 
-  const [substituteInput, setSubstitueInput] = React.useState<
+  const [substituteInput, setSubstituteInput] = React.useState<
     SubstituteInput
   >();
 
@@ -82,16 +82,18 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
             x =>
               ({
                 attribute: { id: x?.endorsementId ?? "" },
-                expires: x?.expirationDate ?? "",
+                expires: x?.expirationDate ?? undefined,
               } as SubstituteAttributeInput)
           ) ?? ([] as SubstituteAttributeInput[]),
       })) ?? [];
 
     const subInput: SubstituteInput = {
       relatedOrgs: relatedOrgs,
+      orgId: params.organizationId,
+      id: params.orgUserId,
     };
 
-    setSubstitueInput(subInput);
+    setSubstituteInput(subInput);
   }, [orgUserRelationships]);
 
   if (getSubRelatedOrgs.state === "LOADING" || !orgUser?.substitute) {
@@ -112,7 +114,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
           .toString()
       : [];
 
-  console.log(formattedDistrictAttributes);
+  //console.log(formattedDistrictAttributes);
 
   const handleUpdateSubstitute = async (substitute: SubstituteInput) => {
     await updateSubstitute({
@@ -142,21 +144,38 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     await getSubRelatedOrgs.refetch();
   };
 
-  const handleAddEndorsement = async (endorsement: CustomEndorsement) => {
-    //Manipulate SubstituteInput Object
+  const handleAddEndorsement = async (
+    endorsementId: string,
+    orgId?: string
+  ) => {
+    const value: SubstituteAttributeInput = {
+      attribute: { id: endorsementId },
+      expires: undefined,
+    };
 
-    console.log("1");
+    substituteInput?.relatedOrgs?.find(
+      o => o?.orgId === orgId && o?.attributes?.push(value)
+    );
 
-    //Call to handleUpdateSubstitute on change
-    //   if (substituteInput) handleUpdateSubstitute(substituteInput);
+    if (substituteInput) await handleUpdateSubstitute(substituteInput);
   };
 
   const handleRemoveAttribute = async (endorsement: CustomEndorsement) => {
-    //Manipulate SubstituteInput Object
+    const index: number =
+      substituteInput?.relatedOrgs?.findIndex(
+        o =>
+          o?.orgId === endorsement.orgId &&
+          o?.attributes?.findIndex(e => e?.attribute?.id === endorsement.id)
+      ) ?? -1;
 
-    console.log("2");
-    //Call to handleUpdateSubstitute on change
-    //  if (substituteInput) handleUpdateSubstitute(substituteInput);
+    console.log(index);
+
+    if (index === -1) return;
+
+    substituteInput?.relatedOrgs?.map(
+      o => o?.orgId === endorsement.orgId && o?.attributes?.splice(index, 1)
+    );
+    // if (substituteInput) await handleUpdateSubstitute(substituteInput);
   };
 
   const handleOnChangeAttribute = async (endorsement: CustomEndorsement) => {

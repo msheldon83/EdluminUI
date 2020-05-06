@@ -4,10 +4,20 @@ mutation UpdateSubstitute($substitute: SubstituteInput!) {
       id
       rowVersion
       orgUserRelationships {
-        orgId
+        id
+        otherOrganization {
+          id
+          orgId
+          name
+        }
         attributes {
           endorsementId
           expirationDate
+          endorsement {
+            id
+            name
+            validUntil
+          }
         }
       }
     }

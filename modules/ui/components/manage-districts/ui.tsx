@@ -20,7 +20,7 @@ type Props = {
   orgEndorsements: OptionType[];
   onAddOrg: (orgId: string) => Promise<unknown>;
   onRemoveOrg: (orgId: string) => Promise<unknown>;
-  onAddEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onAddEndorsement: (endorsementId: string, orgId?: string) => Promise<void>;
   onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
   onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
   isAdmin?: boolean;

@@ -16,7 +16,7 @@ type Props = {
   orgUserRelationships: Maybe<CustomOrgUserRelationship>[] | undefined | null;
   orgEndorsements: OptionType[];
   onRemoveOrg: (orgId: string) => Promise<unknown>;
-  onAddEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onAddEndorsement: (endorsementId: string, orgId?: string) => Promise<void>;
   onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
   onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
 };
@@ -71,6 +71,7 @@ export const SelectedDistrict: React.FC<Props> = props => {
                   setSearchText={setSearchText}
                   placeholder={t("search")}
                   useLabel={false}
+                  orgId={n?.otherOrganization?.orgId}
                 />
                 {n?.attributes?.length === 0 ? (
                   <div></div>
@@ -81,6 +82,7 @@ export const SelectedDistrict: React.FC<Props> = props => {
                       onChangeEndorsement={onChangeEndorsement}
                       onRemoveEndorsement={onRemoveEndorsement}
                       endorsement={endorsement?.endorsement}
+                      expirationDate={endorsement?.expirationDate}
                       orgId={n.otherOrganization?.orgId ?? ""}
                     />
                   ))
