@@ -65,7 +65,6 @@ export const DataGridHeader: React.FC<Props> = props => {
         width={width}
         columnWidth={columnWidth}
         fixedColumnCount={numberOfLockedColumns}
-        fixedRowCount={1}
         cellRenderer={props => headerCellRenderer(columns, props)}
         estimatedColumnSize={120}
         columnCount={columns.length}
@@ -73,7 +72,10 @@ export const DataGridHeader: React.FC<Props> = props => {
         rowHeight={height}
         rowCount={1}
         classNameTopLeftGrid={classes.headerGridLockedColumns}
-        classNameTopRightGrid={classes.headerGrid}
+        classNameBottomRightGrid={classes.headerGrid}
+        styleBottomRightGrid={{
+          overflowY: "hidden",
+        }}
       />
       <Menu
         anchorEl={anchorEl}
@@ -106,23 +108,23 @@ export const DataGridHeader: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   headerGridLockedColumns: {
-    backgroundColor: "rgba(255,255,255, 1)",
+    background: "#F8F8F8",
     borderLeft: "1px solid #E5E5E5",
     borderRight: "1px solid #D1D1D1",
   },
   headerGrid: {
-    backgroundColor: "rgba(255,255,255, 1)",
+    background: "#F8F8F8",
     borderRight: "1px solid #E5E5E5",
     borderLeft: "1px solid #E5E5E5",
   },
   headerCell: {
     borderTop: "1px solid #E5E5E5",
-    borderRight: "1px solid #E5E5E5",
     borderBottom: "1px solid #E5E5E5",
+    fontWeight: 600,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 10px 0 10px",
+    padding: "0 10px 10px 10px",
   },
   headerMenu: {
     width: 200,

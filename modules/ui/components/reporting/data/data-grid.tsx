@@ -72,7 +72,7 @@ export const DataGrid: React.FC<Props> = props => {
     return (metadata.query.subtotalBy ?? []).length > 0;
   }, [metadata]);
 
-  const dataGridHeight = 50;
+  const dataGridHeight = 75;
   const summaryGridHeight = 50;
 
   return (
