@@ -24,6 +24,7 @@ import { getDisplayName } from "ui/components/enumHelpers";
 import { ImportFilters } from "./components/import-filters";
 import { DataImportStatus, DataImportType } from "graphql/server-types.gen";
 import { ImportDataForm } from "ui/components/data-import/import-data-form";
+import { useDataImportTypes } from "reference-data/data-import-types";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Section } from "ui/components/section";
 
@@ -44,6 +45,8 @@ export const DataImportPage: React.FC<{}> = () => {
   const today = useMemo(() => new Date(), []);
   const [fromDate, setFromDate] = useState<Date | string>(addDays(today, -7));
   const [toDate, setToDate] = useState<Date | string>(today);
+
+  const dataImportTypes = useDataImportTypes();
 
   const [getImports, pagination] = usePagedQueryBundle(
     GetDataImports,
@@ -100,7 +103,8 @@ export const DataImportPage: React.FC<{}> = () => {
     {
       title: t("Type"),
       render: data => {
-        return getDisplayName("dataImportType", data.dataImportTypeId, t);
+        return dataImportTypes.find(x => x.enumValue === data.dataImportTypeId)
+          ?.description;
       },
       sorting: false,
     },

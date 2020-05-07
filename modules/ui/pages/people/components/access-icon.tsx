@@ -7,6 +7,7 @@ type Props = {
   accountSetup: boolean;
   inviteSent: boolean;
   inviteSentAtUtc?: Date;
+  inviteRequestedAtUtc?: Date;
 };
 
 export const AccessIcon: React.FC<Props> = props => {
@@ -22,6 +23,19 @@ export const AccessIcon: React.FC<Props> = props => {
     if (props.inviteSentAtUtc) {
       tooltip = t("Invitation from {{date}} pending", {
         date: format(new Date(props.inviteSentAtUtc), "MMM d h:mm aaaa"),
+      });
+    }
+    return (
+      <Tooltip title={tooltip}>
+        <div className={[classes.circle, classes.invitePending].join(" ")} />
+      </Tooltip>
+    );
+  } else if (props.inviteRequestedAtUtc) {
+    // Invite has been requested, but event processor hasn't sent the invite yet
+    let tooltip = t("Invitation pending");
+    if (props.inviteRequestedAtUtc) {
+      tooltip = t("Invitation from {{date}} pending", {
+        date: format(new Date(props.inviteRequestedAtUtc), "MMM d h:mm aaaa"),
       });
     }
     return (

@@ -5,25 +5,24 @@ query GetEmployeeById($id: ID!) {
       externalId
       orgId
       userId
+      active
+      email
+      address1
+      city
+      state
+      country
+      postalCode
+      dateOfBirth
+      phoneNumber
+      firstName
+      middleName
+      lastName
       loginEmail
       temporaryPassword
       isShadowRecord
       shadowFromOrgName
       employee {
         id
-        orgId
-        active
-        email
-        address1
-        city
-        state
-        country
-        postalCode
-        dateOfBirth
-        phoneNumber
-        firstName
-        middleName
-        lastName
         locations {
           id
           name

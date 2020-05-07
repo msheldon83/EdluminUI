@@ -22,6 +22,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
+import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
@@ -68,7 +69,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     },
   });
 
-  const getOrgUser = useQueryBundle(GetOrgUserById, {
+  const getOrgUser = useQueryBundle(GetEmployeeById, {
     variables: { id: params.orgUserId },
     skip: params.orgUserId === "new",
   });
@@ -92,6 +93,41 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           lastName: orgUser.lastName,
           externalId: orgUser.externalId,
           email: orgUser.email,
+          address1: orgUser.address1,
+          city: orgUser.city,
+          state: orgUser.state,
+          country: orgUser.country,
+          postalCode: orgUser.postalCode,
+          phoneNumber: orgUser.phoneNumber,
+          dateOfBirth: orgUser.dateOfBirth,
+          position: {
+            positionType: {
+              id: orgUser.originalEmployee?.primaryPosition?.positionTypeId,
+            },
+            title: orgUser.originalEmployee?.primaryPosition?.title,
+            needsReplacement:
+              orgUser.originalEmployee?.primaryPosition?.needsReplacement,
+            contract: {
+              id: orgUser.originalEmployee?.primaryPosition?.contractId,
+            },
+            hoursPerFullWorkDay:
+              orgUser.originalEmployee?.primaryPosition?.hoursPerFullWorkDay,
+            accountingCodeAllocations: [
+              {
+                accountingCodeId: orgUser.originalEmployee?.primaryPosition
+                  ?.accountingCodeAllocations
+                  ? orgUser.originalEmployee.primaryPosition
+                      .accountingCodeAllocations[0]?.accountingCodeId ?? ""
+                  : "",
+                allocation: orgUser.originalEmployee?.primaryPosition
+                  ?.accountingCodeAllocations
+                  ? orgUser.originalEmployee.primaryPosition
+                      .accountingCodeAllocations[0]?.allocation ?? 1
+                  : 1,
+              },
+            ],
+            schedules: orgUser.originalEmployee?.primaryPosition?.schedules,
+          },
         });
         setInitialStepNumber(1);
       }
@@ -113,6 +149,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <AddBasicInfo
+        orgId={params.organizationId}
         orgUser={employee}
         onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setEmployee({

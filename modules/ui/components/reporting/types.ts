@@ -1,3 +1,4 @@
+// Structured view of the Report that is converted into RDL
 export type ReportDefinitionInput = {
   from: string;
   select: string[];
@@ -5,9 +6,19 @@ export type ReportDefinitionInput = {
     expression: string;
     direction: Direction;
   }[];
-  filter?: string[];
+  filter?: {
+    fieldName: string;
+    expressionFunction: ExpressionFunction;
+    value?: any;
+    isRequired?: boolean;
+  }[];
+  subtotalBy?: {
+    expression: string;
+    showExpression?: string;
+  }[];
 };
 
+// Response from the server which represents the Report
 export type ReportDefinition = {
   data: ReportData;
   metadata: ReportMetadata;
@@ -26,12 +37,91 @@ export type ReportMetadata = {
 
 export type Query = {
   selects: DataExpression[];
+  filters?: LogicalTerm | Formula;
   orderBy: OrderByField[];
   subtotalBy: SubtotalField[];
+  schema: {
+    name: string;
+    allFields: DataSourceField[];
+  };
 };
+
+export type LogicalTerm = {
+  operator: LogicalOperator;
+  conditions: (LogicalTerm | Formula)[];
+};
+
+export type Formula = {
+  expressionFunction: ExpressionFunction;
+  args: DataExpression[];
+};
+
+export type DataSourceField = {
+  friendlyName: string;
+  dataSourceFieldName: string;
+  defaultColumnWidthInPixels?: number;
+  isRequiredFilter: boolean;
+  defaultExpressionFunction: ExpressionFunction;
+  filterType?: FilterType;
+  filterTypeDefinition?: {
+    key: string;
+    filterDataSourceFieldName: string;
+    friendlyName: string;
+  };
+};
+
+export enum FilterType {
+  String = 0,
+  Number = 1,
+  Decimal = 2,
+  Date = 3,
+  Time = 4,
+  DateTime = 5,
+  Boolean = 6,
+  Custom = 7,
+}
+
+export enum LogicalOperator {
+  And = 0,
+  Or = 1,
+  Not = 2,
+}
+
+export enum ExpressionFunction {
+  Add = 0,
+  Subtract = 1,
+  Multiply = 2,
+  Divide = 3,
+  Equal = 4,
+  NotEqual = 5,
+  GreaterThan = 6,
+  GreaterThanOrEqual = 7,
+  LessThan = 8,
+  LessThanOrEqual = 9,
+  ContainedIn = 10,
+  Between = 11,
+  EndsWith = 12,
+  StartsWith = 13,
+  Contains = 14,
+  Sum = 15,
+  SumIf = 16,
+  Avg = 17,
+  Count = 18,
+  CountIf = 19,
+  If = 20,
+  Not = 21,
+  Concat = 22,
+  Left = 23,
+  Right = 24,
+  Upper = 25,
+  Lower = 26,
+  DateFormat = 27,
+  Format = 28,
+}
 
 export type DataExpression = {
   displayName: string;
+  dataSourceField?: DataSourceField;
 };
 
 export type OrderByField = {
@@ -49,6 +139,14 @@ export type SubtotalField = {
   showExpression?: DataExpression;
 };
 
+export type FilterField = {
+  field: DataSourceField;
+  expressionFunction: ExpressionFunction;
+  value?: any;
+};
+
+// Structure used by the Data Grid to determine how and if
+// groups of data are defined
 export type GroupedData = {
   info?: GroupInfo | null | undefined;
   children?: GroupedData[];
@@ -56,12 +154,16 @@ export type GroupedData = {
   subtotals: any[];
 };
 
+// Contains information about how to display a group and what to group on
 export type GroupInfo = {
   displayName: string;
   displayValue: any;
   groupByValue: any;
 };
 
+// What is used to render the cells within the Data Grid
+// so all data is a row in the Grid regardless of if it
+// is a group header or an actual row of data
 export type Row = {
   level: number;
   item: any[] | GroupedData;

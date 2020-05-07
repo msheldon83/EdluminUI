@@ -2,10 +2,9 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { MenuButton, Option } from "ui/components/menu-button";
 import { useState } from "react";
-import { DataImportType } from "graphql/server-types.gen";
+import { DataImportType, PermissionEnum } from "graphql/server-types.gen";
 import { ImportDataDialog } from "./import-data-dialog";
 import { Can } from "ui/components/auth/can";
-import { canImportData } from "helpers/permissions";
 import { useIsMobile } from "hooks";
 
 type Props = {
@@ -45,7 +44,7 @@ export const ImportDataMultiButton: React.FC<Props> = props => {
   return isMobile ? (
     <></>
   ) : (
-    <Can do={canImportData} orgId={props.orgId}>
+    <Can do={[PermissionEnum.DataImport]} orgId={props.orgId}>
       <ImportDataDialog
         open={open}
         importType={importType}

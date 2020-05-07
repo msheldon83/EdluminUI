@@ -10,10 +10,7 @@ import {
   LocationGroup,
 } from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
-import {
-  secondsSinceMidnight,
-  secondsToIsoString,
-} from "helpers/time";
+import { secondsSinceMidnight, secondsToIsoString } from "helpers/time";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { Link } from "react-router-dom";
@@ -494,7 +491,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       />
       <PageHeader
         text={workDaySchedule.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={[PermissionEnum.ScheduleSettingsSave]}

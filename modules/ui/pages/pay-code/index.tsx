@@ -81,6 +81,7 @@ export const PayCode: React.FC<Props> = props => {
           .required(t("Name is required")),
         externalId: Yup.string().nullable(),
         description: Yup.string().nullable(),
+        code: Yup.string().nullable(),
       }),
     [t]
   );
@@ -90,6 +91,7 @@ export const PayCode: React.FC<Props> = props => {
     name: "",
     externalId: null,
     description: "",
+    code: "",
   });
 
   const create = async (payCode: PayCodeCreateInput) => {
@@ -138,8 +140,22 @@ export const PayCode: React.FC<Props> = props => {
       ),
     },
     {
-      title: t("External Id"),
+      title: t("Identifier"),
       field: "externalId",
+      searchable: true,
+      hidden: isMobile,
+      editable: "always",
+      editComponent: props => (
+        <TextField
+          fullWidth
+          value={props.value}
+          onChange={e => props.onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      title: t("Code"),
+      field: "code",
       searchable: true,
       hidden: isMobile,
       editable: "always",
@@ -176,6 +192,7 @@ export const PayCode: React.FC<Props> = props => {
     ...o,
     description: o.description?.toString(),
     externalId: o.externalId?.toString(),
+    code: o.code?.toString(),
   }));
   const payCodesCount = payCodes.length;
 
@@ -210,14 +227,9 @@ export const PayCode: React.FC<Props> = props => {
             const newPayCode = {
               ...payCode,
               name: newData.name,
-              externalId:
-                newData.externalId && newData.externalId.trim().length === 0
-                  ? null
-                  : newData.externalId,
-              description:
-                newData.description && newData.description.trim().length === 0
-                  ? null
-                  : newData.description,
+              externalId: newData.externalId,
+              description: newData.description,
+              code: newData.code,
             };
             const result = await create(newPayCode);
             if (!result) throw Error("Preserve Row on error");
@@ -231,14 +243,9 @@ export const PayCode: React.FC<Props> = props => {
               id: newData.id,
               rowVersion: newData.rowVersion,
               name: newData.name,
-              externalId:
-                newData.externalId && newData.externalId.trim().length === 0
-                  ? null
-                  : newData.externalId,
-              description:
-                newData.description && newData.description.trim().length === 0
-                  ? null
-                  : newData.description,
+              externalId: newData.externalId,
+              description: newData.description,
+              code: newData.code,
             };
             const result = await update(updatePayCode);
             if (!result) throw Error("Preserve Row on error");

@@ -110,7 +110,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={6} lg={6}>
                 <Input
-                  label={t("External ID")}
+                  label={t("Identifier")}
                   InputComponent={FormTextField}
                   inputComponentProps={{
                     name: "externalId",
@@ -177,6 +177,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                           }
                           setFieldValue("periodNumberOfPeriods", selectedValue);
                         }}
+                        doSort={false}
                       />
                     </div>
                   </div>

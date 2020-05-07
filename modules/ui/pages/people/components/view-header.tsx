@@ -54,6 +54,7 @@ type Props = {
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;
   onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
+  onRemoveRole: (orgUserRole: OrgUserRole) => Promise<any>;
 };
 
 export const PersonViewHeader: React.FC<Props> = props => {
@@ -150,7 +151,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
 
   const buildActionMenu = React.useCallback(() => {
     // setup 3 dot menu actions
-    const menuActions = [];
+    let menuActions = [];
     if (props.selectedRole === OrgUserRole.Employee && orgUser.active) {
       menuActions.push({
         name: t("Create Absence"),
@@ -199,6 +200,32 @@ export const PersonViewHeader: React.FC<Props> = props => {
       onClick: props.deleteOrgUser,
       permissions: canDeleteThisOrgUser,
     });
+
+    const inactivateRoleOptions = [];
+    if (orgUser.isAdmin) {
+      inactivateRoleOptions.push({
+        name: t("Remove admin access"),
+        onClick: () => props.onRemoveRole(OrgUserRole.Administrator),
+        permissions: canDeleteThisOrgUser,
+      });
+    }
+    if (orgUser.isEmployee) {
+      inactivateRoleOptions.push({
+        name: t("Remove employee access"),
+        onClick: () => props.onRemoveRole(OrgUserRole.Employee),
+        permissions: canDeleteThisOrgUser,
+      });
+    }
+    if (orgUser.isReplacementEmployee) {
+      inactivateRoleOptions.push({
+        name: t("Remove substitute access"),
+        onClick: () => props.onRemoveRole(OrgUserRole.ReplacementEmployee),
+        permissions: canDeleteThisOrgUser,
+      });
+    }
+    if (inactivateRoleOptions.length > 1) {
+      menuActions = menuActions.concat(inactivateRoleOptions);
+    }
 
     return menuActions;
     /* eslint-disable-next-line */
@@ -275,7 +302,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
       />
       <PageHeader
         text={orgUser.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editable}
         onEdit={() => props.setEditing(editableSections.externalId)}
         editPermissions={canEditThisOrgUser}

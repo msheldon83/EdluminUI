@@ -5,6 +5,7 @@ mutation UpdatePositionType($positionType: PositionTypeUpdateInput!) {
       name
       rowVersion
       externalId
+      code
       forPermanentPositions
       forStaffAugmentation
       minAbsenceDurationMinutes

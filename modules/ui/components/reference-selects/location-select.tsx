@@ -39,7 +39,11 @@ export const LocationSelect: React.FC<Props> = props => {
 
   const onChangeLocations = useCallback(
     value => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      const ids: string[] = value
+        ? Array.isArray(value)
+          ? value.map((v: OptionType) => v.value)
+          : [value.value]
+        : [];
       if (ids.includes("0")) {
         setSelectedLocationIds(undefined);
       } else {
@@ -52,7 +56,11 @@ export const LocationSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={selectedLocations}
+      value={
+        multiple
+          ? selectedLocations
+          : selectedLocations[0] ?? { value: "", label: "" }
+      }
       multiple={multiple}
       options={locationOptions}
       withResetValue={false}

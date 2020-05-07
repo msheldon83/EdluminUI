@@ -21,6 +21,7 @@ import { EmployeeTab } from "./role-pages/employee-tab";
 import { SubstituteTab } from "./role-pages/substitute-tab";
 import { makeStyles } from "@material-ui/core";
 import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
+import { RemoveOrgUserRole } from "./graphql/remove-orguser-role.gen";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -58,6 +59,12 @@ export const PersonViewPage: React.FC<{}> = props => {
   }, [deleteOrgUserMutation, history, params]);
 
   const [updateOrgUser] = useMutationBundle(UpdateOrgUser, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [removeRole] = useMutationBundle(RemoveOrgUserRole, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -102,6 +109,15 @@ export const PersonViewPage: React.FC<{}> = props => {
     setEditing(null);
   };
 
+  const onRemoveRole = async (orgUserRole: OrgUserRole) => {
+    await removeRole({
+      variables: {
+        orgUserId: params.orgUserId,
+        orgUserRole,
+      },
+    });
+  };
+
   const defaultSelectedRole = orgUser.isAdmin
     ? OrgUserRole.Administrator
     : orgUser.isEmployee
@@ -118,6 +134,7 @@ export const PersonViewPage: React.FC<{}> = props => {
         setEditing={setEditing}
         deleteOrgUser={deleteOrgUser}
         onSaveOrgUser={onUpdateOrgUser}
+        onRemoveRole={onRemoveRole}
         selectedRole={selectedRole ?? defaultSelectedRole}
         orgId={params.organizationId}
       />

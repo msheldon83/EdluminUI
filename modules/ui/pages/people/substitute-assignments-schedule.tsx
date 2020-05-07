@@ -58,10 +58,8 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
           view={props.view}
           pageTitle={
             <PersonLinkHeader
-              title={`${orgUser?.substitute!.firstName} ${
-                orgUser?.substitute!.lastName
-              }'s Schedule`}
-              person={orgUser?.substitute!}
+              title={`${orgUser?.firstName} ${orgUser?.lastName}'s Schedule`}
+              person={orgUser}
               params={params}
             />
           }
@@ -72,7 +70,7 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
           calendarViewRoute={SubstituteAssignmentScheduleCalendarViewRoute.generate(
             params
           )}
-          orgId={orgUser?.substitute!.orgId.toString()}
+          orgId={params.organizationId}
           viewingAsAdmin={true}
           userCreatedDate={orgUserCreatedDate}
         />

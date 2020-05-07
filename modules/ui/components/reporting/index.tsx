@@ -1,66 +1,153 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { ReportDefinition, ReportDefinitionInput, Direction } from "./types";
+import { ReportDefinitionInput, FilterField } from "./types";
 import { DataGrid } from "./data/data-grid";
 import { useQueryBundle } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
 import { LoadingDataGrid } from "./data/loading-data-grid";
+import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
+import { ActionBar } from "./actions/action-bar";
+import { makeStyles } from "@material-ui/core";
+import { useOrganizationId } from "core/org-context";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowNetworkErrors } from "../error-helpers";
 
 type Props = {
   input: ReportDefinitionInput;
-  orgIds: string[];
+  filterFieldsOverride?: string[];
+  showGroupLabels?: boolean;
 };
 
 export const Report: React.FC<Props> = props => {
-  const [report, setReport] = React.useState<ReportDefinition>();
-  const { input, orgIds } = props;
+  const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
+  const { input, filterFieldsOverride, showGroupLabels = true } = props;
+  const organizationId = useOrganizationId();
+  const [state, dispatch] = React.useReducer(reportReducer, {
+    reportDefinitionInput: input,
+    rdlString: convertReportDefinitionInputToRdl(input),
+    filters: {
+      optional: [],
+      required: [],
+    },
+    filterableFields: [],
+  });
 
   // Load the report
   const reportResponse = useQueryBundle(GetReportQuery, {
     variables: {
       input: {
-        orgIds,
-        queryText: convertReportDefinitionInputToRdl(input),
+        orgIds: [organizationId],
+        queryText: state.rdlString,
       },
     },
     onError: error => {
-      console.error(error);
-      //ShowErrors(error, openSnackbar); // TODO: Parse error codes into better messages
+      ShowNetworkErrors(error, openSnackbar);
     },
   });
 
   React.useEffect(() => {
     if (reportResponse.state === "DONE") {
-      setReport(reportResponse.data.report);
+      dispatch({
+        action: "setReportDefinition",
+        reportDefinition: reportResponse.data.report,
+        filterFieldsOverride,
+      });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reportResponse.state]);
+
+  const setFilters = React.useCallback(
+    (
+      filterFields: FilterField[],
+      areOptional: boolean,
+      refreshReport?: boolean
+    ) => {
+      if (areOptional) {
+        dispatch({
+          action: "setOptionalFilters",
+          filters: filterFields,
+          refreshReport,
+        });
+      } else {
+        dispatch({
+          action: "setRequiredFilters",
+          filters: filterFields,
+          refreshReport,
+        });
+      }
+    },
+    []
+  );
+
+  const refreshReport = React.useCallback(async () => {
+    dispatch({ action: "refreshReport" });
+  }, []);
 
   return (
     <AppConfig contentWidth="100%">
-      {!report ? <LoadingDataGrid /> : <DataGrid reportDefinition={report} />}
+      {!state.reportDefinition ? (
+        <div className={classes.gridWrapper}>
+          <LoadingDataGrid
+            numberOfColumns={state.reportDefinitionInput.select.length}
+          />
+        </div>
+      ) : (
+        <>
+          <div className={classes.actions}>
+            <ActionBar
+              filterableFields={state.filterableFields}
+              setFilters={setFilters}
+              refreshReport={refreshReport}
+              currentFilters={[
+                ...state.filters.required,
+                ...state.filters.optional,
+              ]}
+            />
+          </div>
+          <div className={classes.gridWrapper}>
+            <DataGrid
+              reportDefinition={state.reportDefinition}
+              isLoading={
+                reportResponse.state === "LOADING" ||
+                reportResponse.state === "UPDATING"
+              }
+              showGroupLabels={showGroupLabels}
+            />
+          </div>
+        </>
+      )}
     </AppConfig>
   );
 };
 
-const convertReportDefinitionInputToRdl = (
-  input: ReportDefinitionInput
-): string => {
-  const rdlPieces: string[] = [];
-  rdlPieces.push(`QUERY FROM ${input.from}`);
-  if (input.filter && input.filter.length > 0) {
-    rdlPieces.push(`WHERE ${input.filter.join(", ")}`);
-  }
-  rdlPieces.push(`SELECT ${input.select.join(", ")}`);
-  if (input.orderBy && input.orderBy.length > 0) {
-    rdlPieces.push(
-      `ORDER BY ${input.orderBy
-        .map(
-          o =>
-            `${o.expression} ${o.direction === Direction.Asc ? "ASC" : "DESC"}`
-        )
-        .join(", ")}`
-    );
-  }
-  const rdlString = rdlPieces.join(" ");
-  return rdlString;
-};
+const useStyles = makeStyles(theme => ({
+  actions: {
+    padding: theme.spacing(3),
+    borderTopWidth: theme.typography.pxToRem(1),
+    borderLeftWidth: theme.typography.pxToRem(1),
+    borderRightWidth: theme.typography.pxToRem(1),
+    borderBottomWidth: 0,
+    borderColor: theme.customColors.sectionBorder,
+    borderStyle: "solid",
+    borderTopLeftRadius: "0.25rem",
+    borderTopRightRadius: "0.25rem",
+    backgroundColor: theme.customColors.white,
+  },
+  gridWrapper: {
+    width: "100%",
+    height: "100%",
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+    borderTopWidth: 0,
+    borderBottomWidth: theme.typography.pxToRem(1),
+    borderLeftWidth: theme.typography.pxToRem(1),
+    borderRightWidth: theme.typography.pxToRem(1),
+    borderColor: theme.customColors.sectionBorder,
+    borderStyle: "solid",
+    borderBottomLeftRadius: "0.25rem",
+    borderBottomRightRadius: "0.25rem",
+    backgroundColor: theme.customColors.white,
+  },
+}));

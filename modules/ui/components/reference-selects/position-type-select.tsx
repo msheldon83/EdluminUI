@@ -39,7 +39,11 @@ export const PositionTypeSelect: React.FC<Props> = props => {
 
   const onChangePositionTypes = useCallback(
     value => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      const ids: string[] = value
+        ? Array.isArray(value)
+          ? value.map((v: OptionType) => v.value)
+          : [value.value]
+        : [];
       if (ids.includes("0")) {
         setSelectedPositionTypeIds(undefined);
       } else {
@@ -52,7 +56,11 @@ export const PositionTypeSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={selectedPositionTypes}
+      value={
+        multiple
+          ? selectedPositionTypes
+          : selectedPositionTypes[0] ?? { value: "", label: "" }
+      }
       multiple={multiple}
       options={positionTypeOptions}
       withResetValue={false}

@@ -20,11 +20,13 @@ import * as yup from "yup";
 
 type Props = {
   description?: string;
+  code?: string;
   allowNegativeBalance: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
     description?: string;
+    code?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   }) => Promise<void>;
   onCancel: () => void;
@@ -39,6 +41,7 @@ export const AbsenceReasonCategorySettings: React.FC<Props> = props => {
 
   const initialValues = pick(props, [
     "description",
+    "code",
     "allowNegativeBalance",
     "absenceReasonTrackingTypeId",
   ]);
@@ -60,6 +63,16 @@ export const AbsenceReasonCategorySettings: React.FC<Props> = props => {
               InputComponent={FormTextField}
               inputComponentProps={{
                 name: "description",
+                margin: isMobile ? "normal" : "none",
+                variant: "outlined",
+                fullWidth: true,
+              }}
+            />
+            <Input
+              label={t("Code")}
+              InputComponent={FormTextField}
+              inputComponentProps={{
+                name: "code",
                 margin: isMobile ? "normal" : "none",
                 variant: "outlined",
                 fullWidth: true,

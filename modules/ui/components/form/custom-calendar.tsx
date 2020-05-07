@@ -34,6 +34,9 @@ type CustomCalendarProps = {
   previousMonthNavigation?: boolean;
   nextMonthNavigation?: boolean;
   classes?: Classes;
+  onClickDate?: (date: Date) => void;
+  onHoverDate?: (date: Date) => void;
+  onMouseLeave?: () => void;
 };
 
 type Classes = {
@@ -45,7 +48,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   const {
     contained = true,
     style = {},
-    onSelectDates,
+    onSelectDates = () => {},
     month = new Date(),
     customDates = [],
     onMonthChange = () => {},
@@ -53,12 +56,17 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     nextMonthNavigation = false,
     variant = "weeks",
     classes: customClasses = {},
+    onClickDate,
+    onHoverDate = () => {},
+    onMouseLeave = () => {},
   } = props;
 
   const classes = useStyles({ contained, onSelectDates });
   const [shiftPressed, setShiftPressed] = React.useState(false);
-  const [lastDateSelected, setLastDateSelected] = React.useState();
-  const [mouseOverDate, setMouseOverDate] = React.useState();
+  const [lastDateSelected, setLastDateSelected] = React.useState<
+    Date | undefined
+  >();
+  const [mouseOverDate, setMouseOverDate] = React.useState<Date | undefined>();
 
   const handleKeyPress = (e: KeyboardEvent) =>
     setShiftPressed(e.key === "Shift");
@@ -118,8 +126,12 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   };
 
   const handleDateSelect = (date: Date) => {
-    if (!onSelectDates) {
+    if (!onSelectDates && !onClickDate) {
       return;
+    }
+
+    if (onClickDate) {
+      return onClickDate(date);
     }
 
     // Make it only about the actual date
@@ -127,7 +139,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
 
     // Always make sure that the start date is before the end date
     const { earlier, later } =
-      shiftPressed && lastDateSelected
+      shiftPressed && lastDateSelected !== undefined
         ? sortDates(lastDateSelected, date)
         : {
             earlier: date,
@@ -135,7 +147,9 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
           };
 
     const dayRange =
-      shiftPressed && lastDateSelected && !isSameDay(lastDateSelected, date)
+      shiftPressed &&
+      lastDateSelected !== undefined &&
+      !isSameDay(lastDateSelected, date)
         ? eachDayOfInterval({ start: earlier, end: later })
         : [date];
 
@@ -146,21 +160,20 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   };
 
   const dateIsInSelectionRange = (date: Date) => {
-    try {
-      const { earlier, later } = sortDates(lastDateSelected, mouseOverDate);
-
-      return (
-        shiftPressed &&
-        lastDateSelected &&
-        mouseOverDate &&
-        inDateInterval(date, {
-          start: earlier,
-          end: later,
-        })
-      );
-    } catch (e) {
+    if (!lastDateSelected || !mouseOverDate) {
       return false;
     }
+    const { earlier, later } = sortDates(lastDateSelected, mouseOverDate);
+
+    return (
+      shiftPressed &&
+      lastDateSelected &&
+      mouseOverDate &&
+      inDateInterval(date, {
+        start: earlier,
+        end: later,
+      })
+    );
   };
 
   const handlePreviousMonthClick = React.useCallback(() => {
@@ -221,8 +234,13 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
             disableElevation
             onClick={() => handleDateSelect(date)}
             onKeyPress={() => handleDateSelect(date)}
-            onMouseEnter={() => setMouseOverDate(date)}
-            onMouseLeave={() => setMouseOverDate(undefined)}
+            onMouseEnter={() => {
+              setMouseOverDate(date);
+              onHoverDate(date);
+            }}
+            onMouseLeave={() => {
+              setMouseOverDate(undefined);
+            }}
             {...buttonProps}
             className={`${classNames} ${buttonClassName}`}
           >
@@ -245,7 +263,11 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
   );
 
   return (
-    <section className={classes.calendar} style={style}>
+    <section
+      className={classes.calendar}
+      style={style}
+      onMouseLeave={onMouseLeave}
+    >
       <header className={classes.header}>
         <span className={classes.monthNavButton}>
           {previousMonthNavigation && (
