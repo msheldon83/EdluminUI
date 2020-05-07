@@ -221,11 +221,11 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
               </div>
               <div className={classes.rowMargin}>
                 <Typography variant="h6">
-                  {t("Cancel assignment part maximum notice")}
+                  {t("Single day assignment cancellation window")}
                 </Typography>
                 <FormHelperText>
                   {t(
-                    "Substitutes may not cancel part of an assignment that starts after"
+                    "Subs who have the permission to cancel will be able to cancel single days of a multiple day assignment within this window"
                   )}
                 </FormHelperText>
                 <Grid item xs={2}>
