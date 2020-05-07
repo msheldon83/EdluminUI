@@ -1,30 +1,37 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
+import Button from "@material-ui/core/Button";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Fade from "@material-ui/core/Fade";
 import Popper from "@material-ui/core/Popper";
+import { DateRangePicker, DateRangePickerProps } from "./date-range-picker";
 
-/*
-TODO: This is a placeholder to get worked on after the date-range-picker is done
-*/
+type DateRangePickerPopoverProps = DateRangePickerProps & {
+  rangeSummary?: string;
+};
 
-export const DateRangePickerPopover = () => {
+export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
   const classes = useStyles();
   const buttonRef = React.useRef(document.createElement("button"));
 
+  const { rangeSummary, ...dateRangePickerProps } = props;
+
+  const [showPopover, setShowPopover] = React.useState(false);
+
   return (
     <>
-      <button
+      <Button
+        variant="outlined"
         ref={buttonRef}
-        onClick={() => {} /*setShowPopover(!showPopover)*/}
+        onClick={() => setShowPopover(true)}
       >
-        Open
-      </button>
+        {rangeSummary || "Select range"}
+      </Button>
       <Popper
         transition
         anchorEl={buttonRef.current}
-        open={false}
+        open={showPopover}
         placement="bottom-start"
       >
         {({ TransitionProps }) => (
@@ -33,13 +40,14 @@ export const DateRangePickerPopover = () => {
               <ClickAwayListener
                 mouseEvent="onMouseDown"
                 onClickAway={() => {
-                  /*setShowPopover(false)*/
+                  if (showPopover) {
+                    setShowPopover(false);
+                  }
                 }}
               >
-                <Paper
-                  className={classes.popoverContainer}
-                  elevation={0}
-                ></Paper>
+                <Paper className={classes.popoverContainer} elevation={0}>
+                  <DateRangePicker {...dateRangePickerProps}></DateRangePicker>
+                </Paper>
               </ClickAwayListener>
             </div>
           </Fade>

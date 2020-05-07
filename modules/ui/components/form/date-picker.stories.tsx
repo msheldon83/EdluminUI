@@ -10,6 +10,7 @@ import { Calendar } from "./calendar";
 import { SingleMonthCalendar } from "./single-month-calendar";
 import { CustomCalendar, useToggleDatesList } from "./custom-calendar";
 import { DateRangePicker } from "./date-range-picker";
+import { DateRangePickerPopover } from "./date-range-picker-popover";
 
 export default {
   title: "Forms/Date Picker",
@@ -24,6 +25,7 @@ export const DateRangePickerStory = () => {
   return (
     <div className={classes.container} style={{ maxWidth: "700px" }}>
       <DateRangePicker
+        contained={boolean("contained", false)}
         startDate={startDate}
         endDate={endDate}
         onDateRangeSelected={(start, end) => {
@@ -42,6 +44,37 @@ export const DateRangePickerStory = () => {
 
 DateRangePickerStory.story = {
   name: "Date Range Picker",
+};
+
+export const DateRangePickerPopoverStory = () => {
+  const classes = useStyles();
+
+  const [startDate, setStartDate] = React.useState<Date | undefined>();
+  const [endDate, setEndDate] = React.useState<Date | undefined>();
+  const [readableString, setReadableString] = React.useState("");
+
+  return (
+    <div className={classes.container} style={{ maxWidth: "700px" }}>
+      <DateRangePickerPopover
+        rangeSummary={readableString}
+        startDate={startDate}
+        endDate={endDate}
+        onDateRangeSelected={(start, end, rangeSummary) => {
+          action("onDateRangeSelected")({
+            start,
+            end,
+          });
+          setStartDate(start);
+          setEndDate(end);
+          setReadableString(rangeSummary);
+        }}
+      />
+    </div>
+  );
+};
+
+DateRangePickerPopoverStory.story = {
+  name: "Date Range Picker Popover",
 };
 
 export const DatePickerStory = () => {

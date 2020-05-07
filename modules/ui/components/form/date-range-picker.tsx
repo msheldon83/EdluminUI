@@ -1,4 +1,5 @@
 import * as React from "react";
+import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
@@ -10,6 +11,7 @@ import isAfter from "date-fns/isAfter";
 import isWithinInterval from "date-fns/isWithinInterval";
 import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
+import format from "date-fns/format";
 import { DateInput } from "./date-input";
 import { CustomCalendar as Calendar, CustomDate } from "./custom-calendar";
 import { SelectNew as Select, OptionType } from "./select-new";
@@ -19,12 +21,13 @@ import {
   DateRange,
 } from "./hooks/use-preset-date-ranges";
 
-type DateRangePickerProps = {
+export type DateRangePickerProps = {
   startDate?: Date;
   endDate?: Date;
-  onDateRangeSelected: (start: Date, end: Date) => void;
+  onDateRangeSelected: (start: Date, end: Date, string: string) => void;
   defaultMonth?: Date;
   additionalPresets?: PresetRange[];
+  contained?: boolean;
 };
 
 export const DateRangePicker = (props: DateRangePickerProps) => {
@@ -38,6 +41,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     additionalPresets,
     startDate,
     endDate,
+    contained = false,
   } = props;
 
   const presetRanges = usePresetDateRanges(additionalPresets);
@@ -72,6 +76,15 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   const restartRange = (date: Date) => {
     setRange({ start: date, end: date });
   };
+
+  const readableString = React.useCallback(() => {
+    const fallbackString =
+      startDate !== undefined && endDate !== undefined
+        ? `${format(startDate, "MMM d, yy")} - ${format(endDate, "MMM d, yy")}`
+        : "";
+
+    return selectedPreset?.label ?? fallbackString;
+  }, [endDate, selectedPreset, startDate]);
 
   const setRange = React.useCallback(
     ({ start, end }: DateRange) => {
@@ -119,10 +132,11 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       setStartDateInput(start);
       setEndDateInput(end);
 
-      onDateRangeSelected(start, end);
+      onDateRangeSelected(start, end, readableString());
     },
     [
       onDateRangeSelected,
+      readableString,
       startMonth,
       theme.calendar.selected,
       theme.customColors.white,
@@ -238,8 +252,13 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     }
   }, [startDate, endDate, setRange]);
 
+  const containerClasses = clsx({
+    [classes.contained]: contained,
+    [classes.container]: true,
+  });
+
   return (
-    <div className={classes.container}>
+    <div className={containerClasses}>
       <div className={classes.dateRangeSelectContainer}>
         <Select
           value={selectedPreset}
@@ -314,6 +333,8 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
 const useStyles = makeStyles(theme => ({
   container: {
     background: theme.customColors.white,
+  },
+  contained: {
     border: `1px solid ${theme.customColors.edluminSubText}`,
     borderRadius: theme.typography.pxToRem(4),
     padding: theme.spacing(3),
