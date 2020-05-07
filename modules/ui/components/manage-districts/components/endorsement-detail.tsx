@@ -1,42 +1,32 @@
 import * as React from "react";
 import clsx from "clsx";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
+import { useTranslation } from "react-i18next";
 import { Grid, makeStyles } from "@material-ui/core";
-import { CustomEndorsement } from "../helpers";
-import { DateInput } from "ui/components/form/date-input";
+import { DatePicker } from "ui/components/form/date-picker";
 
 type Props = {
-  onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
-  onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
-  endorsement:
-    | { name: string; validUntil?: Date; id: string }
-    | undefined
-    | null;
-  orgId: string;
+  onRemoveEndorsement: () => void;
+  setFieldValue: Function;
+  submitForm: () => Promise<any>;
+  name: string;
   expirationDate: Date;
-  index: number;
+  endorsementIndex: number;
+  orgRelationshipIndex: number;
 };
 
-export const DistrictDetail: React.FC<Props> = props => {
+export const EndorsementDetail: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
   const {
     onRemoveEndorsement,
-    onChangeEndorsement,
-    endorsement,
     expirationDate,
-    index,
-    orgId,
+    endorsementIndex,
+    orgRelationshipIndex,
+    setFieldValue,
+    submitForm,
+    name,
   } = props;
-  const e = endorsement;
-
-  const [dateValue, setDateValue] = React.useState<Date>(expirationDate);
-
-  const customEndorsement: CustomEndorsement = {
-    id: e?.id ?? "",
-    orgId: orgId,
-    expirationDate: expirationDate,
-    index: index,
-  };
 
   return (
     <>
@@ -49,22 +39,22 @@ export const DistrictDetail: React.FC<Props> = props => {
             [classes.spacing]: true,
           })}
         >
-          {e?.name}
+          {name}
         </Grid>
         <Grid item xs={5} className={classes.displayInline}>
-          <DateInput
-            className={classes.displayInline}
-            value={dateValue}
-            placeholder="Expires"
-            onChange={(date: string) => {
-              const dateConversion = new Date(date);
-              setDateValue(dateConversion);
+          <DatePicker
+            variant={"single-hidden"}
+            placeholder={t("expires")}
+            startDate={expirationDate ?? ""}
+            onChange={async (date: any) => {
+              setFieldValue(
+                `orgUserRelationships[${orgRelationshipIndex}].attributes[${endorsementIndex}].expirationDate`,
+                date
+              );
 
-              console.log(dateValue);
-              //onChangeEndorsement(customEndorsement);
-            }}
-            onValidDate={date => {
-              setDateValue(date);
+              console.log(date);
+
+              await submitForm();
             }}
           />
         </Grid>
@@ -77,7 +67,7 @@ export const DistrictDetail: React.FC<Props> = props => {
           })}
         >
           <div
-            onClick={() => onRemoveEndorsement(customEndorsement)}
+            onClick={() => onRemoveEndorsement()}
             className={classes.hyperlink}
           >
             <DeleteForeverIcon />

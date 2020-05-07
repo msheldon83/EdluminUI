@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { OptionType } from "ui/components/form/select-new";
 import TextField from "@material-ui/core/TextField";
-import { Input } from "ui/components/form/input";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDeferredState } from "hooks";
 
@@ -15,7 +14,6 @@ type Props = {
   useLabel?: boolean;
   placeholder?: string;
   searchText?: string | undefined;
-  orgId?: string;
 };
 
 export const AutoCompleteSearch: React.FC<Props> = props => {
@@ -71,9 +69,7 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
           const selectedValue = selection?.value ?? "";
 
           if (selectedValue !== "") {
-            const result = props?.orgId
-              ? props.onClick(selectedValue.toString(), props?.orgId)
-              : props.onClick(selectedValue.toString());
+            props.onClick(selectedValue.toString());
           }
         }}
       />

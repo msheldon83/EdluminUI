@@ -13,13 +13,15 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
 import { AddRelatedOrg } from "./graphql/add-related-org.gen";
 import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
+import { compact } from "lodash-es";
 import { UpdateSubstitute } from "./graphql/update-substitute.gen";
-import { CustomEndorsement } from "ui/components/manage-districts/helpers";
+import { CustomOrgUserRelationship } from "ui/components/manage-districts/helpers";
 import { useEndorsements } from "reference-data/endorsements";
 import { PeopleSubRelatedOrgsEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { OptionType } from "ui/components/form/select-new";
 import { useSnackbar } from "hooks/use-snackbar";
+import { parseISO } from "date-fns";
 import { ShowErrors } from "ui/components/error-helpers";
 
 export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
@@ -27,10 +29,6 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PeopleSubRelatedOrgsEditRoute);
   const classes = useStyles();
-
-  const [substituteInput, setSubstituteInput] = React.useState<
-    SubstituteInput
-  >();
 
   const getSubRelatedOrgs = useQueryBundle(GetSubstituteRelatedOrgs, {
     variables: {
@@ -70,30 +68,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       ? undefined
       : getSubRelatedOrgs?.data?.orgUser?.byId;
 
-  const orgUserRelationships = orgUser?.orgUserRelationships;
-
-  useEffect(() => {
-    const relatedOrgs: SubstituteRelatedOrgInput[] =
-      orgUserRelationships?.map(o => ({
-        orgId: o?.otherOrganization.orgId ?? "",
-        attributes:
-          o?.attributes?.map(
-            x =>
-              ({
-                attribute: { id: x?.endorsementId ?? "" },
-                expires: x?.expirationDate ?? undefined,
-              } as SubstituteAttributeInput)
-          ) ?? ([] as SubstituteAttributeInput[]),
-      })) ?? [];
-
-    const subInput: SubstituteInput = {
-      relatedOrgs: relatedOrgs,
-      orgId: params.organizationId,
-      id: params.orgUserId,
-    };
-
-    setSubstituteInput(subInput);
-  }, [orgUserRelationships, params.organizationId, params.orgUserId]);
+  const orgUserRelationships = compact(orgUser?.orgUserRelationships) ?? [];
 
   if (getSubRelatedOrgs.state === "LOADING" || !orgUser?.substitute) {
     return <></>;
@@ -116,7 +91,11 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
   const handleUpdateSubstitute = async (substitute: SubstituteInput) => {
     await updateSubstitute({
       variables: {
-        substitute: substitute,
+        substitute: {
+          ...substitute,
+          orgId: params.organizationId,
+          id: params.orgUserId,
+        },
       },
     });
   };
@@ -141,38 +120,16 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     await getSubRelatedOrgs.refetch();
   };
 
-  const handleAddEndorsement = async (
-    endorsementId: string,
-    orgId?: string
-  ) => {
-    const value: SubstituteAttributeInput = {
-      attribute: { id: endorsementId },
-      expires: undefined,
-    };
-
-    substituteInput?.relatedOrgs?.find(
-      o => o?.orgId === orgId && o?.attributes?.push(value)
-    );
-
-    if (substituteInput) await handleUpdateSubstitute(substituteInput);
-  };
-
-  const handleRemoveAttribute = async (endorsement: CustomEndorsement) => {
-    const index = endorsement.index ?? -1;
-
-    if (index === -1) return;
-
-    substituteInput?.relatedOrgs?.map(
-      o => o?.orgId === endorsement.orgId && o?.attributes?.splice(index, 1)
-    );
-    if (substituteInput) await handleUpdateSubstitute(substituteInput);
-  };
-
-  const handleOnChangeAttribute = async (endorsement: CustomEndorsement) => {
-    //Manipulate SubstituteInput Object
-    //Call to handleUpdateSubstitute on change
-    // if (substituteInput) handleUpdateSubstitute(substituteInput);
-  };
+  const relationships: CustomOrgUserRelationship[] =
+    orgUserRelationships.map(o => ({
+      otherOrganization: o.otherOrganization,
+      attributes:
+        compact(o?.attributes).map(x => ({
+          endorsementId: x.endorsementId,
+          name: x.endorsement.name,
+          expirationDate: x.expirationDate ? parseISO(x.expirationDate) : null,
+        })) ?? [],
+    })) ?? [];
 
   return (
     <>
@@ -185,10 +142,8 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       <ManageDistrictsUI
         onAddOrg={handleAddOrg}
         onRemoveOrg={handleRemoveOrg}
-        onAddEndorsement={handleAddEndorsement}
-        onChangeEndorsement={handleOnChangeAttribute}
-        onRemoveEndorsement={handleRemoveAttribute}
-        orgUserRelationships={orgUserRelationships}
+        onSave={handleUpdateSubstitute}
+        orgUserRelationships={relationships}
         orgEndorsements={orgEndorsements}
         orgId={params.organizationId}
         allDistrictAttributes={formattedDistrictAttributes as string[]}

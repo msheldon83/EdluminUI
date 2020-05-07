@@ -4,137 +4,174 @@ import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
+import { Formik } from "formik";
+import {
+  SubstituteInput,
+  SubstituteAttributeInput,
+  SubstituteRelatedOrgInput,
+} from "graphql/server-types.gen";
 import { Section } from "ui/components/section";
 import clsx from "clsx";
 import { Maybe } from "graphql/server-types.gen";
-import { CustomOrgUserRelationship, CustomEndorsement } from "../helpers";
+import { CustomOrgUserRelationship } from "../helpers";
 import { SectionHeader } from "ui/components/section-header";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
-import { DistrictDetail } from "./district-detail";
+import { EndorsementDetail } from "./endorsement-detail";
 
 type Props = {
-  orgUserRelationships: Maybe<CustomOrgUserRelationship>[] | undefined | null;
+  orgUserRelationships: CustomOrgUserRelationship[];
   orgEndorsements: OptionType[];
   onRemoveOrg: (orgId: string) => Promise<unknown>;
-  onAddEndorsement: (endorsementId: string, orgId?: string) => Promise<void>;
-  onChangeEndorsement: (arg0: CustomEndorsement) => Promise<void>;
-  onRemoveEndorsement: (arg0: CustomEndorsement) => Promise<void>;
+  onSave: (sub: SubstituteInput) => Promise<any>;
 };
 
-export const SelectedDistrict: React.FC<Props> = props => {
+export const SelectedDistricts: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const [searchText, setSearchText] = useState<string | undefined>();
 
-  const {
-    orgUserRelationships,
-    onRemoveOrg,
-    onChangeEndorsement,
-    onRemoveEndorsement,
-    orgEndorsements,
-    onAddEndorsement,
-  } = props;
+  const { orgUserRelationships, onRemoveOrg, orgEndorsements, onSave } = props;
+
+  //InitialValues = orgUserRleationships
 
   return (
-    <Section>
-      <SectionHeader title={t("Selected districts")} />
-      <Grid
-        item
-        xs={4}
-        container
-        className={clsx({
-          [classes.inline]: true,
-        })}
-      >
-        <div
-          className={clsx({
-            [classes.paddingLeft]: true,
-          })}
-        >
-          {t("Name")}
-        </div>
-      </Grid>
-      <Grid item xs={4} container className={classes.inline}>
-        {t("District specific attributes")}
-      </Grid>
-      <Grid item xs={4} container className={classes.inline}></Grid>
-      <Divider />
-      {orgUserRelationships?.length === 0 ? (
-        <div>{t("No selected districts")}</div>
-      ) : (
-        orgUserRelationships?.map((n, i) => (
-          <div key={i}>
-            <Grid
-              item
-              xs={12}
-              className={clsx({
-                [classes.background]: i % 2,
-                [classes.containerPadding]: true,
-              })}
-            >
-              <Grid
-                item
-                xs={4}
-                container
-                className={clsx({
-                  [classes.inline]: true,
-                  [classes.verticalAlignTop]: true,
-                })}
-              >
-                <div className={classes.paddingLeft}>
-                  {n?.otherOrganization?.name}
-                </div>
-              </Grid>
-              <Grid item xs={4} container className={classes.inline}>
-                <AutoCompleteSearch
-                  searchText={searchText}
-                  onClick={onAddEndorsement}
-                  options={orgEndorsements}
-                  setSearchText={setSearchText}
-                  placeholder={t("search")}
-                  useLabel={false}
-                  orgId={n?.otherOrganization?.orgId}
-                />
-                {n?.attributes?.length === 0 ? (
-                  <div></div>
-                ) : (
-                  n?.attributes?.map((endorsement: any, j) => (
-                    <DistrictDetail
-                      key={j}
-                      onChangeEndorsement={onChangeEndorsement}
-                      onRemoveEndorsement={onRemoveEndorsement}
-                      endorsement={endorsement?.endorsement}
-                      expirationDate={endorsement?.expirationDate}
-                      orgId={n.otherOrganization?.orgId ?? ""}
-                      index={j}
-                    />
-                  ))
-                )}
-              </Grid>
-              <Grid
-                item
-                xs={4}
-                container
-                className={clsx({
-                  [classes.inline]: true,
-                  [classes.verticalAlignTop]: true,
-                })}
-              >
-                <TextButton
-                  className={clsx({
-                    [classes.paddingRight]: true,
-                    [classes.floatRight]: true,
-                  })}
-                  onClick={() => onRemoveOrg(n?.otherOrganization?.id ?? "")}
-                >
-                  {t("Remove")}
-                </TextButton>
-              </Grid>
+    <Formik
+      initialValues={{ orgUserRelationships: orgUserRelationships }}
+      onSubmit={async (data, meta) => {
+        const relatedOrgs: SubstituteRelatedOrgInput[] =
+          data?.orgUserRelationships?.map(o => ({
+            orgId: o?.otherOrganization?.orgId ?? "",
+            attributes:
+              o?.attributes?.map(
+                x =>
+                  ({
+                    attribute: { id: x?.endorsementId ?? "" },
+                    expires: x?.expirationDate ?? undefined,
+                  } as SubstituteAttributeInput)
+              ) ?? ([] as SubstituteAttributeInput[]),
+          })) ?? [];
+
+        console.log(relatedOrgs);
+
+        await onSave({ relatedOrgs });
+      }}
+    >
+      {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
+        <form onSubmit={handleSubmit}>
+          <Section>
+            <SectionHeader title={t("Selected districts")} />
+            <Grid item xs={4} container className={classes.inline}>
+              <div className={classes.paddingLeft}>{t("Name")}</div>
             </Grid>
-          </div>
-        ))
+            <Grid item xs={4} container className={classes.inline}>
+              {t("District specific attributes")}
+            </Grid>
+            <Grid item xs={4} container className={classes.inline}></Grid>
+            <Divider />
+            {orgUserRelationships?.length === 0 ? (
+              <div>{t("No selected districts")}</div>
+            ) : (
+              values.orgUserRelationships.map((n, i) => {
+                if (n) {
+                  return (
+                    <div key={i}>
+                      <Grid
+                        item
+                        xs={12}
+                        className={clsx({
+                          [classes.background]: i % 2,
+                          [classes.containerPadding]: true,
+                        })}
+                      >
+                        <Grid
+                          item
+                          xs={4}
+                          container
+                          className={clsx({
+                            [classes.inline]: true,
+                            [classes.verticalAlignTop]: true,
+                          })}
+                        >
+                          <div className={classes.paddingLeft}>
+                            {n?.otherOrganization?.name}
+                          </div>
+                        </Grid>
+                        <Grid item xs={4} container className={classes.inline}>
+                          <AutoCompleteSearch
+                            searchText={searchText}
+                            onClick={(id: string) => {
+                              {
+                                values.orgUserRelationships[i].attributes.push({
+                                  endorsementId: id,
+                                });
+                              }
+                            }}
+                            options={orgEndorsements}
+                            setSearchText={setSearchText}
+                            placeholder={t("search")}
+                            useLabel={false}
+                          />
+                          {n?.attributes?.length === 0 ? (
+                            <div></div>
+                          ) : (
+                            n?.attributes?.map((endorsement: any, j) => (
+                              <EndorsementDetail
+                                key={j}
+                                onRemoveEndorsement={() => {
+                                  {
+                                    values.orgUserRelationships[
+                                      i
+                                    ]?.attributes.splice(j, 1);
+                                    setFieldValue(
+                                      "orgUserRelationships",
+                                      values.orgUserRelationships
+                                    );
+
+                                    handleSubmit();
+                                  }
+                                }}
+                                expirationDate={endorsement?.expirationDate}
+                                orgRelationshipIndex={i}
+                                endorsementIndex={j}
+                                name={endorsement.name}
+                                setFieldValue={setFieldValue}
+                                submitForm={submitForm}
+                              />
+                            ))
+                          )}
+                        </Grid>
+                        <Grid
+                          item
+                          xs={4}
+                          container
+                          className={clsx({
+                            [classes.inline]: true,
+                            [classes.verticalAlignTop]: true,
+                          })}
+                        >
+                          <TextButton
+                            className={clsx({
+                              [classes.paddingRight]: true,
+                              [classes.floatRight]: true,
+                              [classes.linkText]: true,
+                            })}
+                            onClick={() =>
+                              onRemoveOrg(n.otherOrganization?.orgId ?? "")
+                            }
+                          >
+                            {t("Remove")}
+                          </TextButton>
+                        </Grid>
+                      </Grid>
+                    </div>
+                  );
+                }
+              })
+            )}
+          </Section>
+        </form>
       )}
-    </Section>
+    </Formik>
   );
 };
 
@@ -154,6 +191,9 @@ const useStyles = makeStyles(theme => ({
   },
   paddingLeft: {
     paddingLeft: theme.spacing(2),
+  },
+  linkText: {
+    color: theme.customColors.primary,
   },
   background: {
     backgroundColor: theme.customColors.lightGray,
