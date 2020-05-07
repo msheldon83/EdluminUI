@@ -278,7 +278,7 @@ export const convertReportDefinitionInputToRdl = (
   const selects = input.select;
   if (forExport && input.subtotalBy && input.subtotalBy.length > 0) {
     // When exporting a grouped report, we need to make sure
-    // the things we are gouping by are representing in the data
+    // the things we are gouping by are represented in the data
     // that is going to be put into the file
     for (let i = input.subtotalBy.length - 1; i >= 0; i--) {
       const subtotalBy = input.subtotalBy[i];
