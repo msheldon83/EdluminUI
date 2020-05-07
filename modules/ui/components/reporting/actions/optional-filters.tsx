@@ -95,7 +95,7 @@ export const OptionalFilters: React.FC<Props> = props => {
           <Fade {...TransitionProps} timeout={150}>
             <div>
               <ClickAwayListener
-                mouseEvent="onMouseDown"
+                mouseEvent="onClick"
                 onClickAway={async () => {
                   setFiltersOpen(false);
                   await refreshReport();
