@@ -15,7 +15,7 @@ export type LinkOptions = {
 };
 
 type Props = {
-  permissions: CanDo;
+  permissions?: CanDo;
   to: {
     pathname: string;
     hash: string;
@@ -49,19 +49,25 @@ export const BaseLink: React.FC<Props> = ({
   const classes = useStyles();
   const text = <span className={textClass}>{children}</span>;
   if (disabled) return text;
+
+  const linkClasses = clsx(
+    classes.root,
+    classes.underlineHover,
+    linkClass,
+    classes[color]
+  );
+  if (!permissions) {
+    return (
+      <Link className={linkClasses} to={to}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
     <>
       <Can do={permissions}>
-        <Link
-          className={clsx(
-            classes.root,
-            classes.underlineHover,
-            linkClass,
-            classes[color]
-          )}
-          to={to}
-          target={target}
-        >
+        <Link className={linkClasses} to={to} target={target}>
           {children}
         </Link>
       </Can>

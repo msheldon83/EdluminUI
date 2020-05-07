@@ -92,6 +92,19 @@ export const ShowErrors = (
   });
 };
 
+export const ShowNetworkErrors = (
+  error: ApolloError,
+  openSnackbar: (snackbarConfig: SnackbarHookType) => void
+) => {
+  const message = error.networkError?.message;
+
+  openSnackbar({
+    message: <div>{message}</div>,
+    dismissable: true,
+    status: "error",
+  });
+};
+
 //Used for handling Yup errors
 export const ShowGenericErrors = (
   error: { errors: string[] },

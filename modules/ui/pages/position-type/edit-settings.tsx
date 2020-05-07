@@ -78,7 +78,8 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
           minAbsenceDurationMinutes: number,
           payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
           payCodeId: string | undefined | null,
-          defaultContractId?: string | null
+          defaultContractId?: string | null,
+          code?: string | null
         ) => {
           const positionTypeSettings: PositionTypeUpdateInput = {
             id: positionType.id,
@@ -90,6 +91,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
             defaultContractId: defaultContractId,
             payTypeId: payTypeId,
             payCodeId: payCodeId,
+            code,
           };
 
           // Update the Position Type

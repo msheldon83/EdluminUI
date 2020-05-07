@@ -242,11 +242,13 @@ export const AccessControl: React.FC<Props> = props => {
                           description={
                             editingThis ? (
                               <SelectNew
-                                value={permissionSetOptions.find(
-                                  e =>
-                                    e.value &&
-                                    e.value === values.permissionSetId
-                                )}
+                                value={
+                                  permissionSetOptions.find(
+                                    e =>
+                                      e.value &&
+                                      e.value === values.permissionSetId
+                                  ) ?? { label: "", value: "" }
+                                }
                                 multiple={false}
                                 onChange={(value: OptionType) => {
                                   const id = (value as OptionTypeBase).value;
@@ -338,13 +340,15 @@ export const AccessControl: React.FC<Props> = props => {
                                       setLocationGroupsSelected(ids);
                                     }}
                                     options={locationGroupOptions}
-                                    value={locationGroupOptions.filter(
-                                      e =>
-                                        e.value &&
-                                        values.locationGroupIds.includes(
-                                          e.value.toString()
-                                        )
-                                    )}
+                                    value={
+                                      locationGroupOptions.filter(
+                                        e =>
+                                          e.value &&
+                                          values.locationGroupIds.includes(
+                                            e.value.toString()
+                                          )
+                                      ) ?? { label: "", value: "" }
+                                    }
                                     multiple={true}
                                   />
                                 </div>
@@ -358,13 +362,15 @@ export const AccessControl: React.FC<Props> = props => {
                                       setFieldValue("locationIds", ids);
                                     }}
                                     options={locationOptions}
-                                    value={locationOptions.filter(
-                                      e =>
-                                        e.value &&
-                                        values.locationIds.includes(
-                                          e.value.toString()
-                                        )
-                                    )}
+                                    value={
+                                      locationOptions.filter(
+                                        e =>
+                                          e.value &&
+                                          values.locationIds.includes(
+                                            e.value.toString()
+                                          )
+                                      ) ?? { label: "", value: "" }
+                                    }
                                     multiple={true}
                                     inputStatus={
                                       errors.locationIds ? "error" : undefined
@@ -437,13 +443,15 @@ export const AccessControl: React.FC<Props> = props => {
                                     setFieldValue("positionTypeIds", ids);
                                   }}
                                   options={positionTypesOptions}
-                                  value={positionTypesOptions.filter(
-                                    e =>
-                                      e.value &&
-                                      values.positionTypeIds.includes(
-                                        e.value.toString()
-                                      )
-                                  )}
+                                  value={
+                                    positionTypesOptions.filter(
+                                      e =>
+                                        e.value &&
+                                        values.positionTypeIds.includes(
+                                          e.value.toString()
+                                        )
+                                    ) ?? { label: "", value: "" }
+                                  }
                                   multiple={true}
                                   inputStatus={
                                     errors.positionTypeIds ? "error" : undefined

@@ -17,6 +17,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveSubstitute } from "../../graphql/substitute/save-substitute.gen";
 import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
+import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import {
@@ -51,7 +52,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   });
   const [subAttributes, setSubAttributes] = React.useState<Attribute[]>([]);
 
-  const getOrgUser = useQueryBundle(GetOrgUserById, {
+  const getOrgUser = useQueryBundle(GetSubstituteById, {
     variables: { id: params.orgUserId },
     skip: params.orgUserId === "new",
   });
@@ -74,11 +75,31 @@ export const SubstituteAddPage: React.FC<{}> = props => {
         lastName: orgUser.lastName,
         externalId: orgUser.externalId,
         email: orgUser.email,
+        address1: orgUser.address1,
+        city: orgUser.city,
+        state: orgUser.state,
+        country: orgUser.country,
+        postalCode: orgUser.postalCode,
+        phoneNumber: orgUser.phoneNumber,
+        dateOfBirth: orgUser.dateOfBirth,
       });
       setInitialStepNumber(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgUser, params.organizationId]);
+
+  useEffect(() => {
+    if (orgUser) {
+      setSubAttributes(
+        orgUser.originalSubstitute?.attributes.map(o => ({
+          endorsementId: o.endorsement.id,
+          name: o.endorsement.name,
+          expirationDate: o.expirationDate,
+          expires: o.endorsement.expires,
+        })) ?? []
+      );
+    }
+  }, [orgUser]);
 
   const handleCancel = () => {
     const url =
@@ -94,6 +115,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <AddBasicInfo
+        orgId={params.organizationId}
         orgUser={substitute}
         onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setSubstitute({

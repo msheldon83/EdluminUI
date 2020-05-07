@@ -51,6 +51,7 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
   const updateAbsenceReasonCategory = async (updatedValues: {
     allowNegativeBalance: boolean;
     description?: string;
+    code?: string;
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   }) => {
     if (getAbsenceReasonCategory.state !== "DONE") {
@@ -61,6 +62,7 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
     const {
       allowNegativeBalance,
       description,
+      code,
       absenceReasonTrackingTypeId: absenceReasonTrackingId,
     } = updatedValues;
 
@@ -71,6 +73,7 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
           rowVersion: reason.rowVersion,
           allowNegativeBalance,
           description,
+          code,
           absenceReasonTrackingId,
         },
       },
@@ -96,6 +99,7 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
 
       <AbsenceReasonCategorySettings
         description={absenceReasonCategory.description || undefined}
+        code={absenceReasonCategory.code || undefined}
         allowNegativeBalance={absenceReasonCategory.allowNegativeBalance}
         absenceReasonTrackingTypeId={
           absenceReasonCategory.absenceReasonTrackingTypeId || undefined

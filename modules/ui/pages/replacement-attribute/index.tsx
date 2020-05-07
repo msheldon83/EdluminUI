@@ -143,7 +143,7 @@ export const ReplacementAttribute: React.FC<Props> = props => {
       editable: "always",
     },
     {
-      title: t("External Id"),
+      title: t("Identifier"),
       field: "externalId",
       searchable: true,
       hidden: isMobile,

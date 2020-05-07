@@ -157,7 +157,7 @@ export const LocationViewPage: React.FC<{}> = props => {
       />
       <PageHeader
         text={location.externalId}
-        label={t("External ID")}
+        label={t("Identifier")}
         editable={editing === null}
         onEdit={() => setEditing(editableSections.externalId)}
         editPermissions={(

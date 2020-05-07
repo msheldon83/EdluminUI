@@ -116,7 +116,7 @@ export const VacancyView: React.FC<Props> = props => {
       <PageTitle title={t("Vacancy")} withoutHeading />
       <div className={classes.titleContainer}>
         <Typography className={classes.title} variant="h5">
-          {t("Vacancy")}
+          {`${t("Edit Vacancy #V")}${vacancy.id}`}
         </Typography>
         <div className={classes.headerMenu}>
           <ActionMenu
