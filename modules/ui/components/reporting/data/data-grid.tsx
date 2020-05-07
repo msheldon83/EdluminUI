@@ -65,12 +65,15 @@ export const DataGrid: React.FC<Props> = props => {
   }, [groupedData]);
 
   const numberOfLockedColumns = React.useMemo(() => {
-    return metadata.numberOfLockedColumns;
-  }, [metadata]);
+    return rows.length > 0 ? metadata.numberOfLockedColumns : 0;
+  }, [metadata, rows.length]);
 
   const isGrouped = React.useMemo(() => {
     return (metadata.query.subtotalBy ?? []).length > 0;
   }, [metadata]);
+
+  const dataGridHeight = 75;
+  const summaryGridHeight = 50;
 
   return (
     <>
@@ -89,7 +92,7 @@ export const DataGrid: React.FC<Props> = props => {
                   numberOfLockedColumns={numberOfLockedColumns}
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
-                  height={50}
+                  height={dataGridHeight}
                   width={width}
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
@@ -99,7 +102,7 @@ export const DataGrid: React.FC<Props> = props => {
                     )
                   }
                 />
-                {!isGrouped && groupedData[0]?.subtotals && (
+                {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (
                   <MultiGrid
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
@@ -108,6 +111,7 @@ export const DataGrid: React.FC<Props> = props => {
                     cellRenderer={props =>
                       summaryHeaderRenderer(
                         groupedData[0]?.subtotals,
+                        rows.length,
                         props,
                         classes,
                         t
@@ -122,12 +126,12 @@ export const DataGrid: React.FC<Props> = props => {
                     }
                     estimatedColumnSize={120}
                     columnCount={metadata.numberOfColumns ?? 0}
-                    height={50}
-                    rowHeight={50}
+                    height={summaryGridHeight}
+                    rowHeight={summaryGridHeight}
                     rowCount={1}
                     width={width}
-                    classNameBottomLeftGrid={classes.dataGridLockedColumns}
-                    classNameBottomRightGrid={classes.dataGrid}
+                    classNameTopLeftGrid={classes.dataGridLockedColumns}
+                    classNameTopRightGrid={classes.dataGrid}
                     style={isLoading ? { opacity: 0.5 } : undefined}
                   />
                 )}
@@ -135,7 +139,9 @@ export const DataGrid: React.FC<Props> = props => {
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
                   fixedColumnCount={numberOfLockedColumns}
-                  cellRenderer={props => cellRenderer(rows, props, classes, showGroupLabels)}
+                  cellRenderer={props =>
+                    cellRenderer(rows, props, classes, t, showGroupLabels)
+                  }
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
                       params,
@@ -145,7 +151,12 @@ export const DataGrid: React.FC<Props> = props => {
                   }
                   estimatedColumnSize={120}
                   columnCount={metadata.numberOfColumns ?? 0}
-                  height={height - (isGrouped ? 50 : 100)}
+                  height={
+                    height -
+                    (isGrouped
+                      ? dataGridHeight
+                      : dataGridHeight + summaryGridHeight)
+                  }
                   rowHeight={(params: Index) =>
                     calculateRowHeight(params, rows)
                   }
@@ -182,6 +193,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "rgba(255,255,255, 1)",
     borderRight: "1px solid #E5E5E5",
     borderBottom: "1px solid #E5E5E5",
+    borderLeft: "1px solid #E5E5E5",
   },
   mainGroupHeaderRow: {
     borderTop: "1px solid #E5E5E5",
@@ -191,26 +203,30 @@ const useStyles = makeStyles(theme => ({
   mainGroupHeaderFirstCell: {
     //borderTopLeftRadius: 10,
   },
+  groupHeaderRow: {
+    backgroundColor: "#F8F8F8",
+    borderTop: "1px solid #E5E5E5",
+    borderBottom: "1px solid #E5E5E5",
+    height: "100%",
+    fontWeight: 600,
+  },
   groupHeaderFirstCell: {
     marginLeft: theme.typography.pxToRem(10),
-    backgroundColor: "#C8C8C8",
-    borderTop: "1px solid #E5E5E5",
-    borderBottom: "1px solid #E5E5E5",
     borderLeft: "1px solid #E5E5E5",
-    height: "100%",
+    paddingTop: 0,
   },
   groupHeaderCell: {
-    backgroundColor: "#C8C8C8",
-    borderTop: "1px solid #E5E5E5",
-    borderBottom: "1px solid #E5E5E5",
-    height: "100%",
     padding: 10,
+  },
+  groupHeaderLayout: {
+    display: "flex",
+    justifyContent: "space-between",
   },
   groupNesting: {
     marginLeft: 10,
     height: "100%",
     borderLeft: "1px solid #E5E5E5",
-    backgroundColor: "#C8C8C8",
+    backgroundColor: "#F8F8F8",
   },
   firstGroupedDataCell: {
     padding: theme.typography.pxToRem(10),
@@ -223,10 +239,10 @@ const useStyles = makeStyles(theme => ({
     background: "rgba(255,255,255, 1)",
     height: "100%",
     borderBottom: "1px solid #E5E5E5",
+    borderTop: "1px solid #E5E5E5",
   },
   alternatingDataRow: {
-    background: "#F0F0F0",
-    borderBottom: "1px solid #E5E5E5",
+    background: "#F8F8F8",
     height: "100%",
   },
   action: {
@@ -257,12 +273,13 @@ const useStyles = makeStyles(theme => ({
 
 const summaryHeaderRenderer = (
   subtotals: any[],
+  rowCount: number,
   { columnIndex, key, style }: GridCellProps,
   classes: any,
   t: TFunction
 ) => {
   const cellClasses = clsx({
-    [classes.summaryRowHeader]: columnIndex === 0,
+    [classes.summaryRowHeader]: true,
     [classes.cell]: true,
     [classes.summaryRow]: true,
   });
@@ -270,7 +287,7 @@ const summaryHeaderRenderer = (
   if (columnIndex === 0) {
     return (
       <div key={key} style={style} className={cellClasses}>
-        {t("Summary")}
+        {`${rowCount} ${rowCount === 1 ? t("row") : t("rows")}`}
       </div>
     );
   }
@@ -330,13 +347,15 @@ const groupHeaderCellRenderer = (
   level: number,
   { columnIndex, key, style }: GridCellProps,
   classes: any,
+  t: TFunction,
   showGroupLabels: boolean
 ) => {
   const dataClasses = clsx({
+    [classes.groupHeaderRow]: true,
     [classes.groupHeaderFirstCell]: columnIndex === 0,
+    [classes.groupHeaderCell]: columnIndex > 0,
     [classes.mainGroupHeaderRow]: level === 0,
     [classes.mainGroupHeaderFirstCell]: columnIndex === 0 && level === 0,
-    [classes.groupHeaderCell]: columnIndex > 0,
   });
 
   if (columnIndex === 0) {
@@ -346,9 +365,14 @@ const groupHeaderCellRenderer = (
           {nestDivs(
             0,
             level,
-            <div className={classes.cell}>
-              {showGroupLabels && <div>{group.info?.displayName}</div>}
-              <div>{group.info?.displayValue}</div>
+            <div className={`${classes.cell} ${classes.groupHeaderLayout}`}>
+              <div>
+                {showGroupLabels && <div>{group.info?.displayName}</div>}
+                <div>{group.info?.displayValue}</div>
+              </div>
+              <div>{`${group.data.length} ${
+                group.data.length === 1 ? t("row") : t("rows")
+              }`}</div>
             </div>,
             classes.groupNesting
           )}
@@ -364,7 +388,13 @@ const groupHeaderCellRenderer = (
   );
 };
 
-const cellRenderer = (rows: Row[], gridProps: GridCellProps, classes: any, showGroupLabels: boolean) => {
+const cellRenderer = (
+  rows: Row[],
+  gridProps: GridCellProps,
+  classes: any,
+  t: TFunction,
+  showGroupLabels: boolean
+) => {
   const row = rows[gridProps.rowIndex];
   if (Array.isArray(row.item)) {
     return dataCellRenderer(
@@ -375,7 +405,14 @@ const cellRenderer = (rows: Row[], gridProps: GridCellProps, classes: any, showG
       classes
     );
   } else {
-    return groupHeaderCellRenderer(row.item, row.level, gridProps, classes, showGroupLabels);
+    return groupHeaderCellRenderer(
+      row.item,
+      row.level,
+      gridProps,
+      classes,
+      t,
+      showGroupLabels
+    );
   }
 };
 
