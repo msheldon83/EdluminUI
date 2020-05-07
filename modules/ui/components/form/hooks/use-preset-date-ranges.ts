@@ -42,10 +42,10 @@ const getThisSchoolYearDateRange = () => {
   return { start: startOfMonth(start), end: endOfMonth(end) };
 };
 
-export const usePresetDateRanges = () => {
+export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
   const { t } = useTranslation();
 
-  return [
+  return ([
     {
       label: t("Today"),
       value: "today",
@@ -175,5 +175,5 @@ export const usePresetDateRanges = () => {
         };
       },
     },
-  ];
+  ] as PresetRange[]).concat(additionalPresets ?? []);
 };

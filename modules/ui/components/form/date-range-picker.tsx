@@ -19,14 +19,30 @@ import {
   DateRange,
 } from "./hooks/use-preset-date-ranges";
 
-export const DateRangePicker = () => {
+type DateRangePickerProps = {
+  startDate?: Date;
+  endDate?: Date;
+  onDateRangeSelected: (start: Date, end: Date) => void;
+  defaultMonth?: Date;
+  additionalPresets?: PresetRange[];
+};
+
+export const DateRangePicker = (props: DateRangePickerProps) => {
   const classes = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const presetRanges = usePresetDateRanges();
+  const {
+    onDateRangeSelected,
+    defaultMonth = new Date(),
+    additionalPresets,
+    startDate,
+    endDate,
+  } = props;
 
-  const [startMonth, setStartMonth] = React.useState(new Date());
+  const presetRanges = usePresetDateRanges(additionalPresets);
+
+  const [startMonth, setStartMonth] = React.useState(defaultMonth);
   const [selectedDates, setSelectedDates] = React.useState<CustomDate[]>([]);
   const [highlightedDates, setHighlightedDates] = React.useState<CustomDate[]>(
     []
@@ -57,51 +73,61 @@ export const DateRangePicker = () => {
     setRange({ start: date, end: date });
   };
 
-  const setRange = ({ start, end }: DateRange) => {
-    const selectedDates = eachDayOfInterval({ start, end }).map(date => {
-      return {
-        date,
-        buttonProps: {
-          style: {
-            // TODO: make this configurable
-            background: theme.calendar.selected,
-            color: theme.customColors.white,
+  const setRange = React.useCallback(
+    ({ start, end }: DateRange) => {
+      const selectedDates = eachDayOfInterval({ start, end }).map(date => {
+        return {
+          date,
+          buttonProps: {
+            style: {
+              // TODO: make this configurable
+              background: theme.calendar.selected,
+              color: theme.customColors.white,
+            },
           },
-        },
-      };
-    });
+        };
+      });
 
-    const endMonth = addMonth(startMonth, 1);
-    const startMonthDate = startOfMonth(startMonth);
-    const endMonthDate = endOfMonth(endMonth);
+      const endMonth = addMonth(startMonth, 1);
+      const startMonthDate = startOfMonth(startMonth);
+      const endMonthDate = endOfMonth(endMonth);
 
-    const dateVisible = isWithinInterval(end, {
-      start: startMonthDate,
-      end: endMonthDate,
-    });
+      const dateVisible = isWithinInterval(end, {
+        start: startMonthDate,
+        end: endMonthDate,
+      });
 
-    /*
+      /*
       TODO: handle case where not all dates are visible when doing this
       For example, click "last week" or "last school year" in presets may not show all days.
 
       Need to make sure they're all visible
     */
 
-    // End date of range will show on the left side
-    if (!dateVisible && isAfter(endMonthDate, end)) {
-      setStartMonth(end);
-    }
+      // End date of range will show on the left side
+      if (!dateVisible && isAfter(endMonthDate, end)) {
+        setStartMonth(end);
+      }
 
-    // End date of range will show on the right side
-    if (!dateVisible && isBefore(startMonthDate, end)) {
-      setStartMonth(addMonth(end, -1));
-    }
+      // End date of range will show on the right side
+      if (!dateVisible && isBefore(startMonthDate, end)) {
+        setStartMonth(addMonth(end, -1));
+      }
 
-    setSelectedDates(selectedDates);
+      setSelectedDates(selectedDates);
 
-    setStartDateInput(start);
-    setEndDateInput(end);
-  };
+      setStartDateInput(start);
+      setEndDateInput(end);
+
+      onDateRangeSelected(start, end);
+    },
+    [
+      onDateRangeSelected,
+      startMonth,
+      theme.calendar.selected,
+      theme.customColors.white,
+    ]
+  );
 
   const handleDateClick = (date: Date) => {
     // Any change to the calendar should reset the preset dropdown
@@ -205,6 +231,12 @@ export const DateRangePicker = () => {
   const calendarDates = React.useMemo(() => {
     return selectedDates.concat(highlightedDates);
   }, [selectedDates, highlightedDates]);
+
+  React.useEffect(() => {
+    if (startDate !== undefined && endDate !== undefined) {
+      setRange({ start: startDate, end: endDate });
+    }
+  }, [startDate, endDate, setRange]);
 
   return (
     <div className={classes.container}>

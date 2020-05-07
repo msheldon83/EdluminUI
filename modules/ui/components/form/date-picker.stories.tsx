@@ -18,12 +18,24 @@ export default {
 export const DateRangePickerStory = () => {
   const classes = useStyles();
 
-  const [startDate, setStartDate] = React.useState<Date | string>(new Date());
-  const [endDate, setEndDate] = React.useState<Date | string | undefined>();
+  const [startDate, setStartDate] = React.useState<Date | undefined>();
+  const [endDate, setEndDate] = React.useState<Date | undefined>();
 
   return (
     <div className={classes.container} style={{ maxWidth: "700px" }}>
-      <DateRangePicker />
+      <DateRangePicker
+        startDate={startDate}
+        endDate={endDate}
+        onDateRangeSelected={(start, end) => {
+          action("onDateRangeSelected")({
+            start,
+            end,
+          });
+
+          setStartDate(start);
+          setEndDate(end);
+        }}
+      />
     </div>
   );
 };
