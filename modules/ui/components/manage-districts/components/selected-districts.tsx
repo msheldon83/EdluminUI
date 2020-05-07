@@ -38,8 +38,21 @@ export const SelectedDistrict: React.FC<Props> = props => {
   return (
     <Section>
       <SectionHeader title={t("Selected districts")} />
-      <Grid item xs={4} container className={classes.inline}>
-        {t("Name")}
+      <Grid
+        item
+        xs={4}
+        container
+        className={clsx({
+          [classes.inline]: true,
+        })}
+      >
+        <div
+          className={clsx({
+            [classes.paddingLeft]: true,
+          })}
+        >
+          {t("Name")}
+        </div>
       </Grid>
       <Grid item xs={4} container className={classes.inline}>
         {t("District specific attributes")}
@@ -56,9 +69,18 @@ export const SelectedDistrict: React.FC<Props> = props => {
               xs={12}
               className={clsx({
                 [classes.background]: i % 2,
+                [classes.containerPadding]: true,
               })}
             >
-              <Grid item xs={4} container className={classes.inline}>
+              <Grid
+                item
+                xs={4}
+                container
+                className={clsx({
+                  [classes.inline]: true,
+                  [classes.verticalAlignTop]: true,
+                })}
+              >
                 <div className={classes.paddingLeft}>
                   {n?.otherOrganization?.name}
                 </div>
@@ -89,10 +111,18 @@ export const SelectedDistrict: React.FC<Props> = props => {
                   ))
                 )}
               </Grid>
-              <Grid item xs={4} container className={classes.inline}>
+              <Grid
+                item
+                xs={4}
+                container
+                className={clsx({
+                  [classes.inline]: true,
+                  [classes.verticalAlignTop]: true,
+                })}
+              >
                 <TextButton
                   className={clsx({
-                    [classes.padding]: true,
+                    [classes.paddingRight]: true,
                     [classes.floatRight]: true,
                   })}
                   onClick={() => onRemoveOrg(n?.otherOrganization?.id ?? "")}
@@ -115,13 +145,20 @@ const useStyles = makeStyles(theme => ({
   floatRight: {
     float: "right",
   },
-  padding: {
-    padding: theme.spacing(2),
+  verticalAlignTop: {
+    verticalAlign: "top",
+    paddingTop: theme.spacing(2),
+  },
+  paddingRight: {
+    paddingRight: theme.spacing(2),
   },
   paddingLeft: {
     paddingLeft: theme.spacing(2),
   },
   background: {
     backgroundColor: theme.customColors.lightGray,
+  },
+  containerPadding: {
+    paddingBottom: theme.spacing(1),
   },
 }));

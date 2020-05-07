@@ -46,9 +46,9 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
       <Autocomplete
         id="autocomplete-on-select"
         freeSolo
-        selectOnFocus
+        selectOnFocus={true}
         clearOnEscape
-        autoComplete={true}
+        autoComplete
         getOptionLabel={o => {
           return o.label;
         }}
@@ -56,10 +56,14 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
         renderInput={params => (
           <TextField
             {...params}
-            label={props.placeholder}
+            placeholder={props.placeholder}
             margin="normal"
             variant="outlined"
             className={classes.searchInput}
+            inputProps={{
+              ...params.inputProps,
+              className: classes.inputHeight,
+            }}
             onChange={(e: any) => updateSearchText(e)}
           />
         )}
@@ -71,7 +75,6 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
               ? props.onClick(selectedValue.toString(), props?.orgId)
               : props.onClick(selectedValue.toString());
           }
-          //props.options.length = 0;
         }}
       />
     </>
@@ -81,9 +84,11 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   searchInput: {
     width: "100%",
-    height: "70%",
   },
   boldFont: {
     fontWeight: 600,
+  },
+  inputHeight: {
+    height: "30px",
   },
 }));

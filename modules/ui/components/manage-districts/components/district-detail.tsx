@@ -1,7 +1,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
-import { Divider, Grid, makeStyles, Typography } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { CustomEndorsement } from "../helpers";
 import { DateInput } from "ui/components/form/date-input";
 
@@ -29,6 +29,8 @@ export const DistrictDetail: React.FC<Props> = props => {
   } = props;
   const e = endorsement;
 
+  const [dateValue, setDateValue] = React.useState<Date>(expirationDate);
+
   const customEndorsement: CustomEndorsement = {
     id: e?.id ?? "",
     orgId: orgId,
@@ -52,23 +54,18 @@ export const DistrictDetail: React.FC<Props> = props => {
         <Grid item xs={5} className={classes.displayInline}>
           <DateInput
             className={classes.displayInline}
-            value={customEndorsement?.expirationDate ?? ""}
+            value={dateValue}
             placeholder="Expires"
             onChange={(date: string) => {
-              //setFieldValue("dateOfBirth", date)
-              //mutationObject
+              const dateConversion = new Date(date);
+              setDateValue(dateConversion);
 
-              console.log(date);
-
-              onChangeEndorsement(customEndorsement);
+              console.log(dateValue);
+              //onChangeEndorsement(customEndorsement);
             }}
-            onValidDate={date =>
-              //setFieldValue("dateOfBirth", date)
-
-              //this.target
-
-              console.log(date)
-            }
+            onValidDate={date => {
+              setDateValue(date);
+            }}
           />
         </Grid>
         <Grid
