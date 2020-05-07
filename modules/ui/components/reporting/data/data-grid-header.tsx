@@ -71,7 +71,7 @@ export const DataGridHeader: React.FC<Props> = props => {
         height={height}
         rowHeight={height}
         rowCount={1}
-        classNameTopLeftGrid={classes.headerGridLockedColumns}
+        classNameBottomLeftGrid={classes.headerGridLockedColumns}
         classNameBottomRightGrid={classes.headerGrid}
         styleBottomRightGrid={{
           overflowY: "hidden",
