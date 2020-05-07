@@ -130,8 +130,8 @@ export const DataGrid: React.FC<Props> = props => {
                     rowHeight={summaryGridHeight}
                     rowCount={1}
                     width={width}
-                    classNameBottomLeftGrid={classes.dataGridLockedColumns}
-                    classNameBottomRightGrid={classes.dataGrid}
+                    classNameTopLeftGrid={classes.dataGridLockedColumns}
+                    classNameTopRightGrid={classes.dataGrid}
                     style={isLoading ? { opacity: 0.5 } : undefined}
                   />
                 )}
@@ -203,27 +203,24 @@ const useStyles = makeStyles(theme => ({
   mainGroupHeaderFirstCell: {
     //borderTopLeftRadius: 10,
   },
+  groupHeaderRow: {
+    backgroundColor: "#F8F8F8",
+    borderTop: "1px solid #E5E5E5",
+    borderBottom: "1px solid #E5E5E5",
+    height: "100%",
+    fontWeight: 600,
+  },
   groupHeaderFirstCell: {
     marginLeft: theme.typography.pxToRem(10),
-    backgroundColor: "#C8C8C8",
-    borderTop: "1px solid #E5E5E5",
-    borderBottom: "1px solid #E5E5E5",
     borderLeft: "1px solid #E5E5E5",
-    height: "100%",
+    paddingTop: 0,
   },
   groupHeaderCell: {
-    backgroundColor: "#C8C8C8",
-    borderTop: "1px solid #E5E5E5",
-    borderBottom: "1px solid #E5E5E5",
-    height: "100%",
     padding: 10,
   },
   groupHeaderLayout: {
     display: "flex",
     justifyContent: "space-between",
-  },
-  groupHeaderText: {
-    fontWeight: 600,
   },
   groupNesting: {
     marginLeft: 10,
@@ -242,6 +239,7 @@ const useStyles = makeStyles(theme => ({
     background: "rgba(255,255,255, 1)",
     height: "100%",
     borderBottom: "1px solid #E5E5E5",
+    borderTop: "1px solid #E5E5E5",
   },
   alternatingDataRow: {
     background: "#F0F0F0",
@@ -282,7 +280,7 @@ const summaryHeaderRenderer = (
   t: TFunction
 ) => {
   const cellClasses = clsx({
-    [classes.summaryRowHeader]: columnIndex === 0,
+    [classes.summaryRowHeader]: true,
     [classes.cell]: true,
     [classes.summaryRow]: true,
   });
@@ -354,10 +352,11 @@ const groupHeaderCellRenderer = (
   showGroupLabels: boolean
 ) => {
   const dataClasses = clsx({
+    [classes.groupHeaderRow]: true,
     [classes.groupHeaderFirstCell]: columnIndex === 0,
+    [classes.groupHeaderCell]: columnIndex > 0,
     [classes.mainGroupHeaderRow]: level === 0,
     [classes.mainGroupHeaderFirstCell]: columnIndex === 0 && level === 0,
-    [classes.groupHeaderCell]: columnIndex > 0,
   });
 
   if (columnIndex === 0) {
@@ -368,7 +367,7 @@ const groupHeaderCellRenderer = (
             0,
             level,
             <div className={`${classes.cell} ${classes.groupHeaderLayout}`}>
-              <div className={classes.groupHeaderText}>
+              <div>
                 {showGroupLabels && <div>{group.info?.displayName}</div>}
                 <div>{group.info?.displayValue}</div>
               </div>
