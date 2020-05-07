@@ -47,31 +47,43 @@ export const BaseLink: React.FC<Props> = ({
   target = "_self",
 }) => {
   const classes = useStyles();
-
   const text = <span className={textClass}>{children}</span>;
   if (disabled) return text;
 
-  const link = (
-    <Link
-      className={clsx(
-        classes.root,
-        classes.underlineHover,
-        linkClass,
-        classes[color]
-      )}
-      to={to}
-      target={target}
-    >
-      {children}
-    </Link>
+  const linkClasses = clsx(
+    classes.root,
+    classes.underlineHover,
+    linkClass,
+    classes[color]
   );
   if (!permissions) {
-    return link;
+    return (
+      <Link className={linkClasses} to={to}>
+        {children}
+      </Link>
+    );
   }
 
   return (
     <>
-      <Can do={permissions}>{link}</Can>
+      <Can do={permissions}>
+<<<<<<< HEAD
+        <Link
+          className={clsx(
+            classes.root,
+            classes.underlineHover,
+            linkClass,
+            classes[color]
+          )}
+          to={to}
+          target={target}
+        >
+=======
+        <Link className={linkClasses} to={to}>
+>>>>>>> master
+          {children}
+        </Link>
+      </Can>
       {displayText && (
         <Can not do={permissions}>
           {text}
