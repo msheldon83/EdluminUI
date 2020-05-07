@@ -226,7 +226,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 10,
     height: "100%",
     borderLeft: "1px solid #E5E5E5",
-    backgroundColor: "#C8C8C8",
+    backgroundColor: "#F8F8F8",
   },
   firstGroupedDataCell: {
     padding: theme.typography.pxToRem(10),
@@ -242,8 +242,7 @@ const useStyles = makeStyles(theme => ({
     borderTop: "1px solid #E5E5E5",
   },
   alternatingDataRow: {
-    background: "#F0F0F0",
-    borderBottom: "1px solid #E5E5E5",
+    background: "#F8F8F8",
     height: "100%",
   },
   action: {

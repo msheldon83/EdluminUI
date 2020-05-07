@@ -111,11 +111,13 @@ const useStyles = makeStyles(theme => ({
     background: "#F8F8F8",
     borderLeft: "1px solid #E5E5E5",
     borderRight: "1px solid #D1D1D1",
+    boxShadow: "inset -3px 0px 3px rgba(0, 0, 0, 0.05)",
   },
   headerGrid: {
     background: "#F8F8F8",
     borderRight: "1px solid #E5E5E5",
     borderLeft: "1px solid #E5E5E5",
+    boxShadow: "inset -3px 0px 3px rgba(0, 0, 0, 0.05)",
   },
   headerCell: {
     borderTop: "1px solid #E5E5E5",
