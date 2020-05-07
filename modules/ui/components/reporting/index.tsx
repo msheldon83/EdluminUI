@@ -123,7 +123,9 @@ export const Report: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   actions: {
-    padding: theme.spacing(3),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingTop: theme.spacing(3),
     borderTopWidth: theme.typography.pxToRem(1),
     borderLeftWidth: theme.typography.pxToRem(1),
     borderRightWidth: theme.typography.pxToRem(1),
@@ -137,9 +139,7 @@ const useStyles = makeStyles(theme => ({
   gridWrapper: {
     width: "100%",
     height: "100%",
-    paddingLeft: theme.spacing(3),
-    paddingRight: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
+    padding: theme.spacing(3),
     borderTopWidth: 0,
     borderBottomWidth: theme.typography.pxToRem(1),
     borderLeftWidth: theme.typography.pxToRem(1),
