@@ -11,6 +11,16 @@ export type LinkOptions = {
   color?: "blue" | "black";
   displayText?: boolean;
   disabled?: boolean;
+  /*
+  Target behaves as per <a> tag targets.
+  "_self", the default, opens in the current browsing context
+  "_blank" opens in a new tab usually, but can be a new window
+           based on user configuration
+  "_parent" opens in the parent of the current browsing context.
+          (Not added atm, but could be if needed later)
+  "_top" opens in the highest ancestor of the current browsing context.
+          (Not added atm, but could be if needed later)
+   */
   target?: "_self" | "_blank";
 };
 
@@ -51,6 +61,8 @@ export const BaseLink: React.FC<Props> = ({
   const text = <span className={textClass}>{children}</span>;
   if (disabled) return text;
 
+  const rel = target == "_self" ? "" : "noreferrer noopener";
+
   const link = (
     <Link
       className={clsx(
@@ -61,6 +73,7 @@ export const BaseLink: React.FC<Props> = ({
       )}
       to={to}
       target={target}
+      rel={rel}
     >
       {children}
     </Link>
