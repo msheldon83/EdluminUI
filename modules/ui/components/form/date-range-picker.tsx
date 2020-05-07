@@ -11,7 +11,6 @@ import isAfter from "date-fns/isAfter";
 import isWithinInterval from "date-fns/isWithinInterval";
 import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
-import format from "date-fns/format";
 import { DateInput } from "./date-input";
 import { CustomCalendar as Calendar, CustomDate } from "./custom-calendar";
 import { SelectNew as Select, OptionType } from "./select-new";
@@ -24,7 +23,7 @@ import {
 export type DateRangePickerProps = {
   startDate?: Date;
   endDate?: Date;
-  onDateRangeSelected: (start: Date, end: Date, string: string) => void;
+  onDateRangeSelected: (start: Date, end: Date) => void;
   defaultMonth?: Date;
   additionalPresets?: PresetRange[];
   contained?: boolean;
@@ -44,7 +43,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     contained = false,
   } = props;
 
-  const presetRanges = usePresetDateRanges(additionalPresets);
+  const { presetDateRanges } = usePresetDateRanges(additionalPresets);
 
   const [startMonth, setStartMonth] = React.useState(defaultMonth);
   const [selectedDates, setSelectedDates] = React.useState<CustomDate[]>([]);
@@ -76,15 +75,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   const restartRange = (date: Date) => {
     setRange({ start: date, end: date });
   };
-
-  const readableString = React.useCallback(() => {
-    const fallbackString =
-      startDate !== undefined && endDate !== undefined
-        ? `${format(startDate, "MMM d, yy")} - ${format(endDate, "MMM d, yy")}`
-        : "";
-
-    return selectedPreset?.label ?? fallbackString;
-  }, [endDate, selectedPreset, startDate]);
 
   const setRange = React.useCallback(
     ({ start, end }: DateRange) => {
@@ -132,11 +122,10 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       setStartDateInput(start);
       setEndDateInput(end);
 
-      onDateRangeSelected(start, end, readableString());
+      onDateRangeSelected(start, end);
     },
     [
       onDateRangeSelected,
-      readableString,
       startMonth,
       theme.calendar.selected,
       theme.customColors.white,
@@ -262,7 +251,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       <div className={classes.dateRangeSelectContainer}>
         <Select
           value={selectedPreset}
-          options={presetRanges}
+          options={presetDateRanges}
           label={t("Date Range")}
           multiple={false}
           onChange={handlePresetChange}
@@ -318,14 +307,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
           />
         </div>
       </div>
-      <div className={classes.actions}>
-        <div className={classes.cancelButton}>
-          <Button variant="outlined">Cancel</Button>
-        </div>
-        <div>
-          <Button variant="contained">Apply</Button>
-        </div>
-      </div>
     </div>
   );
 };
@@ -365,11 +346,4 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(2),
   },
   endDateInput: {},
-  actions: {
-    alignItems: "flex-end",
-    display: "flex",
-  },
-  cancelButton: {
-    flex: "1 0 auto",
-  },
 }));

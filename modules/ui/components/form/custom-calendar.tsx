@@ -401,7 +401,6 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
   },
   dates: {
     display: "grid",
-    // gridGap: theme.spacing(0.5),
     gridTemplateColumns: "repeat(7, 1fr)",
     listStyleType: "none",
     margin: 0,

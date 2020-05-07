@@ -51,22 +51,20 @@ export const DateRangePickerPopoverStory = () => {
 
   const [startDate, setStartDate] = React.useState<Date | undefined>();
   const [endDate, setEndDate] = React.useState<Date | undefined>();
-  const [readableString, setReadableString] = React.useState("");
 
   return (
     <div className={classes.container} style={{ maxWidth: "700px" }}>
       <DateRangePickerPopover
-        rangeSummary={readableString}
         startDate={startDate}
         endDate={endDate}
-        onDateRangeSelected={(start, end, rangeSummary) => {
+        placeholder="Select dates"
+        onDateRangeSelected={(start, end) => {
           action("onDateRangeSelected")({
             start,
             end,
           });
           setStartDate(start);
           setEndDate(end);
-          setReadableString(rangeSummary);
         }}
       />
     </div>
