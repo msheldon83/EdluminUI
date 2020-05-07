@@ -5,6 +5,7 @@ import {
   DialogTitle,
   Typography,
   Divider,
+  Grid,
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -13,11 +14,12 @@ import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { OrgUser } from "graphql/server-types.gen";
-import { DeleteDialogList, LinkProps } from "./view-delete-dialog-list";
 import { useQueryBundle } from "graphql/hooks";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { GetEmployeeAbsences } from "../graphql/get-employee-absences.gen";
-import { GetSubstituteAssignments } from "../graphql/get-substitute-assignments.gen";
+import { GetEmployeeAbsences } from "../../graphql/get-employee-absences.gen";
+import { GetSubstituteAssignments } from "../../graphql/get-substitute-assignments.gen";
+import { DeleteDialogList } from "./list";
+import { AbsVac } from "./types";
 
 function dropNulls<T>(
   withNulls: (T | null)[] | null | undefined
@@ -43,6 +45,7 @@ export const DiscardChangesDialog: React.FC<Props> = ({
   const { t } = useTranslation();
   const classes = useStyles();
   const currentSchoolYear = useCurrentSchoolYear(orgId);
+
   const fromDate = new Date();
   const toDate = currentSchoolYear
     ? parseISO(currentSchoolYear?.endDate)
@@ -63,17 +66,8 @@ export const DiscardChangesDialog: React.FC<Props> = ({
     },
   });
 
-  /*makeListComponent(
-        "employee",
-        "absences",
-        ({ id }) => ({
-          id,
-          type: "absence",
-        }),
-        getEmployeeAbsences.state == "LOADING"
-          ? "LOADING"
-          : getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
-          )*/
+  const componentHeight = 200;
+  const componentWidth = 200;
 
   let employeeComponent;
   if (!orgUser.isEmployee) {
@@ -84,19 +78,13 @@ export const DiscardChangesDialog: React.FC<Props> = ({
     const nonNulls = dropNulls(
       getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
     );
-    const links: LinkProps[] | undefined = nonNulls?.map(({ id }) => ({
-      id,
+    const absences: AbsVac[] | undefined = nonNulls?.map(absence => ({
+      ...absence,
       type: "absence",
     }));
     employeeComponent =
-      links && links.length > 0 ? (
-        <DeleteDialogList
-          links={links}
-          prefix="employee"
-          width={200 / (orgUser.isReplacementEmployee ? 2 : 1)}
-          height={200}
-          rowHeight={20}
-        />
+      absences && absences.length > 0 ? (
+        <DeleteDialogList absvacs={absences} />
       ) : (
         <Typography>This employee has no upcoming absences</Typography>
       );
@@ -111,49 +99,55 @@ export const DiscardChangesDialog: React.FC<Props> = ({
     const nonNulls = dropNulls(
       getSubstituteAssignments.data?.employee?.employeeAssignmentSchedule
     );
-    const links: LinkProps[] | undefined = nonNulls?.map(({ id, vacancy }) => ({
-      id,
-      type: vacancy?.absence ? "absence" : "vacancy",
-    }));
+    const absvacs: AbsVac[] | undefined = nonNulls?.map(
+      ({ vacancy, ...absvac }) => ({
+        ...absvac,
+        type: vacancy?.absence ? "absence" : "vacancy",
+      })
+    );
     substituteComponent =
-      links && links.length > 0 ? (
-        <DeleteDialogList
-          links={links}
-          prefix="substitute"
-          width={200 / (orgUser.isEmployee ? 2 : 1)}
-          height={200}
-          rowHeight={20}
-        />
+      absvacs && absvacs.length > 0 ? (
+        <DeleteDialogList absvacs={absvacs} />
       ) : (
         <Typography>This substitute has no upcoming assignments</Typography>
       );
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} scroll="paper">
       <DialogTitle disableTypography>
-        <Typography variant="h5">
-          {t("Person Deletion Confirmation")}
-        </Typography>
+        <Typography variant="h5">{t("User Deletion Confirmation")}</Typography>
       </DialogTitle>
       <DialogContent>
-        <Typography>
-          {}
-          {t("Are you sure you would like to discard any unsaved changes?")}
-        </Typography>
+        {employeeComponent && substituteComponent && (
+          <Grid container alignItems="center">
+            {employeeComponent}
+            <Divider orientation="vertical" />
+            {substituteComponent}
+          </Grid>
+        )}
+        {!employeeComponent && substituteComponent && substituteComponent}
+        {employeeComponent && !substituteComponent && employeeComponent}
+        {!employeeComponent && !substituteComponent && (
+          <Typography>
+            {t(
+              "This user was not an employee or a substitute, so no assignments or absences will be cancelled on deletion."
+            )}
+          </Typography>
+        )}
       </DialogContent>
 
       <Divider className={classes.divider} />
       <DialogActions>
         <TextButton onClick={onClose} className={classes.buttonSpacing}>
-          {t("No, go back")}
+          {t("Cancel")}
         </TextButton>
         <ButtonDisableOnClick
           variant="outlined"
           onClick={onCancel}
           className={classes.delete}
         >
-          {t("Discard Changes")}
+          {t("Delte")}
         </ButtonDisableOnClick>
       </DialogActions>
     </Dialog>
