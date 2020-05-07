@@ -126,7 +126,10 @@ export const Report: React.FC<Props> = props => {
                 await downloadCsvFile({
                   input: {
                     orgIds: [organizationId],
-                    queryText: state.rdlString,
+                    queryText: convertReportDefinitionInputToRdl(
+                      state.reportDefinitionInput,
+                      true
+                    ),
                   },
                   filename: exportFilename,
                 });
