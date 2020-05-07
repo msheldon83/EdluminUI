@@ -61,8 +61,6 @@ export const BaseLink: React.FC<Props> = ({
   const text = <span className={textClass}>{children}</span>;
   if (disabled) return text;
 
-  const rel = target == "_self" ? "" : "noreferrer noopener";
-
   const link = (
     <Link
       className={clsx(
@@ -73,7 +71,7 @@ export const BaseLink: React.FC<Props> = ({
       )}
       to={to}
       target={target}
-      rel={rel}
+      rel={target == "_self" ? "" : "noreferrer noopener"}
     >
       {children}
     </Link>
