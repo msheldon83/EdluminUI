@@ -419,7 +419,7 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     position: "relative",
     width: "100%",
     transition: "none",
-    // borderRadius: 0,
+    borderRadius: 0,
 
     pointerEvents: props => (props.onSelectDates ? "auto" : "none"),
 
