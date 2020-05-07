@@ -63,7 +63,11 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
   return (
     <>
       <PageTitle title={t("Absences & Vacancies")} />
-      <Report input={reportInput} filterFieldsOverride={filterFieldsOverride} />
+      <Report
+        input={reportInput}
+        exportFilename={t("AbsencesVacanciesReport")}
+        filterFieldsOverride={filterFieldsOverride}
+      />
     </>
   );
 };

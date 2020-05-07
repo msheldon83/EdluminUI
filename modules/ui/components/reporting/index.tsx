@@ -2,26 +2,36 @@ import * as React from "react";
 import { AppConfig } from "hooks/app-config";
 import { ReportDefinitionInput, FilterField } from "./types";
 import { DataGrid } from "./data/data-grid";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
 import { LoadingDataGrid } from "./data/loading-data-grid";
 import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
 import { ActionBar } from "./actions/action-bar";
 import { makeStyles } from "@material-ui/core";
+import { TextButton } from "ui/components/text-button";
 import { useOrganizationId } from "core/org-context";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowNetworkErrors } from "../error-helpers";
+import { ExportReportQuery } from "./graphql/export-report";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   input: ReportDefinitionInput;
+  exportFilename?: string;
   filterFieldsOverride?: string[];
   showGroupLabels?: boolean;
 };
 
 export const Report: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
-  const { input, filterFieldsOverride, showGroupLabels = true } = props;
+  const {
+    input,
+    filterFieldsOverride,
+    exportFilename = t("Report"),
+    showGroupLabels = true,
+  } = props;
   const organizationId = useOrganizationId();
   const [state, dispatch] = React.useReducer(reportReducer, {
     reportDefinitionInput: input,
@@ -41,6 +51,13 @@ export const Report: React.FC<Props> = props => {
         queryText: state.rdlString,
       },
     },
+    onError: error => {
+      ShowNetworkErrors(error, openSnackbar);
+    },
+  });
+
+  // Support Exporting to CSV
+  const downloadCsvFile = useImperativeQuery(ExportReportQuery, {
     onError: error => {
       ShowNetworkErrors(error, openSnackbar);
     },
@@ -104,6 +121,19 @@ export const Report: React.FC<Props> = props => {
                 ...state.filters.optional,
               ]}
             />
+            <TextButton
+              onClick={async () => {
+                await downloadCsvFile({
+                  input: {
+                    orgIds: [organizationId],
+                    queryText: state.rdlString,
+                  },
+                  filename: exportFilename,
+                });
+              }}
+            >
+              {t("Export Report")}
+            </TextButton>
           </div>
           <div className={classes.gridWrapper}>
             <DataGrid
@@ -123,6 +153,8 @@ export const Report: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   actions: {
+    display: "flex",
+    justifyContent: "space-between",
     paddingLeft: theme.spacing(3),
     paddingRight: theme.spacing(3),
     paddingTop: theme.spacing(3),
