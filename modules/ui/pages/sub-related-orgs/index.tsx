@@ -93,7 +93,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     };
 
     setSubstituteInput(subInput);
-  }, [orgUserRelationships]);
+  }, [orgUserRelationships, params.organizationId, params.orgUserId]);
 
   if (getSubRelatedOrgs.state === "LOADING" || !orgUser?.substitute) {
     return <></>;
