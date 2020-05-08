@@ -28,7 +28,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
     startDate,
     endDate,
     placeholder = "",
-    label = t("Date range"),
+    label,
     ...datePickerProps
   } = props;
 
@@ -85,16 +85,11 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
 
   return (
     <>
-      {/* <Button
-        variant="outlined"
-        ref={buttonRef}
-        onClick={() => setShowPopover(true)}
-      >
-        {readableString()}
-      </Button> */}
-      <InputLabel htmlFor={id} className={classes.label}>
-        {label}
-      </InputLabel>
+      <div>
+        <InputLabel htmlFor={id} className={classes.label}>
+          {label ?? t("Date range")}
+        </InputLabel>
+      </div>
       <div className={classes.trigger}>
         <button
           className={classes.button}
@@ -150,6 +145,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
                   </div>
                 </Paper>
               </ClickAwayListener>
+              <div className={classes.popoverArrow} />
             </form>
           </Fade>
         )}
@@ -164,22 +160,55 @@ const useStyles = makeStyles(theme => ({
     boxShadow:
       "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24);",
     padding: theme.spacing(2),
-    width: "700px", // TODO: need to make this work on mobile too
+    maxWidth: "700px",
+    width: "100vw",
+    marginTop: theme.typography.pxToRem(5),
+    borderTop: `1px solid ${theme.customColors.medLightGray}`,
   },
   trigger: {
     display: "inline-block",
+    paddingTop: theme.typography.pxToRem(3),
     position: "relative",
   },
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
     cursor: "pointer",
+    pointerEvents: "none",
     position: "absolute",
     right: theme.spacing(2),
     top: "50%",
     transform: "translateY(-50%)",
   },
+  popoverArrow: {
+    width: 0,
+    height: 0,
+    borderLeft: `${theme.typography.pxToRem(10)} solid transparent`,
+    borderRight: `${theme.typography.pxToRem(10)} solid transparent`,
+    borderBottom: `${theme.typography.pxToRem(10)} solid ${
+      theme.customColors.sectionBorder
+    }`,
+    position: "absolute",
+    top: "0",
+    left: theme.typography.pxToRem(28),
+    transform: `translateY(calc(-100% + ${theme.typography.pxToRem(5)}))`,
+
+    "&:before": {
+      display: "inline-block",
+      content: "''",
+      width: 0,
+      height: 0,
+      borderLeft: `${theme.typography.pxToRem(10)} solid transparent`,
+      borderRight: `${theme.typography.pxToRem(10)} solid transparent`,
+      borderBottom: `${theme.typography.pxToRem(10)} solid ${
+        theme.customColors.white
+      }`,
+      position: "absolute",
+      top: theme.typography.pxToRem(1),
+      left: theme.typography.pxToRem(-10),
+    },
+  },
   label: {
-    display: "block",
+    cursor: "pointer",
   },
   button: {
     backgroundColor: theme.customColors.white,

@@ -95,25 +95,22 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       const startMonthDate = startOfMonth(startMonth);
       const endMonthDate = endOfMonth(endMonth);
 
-      const dateVisible = isWithinInterval(end, {
+      const endDateVisible = isWithinInterval(end, {
         start: startMonthDate,
         end: endMonthDate,
       });
 
-      /*
-      TODO: handle case where not all dates are visible when doing this
-      For example, click "last week" or "last school year" in presets may not show all days.
-
-      Need to make sure they're all visible
-    */
-
       // End date of range will show on the left side
-      if (!dateVisible && isAfter(endMonthDate, end)) {
+      if (!endDateVisible && isAfter(endMonthDate, end)) {
         setStartMonth(end);
       }
 
+      /*
+        If date range is within a visible month range
+      */
+
       // End date of range will show on the right side
-      if (!dateVisible && isBefore(startMonthDate, end)) {
+      if (!endDateVisible && isBefore(startMonthDate, end)) {
         setStartMonth(addMonth(end, -1));
       }
 
@@ -243,7 +240,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
 
   const containerClasses = clsx({
     [classes.contained]: contained,
-    [classes.container]: true,
   });
 
   return (
@@ -312,9 +308,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
 };
 
 const useStyles = makeStyles(theme => ({
-  container: {
-    background: theme.customColors.white,
-  },
   contained: {
     border: `1px solid ${theme.customColors.edluminSubText}`,
     borderRadius: theme.typography.pxToRem(4),
@@ -329,6 +322,7 @@ const useStyles = makeStyles(theme => ({
   },
 
   calendarsContaienr: {
+    backgroundColor: theme.customColors.white,
     border: `1px solid ${theme.customColors.edluminSubText}`,
     borderRadius: theme.typography.pxToRem(4),
     display: "flex",
