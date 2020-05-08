@@ -85,16 +85,11 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
 
   return (
     <>
-      {/* <Button
-        variant="outlined"
-        ref={buttonRef}
-        onClick={() => setShowPopover(true)}
-      >
-        {readableString()}
-      </Button> */}
-      <InputLabel htmlFor={id} className={classes.label}>
-        {label}
-      </InputLabel>
+      <div>
+        <InputLabel htmlFor={id} className={classes.label}>
+          {label}
+        </InputLabel>
+      </div>
       <div className={classes.trigger}>
         <button
           className={classes.button}
@@ -164,10 +159,12 @@ const useStyles = makeStyles(theme => ({
     boxShadow:
       "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24);",
     padding: theme.spacing(2),
-    width: "700px", // TODO: need to make this work on mobile too
+    maxWidth: "700px",
+    width: "100vw",
   },
   trigger: {
     display: "inline-block",
+    paddingTop: theme.typography.pxToRem(3),
     position: "relative",
   },
   arrowDownIcon: {
@@ -179,7 +176,7 @@ const useStyles = makeStyles(theme => ({
     transform: "translateY(-50%)",
   },
   label: {
-    display: "block",
+    cursor: "pointer",
   },
   button: {
     backgroundColor: theme.customColors.white,
