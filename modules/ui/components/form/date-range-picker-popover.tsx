@@ -145,6 +145,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
                   </div>
                 </Paper>
               </ClickAwayListener>
+              <div className={classes.popoverArrow} />
             </form>
           </Fade>
         )}
@@ -161,6 +162,8 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     maxWidth: "700px",
     width: "100vw",
+    marginTop: theme.typography.pxToRem(5),
+    borderTop: `1px solid ${theme.customColors.medLightGray}`,
   },
   trigger: {
     display: "inline-block",
@@ -175,6 +178,34 @@ const useStyles = makeStyles(theme => ({
     right: theme.spacing(2),
     top: "50%",
     transform: "translateY(-50%)",
+  },
+  popoverArrow: {
+    width: 0,
+    height: 0,
+    borderLeft: `${theme.typography.pxToRem(10)} solid transparent`,
+    borderRight: `${theme.typography.pxToRem(10)} solid transparent`,
+    borderBottom: `${theme.typography.pxToRem(10)} solid ${
+      theme.customColors.sectionBorder
+    }`,
+    position: "absolute",
+    top: "0",
+    left: theme.typography.pxToRem(28),
+    transform: `translateY(calc(-100% + ${theme.typography.pxToRem(5)}))`,
+
+    "&:before": {
+      display: "inline-block",
+      content: "''",
+      width: 0,
+      height: 0,
+      borderLeft: `${theme.typography.pxToRem(10)} solid transparent`,
+      borderRight: `${theme.typography.pxToRem(10)} solid transparent`,
+      borderBottom: `${theme.typography.pxToRem(10)} solid ${
+        theme.customColors.white
+      }`,
+      position: "absolute",
+      top: theme.typography.pxToRem(1),
+      left: theme.typography.pxToRem(-10),
+    },
   },
   label: {
     cursor: "pointer",
