@@ -48,6 +48,32 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
 
   const presetDateRanges = ([
     {
+      label: t("Last 7 days"),
+      value: "last-7-days",
+      range() {
+        const start = addDays(new Date(), -7);
+        const end = new Date();
+
+        return {
+          start,
+          end,
+        };
+      },
+    },
+    {
+      label: t("Last 30 days"),
+      value: "last-30-days",
+      range() {
+        const start = addDays(new Date(), -30);
+        const end = new Date();
+
+        return {
+          start,
+          end,
+        };
+      },
+    },
+    {
       label: t("Today"),
       value: "today",
       range() {
