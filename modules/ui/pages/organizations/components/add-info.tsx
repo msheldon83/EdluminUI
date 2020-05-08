@@ -71,11 +71,13 @@ export const AddBasicInfo: React.FC<Props> = props => {
       props.organization?.config?.longTermVacancyThresholdDays || 20,
     minLeadTimeMinutesToCancelVacancy:
       props.organization?.config?.minLeadTimeMinutesToCancelVacancy || 240,
+    maxLeadTimeMinutesToCancelVacancyPart:
+      props.organization?.config?.maxLeadTimeMinutesToCancelVacancyPart || 1440,
     minutesBeforeStartAbsenceCanBeCreated:
       props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || 0,
-    minLeadTimeMinutesToCancelVacancyWithoutPunishment:
+    /*minLeadTimeMinutesToCancelVacancyWithoutPunishment:
       props.organization?.config
-        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || 1440,
+        ?.minLeadTimeMinutesToCancelVacancyWithoutPunishment || 1440,*/
     maxGapMinutesForSameVacancyDetail:
       props.organization?.config?.maxGapMinutesForSameVacancyDetail || 120,
     minAbsenceMinutes: props.organization?.config?.minAbsenceMinutes || 15,
@@ -167,10 +169,12 @@ export const AddBasicInfo: React.FC<Props> = props => {
               longTermVacancyThresholdDays: data.longTermVacancyThresholdDays,
               minLeadTimeMinutesToCancelVacancy:
                 data.minLeadTimeMinutesToCancelVacancy,
+              maxLeadTimeMinutesToCancelVacancyPart:
+                data.maxLeadTimeMinutesToCancelVacancyPart,
               minutesBeforeStartAbsenceCanBeCreated:
                 data.minutesBeforeStartAbsenceCanBeCreated,
-              minLeadTimeMinutesToCancelVacancyWithoutPunishment:
-                data.minLeadTimeMinutesToCancelVacancyWithoutPunishment,
+              /*minLeadTimeMinutesToCancelVacancyWithoutPunishment:
+                data.minLeadTimeMinutesToCancelVacancyWithoutPunishment,*/
               maxGapMinutesForSameVacancyDetail:
                 data.maxGapMinutesForSameVacancyDetail,
               minAbsenceMinutes: data.minAbsenceMinutes,
@@ -457,7 +461,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Long Term Vacancy Threshold Days")}
                   InputComponent={FormTextField}
@@ -469,7 +473,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Minimum Lead Time Minutes to Cancel Vacancy")}
                   InputComponent={FormTextField}
@@ -481,7 +485,19 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
+                <Input
+                  label={t("Maximum Lead Time Minutes to Cancel Vacancy Part")}
+                  InputComponent={FormTextField}
+                  inputComponentProps={{
+                    name: "maxLeadTimeMinutesToCancelVacancyPart",
+                    margin: isMobile ? "normal" : "none",
+                    variant: "outlined",
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Minutes before Start Absence can be Created")}
                   InputComponent={FormTextField}
@@ -529,7 +545,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+              <Grid item xs={12} sm={6} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Minor Conflict Threshold Minutes")}
                   InputComponent={FormTextField}
@@ -541,7 +557,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+              <Grid item xs={12} sm={6} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Minutes Relative To Start Vacancy Can Be Filled")}
                   InputComponent={FormTextField}
@@ -553,7 +569,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
+              {/*<Grid item xs={12} sm={4} classes={{ root: overrideStyles.root }}>
                 <Input
                   label={t("Min. minutes to cancel Vacancy w/o punishment")}
                   InputComponent={FormTextField}
@@ -567,7 +583,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     ),
                   }}
                 />
-              </Grid>
+              </Grid>*/}
 
               <Grid
                 item
