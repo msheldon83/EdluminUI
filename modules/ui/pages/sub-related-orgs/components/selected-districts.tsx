@@ -19,8 +19,8 @@ import { EndorsementDetail } from "./endorsement-detail";
 
 type Props = {
   orgUserRelationships: CustomOrgUserRelationship[];
-  orgEndorsements: OptionType[];
   onRemoveOrg: (orgId: string) => Promise<unknown>;
+  orgEndorsements?: OptionType[];
   onSave: (sub: SubstituteInput) => Promise<any>;
 };
 
@@ -108,7 +108,7 @@ export const SelectedDistricts: React.FC<Props> = props => {
                                 handleSubmit();
                               }
                             }}
-                            options={orgEndorsements}
+                            options={orgEndorsements ?? []}
                             setSearchText={setSearchText}
                             placeholder={t("search")}
                             useLabel={false}

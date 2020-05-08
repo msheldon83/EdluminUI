@@ -136,6 +136,22 @@ export const PeopleSubPoolEditLoader = asyncComponent({
   name: "SubPool",
 });
 
+/**** admin edit page****/
+//Edit Admin Related Orgs
+export const PeopleAdminRelatedOrgsEditRoute = defineSubRoute(
+  PersonViewRoute,
+  "/edit-sub-orgs"
+);
+export const PeopleAdminRelatedOrgsEditLoader = asyncComponent({
+  resolve: async () => {
+    const AdminRelatedOrgsEditPage = (
+      await import("ui/pages/admin-related-orgs")
+    ).AdminRelatedOrgsEditPage;
+    return AdminRelatedOrgsEditPage;
+  },
+  name: "AdminRelatedOrgs",
+});
+
 //Edit Replacement Criteria
 export const PeopleReplacementCriteriaEditRoute = defineSubRoute(
   PersonViewRoute,

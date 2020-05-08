@@ -104,7 +104,7 @@ import {
   AnalyticsReportsAbsencesVacanciesRoute,
   AnalyticsReportsAbsencesVacanciesLoader,
   AnalyticsReportsSubHistoryRoute,
-  AnalyticsReportsSubHistoryLoader
+  AnalyticsReportsSubHistoryLoader,
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -150,6 +150,8 @@ import {
   PeopleEmployeeBalancesEditLoader,
   SubstituteAvailableAssignmentsRoute,
   SubstituteAvailableAssignmentsLoader,
+  PeopleAdminRelatedOrgsEditRoute,
+  PeopleAdminRelatedOrgsEditLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -727,6 +729,16 @@ export const App = hot(function() {
                                       permissions={[
                                         PermissionEnum.SubstituteSave,
                                       ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        PeopleAdminRelatedOrgsEditLoader
+                                      }
+                                      path={
+                                        PeopleAdminRelatedOrgsEditRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AdminSave]}
                                     />
                                     <ProtectedRoute
                                       component={PeopleSubPoolEditLoader}
