@@ -31,9 +31,12 @@ export const SelectedDistricts: React.FC<Props> = props => {
 
   const { orgUserRelationships, onRemoveOrg, orgEndorsements, onSave } = props;
 
+  const initialValues = { orgUserRelationships: orgUserRelationships };
+
   return (
     <Formik
-      initialValues={{ orgUserRelationships: orgUserRelationships }}
+      initialValues={initialValues}
+      enableReinitialize={true}
       onSubmit={async (data, meta) => {
         const relatedOrgs: SubstituteRelatedOrgInput[] =
           data?.orgUserRelationships?.map(o => ({
@@ -64,7 +67,9 @@ export const SelectedDistricts: React.FC<Props> = props => {
             <Grid item xs={4} container className={classes.inline}></Grid>
             <Divider />
             {orgUserRelationships?.length === 0 ? (
-              <div>{t("No selected districts")}</div>
+              <div className={classes.containerPadding}>
+                {t("No selected districts")}
+              </div>
             ) : (
               values.orgUserRelationships.map((n, i) => {
                 if (n) {

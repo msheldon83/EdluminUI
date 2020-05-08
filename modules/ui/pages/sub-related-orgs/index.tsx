@@ -66,6 +66,25 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
 
   const orgUserRelationships = compact(orgUser?.orgUserRelationships) ?? [];
 
+  const relationships: CustomOrgUserRelationship[] = useMemo(
+    () =>
+      orgUserRelationships.map(
+        o =>
+          ({
+            otherOrganization: o.otherOrganization,
+            attributes:
+              compact(o?.attributes).map(x => ({
+                endorsementId: x.endorsementId,
+                name: x.endorsement.name,
+                expirationDate: x.expirationDate
+                  ? parseISO(x.expirationDate)
+                  : null,
+              })) ?? [],
+          } ?? [])
+      ),
+    [orgUserRelationships]
+  );
+
   if (getSubRelatedOrgs.state === "LOADING" || !orgUser?.substitute) {
     return <></>;
   }
@@ -117,17 +136,6 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     });
     await getSubRelatedOrgs.refetch();
   };
-
-  const relationships: CustomOrgUserRelationship[] =
-    orgUserRelationships.map(o => ({
-      otherOrganization: o.otherOrganization,
-      attributes:
-        compact(o?.attributes).map(x => ({
-          endorsementId: x.endorsementId,
-          name: x.endorsement.name,
-          expirationDate: x.expirationDate ? parseISO(x.expirationDate) : null,
-        })) ?? [],
-    })) ?? [];
 
   return (
     <>
