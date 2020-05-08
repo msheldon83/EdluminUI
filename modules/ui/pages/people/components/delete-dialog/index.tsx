@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { lastDayOfYear, parseISO } from "date-fns";
+import { startOfToday, lastDayOfYear, parseISO } from "date-fns";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { OrgUserRole } from "graphql/server-types.gen";
@@ -31,20 +31,16 @@ function dropNulls<T>(
 }
 
 type Props = {
-  type: "delete" | "inactivate" | OrgUserRole | null;
-  inactivateOrgUser: (clean: boolean) => void;
-  removeRole: (orgUserRole: OrgUserRole) => void;
-  deleteOrgUser: () => void;
+  type: "delete" | OrgUserRole | null;
+  onAccept: () => void;
   onCancel: () => void;
   orgId: string;
   orgUser: Pick<OrgUser, "id" | "isEmployee" | "isReplacementEmployee">;
 };
 
-export const DiscardChangesDialog: React.FC<Props> = ({
+export const DeleteDialog: React.FC<Props> = ({
   type,
-  inactivateOrgUser,
-  removeRole,
-  deleteOrgUser,
+  onAccept,
   onCancel,
   orgId,
   orgUser,
@@ -52,7 +48,6 @@ export const DiscardChangesDialog: React.FC<Props> = ({
   const { t } = useTranslation();
   const classes = useStyles();
   const currentSchoolYear = useCurrentSchoolYear(orgId);
-  const { openSnackbar } = useSnackbar();
 
   let titleString;
   let buttons;
@@ -68,34 +63,10 @@ export const DiscardChangesDialog: React.FC<Props> = ({
           </TextButton>
           <ButtonDisableOnClick
             variant="outlined"
-            onClick={deleteOrgUser}
+            onClick={onAccept}
             className={classes.delete}
           >
             {t("Delete")}
-          </ButtonDisableOnClick>
-        </>
-      );
-      break;
-    case "inactivate":
-      titleString = t("User Inactivation Confirmation");
-      buttons = (
-        <>
-          <TextButton onClick={onCancel} className={classes.buttonSpacing}>
-            {t("Cancel")}
-          </TextButton>
-          <ButtonDisableOnClick
-            variant="outlined"
-            onClick={() => inactivateOrgUser(false)}
-            className={classes.delete}
-          >
-            {t("Don't Remove Absences / Assignments")}
-          </ButtonDisableOnClick>
-          <ButtonDisableOnClick
-            variant="outlined"
-            onClick={() => inactivateOrgUser(true)}
-            className={classes.delete}
-          >
-            {t("Remove Absences / Assignments")}
           </ButtonDisableOnClick>
         </>
       );
@@ -115,7 +86,7 @@ export const DiscardChangesDialog: React.FC<Props> = ({
           </TextButton>
           <ButtonDisableOnClick
             variant="outlined"
-            onClick={() => removeRole(type)}
+            onClick={onAccept}
             className={classes.delete}
           >
             {t("Remove role")}
@@ -124,11 +95,12 @@ export const DiscardChangesDialog: React.FC<Props> = ({
       );
   }
 
-  const fromDate = new Date();
+  const fromDate = startOfToday();
   const toDate = currentSchoolYear
     ? parseISO(currentSchoolYear?.endDate)
     : lastDayOfYear(fromDate);
   const getEmployeeAbsences = useQueryBundle(GetEmployeeAbsences, {
+    fetchPolicy: "cache-first",
     variables: {
       id: orgUser.id,
       fromDate,
@@ -136,6 +108,7 @@ export const DiscardChangesDialog: React.FC<Props> = ({
     },
   });
   const getSubstituteAssignments = useQueryBundle(GetSubstituteAssignments, {
+    fetchPolicy: "cache-first",
     variables: {
       id: orgUser.id,
       orgId,
@@ -144,66 +117,80 @@ export const DiscardChangesDialog: React.FC<Props> = ({
     },
   });
 
-  let employeeComponent;
-  if (!showEmployee) {
-    employeeComponent = undefined;
-  } else if (getEmployeeAbsences.state == "LOADING") {
-    employeeComponent = <Typography>Loading absences...</Typography>;
-  } else {
-    const nonNulls = dropNulls(
-      getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
-    );
-    const absences: AbsVac[] | undefined = nonNulls?.map(absence => ({
-      ...absence,
-      type: "absence",
-    }));
-    employeeComponent =
-      absences && absences.length > 0 ? (
-        <DeleteDialogList absvacs={absences} />
-      ) : (
-        <Typography>This employee has no upcoming absences</Typography>
-      );
-  }
-
-  let substituteComponent;
-  if (!showSubstitute) {
-    substituteComponent = undefined;
-  } else if (getSubstituteAssignments.state == "LOADING") {
-    substituteComponent = <Typography>Loading assignments...</Typography>;
-  } else {
-    const nonNulls = dropNulls(
-      getSubstituteAssignments.data?.employee?.employeeAssignmentSchedule
-    );
-    const absvacs: AbsVac[] | undefined = nonNulls?.map(
-      ({ vacancy, ...absvac }) => ({
-        ...absvac,
-        type: vacancy?.absence ? "absence" : "vacancy",
-      })
-    );
-    substituteComponent =
-      absvacs && absvacs.length > 0 ? (
-        <DeleteDialogList absvacs={absvacs} />
-      ) : (
-        <Typography>This substitute has no upcoming assignments</Typography>
-      );
-  }
-
   return (
     <Dialog open={type !== null} onClose={onCancel} scroll="paper">
       <DialogTitle disableTypography>
         <Typography variant="h5">{titleString}</Typography>
       </DialogTitle>
       <DialogContent>
-        {employeeComponent && substituteComponent && (
+        {showEmployee && showSubstitute && (
           <Grid container alignItems="center">
-            {employeeComponent}
+            {getEmployeeAbsences.state == "LOADING" ? (
+              <Typography>Loading absences...</Typography>
+            ) : (
+              <DeleteDialogList
+                employeeType="employee"
+                absvacType="absences"
+                absvacs={dropNulls(
+                  getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
+                )?.map(absence => ({
+                  ...absence,
+                  type: "absence",
+                }))}
+              />
+            )}
             <Divider orientation="vertical" />
-            {substituteComponent}
+            {getSubstituteAssignments.state == "LOADING" ? (
+              <Typography>Loading assignments...</Typography>
+            ) : (
+              <DeleteDialogList
+                employeeType="substitute"
+                absvacType="assignments"
+                absvacs={dropNulls(
+                  getSubstituteAssignments.data?.employee
+                    ?.employeeAssignmentSchedule
+                )?.map(({ vacancy, ...absvac }) => ({
+                  ...absvac,
+                  type: vacancy?.absence ? "absence" : "vacancy",
+                }))}
+              />
+            )}
           </Grid>
         )}
-        {!employeeComponent && substituteComponent && substituteComponent}
-        {employeeComponent && !substituteComponent && employeeComponent}
-        {!employeeComponent && !substituteComponent && (
+        {!showEmployee &&
+          showSubstitute &&
+          (getSubstituteAssignments.state == "LOADING" ? (
+            <Typography>Loading assignments...</Typography>
+          ) : (
+            <DeleteDialogList
+              employeeType="substitute"
+              absvacType="assignments"
+              absvacs={dropNulls(
+                getSubstituteAssignments.data?.employee
+                  ?.employeeAssignmentSchedule
+              )?.map(({ vacancy, ...absvac }) => ({
+                ...absvac,
+                type: vacancy?.absence ? "absence" : "vacancy",
+              }))}
+            />
+          ))}
+        {showEmployee &&
+          !showSubstitute &&
+          (getEmployeeAbsences.state == "LOADING" ? (
+            <Typography>Loading absences...</Typography>
+          ) : (
+            <DeleteDialogList
+              employeeType="employee"
+              absvacType="absences"
+              absvacs={dropNulls(
+                getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
+              )?.map(absence => ({
+                ...absence,
+                type: "absence",
+              }))}
+            />
+          ))}
+        {!showEmployee && !showSubstitute && (
           <Typography>
             {t(
               "This user was not an employee or a substitute, so no assignments or absences will be cancelled on deletion."
