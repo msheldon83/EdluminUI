@@ -44,7 +44,7 @@ export const ActionBar: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   actionBar: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-end",
   },
   optionalFilters: {
     marginLeft: theme.spacing(2),
