@@ -10,6 +10,7 @@ import { Calendar } from "./calendar";
 import { SingleMonthCalendar } from "./single-month-calendar";
 import { CustomCalendar, useToggleDatesList } from "./custom-calendar";
 import { DateRangePicker } from "./date-range-picker";
+import { DateRangePickerPopover } from "./date-range-picker-popover";
 
 export default {
   title: "Forms/Date Picker",
@@ -18,18 +19,60 @@ export default {
 export const DateRangePickerStory = () => {
   const classes = useStyles();
 
-  const [startDate, setStartDate] = React.useState<Date | string>(new Date());
-  const [endDate, setEndDate] = React.useState<Date | string | undefined>();
+  const [startDate, setStartDate] = React.useState<Date | undefined>();
+  const [endDate, setEndDate] = React.useState<Date | undefined>();
 
   return (
     <div className={classes.container} style={{ maxWidth: "700px" }}>
-      <DateRangePicker />
+      <DateRangePicker
+        contained={boolean("contained", false)}
+        startDate={startDate}
+        endDate={endDate}
+        onDateRangeSelected={(start, end) => {
+          action("onDateRangeSelected")({
+            start,
+            end,
+          });
+
+          setStartDate(start);
+          setEndDate(end);
+        }}
+      />
     </div>
   );
 };
 
 DateRangePickerStory.story = {
   name: "Date Range Picker",
+};
+
+export const DateRangePickerPopoverStory = () => {
+  const classes = useStyles();
+
+  const [startDate, setStartDate] = React.useState<Date | undefined>();
+  const [endDate, setEndDate] = React.useState<Date | undefined>();
+
+  return (
+    <div className={classes.container} style={{ maxWidth: "700px" }}>
+      <DateRangePickerPopover
+        startDate={startDate}
+        endDate={endDate}
+        placeholder="Select dates"
+        onDateRangeSelected={(start, end) => {
+          action("onDateRangeSelected")({
+            start,
+            end,
+          });
+          setStartDate(start);
+          setEndDate(end);
+        }}
+      />
+    </div>
+  );
+};
+
+DateRangePickerPopoverStory.story = {
+  name: "Date Range Picker Popover",
 };
 
 export const DatePickerStory = () => {
