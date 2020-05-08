@@ -22,207 +22,227 @@ export const Filter: React.FC<Props> = props => {
   const organizationId = useOrganizationId();
   const { filterField, updateFilter, showLabel } = props;
 
-  switch (filterField.field.filterType) {
-    case FilterType.Boolean:
-      return (
-        <Checkbox
-          checked={filterField.value ?? false}
-          onChange={(e, checked) =>
-            updateFilter({
-              field: filterField.field,
-              expressionFunction: ExpressionFunction.Equal,
-              value: checked,
-            })
-          }
-          color="primary"
-        />
-      );
-    case FilterType.Date: {
-      return (
-        <DateRangePickerPopover
-          startDate={filterField.value[0]}
-          endDate={filterField.value[1]}
-          placeholder={t("Select dates")}
-          label={showLabel ? filterField.field.friendlyName : undefined}
-          onDateRangeSelected={(start, end) => {
-            updateFilter({
-              field: filterField.field,
-              expressionFunction: ExpressionFunction.Between,
-              value: [start, end],
-            });
-          }}
-        />
-      );
-    }
-    case FilterType.Custom:
-      switch (filterField.field.filterTypeDefinition?.key) {
-        case "Location":
-          return (
-            <LocationSelect
-              orgId={organizationId ?? undefined}
-              setSelectedLocationIds={locationIds => {
-                const value = locationIds ?? [];
-                updateFilter({
-                  field: filterField.field,
-                  expressionFunction:
-                    filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value.length > 0 ? value : undefined,
-                });
-              }}
-              selectedLocationIds={filterField.value ?? []}
-              multiple={
-                filterField.expressionFunction ===
-                ExpressionFunction.ContainedIn
-              }
-              includeAllOption={false}
-              key={filterField.expressionFunction}
-              label={
-                showLabel
-                  ? filterField.field.filterTypeDefinition?.friendlyName
-                  : undefined
-              }
-            />
-          );
-        case "PositionType":
-          return (
-            <PositionTypeSelect
-              orgId={organizationId ?? undefined}
-              setSelectedPositionTypeIds={positionTypeIds => {
-                const value = positionTypeIds ?? [];
-                updateFilter({
-                  field: filterField.field,
-                  expressionFunction:
-                    filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value.length > 0 ? value : undefined,
-                });
-              }}
-              selectedPositionTypeIds={filterField.value ?? []}
-              multiple={
-                filterField.expressionFunction ===
-                ExpressionFunction.ContainedIn
-              }
-              includeAllOption={false}
-              key={filterField.expressionFunction}
-              label={
-                showLabel
-                  ? filterField.field.filterTypeDefinition?.friendlyName
-                  : undefined
-              }
-            />
-          );
-        case "Employee":
-          return (
-            <OrgUserSelect
-              orgId={organizationId ?? ""}
-              role={OrgUserRole.Employee}
-              setSelectedOrgUserIds={orgUserIds => {
-                const value = orgUserIds ?? [];
-                updateFilter({
-                  field: filterField.field,
-                  expressionFunction:
-                    filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value.length > 0 ? value : undefined,
-                });
-              }}
-              selectedOrgUserIds={filterField.value ?? []}
-              multiple={
-                filterField.expressionFunction ===
-                ExpressionFunction.ContainedIn
-              }
-              includeAllOption={false}
-              key={filterField.expressionFunction}
-              label={
-                showLabel
-                  ? filterField.field.filterTypeDefinition?.friendlyName
-                  : undefined
-              }
-            />
-          );
-        case "Substitute":
-          return (
-            <OrgUserSelect
-              orgId={organizationId ?? ""}
-              role={OrgUserRole.ReplacementEmployee}
-              setSelectedOrgUserIds={orgUserIds => {
-                const value = orgUserIds ?? [];
-                updateFilter({
-                  field: filterField.field,
-                  expressionFunction:
-                    filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value.length > 0 ? value : undefined,
-                });
-              }}
-              selectedOrgUserIds={filterField.value ?? []}
-              multiple={
-                filterField.expressionFunction ===
-                ExpressionFunction.ContainedIn
-              }
-              includeAllOption={false}
-              key={filterField.expressionFunction}
-              label={
-                showLabel
-                  ? filterField.field.filterTypeDefinition?.friendlyName
-                  : undefined
-              }
-            />
-          );
-        case "AbsenceReason":
-          return (
-            <AbsenceReasonSelect
-              orgId={organizationId ?? ""}
-              setSelectedAbsenceReasonIds={absenceReasonIds => {
-                const value = absenceReasonIds ?? [];
-                updateFilter({
-                  field: filterField.field,
-                  expressionFunction:
-                    filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value.length > 0 ? value : undefined,
-                });
-              }}
-              selectedAbsenceReasonIds={filterField.value ?? []}
-              multiple={
-                filterField.expressionFunction ===
-                ExpressionFunction.ContainedIn
-              }
-              includeAllOption={false}
-              key={filterField.expressionFunction}
-              label={
-                showLabel
-                  ? filterField.field.filterTypeDefinition?.friendlyName
-                  : undefined
-              }
-            />
-          );
-        case "VacancyReason":
-          return (
-            <VacancyReasonSelect
-              orgId={organizationId ?? ""}
-              setSelectedVacancyReasonIds={vacancyReasonIds => {
-                const value = vacancyReasonIds ?? [];
-                updateFilter({
-                  field: filterField.field,
-                  expressionFunction:
-                    filterField.expressionFunction ?? ExpressionFunction.Equal,
-                  value: value.length > 0 ? value : undefined,
-                });
-              }}
-              selectedVacancyReasonIds={filterField.value ?? []}
-              multiple={
-                filterField.expressionFunction ===
-                ExpressionFunction.ContainedIn
-              }
-              includeAllOption={false}
-              key={filterField.expressionFunction}
-              label={
-                showLabel
-                  ? filterField.field.filterTypeDefinition?.friendlyName
-                  : undefined
-              }
-            />
-          );
+  const filter = React.useMemo(() => {
+    switch (filterField.field.filterType) {
+      case FilterType.Boolean:
+        return (
+          <Checkbox
+            checked={filterField.value ?? false}
+            onChange={(e, checked) =>
+              updateFilter({
+                field: filterField.field,
+                expressionFunction: ExpressionFunction.Equal,
+                value: checked,
+              })
+            }
+            color="primary"
+          />
+        );
+      case FilterType.Date: {
+        const start = filterField.value[0] ?? undefined;
+        const end = filterField.value[1] ?? undefined;
+        return (
+          <DateRangePickerPopover
+            startDate={start}
+            endDate={end}
+            placeholder={t("Select dates")}
+            label={showLabel ? filterField.field.friendlyName : undefined}
+            onDateRangeSelected={(start, end) => {
+              updateFilter({
+                field: filterField.field,
+                expressionFunction: ExpressionFunction.Between,
+                value: [start, end],
+              });
+            }}
+          />
+        );
       }
-      break;
-  }
+      case FilterType.Custom:
+        switch (filterField.field.filterTypeDefinition?.key) {
+          case "Location":
+            return (
+              <LocationSelect
+                orgId={organizationId ?? undefined}
+                setSelectedLocationIds={locationIds => {
+                  const value = locationIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedLocationIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "PositionType":
+            return (
+              <PositionTypeSelect
+                orgId={organizationId ?? undefined}
+                setSelectedPositionTypeIds={positionTypeIds => {
+                  const value = positionTypeIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedPositionTypeIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "Employee":
+            return (
+              <OrgUserSelect
+                orgId={organizationId ?? ""}
+                role={OrgUserRole.Employee}
+                setSelectedOrgUserIds={orgUserIds => {
+                  const value = orgUserIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedOrgUserIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "Substitute":
+            return (
+              <OrgUserSelect
+                orgId={organizationId ?? ""}
+                role={OrgUserRole.ReplacementEmployee}
+                setSelectedOrgUserIds={orgUserIds => {
+                  const value = orgUserIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedOrgUserIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "AbsenceReason":
+            return (
+              <AbsenceReasonSelect
+                orgId={organizationId ?? ""}
+                setSelectedAbsenceReasonIds={absenceReasonIds => {
+                  const value = absenceReasonIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedAbsenceReasonIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "VacancyReason":
+            return (
+              <VacancyReasonSelect
+                orgId={organizationId ?? ""}
+                setSelectedVacancyReasonIds={vacancyReasonIds => {
+                  const value = vacancyReasonIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedVacancyReasonIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+        }
+        break;
+    }
 
-  return null;
+    return null;
+  }, [
+    filterField.expressionFunction,
+    filterField.field,
+    filterField.value,
+    organizationId,
+    showLabel,
+    t,
+    updateFilter,
+  ]);
+
+  return filter;
 };
