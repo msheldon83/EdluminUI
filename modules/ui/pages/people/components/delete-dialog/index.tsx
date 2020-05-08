@@ -12,10 +12,13 @@ import { useTranslation } from "react-i18next";
 import { lastDayOfYear, parseISO } from "date-fns";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
+import { OrgUserRole } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
 import { OrgUser } from "graphql/server-types.gen";
-import { useQueryBundle } from "graphql/hooks";
+import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useSnackbar } from "hooks/use-snackbar";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
+import { ShowErrors } from "ui/components/error-helpers";
 import { GetEmployeeAbsences } from "../../graphql/get-employee-absences.gen";
 import { GetSubstituteAssignments } from "../../graphql/get-substitute-assignments.gen";
 import { DeleteDialogList } from "./list";
@@ -28,16 +31,20 @@ function dropNulls<T>(
 }
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
+  type: "delete" | "inactivate" | OrgUserRole | null;
+  inactivateOrgUser: (clean: boolean) => void;
+  removeRole: (orgUserRole: OrgUserRole) => void;
+  deleteOrgUser: () => void;
   onCancel: () => void;
   orgId: string;
   orgUser: Pick<OrgUser, "id" | "isEmployee" | "isReplacementEmployee">;
 };
 
 export const DiscardChangesDialog: React.FC<Props> = ({
-  open,
-  onClose,
+  type,
+  inactivateOrgUser,
+  removeRole,
+  deleteOrgUser,
   onCancel,
   orgId,
   orgUser,
@@ -45,6 +52,77 @@ export const DiscardChangesDialog: React.FC<Props> = ({
   const { t } = useTranslation();
   const classes = useStyles();
   const currentSchoolYear = useCurrentSchoolYear(orgId);
+  const { openSnackbar } = useSnackbar();
+
+  let titleString;
+  let buttons;
+  let showEmployee = orgUser.isEmployee;
+  let showSubstitute = orgUser.isReplacementEmployee;
+  switch (type) {
+    case "delete":
+      titleString = t("Delete User Confirmation");
+      buttons = (
+        <>
+          <TextButton onClick={onCancel} className={classes.buttonSpacing}>
+            {t("Cancel")}
+          </TextButton>
+          <ButtonDisableOnClick
+            variant="outlined"
+            onClick={deleteOrgUser}
+            className={classes.delete}
+          >
+            {t("Delete")}
+          </ButtonDisableOnClick>
+        </>
+      );
+      break;
+    case "inactivate":
+      titleString = t("User Inactivation Confirmation");
+      buttons = (
+        <>
+          <TextButton onClick={onCancel} className={classes.buttonSpacing}>
+            {t("Cancel")}
+          </TextButton>
+          <ButtonDisableOnClick
+            variant="outlined"
+            onClick={() => inactivateOrgUser(false)}
+            className={classes.delete}
+          >
+            {t("Don't Remove Absences / Assignments")}
+          </ButtonDisableOnClick>
+          <ButtonDisableOnClick
+            variant="outlined"
+            onClick={() => inactivateOrgUser(true)}
+            className={classes.delete}
+          >
+            {t("Remove Absences / Assignments")}
+          </ButtonDisableOnClick>
+        </>
+      );
+      break;
+    case null:
+      titleString = "";
+      buttons = <></>;
+      break;
+    default:
+      titleString = t("Role deletion confirmation");
+      showEmployee = type == OrgUserRole.Employee;
+      showSubstitute = type == OrgUserRole.ReplacementEmployee;
+      buttons = (
+        <>
+          <TextButton onClick={onCancel} className={classes.buttonSpacing}>
+            {t("Cancel")}
+          </TextButton>
+          <ButtonDisableOnClick
+            variant="outlined"
+            onClick={() => removeRole(type)}
+            className={classes.delete}
+          >
+            {t("Remove role")}
+          </ButtonDisableOnClick>
+        </>
+      );
+  }
 
   const fromDate = new Date();
   const toDate = currentSchoolYear
@@ -66,11 +144,8 @@ export const DiscardChangesDialog: React.FC<Props> = ({
     },
   });
 
-  const componentHeight = 200;
-  const componentWidth = 200;
-
   let employeeComponent;
-  if (!orgUser.isEmployee) {
+  if (!showEmployee) {
     employeeComponent = undefined;
   } else if (getEmployeeAbsences.state == "LOADING") {
     employeeComponent = <Typography>Loading absences...</Typography>;
@@ -91,7 +166,7 @@ export const DiscardChangesDialog: React.FC<Props> = ({
   }
 
   let substituteComponent;
-  if (!orgUser.isReplacementEmployee) {
+  if (!showSubstitute) {
     substituteComponent = undefined;
   } else if (getSubstituteAssignments.state == "LOADING") {
     substituteComponent = <Typography>Loading assignments...</Typography>;
@@ -114,9 +189,9 @@ export const DiscardChangesDialog: React.FC<Props> = ({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} scroll="paper">
+    <Dialog open={type !== null} onClose={onCancel} scroll="paper">
       <DialogTitle disableTypography>
-        <Typography variant="h5">{t("User Deletion Confirmation")}</Typography>
+        <Typography variant="h5">{titleString}</Typography>
       </DialogTitle>
       <DialogContent>
         {employeeComponent && substituteComponent && (
@@ -138,18 +213,7 @@ export const DiscardChangesDialog: React.FC<Props> = ({
       </DialogContent>
 
       <Divider className={classes.divider} />
-      <DialogActions>
-        <TextButton onClick={onClose} className={classes.buttonSpacing}>
-          {t("Cancel")}
-        </TextButton>
-        <ButtonDisableOnClick
-          variant="outlined"
-          onClick={onCancel}
-          className={classes.delete}
-        >
-          {t("Delte")}
-        </ButtonDisableOnClick>
-      </DialogActions>
+      <DialogActions>{buttons}</DialogActions>
     </Dialog>
   );
 };
