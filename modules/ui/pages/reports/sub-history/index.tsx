@@ -76,6 +76,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       <PageTitle title={t("Substitute History")} />
       <Report
         input={reportInput}
+        exportFilename={t("SubstituteHistoryReport")}
         filterFieldsOverride={filterFieldsOverride}
         showGroupLabels={false}
       />

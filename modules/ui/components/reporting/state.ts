@@ -260,7 +260,8 @@ const processFilterValue = (value: any): any => {
 };
 
 export const convertReportDefinitionInputToRdl = (
-  input: ReportDefinitionInput
+  input: ReportDefinitionInput,
+  forExport?: boolean
 ): string => {
   const rdlPieces: string[] = [];
   rdlPieces.push(`QUERY FROM ${input.from}`);
@@ -274,7 +275,26 @@ export const convertReportDefinitionInputToRdl = (
     rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
   }
 
-  rdlPieces.push(`SELECT ${input.select.join(", ")}`);
+  const selects = input.select;
+  if (forExport && input.subtotalBy && input.subtotalBy.length > 0) {
+    // When exporting a grouped report, we need to make sure
+    // the things we are gouping by are represented in the data
+    // that is going to be put into the file
+    for (let i = input.subtotalBy.length - 1; i >= 0; i--) {
+      const subtotalBy = input.subtotalBy[i];
+      if (
+        subtotalBy.showExpression &&
+        !selects.includes(subtotalBy.showExpression)
+      ) {
+        selects.unshift(subtotalBy.showExpression);
+      }
+      if (!selects.includes(subtotalBy.expression)) {
+        selects.unshift(subtotalBy.expression);
+      }
+    }
+  }
+
+  rdlPieces.push(`SELECT ${selects.join(", ")}`);
 
   if (input.orderBy && input.orderBy.length > 0) {
     rdlPieces.push(

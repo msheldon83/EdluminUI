@@ -69,9 +69,47 @@ type CustomSpacing = {
   navBarWidthCompact: string;
 };
 
+type Actions = {
+  primary: string;
+  linksDeletion: string;
+  disabled: string;
+  info: string;
+};
+
+type Messages = {
+  default: string;
+  error: string;
+  success: string;
+  warning: string;
+  help: string;
+};
+
+type Status = {
+  error: string;
+  confirmed: string;
+  notConfirmed: string;
+};
+
+type Background = {
+  default: string;
+  confirmed: string;
+  information: string;
+};
+
+type Calendar = {
+  selected: string;
+  closedDay: string;
+  unavailable: string;
+};
+
 interface EdluminTheme extends Theme {
   customColors: CustomColors;
   customSpacing: CustomSpacing;
+  actions: Actions;
+  messages: Messages;
+  status: Status;
+  background: Background;
+  calendar: Calendar;
 }
 
 declare module "@material-ui/styles/defaultTheme" {
@@ -86,11 +124,21 @@ declare module "@material-ui/core/styles/createMuiTheme" {
   export interface Theme {
     customColors: CustomColors;
     customSpacing: CustomSpacing;
+    actions: Actions;
+    messages: Messages;
+    status: Status;
+    background: Background;
+    calendar: Calendar;
   }
   // allow configuration using `createMuiTheme`
   export interface ThemeOptions {
     customColors?: Partial<CustomColors>;
     customSpacing?: CustomSpacing;
+    actions?: Actions;
+    messages?: Messages;
+    status?: Status;
+    background?: Background;
+    calendar?: Calendar;
   }
 }
 

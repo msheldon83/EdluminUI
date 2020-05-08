@@ -41,6 +41,8 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
     ],
     minLeadTimeMinutesToCancelVacancy:
       props.organization?.config?.minLeadTimeMinutesToCancelVacancy || 240,
+    maxLeadTimeMinutesToCancelVacancyPart:
+      props.organization?.config?.maxLeadTimeMinutesToCancelVacancyPart || 1440,
     minutesBeforeStartAbsenceCanBeCreated:
       props.organization?.config?.minutesBeforeStartAbsenceCanBeCreated || 0,
     requestedSubCutoffMinutes:
@@ -68,6 +70,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
     () =>
       Yup.object().shape({
         minLeadTimeMinutesToCancelVacancy: Yup.number().nullable(),
+        maxLeadTimeMinutesToCancelVacancyPart: Yup.number().nullable(),
         minutesBeforeStartAbsenceCanBeCreated: Yup.number().nullable(),
         requestedSubCutoffMinutes: Yup.number().nullable(),
         minRequestedEmployeeHoldMinutes: Yup.number().nullable(),
@@ -106,6 +109,8 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                 featureFlags: data.featureFlags,
                 minLeadTimeMinutesToCancelVacancy:
                   data.minLeadTimeMinutesToCancelVacancy,
+                maxLeadTimeMinutesToCancelVacancyPart:
+                  data.maxLeadTimeMinutesToCancelVacancyPart,
                 minutesBeforeStartAbsenceCanBeCreated:
                   data.minutesBeforeStartAbsenceCanBeCreated,
                 requestedSubCutoffMinutes: data.requestedSubCutoffMinutes,
@@ -214,6 +219,19 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   <FormikDurationInput name="minLeadTimeMinutesToCancelVacancy" />
                 </Grid>
               </div>
+              <div className={classes.rowMargin}>
+                <Typography variant="h6">
+                  {t("Single day assignment cancellation window")}
+                </Typography>
+                <FormHelperText>
+                  {t(
+                    "Subs who have the permission to cancel will be able to cancel single days of a multiple day assignment within this window"
+                  )}
+                </FormHelperText>
+                <Grid item xs={2}>
+                  <FormikDurationInput name="maxLeadTimeMinutesToCancelVacancyPart" />
+                </Grid>
+              </div>
 
               <div className={classes.rowMargin}>
                 <Typography variant="h6">{t("Fulfillment cutoff")}</Typography>
@@ -275,8 +293,8 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                 </Grid>
               </div>
 
-              {/* 
-              
+              {/*
+
               Hidden until Request Sub has been implemented.
 
               <div className={classes.rowMargin}>

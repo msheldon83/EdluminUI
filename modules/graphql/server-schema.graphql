@@ -2610,6 +2610,7 @@ type organizationConfig {
   longTermVacancyThresholdDays: Int!
   minLeadTimeMinutesToCancelVacancy: Int!
   minLeadTimeMinutesToCancelVacancyWithoutPunishment: Int!
+  maxLeadTimeMinutesToCancelVacancyPart: Int!
   maxGapMinutesForSameVacancyDetail: Int!
   minAbsenceMinutes: Int!
   maxAbsenceDays: Int!
@@ -2636,6 +2637,7 @@ input organizationConfigInput {
   longTermVacancyThresholdDays: Int
   minLeadTimeMinutesToCancelVacancy: Int
   minLeadTimeMinutesToCancelVacancyWithoutPunishment: Int
+  maxLeadTimeMinutesToCancelVacancyPart: Int
   maxGapMinutesForSameVacancyDetail: Int
   minAbsenceMinutes: Int
   maxAbsenceDays: Int

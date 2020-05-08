@@ -8,6 +8,7 @@ import endOfWeek from "date-fns/endOfWeek";
 import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
 import isBefore from "date-fns/isBefore";
+import isSameDay from "date-fns/isSameDay";
 import { OptionType } from "../select-new";
 
 export type DateRange = {
@@ -42,10 +43,36 @@ const getThisSchoolYearDateRange = () => {
   return { start: startOfMonth(start), end: endOfMonth(end) };
 };
 
-export const usePresetDateRanges = () => {
+export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
   const { t } = useTranslation();
 
-  return [
+  const presetDateRanges = ([
+    {
+      label: t("Last 7 days"),
+      value: "last-7-days",
+      range() {
+        const start = addDays(new Date(), -7);
+        const end = new Date();
+
+        return {
+          start,
+          end,
+        };
+      },
+    },
+    {
+      label: t("Last 30 days"),
+      value: "last-30-days",
+      range() {
+        const start = addDays(new Date(), -30);
+        const end = new Date();
+
+        return {
+          start,
+          end,
+        };
+      },
+    },
     {
       label: t("Today"),
       value: "today",
@@ -175,5 +202,25 @@ export const usePresetDateRanges = () => {
         };
       },
     },
-  ];
+  ] as PresetRange[]).concat(additionalPresets ?? []);
+
+  function matchesPreset(
+    startToMatch?: Date,
+    endToMatch?: Date
+  ): PresetRange | undefined {
+    if (startToMatch === undefined || endToMatch === undefined) {
+      return undefined;
+    }
+
+    return presetDateRanges.find(presetDateRange => {
+      const { start, end } = presetDateRange.range();
+
+      return isSameDay(start, startToMatch) && isSameDay(end, endToMatch);
+    });
+  }
+
+  return {
+    presetDateRanges,
+    matchesPreset,
+  };
 };
