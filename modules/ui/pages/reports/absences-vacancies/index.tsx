@@ -31,6 +31,9 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
       "PositionTypeName",
       "RequiresSub",
       "IsFilled",
+      "NotesToAdmin",
+      "AdminOnlyNotes",
+      "NotesToReplacement",
     ],
     filter: [
       {
