@@ -43,7 +43,7 @@ export const OrganizationList: React.FC<Props> = props => {
           ]}
         />
         <Grid container spacing={2}>
-          <Grid container item spacing={2} xs={4}>
+          <Grid container item spacing={2} xs={12}>
             <Grid item xs={12} sm={6} lg={6}>
               {orgs?.length === 0 ? (
                 <div>{t("No related districts")}</div>
