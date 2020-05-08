@@ -41,15 +41,13 @@ export const Filter: React.FC<Props> = props => {
       case FilterType.Date: {
         const start = filterField.value[0] ?? undefined;
         const end = filterField.value[1] ?? undefined;
-        console.log("filter", start, end);
         return (
           <DateRangePickerPopover
             startDate={start}
-            endDate={end && end < start ? start : end}
+            endDate={end}
             placeholder={t("Select dates")}
             label={showLabel ? filterField.field.friendlyName : undefined}
             onDateRangeSelected={(start, end) => {
-              console.log("dates", start, end);
               updateFilter({
                 field: filterField.field,
                 expressionFunction: ExpressionFunction.Between,
