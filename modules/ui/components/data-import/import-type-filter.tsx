@@ -24,7 +24,7 @@ export const ImportTypeFilter: React.FC<Props> = props => {
 
   const selectedType =
     selectedTypeId === undefined
-      ? typeOptions[0]
+      ? { label: "", value: "" }
       : typeOptions.find((s: any) => s.value === selectedTypeId.toString());
 
   return (
@@ -33,7 +33,7 @@ export const ImportTypeFilter: React.FC<Props> = props => {
       value={selectedType ?? { label: "", value: "" }}
       multiple={false}
       options={typeOptions}
-      withResetValue={false}
+      withResetValue={!includeAllOption}
       onChange={e => {
         if (e.value.toString() === "0") {
           setSelectedTypeId(undefined);

@@ -1,0 +1,5 @@
+mutation DeleteDataImport($dataImportId: ID!) {
+  dataImport {
+    delete(dataImportId: $dataImportId)
+  }
+}

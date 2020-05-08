@@ -1,0 +1,17 @@
+query GetDataImportColumnDefinitions($dataImportType: DataImportType!) {
+  dataImport {
+    dataImportTypeColumnDefinition(dataImportType: $dataImportType) {
+      alternateNames
+      autoMapped
+      fullPropertyName
+      ignoreIfEmpty
+      isGroupingIndicator
+      isParent
+      isRequired
+      maxLength
+      pathName
+      propertyName
+      propertyType
+    }
+  }
+}

@@ -10,7 +10,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
-import { DataImportRoute, DataImportViewRoute } from "ui/routes/data-import";
+import {
+  DataImportRoute,
+  DataImportViewRoute,
+  DataImportColumnDefinitionsRoute,
+} from "ui/routes/data-import";
 import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
@@ -27,6 +31,7 @@ import { ImportDataForm } from "ui/components/data-import/import-data-form";
 import { useDataImportTypes } from "reference-data/data-import-types";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Section } from "ui/components/section";
+import { ActionMenu } from "ui/components/action-menu";
 
 export const DataImportPage: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -140,6 +145,29 @@ export const DataImportPage: React.FC<{}> = () => {
       >
         <Grid item>
           <PageTitle title={t("Data imports")} />
+        </Grid>
+        <Grid item>
+          <ActionMenu
+            options={[
+              {
+                name: t("Instructions"),
+                onClick: () => {
+                  window.open(
+                    "https://help.redroverk12.com/hc/en-us/articles/360041684611-Preparing-your-data-for-Import-into-Red-Rover?flash_digest=048d6532359da246f39391e77e3bb2b9ac5bf209",
+                    "_blank"
+                  );
+                },
+              },
+              {
+                name: t("Column definitions"),
+                onClick: () => {
+                  history.push(
+                    DataImportColumnDefinitionsRoute.generate(params)
+                  );
+                },
+              },
+            ]}
+          />
         </Grid>
       </Grid>
       <Section className={classes.container}>
