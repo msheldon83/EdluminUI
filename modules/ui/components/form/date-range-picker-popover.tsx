@@ -10,6 +10,7 @@ import format from "date-fns/format";
 import { DateRangePicker, DateRangePickerProps } from "./date-range-picker";
 import { usePresetDateRanges } from "./hooks/use-preset-date-ranges";
 import { InputLabel } from "./input";
+import { useTranslation } from "react-i18next";
 
 type DateRangePickerPopoverProps = DateRangePickerProps & {
   placeholder?: string;
@@ -17,6 +18,7 @@ type DateRangePickerPopoverProps = DateRangePickerProps & {
 };
 
 export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
+  const { t } = useTranslation();
   const classes = useStyles();
   const buttonRef = React.useRef(document.createElement("button"));
   const { matchesPreset } = usePresetDateRanges();
@@ -26,7 +28,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
     startDate,
     endDate,
     placeholder = "",
-    label = "Date range",
+    label = t("Date range"),
     ...datePickerProps
   } = props;
 
@@ -130,7 +132,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
                   <div className={classes.actions}>
                     <div className={classes.cancelButton}>
                       <Button variant="outlined" onClick={() => close()}>
-                        Cancel
+                        {t("Cancel")}
                       </Button>
                     </div>
                     <div>
@@ -142,7 +144,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
                           endDateInternal === undefined
                         }
                       >
-                        Apply
+                        {t("Apply")}
                       </Button>
                     </div>
                   </div>
