@@ -1,18 +1,14 @@
 import * as React from "react";
-import { useEffect } from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  SubstituteInput,
-  SubstituteAttributeInput,
-  SubstituteRelatedOrgInput,
-} from "graphql/server-types.gen";
+import { SubstituteInput } from "graphql/server-types.gen";
 import { ManageDistrictsUI } from "../../components/manage-districts/ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
 import { AddRelatedOrg } from "./graphql/add-related-org.gen";
 import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
+import { format } from "date-fns";
 import { compact } from "lodash-es";
 import { UpdateSubstitute } from "./graphql/update-substitute.gen";
 import { CustomOrgUserRelationship } from "ui/components/manage-districts/helpers";
@@ -74,19 +70,21 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  //TODO: Create string in format "Attribute (Expires April 23, 2019)"
   const allDistrictAttributes = orgUser.employee?.endorsements ?? [];
-  const formattedDistrictAttributes =
-    allDistrictAttributes.length > 0
-      ? allDistrictAttributes
-          .filter(x => !x?.endorsement.expires)
-          .map(
-            o =>
-              o?.endorsement.name +
-              `${t("(Expires ")} ${o?.endorsement.validUntil} ${t(")")}`
-          )
-          .toString()
-      : [];
+  const formattedDistrictAttributes: string[] =
+    allDistrictAttributes.map(
+      o =>
+        `${
+          o?.endorsement.validUntil < new Date("6/6/2079")
+            ? o?.endorsement.name +
+              t(" (Expires ") +
+              format(parseISO(o?.endorsement.validUntil), "MMM, d, yyyy") +
+              t(")")
+            : o?.endorsement.name
+            ? o.endorsement.name
+            : t("Substitute has no Attributes")
+        }`
+    ) ?? [];
 
   const handleUpdateSubstitute = async (substitute: SubstituteInput) => {
     await updateSubstitute({
@@ -146,8 +144,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         orgUserRelationships={relationships}
         orgEndorsements={orgEndorsements}
         orgId={params.organizationId}
-        allDistrictAttributes={formattedDistrictAttributes as string[]}
-        isAdmin={true}
+        allDistrictAttributes={formattedDistrictAttributes}
       />
     </>
   );

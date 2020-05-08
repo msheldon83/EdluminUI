@@ -12,7 +12,6 @@ import {
 } from "graphql/server-types.gen";
 import { Section } from "ui/components/section";
 import clsx from "clsx";
-import { Maybe } from "graphql/server-types.gen";
 import { CustomOrgUserRelationship } from "../helpers";
 import { SectionHeader } from "ui/components/section-header";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
@@ -32,8 +31,6 @@ export const SelectedDistricts: React.FC<Props> = props => {
 
   const { orgUserRelationships, onRemoveOrg, orgEndorsements, onSave } = props;
 
-  //InitialValues = orgUserRleationships
-
   return (
     <Formik
       initialValues={{ orgUserRelationships: orgUserRelationships }}
@@ -50,8 +47,6 @@ export const SelectedDistricts: React.FC<Props> = props => {
                   } as SubstituteAttributeInput)
               ) ?? ([] as SubstituteAttributeInput[]),
           })) ?? [];
-
-        console.log(relatedOrgs);
 
         await onSave({ relatedOrgs });
       }}
@@ -99,17 +94,20 @@ export const SelectedDistricts: React.FC<Props> = props => {
                         <Grid item xs={4} container className={classes.inline}>
                           <AutoCompleteSearch
                             searchText={searchText}
-                            onClick={(id: string) => {
+                            onClick={(id: string, name?: string) => {
                               {
                                 values.orgUserRelationships[i].attributes.push({
                                   endorsementId: id,
+                                  name: name,
                                 });
+                                handleSubmit();
                               }
                             }}
                             options={orgEndorsements}
                             setSearchText={setSearchText}
                             placeholder={t("search")}
                             useLabel={false}
+                            includeName
                           />
                           {n?.attributes?.length === 0 ? (
                             <div></div>

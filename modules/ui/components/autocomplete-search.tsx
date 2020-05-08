@@ -10,10 +10,11 @@ import { useDeferredState } from "hooks";
 type Props = {
   options: OptionType[];
   setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
-  onClick: (id: string, orgId?: string) => void;
+  onClick: (id: string, name?: string) => void;
   useLabel?: boolean;
   placeholder?: string;
   searchText?: string | undefined;
+  includeName?: boolean;
 };
 
 export const AutoCompleteSearch: React.FC<Props> = props => {
@@ -69,7 +70,9 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
           const selectedValue = selection?.value ?? "";
 
           if (selectedValue !== "") {
-            props.onClick(selectedValue.toString());
+            const result = props.includeName
+              ? props.onClick(selectedValue.toString(), selection?.label)
+              : props.onClick(selectedValue.toString());
           }
         }}
       />

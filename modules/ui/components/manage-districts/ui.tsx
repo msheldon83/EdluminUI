@@ -1,11 +1,10 @@
 import * as React from "react";
-import { Grid } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Maybe } from "graphql/server-types.gen";
 import { CustomOrgUserRelationship } from "./helpers";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
@@ -17,21 +16,20 @@ import { SearchDelegatesToOrganizations } from "./graphql/search-related-orgs.ge
 type Props = {
   orgUserRelationships: CustomOrgUserRelationship[];
   orgId: string;
-  allDistrictAttributes: string[];
   orgEndorsements: OptionType[];
   onAddOrg: (orgId: string) => Promise<unknown>;
   onRemoveOrg: (orgId: string) => Promise<unknown>;
   onSave: (sub: SubstituteInput) => Promise<any>;
-  isAdmin?: boolean;
+  allDistrictAttributes?: string[];
 };
 
 export const ManageDistrictsUI: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
   const [searchText, setSearchText] = useState<string | undefined>();
 
   const {
     allDistrictAttributes,
-    isAdmin,
     onAddOrg,
     onRemoveOrg,
     orgUserRelationships,
@@ -66,6 +64,9 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
       <Grid item xs={12} md={6} lg={6}>
         <Section>
           <SectionHeader title={t("Add a district")} />
+          <Grid item xs={12} container className={classes.spacing}>
+            {t("Search")}
+          </Grid>
           <AutoCompleteSearch
             onClick={onAddOrg}
             searchText={searchText}
@@ -75,11 +76,11 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
           />
         </Section>
       </Grid>
-      {isAdmin && (
+      {allDistrictAttributes && (
         <Grid item xs={12} md={6} lg={6}>
           <Section>
             <SectionHeader title={t("All district attributes")} />
-            {allDistrictAttributes.length === 0 ? (
+            {allDistrictAttributes?.length === 0 ? (
               <div>{t("No district attributes")}</div>
             ) : (
               allDistrictAttributes?.map((n, i) => <div key={i}>{n}</div>)
@@ -98,3 +99,9 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
     </Grid>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  spacing: {
+    paddingTop: theme.spacing(1),
+  },
+}));

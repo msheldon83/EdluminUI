@@ -3,7 +3,7 @@ import clsx from "clsx";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles } from "@material-ui/core";
-import { DatePicker } from "ui/components/form/date-picker";
+import { DateInput } from "ui/components/form/date-input";
 
 type Props = {
   onRemoveEndorsement: () => void;
@@ -42,18 +42,25 @@ export const EndorsementDetail: React.FC<Props> = props => {
           {name}
         </Grid>
         <Grid item xs={5} className={classes.displayInline}>
-          <DatePicker
-            variant={"single-hidden"}
+          <DateInput
+            value={expirationDate ?? ""}
             placeholder={t("expires")}
-            startDate={expirationDate ?? ""}
             onChange={async (date: any) => {
+              const newDate = date === "" ? undefined : date;
+
+              setFieldValue(
+                `orgUserRelationships[${orgRelationshipIndex}].attributes[${endorsementIndex}].expirationDate`,
+                newDate
+              );
+
+              //Allow User to remove an Expiration Date.
+              if (newDate === undefined) await submitForm();
+            }}
+            onValidDate={async date => {
               setFieldValue(
                 `orgUserRelationships[${orgRelationshipIndex}].attributes[${endorsementIndex}].expirationDate`,
                 date
               );
-
-              console.log(date);
-
               await submitForm();
             }}
           />
