@@ -31,7 +31,7 @@ import {
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
-import { GetOrganizationRelationships } from "../graphql/substitute/get-org-relationships.gen";
+import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
 import { useCanDo } from "ui/components/auth/can";
 import { canEditSub } from "helpers/permissions";
 

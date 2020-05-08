@@ -13,7 +13,8 @@ import { compact } from "lodash-es";
 import { UpdateSubstitute } from "./graphql/update-substitute.gen";
 import { CustomOrgUserRelationship } from "./helpers";
 import { useEndorsements } from "reference-data/endorsements";
-import { PeopleSubRelatedOrgsEditRoute } from "ui/routes/people";
+import { PersonViewRoute } from "ui/routes/people";
+import { Link } from "react-router-dom";
 import { useRouteParams } from "ui/routes/definition";
 import { OptionType } from "ui/components/form/select-new";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -23,7 +24,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
-  const params = useRouteParams(PeopleSubRelatedOrgsEditRoute);
+  const params = useRouteParams(PersonViewRoute);
   const classes = useStyles();
 
   const getSubRelatedOrgs = useQueryBundle(GetSubstituteRelatedOrgs, {
@@ -143,6 +144,13 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         <Typography className={classes.header} variant="h4">
           {`${orgUser?.firstName} ${orgUser?.lastName}`}
         </Typography>
+
+        <div className={classes.linkPadding}>
+          <Link to={PersonViewRoute.generate(params)} className={classes.link}>
+            {t("Return to substitute")}
+          </Link>
+        </div>
+
         <Typography variant="h1">{t("Districts")}</Typography>
       </div>
       <ManageDistrictsUI
@@ -166,5 +174,14 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     marginBottom: theme.spacing(2),
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    paddingBottom: theme.typography.pxToRem(15),
   },
 }));

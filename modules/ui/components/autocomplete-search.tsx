@@ -22,6 +22,8 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
   const classes = useStyles();
   const setSearchText = props.setSearchText;
 
+  const [resetComponent, setResetComponent] = React.useState<number>(1);
+
   const [
     searchText,
     pendingSearchText,
@@ -47,6 +49,7 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
         freeSolo
         selectOnFocus={true}
         clearOnEscape
+        key={resetComponent}
         autoComplete
         getOptionLabel={o => {
           return o.label;
@@ -69,7 +72,11 @@ export const AutoCompleteSearch: React.FC<Props> = props => {
         onChange={(e: React.ChangeEvent<{}>, selection: OptionType | null) => {
           const selectedValue = selection?.value ?? "";
 
+          setSearchText(undefined);
+
           if (selectedValue !== "") {
+            setResetComponent(Math.random());
+
             const result = props.includeName
               ? props.onClick(selectedValue.toString(), selection?.label)
               : props.onClick(selectedValue.toString());

@@ -8,16 +8,17 @@ import { AddRelatedOrg } from "./graphql/add-related-org.gen";
 import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
 import { compact } from "lodash-es";
 import { GetAdminRelatedOrgs } from "./graphql/get-admin-related-orgs.gen";
-import { PeopleSubRelatedOrgsEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { CustomOrgUserRelationship } from "ui/pages/sub-related-orgs/helpers";
+import { Link } from "react-router-dom";
+import { PersonViewRoute } from "ui/routes/people";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
 export const AdminRelatedOrgsEditPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
-  const params = useRouteParams(PeopleSubRelatedOrgsEditRoute);
+  const params = useRouteParams(PersonViewRoute);
   const classes = useStyles();
 
   const getAdminRelatedOrgs = useQueryBundle(GetAdminRelatedOrgs, {
@@ -89,6 +90,11 @@ export const AdminRelatedOrgsEditPage: React.FC<{}> = props => {
         <Typography className={classes.header} variant="h4">
           {`${orgUser?.firstName} ${orgUser?.lastName}`}
         </Typography>
+        <div className={classes.linkPadding}>
+          <Link to={PersonViewRoute.generate(params)} className={classes.link}>
+            {t("Return to admin")}
+          </Link>
+        </div>
         <Typography variant="h1">{t("Districts")}</Typography>
       </div>
       <ManageDistrictsUI
@@ -109,5 +115,14 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     marginBottom: theme.spacing(2),
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    paddingBottom: theme.typography.pxToRem(15),
   },
 }));

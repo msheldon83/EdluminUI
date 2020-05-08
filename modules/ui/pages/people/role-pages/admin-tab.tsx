@@ -17,7 +17,7 @@ import { PersonViewRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { AccessControl } from "../components/admin/access-control";
 import { Information } from "../components/information";
-import { GetOrganizationRelationships } from "../graphql/substitute/get-org-relationships.gen";
+import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
 import { canEditAdmin } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
 
