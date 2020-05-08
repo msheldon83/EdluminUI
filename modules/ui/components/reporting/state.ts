@@ -9,7 +9,7 @@ import {
   Direction,
 } from "./types";
 import { compact } from "lodash-es";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
 
 export type ReportState = {
   reportDefinitionInput: ReportDefinitionInput;
@@ -242,6 +242,23 @@ const buildFormula = (
         Array.isArray(inValue) ? inValue.join(",") : inValue
       }))`;
     }
+    case ExpressionFunction.Between: {
+      let betweenValues: any[] = [];
+      if (
+        Array.isArray(value) &&
+        value[0] instanceof Date &&
+        value[1] instanceof Date
+      ) {
+        // Handle date range between
+        betweenValues = [
+          `'${format(startOfDay(value[0]), "MM/dd/yyyy H:mm:ss")}'`,
+          `'${format(endOfDay(value[1]), "MM/dd/yyyy H:mm:ss")}'`,
+        ];
+      } else {
+        betweenValues = processFilterValue(value);
+      }
+      return `(${fieldName} Between ${betweenValues[0]} AND ${betweenValues[1]})`;
+    }
   }
   return null;
 };
@@ -275,7 +292,7 @@ export const convertReportDefinitionInputToRdl = (
     rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
   }
 
-  const selects = input.select;
+  const selects = [...input.select];
   if (forExport && input.subtotalBy && input.subtotalBy.length > 0) {
     // When exporting a grouped report, we need to make sure
     // the things we are gouping by are represented in the data
