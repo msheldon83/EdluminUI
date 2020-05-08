@@ -9,7 +9,7 @@ import {
   Direction,
 } from "./types";
 import { compact } from "lodash-es";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
 
 export type ReportState = {
   reportDefinitionInput: ReportDefinitionInput;
@@ -241,6 +241,23 @@ const buildFormula = (
       return `(${fieldName} IN (${
         Array.isArray(inValue) ? inValue.join(",") : inValue
       }))`;
+    }
+    case ExpressionFunction.Between: {
+      let betweenValues: any[] = [];
+      if (
+        Array.isArray(value) &&
+        value[0] instanceof Date &&
+        value[1] instanceof Date
+      ) {
+        // Handle date range between
+        betweenValues = [
+          `'${format(startOfDay(value[0]), "MM/dd/yyyy H:mm:ss")}'`,
+          `'${format(endOfDay(value[1]), "MM/dd/yyyy H:mm:ss")}'`,
+        ];
+      } else {
+        betweenValues = processFilterValue(value);
+      }
+      return `(${fieldName} Between ${betweenValues[0]} AND ${betweenValues[1]})`;
     }
   }
   return null;
