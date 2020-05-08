@@ -111,12 +111,18 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                 <Grid item xs={isMobile ? 12 : 4}>
                   <Typography variant="h6">{t("School")}</Typography>
                 </Grid>
-                <Grid item xs={isMobile ? 12 : 4}>
-                  <Typography variant="h6">{t("Accounting Code")}</Typography>
-                </Grid>
-                <Grid item xs={isMobile ? 12 : 4}>
-                  <Typography variant="h6">{t("Pay Code")}</Typography>
-                </Grid>
+                {!props.actingAsEmployee && (
+                  <>
+                    <Grid item xs={isMobile ? 12 : 4}>
+                      <Typography variant="h6">
+                        {t("Accounting Code")}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={isMobile ? 12 : 4}>
+                      <Typography variant="h6">{t("Pay Code")}</Typography>
+                    </Grid>
+                  </>
+                )}
               </Grid>
             </Grid>
           </>

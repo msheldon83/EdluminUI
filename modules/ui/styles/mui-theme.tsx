@@ -283,6 +283,35 @@ export const EdluminTheme = createMuiTheme({
     navBarWidthCompact: pxToRem(53),
   },
 
+  actions: {
+    primary: themeColors.edluminSlate,
+    linksDeletion: themeColors.primary,
+    disabled: themeColors.lightSlate,
+    info: "#3D4ED7",
+  },
+  messages: {
+    default: themeColors.edluminSlate,
+    error: themeColors.darkRed,
+    success: "#099E47",
+    warning: "#FFCC01",
+    help: "#3D4ED7",
+  },
+  status: {
+    error: themeColors.primary,
+    confirmed: "#099E47",
+    notConfirmed: "#FFA000",
+  },
+  background: {
+    default: themeColors.edluminSlate,
+    confirmed: "#84CFA3",
+    information: themeColors.lightSlate,
+  },
+  calendar: {
+    selected: themeColors.edluminSlate,
+    closedDay: themeColors.primary,
+    unavailable: themeColors.lightSlate,
+  },
+
   typography: palette => ({
     color: themeColors.black,
     fontFamily: "Roboto",

@@ -7,63 +7,67 @@ import {
   Direction,
   ExpressionFunction,
 } from "ui/components/reporting/types";
+import { addDays } from "date-fns";
 
 export const AbsencesVacanciesReport: React.FC<{}> = () => {
   const { t } = useTranslation();
-  const today = React.useMemo(() => new Date(), []);
 
-  const reportInput: ReportDefinitionInput = {
-    from: "AbsenceAndVacancy",
-    select: [
-      "ConfirmationNumber",
-      "Date",
-      "LocationName",
-      "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee",
-      "AbsStartTime",
-      "AbsEndTime",
-      "ReasonName",
-      "Concat(SubFirstName,' ',SubLastName) AS Substitute",
-      "SubStartTime",
-      "SubEndTime",
-      "PayDays",
-      "PayHours",
-      "Title",
-      "PositionTypeName",
-      "RequiresSub",
-      "IsFilled",
-    ],
-    filter: [
-      {
-        fieldName: "Date",
-        expressionFunction: ExpressionFunction.Equal,
-        value: today,
-        isRequired: true,
-      },
-    ],
-    orderBy: [
-      {
-        expression: "Date",
-        direction: Direction.Desc,
-      },
-    ],
-  };
-
-  const filterFieldsOverride = [
-    "Date",
-    "AbsentEmployeeId",
-    "SubEmployeeId",
-    "PositionTypeId",
-    "LocationId",
-    "AbsenceReasonId",
-    "VacancyReasonId",
-    "IsAbsence",
-    "IsVacancy",
-  ];
+  const reportInput: ReportDefinitionInput = React.useMemo(() => {
+    return {
+      from: "AbsenceAndVacancy",
+      select: [
+        "ConfirmationNumber",
+        "Date",
+        "LocationName",
+        "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee",
+        "AbsStartTime",
+        "AbsEndTime",
+        "ReasonName",
+        "Concat(SubFirstName,' ',SubLastName) AS Substitute",
+        "SubStartTime",
+        "SubEndTime",
+        "PayDays",
+        "PayHours",
+        "Title",
+        "PositionTypeName",
+        "RequiresSub",
+        "IsFilled",
+      ],
+      filter: [
+        {
+          fieldName: "Date",
+          expressionFunction: ExpressionFunction.Between,
+          value: [addDays(new Date(), -7), new Date()],
+          isRequired: true,
+        },
+      ],
+      orderBy: [
+        {
+          expression: "Date",
+          direction: Direction.Desc,
+        },
+      ],
+    };
+  }, []);
 
   return (
     <>
       <PageTitle title={t("Absences & Vacancies")} />
-      <Report input={reportInput} filterFieldsOverride={filterFieldsOverride} />
+      <Report
+        input={reportInput}
+        exportFilename={t("AbsencesVacanciesReport")}
+        filterFieldsOverride={[
+          "Date",
+          "AbsentEmployeeId",
+          "SubEmployeeId",
+          "PositionTypeId",
+          "LocationId",
+          "AbsenceReasonId",
+          "VacancyReasonId",
+          "IsAbsence",
+          "IsVacancy",
+        ]}
+      />
     </>
   );
 };

@@ -370,6 +370,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             vacancies={props.vacancies}
             assignmentsByDate={assignmentsByDate}
             email={props.replacementEmail}
+            shouldLink={true}
           />
         )}
 

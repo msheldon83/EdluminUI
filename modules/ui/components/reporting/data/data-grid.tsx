@@ -235,15 +235,18 @@ const useStyles = makeStyles(theme => ({
   cell: {
     padding: theme.typography.pxToRem(10),
   },
+  firstGroupedDataRow: {
+    borderTop: "1px solid #E5E5E5",
+  },
   dataRow: {
     background: "rgba(255,255,255, 1)",
     height: "100%",
     borderBottom: "1px solid #E5E5E5",
-    borderTop: "1px solid #E5E5E5",
   },
   alternatingDataRow: {
     background: "#F8F8F8",
     height: "100%",
+    borderBottom: "1px solid #E5E5E5",
   },
   action: {
     cursor: "pointer",
@@ -320,6 +323,7 @@ const dataCellRenderer = (
     [classes.dataRow]: isNormalRow,
     [classes.cell]: columnIndex > 0 || level === 0,
     [classes.firstGroupedDataCell]: columnIndex === 0 && level > 0,
+    [classes.firstGroupedDataRow]: dataRowIndex === 0,
   });
 
   if (columnIndex === 0) {

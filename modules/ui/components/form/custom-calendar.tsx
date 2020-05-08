@@ -274,6 +274,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
             <IconButton
               arial-label="view previous month"
               onClick={handlePreviousMonthClick}
+              className={classes.previousMonthButton}
             >
               <ArrowBackIosIcon fontSize="small" />
             </IconButton>
@@ -385,6 +386,11 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     height: theme.typography.pxToRem(44),
     width: theme.typography.pxToRem(44),
   },
+  previousMonthButton: {
+    "& svg": {
+      transform: `translateX(${theme.typography.pxToRem(3)})`,
+    },
+  },
   dayRange: {
     fontSize: theme.typography.pxToRem(14),
     lineHeight: 1,
@@ -401,7 +407,6 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
   },
   dates: {
     display: "grid",
-    gridGap: theme.spacing(0.5),
     gridTemplateColumns: "repeat(7, 1fr)",
     listStyleType: "none",
     margin: 0,
@@ -419,6 +424,7 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     position: "relative",
     width: "100%",
     transition: "none",
+    borderRadius: 0,
 
     pointerEvents: props => (props.onSelectDates ? "auto" : "none"),
 

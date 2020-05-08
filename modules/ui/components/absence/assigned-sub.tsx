@@ -103,6 +103,7 @@ export const AssignedSub: React.FC<Props> = props => {
             <Typography variant="h6" className={classes.nameLabel}>
               <SubstituteLink
                 orgUserId={props.shouldLink ? props.employeeId : undefined}
+                color="black"
               >
                 {props.employeeName}
               </SubstituteLink>
