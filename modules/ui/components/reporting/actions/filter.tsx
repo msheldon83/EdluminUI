@@ -38,11 +38,10 @@ export const Filter: React.FC<Props> = props => {
         />
       );
     case FilterType.Date: {
-      const today = new Date();
       return (
         <DateRangePickerPopover
-          startDate={filterField.value[0] ?? today}
-          endDate={filterField.value[1] ?? today}
+          startDate={filterField.value[0]}
+          endDate={filterField.value[1]}
           placeholder={t("Select dates")}
           label={showLabel ? filterField.field.friendlyName : undefined}
           onDateRangeSelected={(start, end) => {
