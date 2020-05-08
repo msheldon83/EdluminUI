@@ -21,7 +21,7 @@ export function buildGraphqlClient(opts: {
     uri: Config.restUri,
     endpoints: {
       reportExport: {
-        uri: "/api/report/export",
+        uri: `${Config.restUri}/report/export`,
         responseTransformer: async (data: any, typeName: string) =>
           fileDownloadResponseTransformer(data, "Report"),
       },
