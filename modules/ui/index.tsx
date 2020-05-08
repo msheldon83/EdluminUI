@@ -731,16 +731,6 @@ export const App = hot(function() {
                                       ]}
                                     />
                                     <ProtectedRoute
-                                      component={
-                                        PeopleAdminRelatedOrgsEditLoader
-                                      }
-                                      path={
-                                        PeopleAdminRelatedOrgsEditRoute.path
-                                      }
-                                      role={"admin"}
-                                      permissions={[PermissionEnum.AdminSave]}
-                                    />
-                                    <ProtectedRoute
                                       component={PeopleSubPoolEditLoader}
                                       path={PeopleSubPoolEditRoute.path}
                                       role={"admin"}
@@ -799,6 +789,16 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={AdminAddLoader}
                                       path={AdminAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AdminSave]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        PeopleAdminRelatedOrgsEditLoader
+                                      }
+                                      path={
+                                        PeopleAdminRelatedOrgsEditRoute.path
+                                      }
                                       role={"admin"}
                                       permissions={[PermissionEnum.AdminSave]}
                                     />

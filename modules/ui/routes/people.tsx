@@ -140,7 +140,7 @@ export const PeopleSubPoolEditLoader = asyncComponent({
 //Edit Admin Related Orgs
 export const PeopleAdminRelatedOrgsEditRoute = defineSubRoute(
   PersonViewRoute,
-  "/edit-sub-orgs"
+  "/edit-admin-orgs"
 );
 export const PeopleAdminRelatedOrgsEditLoader = asyncComponent({
   resolve: async () => {

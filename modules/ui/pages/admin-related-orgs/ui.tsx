@@ -4,20 +4,19 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Section } from "ui/components/section";
+import { CustomOrgUserRelationship } from "ui/pages/sub-related-orgs/helpers";
 import { SectionHeader } from "ui/components/section-header";
-import { CustomOrgUserRelationship } from "./helpers";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
-import { SubstituteInput } from "graphql/server-types.gen";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { SelectedDistricts } from "./components/selected-districts";
 import { SearchDelegatesToOrganizations } from "./graphql/search-related-orgs.gen";
 
 type Props = {
-  orgUserRelationships: CustomOrgUserRelationship[];
   orgId: string;
   onAddOrg: (orgId: string) => Promise<unknown>;
   onRemoveOrg: (orgId: string) => Promise<unknown>;
+  orgUserRelationships: CustomOrgUserRelationship[];
 };
 
 export const ManageDistrictsUI: React.FC<Props> = props => {

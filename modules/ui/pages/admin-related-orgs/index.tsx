@@ -3,12 +3,14 @@ import { Typography, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { ManageDistrictsUI } from "./ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useMemo } from "react";
 import { AddRelatedOrg } from "./graphql/add-related-org.gen";
 import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
-import { GetAdminRelatedOrgs } from "./graphql/get-admin-related-orgs.gen";
 import { compact } from "lodash-es";
+import { GetAdminRelatedOrgs } from "./graphql/get-admin-related-orgs.gen";
 import { PeopleSubRelatedOrgsEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
+import { CustomOrgUserRelationship } from "ui/pages/sub-related-orgs/helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
@@ -42,7 +44,22 @@ export const AdminRelatedOrgsEditPage: React.FC<{}> = props => {
 
   const orgUserRelationships = compact(orgUser?.orgUserRelationships) ?? [];
 
-  if (getAdminRelatedOrgs.state === "LOADING" || !orgUser) {
+  const relationships: CustomOrgUserRelationship[] = useMemo(
+    () =>
+      orgUserRelationships.map(
+        o =>
+          ({
+            otherOrganization: o.otherOrganization,
+            attributes: [],
+          } ?? [])
+      ),
+    [orgUserRelationships]
+  );
+
+  if (
+    getAdminRelatedOrgs.state === "LOADING" ||
+    !orgUser?.orgUserRelationships
+  ) {
     return <></>;
   }
 
@@ -77,7 +94,7 @@ export const AdminRelatedOrgsEditPage: React.FC<{}> = props => {
       <ManageDistrictsUI
         onAddOrg={handleAddOrg}
         onRemoveOrg={handleRemoveOrg}
-        orgUserRelationships={orgUserRelationships}
+        orgUserRelationships={relationships}
         orgId={params.organizationId}
       />
     </>
