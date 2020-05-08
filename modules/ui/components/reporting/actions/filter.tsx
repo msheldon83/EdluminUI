@@ -46,7 +46,6 @@ export const Filter: React.FC<Props> = props => {
           placeholder={t("Select dates")}
           label={showLabel ? filterField.field.friendlyName : undefined}
           onDateRangeSelected={(start, end) => {
-            console.log(start, end);
             updateFilter({
               field: filterField.field,
               expressionFunction: ExpressionFunction.Between,
