@@ -28,7 +28,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
     startDate,
     endDate,
     placeholder = "",
-    label = t("Date range"),
+    label,
     ...datePickerProps
   } = props;
 
@@ -87,7 +87,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
     <>
       <div>
         <InputLabel htmlFor={id} className={classes.label}>
-          {label}
+          {label ?? t("Date range")}
         </InputLabel>
       </div>
       <div className={classes.trigger}>
@@ -170,6 +170,7 @@ const useStyles = makeStyles(theme => ({
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
     cursor: "pointer",
+    pointerEvents: "none",
     position: "absolute",
     right: theme.spacing(2),
     top: "50%",
