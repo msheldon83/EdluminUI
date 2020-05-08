@@ -7,10 +7,10 @@ import {
   Direction,
   ExpressionFunction,
 } from "ui/components/reporting/types";
+import { addDays } from "date-fns";
 
 export const AbsencesVacanciesReport: React.FC<{}> = () => {
   const { t } = useTranslation();
-  const today = React.useMemo(() => new Date(), []);
 
   const reportInput: ReportDefinitionInput = {
     from: "AbsenceAndVacancy",
@@ -35,8 +35,8 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
     filter: [
       {
         fieldName: "Date",
-        expressionFunction: ExpressionFunction.Equal,
-        value: today,
+        expressionFunction: ExpressionFunction.Between,
+        value: [addDays(new Date(), -7), new Date()],
         isRequired: true,
       },
     ],
