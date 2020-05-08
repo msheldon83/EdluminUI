@@ -1,15 +1,15 @@
 import * as React from "react";
-import { Checkbox, makeStyles } from "@material-ui/core";
+import { Checkbox } from "@material-ui/core";
 import { FilterField, FilterType, ExpressionFunction } from "../types";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 import { useOrganizationId } from "core/org-context";
 import { DateRangePickerPopover } from "ui/components/form/date-range-picker-popover";
-import { DatePicker } from "ui/components/form/date-picker";
 import { AbsenceReasonSelect } from "ui/components/reference-selects/absence-reason-select";
 import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-reason-select";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrgUserSelect } from "ui/components/domain-selects/org-user-select";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   filterField: FilterField;
@@ -18,6 +18,7 @@ type Props = {
 };
 
 export const Filter: React.FC<Props> = props => {
+  const { t } = useTranslation();
   const organizationId = useOrganizationId();
   const { filterField, updateFilter, showLabel } = props;
 
@@ -38,20 +39,20 @@ export const Filter: React.FC<Props> = props => {
       );
     case FilterType.Date: {
       const today = new Date();
-      //TODO: Replace with DateRangePickerPopover
-      //return <DateRangePickerPopover />;
       return (
-        <DatePicker
-          startDate={filterField.value ?? today}
-          onChange={d => {
+        <DateRangePickerPopover
+          startDate={filterField.value[0] ?? today}
+          endDate={filterField.value[1] ?? today}
+          placeholder={t("Select dates")}
+          label={showLabel ? filterField.field.friendlyName : undefined}
+          onDateRangeSelected={(start, end) => {
+            console.log(start, end);
             updateFilter({
               field: filterField.field,
-              expressionFunction: ExpressionFunction.Equal,
-              value: d.startDate,
+              expressionFunction: ExpressionFunction.Between,
+              value: [start, end],
             });
           }}
-          startLabel={showLabel ? filterField.field.friendlyName : undefined}
-          variant="single-hidden"
         />
       );
     }
