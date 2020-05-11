@@ -156,8 +156,7 @@ export const DeleteDialog: React.FC<Props> = ({
             ) : (
               <DeleteDialogList
                 className={classes.dividedContent}
-                employeeType="employee"
-                absvacType="absences"
+                name="absences"
                 absvacs={dropNulls(
                   getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
                 )?.map(absence => ({
@@ -174,8 +173,7 @@ export const DeleteDialog: React.FC<Props> = ({
             ) : (
               <DeleteDialogList
                 className={classes.dividedContent}
-                employeeType="substitute"
-                absvacType="assignments"
+                name="assignments"
                 absvacs={dropNulls(
                   printId(
                     getSubstituteAssignments.data?.employee
@@ -195,8 +193,7 @@ export const DeleteDialog: React.FC<Props> = ({
             <Typography>Loading assignments...</Typography>
           ) : (
             <DeleteDialogList
-              employeeType="substitute"
-              absvacType="assignments"
+              name="assignments"
               absvacs={dropNulls(
                 getSubstituteAssignments.data?.employee
                   ?.employeeAssignmentSchedule
@@ -212,8 +209,7 @@ export const DeleteDialog: React.FC<Props> = ({
             <Typography>Loading absences...</Typography>
           ) : (
             <DeleteDialogList
-              employeeType="employee"
-              absvacType="absences"
+              name="absences"
               absvacs={dropNulls(
                 getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
               )?.map(absence => ({

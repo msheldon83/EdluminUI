@@ -4,15 +4,13 @@ import { DeleteDialogRow } from "./row";
 import { AbsVac } from "./types";
 
 type Props = {
-  employeeType: string;
-  absvacType: string;
+  name: string;
   absvacs: AbsVac[] | undefined;
   className?: string;
 };
 
 export const DeleteDialogList: React.FC<Props> = ({
-  employeeType,
-  absvacType,
+  name,
   absvacs,
   className,
 }) => {
@@ -25,6 +23,6 @@ export const DeleteDialogList: React.FC<Props> = ({
       ))}
     </Grid>
   ) : (
-    <Typography>{`This ${employeeType} has no upcoming ${absvacType}`}</Typography>
+    <Typography>{`No upcoming ${name}`}</Typography>
   );
 };
