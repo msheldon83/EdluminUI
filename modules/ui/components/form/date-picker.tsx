@@ -26,6 +26,7 @@ type DatePickerProps = {
   endAdornment?: React.ReactNode;
   inputStatus?: "warning" | "error" | "success" | "default" | null;
   validationMessage?: any;
+  placeholder?: string;
 };
 
 export type DatePickerOnChange = (dates: {
@@ -46,6 +47,7 @@ export const DatePicker = (props: DatePickerProps) => {
     endAdornment,
     disableDates = [],
     variant = "range",
+    placeholder,
     inputStatus,
     validationMessage,
   } = props;
@@ -324,6 +326,7 @@ export const DatePicker = (props: DatePickerProps) => {
               onBlur={() => setInputEndDate(undefined)}
               inputStatus={inputStatus}
               validationMessage={validationMessage}
+              placeholder={placeholder}
             />
           </div>
         );
@@ -364,6 +367,7 @@ export const DatePicker = (props: DatePickerProps) => {
             ref={startDateInputRef}
             onFocus={handleStartDateFocus}
             dateFormat={dateFormat}
+            placeholder={placeholder}
             endAdornment={endAdornment}
             onBlur={() => {
               /* ml - 1/31/20. This is not a great solution for the timing issue here.

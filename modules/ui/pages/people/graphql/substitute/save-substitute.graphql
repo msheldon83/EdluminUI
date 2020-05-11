@@ -30,6 +30,10 @@ mutation SaveSubstitute($substitute: SubstituteInput!) {
           }
           expirationDate
         }
+        payCode {
+          id
+          name
+        }
         qualifiedPositionTypes {
           id
           name

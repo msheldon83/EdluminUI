@@ -1332,10 +1332,29 @@ type DataImport implements ModelObjectInterface & OrgObjectInterface {
   maxImportErrors: Int!
   earliestStartUtc: DateTime!
   notificationEmailAddresses: [String]
+  numFailedRows: Int
+}
+
+type DataImportColumn {
+  _info: [ReturnMessage]
+  propertyName: String!
+  propertyType: String!
+  isRequired: Boolean!
+  isParent: Boolean!
+  autoMapped: Boolean!
+  ignoreIfEmpty: Boolean!
+  isGroupingIndicator: Boolean!
+  maxLength: Int
+  depth: Int!
+  parentPropertyName: String
+  pathName: String!
+  fullPropertyName: String!
+  alternateNames: [String]
 }
 
 type DataImportMutations {
   update(dataImport: DataImportUpdateInput!): DataImport
+  delete(dataImportId: ID!): Boolean
 }
 
 type DataImportQueries {
@@ -1343,6 +1362,7 @@ type DataImportQueries {
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): [DataImport]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): PagedDataImport
   pagedDataImportRows(dataImportId: ID!, orgId: ID!, rowStatusId: DataImportRowStatus, limit: Int, offset: Int): PagedDataImportRow
+  dataImportTypeColumnDefinition(dataImportType: DataImportType!): [DataImportColumn]
 }
 
 type DataImportRow implements ModelObjectInterface & OrgObjectInterface {
@@ -2068,6 +2088,7 @@ enum EventType {
   DATA_IMPORT_STARTED
   DATA_IMPORT_FINISHED
   DATA_IMPORT_UPDATED
+  DATA_IMPORT_DELETED
   LOCATION_GROUP_CREATED
   LOCATION_GROUP_UPDATED
   LOCATION_GROUP_DELETED

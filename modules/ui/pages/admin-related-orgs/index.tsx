@@ -1,33 +1,27 @@
 import * as React from "react";
 import { Typography, makeStyles } from "@material-ui/core";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { SubstituteInput } from "graphql/server-types.gen";
 import { ManageDistrictsUI } from "./ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetSubstituteRelatedOrgs } from "./graphql/get-sub-related-orgs.gen";
+import { useMemo } from "react";
 import { AddRelatedOrg } from "./graphql/add-related-org.gen";
 import { RemoveRelatedOrg } from "./graphql/remove-related-org.gen";
-import { format } from "date-fns";
 import { compact } from "lodash-es";
-import { UpdateSubstitute } from "./graphql/update-substitute.gen";
-import { CustomOrgUserRelationship } from "./helpers";
-import { useEndorsements } from "reference-data/endorsements";
-import { PersonViewRoute } from "ui/routes/people";
-import { Link } from "react-router-dom";
+import { GetAdminRelatedOrgs } from "./graphql/get-admin-related-orgs.gen";
 import { useRouteParams } from "ui/routes/definition";
-import { OptionType } from "ui/components/form/select-new";
+import { CustomOrgUserRelationship } from "ui/pages/sub-related-orgs/helpers";
+import { Link } from "react-router-dom";
+import { PersonViewRoute } from "ui/routes/people";
 import { useSnackbar } from "hooks/use-snackbar";
-import { parseISO } from "date-fns";
 import { ShowErrors } from "ui/components/error-helpers";
 
-export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
+export const AdminRelatedOrgsEditPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(PersonViewRoute);
   const classes = useStyles();
 
-  const getSubRelatedOrgs = useQueryBundle(GetSubstituteRelatedOrgs, {
+  const getAdminRelatedOrgs = useQueryBundle(GetAdminRelatedOrgs, {
     variables: {
       id: params.orgUserId,
     },
@@ -44,26 +38,10 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
     },
   });
 
-  const [updateSubstitute] = useMutationBundle(UpdateSubstitute, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const orgEndorsementsQueryed = useEndorsements(params.organizationId);
-  const orgEndorsements: OptionType[] = useMemo(
-    () =>
-      orgEndorsementsQueryed.map(p => ({
-        label: p?.name ?? "",
-        value: p?.id ?? "",
-      })),
-    [orgEndorsementsQueryed]
-  );
-
   const orgUser =
-    getSubRelatedOrgs.state === "LOADING"
+    getAdminRelatedOrgs.state === "LOADING"
       ? undefined
-      : getSubRelatedOrgs?.data?.orgUser?.byId;
+      : getAdminRelatedOrgs?.data?.orgUser?.byId;
 
   const orgUserRelationships = compact(orgUser?.orgUserRelationships) ?? [];
 
@@ -73,50 +51,18 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         o =>
           ({
             otherOrganization: o.otherOrganization,
-            attributes:
-              compact(o?.attributes).map(x => ({
-                endorsementId: x.endorsementId,
-                name: x.endorsement.name,
-                expirationDate: x.expirationDate
-                  ? parseISO(x.expirationDate)
-                  : null,
-              })) ?? [],
+            attributes: [],
           } ?? [])
       ),
     [orgUserRelationships]
   );
 
-  if (getSubRelatedOrgs.state === "LOADING" || !orgUser?.substitute) {
+  if (
+    getAdminRelatedOrgs.state === "LOADING" ||
+    !orgUser?.orgUserRelationships
+  ) {
     return <></>;
   }
-
-  const allDistrictAttributes = orgUser.employee?.endorsements ?? [];
-  const formattedDistrictAttributes: string[] =
-    allDistrictAttributes.map(
-      o =>
-        `${
-          o?.endorsement.validUntil < new Date("6/6/2079")
-            ? o?.endorsement.name +
-              t(" (Expires ") +
-              format(parseISO(o?.endorsement.validUntil), "MMM, d, yyyy") +
-              t(")")
-            : o?.endorsement.name
-            ? o.endorsement.name
-            : t("Substitute has no Attributes")
-        }`
-    ) ?? [];
-
-  const handleUpdateSubstitute = async (substitute: SubstituteInput) => {
-    await updateSubstitute({
-      variables: {
-        substitute: {
-          ...substitute,
-          orgId: params.organizationId,
-          id: params.orgUserId,
-        },
-      },
-    });
-  };
 
   const handleAddOrg = async (orgId: string) => {
     await addRelatedOrg({
@@ -125,7 +71,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         relatedOrgId: orgId,
       },
     });
-    await getSubRelatedOrgs.refetch();
+    await getAdminRelatedOrgs.refetch();
   };
 
   const handleRemoveOrg = async (orgId: string) => {
@@ -135,7 +81,7 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         relatedOrgId: orgId,
       },
     });
-    await getSubRelatedOrgs.refetch();
+    await getAdminRelatedOrgs.refetch();
   };
 
   return (
@@ -144,23 +90,18 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
         <Typography className={classes.header} variant="h4">
           {`${orgUser?.firstName} ${orgUser?.lastName}`}
         </Typography>
-
         <div className={classes.linkPadding}>
           <Link to={PersonViewRoute.generate(params)} className={classes.link}>
-            {t("Return to substitute")}
+            {t("Return to admin")}
           </Link>
         </div>
-
         <Typography variant="h1">{t("Districts")}</Typography>
       </div>
       <ManageDistrictsUI
         onAddOrg={handleAddOrg}
         onRemoveOrg={handleRemoveOrg}
-        onSave={handleUpdateSubstitute}
         orgUserRelationships={relationships}
-        orgEndorsements={orgEndorsements}
         orgId={params.organizationId}
-        allDistrictAttributes={formattedDistrictAttributes}
       />
     </>
   );
