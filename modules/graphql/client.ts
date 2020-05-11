@@ -52,7 +52,6 @@ const fileDownloadResponseTransformer = async (
   response: any,
   defaultFileName?: string
 ) => {
-  console.log("in transformer");
   if (response.ok) {
     // Get the filename out of the header
     const contentDispositionHeader =
