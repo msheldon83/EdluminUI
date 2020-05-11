@@ -83,7 +83,6 @@ export const DataImportPage: React.FC<{}> = () => {
       : [];
 
   const columns: Column<GetDataImports.Results>[] = [
-    { title: t("Id"), field: "id", sorting: false },
     {
       title: t("File name"),
       render: data => {
@@ -91,6 +90,7 @@ export const DataImportPage: React.FC<{}> = () => {
       },
       sorting: false,
     },
+    { title: t("Row count"), field: "totalRowCount", sorting: false },
     {
       title: t("Created"),
       render: data => {
