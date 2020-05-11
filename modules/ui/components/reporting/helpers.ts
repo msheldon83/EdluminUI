@@ -6,7 +6,7 @@ export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
   if (row.isGroupHeader) {
     return row.level === 0 ? 75 : 60;
   }
-  return 50;
+  return 55;
 };
 
 export const calculateColumnWidth = (
