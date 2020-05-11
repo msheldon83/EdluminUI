@@ -20,9 +20,11 @@ import {
   useQueryBundle,
   usePagedQueryBundle,
   useMutationBundle,
+  useImperativeQuery,
 } from "graphql/hooks";
 import { GetDataImportById } from "./graphql/get-data-import-byid.gen";
 import { GetDataImportRows } from "./graphql/get-data-import-rows.gen";
+import { DeleteDataImport } from "./graphql/delete-data-import.gen";
 import { compact } from "lodash-es";
 import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
@@ -35,15 +37,18 @@ import {
 } from "graphql/server-types.gen";
 import { useDataImportTypes } from "reference-data/data-import-types";
 import { UpdateDataImport } from "./graphql/update-data-import.gen";
-import { ShowErrors } from "ui/components/error-helpers";
+import { ShowErrors, ShowNetworkErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { CSVLink } from "react-csv";
+import { useHistory } from "react-router";
+import { DownloadFailedRowsQuery } from "./graphql/download-failed-rows";
+import { GetDataImportColumnDefinitions } from "./graphql/get-data-import-column-definitions.gen";
 
 export const DataImportViewPage: React.FC<{}> = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(DataImportViewRoute);
   const { openSnackbar } = useSnackbar();
+  const history = useHistory();
 
   const [rowStatusFilter, setRowStatusFilter] = useState<
     DataImportRowStatus | undefined
@@ -54,6 +59,21 @@ export const DataImportViewPage: React.FC<{}> = () => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const [deleteDataImport] = useMutationBundle(DeleteDataImport, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const onDeleteDataImport = async () => {
+    const result = await deleteDataImport({
+      variables: { dataImportId: params.dataImportId },
+    });
+    if (result.data) {
+      history.push(DataImportRoute.generate(params));
+    }
+  };
 
   const onRetryDataImport = async (validateOnly: boolean, reRun: boolean) => {
     await updateDataImport({
@@ -86,6 +106,12 @@ export const DataImportViewPage: React.FC<{}> = () => {
     }
   );
 
+  const downloadFailedRows = useImperativeQuery(DownloadFailedRowsQuery, {
+    onError: error => {
+      ShowNetworkErrors(error, openSnackbar);
+    },
+  });
+
   const dataImportTypes = useDataImportTypes();
 
   const dataImport =
@@ -96,6 +122,22 @@ export const DataImportViewPage: React.FC<{}> = () => {
       ? compact(
           getImportRows.data.dataImport?.pagedDataImportRows?.results
         ).sort((a, b) => a.rowNumber - b.rowNumber)
+      : [];
+
+  const getColumnDefinitions = useQueryBundle(GetDataImportColumnDefinitions, {
+    variables: {
+      dataImportType: dataImport?.dataImportTypeId,
+    },
+    skip: !dataImport?.dataImportTypeId,
+  });
+
+  const possibleColumnNames =
+    getColumnDefinitions.state === "DONE"
+      ? compact(
+          getColumnDefinitions.data.dataImport?.dataImportTypeColumnDefinition
+        )
+          .map(a => compact(a.alternateNames))
+          .reduce((a, b) => a.concat(b), [])
       : [];
 
   if (!dataImport) {
@@ -115,20 +157,10 @@ export const DataImportViewPage: React.FC<{}> = () => {
     o => o.enumValue === dataImport.dataImportTypeId
   )?.description;
 
-  const errorRows = dataImportRows.filter(
-    x => x.rowStatusId === DataImportRowStatus.ImportFailure
-  );
-  const countOfErrorRows = errorRows.length;
-
-  const columnNames = dataImport.columnNames
-    ? dataImport.columnNames.map(x => x ?? "")
-    : ([] as string[]);
-  const errorData =
-    errorRows.map(r =>
-      r.columnValues ? r.columnValues.map(x => x ?? "") : ([] as string[])
-    ) ?? ([] as string[]);
-
-  const dataImportFileName = dataImport.fileUpload?.uploadedFileName ?? "";
+  const numFailedRows =
+    dataImport.numFailedRows != null || dataImport.numFailedRows != undefined
+      ? dataImport.numFailedRows
+      : 0;
 
   return (
     <>
@@ -139,20 +171,20 @@ export const DataImportViewPage: React.FC<{}> = () => {
         <Grid item>
           <PageTitle title={`${dataImportTypeLabel} ${t("data import")}`} />
         </Grid>
-        {countOfErrorRows > 0 && (
+        {numFailedRows > 0 && (
           <Grid item>
-            <CSVLink
-              headers={columnNames}
-              data={errorData}
-              filename={`${dataImportFileName.substring(
-                0,
-                dataImportFileName.length - 4
-              )}_FailedRows.csv`}
-              target="_blank"
-              className={classes.downloadLink}
+            <TextButton
+              onClick={async () => {
+                const result = await downloadFailedRows({
+                  input: {
+                    orgId: params.organizationId,
+                  },
+                  dataImportId: params.dataImportId,
+                });
+              }}
             >
               {t("Download failed rows")}
-            </CSVLink>
+            </TextButton>
           </Grid>
         )}
         {dataImport.fileUpload && (
@@ -170,7 +202,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <Grid item xs={3}>
             <div className={classes.labelText}>{t("File name")}</div>
             <div className={classes.text}>
-              {dataImportFileName ?? t("Not Available")}
+              {dataImport.fileUpload?.uploadedFileName ?? t("Not Available")}
             </div>
           </Grid>
           <Grid item xs={3}>
@@ -223,6 +255,11 @@ export const DataImportViewPage: React.FC<{}> = () => {
               </Button>
             </Grid>
           )}
+          <Grid item xs={1}>
+            <Button variant="outlined" onClick={() => onDeleteDataImport()}>
+              {t("Delete")}
+            </Button>
+          </Grid>
           {dataImport.messages && dataImport.messages.length > 0 && (
             <Grid item xs={12}>
               <div className={classes.labelText}>{t("Error messages:")}</div>
@@ -258,7 +295,8 @@ export const DataImportViewPage: React.FC<{}> = () => {
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <DataImportRowData
-                columnNames={columnNames}
+                columnNames={dataImport.columnNames ?? []}
+                possibleColumnNames={possibleColumnNames}
                 columns={row.columnValues ?? []}
                 messages={row.messages}
               />

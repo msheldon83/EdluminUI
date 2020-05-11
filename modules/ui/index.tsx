@@ -104,7 +104,7 @@ import {
   AnalyticsReportsAbsencesVacanciesRoute,
   AnalyticsReportsAbsencesVacanciesLoader,
   AnalyticsReportsSubHistoryRoute,
-  AnalyticsReportsSubHistoryLoader
+  AnalyticsReportsSubHistoryLoader,
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -313,6 +313,8 @@ import {
   DataImportLoader,
   DataImportViewRoute,
   DataImportViewLoader,
+  DataImportColumnDefinitionsRoute,
+  DataImportColumnDefinitionsLoader,
 } from "./routes/data-import";
 import { RoleContextProvider } from "core/role-context";
 
@@ -592,6 +594,16 @@ export const App = hot(function() {
                                       permissions={[
                                         PermissionEnum.AbsVacViewNotificationLog,
                                       ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        DataImportColumnDefinitionsLoader
+                                      }
+                                      path={
+                                        DataImportColumnDefinitionsRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.DataImport]}
                                     />
                                     <ProtectedRoute
                                       component={DataImportViewLoader}
