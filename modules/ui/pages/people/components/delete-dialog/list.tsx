@@ -17,20 +17,36 @@ export const DeleteDialogList: React.FC<Props> = ({
 }) => {
   const classes = useStyles();
   return absvacs && absvacs.length > 0 ? (
-    <Grid container className={className}>
-      {absvacs.map(absvac => (
-        <Grid item container key={absvac.id}>
-          <DeleteDialogRow {...absvac} />
+    <>
+      <Grid container className={className}>
+        <Grid item xs={12}>
+          <Typography
+            variant="h6"
+            className={classes.header}
+          >{`${name[0].toUpperCase() +
+            name.substring(1)} to delete:`}</Typography>
         </Grid>
-      ))}
-    </Grid>
+        {absvacs.map(absvac => (
+          <Grid item container key={absvac.id}>
+            <DeleteDialogRow {...absvac} />
+          </Grid>
+        ))}
+      </Grid>
+    </>
   ) : (
-    <Typography className={classes.empty}>{`No upcoming ${name}`}</Typography>
+    <Typography
+      variant="h6"
+      className={classes.empty}
+    >{`No upcoming ${name}`}</Typography>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   empty: {
     padding: theme.spacing(1),
+    textAlign: "center",
+  },
+  header: {
+    textAlign: "center",
   },
 }));

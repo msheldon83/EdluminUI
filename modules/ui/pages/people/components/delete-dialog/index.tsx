@@ -147,77 +147,47 @@ export const DeleteDialog: React.FC<Props> = ({
         <Typography variant="h5">{titleString}</Typography>
       </DialogTitle>
       <DialogContent>
-        {showEmployee && showSubstitute && (
-          <div className={classes.dividedContainer}>
-            {getEmployeeAbsences.state == "LOADING" ? (
-              <Typography className={classes.dividedContent}>
-                Loading absences...
-              </Typography>
-            ) : (
-              <DeleteDialogList
-                className={classes.dividedContent}
-                name="absences"
-                absvacs={dropNulls(
-                  getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
-                )?.map(absence => ({
-                  ...absence,
-                  type: "absence",
-                }))}
-              />
-            )}
-            <div className={classes.divider} />
-            {getSubstituteAssignments.state == "LOADING" ? (
-              <Typography className={classes.dividedContent}>
-                Loading assignments...
-              </Typography>
-            ) : (
-              <DeleteDialogList
-                className={classes.dividedContent}
-                name="assignments"
-                absvacs={dropNulls(
-                  printId(
-                    getSubstituteAssignments.data?.employee
-                      ?.employeeAssignmentSchedule
-                  )
-                )?.map(({ vacancy, ...absvac }) => ({
-                  ...absvac,
-                  type: vacancy?.absence ? "absence" : "vacancy",
-                }))}
-              />
-            )}
-          </div>
+        {(showEmployee || showSubstitute) && (
+          <>
+            {showEmployee &&
+              (getEmployeeAbsences.state == "LOADING" ? (
+                <Typography variant="h6" className={classes.dividedContent}>
+                  Loading absences...
+                </Typography>
+              ) : (
+                <DeleteDialogList
+                  className={classes.dividedContent}
+                  name="absences"
+                  absvacs={dropNulls(
+                    getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
+                  )?.map(absence => ({
+                    ...absence,
+                    type: "absence",
+                  }))}
+                />
+              ))}
+            {showSubstitute &&
+              (getSubstituteAssignments.state == "LOADING" ? (
+                <Typography variant="h6" className={classes.dividedContent}>
+                  Loading assignments...
+                </Typography>
+              ) : (
+                <DeleteDialogList
+                  className={classes.dividedContent}
+                  name="assignments"
+                  absvacs={dropNulls(
+                    printId(
+                      getSubstituteAssignments.data?.employee
+                        ?.employeeAssignmentSchedule
+                    )
+                  )?.map(({ vacancy, ...absvac }) => ({
+                    ...absvac,
+                    type: vacancy?.absence ? "absence" : "vacancy",
+                  }))}
+                />
+              ))}
+          </>
         )}
-        {!showEmployee &&
-          showSubstitute &&
-          (getSubstituteAssignments.state == "LOADING" ? (
-            <Typography>Loading assignments...</Typography>
-          ) : (
-            <DeleteDialogList
-              name="assignments"
-              absvacs={dropNulls(
-                getSubstituteAssignments.data?.employee
-                  ?.employeeAssignmentSchedule
-              )?.map(({ vacancy, ...absvac }) => ({
-                ...absvac,
-                type: vacancy?.absence ? "absence" : "vacancy",
-              }))}
-            />
-          ))}
-        {showEmployee &&
-          !showSubstitute &&
-          (getEmployeeAbsences.state == "LOADING" ? (
-            <Typography>Loading absences...</Typography>
-          ) : (
-            <DeleteDialogList
-              name="absences"
-              absvacs={dropNulls(
-                getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
-              )?.map(absence => ({
-                ...absence,
-                type: "absence",
-              }))}
-            />
-          ))}
         {!showEmployee && !showSubstitute && (
           <Typography>
             {t(
@@ -227,7 +197,6 @@ export const DeleteDialog: React.FC<Props> = ({
         )}
       </DialogContent>
 
-      <Divider className={classes.divider} />
       <DialogActions>{buttons}</DialogActions>
     </Dialog>
   );
@@ -240,10 +209,6 @@ const useStyles = makeStyles(theme => ({
   removeSub: {
     paddingTop: theme.spacing(2),
     fontWeight: theme.typography.fontWeightMedium,
-  },
-  divider: {
-    height: "inherit",
-    borderLeft: "1px solid " + theme.customColors.gray,
   },
   dividedContent: { flex: 1, padding: theme.spacing(1) },
   dividedContainer: { display: "flex" },
