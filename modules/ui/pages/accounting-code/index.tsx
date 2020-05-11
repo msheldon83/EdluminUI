@@ -1,4 +1,4 @@
-import { makeStyles, Grid } from "@material-ui/core";
+import { makeStyles, Grid, TextField } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
@@ -93,6 +93,13 @@ export const AccountingCode: React.FC<Props> = props => {
       defaultSort: "asc",
       searchable: true,
       editable: "always",
+      editComponent: props => (
+        <TextField
+          fullWidth
+          value={props.value}
+          onChange={e => props.onChange(e.target.value)}
+        />
+      ),
     },
     {
       title: t("Code"),
