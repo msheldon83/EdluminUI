@@ -74,12 +74,12 @@ export const ReplacementEmployeeNotificationLink: React.FC<Props> = props => {
         <>
           <div
             className={classes.hyperlink}
-            onClick={() => {
+            onClick={() =>
               props.markSingleNotificationAsViewed(
                 notification.id,
                 notification.isLinkable
-              );
-            }}
+              )
+            }
           >
             {htmlContent}
           </div>

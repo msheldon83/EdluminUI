@@ -272,26 +272,26 @@ const useStyles = makeStyles(theme => ({
     },
   },
   highlight: {
-    background: theme.palette.primary.main,
+    background: theme.calendar.selected,
     color: theme.palette.common.white,
     "&:hover": {
       color: theme.palette.common.white,
     },
   },
   firstHighlight: {
-    background: theme.palette.primary.main,
+    background: theme.calendar.selected,
     color: theme.palette.common.white,
     borderTopLeftRadius: theme.typography.pxToRem(4),
     borderBottomLeftRadius: theme.typography.pxToRem(4),
   },
   endHighlight: {
-    background: theme.palette.primary.main,
+    background: theme.calendar.selected,
     color: theme.palette.common.white,
     borderTopRightRadius: theme.typography.pxToRem(4),
     borderBottomRightRadius: theme.typography.pxToRem(4),
   },
   dateHoverBetween: {
-    background: theme.palette.primary.main,
+    background: theme.calendar.selected,
     color: theme.palette.common.white,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
@@ -300,7 +300,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   dateHoverFocus: {
-    background: theme.palette.primary.main,
+    background: theme.calendar.selected,
     color: theme.palette.common.white,
     borderTopRightRadius: theme.typography.pxToRem(4),
     borderBottomRightRadius: theme.typography.pxToRem(4),

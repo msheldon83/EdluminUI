@@ -17,6 +17,7 @@ query GetDataImportById($id: ID!) {
         originalFileDownloadUrlSas
         uploadedFileName
       }
+      numFailedRows
     }
   }
 }

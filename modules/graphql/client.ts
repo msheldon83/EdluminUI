@@ -25,6 +25,11 @@ export function buildGraphqlClient(opts: {
         responseTransformer: async (data: any, typeName: string) =>
           fileDownloadResponseTransformer(data, "Report"),
       },
+      dataImportFailedRows: {
+        uri: `${Config.restUri}/DataImport`,
+        responseTransformer: async (data: any, typeName: string) =>
+          fileDownloadResponseTransformer(data, "FailedRows"),
+      },
     },
   });
   const links = [...compact([prefixLink]), restLink, createHttpLink({ uri })];
