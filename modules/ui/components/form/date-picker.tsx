@@ -277,6 +277,8 @@ export const DatePicker = (props: DatePickerProps) => {
         anchorEl={startDateInputRef.current}
         open={openCalendar}
         placement="bottom-start"
+        // modal has a z-index of 1300 per https://github.com/mui-org/material-ui/issues/18905#issuecomment-566799469
+        style={{ zIndex: 1301 }}
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
