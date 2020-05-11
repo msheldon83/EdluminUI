@@ -36,7 +36,7 @@ import { OrgUser } from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { UserSmsLogRoute } from "ui/routes/sms-log";
-import { phoneRegExp } from "helpers/regexp"
+import { phoneRegExp } from "helpers/regexp";
 
 export const UserViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -174,6 +174,10 @@ export const UserViewPage: React.FC<{}> = props => {
   const triggerImpersonation = async () => {
     // Set userId in sessionStorage
     sessionStorage.setItem(Config.impersonation.actingUserIdKey, params.userId);
+    sessionStorage.setItem(
+      Config.impersonation.routeHistory,
+      window.location.href
+    );
     // Redirect current user to homepage
     history.push("/");
   };

@@ -242,6 +242,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
         Config.impersonation.actingOrgUserIdKey,
         orgUser.id
       );
+      sessionStorage.setItem(
+        Config.impersonation.routeHistory,
+        window.location.href
+      );
       // Redirect current user to homepage
       history.push("/");
     }

@@ -145,6 +145,9 @@ module.exports = {
       "Config.impersonation.actingOrgUserIdKey": JSON.stringify(
         config.get("impersonation_actingOrgUserIdKey")
       ),
+      // "Config.impersonation.routeHistory": JSON.stringify(
+      //   config.get("impersonation_routeHistory")
+      // ),
 
       // ALlow switching on NODE_ENV in client code
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
