@@ -104,8 +104,6 @@ export const SubstituteTab: React.FC<Props> = props => {
   const canEditThisSub = canDoFn(canEditSub, orgUser.orgId, orgUser);
 
   const onUpdateSubstitute = async (subInput: SubstituteInput) => {
-    console.log(subInput);
-
     await updateSubstitute({
       variables: {
         substitute: {
