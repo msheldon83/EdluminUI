@@ -10,9 +10,12 @@ query GetSubstituteAssignments(
       orgId: $orgId
       fromDate: $fromDate
       toDate: $toDate
+      limit: 100
       includeCompletedToday: false
     ) {
       id
+      startDate
+      endDate
       vacancy {
         absence {
           id

@@ -70,6 +70,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
   const [currentDialog, setCurrentDialog] = React.useState<
     "delete" | OrgUserRole | null
   >(null);
+  const [now, setNow] = React.useState<Date>(new Date());
 
   const [inviteUser] = useMutationBundle(InviteSingleUser, {
     onError: error => {
@@ -201,7 +202,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
     }
     menuActions.push({
       name: t("Delete"),
-      onClick: () => setCurrentDialog("delete"),
+      onClick: () => {
+        setNow(new Date());
+        setCurrentDialog("delete");
+      },
       permissions: canDeleteThisOrgUser,
     });
 
@@ -209,21 +213,30 @@ export const PersonViewHeader: React.FC<Props> = props => {
     if (orgUser.isAdmin) {
       inactivateRoleOptions.push({
         name: t("Remove admin access"),
-        onClick: () => setCurrentDialog(OrgUserRole.Administrator),
+        onClick: () => {
+          setNow(new Date());
+          setCurrentDialog(OrgUserRole.Administrator);
+        },
         permissions: canDeleteThisOrgUser,
       });
     }
     if (orgUser.isEmployee) {
       inactivateRoleOptions.push({
         name: t("Remove employee access"),
-        onClick: () => setCurrentDialog(OrgUserRole.Employee),
+        onClick: () => {
+          setNow(new Date());
+          setCurrentDialog(OrgUserRole.Employee);
+        },
         permissions: canDeleteThisOrgUser,
       });
     }
     if (orgUser.isReplacementEmployee) {
       inactivateRoleOptions.push({
         name: t("Remove substitute access"),
-        onClick: () => setCurrentDialog(OrgUserRole.ReplacementEmployee),
+        onClick: () => {
+          setNow(new Date());
+          setCurrentDialog(OrgUserRole.ReplacementEmployee);
+        },
         permissions: canDeleteThisOrgUser,
       });
     }
@@ -263,6 +276,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
     <>
       <DeleteDialog
         type={currentDialog}
+        now={now}
         onAccept={onAccept}
         onCancel={onCancel}
         orgId={props.orgId}

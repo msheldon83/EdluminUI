@@ -7,15 +7,17 @@ type Props = {
   employeeType: string;
   absvacType: string;
   absvacs: AbsVac[] | undefined;
+  className?: string;
 };
 
 export const DeleteDialogList: React.FC<Props> = ({
   employeeType,
   absvacType,
   absvacs,
+  className,
 }) => {
   return absvacs && absvacs.length > 0 ? (
-    <Grid container>
+    <Grid container className={className}>
       {absvacs.map(absvac => (
         <Grid item container key={absvac.id}>
           <DeleteDialogRow {...absvac} />

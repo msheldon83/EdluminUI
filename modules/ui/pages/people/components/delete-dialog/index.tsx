@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { startOfToday, lastDayOfYear, parseISO } from "date-fns";
+import { lastDayOfYear, parseISO } from "date-fns";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { OrgUserRole } from "graphql/server-types.gen";
@@ -19,7 +19,9 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { ShowErrors } from "ui/components/error-helpers";
+import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id.gen";
 import { GetEmployeeAbsences } from "../../graphql/get-employee-absences.gen";
+import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id.gen";
 import { GetSubstituteAssignments } from "../../graphql/get-substitute-assignments.gen";
 import { DeleteDialogList } from "./list";
 import { AbsVac } from "./types";
@@ -32,6 +34,7 @@ function dropNulls<T>(
 
 type Props = {
   type: "delete" | OrgUserRole | null;
+  now: Date;
   onAccept: () => void;
   onCancel: () => void;
   orgId: string;
@@ -40,6 +43,7 @@ type Props = {
 
 export const DeleteDialog: React.FC<Props> = ({
   type,
+  now,
   onAccept,
   onCancel,
   orgId,
@@ -95,27 +99,47 @@ export const DeleteDialog: React.FC<Props> = ({
       );
   }
 
-  const fromDate = startOfToday();
   const toDate = currentSchoolYear
     ? parseISO(currentSchoolYear?.endDate)
-    : lastDayOfYear(fromDate);
+    : lastDayOfYear(now);
+  const getEmployee = useQueryBundle(GetEmployeeById, {
+    fetchPolicy: "cache-first",
+    variables: { id: orgUser.id },
+  });
   const getEmployeeAbsences = useQueryBundle(GetEmployeeAbsences, {
     fetchPolicy: "cache-first",
     variables: {
-      id: orgUser.id,
-      fromDate,
+      id:
+        getEmployee.state == "DONE"
+          ? getEmployee.data.orgUser?.byId?.employee?.id ?? ""
+          : "",
+      fromDate: now,
       toDate,
     },
+    skip: !(getEmployee.state == "DONE"),
+  });
+  const getSubstitute = useQueryBundle(GetSubstituteById, {
+    fetchPolicy: "cache-first",
+    variables: { id: orgUser.id },
   });
   const getSubstituteAssignments = useQueryBundle(GetSubstituteAssignments, {
     fetchPolicy: "cache-first",
     variables: {
-      id: orgUser.id,
+      id:
+        getSubstitute.state == "DONE"
+          ? getSubstitute.data.orgUser?.byId?.userId ?? ""
+          : "",
       orgId,
-      fromDate,
+      fromDate: now,
       toDate,
     },
+    skip: !(getSubstitute.state == "DONE"),
   });
+
+  function printId<T>(t: T): T {
+    console.log(t);
+    return t;
+  }
 
   return (
     <Dialog open={type !== null} onClose={onCancel} scroll="paper">
@@ -124,11 +148,14 @@ export const DeleteDialog: React.FC<Props> = ({
       </DialogTitle>
       <DialogContent>
         {showEmployee && showSubstitute && (
-          <Grid container alignItems="center">
+          <div className={classes.dividedContainer}>
             {getEmployeeAbsences.state == "LOADING" ? (
-              <Typography>Loading absences...</Typography>
+              <Typography className={classes.dividedContent}>
+                Loading absences...
+              </Typography>
             ) : (
               <DeleteDialogList
+                className={classes.dividedContent}
                 employeeType="employee"
                 absvacType="absences"
                 absvacs={dropNulls(
@@ -139,23 +166,28 @@ export const DeleteDialog: React.FC<Props> = ({
                 }))}
               />
             )}
-            <Divider orientation="vertical" />
+            <div className={classes.divider} />
             {getSubstituteAssignments.state == "LOADING" ? (
-              <Typography>Loading assignments...</Typography>
+              <Typography className={classes.dividedContent}>
+                Loading assignments...
+              </Typography>
             ) : (
               <DeleteDialogList
+                className={classes.dividedContent}
                 employeeType="substitute"
                 absvacType="assignments"
                 absvacs={dropNulls(
-                  getSubstituteAssignments.data?.employee
-                    ?.employeeAssignmentSchedule
+                  printId(
+                    getSubstituteAssignments.data?.employee
+                      ?.employeeAssignmentSchedule
+                  )
                 )?.map(({ vacancy, ...absvac }) => ({
                   ...absvac,
                   type: vacancy?.absence ? "absence" : "vacancy",
                 }))}
               />
             )}
-          </Grid>
+          </div>
         )}
         {!showEmployee &&
           showSubstitute &&
@@ -214,8 +246,10 @@ const useStyles = makeStyles(theme => ({
     fontWeight: theme.typography.fontWeightMedium,
   },
   divider: {
-    color: theme.customColors.gray,
-    marginTop: theme.spacing(2),
+    height: "inherit",
+    borderLeft: "1px solid " + theme.customColors.gray,
   },
+  dividedContent: { flex: 1, padding: theme.spacing(1) },
+  dividedContainer: { display: "flex" },
   delete: { color: theme.customColors.blue },
 }));
