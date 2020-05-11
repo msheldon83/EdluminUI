@@ -30,6 +30,9 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         "Title",
         "PositionTypeName",
         "RequiresSub",
+        "NotesToAdmin",
+        "AdminOnlyNotes",
+        "NotesToReplacement",
       ],
       filter: [
         {

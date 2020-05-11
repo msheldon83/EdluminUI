@@ -59,6 +59,7 @@ export type Formula = {
 export type DataSourceField = {
   friendlyName: string;
   dataSourceFieldName: string;
+  dataType: DataType;
   defaultColumnWidthInPixels?: number;
   isRequiredFilter: boolean;
   defaultExpressionFunction: ExpressionFunction;
@@ -69,6 +70,18 @@ export type DataSourceField = {
     friendlyName: string;
   };
 };
+
+export enum DataType {
+  String = 0,
+  LongString = 1,
+  Number = 2,
+  Decimal = 3,
+  Date = 4,
+  Time = 5,
+  DateTime = 6,
+  Boolean = 7,
+  Identifier = 8,
+}
 
 export enum FilterType {
   String = 0,

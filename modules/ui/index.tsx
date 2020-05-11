@@ -104,7 +104,7 @@ import {
   AnalyticsReportsAbsencesVacanciesRoute,
   AnalyticsReportsAbsencesVacanciesLoader,
   AnalyticsReportsSubHistoryRoute,
-  AnalyticsReportsSubHistoryLoader
+  AnalyticsReportsSubHistoryLoader,
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -150,6 +150,8 @@ import {
   PeopleEmployeeBalancesEditLoader,
   SubstituteAvailableAssignmentsRoute,
   SubstituteAvailableAssignmentsLoader,
+  PeopleAdminRelatedOrgsEditRoute,
+  PeopleAdminRelatedOrgsEditLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -313,6 +315,8 @@ import {
   DataImportLoader,
   DataImportViewRoute,
   DataImportViewLoader,
+  DataImportColumnDefinitionsRoute,
+  DataImportColumnDefinitionsLoader,
 } from "./routes/data-import";
 import { RoleContextProvider } from "core/role-context";
 
@@ -594,6 +598,16 @@ export const App = hot(function() {
                                       ]}
                                     />
                                     <ProtectedRoute
+                                      component={
+                                        DataImportColumnDefinitionsLoader
+                                      }
+                                      path={
+                                        DataImportColumnDefinitionsRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.DataImport]}
+                                    />
+                                    <ProtectedRoute
                                       component={DataImportViewLoader}
                                       path={DataImportViewRoute.path}
                                       role={"admin"}
@@ -787,6 +801,16 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={AdminAddLoader}
                                       path={AdminAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AdminSave]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        PeopleAdminRelatedOrgsEditLoader
+                                      }
+                                      path={
+                                        PeopleAdminRelatedOrgsEditRoute.path
+                                      }
                                       role={"admin"}
                                       permissions={[PermissionEnum.AdminSave]}
                                     />
@@ -1248,7 +1272,7 @@ export const App = hot(function() {
                                       path={
                                         AnalyticsReportsAbsencesVacanciesRoute.path
                                       }
-                                      role={"sysAdmin"}
+                                      role={"admin"}
                                     />
                                     <ProtectedRoute
                                       component={
@@ -1257,12 +1281,12 @@ export const App = hot(function() {
                                       path={
                                         AnalyticsReportsSubHistoryRoute.path
                                       }
-                                      role={"sysAdmin"}
+                                      role={"admin"}
                                     />
                                     <ProtectedRoute
                                       component={AnalyticsReportsLoader}
                                       path={AnalyticsReportsRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
                                     />
                                     {/* This must be the last route in the list as it will handle paths that aren't found*/}
                                     <Route
