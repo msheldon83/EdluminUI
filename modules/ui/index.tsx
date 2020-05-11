@@ -1272,7 +1272,7 @@ export const App = hot(function() {
                                       path={
                                         AnalyticsReportsAbsencesVacanciesRoute.path
                                       }
-                                      role={"sysAdmin"}
+                                      role={"admin"}
                                     />
                                     <ProtectedRoute
                                       component={
@@ -1281,12 +1281,12 @@ export const App = hot(function() {
                                       path={
                                         AnalyticsReportsSubHistoryRoute.path
                                       }
-                                      role={"sysAdmin"}
+                                      role={"admin"}
                                     />
                                     <ProtectedRoute
                                       component={AnalyticsReportsLoader}
                                       path={AnalyticsReportsRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
                                     />
                                     {/* This must be the last route in the list as it will handle paths that aren't found*/}
                                     <Route
