@@ -26,7 +26,7 @@ export function buildGraphqlClient(opts: {
           fileDownloadResponseTransformer(data, "Report"),
       },
       dataImportFailedRows: {
-        uri: `${Config.restUri}/DataImport/FailedRows`,
+        uri: `${Config.restUri}/DataImport`,
         responseTransformer: async (data: any, typeName: string) =>
           fileDownloadResponseTransformer(data, "FailedRows"),
       },
@@ -52,6 +52,7 @@ const fileDownloadResponseTransformer = async (
   response: any,
   defaultFileName?: string
 ) => {
+  console.log("in transformer");
   if (response.ok) {
     // Get the filename out of the header
     const contentDispositionHeader =

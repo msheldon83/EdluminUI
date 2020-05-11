@@ -1,15 +1,23 @@
 import gql from "graphql-tag";
 
+// This is not required by the backend, but Apollo-link-rest needs an input body
+export type FailedDownLoadInput = {
+  orgId: string;
+};
+
 export const DownloadFailedRowsDocument = gql`
-  query ExportReport($dataImportId: ID!) {
-    dataImport(dataImportId: $dataImportId)
+  query DownloadFailedRows(
+    $input: FailedDownLoadInput
+    $dataImportId: string!
+  ) {
+    failedRows(input: $input, dataImportId: $dataImportId)
       @rest(
-        type: "DataImportDownloadFailedRows"
-        path: "?dataImportId={args.dataImportId}"
+        type: "DataImportFailedRows"
+        path: "/FailedRows?dataImportId={args.dataImportId}"
         method: "POST"
         endpoint: "dataImportFailedRows"
       ) {
-      rows
+      failedRows
     }
   }
 `;

@@ -175,10 +175,11 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <Grid item>
             <TextButton
               onClick={async () => {
-                await downloadFailedRows({
+                const result = await downloadFailedRows({
                   input: {
-                    dataImportId: params.dataImportId,
+                    orgId: params.organizationId,
                   },
+                  dataImportId: params.dataImportId,
                 });
               }}
             >
