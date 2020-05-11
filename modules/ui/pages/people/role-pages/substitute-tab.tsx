@@ -2,7 +2,6 @@ import * as React from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-
 import {
   OrgUserRole,
   SubstituteInput,
@@ -11,14 +10,14 @@ import {
 } from "graphql/server-types.gen";
 import { GetSubstituteById } from "../graphql/substitute/get-substitute-by-id.gen";
 import { SaveSubstitute } from "../graphql/substitute/save-substitute.gen";
-
 import { SubstitutePools } from "../components/substitute/substitute-pools";
+import { SubPayInformation } from "../components/substitute/pay-information";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
 import { OrganizationList } from "../components/substitute/org-list";
 import { Information } from "../components/information";
-
 import { SubstituteAssignmentsListView } from "ui/components/substitutes/substitute-assignments-list";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
+import { usePayCodes } from "reference-data/pay-codes";
 import { useMemo } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { Section } from "ui/components/section";
@@ -70,6 +69,12 @@ export const SubstituteTab: React.FC<Props> = props => {
       ? true
       : false;
 
+  const getPayCodes = usePayCodes(params.organizationId);
+  const payCodeOptions = useMemo(
+    () => getPayCodes.map(c => ({ label: c.name, value: c.id })),
+    [getPayCodes]
+  );
+
   /*added for upcoming assignments*/
 
   const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
@@ -89,6 +94,8 @@ export const SubstituteTab: React.FC<Props> = props => {
   let userIsAdmin = useIsAdmin(orgUser?.orgId);
   userIsAdmin = userIsAdmin === null ? false : userIsAdmin;
 
+  const payCode = orgUser?.substitute?.payCode;
+
   if (getSubstitute.state === "LOADING" || !orgUser?.substitute) {
     return <></>;
   }
@@ -102,6 +109,7 @@ export const SubstituteTab: React.FC<Props> = props => {
         substitute: {
           ...subInput,
           id: props.orgUserId,
+          orgId: params.organizationId,
         },
       },
     });
@@ -130,6 +138,15 @@ export const SubstituteTab: React.FC<Props> = props => {
         editable={canEditThisSub}
         attributes={substitute.attributes?.map(ee => ee?.endorsement) ?? []}
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
+      />
+      <SubPayInformation
+        editing={props.editing}
+        editable={canEditThisSub}
+        setEditing={props.setEditing}
+        editPermissions={[PermissionEnum.SubstituteSave]}
+        onSubmit={onUpdateSubstitute}
+        payCodeOptions={payCodeOptions}
+        payCode={payCode}
       />
       <SubstitutePools
         editing={props.editing}

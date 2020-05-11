@@ -29,6 +29,10 @@ query GetSubstituteById($id: ID!) {
       }
       substitute {
         id
+        payCode {
+          id
+          name
+        }
         permissionSet {
           id
           name
