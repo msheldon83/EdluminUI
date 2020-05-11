@@ -150,6 +150,8 @@ import {
   PeopleEmployeeBalancesEditLoader,
   SubstituteAvailableAssignmentsRoute,
   SubstituteAvailableAssignmentsLoader,
+  PeopleAdminRelatedOrgsEditRoute,
+  PeopleAdminRelatedOrgsEditLoader,
 } from "./routes/people";
 import {
   PositionTypeAddLoader,
@@ -799,6 +801,16 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={AdminAddLoader}
                                       path={AdminAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AdminSave]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        PeopleAdminRelatedOrgsEditLoader
+                                      }
+                                      path={
+                                        PeopleAdminRelatedOrgsEditRoute.path
+                                      }
                                       role={"admin"}
                                       permissions={[PermissionEnum.AdminSave]}
                                     />

@@ -5,14 +5,19 @@ import { ShowErrors } from "ui/components/error-helpers";
 
 import {
   OrgUserRole,
+  OrganizationRelationshipType,
   AdministratorInput,
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
+import { useHistory } from "react-router";
 import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
-
+import { OrganizationList } from "../components/admin/org-list";
+import { PersonViewRoute } from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
 import { AccessControl } from "../components/admin/access-control";
 import { Information } from "../components/information";
+import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
 import { canEditAdmin } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
 
@@ -26,6 +31,8 @@ type Props = {
 export const AdminTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const canDoFn = useCanDo();
+  const history = useHistory();
+  const params = useRouteParams(PersonViewRoute);
 
   const [updateAdmin] = useMutationBundle(SaveAdmin, {
     onError: error => {
@@ -36,6 +43,18 @@ export const AdminTab: React.FC<Props> = props => {
   const getAdmin = useQueryBundle(GetAdminById, {
     variables: { id: props.orgUserId },
   });
+
+  const getOrgRelationships = useQueryBundle(GetOrganizationRelationships, {
+    variables: { orgId: params.organizationId },
+  });
+  const showRelatedOrgs =
+    getOrgRelationships.state === "LOADING"
+      ? false
+      : getOrgRelationships?.data?.organizationRelationship?.all?.find(
+          x => x?.relationshipType === OrganizationRelationshipType.Services
+        )
+      ? true
+      : false;
 
   const orgUser =
     getAdmin.state === "LOADING" ? undefined : getAdmin?.data?.orgUser?.byId;
@@ -103,6 +122,12 @@ export const AdminTab: React.FC<Props> = props => {
         onSubmit={onUpdateAdmin}
         onCancel={onCancelAdmin}
       />
+      {showRelatedOrgs && (
+        <OrganizationList
+          editing={props.editing}
+          orgs={orgUser.relatedOrganizations}
+        />
+      )}
     </>
   );
 };

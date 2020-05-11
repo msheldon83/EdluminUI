@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Maybe, Organization, PermissionEnum } from "graphql/server-types.gen";
 import {
-  PeopleSubRelatedOrgsEditRoute,
+  PeopleAdminRelatedOrgsEditRoute,
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
@@ -33,12 +33,12 @@ export const OrganizationList: React.FC<Props> = props => {
               text: t("Edit"),
               visible: !props.editing,
               execute: () => {
-                const editSettingsUrl = PeopleSubRelatedOrgsEditRoute.generate(
+                const editSettingsUrl = PeopleAdminRelatedOrgsEditRoute.generate(
                   params
                 );
                 history.push(editSettingsUrl);
               },
-              permissions: [PermissionEnum.SubstituteSave],
+              permissions: [PermissionEnum.AdminSave],
             },
           ]}
         />
