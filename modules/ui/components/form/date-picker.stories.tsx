@@ -49,10 +49,8 @@ DateRangePickerStory.story = {
 export const DateRangePickerPopoverStory = () => {
   const classes = useStyles();
 
-  const [startDate, setStartDate] = React.useState<Date | undefined>(
-    new Date("5/1/2020")
-  );
-  const [endDate, setEndDate] = React.useState<Date | undefined>(new Date());
+  const [startDate, setStartDate] = React.useState<Date | undefined>();
+  const [endDate, setEndDate] = React.useState<Date | undefined>();
 
   return (
     <div className={classes.container} style={{ maxWidth: "700px" }}>
