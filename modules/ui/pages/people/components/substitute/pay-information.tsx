@@ -34,7 +34,7 @@ export const SubPayInformation: React.FC<Props> = props => {
       <Formik
         onSubmit={async (data, e) => {
           await props.onSubmit!({
-            payCodeId: data.payCodeId === "" ? undefined : data.payCodeId,
+            payCodeId: data.payCodeId === "" ? null : data.payCodeId,
           });
         }}
         initialValues={{ payCodeId: props.payCode?.id }}
