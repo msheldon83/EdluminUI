@@ -20,11 +20,9 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { ShowErrors } from "ui/components/error-helpers";
-import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id.gen";
 import { GetEmployeeAbsences } from "../../graphql/get-employee-absences.gen";
-import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id.gen";
 import { GetSubstituteAssignments } from "../../graphql/get-substitute-assignments.gen";
-import { DeleteDialogList } from "./list";
+import { DeleteDialogRow } from "./row";
 import { AbsVac } from "./types";
 
 type Props = {
@@ -57,18 +55,18 @@ export const DeleteDialog: React.FC<Props> = ({
   let showSubstitute = orgUser.isReplacementEmployee;
   switch (type) {
     case "delete":
-      titleString = t("Delete User Confirmation");
+      titleString = t("Are you sure you want to delete this user?");
       buttons = (
         <>
           <TextButton onClick={onCancel} className={classes.buttonSpacing}>
-            {t("Cancel")}
+            {t("No")}
           </TextButton>
           <ButtonDisableOnClick
             variant="outlined"
             onClick={onAccept}
             className={classes.delete}
           >
-            {t("Ok")}
+            {t("Yes")}
           </ButtonDisableOnClick>
         </>
       );
@@ -78,20 +76,23 @@ export const DeleteDialog: React.FC<Props> = ({
       buttons = <></>;
       break;
     default:
-      titleString = t("Role deletion confirmation");
+      titleString = t(
+        `Are you sure you want to remove the ${type[0] +
+          type.substring(1).toLowerCase()} role from this user?`
+      );
       showEmployee = type == OrgUserRole.Employee;
       showSubstitute = type == OrgUserRole.ReplacementEmployee;
       buttons = (
         <>
           <TextButton onClick={onCancel} className={classes.buttonSpacing}>
-            {t("Cancel")}
+            {t("No")}
           </TextButton>
           <ButtonDisableOnClick
             variant="outlined"
             onClick={onAccept}
             className={classes.delete}
           >
-            {t("Remove role")}
+            {t("Yes")}
           </ButtonDisableOnClick>
         </>
       );
@@ -153,39 +154,42 @@ export const DeleteDialog: React.FC<Props> = ({
         <Typography variant="h5">{titleString}</Typography>
       </DialogTitle>
       <DialogContent>
-        {(showEmployee || showSubstitute) && (
-          <>
-            {showEmployee &&
-              (getEmployeeAbsences.state == "LOADING" ? (
-                <Typography variant="h6" className={classes.dividedContent}>
-                  Loading absences...
+        {showEmployee &&
+          (getEmployeeAbsences.state == "LOADING" ? (
+            <Typography variant="h6" className={classes.dividedContent}>
+              Loading absences...
+            </Typography>
+          ) : (
+            <Grid container className={classes.dividedContent}>
+              <Grid item xs={12}>
+                <Typography variant="h6" className={classes.header}>
+                  Absences to delete:
                 </Typography>
-              ) : (
-                <DeleteDialogList
-                  className={classes.dividedContent}
-                  name="absences"
-                  absvacs={absenceSchedule}
-                />
+                {absenceSchedule.map(absvac => (
+                  <Grid item container key={absvac.id}>
+                    <DeleteDialogRow {...absvac} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          ))}
+        {showSubstitute &&
+          (getSubstituteAssignments.state == "LOADING" ? (
+            <Typography variant="h6" className={classes.dividedContent}>
+              Loading assignments...
+            </Typography>
+          ) : (
+            <Grid container className={classes.dividedContent}>
+              <Typography variant="h6" className={classes.header}>
+                Assignments to delete:
+              </Typography>
+              {assignmentSchedule.map(absvac => (
+                <Grid item container key={absvac.id}>
+                  <DeleteDialogRow {...absvac} />
+                </Grid>
               ))}
-            {showSubstitute &&
-              (getSubstituteAssignments.state == "LOADING" ? (
-                <Typography variant="h6" className={classes.dividedContent}>
-                  Loading assignments...
-                </Typography>
-              ) : (
-                <DeleteDialogList
-                  className={classes.dividedContent}
-                  name="assignments"
-                  absvacs={assignmentSchedule}
-                />
-              ))}
-          </>
-        )}
-        {!showEmployee && !showSubstitute && (
-          <Typography>
-            {t("Are you sure you want to delete this administrator?")}
-          </Typography>
-        )}
+            </Grid>
+          ))}
       </DialogContent>
 
       <DialogActions>{buttons}</DialogActions>
@@ -204,4 +208,5 @@ const useStyles = makeStyles(theme => ({
   dividedContent: { flex: 1, padding: theme.spacing(1) },
   dividedContainer: { display: "flex" },
   delete: { color: theme.customColors.blue },
+  header: { textAlign: "center" },
 }));
