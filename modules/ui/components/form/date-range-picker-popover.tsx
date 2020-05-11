@@ -20,7 +20,7 @@ type DateRangePickerPopoverProps = DateRangePickerProps & {
 export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const buttonRef = React.useRef(document.createElement("button"));
+  const triggerRef = React.useRef(null);
   const { matchesPreset } = usePresetDateRanges();
 
   const {
@@ -90,11 +90,10 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
           {label ?? t("Date range")}
         </InputLabel>
       </div>
-      <div className={classes.trigger}>
+      <div className={classes.trigger} ref={triggerRef}>
         <button
           className={classes.button}
           id={id}
-          ref={buttonRef}
           onClick={() => setShowPopover(true)}
         >
           {readableString()}
@@ -103,9 +102,9 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
       </div>
       <Popper
         transition
-        anchorEl={buttonRef.current}
+        anchorEl={triggerRef.current}
         open={showPopover}
-        placement="bottom-start"
+        placement="top-start"
       >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
