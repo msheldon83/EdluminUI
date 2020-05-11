@@ -184,22 +184,12 @@ export const AdminNavLinks: React.FC<Props> = props => {
               orgId={params.organizationId}
             />
           </Can>
-          <Can do={canViewAsSysAdmin} orgId={organizationId}>
-            <AnalyticsAndReportsNavLink
-              onClick={props.onClick}
-              navBarExpanded={props.navBarExpanded}
-              route={AnalyticsReportsRoute.generate(params)}
-              orgId={params.organizationId}
-            />
-          </Can>
-          <Can not do={canViewAsSysAdmin} orgId={organizationId}>
-            <AnalyticsAndReportsNavLink
-              onClick={props.onClick}
-              navBarExpanded={props.navBarExpanded}
-              route={AnalyticsReportsDailyReportRoute.generate(params)}
-              orgId={params.organizationId}
-            />
-          </Can>
+          <AnalyticsAndReportsNavLink
+            onClick={props.onClick}
+            navBarExpanded={props.navBarExpanded}
+            route={AnalyticsReportsRoute.generate(params)}
+            orgId={params.organizationId}
+          />
           <SchoolsNavLink
             onClick={props.onClick}
             navBarExpanded={props.navBarExpanded}
