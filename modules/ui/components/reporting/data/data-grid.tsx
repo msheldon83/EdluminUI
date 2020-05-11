@@ -7,6 +7,7 @@ import {
   SubtotalField,
   Direction,
   Row,
+  DataType,
 } from "../types";
 import {
   GridCellProps,
@@ -15,7 +16,12 @@ import {
   ScrollSync,
   Index,
 } from "react-virtualized";
-import { makeStyles, CircularProgress, Typography } from "@material-ui/core";
+import {
+  makeStyles,
+  CircularProgress,
+  Typography,
+  Tooltip,
+} from "@material-ui/core";
 import clsx from "clsx";
 import { isNumber } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
@@ -73,7 +79,7 @@ export const DataGrid: React.FC<Props> = props => {
   }, [metadata]);
 
   const dataGridHeight = 75;
-  const summaryGridHeight = 50;
+  const summaryGridHeight = 40;
 
   return (
     <>
@@ -140,7 +146,14 @@ export const DataGrid: React.FC<Props> = props => {
                   scrollLeft={scrollLeft}
                   fixedColumnCount={numberOfLockedColumns}
                   cellRenderer={props =>
-                    cellRenderer(rows, props, classes, t, showGroupLabels)
+                    cellRenderer(
+                      rows,
+                      reportData.dataColumnIndexMap,
+                      props,
+                      classes,
+                      t,
+                      showGroupLabels
+                    )
                   }
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
@@ -235,6 +248,11 @@ const useStyles = makeStyles(theme => ({
   cell: {
     padding: theme.typography.pxToRem(10),
   },
+  truncate: {
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
   firstGroupedDataRow: {
     borderTop: "1px solid #E5E5E5",
   },
@@ -304,12 +322,14 @@ const summaryHeaderRenderer = (
 
 const dataCellRenderer = (
   data: any[],
+  dataColumnIndexMap: Record<string, DataExpression>,
   level: number,
   dataRowIndex: number,
-  { columnIndex, key, rowIndex, style }: GridCellProps,
+  { columnIndex, key, style }: GridCellProps,
   classes: any
 ) => {
-  const dataValue =
+  const originalValue = data[columnIndex];
+  const displayValue =
     typeof data[columnIndex] === "boolean"
       ? data[columnIndex]
         ? "Y"
@@ -317,6 +337,11 @@ const dataCellRenderer = (
       : data[columnIndex] ?? "--";
   const isAlternatingRow = dataRowIndex % 2 !== 0;
   const isNormalRow = !isAlternatingRow;
+  const isLongText =
+    originalValue &&
+    originalValue.toString().length > 0 &&
+    dataColumnIndexMap[columnIndex].dataSourceField?.dataType ===
+      DataType.LongString;
 
   const dataClasses = clsx({
     [classes.alternatingDataRow]: isAlternatingRow,
@@ -324,24 +349,28 @@ const dataCellRenderer = (
     [classes.cell]: columnIndex > 0 || level === 0,
     [classes.firstGroupedDataCell]: columnIndex === 0 && level > 0,
     [classes.firstGroupedDataRow]: dataRowIndex === 0,
+    [classes.truncate]: isLongText,
   });
+
+  const cellDisplay = isLongText ? (
+    <Tooltip title={displayValue} placement="top-start">
+      <div className={dataClasses}>{displayValue}</div>
+    </Tooltip>
+  ) : (
+    <div className={dataClasses}>{displayValue}</div>
+  );
 
   if (columnIndex === 0) {
     return (
       <div key={key} style={style}>
-        {nestDivs(
-          0,
-          level,
-          <div className={dataClasses}>{dataValue}</div>,
-          classes.groupNesting
-        )}
+        {nestDivs(0, level, cellDisplay, classes.groupNesting)}
       </div>
     );
   }
 
   return (
     <div key={key} style={style}>
-      <div className={dataClasses}>{dataValue}</div>
+      {cellDisplay}
     </div>
   );
 };
@@ -394,6 +423,7 @@ const groupHeaderCellRenderer = (
 
 const cellRenderer = (
   rows: Row[],
+  dataColumnIndexMap: Record<string, DataExpression>,
   gridProps: GridCellProps,
   classes: any,
   t: TFunction,
@@ -403,6 +433,7 @@ const cellRenderer = (
   if (Array.isArray(row.item)) {
     return dataCellRenderer(
       row.item,
+      dataColumnIndexMap,
       row.level,
       row.dataRowIndex ?? 0,
       gridProps,
