@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DataSourceField, FilterField, ExpressionFunction } from "../types";
+import { DataSourceField, FilterField, ExpressionFunction } from "../../types";
 import {
   Button,
   Popper,

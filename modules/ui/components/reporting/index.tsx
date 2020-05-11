@@ -1,19 +1,17 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
 import { ReportDefinitionInput, FilterField } from "./types";
-import { DataGrid } from "./data/data-grid";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportQuery } from "./graphql/get-report";
-import { LoadingDataGrid } from "./data/loading-data-grid";
 import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
-import { ActionBar } from "./actions/action-bar";
 import { makeStyles } from "@material-ui/core";
-import { TextButton } from "ui/components/text-button";
 import { useOrganizationId } from "core/org-context";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowNetworkErrors } from "../error-helpers";
 import { ExportReportQuery } from "./graphql/export-report";
 import { useTranslation } from "react-i18next";
+import { ReportData } from "./data";
+import { ReportChart } from "./chart";
 
 type Props = {
   input: ReportDefinitionInput;
@@ -26,13 +24,14 @@ export const Report: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
+  const organizationId = useOrganizationId();
   const {
     input,
     filterFieldsOverride,
     exportFilename = t("Report"),
     showGroupLabels = true,
   } = props;
-  const organizationId = useOrganizationId();
+
   const [state, dispatch] = React.useReducer(reportReducer, {
     reportDefinitionInput: input,
     rdlString: convertReportDefinitionInputToRdl(input),
@@ -103,86 +102,36 @@ export const Report: React.FC<Props> = props => {
 
   return (
     <AppConfig contentWidth="100%">
-      {!state.reportDefinition ? (
-        <div className={classes.gridWrapper}>
-          <LoadingDataGrid
-            numberOfColumns={state.reportDefinitionInput.select.length}
-          />
-        </div>
-      ) : (
-        <>
-          <div className={classes.actions}>
-            <ActionBar
-              filterableFields={state.filterableFields}
-              setFilters={setFilters}
-              refreshReport={refreshReport}
-              currentFilters={[
-                ...state.filters.required,
-                ...state.filters.optional,
-              ]}
-            />
-            <TextButton
-              onClick={async () => {
-                await downloadCsvFile({
-                  input: {
-                    orgIds: [organizationId],
-                    queryText: convertReportDefinitionInputToRdl(
-                      state.reportDefinitionInput,
-                      true
-                    ),
-                  },
-                  filename: exportFilename,
-                });
-              }}
-            >
-              {t("Export Report")}
-            </TextButton>
-          </div>
-          <div className={classes.gridWrapper}>
-            <DataGrid
-              reportDefinition={state.reportDefinition}
-              isLoading={
-                reportResponse.state === "LOADING" ||
-                reportResponse.state === "UPDATING"
-              }
-              showGroupLabels={showGroupLabels}
-            />
-          </div>
-        </>
-      )}
+      <ReportChart
+        reportDefinition={state.reportDefinition}
+        isLoading={false}
+      />
+      <ReportData
+        reportDefinition={state.reportDefinition}
+        isLoading={
+          reportResponse.state === "LOADING" ||
+          reportResponse.state === "UPDATING"
+        }
+        currentFilters={[...state.filters.required, ...state.filters.optional]}
+        filterableFields={state.filterableFields}
+        setFilters={setFilters}
+        refreshReport={refreshReport}
+        exportReport={async () => {
+          await downloadCsvFile({
+            input: {
+              orgIds: [organizationId],
+              queryText: convertReportDefinitionInputToRdl(
+                state.reportDefinitionInput,
+                true
+              ),
+            },
+            filename: exportFilename,
+          });
+        }}
+        showGroupLabels={showGroupLabels}
+      />
     </AppConfig>
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  actions: {
-    display: "flex",
-    justifyContent: "space-between",
-    paddingLeft: theme.spacing(3),
-    paddingRight: theme.spacing(3),
-    paddingTop: theme.spacing(3),
-    borderTopWidth: theme.typography.pxToRem(1),
-    borderLeftWidth: theme.typography.pxToRem(1),
-    borderRightWidth: theme.typography.pxToRem(1),
-    borderBottomWidth: 0,
-    borderColor: theme.customColors.sectionBorder,
-    borderStyle: "solid",
-    borderTopLeftRadius: "0.25rem",
-    borderTopRightRadius: "0.25rem",
-    backgroundColor: theme.customColors.white,
-  },
-  gridWrapper: {
-    width: "100%",
-    height: "100%",
-    padding: theme.spacing(3),
-    borderTopWidth: 0,
-    borderBottomWidth: theme.typography.pxToRem(1),
-    borderLeftWidth: theme.typography.pxToRem(1),
-    borderRightWidth: theme.typography.pxToRem(1),
-    borderColor: theme.customColors.sectionBorder,
-    borderStyle: "solid",
-    borderBottomLeftRadius: "0.25rem",
-    borderBottomRightRadius: "0.25rem",
-    backgroundColor: theme.customColors.white,
-  },
-}));
+const useStyles = makeStyles(theme => ({}));
