@@ -10,6 +10,7 @@ import {
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { lastDayOfYear, parseISO } from "date-fns";
+import { compact } from "lodash-es";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { OrgUserRole } from "graphql/server-types.gen";
@@ -26,19 +27,16 @@ import { GetSubstituteAssignments } from "../../graphql/get-substitute-assignmen
 import { DeleteDialogList } from "./list";
 import { AbsVac } from "./types";
 
-function dropNulls<T>(
-  withNulls: (T | null)[] | null | undefined
-): T[] | undefined {
-  return withNulls ? (withNulls.filter(o => o !== null) as T[]) : undefined;
-}
-
 type Props = {
   type: "delete" | OrgUserRole | null;
   now: Date;
   onAccept: () => void;
   onCancel: () => void;
   orgId: string;
-  orgUser: Pick<OrgUser, "id" | "isEmployee" | "isReplacementEmployee">;
+  orgUser: Pick<
+    OrgUser,
+    "id" | "userId" | "isEmployee" | "isReplacementEmployee"
+  >;
 };
 
 export const DeleteDialog: React.FC<Props> = ({
@@ -70,7 +68,7 @@ export const DeleteDialog: React.FC<Props> = ({
             onClick={onAccept}
             className={classes.delete}
           >
-            {t("Delete")}
+            {t("Ok")}
           </ButtonDisableOnClick>
         </>
       );
@@ -102,43 +100,51 @@ export const DeleteDialog: React.FC<Props> = ({
   const toDate = currentSchoolYear
     ? parseISO(currentSchoolYear?.endDate)
     : lastDayOfYear(now);
-  const getEmployee = useQueryBundle(GetEmployeeById, {
-    fetchPolicy: "cache-first",
-    variables: { id: orgUser.id },
-  });
   const getEmployeeAbsences = useQueryBundle(GetEmployeeAbsences, {
     fetchPolicy: "cache-first",
     variables: {
-      id:
-        getEmployee.state == "DONE"
-          ? getEmployee.data.orgUser?.byId?.employee?.id ?? ""
-          : "",
+      id: orgUser.id,
       fromDate: now,
       toDate,
     },
-    skip: !(getEmployee.state == "DONE"),
   });
-  const getSubstitute = useQueryBundle(GetSubstituteById, {
-    fetchPolicy: "cache-first",
-    variables: { id: orgUser.id },
-  });
+  let absenceSchedule: AbsVac[] = [];
+  if (getEmployeeAbsences.state != "LOADING") {
+    const dirtySchedule =
+      getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule;
+    if (dirtySchedule) {
+      absenceSchedule = compact(dirtySchedule).map(absence => ({
+        ...absence,
+        type: "absence",
+      }));
+    }
+    showEmployee =
+      showEmployee && !!dirtySchedule && absenceSchedule.length > 0;
+  }
   const getSubstituteAssignments = useQueryBundle(GetSubstituteAssignments, {
     fetchPolicy: "cache-first",
     variables: {
-      id:
-        getSubstitute.state == "DONE"
-          ? getSubstitute.data.orgUser?.byId?.userId ?? ""
-          : "",
+      id: orgUser.userId!,
       orgId,
       fromDate: now,
       toDate,
     },
-    skip: !(getSubstitute.state == "DONE"),
+    skip: !orgUser.userId,
   });
-
-  function printId<T>(t: T): T {
-    console.log(t);
-    return t;
+  let assignmentSchedule: AbsVac[] = [];
+  if (getSubstituteAssignments.state != "LOADING") {
+    const dirtySchedule =
+      getSubstituteAssignments.data?.employee?.employeeAssignmentSchedule;
+    if (dirtySchedule) {
+      assignmentSchedule = compact(dirtySchedule).map(
+        ({ isPartOfNormalVacancy, ...absVac }) => ({
+          ...absVac,
+          type: isPartOfNormalVacancy ? "vacancy" : "absence",
+        })
+      );
+    }
+    showSubstitute =
+      showSubstitute && !!dirtySchedule && assignmentSchedule.length > 0;
   }
 
   return (
@@ -158,12 +164,7 @@ export const DeleteDialog: React.FC<Props> = ({
                 <DeleteDialogList
                   className={classes.dividedContent}
                   name="absences"
-                  absvacs={dropNulls(
-                    getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule
-                  )?.map(absence => ({
-                    ...absence,
-                    type: "absence",
-                  }))}
+                  absvacs={absenceSchedule}
                 />
               ))}
             {showSubstitute &&
@@ -175,24 +176,14 @@ export const DeleteDialog: React.FC<Props> = ({
                 <DeleteDialogList
                   className={classes.dividedContent}
                   name="assignments"
-                  absvacs={dropNulls(
-                    printId(
-                      getSubstituteAssignments.data?.employee
-                        ?.employeeAssignmentSchedule
-                    )
-                  )?.map(({ vacancy, ...absvac }) => ({
-                    ...absvac,
-                    type: vacancy?.absence ? "absence" : "vacancy",
-                  }))}
+                  absvacs={assignmentSchedule}
                 />
               ))}
           </>
         )}
         {!showEmployee && !showSubstitute && (
           <Typography>
-            {t(
-              "This user was not an employee or a substitute, so no assignments or absences will be cancelled on deletion."
-            )}
+            {t("Are you sure you want to delete this administrator?")}
           </Typography>
         )}
       </DialogContent>

@@ -6,7 +6,7 @@ import { AbsVac } from "./types";
 
 type Props = {
   name: string;
-  absvacs: AbsVac[] | undefined;
+  absvacs: AbsVac[];
   className?: string;
 };
 
@@ -16,7 +16,7 @@ export const DeleteDialogList: React.FC<Props> = ({
   className,
 }) => {
   const classes = useStyles();
-  return absvacs && absvacs.length > 0 ? (
+  return (
     <>
       <Grid container className={className}>
         <Grid item xs={12}>
@@ -33,11 +33,6 @@ export const DeleteDialogList: React.FC<Props> = ({
         ))}
       </Grid>
     </>
-  ) : (
-    <Typography
-      variant="h6"
-      className={classes.empty}
-    >{`No upcoming ${name}`}</Typography>
   );
 };
 
