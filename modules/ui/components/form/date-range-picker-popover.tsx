@@ -69,17 +69,13 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
     }
   };
 
-  const close = React.useCallback(() => {
-    setShowPopover(false);
-    setStartDateInternal(props.startDate);
-    setEndDateInternal(props.endDate);
-  }, [props.endDate, props.startDate]);
+  const closePicker = React.useCallback(() => setShowPopover(false), []);
 
   const handleClickOutside = React.useCallback(() => {
     if (showPopover) {
-      close();
+      closePicker();
     }
-  }, [close, showPopover]);
+  }, [closePicker, showPopover]);
 
   const id = `custom-input-${Math.round(Math.random() * 1000)}`;
 
@@ -125,7 +121,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
                   />
                   <div className={classes.actions}>
                     <div className={classes.cancelButton}>
-                      <Button variant="outlined" onClick={() => close()}>
+                      <Button variant="outlined" onClick={() => closePicker()}>
                         {t("Cancel")}
                       </Button>
                     </div>
