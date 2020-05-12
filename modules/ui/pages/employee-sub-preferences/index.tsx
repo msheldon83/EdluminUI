@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetEmployeeById } from "ui/pages/people/graphql/employee/get-employee-by-id.gen";
+import { GetEmployeeByIdForPreferences } from "./graphql/get-employee-by-id.gen";
 import { AddSubPreference } from "./graphql/add-sub-preference.gen";
 import { RemoveSubPreference } from "./graphql/remove-sub-preference.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
@@ -15,9 +15,8 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const me = useGetEmployee();
 
-  const getEmployee = useQueryBundle(GetEmployeeById, {
+  const getEmployee = useQueryBundle(GetEmployeeByIdForPreferences, {
     variables: { id: me?.id },
-    fetchPolicy: "cache-first",
   });
 
   const onRemoveFavoriteSubstitute = async (sub: any) => {
@@ -29,13 +28,13 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   };
 
   const onAddSubstitute = async (sub: any) => {
-    employee.substitutePreferences?.favoriteSubstitutes.push(sub);
+    orgUser?.employee?.substitutePreferences?.favoriteSubstitutes.push(sub);
 
     await addSub(sub.id, ReplacementPoolType.Favorite);
   };
 
   const onBlockSubstitute = async (sub: any) => {
-    employee.substitutePreferences?.blockedSubstitutes.push(sub);
+    orgUser?.employee?.substitutePreferences?.blockedSubstitutes.push(sub);
 
     await addSub(sub.id, ReplacementPoolType.Blocked);
   };
@@ -50,8 +49,8 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     const result = await addSubPreference({
       variables: {
         subPreference: {
-          orgId: employee.orgId,
-          employee: { id: employee.id },
+          orgId: orgUser?.orgId ?? "",
+          employee: { id: orgUser?.id },
           substitute: { id: subId },
           replacementPoolType: type,
         },
@@ -66,8 +65,8 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     const result = await removeSubPreference({
       variables: {
         subPreference: {
-          orgId: employee.orgId,
-          employee: { id: employee.id },
+          orgId: orgUser?.orgId ?? "",
+          employee: { id: orgUser?.id },
           substitute: { id: subId },
           replacementPoolType: type,
         },
@@ -84,10 +83,15 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     },
   });
 
-  if (getEmployee.state === "LOADING") {
+  if (
+    getEmployee.state === "LOADING" ||
+    !getEmployee?.data?.orgUser?.byId?.employee
+  ) {
     return <></>;
   }
-  const employee: any = getEmployee?.data?.orgUser?.byId?.employee ?? undefined;
+
+  const orgUser = getEmployee?.data?.orgUser?.byId ?? undefined;
+  const employee: any = getEmployee?.data?.orgUser?.byId.employee;
 
   return (
     <>
@@ -95,10 +99,10 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteEmployees={employee.substitutePreferences?.favoriteSubstitutes}
-        blockedEmployees={employee.substitutePreferences?.blockedSubstitutes}
+        favoriteEmployees={employee?.substitutePreferences?.favoriteSubstitutes}
+        blockedEmployees={employee?.substitutePreferences?.blockedSubstitutes}
         heading={t("Substitute Preferences")}
-        orgId={employee?.orgId?.toString()}
+        orgId={orgUser?.orgId ?? ""}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}
