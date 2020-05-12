@@ -39,7 +39,7 @@ module.exports = {
 
   impersonation_actingUserIdKey: "rrActingUserId",
   impersonation_actingOrgUserIdKey: "rrActingOrgUserId",
-  //impersonation_routeHistory: "rrRouteHistory",
+  impersonation_impersonatingOrgId: "rrimpersonatingOrgId",
 
   devServer: {
     url: "http://localhost",

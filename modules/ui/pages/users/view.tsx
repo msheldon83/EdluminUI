@@ -174,10 +174,6 @@ export const UserViewPage: React.FC<{}> = props => {
   const triggerImpersonation = async () => {
     // Set userId in sessionStorage
     sessionStorage.setItem(Config.impersonation.actingUserIdKey, params.userId);
-    sessionStorage.setItem(
-      Config.impersonation.routeHistory,
-      window.location.href
-    );
     // Redirect current user to homepage
     history.push("/");
   };

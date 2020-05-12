@@ -17,6 +17,7 @@ import { useHistory } from "react-router";
 import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { OptionType } from "ui/components/form/select-new";
+import { AdminHomeRoute } from "ui/routes/admin-home";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrganizationType } from "graphql/server-types.gen";
@@ -243,8 +244,8 @@ export const PersonViewHeader: React.FC<Props> = props => {
         orgUser.id
       );
       sessionStorage.setItem(
-        Config.impersonation.routeHistory,
-        window.location.href
+        Config.impersonation.impersonatingOrgId,
+        props.orgId
       );
       // Redirect current user to homepage
       history.push("/");
