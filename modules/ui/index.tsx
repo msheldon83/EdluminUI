@@ -185,6 +185,14 @@ import {
   LocationGroupAddRoute,
 } from "./routes/location-groups";
 import {
+  ApproverGroupsRoute,
+  ApproverGroupsLoader,
+  ApproverGroupViewRoute,
+  ApproverGroupViewLoader,
+  ApproverGroupAddRoute,
+  ApproverGroupAddLoader,
+} from "./routes/approver-groups";
+import {
   LocationsLoader,
   LocationAddLoader,
   LocationAddRoute,
@@ -1165,6 +1173,31 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.LocationGroupView,
+                                      ]}
+                                    />
+
+                                    <ProtectedRoute
+                                      component={ApproverGroupAddLoader}
+                                      path={ApproverGroupAddRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApproverSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApproverGroupViewLoader}
+                                      path={ApproverGroupViewRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApproverSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApproverGroupsLoader}
+                                      path={ApproverGroupsRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApproverSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
