@@ -1181,7 +1181,7 @@ export const App = hot(function() {
                                       path={ApproverGroupAddRoute.path}
                                       role={"admin"}
                                       permissions={[
-                                        PermissionEnum.ApproverSettingsSave,
+                                        PermissionEnum.ApprovalSettingsSave,
                                       ]}
                                     />
                                     <ProtectedRoute
@@ -1189,7 +1189,7 @@ export const App = hot(function() {
                                       path={ApproverGroupViewRoute.path}
                                       role={"admin"}
                                       permissions={[
-                                        PermissionEnum.ApproverSettingsView,
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
@@ -1197,7 +1197,7 @@ export const App = hot(function() {
                                       path={ApproverGroupsRoute.path}
                                       role={"admin"}
                                       permissions={[
-                                        PermissionEnum.ApproverSettingsView,
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute

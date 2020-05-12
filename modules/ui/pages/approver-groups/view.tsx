@@ -1,5 +1,5 @@
 import * as React from "react";
 
-export const ApprovalGroupViewPage: React.FC<{}> = props => {
+export const ApproverGroupViewPage: React.FC<{}> = props => {
   return <></>;
 };

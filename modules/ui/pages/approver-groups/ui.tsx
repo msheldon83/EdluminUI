@@ -34,6 +34,7 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
       field: "name",
       defaultSort: "asc",
       searchable: true,
+      //Custom Render if the group varies by location or has no members.
     },
     {
       title: t("Members"),
@@ -47,7 +48,6 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
       field: "usedIn",
       searchable: false,
       hidden: isMobile,
-      //Check Figma for custom Render with text-color change & tool tip
     },
   ];
 
