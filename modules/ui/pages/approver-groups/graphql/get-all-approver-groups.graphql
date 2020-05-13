@@ -1,6 +1,6 @@
-query GetAllApproverGroupsWithinOrg($orgId: ID) {
+query GetAllApproverGroupsWithinOrg($orgId: ID!) {
   approverGroup {
-    all(orgId: $orgId) {
+    byId(orgId: $orgId) {
       id
       name
       externalId

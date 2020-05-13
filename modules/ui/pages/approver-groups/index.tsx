@@ -8,15 +8,22 @@ import {
   ApproverGroupsRoute,
 } from "ui/routes/approver-groups";
 import { Link } from "react-router-dom";
+import { useHistory } from "react-router";
 import { ApproverGroupsUI } from "./ui";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum, DataImportType } from "graphql/server-types.gen";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 export const ApproverGroups: React.FC<{}> = props => {
   const { t } = useTranslation();
+  const history = useHistory();
   const classes = useStyles();
   const params = useRouteParams(ApproverGroupsRoute);
+  const userAccess = useMyUserAccess();
+
+  //Remove Once ready for production
+  if (!userAccess?.isSysAdmin) history.push("/");
 
   return (
     <>

@@ -22,6 +22,7 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const params = useRouteParams(ApproverGroupsRoute);
 
+  //Get Paged
   const getApproverGroups = useQueryBundle(GetAllApproverGroupsWithinOrg, {
     variables: {
       orgId: params.organizationId,
