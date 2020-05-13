@@ -6,6 +6,7 @@ import {
   ReportDefinitionInput,
   Direction,
   ExpressionFunction,
+  GraphType,
 } from "ui/components/reporting/types";
 import { addDays } from "date-fns";
 
@@ -50,6 +51,15 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
           direction: Direction.Desc,
         },
       ],
+      chart: {
+        graphs: [
+          {
+            type: GraphType.Bar,
+            series: ["Count(ConfirmationNumber) AS NumberOfAbsences"],
+          },
+        ],
+        againstExpression: "Date",
+      },
     };
   }, []);
 
