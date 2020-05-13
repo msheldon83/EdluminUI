@@ -1,15 +1,11 @@
 import * as React from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import {
-  useQueryParamIso,
-  makeQueryIso,
-  PaginationParams,
-} from "hooks/query-params";
+import { makeQueryIso, PaginationParams } from "hooks/query-params";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetSubstitutesForPreferences } from "./graphql/get-substitutes.gen";
-import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { compact, remove } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
@@ -17,8 +13,6 @@ import { Grid, Typography } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { Input } from "ui/components/form/input";
 import { useDeferredState } from "hooks";
-import { FilterQueryParams } from "ui/pages/people/people-filters/filter-params";
-import { useEffect } from "react";
 import { Can } from "../auth/can";
 import { SubstituteLink } from "ui/components/links/people";
 
@@ -38,7 +32,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const peoplePaginationDefaults = makeQueryIso({
+  const subPickerPaginationDefaults = makeQueryIso({
     defaults: {
       page: "1",
       limit: "25",
@@ -46,30 +40,17 @@ export const SubstitutePicker: React.FC<Props> = props => {
     iso: PaginationParams,
   });
 
-  const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
-  const [name, pendingName, setPendingName] = useDeferredState(
-    isoFilters.name,
-    200
-  );
-
-  useEffect(() => {
-    if (name !== isoFilters.name) {
-      setPendingName(isoFilters.name);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isoFilters.name]);
-
-  useEffect(() => {
-    if (name !== isoFilters.name) {
-      updateIsoFilters({ name });
-    }
-  }, [name]); // eslint-disable-line
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>("", 200);
 
   const updateNameFilter = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingName(event.target.value);
+      setPendingSearchText(event.target.value);
     },
-    [setPendingName]
+    [setPendingSearchText]
   );
 
   const [allSubstitutesQuery, pagination] = usePagedQueryBundle(
@@ -77,8 +58,8 @@ export const SubstitutePicker: React.FC<Props> = props => {
     r => r.orgUser?.pagedSubsForPreferences?.totalCount,
     {
       variables: {
-        ...isoFilters,
         orgId: props.orgId,
+        name: searchText,
         sortBy: [
           {
             sortByPropertyName: "lastName",
@@ -91,7 +72,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
         ],
       },
     },
-    peoplePaginationDefaults
+    subPickerPaginationDefaults
   );
 
   let substitutes: GetSubstitutesForPreferences.Results[] = [];
@@ -133,7 +114,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
           <Grid item xs={6} className={classes.filters}>
             <Input
               label={t("Search")}
-              value={pendingName}
+              value={pendingSearchText}
               onChange={updateNameFilter}
               placeholder={t("First or last name")}
             />

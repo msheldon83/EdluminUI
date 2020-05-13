@@ -79,6 +79,7 @@ export const AdminNotificationLink: React.FC<Props> = props => {
           >
             {htmlContent}
           </Link>
+          <Divider className={classes.divider} />
         </Can>
       ) : (
         <>
@@ -93,9 +94,9 @@ export const AdminNotificationLink: React.FC<Props> = props => {
           >
             {htmlContent}
           </div>
+          <Divider className={classes.divider} />
         </>
       )}
-      <Divider className={classes.divider} />
     </>
   );
 };
