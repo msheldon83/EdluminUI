@@ -191,6 +191,10 @@ import {
   ApproverGroupViewLoader,
   ApproverGroupAddRoute,
   ApproverGroupAddLoader,
+  ApproverGroupAddLocationsRoute,
+  ApproverGroupAddLocationsLoader,
+  ApproverGroupAddAdminsRoute,
+  ApproverGroupAddAdminsLoader,
 } from "./routes/approver-groups";
 import {
   LocationsLoader,
@@ -1175,7 +1179,24 @@ export const App = hot(function() {
                                         PermissionEnum.LocationGroupView,
                                       ]}
                                     />
-
+                                    <ProtectedRoute
+                                      component={ApproverGroupAddAdminsLoader}
+                                      path={ApproverGroupAddAdminsRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        ApproverGroupAddLocationsLoader
+                                      }
+                                      path={ApproverGroupAddLocationsRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsSave,
+                                      ]}
+                                    />
                                     <ProtectedRoute
                                       component={ApproverGroupAddLoader}
                                       path={ApproverGroupAddRoute.path}

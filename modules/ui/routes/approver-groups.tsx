@@ -48,3 +48,37 @@ export const ApproverGroupAddLoader = asyncComponent({
   },
   name: "ApproverGroupAddPage",
 });
+
+//Add Location
+export const ApproverGroupAddLocationsRoute = defineSubRoute(
+  ApproverGroupsRoute,
+  "/add-location",
+  []
+);
+
+export const ApproverGroupAddLocationsLoader = asyncComponent({
+  resolve: async () => {
+    const ApproverGroupLocationsPage = (
+      await import("ui/pages/approver-groups/add-locations")
+    ).ApproverGroupLocationsPage;
+    return ApproverGroupLocationsPage;
+  },
+  name: "ApproverGroupLocationsPage",
+});
+
+//Add Admin
+export const ApproverGroupAddAdminsRoute = defineSubRoute(
+  ApproverGroupsRoute,
+  "/add-admin",
+  []
+);
+
+export const ApproverGroupAddAdminsLoader = asyncComponent({
+  resolve: async () => {
+    const ApproverGroupAdminsPage = (
+      await import("ui/pages/approver-groups/add-admins")
+    ).ApproverGroupAdminsPage;
+    return ApproverGroupAdminsPage;
+  },
+  name: "ApproverGroupAdminsPage",
+});
