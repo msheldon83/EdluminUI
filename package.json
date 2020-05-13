@@ -23,6 +23,7 @@
     "@material-ui/pickers": "^3.2.10",
     "@material-ui/styles": "^4.9.0",
     "@types/autosuggest-highlight": "^3.1.0",
+    "@types/chart.js": "^2.9.20",
     "@types/react-autosuggest": "^9.3.13",
     "@types/react-beautiful-dnd": "^11.0.3",
     "@types/react-csv": "^1.1.1",
