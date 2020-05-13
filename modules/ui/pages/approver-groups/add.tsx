@@ -18,8 +18,8 @@ import { ActionButtons } from "ui/components/action-buttons";
 import { Input } from "ui/components/form/input";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
-import { ApproverGroupCreateInput } from "graphql/server-types.gen";
-//import { CreateApproverGroup } from "./graphql/create-approver-group.gen";
+import { ApproverGroupHeaderCreateInput } from "graphql/server-types.gen";
+import { CreateApproverGroupHeader } from "./graphql/create-approver-group-header.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
@@ -38,40 +38,45 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
   const [name, setName] = React.useState<string | null>(null);
   const namePlaceholder = t("HR Office");
 
-  // const [createApproverGroup] = useMutationBundle(CreateApproverGroup, {
-  //   onError: error => {
-  //     ShowErrors(error, openSnackbar);
-  //   },
-  // });
+  const [createApproverGroupHeader] = useMutationBundle(
+    CreateApproverGroupHeader,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
 
-  const [approverGroup, setApproverGroup] = React.useState<
-    ApproverGroupCreateInput
+  const [approverGroupHeader, setApproverGroupHeader] = React.useState<
+    ApproverGroupHeaderCreateInput
   >({
     orgId: params.organizationId,
     name: "",
     variesByLocation: false,
     description: undefined,
-    locationId: undefined,
-    approverGroupHeaderId: undefined,
+    externalId: undefined,
   });
 
   //Mutations for Create Only
-  const create = async (approverGroup: ApproverGroupCreateInput) => {
-    // const result = await createApproverGroup({
-    //   variables: {
-    //     approverGroup: {
-    //       ...approverGroup,
-    //     },
-    //   },
-    // });
-    // return result?.data?.approverGroup?.create?.id;
-    console.log(approverGroup);
+  const create = async (
+    approverGroupHeader: ApproverGroupHeaderCreateInput
+  ) => {
+    console.log(approverGroupHeader);
+    const result = await createApproverGroupHeader({
+      variables: {
+        approverGroupHeader: {
+          ...approverGroupHeader,
+        },
+      },
+    });
+    return result?.data?.approverGroup?.create;
   };
 
   const initialValues = {
-    name: approverGroup.name,
-    externalId: approverGroup.variesByLocation,
-    variesByLocation: approverGroup.variesByLocation ?? false,
+    name: approverGroupHeader.name,
+    externalId: approverGroupHeader.variesByLocation,
+    variesByLocation: approverGroupHeader.variesByLocation ?? false,
+    description: approverGroupHeader.description,
   };
 
   const validateBasicDetails = React.useMemo(
@@ -95,23 +100,28 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
         initialValues={initialValues}
         validationSchema={validateBasicDetails}
         onSubmit={async (data: any) => {
-          setApproverGroup({
-            ...approverGroup,
+          setApproverGroupHeader({
+            ...approverGroupHeader,
             name: data.name,
             variesByLocation: data.variesByLocation,
           });
 
-          const id = await create(approverGroup);
-          const viewParams = {
-            ...params,
-            approverGroupId: id,
-          };
+          const result = await create(approverGroupHeader);
           //Location Page
-          if (approverGroup.variesByLocation)
-            history.push(ApproverGroupAddLocationsRoute.generate(viewParams));
-
+          if (approverGroupHeader.variesByLocation)
+            history.push(
+              ApproverGroupAddLocationsRoute.generate({
+                approverGroupHeaderId: result?.id ?? "",
+                organizationId: params.organizationId,
+              })
+            );
           //Admin Page
-          history.push(ApproverGroupAddAdminsRoute.generate(viewParams));
+          history.push(
+            ApproverGroupAddAdminsRoute.generate({
+              approverGroupId: result?.approverGroups[0]?.id ?? "",
+              organizationId: params.organizationId,
+            })
+          );
         }}
       >
         {({
@@ -149,7 +159,7 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
                     name: "externalId",
                     margin: isMobile ? "normal" : "none",
                     variant: "outlined",
-                    //helperText: t("Usually used for data integrations"),
+                    helperText: t("Usually used for data integrations"),
                     fullWidth: true,
                   }}
                 />

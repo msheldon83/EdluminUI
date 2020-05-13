@@ -17,6 +17,13 @@ export const ApproverGroupsLoader = asyncComponent({
 });
 
 //View
+export const ApproverGroupHeaderViewRoute = defineSubRoute(
+  ApproverGroupsRoute,
+  "/:approverGroupHeaderId",
+  ["approverGroupHeaderId"]
+);
+
+//View
 export const ApproverGroupViewRoute = defineSubRoute(
   ApproverGroupsRoute,
   "/:approverGroupId",
@@ -51,7 +58,7 @@ export const ApproverGroupAddLoader = asyncComponent({
 
 //Add Location
 export const ApproverGroupAddLocationsRoute = defineSubRoute(
-  ApproverGroupsRoute,
+  ApproverGroupHeaderViewRoute,
   "/add-location",
   []
 );
@@ -68,7 +75,7 @@ export const ApproverGroupAddLocationsLoader = asyncComponent({
 
 //Add Admin
 export const ApproverGroupAddAdminsRoute = defineSubRoute(
-  ApproverGroupsRoute,
+  ApproverGroupViewRoute,
   "/add-admin",
   []
 );

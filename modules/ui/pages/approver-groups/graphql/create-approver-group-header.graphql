@@ -1,0 +1,12 @@
+mutation CreateApproverGroupHeader(
+  $approverGroupHeader: ApproverGroupHeaderCreateInput!
+) {
+  approverGroup {
+    create(approverGroupHeader: $approverGroupHeader) {
+      id
+      approverGroups {
+        id
+      }
+    }
+  }
+}

@@ -644,10 +644,15 @@ type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
-  name: String!
+  approverGroupHeaderId: ID!
+  rowVersion: String
+  name: String
+  description: String
+  externalId: String
   locationId: Int
   location: Location
   approverGroupMembers: [ApproverGroupMember]!
+  memberCount: Int
 }
 
 input ApproverGroupAddMemberInput {
@@ -657,11 +662,8 @@ input ApproverGroupAddMemberInput {
 
 input ApproverGroupCreateInput {
   orgId: ID!
-  name: String
-  description: String
-  variesByLocation: Boolean
-  locationId: ID
-  approverGroupHeaderId: ID
+  approverGroupHeaderId: ID!
+  locationId: ID!
 }
 
 type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -682,6 +684,23 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   description: String
   variesByLocation: Boolean!
   approverGroups: [ApproverGroup]!
+  memberCount: Int
+  allLocationsHaveGroup: Boolean
+}
+
+input ApproverGroupHeaderCreateInput {
+  orgId: ID!
+  name: String
+  description: String
+  variesByLocation: Boolean
+  externalId: String
+}
+
+input ApproverGroupHeaderUpdateInput {
+  rowVersion: Int!
+  name: String
+  description: String
+  externalId: String
 }
 
 type ApproverGroupMember implements ModelObjectInterface & OrgObjectInterface {
@@ -702,8 +721,9 @@ type ApproverGroupMember implements ModelObjectInterface & OrgObjectInterface {
 }
 
 type ApproverGroupMutations {
-  create(approverGroup: ApproverGroupCreateInput!): ApproverGroup
-  update(approverGroup: ApproverGroupUpdateInput!): ApproverGroup
+  create(approverGroupHeader: ApproverGroupHeaderCreateInput!): ApproverGroupHeader
+  createApproverGroupForLocation(approverGroup: ApproverGroupCreateInput!): ApproverGroup
+  update(approverGroupHeader: ApproverGroupHeaderUpdateInput!): ApproverGroupHeader
   delete(approverGroupId: ID!): Boolean
   deleteApproverGroupHeader(approverGroupHeaderId: ID!): Boolean
   addApproverGroupMember(member: ApproverGroupAddMemberInput!): ApproverGroupMember
@@ -714,19 +734,13 @@ type ApproverGroupQueries {
   byId(id: ID!): ApproverGroupHeader
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApproverGroupHeader]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApproverGroupHeader
+  groupById(approverGroupId: ID!): ApproverGroup
+  groupsByLocationId(locationId: ID!): [ApproverGroup]
 }
 
 input ApproverGroupRemoveMemberInput {
   approverGroupId: ID!
   orgUserId: ID!
-}
-
-input ApproverGroupUpdateInput {
-  approverGroupId: Int!
-  rowVersion: Int!
-  name: String
-  description: String
-  locationId: ID
 }
 
 type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2209,12 +2223,13 @@ enum EventType {
   ABSENCE_REASON_CATEGORY_CREATED
   ABSENCE_REASON_CATEGORY_UPDATED
   ABSENCE_REASON_CATEGORY_DELETED
-  APPROVER_GROUP_CREATED
-  APPROVER_GROUP_UPDATED
+  APPROVER_GROUP_HEADER_CREATED
+  APPROVER_GROUP_HEADER_UPDATED
   APPROVER_GROUP_DELETED
   APPROVER_GROUP_HEADER_DELETED
   APPROVER_GROUP_MEMBER_ADDED
   APPROVER_GROUP_MEMBER_REMOVED
+  APPROVER_GROUP_CREATED
 }
 
 enum FeatureFlag {
