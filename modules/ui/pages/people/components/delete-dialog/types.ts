@@ -1,6 +1,5 @@
 export type AbsVac = {
   id: string;
-  startDate?: Date;
-  endDate?: Date;
+  dateRangeDisplay?: string;
   type: "absence" | "vacancy";
 };

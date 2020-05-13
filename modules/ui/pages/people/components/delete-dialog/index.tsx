@@ -9,7 +9,16 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { lastDayOfYear, parseISO } from "date-fns";
+import {
+  getHours,
+  getMinutes,
+  getMonth,
+  getYear,
+  isBefore,
+  lastDayOfYear,
+  parseISO,
+  set,
+} from "date-fns";
 import { compact } from "lodash-es";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
@@ -20,6 +29,8 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { ShowErrors } from "ui/components/error-helpers";
+import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
+import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 import { GetEmployeeAbsences } from "../../graphql/get-employee-absences.gen";
 import { GetSubstituteAssignments } from "../../graphql/get-substitute-assignments.gen";
 import { DeleteDialogRow } from "./row";
@@ -50,57 +61,37 @@ export const DeleteDialog: React.FC<Props> = ({
   const currentSchoolYear = useCurrentSchoolYear(orgId);
 
   let titleString;
-  let buttons;
   let showEmployee = orgUser.isEmployee;
   let showSubstitute = orgUser.isReplacementEmployee;
   switch (type) {
     case "delete":
       titleString = t("Are you sure you want to delete this user?");
-      buttons = (
-        <>
-          <TextButton onClick={onCancel} className={classes.buttonSpacing}>
-            {t("No")}
-          </TextButton>
-          <ButtonDisableOnClick
-            variant="outlined"
-            onClick={onAccept}
-            className={classes.delete}
-          >
-            {t("Yes")}
-          </ButtonDisableOnClick>
-        </>
-      );
       break;
-    case null:
-      titleString = "";
-      buttons = <></>;
-      break;
-    default:
+    case OrgUserRole.Administrator:
+      titleString = "Administrator";
+    // falls through to...
+    case OrgUserRole.Employee:
+      titleString = titleString ?? "Employee";
+    // falls through to...
+    case OrgUserRole.ReplacementEmployee:
+      titleString = titleString ?? "Substitute";
       titleString = t(
-        `Are you sure you want to remove the ${type[0] +
-          type.substring(1).toLowerCase()} role from this user?`
+        `Are you sure you want to remove the ${titleString} role from this user?`
       );
       showEmployee = type == OrgUserRole.Employee;
       showSubstitute = type == OrgUserRole.ReplacementEmployee;
-      buttons = (
-        <>
-          <TextButton onClick={onCancel} className={classes.buttonSpacing}>
-            {t("No")}
-          </TextButton>
-          <ButtonDisableOnClick
-            variant="outlined"
-            onClick={onAccept}
-            className={classes.delete}
-          >
-            {t("Yes")}
-          </ButtonDisableOnClick>
-        </>
-      );
+      break;
+    default:
+      titleString = "";
   }
 
   const toDate = currentSchoolYear
     ? parseISO(currentSchoolYear?.endDate)
-    : lastDayOfYear(now);
+    : set(now, {
+        year: getYear(now) + (getMonth(now) < 6 ? 0 : 1),
+        month: 5,
+        date: 30,
+      });
   const getEmployeeAbsences = useQueryBundle(GetEmployeeAbsences, {
     fetchPolicy: "cache-first",
     variables: {
@@ -114,10 +105,30 @@ export const DeleteDialog: React.FC<Props> = ({
     const dirtySchedule =
       getEmployeeAbsences.data?.employee?.employeeAbsenceSchedule;
     if (dirtySchedule) {
-      absenceSchedule = compact(dirtySchedule).map(absence => ({
-        ...absence,
-        type: "absence",
-      }));
+      absenceSchedule = compact(dirtySchedule)
+        .filter(absence => {
+          const startDateTime = set(parseISO(absence.startDate), {
+            hours: getHours(parseISO(absence.startTimeLocal)),
+            minutes: getMinutes(parseISO(absence.startTimeLocal)),
+          });
+          console.log(startDateTime);
+          return isBefore(now, startDateTime);
+        })
+        .map(absence => {
+          const detailDates = absence.details!.map(detail =>
+            parseISO(detail!.startDate)
+          );
+          detailDates.sort();
+          const dateRangeDisplay =
+            getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates(
+              detailDates
+            ) ?? undefined;
+          return {
+            id: absence.id,
+            dateRangeDisplay,
+            type: "absence",
+          };
+        });
     }
     showEmployee =
       showEmployee && !!dirtySchedule && absenceSchedule.length > 0;
@@ -138,9 +149,14 @@ export const DeleteDialog: React.FC<Props> = ({
       getSubstituteAssignments.data?.employee?.employeeAssignmentSchedule;
     if (dirtySchedule) {
       assignmentSchedule = compact(dirtySchedule).map(
-        ({ isPartOfNormalVacancy, ...absVac }) => ({
-          ...absVac,
-          type: isPartOfNormalVacancy ? "vacancy" : "absence",
+        ({ vacancy, startDate, endDate }) => ({
+          id: vacancy?.absence?.id ?? vacancy!.id,
+          dateRangeDisplay:
+            getDateRangeDisplayText(
+              startDate ? convertStringToDate(startDate) : null,
+              endDate ? convertStringToDate(endDate) : null
+            ) ?? undefined,
+          type: vacancy?.absence?.id ? "absence" : "vacancy",
         })
       );
     }
@@ -157,32 +173,39 @@ export const DeleteDialog: React.FC<Props> = ({
         {showEmployee &&
           (getEmployeeAbsences.state == "LOADING" ? (
             <Typography variant="h6" className={classes.dividedContent}>
-              Loading absences...
+              {t("Loading absences...")}
             </Typography>
           ) : (
             <Grid container className={classes.dividedContent}>
               <Grid item xs={12}>
                 <Typography variant="h6" className={classes.header}>
-                  Absences to delete:
+                  {t(
+                    `The following absences for this employee will be deleted:`
+                  )}
                 </Typography>
-                {absenceSchedule.map(absvac => (
-                  <Grid item container key={absvac.id}>
-                    <DeleteDialogRow {...absvac} />
-                  </Grid>
-                ))}
               </Grid>
+              {absenceSchedule.map(absvac => (
+                <Grid item container key={absvac.id}>
+                  <DeleteDialogRow {...absvac} />
+                </Grid>
+              ))}
             </Grid>
           ))}
+        {showEmployee && showSubstitute && <Divider variant="fullWidth" />}
         {showSubstitute &&
           (getSubstituteAssignments.state == "LOADING" ? (
             <Typography variant="h6" className={classes.dividedContent}>
-              Loading assignments...
+              {t("Loading assignments...")}
             </Typography>
           ) : (
             <Grid container className={classes.dividedContent}>
-              <Typography variant="h6" className={classes.header}>
-                Assignments to delete:
-              </Typography>
+              <Grid item xs={12}>
+                <Typography variant="h6" className={classes.header}>
+                  {t(
+                    "The following assignments for this substitute will be deleted:"
+                  )}
+                </Typography>
+              </Grid>
               {assignmentSchedule.map(absvac => (
                 <Grid item container key={absvac.id}>
                   <DeleteDialogRow {...absvac} />
@@ -191,8 +214,19 @@ export const DeleteDialog: React.FC<Props> = ({
             </Grid>
           ))}
       </DialogContent>
-
-      <DialogActions>{buttons}</DialogActions>
+      <Divider variant="fullWidth" />
+      <DialogActions>
+        <TextButton onClick={onCancel} className={classes.buttonSpacing}>
+          {t("No")}
+        </TextButton>
+        <ButtonDisableOnClick
+          variant="outlined"
+          onClick={onAccept}
+          className={classes.delete}
+        >
+          {t("Yes")}
+        </ButtonDisableOnClick>
+      </DialogActions>
     </Dialog>
   );
 };

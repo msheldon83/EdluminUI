@@ -3,7 +3,11 @@ query GetEmployeeAbsences($id: ID!, $fromDate: Date!, $toDate: Date!) {
     employeeAbsenceSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
       id
       startDate
+      startTimeLocal
       endDate
+      details {
+        startDate
+      }
     }
   }
 }

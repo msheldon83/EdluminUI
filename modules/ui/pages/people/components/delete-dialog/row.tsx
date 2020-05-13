@@ -1,21 +1,15 @@
 import * as React from "react";
 import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
 import { AbsVacLink } from "ui/components/links/abs-vac";
 import { AbsVac } from "./types";
 
 export const DeleteDialogRow: React.FC<AbsVac> = ({
   id,
-  startDate,
-  endDate,
+  dateRangeDisplay,
   type,
 }) => {
   const classes = useStyles();
-  const dateRangeDisplay = getDateRangeDisplayText(
-    startDate ? convertStringToDate(startDate) : null,
-    endDate ? convertStringToDate(endDate) : null
-  );
   return (
     <>
       <Grid item xs={6} className={classes.left}>

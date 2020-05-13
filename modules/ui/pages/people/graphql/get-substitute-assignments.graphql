@@ -13,10 +13,14 @@ query GetSubstituteAssignments(
       limit: 100
       includeCompletedToday: false
     ) {
-      id
+      vacancy {
+        id
+        absence {
+          id
+        }
+      }
       startDate
       endDate
-      isPartOfNormalVacancy
     }
   }
 }
