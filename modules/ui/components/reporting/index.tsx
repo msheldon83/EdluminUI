@@ -2,8 +2,12 @@ import * as React from "react";
 import { AppConfig } from "hooks/app-config";
 import { ReportDefinitionInput, FilterField } from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
-import { GetReportQuery } from "./graphql/get-report";
-import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
+import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
+import {
+  reportReducer,
+  convertReportDefinitionInputToRdl,
+  convertReportDefinitionInputToRdlForChart,
+} from "./state";
 import { makeStyles } from "@material-ui/core";
 import { useOrganizationId } from "core/org-context";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -35,6 +39,7 @@ export const Report: React.FC<Props> = props => {
   const [state, dispatch] = React.useReducer(reportReducer, {
     reportDefinitionInput: input,
     rdlString: convertReportDefinitionInputToRdl(input),
+    rdlChartString: convertReportDefinitionInputToRdlForChart(input),
     filters: {
       optional: [],
       required: [],
@@ -42,8 +47,8 @@ export const Report: React.FC<Props> = props => {
     filterableFields: [],
   });
 
-  // Load the report
-  const reportResponse = useQueryBundle(GetReportQuery, {
+  // Load the report data
+  const reportDataResponse = useQueryBundle(GetReportDataQuery, {
     variables: {
       input: {
         orgIds: [organizationId],
@@ -55,23 +60,47 @@ export const Report: React.FC<Props> = props => {
     },
   });
 
-  // Support Exporting to CSV
-  const downloadCsvFile = useImperativeQuery(ExportReportQuery, {
+  React.useEffect(() => {
+    if (reportDataResponse.state === "DONE") {
+      dispatch({
+        action: "setReportDefinition",
+        reportDefinition: reportDataResponse.data.report,
+        filterFieldsOverride,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reportDataResponse.state]);
+
+  // Load the report chart
+  const reportChartResponse = useQueryBundle(GetReportChartQuery, {
+    variables: {
+      input: {
+        orgIds: [organizationId],
+        queryText: state.rdlChartString,
+      },
+    },
+    skip: !input.chart,
     onError: error => {
       ShowNetworkErrors(error, openSnackbar);
     },
   });
 
   React.useEffect(() => {
-    if (reportResponse.state === "DONE") {
+    if (reportChartResponse.state === "DONE") {
       dispatch({
-        action: "setReportDefinition",
-        reportDefinition: reportResponse.data.report,
-        filterFieldsOverride,
+        action: "setReportChartDefinition",
+        reportChartDefinition: reportChartResponse.data.report,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reportResponse.state]);
+  }, [reportChartResponse.state]);
+
+  // Support Exporting to CSV
+  const downloadCsvFile = useImperativeQuery(ExportReportQuery, {
+    onError: error => {
+      ShowNetworkErrors(error, openSnackbar);
+    },
+  });
 
   const setFilters = React.useCallback(
     (
@@ -102,15 +131,20 @@ export const Report: React.FC<Props> = props => {
 
   return (
     <AppConfig contentWidth="100%">
-      <ReportChart
-        reportDefinition={state.reportDefinition}
-        isLoading={false}
-      />
+      {input.chart && (
+        <ReportChart
+          reportChartDefinition={state.reportChartDefinition}
+          isLoading={
+            reportChartResponse.state === "LOADING" ||
+            reportChartResponse.state === "UPDATING"
+          }
+        />
+      )}
       <ReportData
         reportDefinition={state.reportDefinition}
         isLoading={
-          reportResponse.state === "LOADING" ||
-          reportResponse.state === "UPDATING"
+          reportDataResponse.state === "LOADING" ||
+          reportDataResponse.state === "UPDATING"
         }
         currentFilters={[...state.filters.required, ...state.filters.optional]}
         filterableFields={state.filterableFields}
