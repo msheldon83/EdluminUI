@@ -39,6 +39,7 @@ module.exports = {
 
   impersonation_actingUserIdKey: "rrActingUserId",
   impersonation_actingOrgUserIdKey: "rrActingOrgUserId",
+  impersonation_impersonatingOrgId: "rrImpersonatingOrgId",
 
   devServer: {
     url: "http://localhost",
