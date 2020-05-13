@@ -170,49 +170,53 @@ export const DeleteDialog: React.FC<Props> = ({
         <Typography variant="h5">{titleString}</Typography>
       </DialogTitle>
       <DialogContent>
-        {showEmployee &&
-          (getEmployeeAbsences.state == "LOADING" ? (
-            <Typography variant="h6" className={classes.dividedContent}>
-              {t("Loading absences...")}
-            </Typography>
-          ) : (
-            <Grid container className={classes.dividedContent}>
-              <Grid item xs={12}>
-                <Typography variant="h6" className={classes.header}>
-                  {t(
-                    `The following absences for this employee will be deleted:`
-                  )}
-                </Typography>
-              </Grid>
-              {absenceSchedule.map(absvac => (
-                <Grid item container key={absvac.id}>
-                  <DeleteDialogRow {...absvac} />
+        {(showEmployee || showSubstitute) && (
+          <Grid>
+            {showEmployee && (
+              <>
+                <Grid item xs={12} className={classes.header}>
+                  <Typography variant="h6">
+                    {getEmployeeAbsences.state == "LOADING"
+                      ? t("Loading absences...")
+                      : t(
+                          `The following absences for this employee will be deleted:`
+                        )}
+                  </Typography>
                 </Grid>
-              ))}
-            </Grid>
-          ))}
-        {showEmployee && showSubstitute && <Divider variant="fullWidth" />}
-        {showSubstitute &&
-          (getSubstituteAssignments.state == "LOADING" ? (
-            <Typography variant="h6" className={classes.dividedContent}>
-              {t("Loading assignments...")}
-            </Typography>
-          ) : (
-            <Grid container className={classes.dividedContent}>
+                {getEmployeeAbsences.state != "LOADING" &&
+                  absenceSchedule.map(absvac => (
+                    <Grid item container key={absvac.id}>
+                      <DeleteDialogRow {...absvac} />
+                    </Grid>
+                  ))}
+              </>
+            )}
+            {showEmployee && showSubstitute && (
               <Grid item xs={12}>
-                <Typography variant="h6" className={classes.header}>
-                  {t(
-                    "The following assignments for this substitute will be deleted:"
-                  )}
-                </Typography>
+                <Divider variant="fullWidth" />
               </Grid>
-              {assignmentSchedule.map(absvac => (
-                <Grid item container key={absvac.id}>
-                  <DeleteDialogRow {...absvac} />
+            )}
+            {showSubstitute && (
+              <>
+                <Grid item xs={12} className={classes.header}>
+                  <Typography variant="h6">
+                    {getSubstituteAssignments.state == "LOADING"
+                      ? t("Loading assignments...")
+                      : t(
+                          "The following assignments for this substitute will be deleted:"
+                        )}
+                  </Typography>
                 </Grid>
-              ))}
-            </Grid>
-          ))}
+                {getSubstituteAssignments.state != "LOADING" &&
+                  assignmentSchedule.map(absvac => (
+                    <Grid item container key={absvac.id}>
+                      <DeleteDialogRow {...absvac} />
+                    </Grid>
+                  ))}
+              </>
+            )}
+          </Grid>
+        )}
       </DialogContent>
       <Divider variant="fullWidth" />
       <DialogActions>
@@ -239,7 +243,6 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(2),
     fontWeight: theme.typography.fontWeightMedium,
   },
-  dividedContent: { flex: 1, padding: theme.spacing(1) },
   dividedContainer: { display: "flex" },
   delete: { color: theme.customColors.blue },
   header: { textAlign: "center" },
