@@ -379,11 +379,13 @@ const getRdlChart = (input: ReportDefinitionInput) => {
   rdlPieces.push("CHART");
 
   rdlPieces.push(
-    ...input.chart.graphs.map(g => {
-      return `${getGraphTypeString(g.type)} [${g.series
-        .map(s => s)
-        .join(", ")}] ${g.byExpression ? `BY ${g.byExpression}` : ""}`;
-    })
+    input.chart.graphs
+      .map(g => {
+        return `${getGraphTypeString(g.type)} [${g.series
+          .map(s => s)
+          .join(", ")}]${g.byExpression ? ` BY ${g.byExpression}` : ""}`;
+      })
+      .join(", ")
   );
 
   rdlPieces.push(`AGAINST ${input.chart.againstExpression}`);
