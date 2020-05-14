@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTheme } from "@material-ui/styles";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 
@@ -566,6 +567,8 @@ function draw(this: any, ctx: CanvasRenderingContext2D) {
 
 export const RedRoverConfetti = () => {
   const { width, height } = useWindowSize();
+  const theme = useTheme();
+  console.log(theme);
   return (
     <Confetti
       width={width}
