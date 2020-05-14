@@ -1,5 +1,9 @@
 import * as React from "react";
 
 export const ApproverGroupLocationsPage: React.FC<{}> = props => {
-  return <></>;
+  return (
+    <>
+      <div>We There</div>
+    </>
+  );
 };

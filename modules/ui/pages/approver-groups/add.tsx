@@ -17,6 +17,7 @@ import * as Yup from "yup";
 import { ActionButtons } from "ui/components/action-buttons";
 import { Input } from "ui/components/form/input";
 import { useHistory } from "react-router";
+import { PageTitle } from "ui/components/page-title";
 import { useRouteParams } from "ui/routes/definition";
 import { ApproverGroupHeaderCreateInput } from "graphql/server-types.gen";
 import { CreateApproverGroupHeader } from "./graphql/create-approver-group-header.gen";
@@ -47,36 +48,22 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
     }
   );
 
-  const [approverGroupHeader, setApproverGroupHeader] = React.useState<
-    ApproverGroupHeaderCreateInput
-  >({
-    orgId: params.organizationId,
-    name: "",
-    variesByLocation: false,
-    description: undefined,
-    externalId: undefined,
-  });
-
   //Mutations for Create Only
   const create = async (
     approverGroupHeader: ApproverGroupHeaderCreateInput
   ) => {
-    console.log(approverGroupHeader);
     const result = await createApproverGroupHeader({
       variables: {
-        approverGroupHeader: {
-          ...approverGroupHeader,
-        },
+        approverGroupHeader: approverGroupHeader,
       },
     });
     return result?.data?.approverGroup?.create;
   };
 
   const initialValues = {
-    name: approverGroupHeader.name,
-    externalId: approverGroupHeader.variesByLocation,
-    variesByLocation: approverGroupHeader.variesByLocation ?? false,
-    description: approverGroupHeader.description,
+    name: "",
+    externalId: undefined,
+    variesByLocation: false,
   };
 
   const validateBasicDetails = React.useMemo(
@@ -94,112 +81,124 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
   );
 
   return (
-    <Section>
-      <SectionHeader title={t("Basic info")} />
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validateBasicDetails}
-        onSubmit={async (data: any) => {
-          setApproverGroupHeader({
-            ...approverGroupHeader,
-            name: data.name,
-            variesByLocation: data.variesByLocation,
-          });
+    <>
+      <div className={classes.header}>
+        <PageTitle title={t("New Approver Group")} />
+        <Typography variant="h1">
+          {name || (
+            <span className={classes.placeholder}>{namePlaceholder}</span>
+          )}
+        </Typography>
+      </div>
 
-          const result = await create(approverGroupHeader);
-          //Location Page
-          if (approverGroupHeader.variesByLocation)
+      <Section>
+        <SectionHeader title={t("Basic info")} />
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validateBasicDetails}
+          onSubmit={async (data: any) => {
+            const newApproverGroupHeader: ApproverGroupHeaderCreateInput = {
+              name: data.name,
+              externalId: data.externalId,
+              variesByLocation: data.variesByLocation,
+              orgId: params.organizationId,
+            };
+
+            const result = await create(newApproverGroupHeader);
+
+            //Location Page
+            if (newApproverGroupHeader.variesByLocation)
+              history.push(
+                ApproverGroupAddLocationsRoute.generate({
+                  approverGroupHeaderId: result?.id ?? "",
+                  organizationId: params.organizationId,
+                })
+              );
+            //Admin Page
             history.push(
-              ApproverGroupAddLocationsRoute.generate({
-                approverGroupHeaderId: result?.id ?? "",
+              ApproverGroupAddAdminsRoute.generate({
+                approverGroupId: result?.approverGroups[0]?.id ?? "",
                 organizationId: params.organizationId,
               })
             );
-          //Admin Page
-          history.push(
-            ApproverGroupAddAdminsRoute.generate({
-              approverGroupId: result?.approverGroups[0]?.id ?? "",
-              organizationId: params.organizationId,
-            })
-          );
-        }}
-      >
-        {({
-          handleSubmit,
-          handleChange,
-          submitForm,
-          setFieldValue,
-          values,
-          errors,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={isMobile ? 2 : 8}>
-              <Grid item xs={12} sm={6} lg={6}>
-                <Input
-                  label={t("Approver name")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    placeholder: `E.g ${namePlaceholder}`,
-                    name: "name",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                      handleChange(e);
-                      setName(e.currentTarget.value);
-                    },
-                    fullWidth: true,
-                  }}
-                />
+          }}
+        >
+          {({
+            handleSubmit,
+            handleChange,
+            submitForm,
+            setFieldValue,
+            values,
+            errors,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={isMobile ? 2 : 8}>
+                <Grid item xs={12} sm={6} lg={6}>
+                  <Input
+                    label={t("Name")}
+                    InputComponent={FormTextField}
+                    inputComponentProps={{
+                      placeholder: `E.g ${namePlaceholder}`,
+                      name: "name",
+                      margin: isMobile ? "normal" : "none",
+                      variant: "outlined",
+                      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                        handleChange(e);
+                        setName(e.currentTarget.value);
+                      },
+                      fullWidth: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} lg={6}>
+                  <Input
+                    label={t("Identifier")}
+                    InputComponent={FormTextField}
+                    inputComponentProps={{
+                      name: "externalId",
+                      margin: isMobile ? "normal" : "none",
+                      variant: "outlined",
+                      helperText: t("Usually used for data integrations"),
+                      fullWidth: true,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} lg={6}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={values.variesByLocation}
+                        onChange={e => {
+                          setFieldValue("variesByLocation", e.target.checked);
+                        }}
+                        value={values.variesByLocation}
+                        color="primary"
+                        className={
+                          errors && errors.variesByLocation
+                            ? classes.checkboxError
+                            : ""
+                        }
+                      />
+                    }
+                    label={t("Varies by location")}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
-                <Input
-                  label={t("Identifier")}
-                  InputComponent={FormTextField}
-                  inputComponentProps={{
-                    name: "externalId",
-                    margin: isMobile ? "normal" : "none",
-                    variant: "outlined",
-                    helperText: t("Usually used for data integrations"),
-                    fullWidth: true,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
-                <Typography variant="h6">{t("Varies by location")}</Typography>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={values.variesByLocation}
-                      onChange={e => {
-                        setFieldValue("variesByLocation", e.target.checked);
-                      }}
-                      value={values.variesByLocation}
-                      color="primary"
-                      className={
-                        errors && errors.variesByLocation
-                          ? classes.checkboxError
-                          : ""
-                      }
-                    />
-                  }
-                  label={t("Varies by location")}
-                />
-              </Grid>
-            </Grid>
-            <ActionButtons
-              submit={{ text: t("Next"), execute: submitForm }}
-              cancel={{
-                text: t("Cancel"),
-                execute: () => {
-                  const url = ApproverGroupsRoute.generate(params);
-                  history.push(url);
-                },
-              }}
-            />
-          </form>
-        )}
-      </Formik>
-    </Section>
+              <ActionButtons
+                submit={{ text: t("Save"), execute: submitForm }}
+                cancel={{
+                  text: t("Cancel"),
+                  execute: () => {
+                    const url = ApproverGroupsRoute.generate(params);
+                    history.push(url);
+                  },
+                }}
+              />
+            </form>
+          )}
+        </Formik>
+      </Section>
+    </>
   );
 };
 

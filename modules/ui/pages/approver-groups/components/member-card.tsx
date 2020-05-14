@@ -1,6 +1,8 @@
 import * as React from "react";
 
-export const ApproverGroupAdminsPage: React.FC<{}> = props => {
+type Props = {};
+
+export const AdminPicker: React.FC<Props> = props => {
   return (
     <>
       <div>We Here</div>
