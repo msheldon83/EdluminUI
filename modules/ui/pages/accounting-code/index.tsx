@@ -166,6 +166,7 @@ export const AccountingCode: React.FC<Props> = props => {
                   multiple={true}
                   withResetValue={false}
                   options={locationOptions}
+                  fixedListBox={true}
                   onChange={e => {
                     const ids = e.map((v: OptionType) => v.value.toString());
 
