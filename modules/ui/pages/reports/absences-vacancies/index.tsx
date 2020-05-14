@@ -54,11 +54,15 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
       chart: {
         graphs: [
           {
-            type: GraphType.Bar,
+            type: GraphType.StackedBar,
             series: [
               "Count(ConfirmationNumber) AS NumberOfAbsences",
               "Sum(IsFilled) As Test",
             ],
+          },
+          {
+            type: GraphType.Line,
+            series: ["Sum(IsFilled) As TestLine"],
           },
         ],
         againstExpression: "Date",
