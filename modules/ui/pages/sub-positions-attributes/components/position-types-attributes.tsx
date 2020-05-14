@@ -4,6 +4,7 @@ import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { Typography, Grid, Link, Tooltip } from "@material-ui/core";
+import InfoIcon from "@material-ui/icons/Info";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
@@ -124,13 +125,16 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
 
   return (
     <>
-      <Grid item xs={12}>
-        <Section className={classes.sectionBackground}>
+      <Grid item xs={12} container className={classes.tipSection}>
+        <Grid item xs={1} className={classes.infoIcon}>
+          <InfoIcon />
+        </Grid>
+        <Grid item xs={10}>
           <div className={classes.noteText}>
             Note: Selecting attributes below will automatically update the
             position types for which this person is qualified.
           </div>
-        </Section>
+        </Grid>
       </Grid>
       <Section>
         <Grid container spacing={4}>
@@ -413,15 +417,24 @@ const useStyles = makeStyles(theme => ({
   attributesSection: {
     height: "100%",
   },
+  infoIcon: {
+    marginTop: "5px",
+    marginLeft: "10px",
+  },
   noteText: {
     fontWeight: "bold",
-  },
-  sectionBackground: {
-    backgroundColor: theme.customColors.lightBlue,
+    marginTop: "7px",
   },
   searchTextInput: {
     width: "50%",
     marginBottom: theme.spacing(2),
+  },
+  tipSection: {
+    backgroundColor: theme.customColors.lightBlue,
+    padding: "10px",
+    marginBottom: "20px",
+    border: "1px solid",
+    borderRadius: "4px",
   },
   warning: {
     color: theme.customColors.warning,

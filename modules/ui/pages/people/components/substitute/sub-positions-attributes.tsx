@@ -51,14 +51,6 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
             },
           ]}
         />
-        <Grid item xs={12}>
-          <Section className={classes.sectionBackground}>
-            <div className={classes.noteText}>
-              Note: Selecting attributes below will automatically update the
-              position types for which this person is qualified.
-            </div>
-          </Section>
-        </Grid>
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12} sm={6} lg={6}>
