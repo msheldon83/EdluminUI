@@ -5,10 +5,12 @@ import { Redirect } from "react-router-dom";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { AdminRootChromeRoute } from "ui/routes/app-chrome";
+import { useHistory } from "react-router";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { SubHomeRoute } from "ui/routes/sub-home";
 
 export const IndexPage: React.FunctionComponent = props => {
+  const history = useHistory();
   const orgUserQuery = useQueryBundle(GetMyUserAccess, {
     fetchPolicy: "network-only",
   });
@@ -40,6 +42,8 @@ export const IndexPage: React.FunctionComponent = props => {
     multiOrgs: orgUsers.length > 1,
   };
 
+  const impersonatingOrgId = history.location.state?.impersonatingOrgId;
+
   // Send the user to the Organization switcher if they are a sys admin or admin in multiple orgs
   // If an admin in one org, send them to that org page
   // If they are an employee send them to the employee page
@@ -47,7 +51,13 @@ export const IndexPage: React.FunctionComponent = props => {
   // If a combination of roles, they will go to admin first, then employee, then sub
   return (
     <>
-      {roles.isSystemAdministrator || (roles.isAdmin && roles.multiOrgs) ? (
+      {impersonatingOrgId ? (
+        <Redirect
+          to={AdminHomeRoute.generate({
+            organizationId: impersonatingOrgId,
+          })}
+        />
+      ) : roles.isSystemAdministrator || (roles.isAdmin && roles.multiOrgs) ? (
         <Redirect to={AdminRootChromeRoute.generate({})} />
       ) : roles.isAdmin && !roles.multiOrgs ? (
         <Redirect

@@ -19,5 +19,6 @@ declare const Config: {
   impersonation: {
     actingUserIdKey: string;
     actingOrgUserIdKey: string;
+    impersonatingOrgId: string;
   };
 };
