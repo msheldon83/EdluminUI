@@ -43,12 +43,13 @@ export const ReportChart: React.FC<Props> = props => {
               label: s.displayName,
               type: graphType,
               data: graphData[seriesIndex],
+              fill: true,
               yAxisID: graphId,
               stack: stackId,
               borderWidth: 1,
-              backgroundColor: hexToRgb(possibleColors[colorIndex], 0.2),
+              backgroundColor: hexToRgb(possibleColors[colorIndex], 0.8),
               borderColor: hexToRgb(possibleColors[colorIndex], 1),
-              hoverBackgroundColor: hexToRgb(possibleColors[colorIndex], 0.4),
+              hoverBackgroundColor: hexToRgb(possibleColors[colorIndex], 0.9),
               hoverBorderColor: hexToRgb(possibleColors[colorIndex], 1),
             };
           });
@@ -73,6 +74,9 @@ export const ReportChart: React.FC<Props> = props => {
             align: "start",
             display: true,
             position: "top",
+            labels: {
+              boxWidth: 20,
+            },
           },
           responsive: true,
           scales: {

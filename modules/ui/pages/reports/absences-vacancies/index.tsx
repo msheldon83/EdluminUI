@@ -55,13 +55,13 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
           {
             type: GraphType.StackedBar,
             series: [
-              "Count(ConfirmationNumber) AS NumberOfAbsences",
-              "Sum(IsFilled) As Test",
+              "Count(ConfirmationNumber) AS Absences",
+              "Sum(IsFilled) As Filled",
             ],
           },
           {
             type: GraphType.Line,
-            series: ["Sum(IsFilled) As TestLine"],
+            series: ["Sum(IsFilled) As 'Filled (Line)'"],
           },
         ],
         againstExpression: "Date",
