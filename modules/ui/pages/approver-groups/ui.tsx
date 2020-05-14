@@ -140,7 +140,6 @@ const useStyles = makeStyles(theme => ({
   },
   icon: {
     paddingLeft: "10px",
-
     fill: theme.customColors.primary,
   },
 }));

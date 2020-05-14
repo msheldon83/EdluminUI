@@ -7,10 +7,10 @@ import {
   PaginationParams,
 } from "hooks/query-params";
 import { PaginationControls } from "ui/components/pagination-controls";
-import { usePagedQueryBundle } from "graphql/hooks";
-import { GetSubstitutesForPreferences } from "./graphql/get-substitutes.gen";
-import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
-import { compact, remove } from "lodash-es";
+import { useQueryBundle } from "graphql/hooks";
+import { GetSuggestedAdmins } from "../graphql/get-suggested-admins.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { Grid, Typography } from "@material-ui/core";
@@ -70,41 +70,22 @@ export const AdminPicker: React.FC<Props> = props => {
     [setPendingName]
   );
 
-  const [allAmindsQuery, pagination] = usePagedQueryBundle(
-    GetSubstitutesForPreferences,
-    r => r.orgUser?.pagedSubsForPreferences?.totalCount,
-    {
-      variables: {
-        ...isoFilters,
-        orgId: props.orgId,
-        sortBy: [
-          {
-            sortByPropertyName: "lastName",
-            sortAscending: true,
-          },
-          {
-            sortByPropertyName: "firstName",
-            sortAscending: true,
-          },
-        ],
-      },
+  const allSuggestedAdminsQuery = useQueryBundle(GetSuggestedAdmins, {
+    variables: {
+      orgId: props.orgId,
     },
-    peoplePaginationDefaults
-  );
+  });
 
-  let substitutes: GetSubstitutesForPreferences.Results[] = [];
-  if (allAmindsQuery.state === "DONE" || allAmindsQuery.state === "UPDATING") {
-    const qResults = compact(
-      allAmindsQuery.data?.orgUser?.pagedSubsForPreferences?.results
-    );
-    if (qResults) substitutes = qResults;
-  }
+  let suggestedAdmins: GetSuggestedAdmins.SuggestedAdminsForApproverGroups[] = [];
 
   if (
-    allAmindsQuery.state === "LOADING" ||
-    !allAmindsQuery.data.orgUser?.pagedSubsForPreferences?.results
+    allSuggestedAdminsQuery.state === "DONE" ||
+    allSuggestedAdminsQuery.state === "UPDATING"
   ) {
-    return <></>;
+    const qResults = compact(
+      allSuggestedAdminsQuery?.data?.orgUser?.suggestedAdminsForApproverGroups
+    );
+    if (qResults) suggestedAdmins = qResults;
   }
 
   return (
@@ -128,39 +109,40 @@ export const AdminPicker: React.FC<Props> = props => {
             <Typography variant="h6">{t("Suggested members")}</Typography>
           </Grid>
           <Grid item xs={12} className={classes.pagination}>
-            <PaginationControls
+            {/* <PaginationControls
               pagination={pagination}
               pageSizeOptions={[25, 50, 100, 250, 500]}
             />
-          </Grid>
-          {substitutes.length === 0 && (
-            <Grid item xs={12} className={classes.noResultRow}>
-              <Typography>{t("No suggested members")}</Typography>
-            </Grid>
-          )}
-          {substitutes.map((user, i) => {
-            const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
-            const className = [
-              classes.detail,
-              i % 2 ? classes.shadedRow : classes.nonShadedRow,
-            ].join(" ");
-            return (
-              <Grid item className={className} xs={12} key={i}>
-                <Typography className={classes.userName}>{name}</Typography>
-                <TextButton
-                  className={classes.addActionLink}
-                  onClick={() => props.onAdd(user)}
-                >
-                  {t("Add")}
-                </TextButton>
+          </Grid> */}
+            {suggestedAdmins.length === 0 && (
+              <Grid item xs={12} className={classes.noResultRow}>
+                <Typography>{t("No suggested members")}</Typography>
               </Grid>
-            );
-          })}
-          <Grid item xs={12} className={classes.pagination}>
-            <PaginationControls
+            )}
+            {suggestedAdmins.map((user, i) => {
+              const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
+              const className = [
+                classes.detail,
+                i % 2 ? classes.shadedRow : classes.nonShadedRow,
+              ].join(" ");
+              return (
+                <Grid item className={className} xs={12} key={i}>
+                  <Typography className={classes.userName}>{name}</Typography>
+                  <TextButton
+                    className={classes.addActionLink}
+                    onClick={() => props.onAdd(user)}
+                  >
+                    {t("Add")}
+                  </TextButton>
+                </Grid>
+              );
+            })}
+            <Grid item xs={12} className={classes.pagination}>
+              {/* <PaginationControls
               pagination={pagination}
               pageSizeOptions={[25, 50, 100, 250, 500]}
-            />
+            /> */}
+            </Grid>
           </Grid>
         </Grid>
       </Section>

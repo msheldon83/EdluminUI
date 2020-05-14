@@ -3144,6 +3144,7 @@ type OrgUserQueries {
   pagedSubsForPreferences(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
   verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
+  suggestedAdminsForApproverGroups(locationId: ID, orgId: ID!): [OrgUser]
 }
 
 type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
