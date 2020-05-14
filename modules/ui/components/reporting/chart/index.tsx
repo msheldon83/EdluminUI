@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ReportChartDefinition, GraphType } from "../types";
-import { useTranslation } from "react-i18next";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, CircularProgress, Theme } from "@material-ui/core";
 import { Bar, ChartData } from "react-chartjs-2";
 import {
   ChartData as ChartJsChartData,
@@ -13,51 +12,63 @@ import { hexToRgb } from "ui/components/color-helpers";
 type Props = {
   reportChartDefinition: ReportChartDefinition | undefined;
   isLoading: boolean;
+  className?: string;
 };
 
 export const ReportChart: React.FC<Props> = props => {
-  const classes = useStyles();
-  const { t } = useTranslation();
-  const { reportChartDefinition, isLoading } = props;
+  const classes = useStyles(props);
+  const { reportChartDefinition, isLoading, className } = props;
 
-  console.log(props.reportChartDefinition);
+  const graphId = "red-rover-graph";
+  const data: ChartData<ChartJsChartData> = React.useMemo(() => {
+    if (!reportChartDefinition) {
+      return {
+        labels: [],
+        datasets: [],
+      };
+    }
 
-  if (!reportChartDefinition) {
-    // TODO: Loading view
-    return <></>;
-  }
-
-  let colorIndex = -1;
-  const data: ChartData<ChartJsChartData> = {
-    labels: reportChartDefinition.data.againstRawData,
-    datasets: flatMap(
-      reportChartDefinition.metadata.chart?.graphs.map((g, graphIndex) => {
-        const graphData =
-          reportChartDefinition.data.graphData[graphIndex].rawData;
-        const graphType = getChartJsGraphType(g.type);
-        const graphId = `graph-${graphIndex}`;
-        return g.series.map((s, seriesIndex) => {
-          colorIndex = colorIndex + 1;
-          return {
-            label: s.displayName,
-            type: graphType,
-            data: graphData[seriesIndex],
-            yAxisID: graphId,
-            stack: "test",
-
-            borderWidth: 1,
-            backgroundColor: hexToRgb(possibleColors[colorIndex], 0.2),
-            borderColor: hexToRgb(possibleColors[colorIndex], 1),
-            hoverBackgroundColor: hexToRgb(possibleColors[colorIndex], 0.4),
-            hoverBorderColor: hexToRgb(possibleColors[colorIndex], 1),
-          };
-        });
-      })
-    ),
-  };
+    let colorIndex = -1;
+    return {
+      labels: reportChartDefinition.data.againstRawData,
+      datasets: flatMap(
+        reportChartDefinition.metadata.chart?.graphs.map((g, graphIndex) => {
+          const graphData =
+            reportChartDefinition.data.graphData[graphIndex].rawData;
+          const graphType = getChartJsGraphType(g.type);
+          const stackId =
+            g.type === GraphType.StackedBar ? `stack-${graphIndex}` : undefined;
+          return g.series.map((s, seriesIndex) => {
+            colorIndex = colorIndex + 1;
+            return {
+              label: s.displayName,
+              type: graphType,
+              data: graphData[seriesIndex],
+              yAxisID: graphId,
+              stack: stackId,
+              borderWidth: 1,
+              backgroundColor: hexToRgb(possibleColors[colorIndex], 0.2),
+              borderColor: hexToRgb(possibleColors[colorIndex], 1),
+              hoverBackgroundColor: hexToRgb(possibleColors[colorIndex], 0.4),
+              hoverBorderColor: hexToRgb(possibleColors[colorIndex], 1),
+            };
+          });
+        })
+      ),
+    };
+  }, [reportChartDefinition]);
 
   return (
-    <div className={classes.container}>
+    <div
+      className={
+        className ? `${classes.container} ${className}` : classes.container
+      }
+    >
+      {isLoading && (
+        <div className={classes.overlay}>
+          <CircularProgress />
+        </div>
+      )}
       <Bar
         data={data}
         height={400}
@@ -75,11 +86,11 @@ export const ReportChart: React.FC<Props> = props => {
                 type: "linear",
                 display: true,
                 position: "left",
-                id: "graph-0",
+                id: graphId,
                 gridLines: {
                   display: true,
                 },
-                stacked: true,
+                stacked: !!data.datasets?.find(d => d.stack),
               },
             ],
           },
@@ -89,16 +100,29 @@ export const ReportChart: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles<Theme, Props>(theme => ({
   container: {
     padding: theme.spacing(3),
-    borderTopWidth: 0,
-    borderBottomWidth: theme.typography.pxToRem(1),
+    borderTopWidth: theme.typography.pxToRem(1),
     borderLeftWidth: theme.typography.pxToRem(1),
     borderRightWidth: theme.typography.pxToRem(1),
+    borderBottomWidth: 0,
     borderColor: theme.customColors.sectionBorder,
     borderStyle: "solid",
     backgroundColor: theme.customColors.white,
+    borderTopLeftRadius: "0.25rem",
+    borderTopRightRadius: "0.25rem",
+    opacity: props => (props.isLoading ? 0.5 : 1),
+  },
+  overlay: {
+    position: "relative",
+    top: theme.typography.pxToRem(100),
+    flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
+    height: 0,
+    zIndex: 1,
   },
 }));
 
