@@ -55,7 +55,10 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         graphs: [
           {
             type: GraphType.Bar,
-            series: ["Count(ConfirmationNumber) AS NumberOfAbsences"],
+            series: [
+              "Count(ConfirmationNumber) AS NumberOfAbsences",
+              "Sum(IsFilled) As Test",
+            ],
           },
         ],
         againstExpression: "Date",
