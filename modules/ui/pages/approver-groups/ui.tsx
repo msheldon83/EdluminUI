@@ -12,7 +12,7 @@ import { compact } from "lodash-es";
 import {
   ApproverGroupsRoute,
   ApproverGroupAddLocationsRoute,
-  ApproverGroupAddAdminsRoute,
+  ApproverGroupAddRemoveMembersRoute,
 } from "ui/routes/approver-groups";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllApproverGroupsWithinOrg } from "./graphql/get-all-approver-groups.gen";
@@ -75,7 +75,7 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
               {data.memberCount}
               <Tooltip
                 title={
-                  data.variesByLocation
+                  data.allLocationsHaveGroup
                     ? t(
                         "At least one school does not have approvers defined. " +
                           "Any workflow step referring to an empty approver group will be skipped"
@@ -133,7 +133,7 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
             }
             //Admin Page
             history.push(
-              ApproverGroupAddAdminsRoute.generate({
+              ApproverGroupAddRemoveMembersRoute.generate({
                 approverGroupId: approverGroup?.approverGroups[0]?.id ?? "",
                 organizationId: params.organizationId,
               })

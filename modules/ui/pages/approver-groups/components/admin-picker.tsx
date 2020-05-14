@@ -22,7 +22,6 @@ import { useEffect } from "react";
 
 type Props = {
   title: string;
-  isLocationOnly: boolean;
   orgId: string;
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;

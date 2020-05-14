@@ -24,7 +24,7 @@ import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
-  isLocationOnly: boolean;
+  useAutoAssign: boolean;
   orgId: string;
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
@@ -179,7 +179,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
                     {t("Add favorite")}
                   </TextButton>
                 </Can>
-                {props.isLocationOnly && props.onAutoAssign && (
+                {props.useAutoAssign && props.onAutoAssign && (
                   <Can do={props.addToFavoritePermission}>
                     <TextButton
                       className={classes.addAutoAssignActionLink}

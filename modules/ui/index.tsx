@@ -191,8 +191,8 @@ import {
   ApproverGroupAddLoader,
   ApproverGroupAddLocationsRoute,
   ApproverGroupAddLocationsLoader,
-  ApproverGroupAddAdminsRoute,
-  ApproverGroupAddAdminsLoader,
+  ApproverGroupAddRemoveMembersRoute,
+  ApproverGroupAddRemoveMembersLoader,
 } from "./routes/approver-groups";
 import {
   LocationsLoader,
@@ -1178,8 +1178,12 @@ export const App = hot(function() {
                                       ]}
                                     />
                                     <ProtectedRoute
-                                      component={ApproverGroupAddAdminsLoader}
-                                      path={ApproverGroupAddAdminsRoute.path}
+                                      component={
+                                        ApproverGroupAddRemoveMembersLoader
+                                      }
+                                      path={
+                                        ApproverGroupAddRemoveMembersRoute.path
+                                      }
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsSave,

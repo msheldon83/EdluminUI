@@ -11,8 +11,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
   return (
     <>
       <Grid item xs={6}>
-        {/* <AdminPicker
-          isLocationOnly={props.isLocationOnly}
+        {/* <AdminPicker      
           orgId={props.orgId}
           title={props.searchHeading}
           onAdd={props.onAddFavoriteEmployee}

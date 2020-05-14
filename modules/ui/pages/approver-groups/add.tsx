@@ -25,7 +25,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
   ApproverGroupsRoute,
-  ApproverGroupAddAdminsRoute,
+  ApproverGroupAddRemoveMembersRoute,
   ApproverGroupAddLocationsRoute,
 } from "ui/routes/approver-groups";
 
@@ -114,7 +114,7 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
               );
             //Admin Page
             history.push(
-              ApproverGroupAddAdminsRoute.generate({
+              ApproverGroupAddRemoveMembersRoute.generate({
                 approverGroupId: result?.approverGroups[0]?.id ?? "",
                 organizationId: params.organizationId,
               })
