@@ -568,16 +568,15 @@ function draw(this: any, ctx: CanvasRenderingContext2D) {
 export const RedRoverConfetti = () => {
   const { width, height } = useWindowSize();
   const theme = useTheme();
-  console.log(theme);
   return (
     <Confetti
       width={width}
       height={height}
       colors={[
-        "#FF5555",
-        "#FFCC01",
-        "#3D4ED7",
-        "#050039",
+        theme.palette.primary.main,
+        theme.customColors.yellow5,
+        theme.actions.info,
+        theme.customColors.edluminSlate,
         "#FFBAB9",
         "#C4C4C4",
       ]}
