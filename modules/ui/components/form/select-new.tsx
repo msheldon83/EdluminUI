@@ -393,6 +393,7 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(1.5),
 
     "&:hover": {
+      backgroundColor: theme.customColors.lightGray,
       color: theme.palette.text.primary,
       cursor: "pointer",
     },

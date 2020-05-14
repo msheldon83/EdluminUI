@@ -94,6 +94,13 @@ export const AccountingCode: React.FC<Props> = props => {
       defaultSort: "asc",
       searchable: true,
       editable: "always",
+      editComponent: props => (
+        <TextField
+          fullWidth
+          value={props.value}
+          onChange={e => props.onChange(e.target.value)}
+        />
+      ),
     },
     {
       title: t("Code"),

@@ -29,3 +29,18 @@ export const DataImportViewLoader = asyncComponent({
   },
   name: "DataImportViewPage",
 });
+
+export const DataImportColumnDefinitionsRoute = defineSubRoute(
+  DataImportRoute,
+  "/column-definitions"
+);
+
+export const DataImportColumnDefinitionsLoader = asyncComponent({
+  resolve: async () => {
+    const DataImportColumnDefinitions = (
+      await import("ui/pages/data-import/column-definitions")
+    ).DataImportColumnDefinitions;
+    return DataImportColumnDefinitions;
+  },
+  name: "DataImportColumnDefinitions",
+});

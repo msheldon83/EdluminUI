@@ -43,7 +43,7 @@ export const RequiredFilters: React.FC<Props> = props => {
   );
 
   return (
-    <>
+    <div>
       {localFilters.map((f, i) => {
         return (
           <Filter
@@ -56,6 +56,6 @@ export const RequiredFilters: React.FC<Props> = props => {
           />
         );
       })}
-    </>
+    </div>
   );
 };

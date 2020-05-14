@@ -1,0 +1,17 @@
+query GetAdminRelatedOrgs($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      firstName
+      lastName
+      orgUserRelationships {
+        id
+        otherOrganization {
+          id
+          orgId
+          name
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+mutation UpdateSubstitute($substitute: SubstituteInput!) {
+  orgUser {
+    saveSubstitute(substitute: $substitute) {
+      id
+      rowVersion
+      orgUserRelationships {
+        id
+        otherOrganization {
+          id
+          orgId
+          name
+        }
+        attributes {
+          endorsementId
+          expirationDate
+          endorsement {
+            id
+            name
+            validUntil
+          }
+        }
+      }
+    }
+  }
+}

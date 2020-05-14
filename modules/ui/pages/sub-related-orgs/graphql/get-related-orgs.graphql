@@ -5,6 +5,7 @@ query GetRelatedOrgs($orgId: ID!) {
       orgId
       organization {
         id
+        orgId
         name
       }
     }

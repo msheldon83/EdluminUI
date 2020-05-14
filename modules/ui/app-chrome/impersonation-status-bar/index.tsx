@@ -25,9 +25,14 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
 
   // Remove keys from session storage and redirect to root of site
   const cancelImpersonation = useCallback(() => {
+    const impersonatingOrgId = sessionStorage.getItem(
+      Config.impersonation.impersonatingOrgId
+    );
+
     sessionStorage.removeItem(Config.impersonation.actingUserIdKey);
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
-    history.push("/");
+    sessionStorage.removeItem(Config.impersonation.impersonatingOrgId);
+    history.push({ pathname: "/", state: { impersonatingOrgId } });
   }, [history]);
 
   const userDisplayName = useMemo(() => {

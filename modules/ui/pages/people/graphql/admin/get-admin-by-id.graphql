@@ -21,6 +21,10 @@ query GetAdminById($id: ID!) {
       temporaryPassword
       isShadowRecord
       shadowFromOrgName
+      relatedOrganizations {
+        id
+        name
+      }
       administrator {
         id
         isSuperUser

@@ -1,0 +1,8 @@
+mutation removeRelatedOrg($orgUserId: ID!, $relatedOrgId: ID!) {
+  orgUser {
+    removeRelatedOrg(orgUserId: $orgUserId, relatedOrgId: $relatedOrgId) {
+      id
+      relatedOrgIds
+    }
+  }
+}

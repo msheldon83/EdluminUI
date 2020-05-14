@@ -77,7 +77,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   };
 
   const setRange = React.useCallback(
-    ({ start, end }: DateRange) => {
+    ({ start, end }: DateRange, ignoreVisibilityTrigger?: boolean) => {
       const selectedDates = eachDayOfInterval({ start, end }).map(date => {
         return {
           date,
@@ -101,7 +101,11 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       });
 
       // End date of range will show on the left side
-      if (!endDateVisible && isAfter(endMonthDate, end)) {
+      if (
+        !ignoreVisibilityTrigger &&
+        !endDateVisible &&
+        isAfter(endMonthDate, end)
+      ) {
         setStartMonth(end);
       }
 
@@ -110,7 +114,11 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       */
 
       // End date of range will show on the right side
-      if (!endDateVisible && isBefore(startMonthDate, end)) {
+      if (
+        !ignoreVisibilityTrigger &&
+        !endDateVisible &&
+        isBefore(startMonthDate, end)
+      ) {
         setStartMonth(addMonth(end, -1));
       }
 
@@ -233,8 +241,9 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   }, [selectedDates, highlightedDates]);
 
   React.useEffect(() => {
+    // Make sure the dates stay in sync in everything that needs to know about them
     if (startDate !== undefined && endDate !== undefined) {
-      setRange({ start: startDate, end: endDate });
+      setRange({ start: startDate, end: endDate }, true);
     }
   }, [startDate, endDate, setRange]);
 

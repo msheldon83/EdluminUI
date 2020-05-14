@@ -1,6 +1,8 @@
 import * as React from "react";
+import { makeStyles } from "@material-ui/styles";
 import { Typography, Grid, Button } from "@material-ui/core";
 import { Section } from "ui/components/section";
+import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import {
@@ -26,16 +28,35 @@ type Props = {
 export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+  const classes = useStyles();
   const params = useRouteParams(PersonViewRoute);
   const showEditButton = !props.editing && props.editable;
 
   return (
     <>
       <Section>
+        <SectionHeader
+          title={t("Position types & Attributes")}
+          actions={[
+            {
+              text: t("Edit"),
+              visible: showEditButton,
+              execute: () => {
+                const editSettingsUrl = PeopleSubPositionsAttributesEditRoute.generate(
+                  params
+                );
+                history.push(editSettingsUrl);
+              },
+              permissions: [PermissionEnum.SubstituteSave],
+            },
+          ]}
+        />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>
             <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Positions")}</Typography>
+              <Typography variant="h6">
+                {t("Qualified for position types")}
+              </Typography>
               {props.qualifiedPositionTypes?.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
@@ -53,32 +74,17 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
               )}
             </Grid>
           </Grid>
-          <Can do={[PermissionEnum.SubstituteSave]}>
-            <Grid
-              container
-              item
-              spacing={0}
-              xs={4}
-              justify="flex-end"
-              alignItems="flex-start"
-            >
-              {showEditButton && (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    const editSettingsUrl = PeopleSubPositionsAttributesEditRoute.generate(
-                      params
-                    );
-                    history.push(editSettingsUrl);
-                  }}
-                >
-                  {t("Edit")}
-                </Button>
-              )}
-            </Grid>
-          </Can>
         </Grid>
       </Section>
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  noteText: {
+    fontWeight: "bold",
+  },
+  sectionBackground: {
+    backgroundColor: theme.customColors.lightBlue,
+  },
+}));

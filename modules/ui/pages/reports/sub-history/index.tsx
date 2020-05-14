@@ -7,69 +7,65 @@ import {
   Direction,
   ExpressionFunction,
 } from "ui/components/reporting/types";
+import { addDays } from "date-fns";
 
 export const SubstituteHistoryReport: React.FC<{}> = () => {
   const { t } = useTranslation();
-  const today = React.useMemo(() => new Date(), []);
 
-  const reportInput: ReportDefinitionInput = {
-    from: "AbsenceAndVacancy",
-    select: [
-      "ConfirmationNumber",
-      "Date",
-      "LocationName",
-      "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee",
-      "AbsStartTime",
-      "AbsEndTime",
-      "ReasonName",
-      "SubStartTime",
-      "SubEndTime",
-      "PayDays",
-      "PayHours",
-      "Title",
-      "PositionTypeName",
-      "RequiresSub",
-    ],
-    filter: [
-      {
-        fieldName: "Date",
-        expressionFunction: ExpressionFunction.Equal,
-        value: today,
-        isRequired: true,
-      },
-      {
-        fieldName: "IsFilled",
-        expressionFunction: ExpressionFunction.Equal,
-        value: true,
-        isRequired: true,
-      },
-    ],
-    orderBy: [
-      {
-        expression: "Concat(SubFirstName,' ',SubLastName)",
-        direction: Direction.Asc,
-      },
-      {
-        expression: "Date",
-        direction: Direction.Desc,
-      },
-    ],
-    subtotalBy: [
-      {
-        expression: "SubEmployeeId",
-        showExpression: "Concat(SubFirstName,' ',SubLastName) AS Substitute",
-      },
-    ],
-  };
-
-  const filterFieldsOverride = [
-    "Date",
-    "LocationId",
-    "SubEmployeeId",
-    "IsAbsence",
-    "IsVacancy",
-    "PositionTypeId",
-  ];
+  const reportInput: ReportDefinitionInput = React.useMemo(() => {
+    return {
+      from: "AbsenceAndVacancy",
+      select: [
+        "ConfirmationNumber",
+        "Date",
+        "LocationName",
+        "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee",
+        "AbsStartTime",
+        "AbsEndTime",
+        "ReasonName",
+        "SubStartTime",
+        "SubEndTime",
+        "PayDays",
+        "PayHours",
+        "Title",
+        "PositionTypeName",
+        "RequiresSub",
+        "NotesToAdmin",
+        "AdminOnlyNotes",
+        "NotesToReplacement",
+      ],
+      filter: [
+        {
+          fieldName: "Date",
+          expressionFunction: ExpressionFunction.Between,
+          value: [addDays(new Date(), -7), new Date()],
+          isRequired: true,
+        },
+        {
+          fieldName: "IsFilled",
+          expressionFunction: ExpressionFunction.Equal,
+          value: true,
+          isRequired: true,
+        },
+      ],
+      orderBy: [
+        {
+          expression: "Concat(SubFirstName,' ',SubLastName)",
+          direction: Direction.Asc,
+        },
+        {
+          expression: "Date",
+          direction: Direction.Desc,
+        },
+      ],
+      subtotalBy: [
+        {
+          expression: "SubEmployeeId",
+          showExpression: "Concat(SubFirstName,' ',SubLastName) AS Substitute",
+        },
+      ],
+    };
+  }, []);
 
   return (
     <>
@@ -77,8 +73,15 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       <Report
         input={reportInput}
         exportFilename={t("SubstituteHistoryReport")}
-        filterFieldsOverride={filterFieldsOverride}
         showGroupLabels={false}
+        filterFieldsOverride={[
+          "Date",
+          "LocationId",
+          "SubEmployeeId",
+          "IsAbsence",
+          "IsVacancy",
+          "PositionTypeId",
+        ]}
       />
     </>
   );

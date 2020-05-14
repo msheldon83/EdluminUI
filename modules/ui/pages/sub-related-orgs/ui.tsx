@@ -1,107 +1,107 @@
 import * as React from "react";
-import {
-  Collapse,
-  Divider,
-  Grid,
-  Link,
-  makeStyles,
-  Tooltip,
-} from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
-import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { GetRelatedOrgs } from "./graphql/get-relatedorgs.gen";
+import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { CustomOrgUserRelationship } from "./helpers";
+import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
+import { SubstituteInput } from "graphql/server-types.gen";
+import { AutoCompleteSearch } from "ui/components/autocomplete-search";
+import { SelectedDistricts } from "./components/selected-districts";
+import { SearchDelegatesToOrganizations } from "./graphql/search-related-orgs.gen";
 
 type Props = {
-  relatedOrgIds: Array<string | null | undefined> | null | undefined;
+  orgUserRelationships: CustomOrgUserRelationship[];
   orgId: string;
-  onAdd: (orgId: string) => Promise<unknown>;
-  onRemove: (orgId: string) => Promise<unknown>;
+  orgEndorsements: OptionType[];
+  onAddOrg: (orgId: string) => Promise<unknown>;
+  onRemoveOrg: (orgId: string) => Promise<unknown>;
+  onSave: (sub: SubstituteInput) => Promise<any>;
+  allDistrictAttributes?: string[];
 };
 
-export const RelatedOrgsUI: React.FC<Props> = props => {
+export const ManageDistrictsUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [searchText, setSearchText] = useState<string | undefined>();
 
-  const getRelatedOrgs = useQueryBundle(GetRelatedOrgs, {
+  const {
+    allDistrictAttributes,
+    onAddOrg,
+    onRemoveOrg,
+    orgUserRelationships,
+    orgEndorsements,
+    onSave,
+  } = props;
+
+  const getDistricts = useQueryBundle(SearchDelegatesToOrganizations, {
     variables: {
       orgId: props.orgId,
+      searchText: searchText,
     },
+    skip: searchText === undefined,
   });
-  const organizations =
-    getRelatedOrgs.state === "LOADING"
-      ? []
-      : getRelatedOrgs?.data?.organizationRelationship?.all ?? [];
-  const relatedOrgs = useMemo(
+
+  const districts =
+    getDistricts.state != "LOADING"
+      ? getDistricts.data.organization?.searchDelegatesToOrganizations ?? []
+      : [];
+
+  const districtOptions: OptionType[] = useMemo(
     () =>
-      organizations.map(x => ({
-        id: x?.organization.id,
-        name: x?.organization.name,
+      districts.map(p => ({
+        label: p?.name ?? "",
+        value: p?.id ?? "",
       })),
-    [organizations]
+    [districts]
   );
 
-  const selectableOrganizations = useMemo(
-    () =>
-      relatedOrgs
-        .filter(x => x.id !== props.orgId)
-        .filter(x => !props.relatedOrgIds?.includes(x.id)),
-    [relatedOrgs, props.orgId, props.relatedOrgIds]
-  );
-
-  // TODO: this page needs styling
   return (
-    <>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6} lg={6}>
-          <Section>
-            <SectionHeader title={t("Related Organizations")} />
-            {props.relatedOrgIds?.map((o, i) => {
-              const org = relatedOrgs.find(x => x.id === o);
-              if (org?.id) {
-                return (
-                  <div key={i}>
-                    {org.name}
-                    <TextButton onClick={() => props.onRemove(org.id ?? "")}>
-                      {t("Remove")}
-                    </TextButton>
-                  </div>
-                );
-              }
-            })}
-          </Section>
-        </Grid>
-        <Grid item xs={12} md={6} lg={6}>
-          <Section>
-            <SectionHeader title={t("Organizations")} />
-            {selectableOrganizations.map((o, i) => {
-              if (o?.id) {
-                return (
-                  <div key={i}>
-                    {o.name}
-                    <TextButton onClick={() => props.onAdd(o.id ?? "")}>
-                      {t("Add")}
-                    </TextButton>
-                  </div>
-                );
-              }
-            })}
-          </Section>
-        </Grid>
+    <Grid container spacing={2}>
+      <Grid item xs={12} md={6} lg={6}>
+        <Section>
+          <SectionHeader title={t("Add a district")} />
+          <Grid item xs={12} container className={classes.spacing}>
+            {t("Search")}
+          </Grid>
+          <AutoCompleteSearch
+            onClick={onAddOrg}
+            searchText={searchText}
+            setSearchText={setSearchText}
+            options={districtOptions}
+            placeholder={"District name"}
+          />
+        </Section>
       </Grid>
-    </>
+      {allDistrictAttributes && (
+        <Grid item xs={12} md={6} lg={6}>
+          <Section>
+            <SectionHeader title={t("All district attributes")} />
+            {allDistrictAttributes?.length === 0 ? (
+              <div>{t("No district attributes")}</div>
+            ) : (
+              allDistrictAttributes?.map((n, i) => <div key={i}>{n}</div>)
+            )}
+          </Section>
+        </Grid>
+      )}
+      <Grid item xs={12}>
+        <SelectedDistricts
+          orgUserRelationships={orgUserRelationships}
+          orgEndorsements={orgEndorsements}
+          onRemoveOrg={onRemoveOrg}
+          onSave={onSave}
+        />
+      </Grid>
+    </Grid>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  header: {
-    marginBottom: theme.spacing(2),
+  spacing: {
+    paddingTop: theme.spacing(1),
   },
-  title: {
-    marginBottom: 0,
-  },
-  cancel: { color: theme.customColors.darkRed },
 }));
