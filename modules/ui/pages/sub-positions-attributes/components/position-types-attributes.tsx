@@ -131,8 +131,9 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={10}>
           <div className={classes.noteText}>
-            Note: Selecting attributes below will automatically update the
-            position types for which this person is qualified.
+            {t(
+              "Note: Selecting attributes below will automatically update the position types for which this person is qualified."
+            )}
           </div>
         </Grid>
       </Grid>
@@ -418,12 +419,15 @@ const useStyles = makeStyles(theme => ({
     height: "100%",
   },
   infoIcon: {
+    color: theme.customColors.darkBlue,
     marginTop: "5px",
     marginLeft: "10px",
   },
   noteText: {
+    color: theme.customColors.darkBlue,
     fontWeight: "bold",
     marginTop: "7px",
+    textAlign: "center",
   },
   searchTextInput: {
     width: "50%",
@@ -434,6 +438,7 @@ const useStyles = makeStyles(theme => ({
     padding: "10px",
     marginBottom: "20px",
     border: "1px solid",
+    borderColor: theme.customColors.darkBlue,
     borderRadius: "4px",
   },
   warning: {
