@@ -4,6 +4,7 @@ import {
   FormControlLabel,
   Checkbox,
   Typography,
+  Tooltip,
 } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -114,9 +115,15 @@ export const AccountingCode: React.FC<Props> = props => {
           return <Typography>{data.locations[0].name}</Typography>;
         } else {
           return (
-            <Typography>{`${data.locations.length} ${t(
-              "Schools"
-            )}`}</Typography>
+            <Tooltip
+              className={classes.toolTip}
+              placement="bottom-start"
+              title={data.locations.map(l => l.name).join(", ")}
+            >
+              <Typography>{`${data.locations.length} ${t(
+                "Schools"
+              )}`}</Typography>
+            </Tooltip>
           );
         }
       },
@@ -348,5 +355,8 @@ const useStyles = makeStyles(theme => ({
   },
   schoolSelector: {
     zIndex: 1000,
+  },
+  toolTip: {
+    cursor: "pointer",
   },
 }));
