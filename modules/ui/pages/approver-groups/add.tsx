@@ -72,10 +72,7 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
         name: Yup.string()
           .nullable()
           .required(t("Name is required")),
-        externalId: Yup.string()
-          .nullable()
-          .required(t("Identifier is required")),
-        variesByLocation: Yup.boolean().required(),
+        externalId: Yup.string().nullable(),
       }),
     [t]
   );
@@ -105,6 +102,7 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
             };
 
             const result = await create(newApproverGroupHeader);
+            if (!result) return;
 
             //Location Page
             if (newApproverGroupHeader.variesByLocation)

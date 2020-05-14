@@ -4,7 +4,7 @@ import { SubPoolCard } from "ui/components/sub-pools/subpoolcard";
 import { AdminPicker } from "./components/admin-picker";
 import { makeStyles } from "@material-ui/styles";
 
-export const ApproverGroupAdminsPage: React.FC<{}> = props => {
+export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
   const classes = useStyles();
 
   ///NEEDS CUSTOM HEADER

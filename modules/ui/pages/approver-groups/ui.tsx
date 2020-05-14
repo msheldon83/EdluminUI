@@ -11,7 +11,8 @@ import ErrorIcon from "@material-ui/icons/Error";
 import { compact } from "lodash-es";
 import {
   ApproverGroupsRoute,
-  ApproverGroupViewRoute,
+  ApproverGroupAddLocationsRoute,
+  ApproverGroupAddAdminsRoute,
 } from "ui/routes/approver-groups";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAllApproverGroupsWithinOrg } from "./graphql/get-all-approver-groups.gen";
@@ -120,11 +121,23 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
           selection={false}
           onRowClick={(event, approverGroup) => {
             if (!approverGroup) return;
-            const newParams = {
-              ...params,
-              approverGroupId: approverGroup.id,
-            };
-            history.push(ApproverGroupViewRoute.generate(newParams));
+
+            //Location Page
+            if (approverGroup.variesByLocation) {
+              history.push(
+                ApproverGroupAddLocationsRoute.generate({
+                  approverGroupHeaderId: approverGroup?.id ?? "",
+                  organizationId: params.organizationId,
+                })
+              );
+            }
+            //Admin Page
+            history.push(
+              ApproverGroupAddAdminsRoute.generate({
+                approverGroupId: approverGroup?.approverGroups[0]?.id ?? "",
+                organizationId: params.organizationId,
+              })
+            );
           }}
         />
         <PaginationControls pagination={pagination} />

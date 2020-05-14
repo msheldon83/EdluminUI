@@ -187,8 +187,6 @@ import {
 import {
   ApproverGroupsRoute,
   ApproverGroupsLoader,
-  ApproverGroupViewRoute,
-  ApproverGroupViewLoader,
   ApproverGroupAddRoute,
   ApproverGroupAddLoader,
   ApproverGroupAddLocationsRoute,
@@ -1203,14 +1201,6 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsSave,
-                                      ]}
-                                    />
-                                    <ProtectedRoute
-                                      component={ApproverGroupViewLoader}
-                                      path={ApproverGroupViewRoute.path}
-                                      role={"admin"}
-                                      permissions={[
-                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute

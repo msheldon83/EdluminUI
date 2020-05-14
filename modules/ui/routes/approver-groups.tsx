@@ -30,16 +30,6 @@ export const ApproverGroupViewRoute = defineSubRoute(
   ["approverGroupId"]
 );
 
-export const ApproverGroupViewLoader = asyncComponent({
-  resolve: async () => {
-    const ApproverGroupViewPage = (
-      await import("ui/pages/approver-groups/view")
-    ).ApproverGroupViewPage;
-    return ApproverGroupViewPage;
-  },
-  name: "ApproverGroupViewPage",
-});
-
 // Add
 export const ApproverGroupAddRoute = defineSubRoute(
   ApproverGroupsRoute,
@@ -74,18 +64,18 @@ export const ApproverGroupAddLocationsLoader = asyncComponent({
 });
 
 //Add Admin
-export const ApproverGroupAddAdminsRoute = defineSubRoute(
+export const ApproverGroupAddRemoveMembersRoute = defineSubRoute(
   ApproverGroupViewRoute,
-  "/add-admin",
+  "/add-members",
   []
 );
 
-export const ApproverGroupAddAdminsLoader = asyncComponent({
+export const ApproverGroupAddRemoveMembersLoader = asyncComponent({
   resolve: async () => {
-    const ApproverGroupAdminsPage = (
-      await import("ui/pages/approver-groups/add-admins")
-    ).ApproverGroupAdminsPage;
-    return ApproverGroupAdminsPage;
+    const ApproverGroupAddRemoveMemberPage = (
+      await import("ui/pages/approver-groups/add-remove-members")
+    ).ApproverGroupAddRemoveMemberPage;
+    return ApproverGroupAddRemoveMemberPage;
   },
-  name: "ApproverGroupAdminsPage",
+  name: "ApproverGroupAddRemoveMemberPage",
 });

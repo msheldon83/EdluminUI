@@ -4,8 +4,13 @@ mutation CreateApproverGroupHeader(
   approverGroup {
     create(approverGroupHeader: $approverGroupHeader) {
       id
+      name
+      externalId
+      variesByLocation
       approverGroups {
         id
+        name
+        externalId
       }
     }
   }
