@@ -76,11 +76,11 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
                 title={
                   data.variesByLocation
                     ? t(
-                        "At least one school does not have approvers defined." +
-                          " Any workflow step referring to an empty approver group will be skipped"
+                        "At least one school does not have approvers defined. " +
+                          "Any workflow step referring to an empty approver group will be skipped"
                       )
                     : t(
-                        "There are no approvers defined for this group." +
+                        "There are no approvers defined for this group. " +
                           "Any workflow step referring to an empty approver group will be skipped."
                       )
                 }
