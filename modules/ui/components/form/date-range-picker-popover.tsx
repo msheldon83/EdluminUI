@@ -153,12 +153,13 @@ const useStyles = makeStyles(theme => ({
   popoverContainer: {
     background: theme.customColors.white,
     boxShadow:
-      "0px 9px 18px rgba(0, 0, 0, 0.18), 0px 6px 5px rgba(0, 0, 0, 0.24);",
+      "0px 9px 18px rgba(0, 0, 0, 0.09), 0px 6px 5px rgba(0, 0, 0, 0.05);",
     padding: theme.spacing(2),
-    maxWidth: "700px",
+    maxWidth: "600px",
     width: "100vw",
     marginTop: theme.typography.pxToRem(5),
-    borderTop: `1px solid ${theme.customColors.medLightGray}`,
+    // Magic number for some color on color finesse
+    border: "1px solid #f0f0f0",
   },
   trigger: {
     display: "inline-block",
