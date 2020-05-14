@@ -1,5 +1,4 @@
 import * as React from "react";
-import { PageTitle } from "ui/components/page-title";
 import { Report } from "ui/components/reporting";
 import { useTranslation } from "react-i18next";
 import {
@@ -71,23 +70,21 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
   }, []);
 
   return (
-    <>
-      <PageTitle title={t("Absences & Vacancies")} />
-      <Report
-        input={reportInput}
-        exportFilename={t("AbsencesVacanciesReport")}
-        filterFieldsOverride={[
-          "Date",
-          "AbsentEmployeeId",
-          "SubEmployeeId",
-          "PositionTypeId",
-          "LocationId",
-          "AbsenceReasonId",
-          "VacancyReasonId",
-          "IsAbsence",
-          "IsVacancy",
-        ]}
-      />
-    </>
+    <Report
+      title={t("Absences & Vacancies")}
+      input={reportInput}
+      exportFilename={t("AbsencesVacanciesReport")}
+      filterFieldsOverride={[
+        "Date",
+        "AbsentEmployeeId",
+        "SubEmployeeId",
+        "PositionTypeId",
+        "LocationId",
+        "AbsenceReasonId",
+        "VacancyReasonId",
+        "IsAbsence",
+        "IsVacancy",
+      ]}
+    />
   );
 };

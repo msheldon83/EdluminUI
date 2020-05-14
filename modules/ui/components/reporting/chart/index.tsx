@@ -12,12 +12,11 @@ import { hexToRgb } from "ui/components/color-helpers";
 type Props = {
   reportChartDefinition: ReportChartDefinition | undefined;
   isLoading: boolean;
-  className?: string;
 };
 
 export const ReportChart: React.FC<Props> = props => {
   const classes = useStyles(props);
-  const { reportChartDefinition, isLoading, className } = props;
+  const { reportChartDefinition, isLoading } = props;
 
   const graphId = "red-rover-graph";
   const data: ChartData<ChartJsChartData> = React.useMemo(() => {
@@ -59,11 +58,7 @@ export const ReportChart: React.FC<Props> = props => {
   }, [reportChartDefinition]);
 
   return (
-    <div
-      className={
-        className ? `${classes.container} ${className}` : classes.container
-      }
-    >
+    <div className={classes.container}>
       {isLoading && (
         <div className={classes.overlay}>
           <CircularProgress />

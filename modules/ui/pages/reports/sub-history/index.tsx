@@ -1,5 +1,4 @@
 import * as React from "react";
-import { PageTitle } from "ui/components/page-title";
 import { Report } from "ui/components/reporting";
 import { useTranslation } from "react-i18next";
 import {
@@ -68,21 +67,19 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
   }, []);
 
   return (
-    <>
-      <PageTitle title={t("Substitute History")} />
-      <Report
-        input={reportInput}
-        exportFilename={t("SubstituteHistoryReport")}
-        showGroupLabels={false}
-        filterFieldsOverride={[
-          "Date",
-          "LocationId",
-          "SubEmployeeId",
-          "IsAbsence",
-          "IsVacancy",
-          "PositionTypeId",
-        ]}
-      />
-    </>
+    <Report
+      title={t("Substitute History")}
+      input={reportInput}
+      exportFilename={t("SubstituteHistoryReport")}
+      showGroupLabels={false}
+      filterFieldsOverride={[
+        "Date",
+        "LocationId",
+        "SubEmployeeId",
+        "IsAbsence",
+        "IsVacancy",
+        "PositionTypeId",
+      ]}
+    />
   );
 };

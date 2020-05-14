@@ -16,8 +16,12 @@ import { ExportReportQuery } from "./graphql/export-report";
 import { useTranslation } from "react-i18next";
 import { ReportData } from "./data";
 import { ReportChart } from "./chart";
+import { PageTitle } from "../page-title";
+import { InsertChart } from "@material-ui/icons";
+import { TextButton } from "../text-button";
 
 type Props = {
+  title: string;
   input: ReportDefinitionInput;
   exportFilename?: string;
   filterFieldsOverride?: string[];
@@ -30,12 +34,14 @@ export const Report: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const organizationId = useOrganizationId();
   const {
+    title,
     input,
     filterFieldsOverride,
     exportFilename = t("Report"),
     showGroupLabels = true,
   } = props;
 
+  const [chartVisible, setChartVisible] = React.useState(true);
   const [state, dispatch] = React.useReducer(reportReducer, {
     reportDefinitionInput: input,
     rdlString: convertReportDefinitionInputToRdl(input),
@@ -131,7 +137,19 @@ export const Report: React.FC<Props> = props => {
 
   return (
     <AppConfig contentWidth="100%">
-      {input.chart && (
+      <div className={classes.header}>
+        <PageTitle title={title} />
+        {input.chart && (
+          <TextButton
+            startIcon={<InsertChart />}
+            onClick={() => setChartVisible(!chartVisible)}
+            className={classes.hideChartButton}
+          >
+            {chartVisible ? t("Hide chart") : t("Show chart")}
+          </TextButton>
+        )}
+      </div>
+      {input.chart && chartVisible && (
         <ReportChart
           reportChartDefinition={state.reportChartDefinition}
           isLoading={
@@ -168,4 +186,15 @@ export const Report: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  hideChartButton: {
+    color: "initial",
+    fontWeight: 600,
+    textDecoration: "none",
+    textTransform: "uppercase",
+  },
+}));
