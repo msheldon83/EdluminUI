@@ -124,6 +124,14 @@ export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
 
   return (
     <>
+      <Grid item xs={12}>
+        <Section className={classes.sectionBackground}>
+          <div className={classes.noteText}>
+            Note: Selecting attributes below will automatically update the
+            position types for which this person is qualified.
+          </div>
+        </Section>
+      </Grid>
       <Section>
         <Grid container spacing={4}>
           <Grid item xs={6}>
@@ -404,6 +412,12 @@ const useStyles = makeStyles(theme => ({
   },
   attributesSection: {
     height: "100%",
+  },
+  noteText: {
+    fontWeight: "bold",
+  },
+  sectionBackground: {
+    backgroundColor: theme.customColors.lightBlue,
   },
   searchTextInput: {
     width: "50%",
