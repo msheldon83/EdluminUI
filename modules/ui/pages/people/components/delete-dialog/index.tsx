@@ -171,7 +171,7 @@ export const DeleteDialog: React.FC<Props> = ({
       </DialogTitle>
       <DialogContent>
         {(showEmployee || showSubstitute) && (
-          <Grid>
+          <Grid container spacing={2}>
             {showEmployee && (
               <>
                 <Grid item xs={12} className={classes.header}>
@@ -185,9 +185,7 @@ export const DeleteDialog: React.FC<Props> = ({
                 </Grid>
                 {getEmployeeAbsences.state != "LOADING" &&
                   absenceSchedule.map(absvac => (
-                    <Grid item container key={absvac.id}>
-                      <DeleteDialogRow {...absvac} />
-                    </Grid>
+                    <DeleteDialogRow key={absvac.id} {...absvac} />
                   ))}
               </>
             )}
@@ -209,9 +207,7 @@ export const DeleteDialog: React.FC<Props> = ({
                 </Grid>
                 {getSubstituteAssignments.state != "LOADING" &&
                   assignmentSchedule.map(absvac => (
-                    <Grid item container key={absvac.id}>
-                      <DeleteDialogRow {...absvac} />
-                    </Grid>
+                    <DeleteDialogRow key={absvac.id} {...absvac} />
                   ))}
               </>
             )}

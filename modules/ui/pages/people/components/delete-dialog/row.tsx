@@ -11,14 +11,14 @@ export const DeleteDialogRow: React.FC<AbsVac> = ({
 }) => {
   const classes = useStyles();
   return (
-    <>
+    <Grid item container spacing={1}>
       <Grid item xs={6} className={classes.left}>
         {dateRangeDisplay}
       </Grid>
       <Grid item xs={6} className={classes.right}>
         <AbsVacLink absVacId={id} absVacType={type} target="_blank" />
       </Grid>
-    </>
+    </Grid>
   );
 };
 
