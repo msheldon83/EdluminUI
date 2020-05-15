@@ -24,7 +24,7 @@ export const Filters: React.FC<Props> = props => {
   ] = useDeferredState<string | undefined>(undefined, 200);
   useEffect(() => {
     props.setSearchText(searchText);
-  }, [searchText]);
+  }, [searchText, props]);
 
   const roleOptions: OptionType[] = [
     { value: OrgUserRole.Invalid, label: "(All)" },
@@ -60,7 +60,7 @@ export const Filters: React.FC<Props> = props => {
         props.setRolesFilter([value.value]);
       }
     },
-    [props.setRolesFilter]
+    [props]
   );
 
   const updateSearchText = React.useCallback(

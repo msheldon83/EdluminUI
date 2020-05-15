@@ -82,7 +82,7 @@ export const PeopleFilters: React.FC<Props> = props => {
       }
       updateIsoFilters(filters);
     },
-    [updateIsoFilters]
+    [updateIsoFilters, params.organizationId]
   );
 
   const updateNameFilter = React.useCallback(

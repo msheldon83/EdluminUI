@@ -79,7 +79,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
         minorConflictThresholdMinutes: Yup.number().nullable(),
         minutesRelativeToStartVacancyCanBeFilled: Yup.number().nullable(),
       }),
-    [t]
+    []
   );
 
   const assignmentStartOptions = useMemo(() => {

@@ -3,7 +3,7 @@ import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { useQueryBundle } from "graphql/hooks";
 import {
-  AbsenceVacancyInput,
+  AbsenceVacancyInput as AbsenceVacancyInputType,
   Vacancy,
   VacancyCreateInput,
 } from "graphql/server-types.gen";
@@ -591,7 +591,7 @@ const useStyles = makeStyles(theme => ({
 
 const AbsenceVacancyInput = (
   vacancies: Vacancy[]
-): AbsenceVacancyInput | null => {
+): AbsenceVacancyInputType | null => {
   const vacancy = vacancies[0];
   if (vacancy === undefined) {
     return null;
