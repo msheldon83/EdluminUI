@@ -41,7 +41,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
   const peoplePaginationDefaults = makeQueryIso({
     defaults: {
       page: "1",
-      limit: "25",
+      limit: "10",
     },
     iso: PaginationParams,
   });
@@ -111,14 +111,6 @@ export const SubstitutePicker: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-
-  const usedSubs = remove(
-    substitutes,
-    s =>
-      props.takenSubstitutes.filter(t => {
-        return t.id === s.id;
-      }).length > 0
-  );
 
   return (
     <>

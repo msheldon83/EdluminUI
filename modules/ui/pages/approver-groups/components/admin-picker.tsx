@@ -9,7 +9,6 @@ import {
 import { PaginationControls } from "ui/components/pagination-controls";
 import { useQueryBundle } from "graphql/hooks";
 import { GetSuggestedAdmins } from "../graphql/get-suggested-admins.gen";
-import { PermissionEnum } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
@@ -21,14 +20,8 @@ import { FilterQueryParams } from "ui/pages/people/people-filters/filter-params"
 import { useEffect } from "react";
 
 type Props = {
-  title: string;
   orgId: string;
   onAdd: (orgUser: any) => void;
-  onBlock: (orgUser: any) => void;
-  onAutoAssign?: (orgUser: any) => void;
-  takenSubstitutes: any[];
-  addToFavoritePermission: PermissionEnum[];
-  addToBlockedPermission: PermissionEnum[];
 };
 
 export const AdminPicker: React.FC<Props> = props => {
@@ -38,7 +31,7 @@ export const AdminPicker: React.FC<Props> = props => {
   const peoplePaginationDefaults = makeQueryIso({
     defaults: {
       page: "1",
-      limit: "25",
+      limit: "10",
     },
     iso: PaginationParams,
   });
@@ -184,18 +177,9 @@ const useStyles = makeStyles(theme => ({
       paddingBottom: 0,
     },
   },
-  addAutoAssignActionLink: {
-    float: "right",
-    color: theme.customColors.blue,
-    paddingRight: theme.spacing(),
-  },
   addActionLink: {
     float: "right",
     color: theme.customColors.blue,
-  },
-  blockActionLink: {
-    float: "right",
-    color: theme.customColors.darkRed,
   },
   userName: {
     float: "left",
