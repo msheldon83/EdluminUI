@@ -291,7 +291,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                       InputProps: {
                         endAdornment: (
                           <InputAdornment position="end">
-                            minutes
+                            {t("minutes")}
                           </InputAdornment>
                         ),
                       },
