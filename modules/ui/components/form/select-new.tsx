@@ -242,6 +242,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
                   : classes.listbox
               }
               {...getListboxProps()}
+              style={{
+                width: inputRef.current?.parentElement.offsetWidth ?? 0,
+              }}
             >
               {groupedOptions.map((option: OptionType, index: number) => {
                 const itemClasses = clsx({
@@ -385,7 +388,6 @@ const useStyles = makeStyles(theme => ({
   },
   fixedListBox: {
     position: "fixed!important" as any,
-    width: `${theme.typography.pxToRem(430)} !important`,
     top: "auto!important",
   },
   optionItem: {
