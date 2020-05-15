@@ -102,7 +102,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const headerComponent = (
     <PersonLinkHeader
       title={t("Substitute Preferences")}
-      person={employee}
+      person={getEmployee?.data?.orgUser?.byId ?? undefined}
       params={params}
     />
   );

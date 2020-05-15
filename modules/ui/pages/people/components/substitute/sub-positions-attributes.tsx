@@ -1,4 +1,5 @@
 import * as React from "react";
+import { makeStyles } from "@material-ui/styles";
 import { Typography, Grid, Button } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -27,6 +28,7 @@ type Props = {
 export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
+  const classes = useStyles();
   const params = useRouteParams(PersonViewRoute);
   const showEditButton = !props.editing && props.editable;
 
@@ -77,3 +79,12 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  noteText: {
+    fontWeight: "bold",
+  },
+  sectionBackground: {
+    backgroundColor: theme.customColors.lightBlue,
+  },
+}));
