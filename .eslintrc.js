@@ -1,3 +1,14 @@
+const fs = require("fs");
+let schemaString;
+try {
+  schemaString = fs.readFileSync(
+    "./modules/graphql/server-schema.graphql",
+    "utf8"
+  );
+} catch (err) {
+  schemaString = "";
+}
+
 module.exports = {
   env: {
     browser: true,
@@ -30,7 +41,7 @@ module.exports = {
     useJSXTextNode: true,
     extraFileExtensions: [".tsx", ".d.ts"],
   },
-  plugins: ["react", "react-hooks", "@typescript-eslint", "jest"],
+  plugins: ["react", "react-hooks", "@typescript-eslint", "jest", "graphql"],
   /*
   https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/ROADMAP.md
    */
@@ -44,6 +55,13 @@ module.exports = {
             fixWith: "React.FunctionComponent",
           },
         },
+      },
+    ],
+    "graphql/template-strings": [
+      "error",
+      {
+        env: "literal",
+        schemaString: schemaString,
       },
     ],
 

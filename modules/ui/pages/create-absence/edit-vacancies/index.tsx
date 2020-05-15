@@ -94,7 +94,7 @@ export const EditVacancies: React.FC<Props> = props => {
 
   const subHeader = !props.actingAsEmployee ? (
     props.isEdit ? (
-      <EmployeeLink orgUserId={props.employeeId}>
+      <EmployeeLink orgUserId={props.employeeId} color="black">
         {props.employeeName}
       </EmployeeLink>
     ) : (
