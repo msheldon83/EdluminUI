@@ -57,13 +57,10 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
           {
             type: GraphType.StackedBar,
             series: [
-              "Count(ConfirmationNumber) AS Absences",
-              "Sum(IsFilled) As Filled",
+              'CountIf(FillStatus = "Filled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Filled',
+              'CountIf(FillStatus = "Unfilled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Unfilled',
+              'CountIf(FillStatus = "NoSubNeeded", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS "No Sub Required"',
             ],
-          },
-          {
-            type: GraphType.Line,
-            series: ["Sum(IsFilled) As 'Filled (Line)'"],
           },
         ],
         againstExpression: "Date",
