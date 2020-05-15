@@ -305,7 +305,10 @@ export const convertReportDefinitionInputToRdl = (
       ) {
         selects.unshift(subtotalBy.showExpression);
       }
-      if (!selects.includes(subtotalBy.expression)) {
+      if (
+        !subtotalBy.showExpression &&
+        !selects.includes(subtotalBy.expression)
+      ) {
         selects.unshift(subtotalBy.expression);
       }
     }
