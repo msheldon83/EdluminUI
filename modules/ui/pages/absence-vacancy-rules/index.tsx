@@ -34,7 +34,6 @@ export const AbsenceVacancyRules: React.FC<{}> = props => {
   }
   const organization: any | undefined =
     getOrgConfig?.data?.organization?.byId ?? undefined;
-  console.log(organization);
 
   const update = async (orgConfig: OrganizationUpdateInput) => {
     const result = await updateOrgConfig({
@@ -57,7 +56,7 @@ export const AbsenceVacancyRules: React.FC<{}> = props => {
           history.push(url);
         }}
         onSubmit={async (orgConfig: OrganizationUpdateInput) => {
-          const result = await update(orgConfig);
+          await update(orgConfig);
         }}
       />
     </>
