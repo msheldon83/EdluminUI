@@ -88,7 +88,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
   // Reference to all the multiple values display
   const selectedChipsRef = React.useRef(null);
-  const inputRef = React.useRef(null);
+  const inputRef: any = React.useRef(null);
 
   // Operate on the options entry
   const getOptionLabel = (option: OptionType): string => {
