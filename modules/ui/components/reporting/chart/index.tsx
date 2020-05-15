@@ -18,7 +18,9 @@ export const ReportChart: React.FC<Props> = props => {
   const classes = useStyles(props);
   const { reportChartDefinition, isLoading } = props;
 
-  const graphId = "red-rover-graph";
+  // Every graph displayed on the chart will have the same
+  // yAxisID so everyone shares the same y axis configuration
+  const yAxisID = "red-rover-graph";
   const data: ChartData<ChartJsChartData> = React.useMemo(() => {
     if (!reportChartDefinition) {
       return {
@@ -44,7 +46,7 @@ export const ReportChart: React.FC<Props> = props => {
               type: graphType,
               data: graphData[seriesIndex],
               fill: true,
-              yAxisID: graphId,
+              yAxisID,
               stack: stackId,
               borderWidth: 1,
               backgroundColor: hexToRgb(possibleColors[colorIndex], 0.8),
@@ -85,7 +87,7 @@ export const ReportChart: React.FC<Props> = props => {
                 type: "linear",
                 display: true,
                 position: "left",
-                id: graphId,
+                id: yAxisID,
                 gridLines: {
                   display: true,
                 },
@@ -139,6 +141,11 @@ const getChartJsGraphType = (type: GraphType): ChartJsChartType => {
   }
 };
 
+// TODO: Add support to the Report Definition on the
+// backend to accept a Series string that includes a hex
+// color. For now we have full control over how complicated
+// our charts are going to be, so supporting up to 6 series
+// should do it.
 const possibleColors = [
   "#FF5555",
   "#3d4ed7",
