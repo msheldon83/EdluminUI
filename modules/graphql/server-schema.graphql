@@ -742,6 +742,7 @@ type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
 input ApproverGroupAddMemberInput {
   approverGroupId: ID!
   orgUserId: ID!
+  orgId: ID!
 }
 
 input ApproverGroupCreateInput {

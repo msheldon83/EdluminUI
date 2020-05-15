@@ -11,14 +11,9 @@ import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
-  values: OptionType[];
+  values: { label: string; value?: string }[];
   onRemove?: (id: string) => void;
   savePermissions?: PermissionEnum[];
-};
-
-type OptionType = {
-  label: string;
-  value?: string;
 };
 
 export const ViewCard: React.FC<Props> = props => {
