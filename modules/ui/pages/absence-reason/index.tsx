@@ -121,7 +121,13 @@ export const AbsenceReason: React.FC<{}> = () => {
                 history.push(AbsenceReasonViewEditRoute.generate(newParams));
               }}
             >
-              <Grid item xs={4} className={classes.nameColumn}>
+              <Grid
+                item
+                xs={4}
+                className={
+                  group.name == "Uncategorized" ? "" : classes.nameColumn
+                }
+              >
                 {c.name}
               </Grid>
               <Grid item xs={3}>
