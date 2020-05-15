@@ -63,7 +63,7 @@ export const ApproverGroupAddLocationsLoader = asyncComponent({
   name: "ApproverGroupLocationsPage",
 });
 
-//Add Admin
+//Add | Remove Members
 export const ApproverGroupAddRemoveMembersRoute = defineSubRoute(
   ApproverGroupViewRoute,
   "/add-members",

@@ -1,17 +1,19 @@
 import * as React from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { TextButton } from "ui/components/text-button";
+import { Can } from "ui/components/auth/can";
 import { useTranslation } from "react-i18next";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
   values: OptionType[];
-  blocked: boolean;
   onRemove?: (id: string) => void;
+  savePermissions?: PermissionEnum[];
 };
 
 type OptionType = {
@@ -19,11 +21,11 @@ type OptionType = {
   value?: string;
 };
 
-export const SubPoolCard: React.FC<Props> = props => {
+export const ViewCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { values, onRemove } = props;
+  const { values, onRemove, savePermissions } = props;
 
   return (
     <>
@@ -52,13 +54,15 @@ export const SubPoolCard: React.FC<Props> = props => {
                       {value.label}
                     </SubstituteLink>
                   </Typography>
-                  {value.value && onRemove && (
-                    <TextButton
-                      className={classes.actionLink}
-                      onClick={() => onRemove(value?.value)}
-                    >
-                      {t("Remove")}
-                    </TextButton>
+                  {value.value && onRemove && savePermissions && (
+                    <Can do={savePermissions}>
+                      <TextButton
+                        className={classes.actionLink}
+                        onClick={() => onRemove(value?.value)}
+                      >
+                        {t("Remove")}
+                      </TextButton>
+                    </Can>
                   )}
                 </Grid>
               );

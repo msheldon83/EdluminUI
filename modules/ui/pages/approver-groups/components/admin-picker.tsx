@@ -7,11 +7,10 @@ import {
   PaginationParams,
 } from "hooks/query-params";
 import { PaginationControls } from "ui/components/pagination-controls";
-import { useQueryBundle } from "graphql/hooks";
-import { GetSuggestedAdmins } from "../graphql/get-suggested-admins.gen";
-import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { Grid, Typography } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { Input } from "ui/components/form/input";
@@ -20,13 +19,16 @@ import { FilterQueryParams } from "ui/pages/people/people-filters/filter-params"
 import { useEffect } from "react";
 
 type Props = {
-  orgId: string;
-  onAdd: (orgUser: any) => void;
+  onAdd: (orgUserId: string) => void;
+  suggestedAdmins: any[];
+  savePermissions: PermissionEnum[];
 };
 
 export const AdminPicker: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+
+  const { onAdd, suggestedAdmins, savePermissions } = props;
 
   const peoplePaginationDefaults = makeQueryIso({
     defaults: {
@@ -62,24 +64,6 @@ export const AdminPicker: React.FC<Props> = props => {
     [setPendingName]
   );
 
-  const allSuggestedAdminsQuery = useQueryBundle(GetSuggestedAdmins, {
-    variables: {
-      orgId: props.orgId,
-    },
-  });
-
-  let suggestedAdmins: GetSuggestedAdmins.SuggestedAdminsForApproverGroups[] = [];
-
-  if (
-    allSuggestedAdminsQuery.state === "DONE" ||
-    allSuggestedAdminsQuery.state === "UPDATING"
-  ) {
-    const qResults = compact(
-      allSuggestedAdminsQuery?.data?.orgUser?.suggestedAdminsForApproverGroups
-    );
-    if (qResults) suggestedAdmins = qResults;
-  }
-
   return (
     <>
       <Section>
@@ -98,44 +82,45 @@ export const AdminPicker: React.FC<Props> = props => {
             />
           </Grid>{" "}
           <Grid item xs={12}>
-            <Typography variant="h6">{t("Suggested members")}</Typography>
+            <SectionHeader title={t("Suggested members")} />
           </Grid>
-          <Grid item xs={12} className={classes.pagination}>
-            {/* <PaginationControls
+          {/*   <Grid item xs={12} className={classes.pagination}>
+            <PaginationControls
               pagination={pagination}
               pageSizeOptions={[25, 50, 100, 250, 500]}
             />
           </Grid> */}
-            {suggestedAdmins.length === 0 && (
-              <Grid item xs={12} className={classes.noResultRow}>
-                <Typography>{t("No suggested members")}</Typography>
-              </Grid>
-            )}
-            {suggestedAdmins.map((user, i) => {
-              const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
-              const className = [
-                classes.detail,
-                i % 2 ? classes.shadedRow : classes.nonShadedRow,
-              ].join(" ");
-              return (
-                <Grid item className={className} xs={12} key={i}>
-                  <Typography className={classes.userName}>{name}</Typography>
+          {suggestedAdmins.length === 0 && (
+            <Grid item xs={12} className={classes.noResultRow}>
+              <Typography>{t("No suggested members")}</Typography>
+            </Grid>
+          )}
+          {suggestedAdmins.map((user, i) => {
+            const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
+            const className = [
+              classes.detail,
+              i % 2 ? classes.shadedRow : classes.nonShadedRow,
+            ].join(" ");
+            return (
+              <Grid item className={className} xs={12} key={i}>
+                <Typography className={classes.userName}>{name}</Typography>
+                <Can do={savePermissions}>
                   <TextButton
                     className={classes.addActionLink}
-                    onClick={() => props.onAdd(user)}
+                    onClick={() => props.onAdd(user.id)}
                   >
                     {t("Add")}
                   </TextButton>
-                </Grid>
-              );
-            })}
-            <Grid item xs={12} className={classes.pagination}>
+                </Can>
+              </Grid>
+            );
+          })}
+          {/* <Grid item xs={12} className={classes.pagination}>
               {/* <PaginationControls
               pagination={pagination}
               pageSizeOptions={[25, 50, 100, 250, 500]}
-            /> */}
-            </Grid>
-          </Grid>
+            /> 
+            </Grid> */}
         </Grid>
       </Section>
     </>
