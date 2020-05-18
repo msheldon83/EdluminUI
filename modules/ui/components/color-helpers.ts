@@ -1,7 +1,7 @@
 // Copied from https://www.freecodecamp.org/news/how-to-create-a-hex2rgb-color-converter-ce32d32afd1f/
 // and modified to add in an optional alpha channel
 export const hexToRgb = (hex: string, alpha?: number) => {
-  let x = [];
+  const x = [];
   hex = hex.replace("#", "");
   if (hex.length != 6) {
     hex = modifyHex(hex);
