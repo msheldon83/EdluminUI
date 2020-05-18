@@ -12,6 +12,12 @@ import {
   UnauthorizedEmployeeRoleRoute,
   UnauthorizedSubstituteRoleRoute,
 } from "ui/routes/unauthorized";
+import {
+  NotFoundAdminRootRoute,
+  NotFoundAdminRoleRoute,
+  NotFoundEmployeeRoleRoute,
+  NotFoundSubstituteRoleRoute,
+} from "ui/routes/not-found";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { can } from "helpers/permissions";
 import { useOrganizationId } from "core/org-context";
@@ -24,6 +30,7 @@ interface ProtectedRouteProps extends RouteProps {
     | React.ComponentType<RouteComponentProps<any>>
     | React.ComponentType<any>;
   permissions?: PermissionEnum[];
+  devFeatureOnly?: boolean;
 }
 type RenderComponent = (props: RouteComponentProps<any>) => React.ReactNode;
 
@@ -34,6 +41,27 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
   const userAccess = useMyUserAccess();
   if (!userAccess) {
     return <></>;
+  }
+
+  // If this route is to be only allowed in dev, this will send the user to a not found page when in prod.
+  if (props.devFeatureOnly && !Config.isDevFeatureOnly) {
+    switch (props.role) {
+      case "admin":
+      case "sysAdmin":
+        return organizationId === undefined ? (
+          <Redirect
+            to={NotFoundAdminRoleRoute.generate({
+              organizationId: organizationId ?? "",
+            })}
+          />
+        ) : (
+          <Redirect to={NotFoundAdminRootRoute.generate({})} />
+        );
+      case "employee":
+        return <Redirect to={NotFoundEmployeeRoleRoute.generate({})} />;
+      case "substitute":
+        return <Redirect to={NotFoundSubstituteRoleRoute.generate({})} />;
+    }
   }
 
   // Support blocking routes for non Sys Admins
