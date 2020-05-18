@@ -118,7 +118,11 @@ export const NotificationsUI: React.FC<Props> = props => {
         )}
         <Divider className={classes.divider} variant={"fullWidth"} />
         {filteredNotifications.length === 0 ? (
-          <div>{t("No notifications")}</div>
+          <div>
+            {getNotifications.state === "LOADING"
+              ? t("Loading notifications...")
+              : t("No notifications")}
+          </div>
         ) : (
           filteredNotifications.map((n: any, i: any) => {
             return (
