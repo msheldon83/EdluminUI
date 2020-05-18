@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DataSourceField, FilterField } from "../types";
+import { DataSourceField, FilterField } from "../../types";
 import { makeStyles } from "@material-ui/core";
 import { OptionalFilters } from "./optional-filters";
 import { RequiredFilters } from "./required-filters";
