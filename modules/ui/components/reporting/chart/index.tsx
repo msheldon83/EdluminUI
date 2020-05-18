@@ -114,6 +114,7 @@ export const ReportChart: React.FC<Props> = props => {
             bodyFontColor: "#000000",
             bodySpacing: 10,
             borderColor: "#E5E5E5",
+            borderWidth: 2,
             caretSize: 10,
           },
         }}
