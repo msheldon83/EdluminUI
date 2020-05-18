@@ -28,6 +28,8 @@ export type SelectProps<T extends boolean> = {
   onSort?: (option1: OptionType, option2: OptionType) => 1 | -1 | 0;
   doSort?: boolean;
   fixedListBox?: boolean;
+  readOnly?: boolean;
+  inputClassName?: string;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -69,6 +71,8 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     className,
     options,
     doSort = true,
+    readOnly = false,
+    inputClassName = "",
     onSort = (a: OptionType, b: OptionType) =>
       a.label > b.label ? 1 : b.label > a.label ? -1 : 0,
     fixedListBox,
@@ -160,9 +164,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     open: listOpen,
   });
 
-  const inputClasses = clsx({
+  const inputClasses = `${clsx({
     [classes.attachedInput]: listOpen,
-  });
+  })} ${inputClassName}`;
 
   const selectChipsClasses = clsx({
     [classes.selectedChips]: true,
@@ -212,6 +216,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             name={name}
             placeholder={placeholder}
             error={inputStatus === "error"}
+            readOnly={readOnly}
             classes={{
               notchedOutline: inputClasses,
             }}
@@ -395,7 +400,7 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(1.5),
 
     "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
+      backgroundColor: theme.background.hoverRow,
       color: theme.palette.text.primary,
       cursor: "pointer",
     },
