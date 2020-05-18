@@ -9,6 +9,7 @@ mutation UpdateOrgConfig($orgConfig: OrganizationUpdateInput!) {
         featureFlags
         minutesBeforeStartAbsenceCanBeCreated
         minLeadTimeMinutesToCancelVacancy
+        maxLeadTimeMinutesToCancelVacancyPart
         minutesRelativeToStartVacancyCanBeFilled
         minorConflictThresholdMinutes
         requestedSubCutoffMinutes
