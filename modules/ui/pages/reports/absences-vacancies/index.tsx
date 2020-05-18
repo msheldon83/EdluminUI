@@ -59,7 +59,7 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
             series: [
               'CountIf(FillStatus = "Filled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Filled',
               'CountIf(FillStatus = "Unfilled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Unfilled',
-              'CountIf(FillStatus = "NoSubNeeded", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS "No Sub Required"',
+              'CountIf(FillStatus = "NoSubRequired", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS "No Sub Required"',
             ],
           },
         ],
