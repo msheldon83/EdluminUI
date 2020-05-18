@@ -5,6 +5,7 @@ import { Bar, ChartData } from "react-chartjs-2";
 import {
   ChartData as ChartJsChartData,
   ChartType as ChartJsChartType,
+  ChartLegendLabelItem,
 } from "chart.js";
 import { flatMap } from "lodash-es";
 import { hexToRgb } from "ui/components/color-helpers";
@@ -36,7 +37,10 @@ export const ReportChart: React.FC<Props> = props => {
         reportChartDefinition.metadata.chart?.graphs.map((g, graphIndex) => {
           const graphData =
             reportChartDefinition.data.graphData[graphIndex].rawData;
+          // Convert our Graph Type into something Chart JS understands
           const graphType = getChartJsGraphType(g.type);
+          // Giving each item in a Stacked Bar graph the same "stack" value
+          // results in those series being stacked together
           const stackId =
             g.type === GraphType.StackedBar ? `stack-${graphIndex}` : undefined;
           return g.series.map((s, seriesIndex) => {
@@ -78,8 +82,24 @@ export const ReportChart: React.FC<Props> = props => {
             display: true,
             position: "top",
             labels: {
-              boxWidth: 20,
+              boxWidth: 10,
+              fontSize: 14,
               padding: 20,
+              generateLabels: chart => {
+                // Taking over the construction of the legend label
+                // objects in order to round the edges of the boxes
+                return (
+                  chart.config.data?.datasets?.map(d => {
+                    return {
+                      text: d.label,
+                      fillStyle: d.borderColor,
+                      lineCap: "round",
+                      lineJoin: "round",
+                      strokeStyle: d.borderColor,
+                    } as ChartLegendLabelItem;
+                  }) ?? []
+                );
+              },
             },
           },
           scales: {
@@ -118,6 +138,17 @@ export const ReportChart: React.FC<Props> = props => {
             caretSize: 10,
           },
         }}
+        plugins={[
+          {
+            beforeInit: function(chart: any) {
+              chart.legend.afterFit = function() {
+                // Only way to add padding between the
+                // legend and the content of the chart
+                this.height = this.height + 10;
+              };
+            },
+          },
+        ]}
       />
     </div>
   );
