@@ -72,15 +72,16 @@ export const ReportChart: React.FC<Props> = props => {
         height={400}
         options={{
           maintainAspectRatio: false,
+          responsive: true,
           legend: {
             align: "start",
             display: true,
             position: "top",
             labels: {
               boxWidth: 20,
+              padding: 20,
             },
           },
-          responsive: true,
           scales: {
             yAxes: [
               {
@@ -94,6 +95,26 @@ export const ReportChart: React.FC<Props> = props => {
                 stacked: !!data.datasets?.find(d => d.stack),
               },
             ],
+            xAxes: [
+              {
+                gridLines: {
+                  display: false,
+                },
+              },
+            ],
+          },
+          tooltips: {
+            displayColors: true,
+            xPadding: 10,
+            yPadding: 10,
+            mode: "index",
+            backgroundColor: "#FFFFFF",
+            titleFontColor: "#000000",
+            titleMarginBottom: 10,
+            bodyFontColor: "#000000",
+            bodySpacing: 10,
+            borderColor: "#E5E5E5",
+            caretSize: 10,
           },
         }}
       />
