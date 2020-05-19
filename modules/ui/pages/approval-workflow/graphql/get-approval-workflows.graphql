@@ -4,6 +4,27 @@ query GetApprovalWorkflows($orgId: ID, $workFlowType: ApprovalWorkflowType) {
       id
       name
       rowVersion
+      approvalWorkflowTypeId
+      usages {
+        __typename
+        ... on AbsenceApprovalWorkflowUsage {
+          id
+          positionTypeId
+          positionType {
+            id
+            name
+          }
+          employeeId
+        }
+        ... on VacancyApprovalWorkflowUsage {
+          id
+          positionTypeId
+          positionType {
+            id
+            name
+          }
+        }
+      }
     }
   }
 }
