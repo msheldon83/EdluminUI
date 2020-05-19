@@ -7,11 +7,30 @@ export const LocationGroupsRoute = defineSubRoute(
   "/location-groups"
 );
 
+export const LocationGroupsLoader = asyncComponent({
+  resolve: async () => {
+    const LocationGroupsPage = (await import("ui/pages/school-groups/index"))
+      .LocationGroups;
+    return LocationGroupsPage;
+  },
+  name: "LocationGroups",
+});
+
+//View
 export const LocationGroupViewRoute = defineSubRoute(
   LocationGroupsRoute,
   "/:locationGroupId",
   ["locationGroupId"]
 );
+
+export const LocationGroupViewLoader = asyncComponent({
+  resolve: async () => {
+    const LocationGroupViewPage = (await import("ui/pages/school-groups/view"))
+      .LocationGroupViewPage;
+    return LocationGroupViewPage;
+  },
+  name: "LocationGroupViewPage",
+});
 
 // Add
 export const LocationGroupAddRoute = defineSubRoute(
@@ -29,28 +48,11 @@ export const LocationGroupAddLoader = asyncComponent({
   name: "LocationGroupAddPage",
 });
 
+//Sub Preferences
 export const LocationGroupSubPrefRoute = defineSubRoute(
   LocationGroupViewRoute,
   "/substitute-preferences"
 );
-
-export const LocationGroupsLoader = asyncComponent({
-  resolve: async () => {
-    const LocationGroupsPage = (await import("ui/pages/school-groups/index"))
-      .LocationGroups;
-    return LocationGroupsPage;
-  },
-  name: "LocationGroups",
-});
-
-export const LocationGroupViewLoader = asyncComponent({
-  resolve: async () => {
-    const LocationGroupViewPage = (await import("ui/pages/school-groups/view"))
-      .LocationGroupViewPage;
-    return LocationGroupViewPage;
-  },
-  name: "LocationGroupViewPage",
-});
 
 export const LocationGroupSubPrefLoader = asyncComponent({
   resolve: async () => {
