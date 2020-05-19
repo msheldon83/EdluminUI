@@ -61,12 +61,6 @@ export const AdminPicker: React.FC<Props> = props => {
           <Grid item xs={12}>
             <SectionHeader title={t("Suggested members")} />
           </Grid>
-          {/*   <Grid item xs={12} className={classes.pagination}>
-            <PaginationControls
-              pagination={pagination}
-              pageSizeOptions={[25, 50, 100, 250, 500]}
-            />
-          </Grid> */}
           {admins?.length === 0 && (
             <Grid item xs={12} className={classes.noResultRow}>
               <Typography>{t("No suggested members")}</Typography>
@@ -84,7 +78,7 @@ export const AdminPicker: React.FC<Props> = props => {
                 <Can do={savePermissions}>
                   <TextButton
                     className={classes.addActionLink}
-                    onClick={() => props.onAdd(user.id)}
+                    onClick={() => onAdd(user.id)}
                   >
                     {t("Add")}
                   </TextButton>
@@ -92,12 +86,6 @@ export const AdminPicker: React.FC<Props> = props => {
               </Grid>
             );
           })}
-          {/* <Grid item xs={12} className={classes.pagination}>
-              {/* <PaginationControls
-              pagination={pagination}
-              pageSizeOptions={[25, 50, 100, 250, 500]}
-            /> 
-            </Grid> */}
         </Grid>
       </Section>
     </>
@@ -124,19 +112,13 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
   detail: {
-    paddingLeft: theme.spacing(4),
-    paddingTop: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
+    padding: theme.spacing(2),
     [theme.breakpoints.down("sm")]: {
       paddingLeft: 0,
       paddingRight: 0,
     },
     "@media print": {
-      paddingLeft: theme.spacing(),
-      paddingTop: 0,
-      paddingRight: 0,
-      paddingBottom: 0,
+      padding: 0,
     },
   },
   addActionLink: {

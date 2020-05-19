@@ -48,7 +48,6 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
     }
   );
 
-  //Mutations for Create Only
   const create = async (
     approverGroupHeader: ApproverGroupHeaderCreateInput
   ) => {
@@ -112,7 +111,7 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
                   organizationId: params.organizationId,
                 })
               );
-            //Admin Page
+            //Member Page
             history.push(
               ApproverGroupAddRemoveMembersRoute.generate({
                 approverGroupId: result?.approverGroups[0]?.id ?? "",
