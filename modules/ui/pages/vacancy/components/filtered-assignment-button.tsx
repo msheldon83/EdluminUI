@@ -6,7 +6,7 @@ import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canAssignSub } from "helpers/permissions";
 import { VacancyDetailsFormData, VacancyDetailItem } from "../helpers/types";
-import { endOfTomorrow, min, setSeconds, isFuture } from "date-fns";
+import { endOfTomorrow, min, setSeconds, isToday, isFuture } from "date-fns";
 import { VacancyActions } from "ui/pages/vacancy/state";
 import { VacancyStep } from "helpers/step-params";
 
@@ -32,9 +32,10 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const futureDetails = vacancy.details.filter(d =>
-    isFuture(setSeconds(d.date, d.startTime))
-  );
+  const futureDetails = vacancy.details.filter(d => {
+    const startDateTime = setSeconds(d.date, d.startTime);
+    return isToday(startDateTime) || isFuture(startDateTime);
+  });
 
   const allDetailPerms = (
     permissions: OrgUserPermissions[],
