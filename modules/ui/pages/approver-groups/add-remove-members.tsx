@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Grid } from "@material-ui/core";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { Grid, Typography } from "@material-ui/core";
+import { PermissionEnum, OrgUserRole } from "graphql/server-types.gen";
 import { ViewCard } from "./components/view-card";
 import { AdminPicker } from "./components/admin-picker";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -8,13 +8,19 @@ import { makeStyles } from "@material-ui/styles";
 import { useRouteParams } from "ui/routes/definition";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { Link } from "react-router-dom";
+import { PageTitle } from "ui/components/page-title";
 import { GetSuggestedAdmins } from "./graphql/get-suggested-admins.gen";
-import { GetApproverGroupMembers } from "./graphql/get-approver-group-members.gen";
+import { GetApproverGroupById } from "./graphql/get-approver-group-by-id.gen";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
 import { RemoveMember } from "./graphql/remove-member.gen";
+import {
+  ApproverGroupsRoute,
+  ApproverGroupAddLocationsRoute,
+} from "ui/routes/approver-groups";
 import { AddMember } from "./graphql/add-member.gen";
+import { GetAdminsByName } from "./graphql/get-admins-by-name.gen";
 import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
 
 type OptionType = {
@@ -28,16 +34,20 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(ApproverGroupAddRemoveMembersRoute);
 
+  const [searchText, setSearchText] = React.useState<string | undefined>();
+
   const [removeMember] = useMutationBundle(RemoveMember, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: ["GetApproverGroupById"],
   });
 
   const [addMember] = useMutationBundle(AddMember, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
+    refetchQueries: ["GetApproverGroupById"],
   });
 
   const onAddMember = async (orgUserId: string) => {
@@ -50,6 +60,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
         },
       },
     });
+    setSearchText(searchText);
   };
 
   const onRemoveMember = async (orgUserId: string) => {
@@ -63,8 +74,13 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
     });
   };
 
-  const getApproverGroups = useQueryBundle(GetApproverGroupMembers, {
-    variables: { id: params.approverGroupId },
+  const getApproverGroup = useQueryBundle(GetApproverGroupById, {
+    variables: { approverGroupId: params.approverGroupId },
+  });
+
+  const getAdminByName = useQueryBundle(GetAdminsByName, {
+    variables: { name: searchText, orgId: params.organizationId },
+    skip: !searchText,
   });
 
   const allSuggestedAdminsQuery = useQueryBundle(GetSuggestedAdmins, {
@@ -73,13 +89,13 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
     },
   });
 
-  const approverGroups =
-    getApproverGroups.state === "LOADING"
+  const approverGroup =
+    getApproverGroup.state === "LOADING"
       ? undefined
-      : getApproverGroups?.data?.approverGroup?.byId?.approverGroups;
+      : getApproverGroup?.data?.approverGroup?.groupById;
 
   if (
-    getApproverGroups.state === "LOADING" ||
+    getApproverGroup.state === "LOADING" ||
     allSuggestedAdminsQuery.state === "LOADING"
   ) {
     return <></>;
@@ -93,36 +109,65 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
 
   if (qResults) {
     suggestedAdmins =
-      qResults.filter(i => {
-        return !approverGroups?.map(ignored => {
-          return ignored?.approverGroupMembers.filter(
-            x => x?.orgUser?.id === i.id
-          );
-        });
+      qResults?.filter(i => {
+        return !approverGroup?.approverGroupMembers?.find(
+          x => x?.orgUser?.id === i.id
+        );
       }) ?? [];
   }
 
-  const allGroupMembers =
-    approverGroups?.map(e => {
-      return e?.approverGroupMembers?.map(x => {
+  const searchedAdmins =
+    getAdminByName.state === "LOADING"
+      ? []
+      : compact(getAdminByName?.data?.orgUser?.all?.filter(e => e?.isAdmin));
+
+  const admins =
+    searchText === "" || searchText === undefined
+      ? suggestedAdmins
+      : searchedAdmins;
+
+  const groupMembers =
+    compact(
+      approverGroup?.approverGroupMembers?.map(x => {
         return {
           label: x?.orgUser?.firstName + " " + x?.orgUser?.lastName ?? "",
           value: x?.orgUser?.id ?? "",
         };
-      });
-    }) ?? [];
+      })
+    ) ?? [];
 
   const workflows: OptionType = [];
 
+  const to = approverGroup?.location
+    ? ApproverGroupAddLocationsRoute.generate({
+        approverGroupHeaderId: approverGroup?.id ?? "",
+        organizationId: params.organizationId,
+      })
+    : ApproverGroupsRoute.generate({ organizationId: params.organizationId });
+
+  const linkText = approverGroup?.location
+    ? t("Return to Locations")
+    : t("Return to Approver Groups");
+
   return (
     <>
-      {/* ///NEEDS CUSTOM HEADER/// */}
+      <div className={classes.headerLink}>
+        <Typography variant="h5">
+          {approverGroup?.location?.name ?? approverGroup?.name}
+        </Typography>
+        <div className={classes.linkPadding}>
+          <Link to={to} className={classes.link}>
+            {linkText}
+          </Link>
+        </div>
+      </div>
+      <PageTitle title={t("Building Approvers")} />
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>
             <ViewCard
               title={t("Members")}
-              values={allGroupMembers}
+              values={groupMembers}
               onRemove={onRemoveMember}
               savePermissions={[PermissionEnum.ApprovalSettingsSave]}
             />
@@ -134,7 +179,8 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
         <Grid item xs={6}>
           <AdminPicker
             onAdd={onAddMember}
-            suggestedAdmins={suggestedAdmins}
+            admins={admins}
+            setSearchText={setSearchText}
             savePermissions={[PermissionEnum.ApprovalSettingsSave]}
           />
         </Grid>
@@ -146,5 +192,19 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   content: {
     marginTop: theme.spacing(2),
+  },
+  headerLink: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
+  },
+  linkPadding: {
+    paddingRight: theme.spacing(2),
   },
 }));

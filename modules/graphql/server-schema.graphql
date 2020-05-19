@@ -729,11 +729,10 @@ type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   approverGroupHeaderId: ID!
-  rowVersion: String
-  name: String
+  name: String!
   description: String
   externalId: String
-  locationId: Int
+  locationId: ID
   location: Location
   approverGroupMembers: [ApproverGroupMember]!
   memberCount: Int

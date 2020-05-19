@@ -76,7 +76,7 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
   detail: {
-    paddingLeft: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),

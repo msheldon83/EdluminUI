@@ -1,67 +1,44 @@
 import * as React from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import {
-  useQueryParamIso,
-  makeQueryIso,
-  PaginationParams,
-} from "hooks/query-params";
-import { PaginationControls } from "ui/components/pagination-controls";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
+import Maybe from "graphql/tsutils/Maybe";
 import { Grid, Typography } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { Input } from "ui/components/form/input";
 import { useDeferredState } from "hooks";
-import { FilterQueryParams } from "ui/pages/people/people-filters/filter-params";
 import { useEffect } from "react";
 
 type Props = {
   onAdd: (orgUserId: string) => void;
-  suggestedAdmins: any[];
+  admins: Pick<OrgUser, "id" | "firstName" | "lastName">[] | undefined;
   savePermissions: PermissionEnum[];
+  setSearchText: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
 export const AdminPicker: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { onAdd, suggestedAdmins, savePermissions } = props;
+  const { onAdd, admins, savePermissions, setSearchText } = props;
 
-  const peoplePaginationDefaults = makeQueryIso({
-    defaults: {
-      page: "1",
-      limit: "10",
-    },
-    iso: PaginationParams,
-  });
-
-  const [isoFilters, updateIsoFilters] = useQueryParamIso(FilterQueryParams);
-  const [name, pendingName, setPendingName] = useDeferredState(
-    isoFilters.name,
-    200
-  );
-
+  const [
+    searchText,
+    pendingSearchText,
+    setPendingSearchText,
+  ] = useDeferredState<string | undefined>(undefined, 300);
   useEffect(() => {
-    if (name !== isoFilters.name) {
-      setPendingName(isoFilters.name);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isoFilters.name]);
+    setSearchText(searchText);
+  }, [setSearchText, searchText]);
 
-  useEffect(() => {
-    if (name !== isoFilters.name) {
-      updateIsoFilters({ name });
-    }
-  }, [name]); // eslint-disable-line
-
-  const updateNameFilter = React.useCallback(
+  const updateSearchText = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingName(event.target.value);
+      setPendingSearchText(event.target.value);
     },
-    [setPendingName]
+    [setPendingSearchText]
   );
 
   return (
@@ -76,8 +53,8 @@ export const AdminPicker: React.FC<Props> = props => {
         >
           <Grid item xs={6} className={classes.filters}>
             <Input
-              value={pendingName}
-              onChange={updateNameFilter}
+              value={pendingSearchText}
+              onChange={updateSearchText}
               placeholder={t("Search")}
             />
           </Grid>{" "}
@@ -90,12 +67,12 @@ export const AdminPicker: React.FC<Props> = props => {
               pageSizeOptions={[25, 50, 100, 250, 500]}
             />
           </Grid> */}
-          {suggestedAdmins.length === 0 && (
+          {admins?.length === 0 && (
             <Grid item xs={12} className={classes.noResultRow}>
               <Typography>{t("No suggested members")}</Typography>
             </Grid>
           )}
-          {suggestedAdmins.map((user, i) => {
+          {admins?.map((user, i) => {
             const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
             const className = [
               classes.detail,

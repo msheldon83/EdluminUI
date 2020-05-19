@@ -6,7 +6,7 @@ import { PaginationControls } from "ui/components/pagination-controls";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetSubstitutesForPreferences } from "./graphql/get-substitutes.gen";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { compact, remove } from "lodash-es";
+import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { Grid, Typography } from "@material-ui/core";
