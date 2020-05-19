@@ -16,7 +16,7 @@ type ViewMode =
   | {
       type: "multiple-codes";
       selection?: OptionType;
-      accounts: MultipleAllocationItem[];
+      allocations: Allocation[];
     };
 
 const MULTIPLE_ALLOCATIONS_OPTION_TYPE: OptionType = {
@@ -24,7 +24,7 @@ const MULTIPLE_ALLOCATIONS_OPTION_TYPE: OptionType = {
   value: "multiple-allocations",
 };
 
-type MultipleAllocationItem = {
+type Allocation = {
   id: number;
   selection?: OptionType;
   percentage?: number;
@@ -51,7 +51,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         setViewMode({
           type: "multiple-codes",
           selection,
-          accounts: [{ id: Math.random() }],
+          allocations: [{ id: Math.random() }],
         });
         break;
       }
@@ -71,8 +71,8 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     }
 
     setViewMode({
-      type: "multiple-codes",
-      accounts: viewMode.accounts.concat({
+      ...viewMode,
+      allocations: viewMode.allocations.concat({
         id: Math.random(),
       }),
     });
@@ -83,25 +83,38 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
       return;
     }
 
-    const updatedAccounts = viewMode.accounts.filter(
-      account => account.id !== id
+    const updatedAllocations = viewMode.allocations.filter(
+      allocation => allocation.id !== id
     );
 
-    if (updatedAccounts.length === 0) {
+    if (updatedAllocations.length === 0) {
       return resetAllocation();
     }
 
     setViewMode({
       ...viewMode,
-      accounts: updatedAccounts,
+      allocations: updatedAllocations,
     });
+  };
+
+  const updateAllocation = (allocation: Allocation) => {
+    // if (viewMode.type !== "multiple-codes") {
+    //   return;
+    // }
+    // // viewMode.accounts.reduce((updatedAccounts, account) => {})
+    // setViewMode({
+    //   ...viewMode,
+    //   accounts: viewMode.accounts.concat({
+    //     id: Math.random(),
+    //   }),
+    // });
   };
 
   const mainDropdownOptions = ([
     MULTIPLE_ALLOCATIONS_OPTION_TYPE,
   ] as OptionType[]).concat(options);
 
-  const renderMultiCodeRow = (entry: MultipleAllocationItem) => {
+  const renderMultiCodeRow = (entry: Allocation) => {
     return (
       <>
         <Select
@@ -111,6 +124,12 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
           multiple={false}
           readOnly
           withResetValue={false}
+          onChange={selection =>
+            updateAllocation({
+              ...entry,
+              selection,
+            })
+          }
         />
         <Input className={classes.multiCodeInput} placeholder="%" />
         <span className={classes.multiCodeDeleteButton}>
@@ -145,9 +164,11 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         <>
           <div className={classes.multiCodeInputContainer}>
             <ul className={classes.multiCodeList}>
-              {viewMode.accounts.map(entry => {
+              {viewMode.allocations.map(allocation => {
                 return (
-                  <li key={entry.id.toString()}>{renderMultiCodeRow(entry)}</li>
+                  <li key={allocation.id.toString()}>
+                    {renderMultiCodeRow(allocation)}
+                  </li>
                 );
               })}
             </ul>
