@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   ReportDefinitionInput,
   Direction,
+  ExpressionFunction,
 } from "ui/components/reporting/types";
 
 export const EmployeeRosterReport: React.FC<{}> = () => {
@@ -22,6 +23,13 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
         "PositionTypeName",
         "Email",
         "LoginEmail",
+      ],
+      filter: [
+        {
+          fieldName: "Active",
+          expressionFunction: ExpressionFunction.Equal,
+          value: true,
+        },
       ],
       orderBy: [
         {

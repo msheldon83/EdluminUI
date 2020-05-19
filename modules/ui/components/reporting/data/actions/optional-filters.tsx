@@ -13,10 +13,10 @@ import {
   ClickAwayListener,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { FilterList } from "@material-ui/icons";
 import { OptionalFilterRow } from "./optional-filter-row";
 
 type Props = {
+  currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (filterFields: FilterField[]) => void;
   refreshReport: () => Promise<void>;
@@ -25,14 +25,26 @@ type Props = {
 export const OptionalFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { filterableFields, setFilters, refreshReport } = props;
+  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
   const [filtersOpen, setFiltersOpen] = React.useState(false);
-  const [localFilters, setLocalFilters] = React.useState<FilterField[]>([
-    {
-      field: filterableFields[0],
-      expressionFunction: ExpressionFunction.Equal,
-    },
-  ]);
+  const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
+    currentFilters.filter(c =>
+      filterableFields
+        .map(f => f.dataSourceFieldName)
+        .includes(c.field.dataSourceFieldName)
+    ).length === 0
+      ? [
+          {
+            field: filterableFields[0],
+            expressionFunction: ExpressionFunction.Equal,
+          },
+        ]
+      : currentFilters.filter(c =>
+          filterableFields
+            .map(f => f.dataSourceFieldName)
+            .includes(c.field.dataSourceFieldName)
+        )
+  );
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const filtersWithValue = localFilters.filter(f => f.value !== undefined);

@@ -30,6 +30,7 @@ export const ActionBar: React.FC<Props> = props => {
       />
       <div className={classes.optionalFilters}>
         <OptionalFilters
+          currentFilters={currentFilters}
           filterableFields={filterableFields.filter(f => !f.isRequiredFilter)}
           setFilters={(filterFields: FilterField[]) =>
             setFilters(filterFields, true)
