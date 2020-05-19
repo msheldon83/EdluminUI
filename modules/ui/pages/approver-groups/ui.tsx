@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import * as React from "react";
-import { useQueryBundle, usePagedQueryBundle } from "graphql/hooks";
+import { usePagedQueryBundle } from "graphql/hooks";
 import { Table } from "ui/components/table";
 import { makeStyles, Tooltip } from "@material-ui/core";
 import { Column } from "material-table";

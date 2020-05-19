@@ -28,9 +28,7 @@ import { GetAccountingCodesDocument } from "reference-data/get-accounting-codes.
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { Can } from "ui/components/auth/can";
 
-type Props = {};
-
-export const AccountingCode: React.FC<Props> = props => {
+export const AccountingCode: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();

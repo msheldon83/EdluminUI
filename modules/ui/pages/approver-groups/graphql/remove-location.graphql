@@ -1,0 +1,5 @@
+mutation RemoveApproverGroupByLocation($approverGroupId: ID!) {
+  approverGroup {
+    delete(approverGroupId: $approverGroupId)
+  }
+}
