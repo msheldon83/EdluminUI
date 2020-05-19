@@ -39,7 +39,11 @@ export const EndorsementSelect: React.FC<Props> = props => {
 
   const onChangeEndorsements = useCallback(
     value => {
-      const ids: string[] = value ? value.map((v: OptionType) => v.value) : [];
+      const ids: string[] = value
+        ? Array.isArray(value)
+          ? value.map((v: OptionType) => v.value)
+          : [value.value]
+        : [];
       if (ids.includes("0")) {
         setSelectedEndorsementIds(undefined);
       } else {
@@ -52,7 +56,11 @@ export const EndorsementSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={selectedEndorsements}
+      value={
+        multiple
+          ? selectedEndorsements
+          : selectedEndorsements[0] ?? { value: "", label: "" }
+      }
       multiple={multiple}
       options={endorsementOptions}
       withResetValue={false}
