@@ -58,25 +58,26 @@ export const Filter: React.FC<Props> = props => {
           />
         );
       }
-      case FilterType.PredefinedSelection:
+      case FilterType.PredefinedSelection: {
+        const options =
+          filterField.field.displayValueMap?.map(v => {
+            return { value: v.value, label: v.display };
+          }) ?? [];
+        const value = options.filter(o =>
+          (filterField.value ?? []).includes(o.value)
+        );
         return (
           <SelectNew
             label={showLabel ? filterField.field.friendlyName : undefined}
             value={
               filterField.expressionFunction === ExpressionFunction.ContainedIn
-                ? filterField.value ?? []
-                : filterField.value && filterField.value[0]
-                ? filterField.value[0]
-                : { value: "", label: "" }
+                ? value
+                : value[0]
             }
             multiple={
               filterField.expressionFunction === ExpressionFunction.ContainedIn
             }
-            options={
-              filterField.field.displayValueMap?.map(v => {
-                return { value: v.value, label: v.display };
-              }) ?? []
-            }
+            options={options}
             withResetValue={false}
             onChange={value => {
               const filterValues = value
@@ -84,7 +85,6 @@ export const Filter: React.FC<Props> = props => {
                   ? value.map((v: OptionType) => v.value)
                   : [value.value]
                 : [];
-              console.log(filterValues);
               updateFilter({
                 field: filterField.field,
                 expressionFunction:
@@ -94,6 +94,7 @@ export const Filter: React.FC<Props> = props => {
             }}
           />
         );
+      }
       case FilterType.Custom:
         switch (filterField.field.filterTypeDefinition?.key) {
           case "Location":
