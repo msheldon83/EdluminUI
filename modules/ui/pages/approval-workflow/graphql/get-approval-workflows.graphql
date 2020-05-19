@@ -1,0 +1,9 @@
+query GetApprovalWorkflows($orgId: ID, $workFlowType: ApprovalWorkflowType) {
+  approvalWorkflow {
+    all(orgId: $orgId, workFlowType: $workFlowType) {
+      id
+      name
+      rowVersion
+    }
+  }
+}

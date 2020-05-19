@@ -38,6 +38,32 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   positionTypes: [PositionType]
 }
 
+type AbsenceApprovalTransitionArgumentsTypeDef {
+  makeAvailableToFill: Boolean!
+}
+
+type AbsenceApprovalTransitionCriteriaTypeDef {
+  absenceReasonIds: [ID]
+}
+
+type AbsenceApprovalWorkflowUsageTypeDef implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approvalWorkflowId: ID!
+  approvalWorkflow: ApprovalWorkflow
+  employeeId: ID
+  positionType: ID
+}
+
 input AbsenceCreateInput {
   orgId: ID!
   employeeId: ID!
@@ -664,6 +690,10 @@ enum ApprovalStatus {
   NO_APPROVAL_REQUIRED
 }
 
+union ApprovalTransitionArgumentsTypeDef = AbsenceApprovalTransitionArgumentsTypeDef | VacancyApprovalTransitionArgumentsTypeDef
+
+union ApprovalTransitionCriteriaTypeDef = AbsenceApprovalTransitionCriteriaTypeDef | VacancyApprovalTransitionCriteriaTypeDef
+
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -681,6 +711,8 @@ type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & Dom
   name: String!
   description: String
   approvalWorkFlowTypeId: ApprovalWorkflowType!
+  steps: [ApprovalWorkflowStep]
+  approvalWorkflows: [ApprovalWorkflowUsage]
 }
 
 input ApprovalWorkflowCreateInput {
@@ -688,6 +720,8 @@ input ApprovalWorkflowCreateInput {
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
+  steps: [ApprovalWorkflowStepInput]
+  usages: String
 }
 
 type ApprovalWorkflowMutations {
@@ -698,8 +732,33 @@ type ApprovalWorkflowMutations {
 
 type ApprovalWorkflowQueries {
   byId(id: ID!): ApprovalWorkflow
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApprovalWorkflow]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApprovalWorkflow
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): [ApprovalWorkflow]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): PagedApprovalWorkflow
+}
+
+type ApprovalWorkflowStep {
+  stepId: String
+  deleted: Boolean!
+  approverGroupHeaderId: ID
+  onApproval: [ApprovalWorkflowTransition]
+}
+
+input ApprovalWorkflowStepInput {
+  stepId: String
+  approverGroupHeaderId: ID
+  onApproval: [ApprovalWorkflowTransitionInput]
+}
+
+type ApprovalWorkflowTransition {
+  goto: String
+  criteria: ApprovalTransitionCriteriaTypeDef
+  args: ApprovalTransitionArgumentsTypeDef
+}
+
+input ApprovalWorkflowTransitionInput {
+  goto: String
+  criteria: String
+  args: String
 }
 
 enum ApprovalWorkflowType {
@@ -714,7 +773,11 @@ input ApprovalWorkflowUpdateInput {
   name: String
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType
+  steps: [ApprovalWorkflowStepInput]
+  usages: String
 }
+
+union ApprovalWorkflowUsage = AbsenceApprovalWorkflowUsageTypeDef | VacancyApprovalWorkflowUsageTypeDef
 
 type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
@@ -736,6 +799,7 @@ type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   location: Location
   approverGroupMembers: [ApproverGroupMember]!
   memberCount: Int
+  approvalWorkflows: [ApprovalWorkflow]
 }
 
 input ApproverGroupAddMemberInput {
@@ -770,6 +834,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   approverGroups: [ApproverGroup]!
   memberCount: Int
   allLocationsHaveGroup: Boolean
+  usageCount: Int
 }
 
 input ApproverGroupHeaderCreateInput {
@@ -5834,6 +5899,31 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
+}
+
+type VacancyApprovalTransitionArgumentsTypeDef {
+  makeAvailableToFill: Boolean!
+}
+
+type VacancyApprovalTransitionCriteriaTypeDef {
+  vacancyReasonIds: [ID]
+}
+
+type VacancyApprovalWorkflowUsageTypeDef implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approvalWorkflowId: ID!
+  approvalWorkflow: ApprovalWorkflow
+  positionType: ID
 }
 
 enum VacancyAvailability {
