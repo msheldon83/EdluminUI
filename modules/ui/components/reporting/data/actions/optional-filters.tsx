@@ -1,5 +1,10 @@
 import * as React from "react";
-import { DataSourceField, FilterField, ExpressionFunction } from "../../types";
+import {
+  DataSourceField,
+  FilterField,
+  ExpressionFunction,
+  FilterType,
+} from "../../types";
 import {
   Button,
   Popper,
@@ -60,6 +65,10 @@ export const OptionalFilters: React.FC<Props> = props => {
         {
           field: filterableFields[0],
           expressionFunction: ExpressionFunction.Equal,
+          value:
+            filterableFields[0].filterType === FilterType.Boolean
+              ? false
+              : undefined,
         },
       ];
     });
@@ -79,7 +88,23 @@ export const OptionalFilters: React.FC<Props> = props => {
       <Button
         color="inherit"
         startIcon={<img src={require("ui/icons/reports-filter.svg")} />}
-        onClick={() => setFiltersOpen(!filtersOpen)}
+        onClick={() => {
+          if (
+            !filtersOpen &&
+            filtersWithValue.length === 0 &&
+            localFilters.length === 1 &&
+            localFilters[0].field.filterType === FilterType.Boolean
+          ) {
+            /* The first time you open the optional filters popover, we've already
+             *  added an initial filter for the User. For things like dropdowns we
+             *  don't acknowledge a filter being set until you select something. For
+             *  a boolean (checkbox), the intial unchecked state is implicitly a
+             *  selection so we are handling that scenario here.
+             */
+            updateFilter({ ...localFilters[0], value: false }, 0);
+          }
+          setFiltersOpen(!filtersOpen);
+        }}
         className={classes.actionButton}
         ref={buttonRef}
       >
