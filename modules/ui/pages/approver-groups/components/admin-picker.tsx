@@ -57,7 +57,7 @@ export const AdminPicker: React.FC<Props> = props => {
               onChange={updateSearchText}
               placeholder={t("Search")}
             />
-          </Grid>{" "}
+          </Grid>
           <Grid item xs={12}>
             <SectionHeader title={t("Suggested members")} />
           </Grid>

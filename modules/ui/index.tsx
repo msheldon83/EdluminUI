@@ -1184,6 +1184,7 @@ export const App = hot(function() {
                                       path={
                                         ApproverGroupAddRemoveMembersRoute.path
                                       }
+                                      devFeatureOnly={true}
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsSave,
@@ -1195,22 +1196,25 @@ export const App = hot(function() {
                                       }
                                       path={ApproverGroupAddLocationsRoute.path}
                                       role={"admin"}
+                                      devFeatureOnly={true}
                                       permissions={[
-                                        PermissionEnum.ApprovalSettingsSave,
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
                                       component={ApproverGroupAddLoader}
                                       path={ApproverGroupAddRoute.path}
+                                      devFeatureOnly={true}
                                       role={"admin"}
                                       permissions={[
-                                        PermissionEnum.ApprovalSettingsSave,
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
                                       component={ApproverGroupsLoader}
                                       path={ApproverGroupsRoute.path}
                                       role={"admin"}
+                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
                                       ]}

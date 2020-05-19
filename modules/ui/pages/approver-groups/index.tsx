@@ -22,9 +22,6 @@ export const ApproverGroups: React.FC<{}> = props => {
   const params = useRouteParams(ApproverGroupsRoute);
   const userAccess = useMyUserAccess();
 
-  //Remove Once ready for production
-  if (!userAccess?.isSysAdmin) history.push("/");
-
   return (
     <>
       <Grid
