@@ -24,7 +24,7 @@ type Props = {
   removeFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
   addToFavoritePermission: PermissionEnum[];
-  isLocationOnly: boolean;
+  useAutoAssign: boolean;
 } & (
   | { heading: string; subHeading?: string }
   | { headerComponent: JSX.Element }
@@ -77,7 +77,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
               removePermission={props.removeBlockedPermission}
             ></SubPoolCard>
           </Grid>
-          {props.isLocationOnly && props.onRemoveAutoAssignedEmployee && (
+          {props.useAutoAssign && props.onRemoveAutoAssignedEmployee && (
             <Grid item xs={12}>
               <SubPoolCard
                 title={props.autoAssignHeading ?? ""} // Auto Assign List?
@@ -91,7 +91,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={6}>
           <SubstitutePicker
-            isLocationOnly={props.isLocationOnly}
+            useAutoAssign={props.useAutoAssign}
             orgId={props.orgId}
             title={props.searchHeading}
             onAdd={props.onAddFavoriteEmployee}

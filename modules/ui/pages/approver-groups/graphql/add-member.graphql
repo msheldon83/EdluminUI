@@ -1,0 +1,7 @@
+mutation AddMember($member: ApproverGroupAddMemberInput!) {
+  approverGroup {
+    addApproverGroupMember(member: $member) {
+      id
+    }
+  }
+}

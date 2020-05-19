@@ -158,7 +158,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
           location.substitutePreferences.autoAssignedSubstitutes
         }
         headerComponent={headerComponent}
-        isLocationOnly={true}
+        useAutoAssign={true}
         orgId={params.organizationId}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}

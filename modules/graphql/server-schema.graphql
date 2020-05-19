@@ -25,6 +25,9 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   numDays: Int
   totalDuration: Int!
   totalDayPortion: Decimal!
+  approvalStateId: ID
+  approvalState: ApprovalState
+  approvalStatus: ApprovalStatus
   details: [AbsenceDetail]
   closedDetails: [AbsenceDetail]
   employee: Employee
@@ -174,6 +177,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   prioritySequence: Int
   requireNotesToAdmin: Boolean
   code: String
+  requiresApproval: Boolean
 }
 
 type AbsenceReasonBalance implements ModelObjectInterface {
@@ -290,6 +294,7 @@ input AbsenceReasonCreateInput {
   prioritySequence: Int
   requireNotesToAdmin: Boolean
   code: String
+  requiresApproval: Boolean
 }
 
 enum AbsenceReasonTrackingTypeId {
@@ -314,6 +319,7 @@ input AbsenceReasonUpdateInput {
   prioritySequence: Int
   requireNotesToAdmin: Boolean
   code: String
+  requiresApproval: Boolean
 }
 
 type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -427,6 +433,9 @@ type AccountingCode implements ModelObjectInterface & OrgObjectInterface & Domai
   expired: Boolean!
   locationId: ID
   location: Location
+  allLocations: Boolean
+  locationIds: [ID!]!
+  locations: [Location!]!
 }
 
 input AccountingCodeCreateInput {
@@ -435,6 +444,8 @@ input AccountingCodeCreateInput {
   description: String
   externalId: String
   locationId: ID
+  locationIds: [ID]
+  allLocations: Boolean
 }
 
 input AccountingCodeUpdateInput {
@@ -445,6 +456,8 @@ input AccountingCodeUpdateInput {
   externalId: String
   expired: Boolean
   locationId: ID
+  locationIds: [ID]
+  allLocations: Boolean
 }
 
 type ActivityLog {
@@ -623,6 +636,195 @@ input ApplicationGrantUpdateInput {
   orgId: Int!
   applicationId: Int!
   active: Boolean!
+}
+
+type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approvalWorkflowId: ID!
+  currentStepId: String!
+  approvalStatusId: ApprovalStatus!
+  approvalWorkflowTypeId: ApprovalWorkflowType!
+}
+
+enum ApprovalStatus {
+  INVALID
+  PENDING
+  APPROVED
+  DENIED
+  NO_APPROVAL_REQUIRED
+}
+
+type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  name: String!
+  description: String
+  approvalWorkFlowTypeId: ApprovalWorkflowType!
+}
+
+input ApprovalWorkflowCreateInput {
+  orgId: ID!
+  name: String!
+  description: String
+  approvalWorkflowTypeId: ApprovalWorkflowType!
+}
+
+type ApprovalWorkflowMutations {
+  create(approvalWorkflow: ApprovalWorkflowCreateInput!): ApprovalWorkflow
+  update(approvalWorkflow: ApprovalWorkflowUpdateInput!): ApprovalWorkflow
+  delete(approvalWorkflowId: Int!): Boolean
+}
+
+type ApprovalWorkflowQueries {
+  byId(id: ID!): ApprovalWorkflow
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApprovalWorkflow]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApprovalWorkflow
+}
+
+enum ApprovalWorkflowType {
+  INVALID
+  ABSENCE
+  VACANCY
+}
+
+input ApprovalWorkflowUpdateInput {
+  approvalWorkflowId: ID!
+  rowVersion: String!
+  name: String
+  description: String
+  approvalWorkflowTypeId: ApprovalWorkflowType
+}
+
+type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approverGroupHeaderId: ID!
+  name: String!
+  description: String
+  externalId: String
+  locationId: ID
+  location: Location
+  approverGroupMembers: [ApproverGroupMember]!
+  memberCount: Int
+}
+
+input ApproverGroupAddMemberInput {
+  approverGroupId: ID!
+  orgUserId: ID!
+  orgId: ID!
+}
+
+input ApproverGroupCreateInput {
+  orgId: ID!
+  approverGroupHeaderId: ID!
+  locationId: ID!
+}
+
+type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  name: String!
+  description: String
+  variesByLocation: Boolean!
+  approverGroups: [ApproverGroup]!
+  memberCount: Int
+  allLocationsHaveGroup: Boolean
+}
+
+input ApproverGroupHeaderCreateInput {
+  orgId: ID!
+  name: String
+  description: String
+  variesByLocation: Boolean
+  externalId: String
+}
+
+input ApproverGroupHeaderUpdateInput {
+  rowVersion: Int!
+  name: String
+  description: String
+  externalId: String
+}
+
+type ApproverGroupMember implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approverGroupId: ID!
+  orgUserId: ID!
+  orgUser: OrgUser!
+}
+
+type ApproverGroupMutations {
+  create(approverGroupHeader: ApproverGroupHeaderCreateInput!): ApproverGroupHeader
+  createApproverGroupForLocation(approverGroup: ApproverGroupCreateInput!): ApproverGroup
+  update(approverGroupHeader: ApproverGroupHeaderUpdateInput!): ApproverGroupHeader
+  delete(approverGroupId: ID!): Boolean
+  deleteApproverGroupHeader(approverGroupHeaderId: ID!): Boolean
+  addApproverGroupMember(member: ApproverGroupAddMemberInput!): ApproverGroupMember
+  removeApproverGroupMember(member: ApproverGroupRemoveMemberInput!): ApproverGroupMember
+}
+
+type ApproverGroupQueries {
+  byId(id: ID!): ApproverGroupHeader
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApproverGroupHeader]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApproverGroupHeader
+  groupById(approverGroupId: ID!): ApproverGroup
+  groupsByLocationId(locationId: ID!): [ApproverGroup]
+}
+
+input ApproverGroupRemoveMemberInput {
+  approverGroupId: ID!
+  orgUserId: ID!
 }
 
 type Assignment implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1445,6 +1647,7 @@ enum DataImportType {
   ABSENCE_REASON_BALANCE
   ABSENCE_REASON_CATEGORY
   WORK_DAY_SCHEDULE
+  VACANCY_REASON
 }
 
 input DataImportUpdateInput {
@@ -2104,6 +2307,16 @@ enum EventType {
   ABSENCE_REASON_CATEGORY_CREATED
   ABSENCE_REASON_CATEGORY_UPDATED
   ABSENCE_REASON_CATEGORY_DELETED
+  APPROVER_GROUP_HEADER_CREATED
+  APPROVER_GROUP_HEADER_UPDATED
+  APPROVER_GROUP_DELETED
+  APPROVER_GROUP_HEADER_DELETED
+  APPROVER_GROUP_MEMBER_ADDED
+  APPROVER_GROUP_MEMBER_REMOVED
+  APPROVER_GROUP_CREATED
+  APPROVAL_WORKFLOW_CREATED
+  APPROVAL_WORKFLOW_UPDATED
+  APPROVAL_WORKFLOW_DELETED
 }
 
 enum FeatureFlag {
@@ -2431,6 +2644,8 @@ type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
   applicationGrant: ApplicationGrantMutations
+  approvalWorkflow: ApprovalWorkflowMutations
+  approverGroup: ApproverGroupMutations
   assignment: AssignmentMutations
   branding: BrandingMutations
   calendarChange: CalendarChangeMutations
@@ -2523,6 +2738,7 @@ enum NotificationReason {
   EMP_ABSENCE_CREATED_BY_SELF
   EMP_ABSENCE_DELETED_BY_OTHER
   EMP_ABSENCE_DELETED_BY_SELF
+  SUB_AVAILABLE_ASSIGNMENT
   SUB_ASSIGNED_BY_OTHER
   SUB_ASSIGNED_BY_SELF
   SUB_REMOVED_BY_OTHER
@@ -2585,6 +2801,9 @@ enum ObjectType {
   DATA_IMPORT
   VACANCY_REASON
   ABSENCE_REASON_CATEGORY
+  APPROVER_GROUP
+  APPROVAL_WORKFLOW
+  APPROVAL_STATE
   APPLICATION
 }
 
@@ -3015,6 +3234,7 @@ type OrgUserQueries {
   pagedSubsForPreferences(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
   verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
+  suggestedAdminsForApproverGroups(locationId: ID, orgId: ID!): [OrgUser]
 }
 
 type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -3108,6 +3328,24 @@ type PagedAbsenceReasonCategory {
 type PagedAccountingCode {
   _info: [ReturnMessage]
   results: [AccountingCode]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedApprovalWorkflow {
+  _info: [ReturnMessage]
+  results: [ApprovalWorkflow]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedApproverGroupHeader {
+  _info: [ReturnMessage]
+  results: [ApproverGroupHeader]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -3586,6 +3824,7 @@ enum PermissionEnum {
   ABS_VAC_VIEW_PAY_CODE
   ABS_VAC_VIEW_NOTIFICATION_LOG
   ABS_VAC_VIEW_CLOSED_DAYS
+  ABS_VAC_APPROVALS_VIEW
   ABS_VAC_SAVE
   ABS_VAC_DELETE
   ABS_VAC_REMOVE_SUB
@@ -3596,6 +3835,8 @@ enum PermissionEnum {
   ABS_VAC_EDIT_ASSIGNED
   ABS_VAC_EDIT_VERIFIED
   ABS_VAC_EDIT_PAST_SAME_DAY
+  ABS_VAC_EDIT_PARTIALLY_APPROVED
+  ABS_VAC_EDIT_APPROVED
   ABS_VAC_REQUEST_REPLACEMENT
   ABS_VAC_ASSIGN
   ABS_VAC_ASSIGN_NO_SUB_NEEDED
@@ -3603,6 +3844,8 @@ enum PermissionEnum {
   ABS_VAC_ASSIGN_MINOR_CONFLICT
   ABS_VAC_ASSIGN_EXCLUDED
   ABS_VAC_VERIFY
+  ABS_VAC_APPROVALS_SKIP
+  ABS_VAC_APPROVALS_RESET
   LOCATION_VIEW
   LOCATION_GROUP_VIEW
   LOCATION_SAVE
@@ -3649,6 +3892,8 @@ enum PermissionEnum {
   FINANCE_SETTINGS_SAVE
   FINANCE_SETTINGS_DELETE
   ASSIGN_RESTRICTED_ABSENCE_REASON
+  APPROVAL_SETTINGS_VIEW
+  APPROVAL_SETTINGS_SAVE
   PERMISSION_SET_VIEW
   PERMISSION_SET_SAVE
   PERMISSION_SET_DELETE
@@ -4243,6 +4488,8 @@ type Query {
   absence: AbsenceQueries
   absenceReasonBalance: AbsenceReasonBalanceQueries
   applicationGrant: ApplicationGrantQueries
+  approvalWorkflow: ApprovalWorkflowQueries
+  approverGroup: ApproverGroupQueries
   assignment: AssignmentQueries
   branding: BrandingQueries
   calendarChange: CalendarChangeQueries
@@ -5583,6 +5830,9 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   interestedEmployees: [VacancyEmployeeInterest]
   position: Position
   absence: Absence
+  approvalStateId: ID
+  approvalState: ApprovalState
+  approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
 }
 
@@ -5869,6 +6119,7 @@ type VacancyReason implements ModelObjectInterface & OrgObjectInterface & Domain
   validUntil: Date
   expired: Boolean!
   code: String
+  requiresApproval: Boolean
 }
 
 input VacancyReasonCreateInput {
@@ -5877,6 +6128,7 @@ input VacancyReasonCreateInput {
   description: String
   externalId: String
   code: String
+  requiresApproval: Boolean
 }
 
 input VacancyReasonUpdateInput {
@@ -5886,6 +6138,7 @@ input VacancyReasonUpdateInput {
   description: String
   externalId: String
   code: String
+  requiresApproval: Boolean
 }
 
 enum VacancyRejectionReason {

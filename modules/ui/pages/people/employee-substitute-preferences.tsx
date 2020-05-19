@@ -117,7 +117,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         blockedEmployees={employee.substitutePreferences?.blockedSubstitutes}
         headerComponent={headerComponent}
         orgId={params.organizationId}
-        isLocationOnly={false}
+        useAutoAssign={false}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}

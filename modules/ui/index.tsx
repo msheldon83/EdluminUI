@@ -185,6 +185,16 @@ import {
   LocationGroupAddRoute,
 } from "./routes/location-groups";
 import {
+  ApproverGroupsRoute,
+  ApproverGroupsLoader,
+  ApproverGroupAddRoute,
+  ApproverGroupAddLoader,
+  ApproverGroupAddLocationsRoute,
+  ApproverGroupAddLocationsLoader,
+  ApproverGroupAddRemoveMembersRoute,
+  ApproverGroupAddRemoveMembersLoader,
+} from "./routes/approver-groups";
+import {
   LocationsLoader,
   LocationAddLoader,
   LocationAddRoute,
@@ -531,31 +541,6 @@ export const App = hot(function() {
                                 path={AdminProfileRoute.path}
                               />
                               <ProtectedRoute
-                                component={VacancyCreateLoader}
-                                path={VacancyCreateRoute.path}
-                                role={"admin"}
-                                permissions={[PermissionEnum.AbsVacSave]}
-                              />
-                              <ProtectedRoute
-                                component={VacancyActivityLogLoader}
-                                path={VacancyActivityLogRoute.path}
-                                role={"sysAdmin"}
-                              />
-                              <ProtectedRoute
-                                component={VacancyNotificationLogLoader}
-                                path={VacancyNotificationLogRoute.path}
-                                role={"admin"}
-                                permissions={[
-                                  PermissionEnum.AbsVacViewNotificationLog,
-                                ]}
-                              />
-                              <ProtectedRoute
-                                component={VacancyViewLoader}
-                                path={VacancyViewRoute.path}
-                                role={"admin"}
-                                permissions={[PermissionEnum.AbsVacView]}
-                              />
-                              <ProtectedRoute
                                 component={OrganizationAddLoader}
                                 path={OrganizationAddRoute.path}
                                 role={"sysAdmin"}
@@ -635,6 +620,31 @@ export const App = hot(function() {
                                       path={AdminCreateAbsenceRoute.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacSave]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyCreateLoader}
+                                      path={VacancyCreateRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacSave]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyActivityLogLoader}
+                                      path={VacancyActivityLogRoute.path}
+                                      role={"sysAdmin"}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyNotificationLogLoader}
+                                      path={VacancyNotificationLogRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacViewNotificationLog,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyViewLoader}
+                                      path={VacancyViewRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       path={
@@ -1165,6 +1175,48 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.LocationGroupView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        ApproverGroupAddRemoveMembersLoader
+                                      }
+                                      path={
+                                        ApproverGroupAddRemoveMembersRoute.path
+                                      }
+                                      devFeatureOnly={true}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        ApproverGroupAddLocationsLoader
+                                      }
+                                      path={ApproverGroupAddLocationsRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApproverGroupAddLoader}
+                                      path={ApproverGroupAddRoute.path}
+                                      devFeatureOnly={true}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApproverGroupsLoader}
+                                      path={ApproverGroupsRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
