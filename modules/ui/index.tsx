@@ -45,8 +45,10 @@ import {
   VacancyApprovalWorkflowLoader,
   ApprovalWorkflowEditRoute,
   ApprovalWorkflowEditLoader,
-  ApprovalWorkflowAddRoute,
-  ApprovalWorkflowAddLoader,
+  AbsenceApprovalWorkflowAddRoute,
+  AbsenceApprovalWorkflowAddLoader,
+  VacancyApprovalWorkflowAddRoute,
+  VacancyApprovalWorkflowAddLoader,
 } from "./routes/approval-workflow";
 import {
   AdminRootChromeRoute,
@@ -583,8 +585,25 @@ export const App = hot(function() {
                                       path={UnauthorizedAdminRoleRoute.path}
                                     />
                                     <ProtectedRoute
-                                      component={ApprovalWorkflowAddLoader}
-                                      path={ApprovalWorkflowAddRoute.path}
+                                      component={
+                                        AbsenceApprovalWorkflowAddLoader
+                                      }
+                                      path={
+                                        AbsenceApprovalWorkflowAddRoute.path
+                                      }
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        VacancyApprovalWorkflowAddLoader
+                                      }
+                                      path={
+                                        VacancyApprovalWorkflowAddRoute.path
+                                      }
                                       role={"admin"}
                                       devFeatureOnly={true}
                                       permissions={[

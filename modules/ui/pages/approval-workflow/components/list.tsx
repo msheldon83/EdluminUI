@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ApprovalWorkflowType } from "graphql/server-types.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { GetApprovalWorkflows } from "./graphql/get-approval-workflows.gen";
+import { GetApprovalWorkflows } from "../graphql/get-approval-workflows.gen";
 
 type Props = {
   type: ApprovalWorkflowType;

@@ -52,17 +52,32 @@ export const ApprovalWorkflowEditLoader = asyncComponent({
 });
 
 // Add
-export const ApprovalWorkflowAddRoute = defineSubRoute(
+export const AbsenceApprovalWorkflowAddRoute = defineSubRoute(
   AdminChromeRoute,
-  "/approval-workflow-add"
+  "/approval-workflow-add-abs"
 );
 
-export const ApprovalWorkflowAddLoader = asyncComponent({
+export const AbsenceApprovalWorkflowAddLoader = asyncComponent({
   resolve: async () => {
-    const ApprovalWorkflowAddPage = (
-      await import("ui/pages/approval-workflow/add")
-    ).ApprovalWorkflowAdd;
-    return ApprovalWorkflowAddPage;
+    const AbsenceApprovalWorkflowAddPage = (
+      await import("ui/pages/approval-workflow/add-absence-workflow")
+    ).AbsenceApprovalWorkflowAdd;
+    return AbsenceApprovalWorkflowAddPage;
   },
-  name: "ApprovalWorkflowAddPage",
+  name: "AbsenceApprovalWorkflowAddPage",
+});
+
+export const VacancyApprovalWorkflowAddRoute = defineSubRoute(
+  AdminChromeRoute,
+  "/approval-workflow-add-vac"
+);
+
+export const VacancyApprovalWorkflowAddLoader = asyncComponent({
+  resolve: async () => {
+    const VacancyApprovalWorkflowAddPage = (
+      await import("ui/pages/approval-workflow/add-vacancy-workflow")
+    ).VacancyApprovalWorkflowAdd;
+    return VacancyApprovalWorkflowAddPage;
+  },
+  name: "VacancyApprovalWorkflowAddPage",
 });
