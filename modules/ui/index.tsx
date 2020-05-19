@@ -541,31 +541,6 @@ export const App = hot(function() {
                                 path={AdminProfileRoute.path}
                               />
                               <ProtectedRoute
-                                component={VacancyCreateLoader}
-                                path={VacancyCreateRoute.path}
-                                role={"admin"}
-                                permissions={[PermissionEnum.AbsVacSave]}
-                              />
-                              <ProtectedRoute
-                                component={VacancyActivityLogLoader}
-                                path={VacancyActivityLogRoute.path}
-                                role={"sysAdmin"}
-                              />
-                              <ProtectedRoute
-                                component={VacancyNotificationLogLoader}
-                                path={VacancyNotificationLogRoute.path}
-                                role={"admin"}
-                                permissions={[
-                                  PermissionEnum.AbsVacViewNotificationLog,
-                                ]}
-                              />
-                              <ProtectedRoute
-                                component={VacancyViewLoader}
-                                path={VacancyViewRoute.path}
-                                role={"admin"}
-                                permissions={[PermissionEnum.AbsVacView]}
-                              />
-                              <ProtectedRoute
                                 component={OrganizationAddLoader}
                                 path={OrganizationAddRoute.path}
                                 role={"sysAdmin"}
@@ -645,6 +620,31 @@ export const App = hot(function() {
                                       path={AdminCreateAbsenceRoute.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacSave]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyCreateLoader}
+                                      path={VacancyCreateRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacSave]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyActivityLogLoader}
+                                      path={VacancyActivityLogRoute.path}
+                                      role={"sysAdmin"}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyNotificationLogLoader}
+                                      path={VacancyNotificationLogRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacViewNotificationLog,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyViewLoader}
+                                      path={VacancyViewRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       path={
