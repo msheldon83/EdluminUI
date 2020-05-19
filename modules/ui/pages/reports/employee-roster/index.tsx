@@ -15,6 +15,7 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
       select: [
         "Concat(LastName,', ',FirstName) AS Employee",
         "ExternalId",
+        "Active",
         "InvitationStatus",
         "LocationNames",
         "Title",
