@@ -13,7 +13,7 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
     return {
       from: "Employee",
       select: [
-        "Concat(FirstName,' ',LastName) AS Employee",
+        "Concat(LastName,', ',FirstName) AS Employee",
         "ExternalId",
         "InvitationStatus",
         "LocationNames",
@@ -24,7 +24,7 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
       ],
       orderBy: [
         {
-          expression: "Concat(FirstName,' ',LastName)",
+          expression: "Concat(LastName,', ',FirstName)",
           direction: Direction.Asc,
         },
       ],
