@@ -1,0 +1,9 @@
+query GetSuggestedAdmins($orgId: ID!) {
+  orgUser {
+    suggestedAdminsForApproverGroups(orgId: $orgId) {
+      id
+      firstName
+      lastName
+    }
+  }
+}

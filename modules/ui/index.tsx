@@ -185,6 +185,16 @@ import {
   LocationGroupAddRoute,
 } from "./routes/location-groups";
 import {
+  ApproverGroupsRoute,
+  ApproverGroupsLoader,
+  ApproverGroupAddRoute,
+  ApproverGroupAddLoader,
+  ApproverGroupAddLocationsRoute,
+  ApproverGroupAddLocationsLoader,
+  ApproverGroupAddRemoveMembersRoute,
+  ApproverGroupAddRemoveMembersLoader,
+} from "./routes/approver-groups";
+import {
   LocationsLoader,
   LocationAddLoader,
   LocationAddRoute,
@@ -1165,6 +1175,48 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.LocationGroupView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        ApproverGroupAddRemoveMembersLoader
+                                      }
+                                      path={
+                                        ApproverGroupAddRemoveMembersRoute.path
+                                      }
+                                      devFeatureOnly={true}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        ApproverGroupAddLocationsLoader
+                                      }
+                                      path={ApproverGroupAddLocationsRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApproverGroupAddLoader}
+                                      path={ApproverGroupAddRoute.path}
+                                      devFeatureOnly={true}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApproverGroupsLoader}
+                                      path={ApproverGroupsRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
