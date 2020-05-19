@@ -1,0 +1,20 @@
+query GetApproverGroupById($approverGroupId: ID!) {
+  approverGroup {
+    groupById(approverGroupId: $approverGroupId) {
+      id
+      name
+      location {
+        id
+        name
+      }
+      approverGroupMembers {
+        id
+        orgUser {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
+  }
+}
