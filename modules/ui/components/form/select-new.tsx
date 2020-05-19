@@ -92,7 +92,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
   // Reference to all the multiple values display
   const selectedChipsRef = React.useRef(null);
-  const inputRef: any = React.useRef(null);
+  const inputRef = React.useRef(null);
+  const containerRef = React.useRef(null);
+  const listboxRef = React.useRef(null);
 
   // Operate on the options entry
   const getOptionLabel = (option: OptionType): string => {
@@ -164,6 +166,28 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     open: listOpen,
   });
 
+  /*
+    This section tracks the width of the listbox as compared to the container.
+    If it is wider, it will have a layout overflow wider than the container
+    which requires that the top right border radius get set to not let there be a sharp
+    edge there when there aren't any sharp edges anywhere else
+  */
+  const [listboxHasYOverflow, setListBoxHasYOverflow] = React.useState(false);
+  const listBoxClasses = clsx({
+    [classes.listbox]: true,
+    [classes.listboxYOverflow]: listboxHasYOverflow,
+    [classes.fixedListBox]: fixedListBox,
+  });
+  React.useLayoutEffect(() => {
+    const container = containerRef.current as HTMLInputElement | null;
+    const listbox = listboxRef.current as HTMLElement | null;
+
+    const containerWidth = container?.getBoundingClientRect().width ?? 0;
+    const listBoxWidth = listbox?.getBoundingClientRect().width ?? 0;
+
+    setListBoxHasYOverflow(listBoxWidth > containerWidth);
+  }, [setListBoxHasYOverflow, containerRef, listboxRef, listOpen]);
+
   const inputClasses = `${clsx({
     [classes.attachedInput]: listOpen,
   })} ${inputClassName}`;
@@ -204,6 +228,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     <div
       className={`${className} ${containerClasses}`}
       {...(disabled ? {} : getRootProps())}
+      ref={containerRef}
     >
       <div className={classes.inputContainer}>
         <div className={classes.dropdownContainer}>
@@ -241,15 +266,15 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
           {listOpen && !disabled ? (
             <ul
-              className={
-                fixedListBox
-                  ? [classes.listbox, classes.fixedListBox].join(" ")
-                  : classes.listbox
-              }
+              className={listBoxClasses}
               {...getListboxProps()}
               style={{
-                width: inputRef.current?.parentElement.offsetWidth ?? 0,
+                width:
+                  (inputRef.current as HTMLInputElement | null)?.parentElement
+                    ?.offsetWidth ?? 0,
               }}
+              {...getListboxProps()}
+              ref={listboxRef}
             >
               {groupedOptions.map((option: OptionType, index: number) => {
                 const itemClasses = clsx({
@@ -363,7 +388,10 @@ const useStyles = makeStyles(theme => ({
   attachedInput: {
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    borderBottomWidth: 0,
+    borderBottomWidth: "0 !important",
+    zIndex: 110,
+    background: "white",
+    boxShadow: "inset 0 -1px #fff",
   },
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
@@ -376,7 +404,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: `0 0 ${theme.typography.pxToRem(
       4
     )} ${theme.typography.pxToRem(4)}`,
-    borderTopWidth: 0,
+    // borderTopWidth: 0,
     color: theme.palette.text.primary,
     fontSize: theme.typography.pxToRem(14),
     lineHeight: theme.typography.pxToRem(32),
@@ -387,13 +415,16 @@ const useStyles = makeStyles(theme => ({
     padding: 0,
     paddingBottom: theme.spacing(1.5),
     position: "absolute",
-    top: "calc(100% - 2px)",
-    width: "100%",
+    top: "calc(100% - 1px)",
+    minWidth: "100%",
     zIndex: 100,
   },
   fixedListBox: {
     position: "fixed!important" as any,
     top: "auto!important",
+  },
+  listboxYOverflow: {
+    borderTopRightRadius: theme.typography.pxToRem(4),
   },
   optionItem: {
     paddingLeft: theme.spacing(1.5),

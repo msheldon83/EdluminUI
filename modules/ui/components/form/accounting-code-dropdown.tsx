@@ -97,17 +97,23 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     });
   };
 
-  const updateAllocation = (allocation: Allocation) => {
-    // if (viewMode.type !== "multiple-codes") {
-    //   return;
-    // }
-    // // viewMode.accounts.reduce((updatedAccounts, account) => {})
-    // setViewMode({
-    //   ...viewMode,
-    //   accounts: viewMode.accounts.concat({
-    //     id: Math.random(),
-    //   }),
-    // });
+  const updateAllocation = (allocationToUpdate: Allocation) => {
+    if (viewMode.type !== "multiple-codes") {
+      return;
+    }
+
+    const updatedAllocations = viewMode.allocations.map(allocation => {
+      if (allocation.id !== allocationToUpdate.id) {
+        return allocation;
+      }
+
+      return allocationToUpdate;
+    });
+
+    setViewMode({
+      ...viewMode,
+      allocations: updatedAllocations,
+    });
   };
 
   const mainDropdownOptions = ([
@@ -118,6 +124,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     return (
       <>
         <Select
+          value={entry.selection}
           className={classes.multiCodeSelect}
           options={options}
           placeholder="Select accounting code"
