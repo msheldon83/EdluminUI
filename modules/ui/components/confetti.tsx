@@ -566,8 +566,8 @@ function draw(this: any, ctx: CanvasRenderingContext2D) {
 }
 
 type Props = {
-  numberOfPieces: number;
-  recycle: boolean;
+  numberOfPieces?: number;
+  recycle?: boolean;
 };
 
 export const RedRoverConfetti: React.FC<Props> = ({
