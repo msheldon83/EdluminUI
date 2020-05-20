@@ -42,17 +42,12 @@ export const AccountingCodeDropdownStory = () => {
     selection: undefined,
   });
 
-  const handleChange = (value: AccountingCodeValue) => {};
-
   return (
     <div className={classes.container}>
       <AccountingCodeDropdown
         value={accountCode}
         options={options}
-        onChange={value => {
-          console.log("value", value);
-          setAccountingCode(value);
-        }}
+        onChange={setAccountingCode}
       />
     </div>
   );

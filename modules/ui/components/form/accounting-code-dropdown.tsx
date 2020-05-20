@@ -1,5 +1,6 @@
 import * as React from "react";
 import clsx from "clsx";
+import memoize from "lodash/memoize";
 import { makeStyles } from "@material-ui/core/styles";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
@@ -25,7 +26,7 @@ export type AccountingCodeValue =
 type Allocation = {
   id: number;
   selection?: OptionType;
-  percentage?: number;
+  percentage?: string;
 };
 
 /*
@@ -151,38 +152,45 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     },
   ] as OptionType[]).concat(options);
 
-  const renderMultiCodeRow = (entry: Allocation) => {
+  const renderMultiCodeRow = memoize((allocation: Allocation) => {
+    const percentageValue = allocation.percentage
+      ? `${allocation.percentage}%`
+      : "";
+
     return (
       <>
         <Select
-          value={entry.selection}
+          value={allocation.selection}
           className={classes.multiCodeSelect}
           options={options}
           placeholder="Select accounting code"
           multiple={false}
           readOnly
           withResetValue={false}
-          onChange={selection =>
-            updateAllocation({
-              ...entry,
-              selection,
-            })
-          }
+          onChange={selection => updateAllocation({ ...allocation, selection })}
         />
-        <Input className={classes.multiCodeInput} placeholder="%" />
+        <Input
+          className={classes.multiCodeInput}
+          placeholder="%"
+          onChange={e => {
+            const newPercentage = e.target.value.replace("%", "");
+            updateAllocation({ ...allocation, percentage: newPercentage });
+          }}
+          value={percentageValue}
+        />
         <span className={classes.multiCodeDeleteButton}>
           <IconButton
             aria-label="delete"
             disableFocusRipple
             size="small"
-            onClick={() => removeAllocation(entry.id)}
+            onClick={() => removeAllocation(allocation.id)}
           >
             <DeleteIcon />
           </IconButton>
         </span>
       </>
     );
-  };
+  });
 
   return (
     <div className={classes.container}>
