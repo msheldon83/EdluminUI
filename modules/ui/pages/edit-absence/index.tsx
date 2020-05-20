@@ -23,6 +23,7 @@ import { DeleteAbsenceVacancyDialog } from "../../components/absence-vacancy/del
 import { ShowErrors } from "ui/components/error-helpers";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { NotFound } from "ui/pages/not-found";
 
 type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
@@ -256,6 +257,10 @@ export const EditAbsence: React.FC<Props> = props => {
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
+  if (!absence.data.absence?.byId) {
+    return <NotFound />;
+  }
+
   const data = absence.data?.absence?.byId;
   const vacancies = compact(data?.vacancies ?? []);
   const vacancy = vacancies[0];
