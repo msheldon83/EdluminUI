@@ -80,6 +80,8 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
     return <></>;
   }
 
+  console.log(locations);
+
   const addApproverGroup = async (approverGroup: ApproverGroupCreateInput) => {
     const result = await createApproverGroup({
       variables: { approverGroup: approverGroup },
@@ -135,7 +137,11 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
     },
   ];
 
-  const workflows: OptionType = [];
+  const approvalWorkflows = compact(
+    approverGroupHeader?.approvalWorkflows?.map(e => {
+      return { value: e?.id, label: e?.name ?? "" };
+    })
+  );
 
   return (
     <>
@@ -188,7 +194,7 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
             />
           </Section>
           <Grid item xs={12}>
-            <ViewCard title={t("Referenced by")} values={workflows} />
+            <ViewCard title={t("Referenced by")} values={approvalWorkflows} />
           </Grid>
         </Grid>
         <Grid item xs={6} />

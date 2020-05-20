@@ -141,7 +141,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
 
   const to = approverGroup?.location
     ? ApproverGroupAddLocationsRoute.generate({
-        approverGroupHeaderId: approverGroup?.id ?? "",
+        approverGroupHeaderId: approverGroup?.approverGroupHeaderId ?? "",
         organizationId: params.organizationId,
       })
     : ApproverGroupsRoute.generate({ organizationId: params.organizationId });

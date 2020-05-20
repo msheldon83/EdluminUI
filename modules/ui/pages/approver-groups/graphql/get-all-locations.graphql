@@ -8,6 +8,7 @@ query GetAllLocations($approverGroupHeaderId: ID, $orgId: ID) {
         name
         memberCount
         locationId
+        approverGroupHeaderId
       }
     }
   }

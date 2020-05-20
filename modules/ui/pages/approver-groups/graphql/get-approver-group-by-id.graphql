@@ -3,6 +3,7 @@ query GetApproverGroupById($approverGroupId: ID!) {
     groupById(approverGroupId: $approverGroupId) {
       id
       name
+      approverGroupHeaderId
       location {
         id
         name
