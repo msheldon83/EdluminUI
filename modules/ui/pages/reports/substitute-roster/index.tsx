@@ -6,6 +6,7 @@ import {
   Direction,
   ExpressionFunction,
 } from "ui/components/reporting/types";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
 
 export const SubstituteRosterReport: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -14,15 +15,26 @@ export const SubstituteRosterReport: React.FC<{}> = () => {
     return {
       from: "Substitute",
       select: [
-        "Concat(LastName,', ',FirstName) AS Substitute",
-        "ShadowOrgName",
-        "ExternalId",
-        "Active",
-        "InvitationStatus",
-        "Endorsements",
-        "HasEndorsements",
-        "Email",
-        "LoginEmail",
+        {
+          expression: "Concat(LastName,', ',FirstName) AS Substitute",
+          component: (row: any[]) => {
+            return (
+              <div>
+                <div>{row[0]}</div>
+                <ShadowIndicator orgName={row[1]} isShadow={!!row[1]} />
+              </div>
+            );
+          },
+          width: 300,
+        },
+        { expression: "ShadowOrgName", hiddenFromReport: true },
+        { expression: "ExternalId" },
+        { expression: "Active" },
+        { expression: "InvitationStatus" },
+        { expression: "Endorsements" },
+        { expression: "HasEndorsements" },
+        { expression: "Email" },
+        { expression: "LoginEmail" },
       ],
       filter: [
         {

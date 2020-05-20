@@ -1,7 +1,7 @@
 // Structured view of the Report that is converted into RDL
 export type ReportDefinitionInput = {
   from: string;
-  select: string[];
+  select: SelectField[];
   orderBy?: {
     expression: string;
     direction: Direction;
@@ -24,6 +24,14 @@ export type ReportDefinitionInput = {
     }[];
     againstExpression: string;
   };
+};
+
+export type SelectField = {
+  expression: string;
+  hiddenFromReport?: boolean;
+  hiddenFromExport?: boolean;
+  component?: (row: any[]) => JSX.Element;
+  width?: number;
 };
 
 // Response from the server which represents the Report
