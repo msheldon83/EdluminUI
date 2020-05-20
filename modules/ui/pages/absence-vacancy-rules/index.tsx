@@ -56,11 +56,7 @@ export const AbsenceVacancyRules: React.FC<{}> = props => {
           history.push(url);
         }}
         onSubmit={async (orgConfig: OrganizationUpdateInput) => {
-          const result = await update(orgConfig);
-          if (result) {
-            const url = SettingsRoute.generate(params);
-            history.push(url);
-          }
+          await update(orgConfig);
         }}
       />
     </>

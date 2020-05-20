@@ -147,5 +147,5 @@ type overridesNameToClassKey = {
 };
 
 declare module "@material-ui/core/styles/overrides" {
-export interface ComponentNameToClassKey extends overridesNameToClassKey {}
+  export interface ComponentNameToClassKey extends overridesNameToClassKey {} // eslint-disable-line
 }

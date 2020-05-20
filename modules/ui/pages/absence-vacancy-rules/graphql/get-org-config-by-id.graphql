@@ -9,6 +9,7 @@ query GetOrgConfigById($id: ID!) {
         featureFlags
         minutesBeforeStartAbsenceCanBeCreated
         minLeadTimeMinutesToCancelVacancy
+        maxLeadTimeMinutesToCancelVacancyPart
         minutesRelativeToStartVacancyCanBeFilled
         minorConflictThresholdMinutes
         requestedSubCutoffMinutes

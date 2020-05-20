@@ -17,6 +17,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       from: "AbsenceAndVacancy",
       select: [
         "ConfirmationNumber",
+        "SubExternalId",
         "Date",
         "LocationName",
         "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee",

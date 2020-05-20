@@ -83,7 +83,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
           date,
           buttonProps: {
             style: {
-              // TODO: make this configurable
               background: theme.calendar.selected,
               color: theme.customColors.white,
             },
@@ -108,10 +107,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       ) {
         setStartMonth(end);
       }
-
-      /*
-        If date range is within a visible month range
-      */
 
       // End date of range will show on the right side
       if (
@@ -279,7 +274,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
           label={t("To")}
         />
       </div>
-      <div className={classes.calendarsContaienr}>
+      <div className={classes.calendarsContainer}>
         <div className={classes.startCalender}>
           <Calendar
             contained={false}
@@ -330,13 +325,11 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(2),
   },
 
-  calendarsContaienr: {
+  calendarsContainer: {
     backgroundColor: theme.customColors.white,
-    border: `1px solid ${theme.customColors.edluminSubText}`,
     borderRadius: theme.typography.pxToRem(4),
     display: "flex",
     marginBottom: theme.spacing(2),
-    padding: theme.spacing(3),
   },
   startCalender: {
     flex: "1 0 auto",
