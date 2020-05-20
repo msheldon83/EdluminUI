@@ -28,12 +28,22 @@ type Allocation = {
   percentage?: number;
 };
 
-// Helpers to generate values
+/*
+  Helpers to generate values
+
+  These are helpers to generate valid values that make the type checker happy. The
+  value not simple, so these should make it easier.
+
+  Use them to send initial date into the dropdown from data stored on the server
+*/
+
+// Used when there is no code selected
 export const noAllocation = (): AccountingCodeValue => ({
   type: "no-allocation",
   selection: undefined,
 });
 
+// Used when only a single code is selected
 export const singleAllocation = (
   selection?: OptionType
 ): AccountingCodeValue => ({
@@ -41,6 +51,7 @@ export const singleAllocation = (
   selection,
 });
 
+// Used when allocated to multiple codes
 export const multipleAllocations = (
   allocations: Allocation[],
   selection?: OptionType
@@ -50,7 +61,7 @@ export const multipleAllocations = (
   allocations,
 });
 
-const newAllocation = () => ({
+const newAllocation = (): Allocation => ({
   id: Math.random(),
 });
 
