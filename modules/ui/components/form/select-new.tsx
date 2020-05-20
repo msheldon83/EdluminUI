@@ -244,6 +244,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             readOnly={readOnly}
             classes={{
               notchedOutline: inputClasses,
+              input: classes.input,
             }}
             endAdornment={
               <ArrowDropDownIcon
@@ -393,6 +394,11 @@ const useStyles = makeStyles(theme => ({
     background: "white",
     boxShadow: "inset 0 -1px #fff",
   },
+  input: {
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+  },
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
     cursor: "pointer",
@@ -404,7 +410,6 @@ const useStyles = makeStyles(theme => ({
     borderRadius: `0 0 ${theme.typography.pxToRem(
       4
     )} ${theme.typography.pxToRem(4)}`,
-    // borderTopWidth: 0,
     color: theme.palette.text.primary,
     fontSize: theme.typography.pxToRem(14),
     lineHeight: theme.typography.pxToRem(32),
