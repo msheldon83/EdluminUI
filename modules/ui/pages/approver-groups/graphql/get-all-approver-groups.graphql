@@ -1,0 +1,25 @@
+query GetAllApproverGroupsWithinOrg(
+  $orgId: ID
+  $limit: Int
+  $offset: Int
+  $sortBy: [SortDetailsInput]
+) {
+  approverGroup {
+    paged(orgId: $orgId, limit: $limit, offset: $offset, sortBy: $sortBy) {
+      totalCount
+      offset
+      limit
+      results {
+        id
+        name
+        memberCount
+        variesByLocation
+        allLocationsHaveGroup
+        approverGroups {
+          id
+          name
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+query GetAdminsByName($name: String, $orgId: ID) {
+  orgUser {
+    all(name: $name, orgId: $orgId) {
+      id
+      isAdmin
+      firstName
+      lastName
+    }
+  }
+}

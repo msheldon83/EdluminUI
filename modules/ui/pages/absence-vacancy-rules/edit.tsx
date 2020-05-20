@@ -8,6 +8,7 @@ import {
   FormControlLabel,
   FormHelperText,
   Checkbox,
+  InputAdornment,
 } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { Formik } from "formik";
@@ -238,7 +239,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                 <FormHelperText>
                   {t("Allow substitutes to accept an assignment until")}
                 </FormHelperText>
-                <Grid item xs={1} className={classes.inline}>
+                <Grid item xs={2} className={classes.inline}>
                   <FormikDurationInput name="minutesRelativeToStartVacancyCanBeFilled" />
                 </Grid>
                 <Grid
@@ -282,12 +283,18 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                 <Grid item xs={2}>
                   <Input
                     InputComponent={FormTextField}
-                    placeholder={t("minutes")}
                     inputComponentProps={{
                       name: "minorConflictThresholdMinutes",
                       margin: isMobile ? "normal" : "none",
                       variant: "outlined",
                       fullWidth: true,
+                      InputProps: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {t("minutes")}
+                          </InputAdornment>
+                        ),
+                      },
                     }}
                   />
                 </Grid>

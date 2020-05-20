@@ -45,6 +45,7 @@ import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { VacancyDetailsFormData } from "../helpers/types";
 import { useVacancyReasonOptions } from "reference-data/vacancy-reasons";
+import { FilteredAssignmentButton } from "./filtered-assignment-button";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -608,43 +609,17 @@ export const VacancyUI: React.FC<Props> = props => {
                         </Button>
                       )}
                       {showAssign && (
-                        <Can
-                          do={(
-                            permissions: OrgUserPermissions[],
-                            isSysAdmin: boolean,
-                            orgId?: string,
-                            forRole?: Role | null | undefined
-                          ) =>
-                            canAssignSub(
-                              parseISO(new Date().toString()),
-                              permissions,
-                              isSysAdmin,
-                              orgId,
-                              forRole
-                            )
-                          }
-                        >
-                          <Button
-                            variant="outlined"
-                            disabled={
-                              vacancyExists
-                                ? dirty
-                                : disableAssign || isSubmitting
-                            }
-                            className={classes.preArrangeButton}
-                            onClick={() => {
-                              dispatch({
-                                action: "setVacancyDetailIdsToAssign",
-                                vacancyDetailIdsToAssign: vacancySummaryDetails.map(
-                                  d => d.vacancyDetailId
-                                ),
-                              });
-                              setStep("preAssignSub");
-                            }}
-                          >
-                            {!vacancyExists ? t("Pre-arrange") : t("Assign")}
-                          </Button>
-                        </Can>
+                        <FilteredAssignmentButton
+                          {...{
+                            vacancy,
+                            vacancyExists,
+                            dirty,
+                            disableAssign,
+                            isSubmitting,
+                            dispatch,
+                            setStep,
+                          }}
+                        />
                       )}
 
                       <Can do={[PermissionEnum.AbsVacSave]}>

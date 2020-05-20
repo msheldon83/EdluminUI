@@ -417,9 +417,8 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
   },
   dayButton: {
     cursor: props => (props.onSelectDates ? "pointer" : "default"),
-    fontSize: theme.typography.pxToRem(16),
+    fontSize: theme.typography.pxToRem(15),
     fontWeight: "normal",
-    maxWidth: theme.typography.pxToRem(48),
     minWidth: theme.typography.pxToRem(20),
     position: "relative",
     width: "100%",

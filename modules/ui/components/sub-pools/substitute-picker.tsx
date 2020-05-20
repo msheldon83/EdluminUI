@@ -6,7 +6,7 @@ import { PaginationControls } from "ui/components/pagination-controls";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetSubstitutesForPreferences } from "./graphql/get-substitutes.gen";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { compact, remove } from "lodash-es";
+import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { Grid, Typography } from "@material-ui/core";
@@ -18,7 +18,7 @@ import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
-  isLocationOnly: boolean;
+  useAutoAssign: boolean;
   orgId: string;
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
@@ -35,7 +35,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
   const subPickerPaginationDefaults = makeQueryIso({
     defaults: {
       page: "1",
-      limit: "25",
+      limit: "10",
     },
     iso: PaginationParams,
   });
@@ -92,14 +92,6 @@ export const SubstitutePicker: React.FC<Props> = props => {
   ) {
     return <></>;
   }
-
-  const usedSubs = remove(
-    substitutes,
-    s =>
-      props.takenSubstitutes.filter(t => {
-        return t.id === s.id;
-      }).length > 0
-  );
 
   return (
     <>
@@ -160,7 +152,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
                     {t("Add favorite")}
                   </TextButton>
                 </Can>
-                {props.isLocationOnly && props.onAutoAssign && (
+                {props.useAutoAssign && props.onAutoAssign && (
                   <Can do={props.addToFavoritePermission}>
                     <TextButton
                       className={classes.addAutoAssignActionLink}
