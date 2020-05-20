@@ -99,6 +99,6 @@ const useStyles = makeStyles(theme => ({
   delete: { color: theme.customColors.darkRed },
   dialog: {
     width: "550px",
-    height: "425px",
+    //height: "425px",
   },
 }));
