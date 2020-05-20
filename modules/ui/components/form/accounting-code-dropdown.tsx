@@ -34,6 +34,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
   const { options } = props;
 
   const classes = useStyles();
+  const allocationsListRef = React.useRef(null);
 
   const [viewMode, setViewMode] = React.useState<ViewMode>({
     type: "choose-code",
@@ -65,6 +66,16 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     setViewMode({ type: "choose-code", selection: undefined });
   };
 
+  const scrollToLastAllocation = () => {
+    const listContainer = allocationsListRef.current as HTMLDivElement | null;
+
+    if (listContainer !== null) {
+      listContainer?.querySelector("li:last-of-type")?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  };
+
   const handleAddAllocation = () => {
     if (viewMode.type !== "multiple-codes") {
       return;
@@ -76,9 +87,16 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         id: Math.random(),
       }),
     });
+
+    /*
+      It's not ideal to use a setTimeout here to wait for the layout to update, but
+      using useLayoutEffect would require some type of scrolling queue to know when trigger
+      the scroll. This is the lesser of 2 evils.
+    */
+    setTimeout(() => scrollToLastAllocation(), 0);
   };
 
-  const removeMultiCodeRow = (id: number) => {
+  const removeAllocation = (id: number) => {
     if (viewMode.type !== "multiple-codes") {
       return;
     }
@@ -144,7 +162,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
             aria-label="delete"
             disableFocusRipple
             size="small"
-            onClick={() => removeMultiCodeRow(entry.id)}
+            onClick={() => removeAllocation(entry.id)}
           >
             <DeleteIcon />
           </IconButton>
@@ -170,7 +188,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
       {viewMode.type === "multiple-codes" && (
         <>
           <div className={classes.multiCodeInputContainer}>
-            <ul className={classes.multiCodeList}>
+            <ul className={classes.multiCodeList} ref={allocationsListRef}>
               {viewMode.allocations.map(allocation => {
                 return (
                   <li key={allocation.id.toString()}>
@@ -180,19 +198,21 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
               })}
             </ul>
 
-            <TextButton
-              onClick={handleAddAllocation}
-              className={classes.addAllocationButton}
-            >
-              Add Allocation
-            </TextButton>
+            <div className={classes.alloctionButtons}>
+              <TextButton
+                onClick={handleAddAllocation}
+                className={classes.addAllocationButton}
+              >
+                Add Allocation
+              </TextButton>
 
-            <TextButton
-              onClick={() => resetAllocation()}
-              className={classes.removeSplit}
-            >
-              Remove Split
-            </TextButton>
+              <TextButton
+                onClick={() => resetAllocation()}
+                className={classes.removeSplit}
+              >
+                Remove Split
+              </TextButton>
+            </div>
           </div>
         </>
       )}
@@ -215,12 +235,17 @@ const useStyles = makeStyles(theme => ({
     border: `1px solid ${theme.customColors.edluminSubText}`,
     borderBottomLeftRadius: theme.spacing(0.5),
     borderBottomRightRadius: theme.spacing(0.5),
-    padding: theme.spacing(1.5),
   },
   multiCodeList: {
+    maxHeight: theme.typography.pxToRem(300),
+    overflow: "auto",
     listStyle: "none",
-    padding: 0,
-    margin: `0 0 ${theme.typography.pxToRem(theme.spacing(1))} 0`,
+    margin: 0,
+    padding: `${theme.typography.pxToRem(
+      theme.spacing(1.5)
+    )} ${theme.typography.pxToRem(theme.spacing(1))} ${theme.typography.pxToRem(
+      theme.spacing(1)
+    )}`,
 
     "& li": {
       alignItems: "center",
@@ -241,6 +266,13 @@ const useStyles = makeStyles(theme => ({
   },
   multiCodeDeleteButton: {
     paddingLeft: theme.spacing(1),
+  },
+  alloctionButtons: {
+    padding: `0 ${theme.typography.pxToRem(
+      theme.spacing(1)
+    )} ${theme.typography.pxToRem(theme.spacing(1))} ${theme.typography.pxToRem(
+      theme.spacing(1)
+    )}`,
   },
   addAllocationButton: {
     color: theme.messages.default,

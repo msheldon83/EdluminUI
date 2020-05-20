@@ -410,7 +410,7 @@ const useStyles = makeStyles(theme => ({
     lineHeight: theme.typography.pxToRem(32),
     listStyle: "none",
     margin: 0,
-    maxHeight: "200px",
+    maxHeight: theme.typography.pxToRem(200),
     overflow: "auto",
     padding: 0,
     paddingBottom: theme.spacing(1.5),
