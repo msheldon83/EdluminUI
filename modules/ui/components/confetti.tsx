@@ -565,7 +565,15 @@ function draw(this: any, ctx: CanvasRenderingContext2D) {
   }
 }
 
-export const RedRoverConfetti = () => {
+type Props = {
+  numberOfPieces: number;
+  recycle: boolean;
+};
+
+export const RedRoverConfetti: React.FC<Props> = ({
+  numberOfPieces = 200,
+  recycle = false,
+}) => {
   const { width, height } = useWindowSize();
   const theme = useTheme();
   return (
@@ -581,6 +589,8 @@ export const RedRoverConfetti = () => {
         "#C4C4C4",
       ]}
       drawShape={draw}
+      numberOfPieces={numberOfPieces}
+      recycle={recycle}
     />
   );
 };
