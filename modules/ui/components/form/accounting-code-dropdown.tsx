@@ -1,6 +1,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import memoize from "lodash/memoize";
+import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
@@ -70,6 +71,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
   const { value, options, onChange } = props;
 
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const inputClasses = clsx({
     [classes.input]: true,
@@ -147,7 +149,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
 
   const mainDropdownOptions = ([
     {
-      label: "Multiple allocations",
+      label: t("Multiple allocations"),
       value: "multiple-allocations",
     },
   ] as OptionType[]).concat(options);
@@ -163,7 +165,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
           value={allocation.selection}
           className={classes.multiCodeSelect}
           options={options}
-          placeholder="Select accounting code"
+          placeholder={t("Select accounting code")}
           multiple={false}
           readOnly
           withResetValue={false}
@@ -196,8 +198,8 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     <div className={classes.container}>
       <Select
         value={value?.selection}
-        label="Accounting code"
-        placeholder="Select code"
+        label={t("Accounting code")}
+        placeholder={t("Select code")}
         options={mainDropdownOptions}
         readOnly={value?.type === "multiple-allocations"}
         doSort={false}
@@ -224,14 +226,14 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
                 onClick={handleAddAllocation}
                 className={classes.addAllocationButton}
               >
-                Add Allocation
+                {t("Add Allocation")}
               </TextButton>
 
               <TextButton
                 onClick={() => resetAllocation()}
                 className={classes.removeSplit}
               >
-                Remove Split
+                {t("Remove Split")}
               </TextButton>
             </div>
           </div>
