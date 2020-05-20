@@ -15,6 +15,7 @@ import {
 import { AbsenceBasicInfo } from "./absence-basic-info";
 import { VacancyBasicInfo } from "./vacancy-basic-info";
 import { exampleSteps } from "../types";
+import { StepsGraph } from "./graph";
 
 type Props = {
   onCancel: () => void;
@@ -49,7 +50,9 @@ export const WorkflowSteps: React.FC<Props> = props => {
         }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              <Grid item xs={4} sm={2} lg={2}></Grid>
+              <Grid item xs={12}>
+                <StepsGraph steps={values.steps} />
+              </Grid>
             </Grid>
             <ActionButtons
               submit={{ text: t("Next"), execute: submitForm }}
