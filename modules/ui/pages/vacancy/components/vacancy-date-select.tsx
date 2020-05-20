@@ -161,9 +161,8 @@ const useStyles = makeStyles(theme => ({
     zIndex: 200,
   },
   calendarContainer: {
-    position: "absolute",
     width: theme.typography.pxToRem(500),
-    zIndex: 1000,
+    zIndex: 1500,
   },
 }));
 
