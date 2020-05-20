@@ -28,6 +28,32 @@ type Allocation = {
   percentage?: number;
 };
 
+// Helpers to generate values
+export const noAllocation = (): AccountingCodeValue => ({
+  type: "no-allocation",
+  selection: undefined,
+});
+
+export const singleAllocation = (
+  selection?: OptionType
+): AccountingCodeValue => ({
+  type: "single-allocation",
+  selection,
+});
+
+export const multipleAllocations = (
+  allocations: Allocation[],
+  selection?: OptionType
+): AccountingCodeValue => ({
+  type: "multiple-allocations",
+  selection,
+  allocations,
+});
+
+const newAllocation = () => ({
+  id: Math.random(),
+});
+
 export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
   const { value, options, onChange } = props;
 
@@ -41,11 +67,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
   const handleSelectOnChange = (selection: OptionType) => {
     switch (selection.value) {
       case "multiple-allocations": {
-        onChange({
-          type: "multiple-allocations",
-          selection,
-          allocations: [{ id: Math.random() }],
-        });
+        onChange(multipleAllocations([newAllocation()], selection));
         break;
       }
       case "": {
@@ -53,7 +75,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         break;
       }
       default: {
-        onChange({ type: "single-allocation", selection });
+        onChange(singleAllocation(selection));
       }
     }
   };
@@ -69,9 +91,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
 
     onChange({
       ...value,
-      allocations: value?.allocations.concat({
-        id: Math.random(),
-      }),
+      allocations: value?.allocations.concat(newAllocation()),
     });
   };
 
