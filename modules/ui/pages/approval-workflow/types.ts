@@ -3,10 +3,12 @@ import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
 export type AbsenceWorkflowUsage = {
   positionTypeId?: string | null;
   employeeId?: string | null;
+  allOthers: boolean;
 };
 
 export type VacancyWorkflowUsage = {
   positionTypeId?: string;
+  allOthers: boolean;
 };
 
 export type ApprovalStep = {
@@ -30,27 +32,41 @@ export type AbsenceTransitionArgs = {};
 export type VacancyTransitionArgs = {};
 
 export const buildAbsenceUsagesJsonString = (
+  allOthers: boolean,
   positionTypeIds?: string[],
   employeeIds?: string[]
 ) => {
   const usages: AbsenceWorkflowUsage[] = [];
-  if (positionTypeIds)
-    positionTypeIds.forEach(x =>
-      usages.push({ positionTypeId: x, employeeId: null })
-    );
+  if (allOthers) {
+    usages.push({ allOthers });
+  } else {
+    if (positionTypeIds)
+      positionTypeIds.forEach(x =>
+        usages.push({ allOthers, positionTypeId: x, employeeId: null })
+      );
 
-  if (employeeIds)
-    employeeIds.forEach(x =>
-      usages.push({ positionTypeId: null, employeeId: x })
-    );
+    if (employeeIds)
+      employeeIds.forEach(x =>
+        usages.push({ allOthers, positionTypeId: null, employeeId: x })
+      );
+  }
 
   return JSON.stringify(usages);
 };
 
-export const buildVacancyUsagesJsonString = (positionTypeIds?: string[]) => {
+export const buildVacancyUsagesJsonString = (
+  allOthers: boolean,
+  positionTypeIds?: string[]
+) => {
   const usages: VacancyWorkflowUsage[] = [];
-  if (positionTypeIds)
-    positionTypeIds.forEach(x => usages.push({ positionTypeId: x }));
+  if (allOthers) {
+    usages.push({ allOthers });
+  } else {
+    if (positionTypeIds)
+      positionTypeIds.forEach(x =>
+        usages.push({ allOthers, positionTypeId: x })
+      );
+  }
 
   return JSON.stringify(usages);
 };

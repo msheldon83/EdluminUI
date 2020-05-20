@@ -9,6 +9,7 @@ query GetApprovalWorkflows($orgId: ID, $workFlowType: ApprovalWorkflowType) {
         __typename
         ... on AbsenceApprovalWorkflowUsage {
           id
+          allOthers
           positionTypeId
           positionType {
             id
@@ -18,6 +19,7 @@ query GetApprovalWorkflows($orgId: ID, $workFlowType: ApprovalWorkflowType) {
         }
         ... on VacancyApprovalWorkflowUsage {
           id
+          allOthers
           positionTypeId
           positionType {
             id

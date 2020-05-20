@@ -58,6 +58,7 @@ type AbsenceApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInt
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  allOthers: Boolean!
   approvalWorkflowId: ID!
   approvalWorkflow: ApprovalWorkflow
   employeeId: ID
@@ -2585,6 +2586,8 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   countryName: String
   validUntil: DateTime
   active: Boolean
+  approverGroupByHeaderId(approverGroupHeaderId: ID): ApproverGroup
+  approverGroups: [ApproverGroup]
 }
 
 input LocationCreateInput {
@@ -5923,6 +5926,7 @@ type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInt
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  allOthers: Boolean!
   approvalWorkflowId: ID!
   approvalWorkflow: ApprovalWorkflow
   positionTypeId: ID
