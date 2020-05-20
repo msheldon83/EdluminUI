@@ -2,7 +2,10 @@ import * as React from "react";
 import { action } from "@storybook/addon-actions";
 import { text, boolean, object, select } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
-import { AccountingCodeDropdown } from "./accounting-code-dropdown";
+import {
+  AccountingCodeDropdown,
+  AccountingCodeValue,
+} from "./accounting-code-dropdown";
 
 export const AccountingCodeDropdownStory = () => {
   const classes = useStyles();
@@ -34,9 +37,23 @@ export const AccountingCodeDropdownStory = () => {
     },
   ];
 
+  const [accountCode, setAccountingCode] = React.useState<AccountingCodeValue>({
+    type: "no-allocation",
+    selection: undefined,
+  });
+
+  const handleChange = (value: AccountingCodeValue) => {};
+
   return (
     <div className={classes.container}>
-      <AccountingCodeDropdown options={options} />
+      <AccountingCodeDropdown
+        value={accountCode}
+        options={options}
+        onChange={value => {
+          console.log("value", value);
+          setAccountingCode(value);
+        }}
+      />
     </div>
   );
 };

@@ -8,21 +8,19 @@ import { Input } from "./input";
 import { TextButton } from "ui/components/text-button";
 
 type AccountingCodeDropdownProps = {
+  value?: AccountingCodeValue;
   options: OptionType[];
+  onChange: (value: AccountingCodeValue) => void;
 };
 
-type ViewMode =
-  | { type: "choose-code"; selection?: OptionType }
+export type AccountingCodeValue =
+  | { type: "no-allocation"; selection: undefined }
+  | { type: "single-allocation"; selection?: OptionType }
   | {
-      type: "multiple-codes";
+      type: "multiple-allocations";
       selection?: OptionType;
       allocations: Allocation[];
     };
-
-const MULTIPLE_ALLOCATIONS_OPTION_TYPE: OptionType = {
-  label: "Multiple allocations",
-  value: "multiple-allocations",
-};
 
 type Allocation = {
   id: number;
@@ -31,59 +29,58 @@ type Allocation = {
 };
 
 export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
-  const { options } = props;
+  const { value, options, onChange } = props;
 
   const classes = useStyles();
 
-  const [viewMode, setViewMode] = React.useState<ViewMode>({
-    type: "choose-code",
-    selection: undefined,
-  });
-
   const inputClasses = clsx({
     [classes.input]: true,
-    [classes.inputMultiCode]: viewMode.type === "multiple-codes",
+    [classes.inputMultiCode]: value?.type === "multiple-allocations",
   });
 
   const handleSelectOnChange = (selection: OptionType) => {
     switch (selection.value) {
       case "multiple-allocations": {
-        setViewMode({
-          type: "multiple-codes",
+        onChange({
+          type: "multiple-allocations",
           selection,
           allocations: [{ id: Math.random() }],
         });
         break;
       }
+      case "": {
+        resetAllocation();
+        break;
+      }
       default: {
-        setViewMode({ type: "choose-code", selection });
+        onChange({ type: "single-allocation", selection });
       }
     }
   };
 
   const resetAllocation = () => {
-    setViewMode({ type: "choose-code", selection: undefined });
+    onChange({ type: "no-allocation", selection: undefined });
   };
 
   const handleAddAllocation = () => {
-    if (viewMode.type !== "multiple-codes") {
+    if (value?.type !== "multiple-allocations") {
       return;
     }
 
-    setViewMode({
-      ...viewMode,
-      allocations: viewMode.allocations.concat({
+    onChange({
+      ...value,
+      allocations: value?.allocations.concat({
         id: Math.random(),
       }),
     });
   };
 
   const removeAllocation = (id: number) => {
-    if (viewMode.type !== "multiple-codes") {
+    if (value?.type !== "multiple-allocations") {
       return;
     }
 
-    const updatedAllocations = viewMode.allocations.filter(
+    const updatedAllocations = value?.allocations.filter(
       allocation => allocation.id !== id
     );
 
@@ -91,18 +88,18 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
       return resetAllocation();
     }
 
-    setViewMode({
-      ...viewMode,
+    onChange({
+      ...value,
       allocations: updatedAllocations,
     });
   };
 
   const updateAllocation = (allocationToUpdate: Allocation) => {
-    if (viewMode.type !== "multiple-codes") {
+    if (value?.type !== "multiple-allocations") {
       return;
     }
 
-    const updatedAllocations = viewMode.allocations.map(allocation => {
+    const updatedAllocations = value?.allocations.map(allocation => {
       if (allocation.id !== allocationToUpdate.id) {
         return allocation;
       }
@@ -110,14 +107,17 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
       return allocationToUpdate;
     });
 
-    setViewMode({
-      ...viewMode,
+    onChange({
+      ...value,
       allocations: updatedAllocations,
     });
   };
 
   const mainDropdownOptions = ([
-    MULTIPLE_ALLOCATIONS_OPTION_TYPE,
+    {
+      label: "Multiple allocations",
+      value: "multiple-allocations",
+    },
   ] as OptionType[]).concat(options);
 
   const renderMultiCodeRow = (entry: Allocation) => {
@@ -156,22 +156,22 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
   return (
     <div className={classes.container}>
       <Select
-        value={viewMode.selection}
+        value={value?.selection}
         label="Accounting code"
         placeholder="Select code"
         options={mainDropdownOptions}
-        readOnly={viewMode.type === "multiple-codes"}
+        readOnly={value?.type === "multiple-allocations"}
         doSort={false}
         multiple={false}
         onChange={handleSelectOnChange}
         inputClassName={inputClasses}
       />
 
-      {viewMode.type === "multiple-codes" && (
+      {value?.type === "multiple-allocations" && (
         <>
           <div className={classes.multiCodeInputContainer}>
             <ul className={classes.multiCodeList}>
-              {viewMode.allocations.map(allocation => {
+              {value?.allocations.map(allocation => {
                 return (
                   <li key={allocation.id.toString()}>
                     {renderMultiCodeRow(allocation)}
