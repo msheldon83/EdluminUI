@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Grid, Typography, Tooltip } from "@material-ui/core";
 import { ApproverGroupCreateInput } from "graphql/server-types.gen";
-import { ViewCard } from "./components/view-card";
+import { WorkflowViewCard } from "./components/workflow-view-card";
 import { useIsMobile } from "hooks";
 import { useRouteParams } from "ui/routes/definition";
 import ErrorIcon from "@material-ui/icons/Error";
@@ -181,7 +181,10 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
             />
           </Section>
           <Grid item xs={12}>
-            <ViewCard title={t("Referenced by")} values={approvalWorkflows} />
+            <WorkflowViewCard
+              title={t("Referenced by")}
+              values={approvalWorkflows}
+            />
           </Grid>
         </Grid>
         <Grid item xs={6} />

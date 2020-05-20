@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
 import { PermissionEnum, OrgUserRole } from "graphql/server-types.gen";
-import { ViewCard } from "./components/view-card";
+import { MemberViewCard } from "./components/member-view-card";
 import { AdminPicker } from "./components/admin-picker";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { makeStyles } from "@material-ui/styles";
@@ -22,6 +22,7 @@ import {
 import { AddMember } from "./graphql/add-member.gen";
 import { GetAdminsByName } from "./graphql/get-admins-by-name.gen";
 import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
+import { WorkflowViewCard } from "./components/workflow-view-card";
 
 type OptionType = {
   label: string;
@@ -169,7 +170,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>
-            <ViewCard
+            <MemberViewCard
               title={t("Members")}
               values={groupMembers}
               onRemove={onRemoveMember}
@@ -177,7 +178,10 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
             />
           </Grid>
           <Grid item xs={12}>
-            <ViewCard title={t("Referenced by")} values={approvalWorkflows} />
+            <WorkflowViewCard
+              title={t("Referenced by")}
+              values={approvalWorkflows}
+            />
           </Grid>
         </Grid>
         <Grid item xs={6}>
