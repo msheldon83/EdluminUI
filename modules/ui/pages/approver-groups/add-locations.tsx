@@ -11,6 +11,7 @@ import { useIsMobile } from "hooks";
 import { useRouteParams } from "ui/routes/definition";
 import ErrorIcon from "@material-ui/icons/Error";
 import { Table } from "ui/components/table";
+import { Section } from "ui/components/section";
 import { Link } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { Column } from "material-table";
@@ -25,18 +26,16 @@ import {
   ApproverGroupAddRemoveMembersRoute,
   ApproverGroupAddLocationsRoute,
 } from "ui/routes/approver-groups";
-import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
+import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { GetApproverGroupHeaderById } from "./graphql/get-approver-group-header-by-id.gen";
-import { RemoveApproverGroupByLocation } from "./graphql/remove-location.gen";
 import { AddApproverGroupForLocation } from "./graphql/add-location.gen";
+import { GetAllLocations } from "./graphql/get-all-locations.gen";
 
 type OptionType = {
   label: string;
   value?: string;
 }[];
-
-type approverGroup = { name: string; id: string; memberCount: number };
 
 export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -46,14 +45,12 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(ApproverGroupAddLocationsRoute);
 
-  const locations = useLocations(params.organizationId);
-  const locationOptions = useMemo(() => {
-    const options = locations.reduce(
-      (o: any, key: any) => ({ ...o, [key.id]: key.name }),
-      {}
-    );
-    return options;
-  }, [locations]);
+  const getAllLocations = useQueryBundle(GetAllLocations, {
+    variables: {
+      approverGroupHeaderId: params.approverGroupHeaderId,
+      orgId: params.organizationId,
+    },
+  });
 
   const getApproverGroupHeader = useQueryBundle(GetApproverGroupHeaderById, {
     variables: { approverGroupHeaderId: params.approverGroupHeaderId },
@@ -71,7 +68,15 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
       ? undefined
       : getApproverGroupHeader?.data?.approverGroup?.byId;
 
-  if (getApproverGroupHeader.state === "LOADING") {
+  const locations =
+    (getAllLocations.state === "LOADING"
+      ? undefined
+      : compact(getAllLocations.data.location?.all)) ?? [];
+
+  if (
+    getApproverGroupHeader.state === "LOADING" ||
+    getAllLocations.state === "LOADING"
+  ) {
     return <></>;
   }
 
@@ -83,44 +88,40 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
     return result.data.approverGroup?.createApproverGroupForLocation?.id;
   };
 
-  const columns: Column<GetApproverGroupHeaderById.ById>[] = [
+  const columns: Column<GetAllLocations.All>[] = [
     {
       title: t("School Name"),
-      field: "location.name",
+      field: "name",
       defaultSort: "asc",
       searchable: true,
-      editable: "always",
-      lookup: locationOptions,
       render: data =>
-        data.location.memberCount === 0 ? (
+        data.approverGroupByHeaderId?.memberCount === 0 ||
+        !data.approverGroupByHeaderId ? (
           <>
-            <div className={classes.warning}>{data.location.name}</div>
+            <div className={classes.warning}>{data.name}</div>
           </>
         ) : (
           <>
-            <div>{data.location.name}</div>
+            <div>{data.name}</div>
           </>
         ),
     },
     {
       title: t("Members"),
-      field: "memberCount",
+      field: "approverGroupByHeaderId?.memberCount",
       searchable: true,
       hidden: isMobile,
-      editable: "never",
       render: data =>
-        data.memberCount === 0 ? (
+        data.approverGroupByHeaderId?.memberCount === 0 ||
+        !data.approverGroupByHeaderId ? (
           <>
             <div className={classes.warning}>
-              {data.memberCount}
+              {data.approverGroupByHeaderId?.memberCount ?? t("0")}
               <Tooltip
-                title={
-                  data.location &&
-                  t(
-                    "There are no approvers defined for this location. " +
-                      "Any workflow step referring to an empty approver location will be skipped."
-                  )
-                }
+                title={t(
+                  "There are no approvers defined for this location. " +
+                    "Any workflow step referring to an empty approver location will be skipped."
+                )}
               >
                 <ErrorIcon className={classes.icon} />
               </Tooltip>
@@ -128,7 +129,7 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
           </>
         ) : (
           <>
-            <div>{data.memberCount}</div>
+            <div>{data.approverGroupByHeaderId?.memberCount}</div>
           </>
         ),
     },
@@ -152,30 +153,40 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
         </div>
       </div>
       <PageTitle title={t("Building Approvers")} />
-      <Grid container spacing={2} className={classes.content}>
+
+      <Grid container className={classes.content}>
         <Grid item xs={6}>
-          <Table
-            columns={columns}
-            data={locations}
-            selection={false}
-            onRowClick={async (event, approverGroup) => {
-              let approverGroupId = approverGroup?.id;
-              if (!approverGroupId) {
-                const newApproverGroup: ApproverGroupCreateInput = {
-                  orgId: params.organizationId,
-                  locationId: location.id,
-                  approverGroupHeaderId: params.approverGroupHeaderId,
-                };
-                approverGroupId = await addApproverGroup(newApproverGroup);
-              }
-              history.push(
-                ApproverGroupAddRemoveMembersRoute.generate({
-                  organizationId: params.organizationId,
-                  approverGroupId: approverGroupId,
-                })
-              );
-            }}
-          />
+          <Section>
+            <Table
+              columns={columns}
+              data={locations}
+              selection={false}
+              onRowClick={async (event, location) => {
+                let approverGroupId = location?.approverGroupByHeaderId?.id
+                  ? location?.approverGroupByHeaderId?.id
+                  : undefined;
+
+                if (!approverGroupId) {
+                  const newApproverGroup: ApproverGroupCreateInput = {
+                    orgId: params.organizationId,
+                    locationId: location!.id,
+                    approverGroupHeaderId: params.approverGroupHeaderId,
+                  };
+                  const result = await addApproverGroup(newApproverGroup);
+                  approverGroupId = result ? result : undefined;
+                }
+
+                if (approverGroupId) {
+                  history.push(
+                    ApproverGroupAddRemoveMembersRoute.generate({
+                      organizationId: params.organizationId,
+                      approverGroupId: approverGroupId,
+                    })
+                  );
+                }
+              }}
+            />
+          </Section>
           <Grid item xs={12}>
             <ViewCard title={t("Referenced by")} values={workflows} />
           </Grid>

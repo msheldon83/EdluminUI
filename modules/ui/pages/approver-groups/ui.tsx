@@ -132,12 +132,14 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
               );
             }
             //Admin Page
-            history.push(
-              ApproverGroupAddRemoveMembersRoute.generate({
-                approverGroupId: approverGroup?.approverGroups[0]?.id ?? "",
-                organizationId: params.organizationId,
-              })
-            );
+            else {
+              history.push(
+                ApproverGroupAddRemoveMembersRoute.generate({
+                  approverGroupId: approverGroup?.approverGroups[0]?.id ?? "",
+                  organizationId: params.organizationId,
+                })
+              );
+            }
           }}
         />
         <PaginationControls pagination={pagination} />
