@@ -99,13 +99,11 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
     },
   ];
 
-  const approverGroupsCount = approverGroups.length;
-
   return (
     <>
       <Section>
         <Table
-          title={`${approverGroupsCount} ${t("Approver Groups")}`}
+          title={t("Approver Groups")}
           columns={columns}
           data={approverGroups}
           selection={false}
