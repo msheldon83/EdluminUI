@@ -2,10 +2,7 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Grid, Typography, Tooltip } from "@material-ui/core";
-import {
-  PermissionEnum,
-  ApproverGroupCreateInput,
-} from "graphql/server-types.gen";
+import { ApproverGroupCreateInput } from "graphql/server-types.gen";
 import { ViewCard } from "./components/view-card";
 import { useIsMobile } from "hooks";
 import { useRouteParams } from "ui/routes/definition";
@@ -16,10 +13,7 @@ import { Link } from "react-router-dom";
 import { PageTitle } from "ui/components/page-title";
 import { Column } from "material-table";
 import { compact } from "lodash-es";
-import * as Yup from "yup";
 import { useHistory } from "react-router";
-import { useMemo } from "react";
-import { useLocations } from "reference-data/locations";
 import { useTranslation } from "react-i18next";
 import {
   ApproverGroupsRoute,
@@ -31,11 +25,6 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { GetApproverGroupHeaderById } from "./graphql/get-approver-group-header-by-id.gen";
 import { AddApproverGroupForLocation } from "./graphql/add-location.gen";
 import { GetAllLocations } from "./graphql/get-all-locations.gen";
-
-type OptionType = {
-  label: string;
-  value?: string;
-}[];
 
 export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -79,8 +68,6 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   ) {
     return <></>;
   }
-
-  console.log(locations);
 
   const addApproverGroup = async (approverGroup: ApproverGroupCreateInput) => {
     const result = await createApproverGroup({

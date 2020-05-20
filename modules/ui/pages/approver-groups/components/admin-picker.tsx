@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
-import Maybe from "graphql/tsutils/Maybe";
 import { Grid, Typography } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { Input } from "ui/components/form/input";

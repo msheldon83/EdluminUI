@@ -136,8 +136,11 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
       })
     ) ?? [];
 
-  //TODO: Implement when we have workflow data.
-  const workflows: OptionType = [];
+  const approvalWorkflows = compact(
+    approverGroup?.approvalWorkflows?.map(e => {
+      return { value: e?.id, label: e?.name ?? "" };
+    })
+  );
 
   const to = approverGroup?.location
     ? ApproverGroupAddLocationsRoute.generate({
@@ -174,7 +177,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
             />
           </Grid>
           <Grid item xs={12}>
-            <ViewCard title={t("Referenced by")} values={workflows} />
+            <ViewCard title={t("Referenced by")} values={approvalWorkflows} />
           </Grid>
         </Grid>
         <Grid item xs={6}>
