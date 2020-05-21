@@ -802,6 +802,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
+  approvalWorkflows: [ApprovalWorkflow]
 }
 
 input ApproverGroupHeaderCreateInput {
@@ -2966,6 +2967,7 @@ type OrganizationQueries {
   search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
   staffingProviders: [Organization]
   searchDelegatesToOrganizations(orgId: ID!, searchText: String): [Organization]
+  delegatesToOrganizations(orgId: ID!): [Organization]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {

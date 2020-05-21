@@ -5,13 +5,14 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { SelectNew } from "ui/components/form/select-new";
 import { CustomOrgUserRelationship } from "./helpers";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
 import { SubstituteInput } from "graphql/server-types.gen";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { SelectedDistricts } from "./components/selected-districts";
-import { SearchDelegatesToOrganizations } from "./graphql/search-related-orgs.gen";
+import { GetDelegatesToOrganizations } from "./graphql/get-delegate-orgs.gen";
 
 type Props = {
   orgUserRelationships: CustomOrgUserRelationship[];
@@ -41,17 +42,15 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
     a?.toLowerCase() > b?.toLowerCase() ? 1 : -1
   );
 
-  const getDistricts = useQueryBundle(SearchDelegatesToOrganizations, {
+  const getDistricts = useQueryBundle(GetDelegatesToOrganizations, {
     variables: {
       orgId: props.orgId,
-      searchText: searchText,
     },
-    skip: searchText === undefined,
   });
 
   const districts =
     getDistricts.state != "LOADING"
-      ? getDistricts.data.organization?.searchDelegatesToOrganizations ?? []
+      ? getDistricts.data.organization?.delegatesToOrganizations ?? []
       : [];
 
   const districtOptions: OptionType[] = useMemo(
@@ -61,6 +60,10 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
         value: p?.id ?? "",
       })),
     [districts]
+  );
+
+  const sortedDistrictOptions = districtOptions?.sort((a, b) =>
+    a?.label?.toLowerCase() > b?.label?.toLowerCase() ? 1 : -1
   );
 
   return (
@@ -75,7 +78,7 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
             onClick={onAddOrg}
             searchText={searchText}
             setSearchText={setSearchText}
-            options={districtOptions}
+            options={sortedDistrictOptions}
             placeholder={"District name"}
           />
         </Section>

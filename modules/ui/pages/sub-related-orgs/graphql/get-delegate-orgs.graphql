@@ -1,0 +1,8 @@
+query GetDelegatesToOrganizations($orgId: ID!) {
+  organization {
+    delegatesToOrganizations(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}

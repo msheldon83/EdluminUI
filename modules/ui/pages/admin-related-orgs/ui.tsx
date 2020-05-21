@@ -10,7 +10,7 @@ import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
 import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { SelectedDistricts } from "./components/selected-districts";
-import { SearchDelegatesToOrganizations } from "./graphql/search-related-orgs.gen";
+import { GetDelegatesToOrganizations } from "./graphql/get-related-orgs.gen";
 
 type Props = {
   orgId: string;
@@ -33,19 +33,15 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
       : -1
   );
 
-  console.log(sortedOrgUserRelationships);
-
-  const getDistricts = useQueryBundle(SearchDelegatesToOrganizations, {
+  const getDistricts = useQueryBundle(GetDelegatesToOrganizations, {
     variables: {
       orgId: props.orgId,
-      searchText: searchText,
     },
-    skip: searchText === undefined,
   });
 
   const districts =
     getDistricts.state != "LOADING"
-      ? getDistricts.data.organization?.searchDelegatesToOrganizations ?? []
+      ? getDistricts.data.organization?.delegatesToOrganizations ?? []
       : [];
 
   const districtOptions: OptionType[] = useMemo(
@@ -74,7 +70,6 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
           />
         </Section>
       </Grid>
-
       <Grid item xs={12}>
         <SelectedDistricts
           orgUserRelationships={sortedOrgUserRelationships}

@@ -38,7 +38,9 @@ export const SelectedDistricts: React.FC<Props> = props => {
       : -1
   );
 
-  console.log(sortedOrgUserRelationships);
+  const sortedOrgEndorsements = orgEndorsements?.sort((a, b) =>
+    a?.label?.toLowerCase() > b?.label?.toLowerCase() ? 1 : -1
+  );
 
   const initialValues = { orgUserRelationships: sortedOrgUserRelationships };
 
@@ -117,7 +119,7 @@ export const SelectedDistricts: React.FC<Props> = props => {
                                 handleSubmit();
                               }
                             }}
-                            options={orgEndorsements ?? []}
+                            options={sortedOrgEndorsements ?? []}
                             setSearchText={setSearchText}
                             placeholder={t("search")}
                             useLabel={false}
