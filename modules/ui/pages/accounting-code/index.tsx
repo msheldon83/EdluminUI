@@ -85,7 +85,7 @@ export const AccountingCode: React.FC<Props> = props => {
     orgId: params.organizationId,
     name: "",
     externalId: null,
-    locationId: null,
+    locationIds: [],
   };
 
   const columns: Column<GetAllAccountingCodesWithinOrg.All>[] = [
@@ -118,7 +118,7 @@ export const AccountingCode: React.FC<Props> = props => {
       editable: "always",
       render: data => {
         if (data.allLocations) {
-          return <Typography>All Schools</Typography>;
+          return <Typography>{t("All Schools")}</Typography>;
         } else if (data.locations.length === 1) {
           return <Typography>{data.locations[0].name}</Typography>;
         } else {
@@ -137,8 +137,10 @@ export const AccountingCode: React.FC<Props> = props => {
       },
       editComponent: (props: any) => {
         const locationIds: string[] = props.rowData.locationIds as string[];
-        const allSchoolsChecked = props.rowData.allLocations as boolean;
-
+        const allSchoolsChecked =
+          props.rowData.allLocations != null
+            ? (props.rowData.allLocations as boolean)
+            : true;
         return (
           <>
             <div>
@@ -314,8 +316,8 @@ export const AccountingCode: React.FC<Props> = props => {
               ...accountingCode,
               name: newData.name,
               externalId: newData.externalId,
-              locationIds: newData.locationIds,
-              allLocations: newData.allLocations,
+              locationIds: newData.locationIds ?? [],
+              allLocations: !newData.locationIds ? true : newData.allLocations,
             };
             const result = await addAccountingCode(newAccountingCode);
             if (!result) throw Error("Preserve Row on error");
