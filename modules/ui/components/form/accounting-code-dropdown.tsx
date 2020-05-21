@@ -155,10 +155,6 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
   ] as OptionType[]).concat(options);
 
   const renderMultiCodeRow = memoize((allocation: Allocation) => {
-    const percentageValue = allocation.percentage
-      ? `${allocation.percentage}%`
-      : "";
-
     return (
       <>
         <Select
@@ -173,12 +169,11 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         />
         <Input
           className={classes.multiCodeInput}
-          placeholder="%"
+          endAdornment="%"
           onChange={e => {
-            const newPercentage = e.target.value.replace("%", "");
-            updateAllocation({ ...allocation, percentage: newPercentage });
+            updateAllocation({ ...allocation, percentage: e.target.value });
           }}
-          value={percentageValue}
+          value={allocation.percentage}
         />
         <span className={classes.multiCodeDeleteButton}>
           <IconButton
