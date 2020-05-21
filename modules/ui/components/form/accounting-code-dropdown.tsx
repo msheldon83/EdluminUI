@@ -7,6 +7,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import { SelectNew as Select, OptionType } from "./select-new";
 import { Input } from "./input";
+import { NumberInput } from "./number-input";
 import { TextButton } from "ui/components/text-button";
 
 type AccountingCodeDropdownProps = {
@@ -27,7 +28,7 @@ export type AccountingCodeValue =
 type Allocation = {
   id: number;
   selection?: OptionType;
-  percentage?: string;
+  percentage?: number;
 };
 
 /*
@@ -167,13 +168,14 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
           withResetValue={false}
           onChange={selection => updateAllocation({ ...allocation, selection })}
         />
-        <Input
+        <NumberInput
           className={classes.multiCodeInput}
           endAdornment="%"
-          onChange={e => {
-            updateAllocation({ ...allocation, percentage: e.target.value });
+          onChange={percentage => {
+            updateAllocation({ ...allocation, percentage: percentage });
           }}
           value={allocation.percentage}
+          maxLength={2}
         />
         <span className={classes.multiCodeDeleteButton}>
           <IconButton
@@ -185,6 +187,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
             <DeleteIcon />
           </IconButton>
         </span>
+        v
       </>
     );
   });
