@@ -1,4 +1,12 @@
-import { makeStyles, Grid, TextField } from "@material-ui/core";
+import {
+  makeStyles,
+  Grid,
+  FormControlLabel,
+  Checkbox,
+  Typography,
+  Tooltip,
+  TextField,
+} from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import * as React from "react";
@@ -22,11 +30,12 @@ import {
 } from "graphql/server-types.gen";
 import * as Yup from "yup";
 import { useSnackbar } from "hooks/use-snackbar";
-import { useLocations } from "reference-data/locations";
+import { useLocations, useLocationOptions } from "reference-data/locations";
 import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { GetAccountingCodesDocument } from "reference-data/get-accounting-codes.gen";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { Can } from "ui/components/auth/can";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 
 type Props = {};
 
@@ -43,14 +52,7 @@ export const AccountingCode: React.FC<Props> = props => {
   };
 
   const locations = useLocations(params.organizationId);
-  const locationOptions = useMemo(() => {
-    const options = locations.reduce(
-      (o: any, key: any) => ({ ...o, [key.id]: key.name }),
-      {}
-    );
-    options[0] = t("All Schools"); //add default option
-    return options;
-  }, [locations, t]);
+  const locationOptions = useLocationOptions(params.organizationId);
 
   //Hardcoding includeExpired.  Currently UI does not give option to choose.
   const getAccountingCodes = useQueryBundle(GetAllAccountingCodesWithinOrg, {
@@ -83,7 +85,7 @@ export const AccountingCode: React.FC<Props> = props => {
     orgId: params.organizationId,
     name: "",
     externalId: null,
-    locationId: null,
+    locationIds: [],
   };
 
   const columns: Column<GetAllAccountingCodesWithinOrg.All>[] = [
@@ -110,11 +112,85 @@ export const AccountingCode: React.FC<Props> = props => {
     },
     {
       title: t("School"),
-      field: "location.id",
+      field: "locationIds",
       searchable: true,
       hidden: isMobile,
       editable: "always",
-      lookup: locationOptions,
+      render: data => {
+        if (data.allLocations) {
+          return <Typography>{t("All Schools")}</Typography>;
+        } else if (data.locations.length === 1) {
+          return <Typography>{data.locations[0].name}</Typography>;
+        } else {
+          return (
+            <Tooltip
+              className={classes.toolTip}
+              placement="bottom-start"
+              title={data.locations.map(l => l.name).join(", ")}
+            >
+              <Typography>{`${data.locations.length} ${t(
+                "Schools"
+              )}`}</Typography>
+            </Tooltip>
+          );
+        }
+      },
+      editComponent: (props: any) => {
+        const locationIds: string[] = props.rowData.locationIds as string[];
+        const allSchoolsChecked =
+          props.rowData.allLocations != null
+            ? (props.rowData.allLocations as boolean)
+            : true;
+        return (
+          <>
+            <div>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    checked={allSchoolsChecked}
+                    value={allSchoolsChecked}
+                    onChange={e => {
+                      props.onRowDataChange({
+                        ...props.rowData,
+                        allLocations: e.target.checked,
+                      });
+                    }}
+                  />
+                }
+                label={t("All Schools")}
+              />
+            </div>
+            {!allSchoolsChecked && (
+              <div>
+                <SelectNew
+                  value={
+                    locationOptions.filter(
+                      e =>
+                        e.value &&
+                        locationIds &&
+                        locationIds.includes(e.value.toString())
+                    ) ?? { label: "", value: "" }
+                  }
+                  className={classes.schoolSelector}
+                  multiple={true}
+                  withResetValue={false}
+                  options={locationOptions}
+                  fixedListBox={true}
+                  onChange={e => {
+                    const ids = e.map((v: OptionType) => v.value.toString());
+
+                    props.onRowDataChange({
+                      ...props.rowData,
+                      locationIds: ids,
+                    });
+                  }}
+                />
+              </div>
+            )}
+          </>
+        );
+      },
     },
   ];
 
@@ -153,6 +229,7 @@ export const AccountingCode: React.FC<Props> = props => {
     validateAccountingCode.validate(accountingCode).catch(function(err) {
       ShowGenericErrors(err, openSnackbar);
     });
+
     const result = await updateAccountingCode({
       variables: {
         accountingCode: {
@@ -164,13 +241,8 @@ export const AccountingCode: React.FC<Props> = props => {
             accountingCode.externalId.trim().length === 0
               ? null
               : accountingCode.externalId,
-          locationId:
-            accountingCode.locationId &&
-            accountingCode.locationId.toString().length === 0
-              ? null
-              : accountingCode.locationId === "0"
-              ? null
-              : accountingCode.locationId,
+          locationIds: accountingCode.locationIds,
+          allLocations: accountingCode.allLocations,
         },
       },
     });
@@ -194,13 +266,8 @@ export const AccountingCode: React.FC<Props> = props => {
             accountingCode.externalId.trim().length === 0
               ? null
               : accountingCode.externalId,
-          locationId:
-            accountingCode.locationId &&
-            accountingCode.locationId.toString().length === 0
-              ? null
-              : accountingCode.locationId === "0"
-              ? null
-              : accountingCode.locationId,
+          locationIds: accountingCode.locationIds,
+          allLocations: accountingCode.allLocations,
         },
       },
     });
@@ -249,7 +316,8 @@ export const AccountingCode: React.FC<Props> = props => {
               ...accountingCode,
               name: newData.name,
               externalId: newData.externalId,
-              locationId: newData.location?.id,
+              locationIds: newData.locationIds ?? [],
+              allLocations: !newData.locationIds ? true : newData.allLocations,
             };
             const result = await addAccountingCode(newAccountingCode);
             if (!result) throw Error("Preserve Row on error");
@@ -264,7 +332,8 @@ export const AccountingCode: React.FC<Props> = props => {
               rowVersion: newData.rowVersion,
               name: newData.name,
               externalId: newData.externalId,
-              locationId: newData.location?.id,
+              locationIds: newData.locationIds,
+              allLocations: newData.allLocations,
             };
             const result = await editAccountingCode(updateAccountingCode);
             if (!result) throw Error("Preserve Row on error");
@@ -294,5 +363,12 @@ const useStyles = makeStyles(theme => ({
   },
   header: {
     marginBottom: theme.spacing(),
+  },
+  schoolSelector: {
+    zIndex: 1000,
+    maxWidth: theme.typography.pxToRem(500),
+  },
+  toolTip: {
+    cursor: "pointer",
   },
 }));
