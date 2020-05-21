@@ -104,6 +104,11 @@ export const Calendars: React.FC<Props> = props => {
     }
   );
 
+  const resetPageWrapper: <T, S>(f: (t: T) => S) => (t: T) => S = f => t => {
+    pagination.goToPage(1);
+    return f(t);
+  };
+
   const changesLoaded =
     getCalendarChanges.state === "LOADING" ||
     getCalendarChanges.state === "UPDATING"
@@ -314,9 +319,9 @@ export const Calendars: React.FC<Props> = props => {
               <div className={classes.scheduleHeader}>
                 <ContractScheduleHeader
                   schoolYearId={schoolYearId}
-                  setSchoolYearId={setSchoolYearId}
+                  setSchoolYearId={resetPageWrapper(setSchoolYearId)}
                   contractId={contract?.id}
-                  setContractId={setContractId}
+                  setContractId={resetPageWrapper(setContractId)}
                   orgId={params.organizationId}
                 />
               </div>
@@ -383,9 +388,11 @@ export const Calendars: React.FC<Props> = props => {
                 calandarChangeDates={calendarChanges}
                 fromDate={parseISO(schoolYear?.startDate)}
                 toDate={parseISO(schoolYear?.endDate)}
-                setSelectedCalendarChanges={setSelectedDateCalendarChanges}
+                setSelectedCalendarChanges={resetPageWrapper(
+                  setSelectedDateCalendarChanges
+                )}
                 selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
+                setSelectedDate={resetPageWrapper(setSelectedDate)}
               />
             )}
           </Grid>
