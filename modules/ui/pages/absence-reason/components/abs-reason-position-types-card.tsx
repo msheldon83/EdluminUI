@@ -53,7 +53,7 @@ export const AbsReasonPositionTypesCard: React.FC<Props> = props => {
           {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
             <>
               <SectionHeader
-                title={t("Position Types")}
+                title={t("Valid for position types")}
                 actions={[
                   {
                     text: t("Edit"),
@@ -82,13 +82,11 @@ export const AbsReasonPositionTypesCard: React.FC<Props> = props => {
                 !props.allPositionTypes &&
                 props.positionTypes.length === 0 && (
                   <Typography>
-                    {t("Not associated with any Postion Types")}
+                    {t("Not valid for any postion types")}
                   </Typography>
                 )}
               {!editing && props.allPositionTypes && (
-                <Typography>
-                  {t("Associated with all Postion Types")}
-                </Typography>
+                <Typography>{t("Valid for all postion types")}</Typography>
               )}
               {!editing &&
                 !props.allPositionTypes &&
