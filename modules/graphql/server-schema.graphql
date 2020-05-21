@@ -38,6 +38,14 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   positionTypes: [PositionType]
 }
 
+type AbsenceApprovalTransitionArgumentsTypeDef {
+  makeAvailableToFill: Boolean!
+}
+
+type AbsenceApprovalTransitionCriteriaTypeDef {
+  absenceReasonIds: [ID]
+}
+
 input AbsenceCreateInput {
   orgId: ID!
   employeeId: ID!
@@ -709,6 +717,14 @@ enum ApprovalStatus {
   NO_APPROVAL_REQUIRED
 }
 
+union ApprovalTransitionArgumentsTypeDef =
+    AbsenceApprovalTransitionArgumentsTypeDef
+  | VacancyApprovalTransitionArgumentsTypeDef
+
+union ApprovalTransitionCriteriaTypeDef =
+    AbsenceApprovalTransitionCriteriaTypeDef
+  | VacancyApprovalTransitionCriteriaTypeDef
+
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -726,6 +742,7 @@ type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & Dom
   name: String!
   description: String
   approvalWorkFlowTypeId: ApprovalWorkflowType!
+  steps: [ApprovalWorkflowStep]
 }
 
 input ApprovalWorkflowCreateInput {
@@ -751,6 +768,18 @@ type ApprovalWorkflowQueries {
     offset: Int
     sortBy: [SortDetailsInput]
   ): PagedApprovalWorkflow
+}
+
+type ApprovalWorkflowStep {
+  stepId: String
+  approverGroupHeaderId: ID
+  onApproval: [ApprovalWorkflowTransition]
+}
+
+type ApprovalWorkflowTransition {
+  goto: String
+  criteria: ApprovalTransitionCriteriaTypeDef
+  args: ApprovalTransitionArgumentsTypeDef
 }
 
 enum ApprovalWorkflowType {
@@ -787,6 +816,7 @@ type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   location: Location
   approverGroupMembers: [ApproverGroupMember]!
   memberCount: Int
+  approvalWorkflows: [ApprovalWorkflow]
 }
 
 input ApproverGroupAddMemberInput {
@@ -821,6 +851,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   approverGroups: [ApproverGroup]!
   memberCount: Int
   allLocationsHaveGroup: Boolean
+  usageCount: Int
 }
 
 input ApproverGroupHeaderCreateInput {
@@ -2725,6 +2756,8 @@ type Location implements ModelObjectInterface & OrgObjectInterface & DomainObjec
   countryName: String
   validUntil: DateTime
   active: Boolean
+  approverGroupByHeaderId(approverGroupHeaderId: ID): ApproverGroup
+  approverGroups: [ApproverGroup]
 }
 
 input LocationCreateInput {
@@ -3291,6 +3324,7 @@ type OrgRef_AbsenceReasonQueries {
     orgIds: [ID]
     includeExpired: Boolean
     sortBy: [SortDetailsInput]
+    positionTypeIds: [ID]
   ): [AbsenceReason]
   paged(
     orgId: ID
@@ -3299,6 +3333,7 @@ type OrgRef_AbsenceReasonQueries {
     offset: Int
     includeExpired: Boolean
     sortBy: [SortDetailsInput]
+    positionTypeIds: [ID]
   ): PagedAbsenceReason
 }
 
@@ -6415,6 +6450,14 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
+}
+
+type VacancyApprovalTransitionArgumentsTypeDef {
+  makeAvailableToFill: Boolean!
+}
+
+type VacancyApprovalTransitionCriteriaTypeDef {
+  vacancyReasonIds: [ID]
 }
 
 enum VacancyAvailability {

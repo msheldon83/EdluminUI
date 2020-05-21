@@ -5,10 +5,6 @@ mutation CreateAccountingCode($accountingCode: AccountingCodeCreateInput!) {
       name
       rowVersion
       externalId
-      location {
-        id
-        name
-      }
     }
   }
 }
