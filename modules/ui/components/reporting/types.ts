@@ -104,6 +104,10 @@ export type DataSourceField = {
   defaultColumnWidthInPixels?: number;
   isRequiredFilter: boolean;
   defaultExpressionFunction: ExpressionFunction;
+  displayValueMap?: {
+    value: string;
+    display: string;
+  }[];
   filterType?: FilterType;
   filterTypeDefinition?: {
     key: string;
@@ -133,6 +137,7 @@ export enum FilterType {
   DateTime = 5,
   Boolean = 6,
   Custom = 7,
+  PredefinedSelection = 8,
 }
 
 export enum LogicalOperator {

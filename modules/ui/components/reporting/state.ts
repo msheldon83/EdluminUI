@@ -256,13 +256,13 @@ const buildFormula = (
     case ExpressionFunction.Equal: {
       const equalValue = processFilterValue(value);
       return `(${fieldName} = ${
-        Array.isArray(equalValue) ? equalValue[0] : equalValue
+        Array.isArray(equalValue) ? `'${equalValue[0]}'` : `'${equalValue}'`
       })`;
     }
     case ExpressionFunction.ContainedIn: {
       const inValue = processFilterValue(value);
       return `(${fieldName} IN (${
-        Array.isArray(inValue) ? inValue.join(",") : inValue
+        Array.isArray(inValue) ? `'${inValue.join("','")}'` : `'${inValue}'`
       }))`;
     }
     case ExpressionFunction.Between: {

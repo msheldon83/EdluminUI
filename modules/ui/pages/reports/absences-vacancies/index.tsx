@@ -79,6 +79,8 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         "SubEmployeeId",
         "PositionTypeId",
         "LocationId",
+        "IsFilled",
+        "RequiresSub",
         "AbsenceReasonId",
         "VacancyReasonId",
         "IsAbsence",

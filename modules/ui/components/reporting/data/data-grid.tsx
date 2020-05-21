@@ -23,7 +23,7 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import clsx from "clsx";
-import { isNumber } from "lodash-es";
+import { isNumber, round } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
 import { calculateColumnWidth, calculateRowHeight } from "../helpers";
 import { useTranslation } from "react-i18next";
@@ -315,7 +315,9 @@ const summaryHeaderRenderer = (
 
   return (
     <div key={key} style={style} className={cellClasses}>
-      {subtotals[columnIndex]}
+      {subtotals[columnIndex]
+        ? round(Number(subtotals[columnIndex]), 2)
+        : undefined}
     </div>
   );
 };
@@ -416,7 +418,11 @@ const groupHeaderCellRenderer = (
 
   return (
     <div key={key} style={style}>
-      <div className={dataClasses}>{group.subtotals[columnIndex]}</div>
+      <div className={dataClasses}>
+        {group.subtotals[columnIndex]
+          ? round(Number(group.subtotals[columnIndex]), 2)
+          : undefined}
+      </div>
     </div>
   );
 };

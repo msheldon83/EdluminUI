@@ -10,6 +10,7 @@ import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-rea
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrgUserSelect } from "ui/components/domain-selects/org-user-select";
 import { useTranslation } from "react-i18next";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 
 type Props = {
   filterField: FilterField;
@@ -54,6 +55,44 @@ export const Filter: React.FC<Props> = props => {
                 value: [start, end],
               });
             }}
+          />
+        );
+      }
+      case FilterType.PredefinedSelection: {
+        const options =
+          filterField.field.displayValueMap?.map(v => {
+            return { value: v.value, label: v.display };
+          }) ?? [];
+        const value = options.filter(o =>
+          (filterField.value ?? []).includes(o.value)
+        );
+        return (
+          <SelectNew
+            label={showLabel ? filterField.field.friendlyName : undefined}
+            value={
+              filterField.expressionFunction === ExpressionFunction.ContainedIn
+                ? value
+                : value[0]
+            }
+            multiple={
+              filterField.expressionFunction === ExpressionFunction.ContainedIn
+            }
+            options={options}
+            withResetValue={false}
+            onChange={value => {
+              const filterValues = value
+                ? Array.isArray(value)
+                  ? value.map((v: OptionType) => v.value)
+                  : [value.value]
+                : [];
+              updateFilter({
+                field: filterField.field,
+                expressionFunction:
+                  filterField.expressionFunction ?? ExpressionFunction.Equal,
+                value: filterValues.length > 0 ? filterValues : undefined,
+              });
+            }}
+            key={filterField.expressionFunction}
           />
         );
       }

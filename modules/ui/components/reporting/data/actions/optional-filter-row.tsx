@@ -169,6 +169,7 @@ const getExpressionOptions = (t: TFunction, field?: DataSourceField) => {
         },
       ];
     case FilterType.Custom:
+    case FilterType.PredefinedSelection:
       return [
         {
           label: t("is"),
