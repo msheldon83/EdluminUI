@@ -6,10 +6,8 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import ErrorIcon from "@material-ui/icons/Error";
-import {
-  ApproverGroupsRoute,
-  ApproverGroupAddRemoveMembersRoute,
-} from "ui/routes/approver-groups";
+import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
+import { LocationViewRoute } from "ui/routes/locations";
 import { useRouteParams } from "ui/routes/definition";
 import { useIsMobile } from "hooks";
 
@@ -30,7 +28,7 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
   const history = useHistory();
   const classes = useStyles();
   const isMobile = useIsMobile();
-  const params = useRouteParams(ApproverGroupsRoute);
+  const params = useRouteParams(LocationViewRoute);
 
   let { approverGroups } = props;
 
@@ -41,11 +39,13 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
         name: e?.name,
         approverGroupHeaderId: e?.approverGroupHeaderId,
         memberCount: e?.memberCount,
-        workflows: e?.approvalWorkflows?.map((e: any) => {
+        approvalWorkflows: e?.approvalWorkflows?.map((e: any) => {
           return e.name;
         }),
       };
     }) ?? [];
+
+  console.log(approverGroups);
 
   const columns: Column<ApproverGroup>[] = [
     {
@@ -92,19 +92,17 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
     },
     {
       title: t("Used in"),
-      field: "workflows",
+      field: "approvalWorkflows",
       searchable: false,
       hidden: isMobile,
-      render: data =>
-        data.approvalWorkflows.length === 1 ? (
-          <>
-            <div>{data.approvalWorkflows[0]}</div>
-          </>
-        ) : (
+      render: data => (
+        <>
           <div>
-            {data.approvalWorkflows.length} {t(" Workflows")}
+            {data.approvalWorkflows ? data.approvalWorkflows.length : 0}
+            {t(" Workflows")}
           </div>
-        ),
+        </>
+      ),
     },
   ];
 
@@ -119,13 +117,13 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
           onRowClick={(event, approverGroup) => {
             if (!approverGroup) return;
 
-            //Member page
-            history.push(
-              ApproverGroupAddRemoveMembersRoute.generate({
+            history.push({
+              pathname: ApproverGroupAddRemoveMembersRoute.generate({
                 approverGroupId: approverGroup?.id ?? "",
                 organizationId: params.organizationId,
-              })
-            );
+              }),
+              state: { locationId: params.locationId },
+            });
           }}
         />
       </Section>
