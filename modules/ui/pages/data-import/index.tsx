@@ -134,6 +134,11 @@ export const DataImportPage: React.FC<{}> = () => {
     setPanelOpened(false);
   };
 
+  const resetPageWrapper: <T, S>(f: (t: T) => S) => (t: T) => S = f => t => {
+    pagination.goToPage(1);
+    return f(t);
+  };
+
   return (
     <>
       <Grid
@@ -192,13 +197,13 @@ export const DataImportPage: React.FC<{}> = () => {
       <Section>
         <ImportFilters
           selectedStatusId={importStatusFilter}
-          setSelectedStatusId={setImportStatusFilter}
+          setSelectedStatusId={resetPageWrapper(setImportStatusFilter)}
           selectedTypeId={importTypeFilter}
-          setSelectedTypeId={setImportTypeFilter}
+          setSelectedTypeId={resetPageWrapper(setImportTypeFilter)}
           fromDate={fromDate}
           toDate={toDate}
-          setFromDate={setFromDate}
-          setToDate={setToDate}
+          setFromDate={resetPageWrapper(setFromDate)}
+          setToDate={resetPageWrapper(setToDate)}
         />
         <Divider className={classes.divider} />
         <Table
