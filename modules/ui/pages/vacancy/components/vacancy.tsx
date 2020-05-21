@@ -356,6 +356,8 @@ export const VacancyUI: React.FC<Props> = props => {
 
   const accountingCodes: any = compact(
     getAccountingCodes?.data?.orgRef_AccountingCode?.all ?? []
+  ).filter(
+    ac => ac.allLocations || ac.locationIds.includes(vacancy.locationId)
   );
 
   const onCancel = () => {
