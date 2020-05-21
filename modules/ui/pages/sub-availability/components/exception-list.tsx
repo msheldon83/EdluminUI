@@ -17,7 +17,7 @@ import {
   isSameYear,
   isBefore,
 } from "date-fns";
-import { getBeginningOfSchoolYear } from "ui/components/helpers";
+import { getBeginningAndEndOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
 import { compact } from "lodash-es";
 import { useMemo, useState } from "react";
@@ -36,17 +36,9 @@ export const ExceptionList: React.FC<Props> = props => {
 
   const today = useMemo(() => new Date(), []);
 
-  const beginningOfSchoolYear = useMemo(() => {
-    return getBeginningOfSchoolYear(today);
+  const [beginningOfSchoolYear, endOfSchoolYear] = useMemo(() => {
+    return getBeginningAndEndOfSchoolYear(today);
   }, [today]);
-
-  const endOfSchoolYear = useMemo(
-    () =>
-      endOfMonth(
-        addMonths(beginningOfSchoolYear, numberOfMonthsInSchoolYear - 1)
-      ),
-    [beginningOfSchoolYear]
-  );
 
   const [queryStartDate, setQueryStartDate] = useState(today);
   const [queryEndDate, setQueryEndDate] = useState(endOfSchoolYear);

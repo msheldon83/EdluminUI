@@ -32,6 +32,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
 import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 import { GetEmployeeAbsences } from "../../graphql/get-employee-absences.gen";
+import { getBeginningAndEndOfSchoolYear } from "ui/components/helpers";
 import { GetSubstituteAssignments } from "../../graphql/get-substitute-assignments.gen";
 import { DeleteDialogRow } from "./row";
 import { AbsVac } from "./types";
@@ -87,11 +88,7 @@ export const DeleteDialog: React.FC<Props> = ({
 
   const toDate = currentSchoolYear
     ? parseISO(currentSchoolYear?.endDate)
-    : set(now, {
-        year: getYear(now) + (getMonth(now) < 6 ? 0 : 1),
-        month: 5,
-        date: 30,
-      });
+    : getBeginningAndEndOfSchoolYear(now)[1];
   const getEmployeeAbsences = useQueryBundle(GetEmployeeAbsences, {
     fetchPolicy: "cache-first",
     variables: {
