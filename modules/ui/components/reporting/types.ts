@@ -16,6 +16,14 @@ export type ReportDefinitionInput = {
     expression: string;
     showExpression?: string;
   }[];
+  chart?: {
+    graphs: {
+      type: GraphType;
+      series: string[];
+      byExpression?: string;
+    }[];
+    againstExpression: string;
+  };
 };
 
 // Response from the server which represents the Report
@@ -29,8 +37,25 @@ export type ReportData = {
   dataColumnIndexMap: Record<string, DataExpression>;
 };
 
+export type ReportChartDefinition = {
+  data: ReportChartData;
+  metadata: ReportMetadata;
+};
+
+export type ReportChartData = {
+  graphData: {
+    rawData: any[][];
+  }[];
+  againstRawData: any[];
+};
+
 export type ReportMetadata = {
   query: Query;
+  chart?: Chart;
+  title?: string;
+  dateStamp?: string;
+  header?: string;
+  footer?: string;
   numberOfColumns: number;
   numberOfLockedColumns: number;
 };
@@ -45,6 +70,22 @@ export type Query = {
     allFields: DataSourceField[];
   };
 };
+
+export type Chart = {
+  graphs: {
+    series: DataExpression[];
+    type: GraphType;
+    by: DataExpression | undefined;
+  }[];
+  against: DataExpression;
+};
+
+export enum GraphType {
+  Bar = 0,
+  StackedBar = 1,
+  Line = 2,
+  Pie = 3,
+}
 
 export type LogicalTerm = {
   operator: LogicalOperator;
@@ -63,6 +104,10 @@ export type DataSourceField = {
   defaultColumnWidthInPixels?: number;
   isRequiredFilter: boolean;
   defaultExpressionFunction: ExpressionFunction;
+  displayValueMap?: {
+    value: string;
+    display: string;
+  }[];
   filterType?: FilterType;
   filterTypeDefinition?: {
     key: string;
@@ -92,6 +137,7 @@ export enum FilterType {
   DateTime = 5,
   Boolean = 6,
   Custom = 7,
+  PredefinedSelection = 8,
 }
 
 export enum LogicalOperator {

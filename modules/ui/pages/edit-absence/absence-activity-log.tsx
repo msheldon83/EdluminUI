@@ -49,7 +49,7 @@ export const AbsenceActivityLog: React.FC<{}> = props => {
   );
 
   const subHeader = absence?.employee?.id ? (
-    <EmployeeLink orgUserId={absence?.employee?.id}>
+    <EmployeeLink orgUserId={absence?.employee?.id} color="black">
       {employeeName}
     </EmployeeLink>
   ) : (

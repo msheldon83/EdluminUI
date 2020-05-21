@@ -1,5 +1,7 @@
 import * as React from "react";
 import { Input, InputProps } from "./input";
+import { InputAdornment } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
 
 export type Props = Omit<InputProps, "onChange" | "onBlur"> & {
   label?: string;
@@ -26,6 +28,7 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
     placeholder,
     helperMessage,
   } = props;
+  const { t } = useTranslation();
 
   // This is a uncontrolled ocmponent because of how the the formatting needs to happen
   const [internalValue, setInternalValue] = React.useState(
@@ -48,6 +51,9 @@ export const DurationInput = React.forwardRef((props: Props, ref) => {
       label={label}
       name={name}
       placeholder={placeholder}
+      endAdornment={
+        <InputAdornment position="end">{t("hours")}</InputAdornment>
+      }
       value={internalValue}
       onChange={event => setInternalValue(event.target.value)}
       onBlur={handleBlur}

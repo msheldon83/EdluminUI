@@ -116,40 +116,6 @@ DatePickerStory.story = {
   name: "Date Picker",
 };
 
-export const DatePickerExtendedRangeStory = () => {
-  return <h1>Coming Soon.</h1>;
-  // const classes = useStyles();
-  // const [startDate, setStartDate] = React.useState<Date | string>(new Date());
-  // const [endDate, setEndDate] = React.useState<Date | string | undefined>();
-
-  // return (
-  //   <div className={classes.container}>
-  //     <DatePicker
-  //       variant="extended-range"
-  //       startDate={startDate}
-  //       endDate={endDate}
-  //       onChange={({ startDate, endDate }) => {
-  //         action("onChange")({
-  //           startDate,
-  //           endDate,
-  //         });
-
-  //         setStartDate(startDate);
-  //         setEndDate(endDate);
-  //       }}
-  //       startLabel="From"
-  //       endLabel="To"
-  //       dateFormat={text("dateFormat", DEFAULT_DATE_FORMAT)}
-  //       disableDates={[endOfTomorrow(), endOfYesterday()]}
-  //     />
-  //   </div>
-  // );
-};
-
-DatePickerExtendedRangeStory.story = {
-  name: "Date Range Extended",
-};
-
 export const SingleDateStory = () => {
   const classes = useStyles();
   const [startDate, setStartDate] = React.useState<Date | string>(new Date());

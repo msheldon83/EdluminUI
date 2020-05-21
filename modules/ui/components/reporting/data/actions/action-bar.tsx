@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DataSourceField, FilterField } from "../types";
+import { DataSourceField, FilterField } from "../../types";
 import { makeStyles } from "@material-ui/core";
 import { OptionalFilters } from "./optional-filters";
 import { RequiredFilters } from "./required-filters";
@@ -30,6 +30,7 @@ export const ActionBar: React.FC<Props> = props => {
       />
       <div className={classes.optionalFilters}>
         <OptionalFilters
+          currentFilters={currentFilters}
           filterableFields={filterableFields.filter(f => !f.isRequiredFilter)}
           setFilters={(filterFields: FilterField[]) =>
             setFilters(filterFields, true)

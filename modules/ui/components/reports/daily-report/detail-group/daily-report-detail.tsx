@@ -51,11 +51,11 @@ export const DailyReportDetail: React.FC<Props> = props => {
       existingUnfilledSelection &&
       props.detail.state === "unfilled");
 
-  const goToAbsenceEdit = (absenceId: string) => {
-    const url = AdminEditAbsenceRoute.generate({
+  const goToAbsenceEdit = (absenceId: string, editSub?: boolean) => {
+    const url = `${AdminEditAbsenceRoute.generate({
       ...absenceEditParams,
       absenceId,
-    });
+    })}${editSub ? "?step=preAssignSub" : ""}`;
     history.push(url, {
       returnUrl: `${history.location.pathname}${history.location.search}`,
     });
@@ -90,7 +90,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
             props.detail.assignmentRowVersion
           );
         } else {
-          goToAbsenceEdit(props.detail.id);
+          goToAbsenceEdit(props.detail.id, true);
         }
       },
       permissions: props.detail.substitute
