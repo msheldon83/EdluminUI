@@ -18,6 +18,10 @@ query GetLocationById($locationId: ID!) {
         name
         memberCount
         approverGroupHeaderId
+        approvalWorkflows {
+          id
+          name
+        }
       }
       substitutePreferences {
         blockedSubstitutes {

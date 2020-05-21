@@ -145,8 +145,7 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
           </Link>
         </div>
       </div>
-      <PageTitle title={t("Building Approvers")} />
-
+      <PageTitle title={approverGroupHeader!.name} />
       <Grid container className={classes.content}>
         <Grid item xs={6}>
           <Section>

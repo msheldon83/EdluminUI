@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import * as React from "react";
-import { usePagedQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { Table } from "ui/components/table";
 import { makeStyles, Tooltip } from "@material-ui/core";
 import { Column } from "material-table";
@@ -25,28 +25,18 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
   const isMobile = useIsMobile();
   const params = useRouteParams(ApproverGroupsRoute);
 
-  const [getApproverGroups, pagination] = usePagedQueryBundle(
-    GetAllApproverGroupsWithinOrg,
-    r => r.approverGroup?.paged?.totalCount,
-    {
-      variables: {
-        orgId: params.organizationId,
-        sortBy: [
-          {
-            sortByPropertyName: "id",
-            sortAscending: false,
-          },
-        ],
-      },
-    }
-  );
+  const getApproverGroups = useQueryBundle(GetAllApproverGroupsWithinOrg, {
+    variables: {
+      orgId: params.organizationId,
+    },
+  });
 
   const approverGroups =
     getApproverGroups.state === "DONE"
-      ? compact(getApproverGroups.data?.approverGroup?.paged?.results)
+      ? compact(getApproverGroups.data?.approverGroup?.all)
       : [];
 
-  const columns: Column<GetAllApproverGroupsWithinOrg.Results>[] = [
+  const columns: Column<GetAllApproverGroupsWithinOrg.All>[] = [
     {
       title: t("Name"),
       field: "name",
@@ -98,18 +88,23 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
     },
     {
       title: t("Used in"),
-      field: "usedIn",
+      field: "approvalWorkflows",
       searchable: false,
       hidden: isMobile,
-      render: data => (
-        <>
-          <div>Workflow info</div>
-        </>
-      ),
+      render: (data: any, x) =>
+        data.approverGroups[x].approvalWorkflows.length === 1 ? (
+          <>
+            <div>{data.approverGroups[x].approvalWorkflows[0]?.name}</div>
+          </>
+        ) : (
+          <div>
+            {data.approverGroups[x].approvalWorkflows.length} {t(" Workflows")}
+          </div>
+        ),
     },
   ];
 
-  const approverGroupsCount = pagination.totalCount;
+  const approverGroupsCount = approverGroups.length;
 
   return (
     <>
@@ -142,7 +137,6 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
             }
           }}
         />
-        <PaginationControls pagination={pagination} />
       </Section>
     </>
   );

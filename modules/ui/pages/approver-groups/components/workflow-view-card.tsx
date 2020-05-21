@@ -37,7 +37,7 @@ export const WorkflowViewCard: React.FC<Props> = props => {
         >
           {props.values?.length === 0 ? (
             <Grid item xs={12}>
-              <Typography>{t("Not Defined")}</Typography>
+              <Typography>{t("No workflows")}</Typography>
             </Grid>
           ) : (
             values?.map((value: any, i) => {

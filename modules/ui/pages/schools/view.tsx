@@ -1,10 +1,10 @@
 import * as React from "react";
-import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { LocationsInformation } from "./components/information";
 import Maybe from "graphql/tsutils/Maybe";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
+import { Can } from "ui/components/auth/can";
 import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { useState, useEffect } from "react";
@@ -25,6 +25,7 @@ import { ApproverGroupsUI } from "./components/approver-groups";
 import { DeleteLocation } from "./graphql/delete-location.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
 import { GetLocationsDocument } from "reference-data/get-locations.gen";
+import { GetAllPermissionSetsWithinOrgDocument } from "../security-permission-sets/graphql/get-all-permission-sets.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -212,7 +213,11 @@ export const LocationViewPage: React.FC<{}> = props => {
             editPermission={[PermissionEnum.LocationSave]}
           />
         )}
-        {location && <ApproverGroupsUI approverGroups={approverGroups} />}
+        {location && Config.isDevFeatureOnly && (
+          <Can do={[PermissionEnum.ApprovalSettingsView]}>
+            <ApproverGroupsUI approverGroups={approverGroups} />
+          </Can>
+        )}
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ type ApproverGroup = {
   name: string;
   approverGroupHeaderId: string;
   memberCount: number;
+  approvalWorkflows: string[];
 };
 
 export const ApproverGroupsUI: React.FC<Props> = props => {
@@ -40,6 +41,9 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
         name: e?.name,
         approverGroupHeaderId: e?.approverGroupHeaderId,
         memberCount: e?.memberCount,
+        workflows: e?.approvalWorkflows?.map((e: any) => {
+          return e.name;
+        }),
       };
     }) ?? [];
 
@@ -88,14 +92,19 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
     },
     {
       title: t("Used in"),
-      field: "usedIn",
+      field: "workflows",
       searchable: false,
       hidden: isMobile,
-      render: data => (
-        <>
-          <div>Workflow info</div>
-        </>
-      ),
+      render: data =>
+        data.approvalWorkflows.length === 1 ? (
+          <>
+            <div>{data.approvalWorkflows[0]}</div>
+          </>
+        ) : (
+          <div>
+            {data.approvalWorkflows.length} {t(" Workflows")}
+          </div>
+        ),
     },
   ];
 
