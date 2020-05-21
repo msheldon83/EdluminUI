@@ -1,11 +1,11 @@
 import * as React from "react";
-import { PageTitle } from "ui/components/page-title";
 import { Report } from "ui/components/reporting";
 import { useTranslation } from "react-i18next";
 import {
   ReportDefinitionInput,
   Direction,
   ExpressionFunction,
+  GraphType,
 } from "ui/components/reporting/types";
 import { addDays } from "date-fns";
 
@@ -52,27 +52,40 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
           direction: Direction.Desc,
         },
       ],
+      chart: {
+        graphs: [
+          {
+            type: GraphType.StackedBar,
+            series: [
+              'CountIf(FillStatus = "Filled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Filled',
+              'CountIf(FillStatus = "Unfilled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Unfilled',
+              'CountIf(FillStatus = "NoSubRequired", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS "No Sub Required"',
+            ],
+          },
+        ],
+        againstExpression: "Date",
+      },
     };
   }, []);
 
   return (
-    <>
-      <PageTitle title={t("Absences & Vacancies")} />
-      <Report
-        input={reportInput}
-        exportFilename={t("AbsencesVacanciesReport")}
-        filterFieldsOverride={[
-          "Date",
-          "AbsentEmployeeId",
-          "SubEmployeeId",
-          "PositionTypeId",
-          "LocationId",
-          "AbsenceReasonId",
-          "VacancyReasonId",
-          "IsAbsence",
-          "IsVacancy",
-        ]}
-      />
-    </>
+    <Report
+      title={t("Absences & Vacancies")}
+      input={reportInput}
+      exportFilename={t("AbsencesVacanciesReport")}
+      filterFieldsOverride={[
+        "Date",
+        "AbsentEmployeeId",
+        "SubEmployeeId",
+        "PositionTypeId",
+        "LocationId",
+        "IsFilled",
+        "RequiresSub",
+        "AbsenceReasonId",
+        "VacancyReasonId",
+        "IsAbsence",
+        "IsVacancy",
+      ]}
+    />
   );
 };

@@ -5,8 +5,8 @@ export type ReportQueryInput = {
   queryText: string;
 };
 
-export const GetReportDocument = gql`
-  query GetReport($input: ReportQueryInput!) {
+export const GetReportDataDocument = gql`
+  query GetReportData($input: ReportQueryInput!) {
     report(input: $input)
       @rest(type: "Report", path: "/report/run", method: "POST") {
       data
@@ -15,8 +15,24 @@ export const GetReportDocument = gql`
   }
 `;
 
-export const GetReportQuery = {
+export const GetReportDataQuery = {
   _variables: null as any,
   _result: null as any,
-  Document: GetReportDocument,
+  Document: GetReportDataDocument,
+};
+
+export const GetReportChartDocument = gql`
+  query GetReportChart($input: ReportQueryInput!) {
+    report(input: $input)
+      @rest(type: "Report", path: "/report/chart", method: "POST") {
+      data
+      metadata
+    }
+  }
+`;
+
+export const GetReportChartQuery = {
+  _variables: null as any,
+  _result: null as any,
+  Document: GetReportChartDocument,
 };
