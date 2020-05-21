@@ -124,9 +124,9 @@ const useStyles = makeStyles(theme => ({
     borderBottom: "1px solid #E5E5E5",
     fontWeight: 600,
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "space-between",
-    padding: "0 10px 10px 10px",
+    padding: "0 10px 20px 10px",
   },
   headerMenu: {
     width: 200,

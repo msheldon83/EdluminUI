@@ -27,6 +27,7 @@ export type SelectProps<T extends boolean> = {
   className?: string;
   onSort?: (option1: OptionType, option2: OptionType) => 1 | -1 | 0;
   doSort?: boolean;
+  fixedListBox?: boolean;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -70,6 +71,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     doSort = true,
     onSort = (a: OptionType, b: OptionType) =>
       a.label > b.label ? 1 : b.label > a.label ? -1 : 0,
+    fixedListBox,
   } = props;
 
   const sortedOptions = useMemo(
@@ -86,7 +88,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
 
   // Reference to all the multiple values display
   const selectedChipsRef = React.useRef(null);
-  const inputRef = React.useRef(null);
+  const inputRef: any = React.useRef(null);
 
   // Operate on the options entry
   const getOptionLabel = (option: OptionType): string => {
@@ -233,7 +235,17 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
           />
 
           {listOpen && !disabled ? (
-            <ul className={classes.listbox} {...getListboxProps()}>
+            <ul
+              className={
+                fixedListBox
+                  ? [classes.listbox, classes.fixedListBox].join(" ")
+                  : classes.listbox
+              }
+              {...getListboxProps()}
+              style={{
+                width: inputRef.current?.parentElement.offsetWidth ?? 0,
+              }}
+            >
               {groupedOptions.map((option: OptionType, index: number) => {
                 const itemClasses = clsx({
                   [classes.optionItem]: true,
@@ -373,6 +385,10 @@ const useStyles = makeStyles(theme => ({
     top: "calc(100% - 2px)",
     width: "100%",
     zIndex: 100,
+  },
+  fixedListBox: {
+    position: "fixed!important" as any,
+    top: "auto!important",
   },
   optionItem: {
     paddingLeft: theme.spacing(1.5),

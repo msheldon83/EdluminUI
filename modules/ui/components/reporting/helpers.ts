@@ -1,5 +1,5 @@
 import { Index } from "react-virtualized";
-import { Row, DataExpression } from "./types";
+import { Row, DataExpression, GraphType } from "./types";
 
 export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
   const row = rows[index];
@@ -20,4 +20,18 @@ export const calculateColumnWidth = (
   return (
     dataColumnIndexMap[index].dataSourceField?.defaultColumnWidthInPixels ?? 200
   );
+};
+
+export const getGraphTypeString = (graphType: GraphType): string | null => {
+  switch (graphType) {
+    case GraphType.Bar:
+      return "BAR";
+    case GraphType.StackedBar:
+      return "STACKEDBAR";
+    case GraphType.Line:
+      return "LINE";
+    case GraphType.Pie:
+      return "PIE";
+  }
+  return null;
 };

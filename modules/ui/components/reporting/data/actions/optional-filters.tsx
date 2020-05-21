@@ -1,5 +1,10 @@
 import * as React from "react";
-import { DataSourceField, FilterField, ExpressionFunction } from "../types";
+import {
+  DataSourceField,
+  FilterField,
+  ExpressionFunction,
+  FilterType,
+} from "../../types";
 import {
   Button,
   Popper,
@@ -8,10 +13,10 @@ import {
   ClickAwayListener,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { FilterList } from "@material-ui/icons";
 import { OptionalFilterRow } from "./optional-filter-row";
 
 type Props = {
+  currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (filterFields: FilterField[]) => void;
   refreshReport: () => Promise<void>;
@@ -20,14 +25,26 @@ type Props = {
 export const OptionalFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { filterableFields, setFilters, refreshReport } = props;
+  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
   const [filtersOpen, setFiltersOpen] = React.useState(false);
-  const [localFilters, setLocalFilters] = React.useState<FilterField[]>([
-    {
-      field: filterableFields[0],
-      expressionFunction: ExpressionFunction.Equal,
-    },
-  ]);
+  const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
+    currentFilters.filter(c =>
+      filterableFields
+        .map(f => f.dataSourceFieldName)
+        .includes(c.field.dataSourceFieldName)
+    ).length === 0
+      ? [
+          {
+            field: filterableFields[0],
+            expressionFunction: ExpressionFunction.Equal,
+          },
+        ]
+      : currentFilters.filter(c =>
+          filterableFields
+            .map(f => f.dataSourceFieldName)
+            .includes(c.field.dataSourceFieldName)
+        )
+  );
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const filtersWithValue = localFilters.filter(f => f.value !== undefined);
@@ -60,6 +77,10 @@ export const OptionalFilters: React.FC<Props> = props => {
         {
           field: filterableFields[0],
           expressionFunction: ExpressionFunction.Equal,
+          value:
+            filterableFields[0].filterType === FilterType.Boolean
+              ? false
+              : undefined,
         },
       ];
     });
@@ -79,7 +100,23 @@ export const OptionalFilters: React.FC<Props> = props => {
       <Button
         color="inherit"
         startIcon={<img src={require("ui/icons/reports-filter.svg")} />}
-        onClick={() => setFiltersOpen(!filtersOpen)}
+        onClick={() => {
+          if (
+            !filtersOpen &&
+            filtersWithValue.length === 0 &&
+            localFilters.length === 1 &&
+            localFilters[0].field.filterType === FilterType.Boolean
+          ) {
+            /* The first time you open the optional filters popover, we've already
+             *  added an initial filter for the User. For things like dropdowns we
+             *  don't acknowledge a filter being set until you select something. For
+             *  a boolean (checkbox), the intial unchecked state is implicitly a
+             *  selection so we are handling that scenario here.
+             */
+            updateFilter({ ...localFilters[0], value: false }, 0);
+          }
+          setFiltersOpen(!filtersOpen);
+        }}
         className={classes.actionButton}
         ref={buttonRef}
       >

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FilterField, DataSourceField, ExpressionFunction } from "../types";
+import { FilterField, DataSourceField, ExpressionFunction } from "../../types";
 import { Filter } from "./filter";
 
 type Props = {
