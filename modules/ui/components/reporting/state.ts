@@ -2,6 +2,7 @@ import { Reducer } from "react";
 import {
   OrderByField,
   ReportDefinition,
+  ReportChartDefinition,
   DataSourceField,
   ReportDefinitionInput,
   FilterField,
@@ -10,10 +11,12 @@ import {
 } from "./types";
 import { compact } from "lodash-es";
 import { format, startOfDay, endOfDay } from "date-fns";
+import { getGraphTypeString } from "./helpers";
 
 export type ReportState = {
   reportDefinitionInput: ReportDefinitionInput;
   reportDefinition?: ReportDefinition;
+  reportChartDefinition?: ReportChartDefinition;
   filters: {
     optional: FilterField[];
     required: FilterField[];
@@ -21,6 +24,7 @@ export type ReportState = {
   filterableFields: DataSourceField[];
   orderBy?: OrderByField;
   rdlString: string;
+  rdlChartString: string | null;
 };
 
 export type ReportActions =
@@ -28,6 +32,10 @@ export type ReportActions =
       action: "setReportDefinition";
       reportDefinition: ReportDefinition;
       filterFieldsOverride?: string[];
+    }
+  | {
+      action: "setReportChartDefinition";
+      reportChartDefinition: ReportChartDefinition;
     }
   | {
       action: "setOptionalFilters";
@@ -114,6 +122,12 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         filterableFields: filterableFields,
       };
     }
+    case "setReportChartDefinition": {
+      return {
+        ...prev,
+        reportChartDefinition: action.reportChartDefinition,
+      };
+    }
     case "setOptionalFilters": {
       const updatedFilters = {
         ...prev.filters,
@@ -132,6 +146,9 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       };
       if (action.refreshReport) {
         updatedState.rdlString = convertReportDefinitionInputToRdl(
+          updatedState.reportDefinitionInput
+        );
+        updatedState.rdlChartString = convertReportDefinitionInputToRdlForChart(
           updatedState.reportDefinitionInput
         );
       }
@@ -165,6 +182,9 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         updatedState.rdlString = convertReportDefinitionInputToRdl(
           updatedState.reportDefinitionInput
         );
+        updatedState.rdlChartString = convertReportDefinitionInputToRdlForChart(
+          updatedState.reportDefinitionInput
+        );
       }
       return updatedState;
     }
@@ -187,6 +207,9 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       return {
         ...prev,
         rdlString: convertReportDefinitionInputToRdl(
+          prev.reportDefinitionInput
+        ),
+        rdlChartString: convertReportDefinitionInputToRdlForChart(
           prev.reportDefinitionInput
         ),
       };
@@ -257,7 +280,7 @@ const buildFormula = (
       } else {
         betweenValues = processFilterValue(value);
       }
-      return `(${fieldName} Between ${betweenValues[0]} AND ${betweenValues[1]})`;
+      return `(${fieldName} BETWEEN ${betweenValues[0]} AND ${betweenValues[1]})`;
     }
   }
   return null;
@@ -281,16 +304,7 @@ export const convertReportDefinitionInputToRdl = (
   forExport?: boolean
 ): string => {
   const rdlPieces: string[] = [];
-  rdlPieces.push(`QUERY FROM ${input.from}`);
-
-  if (input.filter && input.filter.length > 0) {
-    const filterStrings = compact(
-      input.filter.map(f =>
-        buildFormula(f.fieldName, f.expressionFunction, f.value)
-      )
-    );
-    rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
-  }
+  rdlPieces.push(...getRdlFromAndWhere(input));
 
   const selects = [...input.select];
   if (forExport && input.subtotalBy && input.subtotalBy.length > 0) {
@@ -339,6 +353,58 @@ export const convertReportDefinitionInputToRdl = (
         .join(", ")}`
     );
   }
+
+  const rdlString = rdlPieces.join(" ");
+  return rdlString;
+};
+
+const getRdlFromAndWhere = (input: ReportDefinitionInput) => {
+  const rdlPieces: string[] = [];
+  rdlPieces.push(`QUERY FROM ${input.from}`);
+
+  if (input.filter && input.filter.length > 0) {
+    const filterStrings = compact(
+      input.filter.map(f =>
+        buildFormula(f.fieldName, f.expressionFunction, f.value)
+      )
+    );
+    rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
+  }
+  return rdlPieces;
+};
+
+const getRdlChart = (input: ReportDefinitionInput) => {
+  const rdlPieces: string[] = [];
+  if (!input.chart) {
+    return rdlPieces;
+  }
+
+  rdlPieces.push("CHART");
+
+  rdlPieces.push(
+    input.chart.graphs
+      .map(g => {
+        return `${getGraphTypeString(g.type)} [${g.series
+          .map(s => s)
+          .join(", ")}]${g.byExpression ? ` BY ${g.byExpression}` : ""}`;
+      })
+      .join(", ")
+  );
+
+  rdlPieces.push(`AGAINST ${input.chart.againstExpression}`);
+  return rdlPieces;
+};
+
+export const convertReportDefinitionInputToRdlForChart = (
+  input: ReportDefinitionInput
+): string | null => {
+  if (!input.chart) {
+    return null;
+  }
+
+  const rdlPieces: string[] = [];
+  rdlPieces.push(...getRdlFromAndWhere(input));
+  rdlPieces.push(...getRdlChart(input));
 
   const rdlString = rdlPieces.join(" ");
   return rdlString;
