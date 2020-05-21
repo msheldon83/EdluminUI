@@ -366,6 +366,7 @@ const useStyles = makeStyles(theme => ({
   },
   schoolSelector: {
     zIndex: 1000,
+    maxWidth: theme.typography.pxToRem(500),
   },
   toolTip: {
     cursor: "pointer",
