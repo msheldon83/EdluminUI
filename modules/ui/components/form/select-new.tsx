@@ -175,7 +175,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   const [listboxHasYOverflow, setListBoxHasYOverflow] = React.useState(false);
   const listBoxClasses = clsx({
     [classes.listbox]: true,
-    [classes.listboxYOverflow]: listboxHasYOverflow,
+    [classes.listboxXOverflow]: listboxHasYOverflow,
     [classes.fixedListBox]: fixedListBox,
   });
   React.useLayoutEffect(() => {
@@ -269,11 +269,15 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             <ul
               className={listBoxClasses}
               {...getListboxProps()}
-              style={{
-                width:
-                  (inputRef.current as HTMLInputElement | null)?.parentElement
-                    ?.offsetWidth ?? 0,
-              }}
+              style={
+                fixedListBox
+                  ? {
+                      width:
+                        (inputRef.current as HTMLInputElement | null)
+                          ?.parentElement?.offsetWidth ?? 0,
+                    }
+                  : {}
+              }
               {...getListboxProps()}
               ref={listboxRef}
             >
@@ -428,7 +432,7 @@ const useStyles = makeStyles(theme => ({
     position: "fixed!important" as any,
     top: "auto!important",
   },
-  listboxYOverflow: {
+  listboxXOverflow: {
     borderTopRightRadius: theme.typography.pxToRem(4),
   },
   optionItem: {

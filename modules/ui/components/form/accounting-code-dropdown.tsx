@@ -187,7 +187,6 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
             <DeleteIcon />
           </IconButton>
         </span>
-        v
       </>
     );
   });
