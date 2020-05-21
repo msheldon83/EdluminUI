@@ -37,6 +37,10 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
     onSave,
   } = props;
 
+  const sortedDistrictAttributes = allDistrictAttributes?.sort((a, b) =>
+    a?.toLowerCase() > b?.toLowerCase() ? 1 : -1
+  );
+
   const getDistricts = useQueryBundle(SearchDelegatesToOrganizations, {
     variables: {
       orgId: props.orgId,
@@ -76,14 +80,14 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
           />
         </Section>
       </Grid>
-      {allDistrictAttributes && (
+      {sortedDistrictAttributes && (
         <Grid item xs={12} md={6} lg={6}>
           <Section>
             <SectionHeader title={t("All district attributes")} />
-            {allDistrictAttributes?.length === 0 ? (
+            {sortedDistrictAttributes?.length === 0 ? (
               <div>{t("No district attributes")}</div>
             ) : (
-              allDistrictAttributes?.map((n, i) => <div key={i}>{n}</div>)
+              sortedDistrictAttributes?.map((n, i) => <div key={i}>{n}</div>)
             )}
           </Section>
         </Grid>

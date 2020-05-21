@@ -26,6 +26,15 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
 
   const { onAddOrg, onRemoveOrg, orgUserRelationships } = props;
 
+  const sortedOrgUserRelationships = orgUserRelationships?.sort((a, b) =>
+    a?.otherOrganization?.name!.toLowerCase() >
+    b?.otherOrganization?.name!.toLowerCase()
+      ? 1
+      : -1
+  );
+
+  console.log(sortedOrgUserRelationships);
+
   const getDistricts = useQueryBundle(SearchDelegatesToOrganizations, {
     variables: {
       orgId: props.orgId,
@@ -68,7 +77,7 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
 
       <Grid item xs={12}>
         <SelectedDistricts
-          orgUserRelationships={orgUserRelationships}
+          orgUserRelationships={sortedOrgUserRelationships}
           onRemoveOrg={onRemoveOrg}
         />
       </Grid>

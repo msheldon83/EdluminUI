@@ -31,7 +31,16 @@ export const SelectedDistricts: React.FC<Props> = props => {
 
   const { orgUserRelationships, onRemoveOrg, orgEndorsements, onSave } = props;
 
-  const initialValues = { orgUserRelationships: orgUserRelationships };
+  const sortedOrgUserRelationships = orgUserRelationships?.sort((a, b) =>
+    a?.otherOrganization?.name!.toLowerCase() >
+    b?.otherOrganization?.name!.toLowerCase()
+      ? 1
+      : -1
+  );
+
+  console.log(sortedOrgUserRelationships);
+
+  const initialValues = { orgUserRelationships: sortedOrgUserRelationships };
 
   return (
     <Formik
