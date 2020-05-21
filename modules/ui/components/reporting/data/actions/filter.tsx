@@ -92,6 +92,7 @@ export const Filter: React.FC<Props> = props => {
                 value: filterValues.length > 0 ? filterValues : undefined,
               });
             }}
+            key={filterField.expressionFunction}
           />
         );
       }
