@@ -10,30 +10,106 @@ export const CRMContacts = () => {
         <div className={classes.header}>Contacts</div>
         <div className={classes.contactSubfield}>
           <div className={classes.title}>Primary business contact</div>
-          <div className={classes.name}>Mary Smith</div>
-          <div className={classes.role}>Director of HR</div>
-          <div className={classes.email}>msmith@reallycoolschools.edu</div>
-          <div className={classes.phone}>(610) 555-1212</div>
+          <div className={classes.infoLine}>Mary Smith</div>
+          <div className={classes.infoLine}>Director of HR</div>
+          <div className={classes.infoLine}>msmith@reallycoolschools.edu</div>
+          <div className={classes.infoLine}>(610) 555-1212</div>
           <div className={classes.textLink}>Edit</div>
         </div>
         <div className={classes.contactSubfield}>
           <div className={classes.title}>Billing contact</div>
-          <div className={classes.name}>John Kappadicco</div>
-          <div className={classes.role}>Accounts Payable</div>
-          <div className={classes.email}>jkappadicco@reallycoolschools.edu</div>
-          <div className={classes.phone}>(610) 555-1212</div>
+          <div className={classes.infoLine}>John Kappadicco</div>
+          <div className={classes.infoLine}>Accounts Payable</div>
+          <div className={classes.infoLine}>
+            jkappadicco@reallycoolschools.edu
+          </div>
+          <div className={classes.infoLine}>(610) 555-1212</div>
           <div className={classes.textLink}>Edit</div>
           <div className={classes.textLink}>Invite to login</div>
         </div>
         <div className={classes.contactSubfield}>
           <div className={classes.title}>Billing address</div>
-          <div className={classes.addressLine}>1265 E Notting Drive</div>
-          <div className={classes.addressLine}>Exton, PA 19341</div>
+          <div className={classes.infoLine}>1265 E Notting Drive</div>
+          <div className={classes.infoLine}>Exton, PA 19341</div>
           <div className={classes.textLink}>Edit</div>
         </div>
       </div>
     </React.Fragment>
   );
+};
+
+export const CRMContactsReact: React.FC<Props> = props => {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <div className={classes.contacts}>
+        <div className={classes.header}>Contacts</div>
+        <ContactSubfield
+          title="Primary business contact"
+          name="Mary Smith"
+          role="Director of HR"
+          email="msmith@reallycoolschools.edu"
+          phone="(610) 555-1212"
+        >
+          <TextLink linkName="Edit" />
+        </ContactSubfield>
+        <ContactSubfield
+          title="Billing contact"
+          name="John Kappadicco"
+          role="Accounts Payable"
+          email="jkappadicco@reallycoolschools.edu"
+          phone="(610) 555-1212"
+        >
+          <TextLink linkName="Edit" />
+          <TextLink linkName="Invite to login" />
+        </ContactSubfield>
+        <ContactSubfield
+          title="Billing address"
+          addressLine1="1265 E Notting Drive"
+          addressLine2="Exton, PA 19341"
+        >
+          <TextLink linkName="Edit" />
+        </ContactSubfield>
+      </div>
+    </React.Fragment>
+  );
+};
+
+const ContactSubfield: React.FC<Props> = props => {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <div className={classes.contactSubfield}>
+        <div className={classes.title}>{props.title}</div>
+        <div className={classes.infoLine}>{props.name}</div>
+        <div className={classes.infoLine}>{props.role}</div>
+        <div className={classes.infoLine}>{props.email}</div>
+        <div className={classes.infoLine}>{props.phone}</div>
+        <div className={classes.infoLine}>{props.addressLine1}</div>
+        <div className={classes.infoLine}>{props.addressLine2}</div>
+        <div className={classes.infoLine}>{props.children}</div>
+      </div>
+    </React.Fragment>
+  );
+};
+
+const TextLink: React.FC<Props> = props => {
+  const classes = useStyles();
+
+  return <div className={classes.textLink}>{props.linkName}</div>;
+};
+
+type Props = {
+  title?: string;
+  name?: string;
+  role?: string;
+  email?: string;
+  phone?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  linkName?: string;
 };
 
 const useStyles = makeStyles(theme => ({
@@ -51,30 +127,13 @@ const useStyles = makeStyles(theme => ({
   },
   contactSubfield: {
     display: "inline-block",
-    margin: "10px",
+    margin: "10px 100px 10px 10px",
     verticalAlign: "top",
   },
   title: {
     fontWeight: "bold",
   },
-  name: {
-    // padding: "5px",
-    lineHeight: "22px",
-  },
-  role: {
-    // padding: "5px",
-    lineHeight: "22px",
-  },
-  email: {
-    // padding: "5px",
-    lineHeight: "22px",
-  },
-  phone: {
-    // padding: "5px",
-    lineHeight: "22px",
-  },
-  addressLine: {
-    // padding: "5px",
+  infoLine: {
     lineHeight: "22px",
   },
   textLink: {
