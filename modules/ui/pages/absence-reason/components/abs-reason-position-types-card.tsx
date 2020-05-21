@@ -1,5 +1,11 @@
 import * as React from "react";
-import { Typography, FormControlLabel, Checkbox } from "@material-ui/core";
+import {
+  Typography,
+  FormControlLabel,
+  Checkbox,
+  Chip,
+  makeStyles,
+} from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PositionType, PermissionEnum } from "graphql/server-types.gen";
 import { useRouteParams } from "ui/routes/definition";
@@ -24,6 +30,7 @@ export const AbsReasonPositionTypesCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const [editing, setEditing] = React.useState(false);
+  const classes = useStyles();
 
   const positionTypeOptions = usePositionTypeOptions(params.organizationId);
 
@@ -86,11 +93,15 @@ export const AbsReasonPositionTypesCard: React.FC<Props> = props => {
               {!editing &&
                 !props.allPositionTypes &&
                 props.positionTypes.length > 0 && (
-                  <ul>
+                  <>
                     {props.positionTypes.map((pt, i) => (
-                      <li key={i}>{pt.name}</li>
+                      <Chip
+                        key={i}
+                        label={pt.name}
+                        className={classes.positionTypeChip}
+                      />
                     ))}
-                  </ul>
+                  </>
                 )}
               {editing && (
                 <FormControlLabel
@@ -132,3 +143,11 @@ export const AbsReasonPositionTypesCard: React.FC<Props> = props => {
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  positionTypeChip: {
+    background: theme.customColors.blue,
+    color: theme.customColors.white,
+    marginRight: theme.spacing(1),
+  },
+}));
