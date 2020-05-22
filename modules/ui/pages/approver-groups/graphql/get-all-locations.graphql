@@ -1,0 +1,15 @@
+query GetAllLocations($approverGroupHeaderId: ID, $orgId: ID) {
+  location {
+    all(orgId: $orgId) {
+      id
+      name
+      approverGroupByHeaderId(approverGroupHeaderId: $approverGroupHeaderId) {
+        id
+        name
+        memberCount
+        locationId
+        approverGroupHeaderId
+      }
+    }
+  }
+}

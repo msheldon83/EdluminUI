@@ -802,6 +802,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
+  approvalWorkflows: [ApprovalWorkflow]
 }
 
 input ApproverGroupHeaderCreateInput {
