@@ -43,7 +43,9 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     contained = false,
   } = props;
 
-  const { presetDateRanges } = usePresetDateRanges(additionalPresets);
+  const { presetDateRanges, getPresetByDates } = usePresetDateRanges(
+    additionalPresets
+  );
 
   const [startMonth, setStartMonth] = React.useState(defaultMonth);
   const [selectedDates, setSelectedDates] = React.useState<CustomDate[]>([]);
@@ -58,9 +60,32 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   >();
   const [selectedPreset, setSelectedPreset] = React.useState<
     PresetRange | undefined
-  >();
+  >(getPresetByDates(startDate, endDate));
 
-  const resetSelectedPreset = () => setSelectedPreset(undefined);
+  const resetSelectedPreset = React.useCallback(() => {
+    if (typeof startDateInput == "string" || typeof endDateInput === "string") {
+      return;
+    }
+
+    const preset = getPresetByDates(startDateInput, endDateInput);
+
+    if (!preset) {
+      return setSelectedPreset(undefined);
+    }
+
+    if (preset?.value === selectedPreset?.value) {
+      return;
+    }
+
+    setSelectedPreset(preset);
+  }, [endDateInput, getPresetByDates, selectedPreset, startDateInput]);
+
+  // Make sure that if a preset is selected it shows when the popover is closed then repoened
+  React.useEffect(() => resetSelectedPreset(), [
+    resetSelectedPreset,
+    startDateInput,
+    endDateInput,
+  ]);
 
   const handleMonthChange = (month: Date) => setStartMonth(month);
 
@@ -72,9 +97,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     setEndDateInput("");
   };
 
-  const restartRange = (date: Date) => {
-    setRange({ start: date, end: date });
-  };
+  const restartRange = (date: Date) => setRange({ start: date, end: date });
 
   const setRange = React.useCallback(
     ({ start, end }: DateRange, ignoreVisibilityTrigger?: boolean) => {
