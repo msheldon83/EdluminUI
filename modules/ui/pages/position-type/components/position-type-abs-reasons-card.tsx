@@ -39,9 +39,11 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
 
   const absenceReasons = useAbsenceReasons(params.organizationId);
-  const filteredAbsenceReasons = absenceReasons.filter(ar =>
-    ar.positionTypeIds.includes(props.positionTypeId)
-  );
+
+  const [filteredAbsenceReasons, setFilteredAbsenceReasons] = React.useState<
+    any[]
+  >();
+
   const absenceReasonOptions = useAbsenceReasonOptions(params.organizationId);
 
   const [updateAbsenceReason] = useMutationBundle(UpdateAbsenceReason, {
@@ -53,22 +55,23 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
   const handleUpdateAbsenceReason = async (values: {
     absenceReasonIds: string[];
   }) => {
-    const removedFromAbsReasons = filteredAbsenceReasons.filter(
-      ar => !values.absenceReasonIds.includes(ar.id)
-    );
+    const removedFromAbsReasons =
+      filteredAbsenceReasons?.filter(
+        ar => !values.absenceReasonIds.includes(ar.id)
+      ) ?? [];
     const absReasons = absenceReasons.filter(ar =>
       values.absenceReasonIds.includes(ar.id)
     );
 
     //handle removals
-    for (let i = 0; i < removedFromAbsReasons.length; i++) {
+    for (let i = 0; i < removedFromAbsReasons.length ?? 0; i++) {
       removedFromAbsReasons[i].positionTypeIds = removedFromAbsReasons[
         i
-      ].positionTypeIds.filter(a => props.positionTypeId);
+      ].positionTypeIds.filter((a: any) => props.positionTypeId);
       await updateAbsenceReason({
         variables: {
           absenceReason: {
-            id: absReasons[1].id,
+            id: absReasons[i].id,
             rowVersion: absReasons[i].rowVersion,
             allowNegativeBalance: absReasons[i].allowNegativeBalance,
             isRestricted: absReasons[i].isRestricted,
@@ -86,7 +89,7 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
         await updateAbsenceReason({
           variables: {
             absenceReason: {
-              id: absReasons[1].id,
+              id: absReasons[i].id,
               rowVersion: absReasons[i].rowVersion,
               allowNegativeBalance: absReasons[i].allowNegativeBalance,
               isRestricted: absReasons[i].isRestricted,
@@ -96,14 +99,27 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
         });
       }
     }
+    setFilteredAbsenceReasons(absReasons);
   };
+
+  if (absenceReasons.length === 0) {
+    return <></>;
+  }
+
+  if (!filteredAbsenceReasons) {
+    setFilteredAbsenceReasons(
+      absenceReasons.filter(ar =>
+        ar.positionTypeIds.includes(props.positionTypeId)
+      )
+    );
+  }
 
   return (
     <>
       <Section>
         <Formik
           initialValues={{
-            absenceReasonIds: filteredAbsenceReasons.map(pt => pt.id),
+            absenceReasonIds: filteredAbsenceReasons?.map(pt => pt.id) ?? [],
           }}
           onSubmit={async (data, e) => {
             await handleUpdateAbsenceReason(data);
@@ -140,32 +156,28 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
                 }}
               />
 
-              {!editing && filteredAbsenceReasons.length === 0 && (
-                <Typography>
-                  {t("Not associated with any absence reasons")}
-                </Typography>
-              )}
+              {!editing &&
+                filteredAbsenceReasons &&
+                filteredAbsenceReasons.length === 0 && (
+                  <Typography>
+                    {t("Not associated with any absence reasons")}
+                  </Typography>
+                )}
 
-              {!editing && filteredAbsenceReasons.length > 0 && (
-                <>
-                  {filteredAbsenceReasons.map((ar, i) => (
-                    <Chip
-                      key={i}
-                      label={ar.name}
-                      className={classes.positionTypeChip}
-                    />
-                  ))}
-                </>
-              )}
-              {console.log(
-                "values",
-                absenceReasonOptions.filter(
-                  e =>
-                    e.value &&
-                    values.absenceReasonIds &&
-                    values.absenceReasonIds.includes(e.value.toString())
-                )
-              )}
+              {!editing &&
+                filteredAbsenceReasons &&
+                filteredAbsenceReasons.length > 0 && (
+                  <>
+                    {filteredAbsenceReasons.map((ar, i) => (
+                      <Chip
+                        key={i}
+                        label={ar.name}
+                        className={classes.positionTypeChip}
+                      />
+                    ))}
+                  </>
+                )}
+
               {editing && (
                 <SelectNew
                   value={
