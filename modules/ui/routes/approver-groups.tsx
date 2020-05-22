@@ -49,7 +49,7 @@ export const ApproverGroupAddLoader = asyncComponent({
 //Add Location
 export const ApproverGroupAddLocationsRoute = defineSubRoute(
   ApproverGroupHeaderViewRoute,
-  "/add-location",
+  "/add-school",
   []
 );
 
