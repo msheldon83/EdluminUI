@@ -10,6 +10,7 @@ import {
   AnalyticsReportsDailyReportRoute,
   AnalyticsReportsSubHistoryRoute,
   AnalyticsReportsEmployeeRosterRoute,
+  AnalyticsReportsSubstituteRosterRoute,
 } from "ui/routes/analytics-reports";
 import { BaseLink, pickUrl } from "ui/components/links/base";
 
@@ -57,6 +58,10 @@ export const ReportsPage: React.FC<Props> = props => {
         {
           name: t("Employee Roster"),
           url: () => AnalyticsReportsEmployeeRosterRoute.generate(params),
+        },
+        {
+          name: t("Substitute Roster"),
+          url: () => AnalyticsReportsSubstituteRosterRoute.generate(params),
         },
       ],
       ref: React.useRef<HTMLDivElement>(null),

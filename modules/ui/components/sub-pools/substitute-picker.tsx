@@ -46,13 +46,6 @@ export const SubstitutePicker: React.FC<Props> = props => {
     setPendingSearchText,
   ] = useDeferredState<string | undefined>("", 200);
 
-  const updateNameFilter = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingSearchText(event.target.value);
-    },
-    [setPendingSearchText]
-  );
-
   const [allSubstitutesQuery, pagination] = usePagedQueryBundle(
     GetSubstitutesForPreferences,
     r => r.orgUser?.pagedSubsForPreferences?.totalCount,
@@ -73,6 +66,14 @@ export const SubstitutePicker: React.FC<Props> = props => {
       },
     },
     subPickerPaginationDefaults
+  );
+
+  const updateNameFilter = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      pagination.goToPage(1);
+      setPendingSearchText(event.target.value);
+    },
+    [setPendingSearchText, pagination]
   );
 
   let substitutes: GetSubstitutesForPreferences.Results[] = [];
