@@ -143,6 +143,20 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       },
     },
     {
+      title: t("Type"),
+      render: data => {
+        if (data.notificationMethod) {
+          return getDisplayName(
+            "notificationMethod",
+            data.notificationMethod,
+            t
+          );
+        } else {
+          return t("No type found");
+        }
+      },
+    },
+    {
       title: t("Replied at"),
       render: data => {
         if (data.repliedAtUtc) {

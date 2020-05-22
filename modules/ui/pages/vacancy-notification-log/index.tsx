@@ -120,6 +120,20 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
       },
     },
     {
+      title: t("Type"),
+      render: data => {
+        if (data.notificationMethod) {
+          return getDisplayName(
+            "notificationMethod",
+            data.notificationMethod,
+            t
+          );
+        } else {
+          return t("No type found");
+        }
+      },
+    },
+    {
       title: t("Replied at"),
       render: data => {
         if (data.repliedAtUtc) {
@@ -166,7 +180,7 @@ export const VacancyNotificationLogIndex: React.FC<{}> = props => {
         <Grid item>
           <AbsenceVacancyHeader
             subHeader={subHeader}
-            pageHeader={`${t("Text message log")} ${headerId}`}
+            pageHeader={`${t("Notification log")} ${headerId}`}
             onCancel={onReturn}
             isForVacancy={isNormalVacancy}
           />
