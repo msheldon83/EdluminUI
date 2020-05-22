@@ -68,9 +68,16 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         !!action.filterFieldsOverride &&
         action.filterFieldsOverride.length > 0
       ) {
-        filterableFields = filterableFields.filter(f =>
-          action.filterFieldsOverride?.includes(f.dataSourceFieldName)
-        );
+        filterableFields = [];
+        // Maintain the ordering of the filterFieldsOverride list
+        action.filterFieldsOverride.forEach(ff => {
+          const matchingField = allFields.find(
+            m => m.dataSourceFieldName === ff
+          );
+          if (matchingField) {
+            filterableFields.push(matchingField);
+          }
+        });
       }
 
       //TODO: Process the current filters from the Report Definition and put them
