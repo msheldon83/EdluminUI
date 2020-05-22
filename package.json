@@ -59,6 +59,7 @@
     "react-chartjs-2": "^2.9.0",
     "react-confetti": "^5.0.1",
     "react-csv": "^2.0.3",
+    "react-digraph": "^6.7.1",
     "react-dom": "npm:@hot-loader/react-dom",
     "react-hook-form": "^3.27.0",
     "react-hot-loader": "^4.12.20",
