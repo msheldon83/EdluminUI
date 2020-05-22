@@ -9,10 +9,11 @@ type Props = {
   orgId: string;
   role: OrgUserRole;
   selectedOrgUserIds?: string[];
-  setSelectedOrgUserIds: (locationIds?: string[]) => void;
+  setSelectedOrgUserIds: (orgUserIds?: string[]) => void;
   includeAllOption?: boolean;
   label?: string;
   multiple?: boolean;
+  disabled?: boolean;
 };
 
 export const OrgUserSelect: React.FC<Props> = props => {
@@ -25,6 +26,7 @@ export const OrgUserSelect: React.FC<Props> = props => {
     setSelectedOrgUserIds,
     includeAllOption = true,
     multiple = true,
+    disabled = false,
   } = props;
 
   let orgUserOptions = useOrgUserOptions(orgId, role);
@@ -74,6 +76,7 @@ export const OrgUserSelect: React.FC<Props> = props => {
           : undefined
       }
       doSort={!includeAllOption}
+      disabled={disabled}
     />
   );
 };
