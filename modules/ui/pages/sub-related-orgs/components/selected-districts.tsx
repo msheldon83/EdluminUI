@@ -14,7 +14,6 @@ import { Section } from "ui/components/section";
 import clsx from "clsx";
 import { CustomOrgUserRelationship } from "../helpers";
 import { SectionHeader } from "ui/components/section-header";
-import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { EndorsementDetail } from "./endorsement-detail";
 
 type Props = {
@@ -108,46 +107,25 @@ export const SelectedDistricts: React.FC<Props> = props => {
                           </div>
                         </Grid>
                         <Grid item xs={4} container className={classes.inline}>
-                          {/* <AutoCompleteSearch
-                            searchText={searchText}
-                            onClick={(id: string, name?: string) => {
-                              {
+                          <div className={classes.paddingTop}>
+                            <SelectNew
+                              value={{
+                                value: "",
+                                label: "",
+                              }}
+                              multiple={false}
+                              placeholder={t("search")}
+                              onChange={(value: OptionType) => {
                                 values.orgUserRelationships[i].attributes.push({
-                                  endorsementId: id,
-                                  name: name,
+                                  endorsementId: value.value.toString(),
+                                  name: value.label,
                                 });
                                 handleSubmit();
-                              }
-                            }}
-                            options={sortedOrgEndorsements ?? []}
-                            setSearchText={setSearchText}
-                            placeholder={t("search")}
-                            useLabel={false}
-                            includeName
-                          /> */}
-
-                          <SelectNew
-                            // value={{
-                            //   value: values.availability,
-                            //   label:
-                            //     availabilityOptions.find(
-                            //       e => e.value && e.value === values.availability
-                            //     )?.label || "",
-                            // }}
-                            multiple={false}
-                            placeholder={t("search")}
-                            onChange={(value: OptionType) => {
-                              values.orgUserRelationships[i].attributes.push({
-                                endorsementId: value.value.toString(),
-                                name: value.label,
-                              });
-                              handleSubmit();
-                            }}
-                            options={sortedOrgEndorsements ?? []}
-                            withResetValue={false}
-                            doSort={false}
-                          />
-
+                              }}
+                              options={sortedOrgEndorsements ?? []}
+                              withResetValue={false}
+                            />
+                          </div>
                           {n?.attributes?.length === 0 ? (
                             <div></div>
                           ) : (
@@ -228,6 +206,9 @@ const useStyles = makeStyles(theme => ({
   },
   paddingLeft: {
     paddingLeft: theme.spacing(2),
+  },
+  paddingTop: {
+    padding: theme.spacing(2),
   },
   linkText: {
     color: theme.customColors.primary,

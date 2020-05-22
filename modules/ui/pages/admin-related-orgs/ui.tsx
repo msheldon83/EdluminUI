@@ -2,14 +2,12 @@ import * as React from "react";
 import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SelectNew } from "ui/components/form/select-new";
 import { CustomOrgUserRelationship } from "ui/pages/sub-related-orgs/helpers";
 import { SectionHeader } from "ui/components/section-header";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
-import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { SelectedDistricts } from "./components/selected-districts";
 import { GetDelegatesToOrganizations } from "./graphql/get-related-orgs.gen";
 
@@ -23,7 +21,6 @@ type Props = {
 export const ManageDistrictsUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [searchText, setSearchText] = useState<string | undefined>();
 
   const { onAddOrg, onRemoveOrg, orgUserRelationships } = props;
 
@@ -47,11 +44,19 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
 
   const districtOptions: OptionType[] = useMemo(
     () =>
-      districts.map(p => ({
-        label: p?.name ?? "",
-        value: p?.id ?? "",
-      })),
-    [districts]
+      districts
+        .map(p => ({
+          label: p?.name ?? "",
+          value: p?.id ?? "",
+        }))
+        .filter(
+          e =>
+            e.value !==
+            orgUserRelationships.find(
+              o => o.otherOrganization?.orgId === e.value
+            )?.otherOrganization?.orgId
+        ),
+    [districts, orgUserRelationships]
   );
 
   return (
@@ -63,28 +68,19 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
             {t("Search")}
           </Grid>
           <SelectNew
-            // value={{
-            //   value: values.availability,
-            //   label:
-            //     availabilityOptions.find(
-            //       e => e.value && e.value === values.availability
-            //     )?.label || "",
-            // }}
+            value={{
+              value: "",
+              label: "",
+            }}
             multiple={false}
             onChange={(value: OptionType) => {
-              const result = onAddOrg(value.value.toString());
+              onAddOrg(value.value.toString());
             }}
             options={districtOptions}
             withResetValue={false}
             doSort={false}
-          />
-          {/* <AutoCompleteSearch
-            onClick={onAddOrg}
-            searchText={searchText}
-            setSearchText={setSearchText}
-            options={districtOptions}
             placeholder={"District name"}
-          /> */}
+          />
         </Section>
       </Grid>
       <Grid item xs={12}>

@@ -2,7 +2,6 @@ import * as React from "react";
 import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { SelectNew } from "ui/components/form/select-new";
@@ -10,7 +9,6 @@ import { CustomOrgUserRelationship } from "./helpers";
 import { OptionType } from "ui/components/form/select-new";
 import { useQueryBundle } from "graphql/hooks";
 import { SubstituteInput } from "graphql/server-types.gen";
-import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { SelectedDistricts } from "./components/selected-districts";
 import { GetDelegatesToOrganizations } from "./graphql/get-delegate-orgs.gen";
 
@@ -27,7 +25,6 @@ type Props = {
 export const ManageDistrictsUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [searchText, setSearchText] = useState<string | undefined>();
 
   const {
     allDistrictAttributes,
@@ -55,11 +52,19 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
 
   const districtOptions: OptionType[] = useMemo(
     () =>
-      districts.map(p => ({
-        label: p?.name ?? "",
-        value: p?.id ?? "",
-      })),
-    [districts]
+      districts
+        .map(p => ({
+          label: p?.name ?? "",
+          value: p?.id ?? "",
+        }))
+        .filter(
+          e =>
+            e.value !==
+            orgUserRelationships.find(
+              o => o.otherOrganization?.orgId === e.value
+            )?.otherOrganization?.orgId
+        ),
+    [districts, orgUserRelationships]
   );
 
   const sortedDistrictOptions = districtOptions?.sort((a, b) =>
@@ -75,13 +80,10 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
             {t("Search")}
           </Grid>
           <SelectNew
-            // value={{
-            //   value: values.availability,
-            //   label:
-            //     availabilityOptions.find(
-            //       e => e.value && e.value === values.availability
-            //     )?.label || "",
-            // }}
+            value={{
+              value: "",
+              label: "",
+            }}
             multiple={false}
             onChange={(value: OptionType) => {
               const result = onAddOrg(value.value.toString());
@@ -89,14 +91,8 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
             options={sortedDistrictOptions}
             withResetValue={false}
             doSort={false}
-          />
-          {/* <AutoCompleteSearch
-            onClick={onAddOrg}
-            searchText={searchText}
-            setSearchText={setSearchText}
-            options={sortedDistrictOptions}
             placeholder={"District name"}
-          /> */}
+          />
         </Section>
       </Grid>
       {sortedDistrictAttributes && (
