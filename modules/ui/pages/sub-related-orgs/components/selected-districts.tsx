@@ -26,7 +26,6 @@ type Props = {
 export const SelectedDistricts: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [searchText, setSearchText] = useState<string | undefined>();
 
   const { orgUserRelationships, onRemoveOrg, orgEndorsements, onSave } = props;
 
