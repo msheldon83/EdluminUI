@@ -16,6 +16,7 @@ query GetNotificationLogForVacancy($vacancyId: ID!) {
       repliedAtUtc
       reply
       jobNotificationResponse
+      notificationMethod
     }
   }
 }
