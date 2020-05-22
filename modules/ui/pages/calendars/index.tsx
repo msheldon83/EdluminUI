@@ -104,11 +104,6 @@ export const Calendars: React.FC<Props> = props => {
     }
   );
 
-  const resetPageWrapper: <T, S>(f: (t: T) => S) => (t: T) => S = f => t => {
-    pagination.goToPage(1);
-    return f(t);
-  };
-
   const changesLoaded =
     getCalendarChanges.state === "LOADING" ||
     getCalendarChanges.state === "UPDATING"
@@ -319,9 +314,15 @@ export const Calendars: React.FC<Props> = props => {
               <div className={classes.scheduleHeader}>
                 <ContractScheduleHeader
                   schoolYearId={schoolYearId}
-                  setSchoolYearId={resetPageWrapper(setSchoolYearId)}
+                  setSchoolYearId={input => {
+                    pagination.goToPage(1);
+                    setSchoolYearId(input);
+                  }}
                   contractId={contract?.id}
-                  setContractId={resetPageWrapper(setContractId)}
+                  setContractId={input => {
+                    pagination.goToPage(1);
+                    setContractId(input);
+                  }}
                   orgId={params.organizationId}
                 />
               </div>
@@ -388,11 +389,15 @@ export const Calendars: React.FC<Props> = props => {
                 calandarChangeDates={calendarChanges}
                 fromDate={parseISO(schoolYear?.startDate)}
                 toDate={parseISO(schoolYear?.endDate)}
-                setSelectedCalendarChanges={resetPageWrapper(
-                  setSelectedDateCalendarChanges
-                )}
+                setSelectedCalendarChanges={input => {
+                  pagination.goToPage(1);
+                  setSelectedDateCalendarChanges(input);
+                }}
                 selectedDate={selectedDate}
-                setSelectedDate={resetPageWrapper(setSelectedDate)}
+                setSelectedDate={input => {
+                  pagination.goToPage(1);
+                  setSelectedDate(input);
+                }}
               />
             )}
           </Grid>
