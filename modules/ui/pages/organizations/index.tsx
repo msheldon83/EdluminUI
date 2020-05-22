@@ -54,13 +54,6 @@ export const OrganizationsPage: React.FC<Props> = props => {
     setPendingSearchText,
   ] = useDeferredState<string | undefined>("", 200);
 
-  const updateNameFilter = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setPendingSearchText(event.target.value);
-    },
-    [setPendingSearchText]
-  );
-
   const orgPaginationDefaults = makeQueryIso({
     defaults: {
       page: "1",
@@ -78,6 +71,14 @@ export const OrganizationsPage: React.FC<Props> = props => {
       },
     },
     orgPaginationDefaults
+  );
+
+  const updateNameFilter = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setPendingSearchText(event.target.value);
+      pagination.goToPage(1);
+    },
+    [setPendingSearchText, pagination]
   );
 
   const organizations = useMemo(() => {
