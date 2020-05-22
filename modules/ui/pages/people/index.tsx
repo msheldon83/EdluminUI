@@ -311,7 +311,7 @@ export const PeoplePage: React.FC<Props> = props => {
       sorting: false,
     },
 
-    { title: t("Ext ID"), field: "externalId", sorting: false },
+    { title: t("Identifier"), field: "externalId", sorting: false },
     {
       title: t("Role"),
       field: "roles",

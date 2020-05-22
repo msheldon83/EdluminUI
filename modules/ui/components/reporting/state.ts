@@ -315,20 +315,20 @@ export const convertReportDefinitionInputToRdl = (
       const subtotalBy = input.subtotalBy[i];
       if (
         subtotalBy.showExpression &&
-        !selects.includes(subtotalBy.showExpression)
+        !selects.map(s => s.expression).includes(subtotalBy.showExpression)
       ) {
-        selects.unshift(subtotalBy.showExpression);
+        selects.unshift({ expression: subtotalBy.showExpression });
       }
       if (
         !subtotalBy.showExpression &&
-        !selects.includes(subtotalBy.expression)
+        !selects.map(s => s.expression).includes(subtotalBy.expression)
       ) {
-        selects.unshift(subtotalBy.expression);
+        selects.unshift({ expression: subtotalBy.expression });
       }
     }
   }
 
-  rdlPieces.push(`SELECT ${selects.join(", ")}`);
+  rdlPieces.push(`SELECT ${selects.map(s => s.expression).join(", ")}`);
 
   if (input.orderBy && input.orderBy.length > 0) {
     rdlPieces.push(

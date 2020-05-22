@@ -182,7 +182,7 @@ export const CalendarChangeReason: React.FC<Props> = props => {
       lookup: calendarDayTypes,
     },
     {
-      title: t("Work Day Schedule"),
+      title: t("Bell Schedule Variation"),
       field: "workDayScheduleVariantTypeId",
       searchable: true,
       hidden: isMobile,
