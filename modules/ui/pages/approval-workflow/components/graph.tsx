@@ -5,50 +5,11 @@ import {
   Node, // optional
   BwdlTransformer, // optional, Example JSON transformer
   GraphUtils, // optional, useful utility functions
+  IEdge,
 } from "react-digraph";
 import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/core";
-
-const GraphConfig = {
-  NodeTypes: {
-    empty: {
-      // required to show empty nodes
-      typeText: "None",
-      shapeId: "#empty", // relates to the type property of a node
-      shape: (
-        <symbol viewBox="0 0 100 100" id="empty" key="0">
-          <circle cx="50" cy="50" r="45"></circle>
-        </symbol>
-      ),
-    },
-    custom: {
-      // required to show empty nodes
-      typeText: "Custom",
-      shapeId: "#custom", // relates to the type property of a node
-      shape: (
-        <symbol viewBox="0 0 50 25" id="custom" key="0">
-          <ellipse cx="50" cy="25" rx="50" ry="25"></ellipse>
-        </symbol>
-      ),
-    },
-  },
-  NodeSubtypes: {},
-  EdgeTypes: {
-    emptyEdge: {
-      // required to show empty edges
-      shapeId: "#emptyEdge",
-      shape: (
-        <symbol viewBox="0 0 50 50" id="emptyEdge" key="0">
-          <circle cx="25" cy="25" r="8" fill="currentColor">
-            {" "}
-          </circle>
-        </symbol>
-      ),
-    },
-  },
-};
-
-const NODE_KEY = "id"; // Allows D3 to correctly update DOM
+import { GraphConfig, NODE_KEY } from "./graph-config";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
@@ -60,42 +21,35 @@ export const StepsGraph: React.FC<Props> = props => {
   const nodes = [
     {
       id: 1,
-      title: "Node A",
-      x: 258.3976135253906,
-      y: 331.9783248901367,
-      type: "empty",
+      title: "Start",
+      x: 100,
+      y: 250,
+      type: "start",
     },
     {
       id: 2,
-      title: "Node B",
-      x: 593.9393920898438,
-      y: 260.6060791015625,
-      type: "empty",
+      title: "Approved",
+      x: 1000,
+      y: 250,
+      type: "end",
     },
     {
       id: 3,
-      title: "Node C",
-      x: 237.5757598876953,
-      y: 61.81818389892578,
-      type: "custom",
-    },
-    {
-      id: 4,
-      title: "Node C",
-      x: 600.5757598876953,
-      y: 600.81818389892578,
-      type: "custom",
+      title: "Building Approvers",
+      x: 500,
+      y: 250,
+      type: "approverGroup",
     },
   ];
   const edges = [
     {
       source: 1,
-      target: 2,
+      target: 3,
       type: "emptyEdge",
     },
     {
-      source: 2,
-      target: 4,
+      source: 3,
+      target: 2,
       type: "emptyEdge",
     },
   ];
@@ -113,6 +67,39 @@ export const StepsGraph: React.FC<Props> = props => {
   const onCreateEdge = () => {};
   const onSwapEdge = () => {};
   const onDeleteEdge = () => {};
+
+  const renderNodeText = (
+    data: any,
+    id: string | number,
+    isSelected: boolean
+  ) => {
+    if (data.title === "Start" || data.title === "Approved") {
+      return (
+        <text textAnchor="middle" fill="#FFFFFF" className={classes.whiteText}>
+          {data.title}
+        </text>
+      );
+    } else {
+      return (
+        <text textAnchor="middle" className={classes.approverGroupText}>
+          {data.title}
+        </text>
+      );
+    }
+  };
+
+  const afterRenderEdge = (
+    id: string,
+    element: any,
+    edge: IEdge,
+    edgeContainer: any,
+    isEdgeSelected: boolean
+  ) => {
+    // This is to override the styles for the line
+    edgeContainer
+      .querySelector(".edge")
+      .classList.replace("edge", classes.customEdge);
+  };
 
   return (
     <div className={classes.graphBox}>
@@ -133,7 +120,8 @@ export const StepsGraph: React.FC<Props> = props => {
         onSwapEdge={onSwapEdge}
         onDeleteEdge={onDeleteEdge}
         showGraphControls={true}
-        initialBBox={{ x: 0, y: 0, width: 1113, height: 549 }}
+        renderNodeText={renderNodeText}
+        afterRenderEdge={afterRenderEdge}
       />
     </div>
   );
@@ -143,5 +131,20 @@ const useStyles = makeStyles(theme => ({
   graphBox: {
     width: "100%",
     height: "600px",
+  },
+  whiteText: {
+    color: theme.customColors.white,
+    fontWeight: 500,
+    fontSize: theme.typography.pxToRem(24),
+  },
+  approverGroupText: {
+    color: theme.customColors.black,
+    fontSize: theme.typography.pxToRem(20),
+  },
+  customEdge: {
+    stroke: theme.customColors.black,
+    strokeWidth: "1px",
+    color: theme.customColors.white,
+    cursor: "pointer",
   },
 }));

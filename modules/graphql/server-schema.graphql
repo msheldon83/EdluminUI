@@ -207,6 +207,9 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   requireNotesToAdmin: Boolean
   code: String
   requiresApproval: Boolean
+  allPositionTypes: Boolean
+  postionTypeIds: [ID!]!
+  positionTypes: [Position!]!
 }
 
 type AbsenceReasonBalance implements ModelObjectInterface {
@@ -349,6 +352,8 @@ input AbsenceReasonUpdateInput {
   requireNotesToAdmin: Boolean
   code: String
   requiresApproval: Boolean
+  positionTypeIds: [ID]
+  allPositionTypes: Boolean
 }
 
 type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -838,6 +843,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
+  approvalWorkflows: [ApprovalWorkflow]
 }
 
 input ApproverGroupHeaderCreateInput {
@@ -3097,8 +3103,8 @@ type OrgRef_AbsenceReasonMutations {
 
 type OrgRef_AbsenceReasonQueries {
   byId(id: ID!): AbsenceReason
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReason]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): [AbsenceReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): PagedAbsenceReason
 }
 
 type OrgRef_AccountingCodeMutations {
