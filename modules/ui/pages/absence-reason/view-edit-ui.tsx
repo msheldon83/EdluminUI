@@ -23,7 +23,7 @@ import {
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
 import * as yup from "yup";
-import { AbsReasonPositionTypesCard } from "./components/abs-reason-position-types-card";
+import { AbsenceReasonPositionTypesCard } from "./components/abs-reason-position-types-card";
 
 type Props = {
   id: string;
@@ -214,12 +214,14 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
         </Grid>
       </Section>
 
-      <AbsReasonPositionTypesCard
-        editable={false}
-        positionTypes={props.positionTypes ?? []}
-        allPositionTypes={props.allPositionTypes ?? false}
-        updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}
-      />
+      {!props.isCategory && (
+        <AbsenceReasonPositionTypesCard
+          editable={false}
+          positionTypes={props.positionTypes ?? []}
+          allPositionTypes={props.allPositionTypes ?? false}
+          updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}
+        />
+      )}
     </>
   );
 };
