@@ -74,13 +74,29 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
           <Grid item xs={12} container className={classes.spacing}>
             {t("Search")}
           </Grid>
-          <AutoCompleteSearch
+          <SelectNew
+            // value={{
+            //   value: values.availability,
+            //   label:
+            //     availabilityOptions.find(
+            //       e => e.value && e.value === values.availability
+            //     )?.label || "",
+            // }}
+            multiple={false}
+            onChange={(value: OptionType) => {
+              const result = onAddOrg(value.value.toString());
+            }}
+            options={sortedDistrictOptions}
+            withResetValue={false}
+            doSort={false}
+          />
+          {/* <AutoCompleteSearch
             onClick={onAddOrg}
             searchText={searchText}
             setSearchText={setSearchText}
             options={sortedDistrictOptions}
             placeholder={"District name"}
-          />
+          /> */}
         </Section>
       </Grid>
       {sortedDistrictAttributes && (

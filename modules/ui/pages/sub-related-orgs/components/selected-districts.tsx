@@ -2,7 +2,7 @@ import * as React from "react";
 import { Divider, Grid, makeStyles } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { OptionType } from "ui/components/form/select-new";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { Formik } from "formik";
 import {
@@ -108,7 +108,7 @@ export const SelectedDistricts: React.FC<Props> = props => {
                           </div>
                         </Grid>
                         <Grid item xs={4} container className={classes.inline}>
-                          <AutoCompleteSearch
+                          {/* <AutoCompleteSearch
                             searchText={searchText}
                             onClick={(id: string, name?: string) => {
                               {
@@ -124,7 +124,30 @@ export const SelectedDistricts: React.FC<Props> = props => {
                             placeholder={t("search")}
                             useLabel={false}
                             includeName
+                          /> */}
+
+                          <SelectNew
+                            // value={{
+                            //   value: values.availability,
+                            //   label:
+                            //     availabilityOptions.find(
+                            //       e => e.value && e.value === values.availability
+                            //     )?.label || "",
+                            // }}
+                            multiple={false}
+                            placeholder={t("search")}
+                            onChange={(value: OptionType) => {
+                              values.orgUserRelationships[i].attributes.push({
+                                endorsementId: value.value.toString(),
+                                name: value.label,
+                              });
+                              handleSubmit();
+                            }}
+                            options={sortedOrgEndorsements ?? []}
+                            withResetValue={false}
+                            doSort={false}
                           />
+
                           {n?.attributes?.length === 0 ? (
                             <div></div>
                           ) : (

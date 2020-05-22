@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { Section } from "ui/components/section";
+import { SelectNew } from "ui/components/form/select-new";
 import { CustomOrgUserRelationship } from "ui/pages/sub-related-orgs/helpers";
 import { SectionHeader } from "ui/components/section-header";
 import { OptionType } from "ui/components/form/select-new";
@@ -61,13 +62,29 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
           <Grid item xs={12} container className={classes.spacing}>
             {t("Search")}
           </Grid>
-          <AutoCompleteSearch
+          <SelectNew
+            // value={{
+            //   value: values.availability,
+            //   label:
+            //     availabilityOptions.find(
+            //       e => e.value && e.value === values.availability
+            //     )?.label || "",
+            // }}
+            multiple={false}
+            onChange={(value: OptionType) => {
+              const result = onAddOrg(value.value.toString());
+            }}
+            options={districtOptions}
+            withResetValue={false}
+            doSort={false}
+          />
+          {/* <AutoCompleteSearch
             onClick={onAddOrg}
             searchText={searchText}
             setSearchText={setSearchText}
             options={districtOptions}
             placeholder={"District name"}
-          />
+          /> */}
         </Section>
       </Grid>
       <Grid item xs={12}>
