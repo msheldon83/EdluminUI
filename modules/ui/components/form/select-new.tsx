@@ -178,6 +178,14 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     [classes.listboxXOverflow]: listboxHasYOverflow,
     [classes.fixedListBox]: fixedListBox,
   });
+  const listBoxStyle = fixedListBox
+    ? {
+        minWidth: "unset",
+        width:
+          (inputRef.current as HTMLInputElement | null)?.parentElement?.getBoundingClientRect()
+            .width ?? 0,
+      }
+    : {};
   React.useLayoutEffect(() => {
     const container = containerRef.current as HTMLInputElement | null;
     const listbox = listboxRef.current as HTMLElement | null;
@@ -269,16 +277,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             <ul
               className={listBoxClasses}
               {...getListboxProps()}
-              style={
-                fixedListBox
-                  ? {
-                      width:
-                        (inputRef.current as HTMLInputElement | null)
-                          ?.parentElement?.offsetWidth ?? 0,
-                    }
-                  : {}
-              }
-              {...getListboxProps()}
+              style={listBoxStyle}
               ref={listboxRef}
             >
               {groupedOptions.map((option: OptionType, index: number) => {
