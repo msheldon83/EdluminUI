@@ -1,13 +1,14 @@
 import * as React from "react";
-import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { LocationsInformation } from "./components/information";
 import Maybe from "graphql/tsutils/Maybe";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
+import { Can } from "ui/components/auth/can";
 import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { useState, useEffect } from "react";
+import { compact } from "lodash-es";
 import { LocationViewRoute } from "ui/routes/locations";
 import { useHistory } from "react-router";
 import * as yup from "yup";
@@ -20,9 +21,11 @@ import { can } from "helpers/permissions";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { LocationSubPrefRoute, LocationsRoute } from "ui/routes/locations";
+import { ApproverGroupsUI } from "./components/approver-groups";
 import { DeleteLocation } from "./graphql/delete-location.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
 import { GetLocationsDocument } from "reference-data/get-locations.gen";
+import { GetAllPermissionSetsWithinOrgDocument } from "../security-permission-sets/graphql/get-all-permission-sets.gen";
 
 const editableSections = {
   name: "edit-name",
@@ -109,6 +112,10 @@ export const LocationViewPage: React.FC<{}> = props => {
     });
   };
 
+  const approverGroups = compact(
+    getLocation?.data?.location?.byId?.approverGroups
+  );
+
   return (
     <div>
       <Link to={LocationsRoute.generate(params)} className={classes.link}>
@@ -186,9 +193,7 @@ export const LocationViewPage: React.FC<{}> = props => {
         showLabel={true}
       />
       <div className={classes.content}>
-        {location && (
-          <LocationsInformation location={location}></LocationsInformation>
-        )}
+        {location && <LocationsInformation location={location} />}
         {location && (
           <SubstitutePrefCard
             heading={t("Substitute Preferences")}
@@ -206,7 +211,12 @@ export const LocationViewPage: React.FC<{}> = props => {
             editing={false}
             editable={true}
             editPermission={[PermissionEnum.LocationSave]}
-          ></SubstitutePrefCard>
+          />
+        )}
+        {location && Config.isDevFeatureOnly && (
+          <Can do={[PermissionEnum.ApprovalSettingsView]}>
+            <ApproverGroupsUI approverGroups={approverGroups} />
+          </Can>
         )}
       </div>
     </div>

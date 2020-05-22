@@ -204,7 +204,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
     },
   ] as PresetRange[]).concat(additionalPresets ?? []);
 
-  function matchesPreset(
+  function getPresetByDates(
     startToMatch?: Date,
     endToMatch?: Date
   ): PresetRange | undefined {
@@ -221,6 +221,6 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
 
   return {
     presetDateRanges,
-    matchesPreset,
+    getPresetByDates,
   };
 };

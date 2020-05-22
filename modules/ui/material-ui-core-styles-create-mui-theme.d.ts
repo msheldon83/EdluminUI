@@ -94,6 +94,7 @@ type Background = {
   default: string;
   confirmed: string;
   information: string;
+  hoverRow: string;
 };
 
 type Calendar = {

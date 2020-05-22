@@ -21,7 +21,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
   const { t } = useTranslation();
   const classes = useStyles();
   const triggerRef = React.useRef(null);
-  const { matchesPreset } = usePresetDateRanges();
+  const { getPresetByDates } = usePresetDateRanges();
 
   const {
     onDateRangeSelected,
@@ -57,7 +57,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
           )}`
         : placeholder;
 
-    return matchesPreset(startDate, endDate)?.label ?? fallbackString;
+    return getPresetByDates(startDate, endDate)?.label ?? fallbackString;
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
