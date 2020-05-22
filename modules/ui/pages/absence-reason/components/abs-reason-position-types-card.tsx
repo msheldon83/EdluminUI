@@ -19,7 +19,6 @@ import { SectionHeader } from "ui/components/section-header";
 type Props = {
   positionTypes: Pick<PositionType, "id" | "name">[];
   allPositionTypes: boolean;
-  editable: boolean;
   updatePositionTypes: (values: {
     allPositionTypes?: boolean | null;
     posititionTypeIds?: string[] | null;
@@ -67,7 +66,9 @@ export const AbsReasonPositionTypesCard: React.FC<Props> = props => {
                 cancel={{
                   text: t("Cancel"),
                   visible: editing,
-                  execute: () => {},
+                  execute: () => {
+                    setEditing(false);
+                  },
                 }}
                 submit={{
                   text: t("Save"),

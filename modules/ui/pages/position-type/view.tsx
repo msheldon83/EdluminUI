@@ -28,6 +28,7 @@ import { ReplacementCriteria } from "./replacement-criteria";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { GetPositionTypesDocument } from "reference-data/get-position-types.gen";
+import { PositionTypeAbsReasonsCard } from "./components/position-type-abs-reasons-card";
 
 const editableSections = {
   name: "edit-name",
@@ -313,6 +314,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       <ReplacementCriteria
         editing={editing}
         replacementCriteria={replacementCriteria}
+      />
+      <PositionTypeAbsReasonsCard
+        positionTypeId={positionType?.id}
+        updateAbsenceReasons={async (values: {
+          absenceReasonIds?: string[] | null;
+        }) => {}}
       />
     </>
   );

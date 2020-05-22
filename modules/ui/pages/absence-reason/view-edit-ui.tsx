@@ -215,7 +215,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
       </Section>
 
       <AbsReasonPositionTypesCard
-        editable={false}
         positionTypes={props.positionTypes ?? []}
         allPositionTypes={props.allPositionTypes ?? false}
         updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}
