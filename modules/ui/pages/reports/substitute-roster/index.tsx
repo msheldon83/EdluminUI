@@ -6,21 +6,33 @@ import {
   Direction,
   ExpressionFunction,
 } from "ui/components/reporting/types";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
 
-export const EmployeeRosterReport: React.FC<{}> = () => {
+export const SubstituteRosterReport: React.FC<{}> = () => {
   const { t } = useTranslation();
 
   const reportInput: ReportDefinitionInput = React.useMemo(() => {
     return {
-      from: "Employee",
+      from: "Substitute",
       select: [
-        { expression: "Concat(LastName,', ',FirstName) AS Employee" },
+        {
+          expression: "Concat(LastName,', ',FirstName) AS Substitute",
+          component: (row: any[]) => {
+            return (
+              <div>
+                <div>{row[0]}</div>
+                <ShadowIndicator orgName={row[1]} isShadow={!!row[1]} />
+              </div>
+            );
+          },
+          width: 300,
+        },
+        { expression: "ShadowOrgName", hiddenFromReport: true },
         { expression: "ExternalId" },
         { expression: "Active" },
         { expression: "InvitationStatus" },
-        { expression: "LocationNames" },
-        { expression: "Title" },
-        { expression: "PositionTypeName" },
+        { expression: "Endorsements" },
+        { expression: "HasEndorsements" },
         { expression: "Email" },
         { expression: "LoginEmail" },
       ],
@@ -42,14 +54,14 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
 
   return (
     <Report
-      title={t("Employee Roster")}
+      title={t("Substitute Roster")}
       input={reportInput}
-      exportFilename={t("EmployeeRosterReport")}
+      exportFilename={t("SubstituteRosterReport")}
       filterFieldsOverride={[
-        "LocationId",
-        "PositionTypeId",
         "Active",
         "InvitationStatus",
+        "EndorsementId",
+        "HasEndorsements",
       ]}
     />
   );
