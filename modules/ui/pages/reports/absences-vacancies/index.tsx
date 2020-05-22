@@ -45,7 +45,7 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         {
           fieldName: "Date",
           expressionFunction: ExpressionFunction.Between,
-          value: [addDays(new Date(), -7), new Date()],
+          value: [addDays(new Date(), -6), new Date()],
           isRequired: true,
         },
       ],
