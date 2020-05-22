@@ -6,8 +6,10 @@ import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { TextButton } from "ui/components/text-button";
 import { Can } from "ui/components/auth/can";
+import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
-import { SubstituteLink } from "ui/components/links/people";
+import { Link } from "react-router-dom";
+import { ApprovalWorkflowEditRoute } from "ui/routes/approval-workflow";
 
 type Props = {
   title: string;
@@ -16,9 +18,10 @@ type Props = {
   savePermissions?: PermissionEnum[];
 };
 
-export const ViewCard: React.FC<Props> = props => {
+export const WorkflowViewCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const params = useRouteParams(ApprovalWorkflowEditRoute);
 
   const { values, onRemove, savePermissions } = props;
 
@@ -34,7 +37,7 @@ export const ViewCard: React.FC<Props> = props => {
         >
           {props.values?.length === 0 ? (
             <Grid item xs={12}>
-              <Typography>{t("Not Defined")}</Typography>
+              <Typography>{t("No workflows")}</Typography>
             </Grid>
           ) : (
             values?.map((value: any, i) => {
@@ -45,9 +48,15 @@ export const ViewCard: React.FC<Props> = props => {
               return (
                 <Grid item className={className} xs={12} key={i}>
                   <Typography className={classes.label}>
-                    <SubstituteLink orgUserId={value.value} color="black">
+                    <Link
+                      to={ApprovalWorkflowEditRoute.generate({
+                        organizationId: params.organizationId,
+                        approvalWorkflowId: value.value,
+                      })}
+                      className={classes.link}
+                    >
                       {value.label}
-                    </SubstituteLink>
+                    </Link>
                   </Typography>
                   {value.value && onRemove && savePermissions && (
                     <Can do={savePermissions}>
@@ -97,5 +106,11 @@ const useStyles = makeStyles(theme => ({
   },
   label: {
     float: "left",
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
   },
 }));

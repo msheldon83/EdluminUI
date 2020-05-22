@@ -45,6 +45,7 @@ query GetNotificationLogForUser(
         repliedAtUtc
         reply
         jobNotificationResponse
+        notificationMethod
       }
     }
   }

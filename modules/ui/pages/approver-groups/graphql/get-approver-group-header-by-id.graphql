@@ -1,0 +1,23 @@
+query GetApproverGroupHeaderById($approverGroupHeaderId: ID!) {
+  approverGroup {
+    byId(id: $approverGroupHeaderId) {
+      id
+      allLocationsHaveGroup
+      name
+      memberCount
+      variesByLocation
+      approvalWorkflows {
+        id
+        name
+      }
+      approverGroups {
+        id
+        name
+        location {
+          id
+          name
+        }
+      }
+    }
+  }
+}

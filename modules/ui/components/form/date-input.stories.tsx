@@ -5,7 +5,7 @@ import { DateInput } from "./date-input";
 
 export const DateInputStory = () => {
   const classes = useStyles();
-  const [value, setValue] = React.useState();
+  const [value, setValue] = React.useState<Date | string>();
 
   return (
     <div className={classes.container}>

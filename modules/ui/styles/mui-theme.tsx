@@ -305,6 +305,7 @@ export const EdluminTheme = createMuiTheme({
     default: themeColors.edluminSlate,
     confirmed: "#84CFA3",
     information: themeColors.lightSlate,
+    hoverRow: "#d8dbf6",
   },
   calendar: {
     selected: themeColors.edluminSlate,
