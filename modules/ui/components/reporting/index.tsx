@@ -160,6 +160,7 @@ export const Report: React.FC<Props> = props => {
       )}
       <ReportData
         reportDefinition={state.reportDefinition}
+        inputSelects={state.reportDefinitionInput.select}
         isLoading={
           reportDataResponse.state === "LOADING" ||
           reportDataResponse.state === "UPDATING"
