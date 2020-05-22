@@ -13,6 +13,16 @@ query GetLocationById($locationId: ID!) {
       phoneNumber
       formattedPhone
       rowVersion
+      approverGroups {
+        id
+        name
+        memberCount
+        approverGroupHeaderId
+        approvalWorkflows {
+          id
+          name
+        }
+      }
       substitutePreferences {
         blockedSubstitutes {
           id

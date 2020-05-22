@@ -200,8 +200,8 @@ const getChartJsGraphType = (type: GraphType): ChartJsChartType => {
 // our charts are going to be, so supporting up to 6 series
 // should do it.
 const possibleColors = [
-  "#FF5555",
   "#3d4ed7",
+  "#FF5555",
   "#ffcc01",
   "#d8d8d8",
   "#4caf50",
