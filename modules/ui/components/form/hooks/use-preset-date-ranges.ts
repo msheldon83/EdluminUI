@@ -51,7 +51,8 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
       label: t("Last 7 days"),
       value: "last-7-days",
       range() {
-        const start = addDays(new Date(), -7);
+        // Including Today
+        const start = addDays(new Date(), -6);
         const end = new Date();
 
         return {
@@ -64,7 +65,8 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
       label: t("Last 30 days"),
       value: "last-30-days",
       range() {
-        const start = addDays(new Date(), -30);
+        // Including Today
+        const start = addDays(new Date(), -29);
         const end = new Date();
 
         return {
@@ -199,6 +201,20 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         return {
           start: startOfMonth(nextMonth),
           end: endOfMonth(nextMonth),
+        };
+      },
+    },
+    {
+      label: t("Next 7 days"),
+      value: "next-7-days",
+      range() {
+        // Including Today
+        const start = new Date();
+        const end = addDays(new Date(), 6);
+
+        return {
+          start,
+          end,
         };
       },
     },
