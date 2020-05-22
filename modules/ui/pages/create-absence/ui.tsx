@@ -56,6 +56,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   positionId?: string;
   positionName?: string;
+  positionTypeId?: string;
   locationIds?: string[];
   initialAbsenceReason?: string;
   initialDates?: Date[];
@@ -77,10 +78,16 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const actingAsEmployee = props.actingAsEmployee;
 
   const absenceReasons = useAbsenceReasons(props.organizationId);
+  const filteredAbsenceReasons = props.positionId
+    ? absenceReasons.filter(
+        ar =>
+          ar.positionTypeIds.includes(props.positionId!) || ar.allPositionTypes
+      )
+    : absenceReasons;
 
   const [requireAdminNotes, setRequireAdminNotes] = useState(
     props.initialAbsenceReason
-      ? absenceReasons.find(ar => ar.id === props.initialAbsenceReason)
+      ? filteredAbsenceReasons.find(ar => ar.id === props.initialAbsenceReason)
           ?.requireNotesToAdmin ?? false
       : false
   );
@@ -478,6 +485,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isClosed={false}
                 setRequireAdminNotes={setRequireAdminNotes}
                 requireAdminNotes={requireAdminNotes}
+                positionTypeId={props.positionId}
               />
             </Section>
           </>
