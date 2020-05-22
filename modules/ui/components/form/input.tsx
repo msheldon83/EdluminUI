@@ -15,6 +15,7 @@ export type InputProps = Omit<OutlinedInputProps, "labelWidth"> & {
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string;
   helperMessage?: string;
+  readOnly?: boolean;
 };
 
 export const Input = React.forwardRef((props: InputProps, ref) => {
@@ -27,6 +28,7 @@ export const Input = React.forwardRef((props: InputProps, ref) => {
     inputStatus = "default",
     validationMessage,
     helperMessage,
+    readOnly = false,
     ...restOfInputProps
   } = props;
 
@@ -72,6 +74,7 @@ export const Input = React.forwardRef((props: InputProps, ref) => {
           name={id}
           labelWidth={0}
           ref={ref}
+          readOnly={readOnly}
           {...restOfInputProps}
         />
       )}
