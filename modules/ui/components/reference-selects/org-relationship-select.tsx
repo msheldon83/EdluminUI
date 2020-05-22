@@ -9,7 +9,8 @@ type Props = {
   orgId: string;
   selectedOrgId?: string | null;
   setSelectedOrgId: (orgId?: string | null) => void;
-  includeAllAndMyOptions?: boolean;
+  includeAllOption?: boolean;
+  includeMyOrgOption?: boolean;
   label?: string;
   multiple?: boolean;
 };
@@ -20,7 +21,8 @@ export const OrgRelationshipSelect: React.FC<Props> = props => {
     orgId,
     selectedOrgId,
     setSelectedOrgId,
-    includeAllAndMyOptions = true,
+    includeAllOption = true,
+    includeMyOrgOption = true,
     label,
   } = props;
 
@@ -40,15 +42,16 @@ export const OrgRelationshipSelect: React.FC<Props> = props => {
           a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
         ) ?? [];
 
-    if (includeAllAndMyOptions) {
-      options.unshift(
-        { label: t("(All)"), value: "0" },
-        { label: t("My Organization"), value: orgId }
-      );
+    if (includeMyOrgOption) {
+      options.unshift({ label: t("My Organization"), value: orgId });
+    }
+
+    if (includeAllOption) {
+      options.unshift({ label: t("(All)"), value: "0" });
     }
 
     return options;
-  }, [includeAllAndMyOptions, orgId, orgRelationships, t]);
+  }, [includeAllOption, includeMyOrgOption, orgId, orgRelationships, t]);
 
   const selectedValue = orgOptions.find(e =>
     selectedOrgId === "" || selectedOrgId === undefined
