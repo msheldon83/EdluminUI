@@ -62,10 +62,15 @@ export const GraphConfig: any = {
   NodeSubtypes: {},
   EdgeTypes: {
     emptyEdge: {
-      // required to show empty edges
+      // Edge for no more approver groups to select
       shapeId: "#emptyEdge",
+      shape: <symbol viewBox="0 0 0 0" id="emptyEdge" key="0" />,
+    },
+    addEdge: {
+      // Edge to include and add groups button
+      shapeId: "#addEdge",
       shape: (
-        <symbol viewBox="0 0 30 30" id="emptyEdge" key="0">
+        <symbol viewBox="0 0 30 30" id="addEdge" key="0">
           <g id="add">
             <circle cx="15" cy="15" r="15" fill="#FF5555" />
             <rect height="20" width="4" x="13" y="5" fill="#FFFFFF" />

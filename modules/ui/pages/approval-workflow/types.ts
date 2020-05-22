@@ -1,4 +1,7 @@
-import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
+import {
+  ApprovalWorkflowStepInput,
+  ApprovalWorkflowStep,
+} from "graphql/server-types.gen";
 
 export type AbsenceWorkflowUsage = {
   positionTypeId?: string | null;
@@ -73,17 +76,60 @@ export const buildVacancyUsagesJsonString = (
 
 export const exampleSteps: ApprovalWorkflowStepInput[] = [
   {
-    stepId: "firststepId",
+    stepId: "1",
     approverGroupHeaderId: null,
-    onApproval: [{ goto: "laststepId", criteria: null, args: null }],
+    isFirstStep: true,
+    isLastStep: false,
+    deleted: false,
+    onApproval: [{ goto: "2", criteria: null, args: null }],
+    xPosition: 100,
+    yPosition: 250,
   },
   {
-    stepId: "laststepId",
+    stepId: "2",
     approverGroupHeaderId: "1000",
+    isFirstStep: false,
+    isLastStep: false,
+    deleted: false,
+    onApproval: [{ goto: "3", criteria: null, args: null }],
+    xPosition: 1000,
+    yPosition: 250,
+  },
+  {
+    stepId: "3",
+    approverGroupHeaderId: null,
+    isFirstStep: false,
+    isLastStep: true,
+    deleted: false,
     onApproval: [{ goto: null, criteria: null, args: null }],
+    xPosition: 2000,
+    yPosition: 250,
   },
 ];
 
 export const buildStepsJsonString = (steps: ApprovalStep[]) => {
   return JSON.stringify(steps);
 };
+
+export const initialSteps: ApprovalWorkflowStepInput[] = [
+  {
+    stepId: "1",
+    approverGroupHeaderId: null,
+    isFirstStep: true,
+    isLastStep: false,
+    deleted: false,
+    onApproval: [{ goto: "2", criteria: null, args: null }],
+    xPosition: 100,
+    yPosition: 250,
+  },
+  {
+    stepId: "2",
+    approverGroupHeaderId: null,
+    isFirstStep: false,
+    isLastStep: true,
+    deleted: false,
+    onApproval: [{ goto: null, criteria: null, args: null }],
+    xPosition: 1000,
+    yPosition: 250,
+  },
+];

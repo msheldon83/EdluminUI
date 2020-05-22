@@ -14,19 +14,22 @@ import {
 } from "graphql/server-types.gen";
 import { exampleSteps } from "./types";
 import { StepsGraph } from "./components/graph";
+import { ApprovalWorkflowEditRoute } from "ui/routes/approval-workflow";
+import { useRouteParams } from "ui/routes/definition";
 
 type Props = {};
 
 export const ApprovalWorkflowEdit: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const params = useRouteParams(ApprovalWorkflowEditRoute);
 
   return (
     <Section>
       <SectionHeader title={t("Basic info")} />
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <StepsGraph steps={exampleSteps} />
+          <StepsGraph steps={exampleSteps} orgId={params.organizationId} />
         </Grid>
       </Grid>
     </Section>

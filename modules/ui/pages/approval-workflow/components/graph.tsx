@@ -1,69 +1,99 @@
 import * as React from "react";
+import { useState, useRef } from "react";
 import {
   GraphView, // required
   Edge, // optional
-  Node, // optional
+  INode, // optional
   BwdlTransformer, // optional, Example JSON transformer
   GraphUtils, // optional, useful utility functions
   IEdge,
 } from "react-digraph";
-import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
-import { makeStyles } from "@material-ui/core";
+import {
+  ApprovalWorkflowStepInput,
+  ApprovalWorkflowStep,
+} from "graphql/server-types.gen";
+import { useTranslation } from "react-i18next";
+import { makeStyles, Popper, Fade, ClickAwayListener } from "@material-ui/core";
 import { GraphConfig, NODE_KEY } from "./graph-config";
+import {
+  convertStepsToNodes,
+  convertStepsToEdges,
+  getNextId,
+} from "./graph-helpers";
+import { AddUpdateApprover } from "./add-approver";
+import { compact } from "lodash-es";
+import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
+  orgId: string;
 };
 
 export const StepsGraph: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
 
-  const nodes = [
-    {
-      id: 1,
-      title: "Start",
-      x: 100,
-      y: 250,
-      type: "start",
-    },
-    {
-      id: 2,
-      title: "Approved",
-      x: 1000,
-      y: 250,
-      type: "end",
-    },
-    {
-      id: 3,
-      title: "Building Approvers",
-      x: 500,
-      y: 250,
-      type: "approverGroup",
-    },
-  ];
-  const edges = [
-    {
-      source: 1,
-      target: 3,
-      type: "emptyEdge",
-    },
-    {
-      source: 3,
-      target: 2,
-      type: "emptyEdge",
-    },
-  ];
+  const [steps, setSteps] = useState<ApprovalWorkflowStepInput[]>(props.steps);
+
+  const [elAnchor, setElAnchor] = useState<null | HTMLElement>(null);
+  const [conditionOpen, setConditionOpen] = useState(false);
+
+  const [selectedEdge, setSelectedEdge] = useState<IEdge | undefined>(
+    undefined
+  );
+  const [selectedNode, setSelectedNode] = useState<INode | null>(null);
+  const [selectedStep, setSelectedStep] = useState<
+    ApprovalWorkflowStepInput | null | undefined
+  >(null);
+
+  const approverGroups = useApproverGroups(props.orgId);
+
+  const nodes = convertStepsToNodes(steps, approverGroups, t);
+  const edges = convertStepsToEdges(
+    steps,
+    approverGroups.map(x => x.id)
+  );
+
+  console.log(nodes);
+  console.log(edges);
+  console.log(steps);
+
   const selected = {};
 
   const NodeTypes = GraphConfig.NodeTypes;
   const NodeSubtypes = GraphConfig.NodeSubtypes;
   const EdgeTypes = GraphConfig.EdgeTypes;
 
-  const onSelectNode = () => {};
+  const onSelectNode = (node: INode | null) => {
+    if (node && node.type === "approverGroup") {
+      const nodeId = `node-${node.id}-container`;
+      const nodeElement = document.getElementById(nodeId);
+      setElAnchor(nodeElement);
+      setSelectedNode(node);
+      setConditionOpen(true);
+      const step = steps.find(x => x.stepId == node.id);
+      setSelectedStep(step);
+    }
+  };
   const onCreateNode = () => {};
-  const onUpdateNode = () => {};
+
+  const onUpdateNode = (node: INode) => {
+    const stepIndex = steps.findIndex(x => x.stepId == node.id);
+    steps[stepIndex].xPosition = node.x;
+    steps[stepIndex].yPosition = node.y;
+  };
   const onDeleteNode = () => {};
-  const onSelectEdge = () => {};
+
+  const onSelectEdge = (edge: IEdge) => {
+    if (edge.type === "addEdge") {
+      const edgeId = `edge-${edge.source}-${edge.target}-container`;
+      const edgeElement = document.getElementById(edgeId);
+      setElAnchor(edgeElement);
+      setSelectedEdge(edge);
+      setConditionOpen(true);
+    }
+  };
+
   const onCreateEdge = () => {};
   const onSwapEdge = () => {};
   const onDeleteEdge = () => {};
@@ -96,9 +126,69 @@ export const StepsGraph: React.FC<Props> = props => {
     isEdgeSelected: boolean
   ) => {
     // This is to override the styles for the line
-    edgeContainer
-      .querySelector(".edge")
-      .classList.replace("edge", classes.customEdge);
+    if (edgeContainer.querySelector(".edge")) {
+      edgeContainer
+        .querySelector(".edge")
+        .classList.replace("edge", classes.customEdge);
+    }
+  };
+
+  const handleAddCondition = (groupId: string) => {
+    const nextId = getNextId(steps);
+    const sourceIndex = steps.findIndex(x => x.stepId == selectedEdge?.source);
+    const sourceStep = steps[sourceIndex];
+    const targetIndex = steps.findIndex(x => x.stepId == selectedEdge?.target);
+    const targetStep = steps[targetIndex];
+    const sourceOnApprovalIndex = steps[sourceIndex].onApproval?.findIndex(
+      (x: any) => x?.goto == selectedEdge?.target
+    );
+    steps[sourceIndex].onApproval[sourceOnApprovalIndex].goto = nextId;
+
+    steps.push({
+      stepId: nextId,
+      approverGroupHeaderId: groupId,
+      isFirstStep: false,
+      isLastStep: false,
+      deleted: false,
+      onApproval: [{ goto: selectedEdge?.target }],
+      yPosition: sourceStep.yPosition,
+      xPosition:
+        sourceStep.xPosition +
+        (targetStep.xPosition - sourceStep.xPosition) / 2,
+    });
+    handleClosePopper();
+  };
+
+  const handleClosePopper = () => {
+    setElAnchor(null);
+    setSelectedNode(null);
+    setConditionOpen(false);
+    setSelectedEdge(undefined);
+    setSelectedStep(null);
+  };
+
+  const handleRemoveStep = () => {
+    if (selectedStep) {
+      const stepIndex = steps.findIndex(x => x.stepId === selectedStep.stepId);
+      steps[stepIndex].deleted = true;
+      const defaultGoto = steps[stepIndex].onApproval.find(x => !x.criteria)
+        ?.goto;
+
+      steps
+        .filter(
+          x =>
+            !x.deleted &&
+            x.onApproval.find(x => !x.criteria)?.goto === selectedStep.stepId
+        )
+        .forEach(x => {
+          const defaultTransition = x.onApproval.find(x => !x.criteria);
+          if (defaultTransition) {
+            defaultTransition.goto = defaultGoto;
+          }
+        });
+
+      handleClosePopper();
+    }
   };
 
   return (
@@ -123,6 +213,49 @@ export const StepsGraph: React.FC<Props> = props => {
         renderNodeText={renderNodeText}
         afterRenderEdge={afterRenderEdge}
       />
+      <Popper
+        transition
+        open={conditionOpen}
+        anchorEl={elAnchor}
+        placement="top"
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={150}>
+            <ClickAwayListener
+              mouseEvent="onMouseDown"
+              onClickAway={() => {
+                handleClosePopper();
+              }}
+            >
+              <div>
+                <AddUpdateApprover
+                  orgId={props.orgId}
+                  onClose={() => handleClosePopper()}
+                  onSave={handleAddCondition}
+                  selectedGroupId={
+                    selectedStep?.approverGroupHeaderId ?? undefined
+                  }
+                  onRemove={selectedStep ? handleRemoveStep : undefined}
+                  idsToFilterOut={compact(
+                    steps
+                      .filter(x => !x.deleted)
+                      .map(x => {
+                        if (
+                          !selectedStep ||
+                          (selectedStep &&
+                            selectedStep.approverGroupHeaderId !=
+                              x.approverGroupHeaderId)
+                        ) {
+                          return x.approverGroupHeaderId;
+                        }
+                      })
+                  )}
+                />
+              </div>
+            </ClickAwayListener>
+          </Fade>
+        )}
+      </Popper>
     </div>
   );
 };

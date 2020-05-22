@@ -19,7 +19,7 @@ import {
 } from "ui/routes/approval-workflow";
 import { useHistory } from "react-router";
 import { BasicInfo } from "./basic-info";
-import { exampleSteps } from "../types";
+import { initialSteps } from "../types";
 import { WorkflowSteps } from "./workflow-steps";
 
 type Props = {
@@ -88,7 +88,7 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
         workflowType={props.workflowType}
         onCancel={handleCancel}
         orgId={props.orgId}
-        steps={exampleSteps}
+        steps={initialSteps}
         onSave={async (steps: ApprovalWorkflowStepInput[]) => {
           const result = await create({
             ...workflow,

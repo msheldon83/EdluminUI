@@ -208,8 +208,8 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   code: String
   requiresApproval: Boolean
   allPositionTypes: Boolean
-  postionTypeIds: [ID!]!
-  positionTypes: [Position!]!
+  positionTypeIds: [ID!]!
+  positionTypes: [PositionType!]!
 }
 
 type AbsenceReasonBalance implements ModelObjectInterface {
@@ -745,16 +745,25 @@ type ApprovalWorkflowQueries {
 }
 
 type ApprovalWorkflowStep {
-  stepId: String
+  stepId: String!
   deleted: Boolean!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransition]
+  onApproval: [ApprovalWorkflowTransition!]!
+  isFirstStep: Boolean!
+  isLastStep: Boolean!
+  xPosition: Decimal
+  yPosition: Decimal
 }
 
 input ApprovalWorkflowStepInput {
-  stepId: String
+  stepId: String!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransitionInput]
+  onApproval: [ApprovalWorkflowTransitionInput!]!
+  isFirstStep: Boolean!
+  isLastStep: Boolean!
+  xPosition: Decimal
+  yPosition: Decimal
+  deleted: Boolean!
 }
 
 type ApprovalWorkflowTransition {
@@ -3008,6 +3017,7 @@ type OrganizationQueries {
   search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
   staffingProviders: [Organization]
   searchDelegatesToOrganizations(orgId: ID!, searchText: String): [Organization]
+  delegatesToOrganizations(orgId: ID!): [Organization]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -6176,6 +6186,7 @@ type VacancyNotificationLog {
   conversationId: Short!
   jobNotificationResponse: JobNotificationResponse
   messageId: String
+  notificationMethod: NotificationMethod
 }
 
 enum VacancyQualification {

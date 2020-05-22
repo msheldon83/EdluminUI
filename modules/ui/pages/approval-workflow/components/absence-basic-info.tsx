@@ -7,7 +7,7 @@ import {
   Checkbox,
 } from "@material-ui/core";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
-import { OrgUserSelect } from "ui/components/domain-selects/org-user-select";
+import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-user-select";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { buildAbsenceUsagesJsonString, AbsenceWorkflowUsage } from "../types";
 import { compact } from "lodash-es";
