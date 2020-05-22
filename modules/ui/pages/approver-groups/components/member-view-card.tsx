@@ -16,7 +16,7 @@ type Props = {
   savePermissions?: PermissionEnum[];
 };
 
-export const ViewCard: React.FC<Props> = props => {
+export const MemberViewCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 

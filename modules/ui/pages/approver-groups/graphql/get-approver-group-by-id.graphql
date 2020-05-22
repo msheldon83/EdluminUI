@@ -3,6 +3,11 @@ query GetApproverGroupById($approverGroupId: ID!) {
     groupById(approverGroupId: $approverGroupId) {
       id
       name
+      approverGroupHeaderId
+      approvalWorkflows {
+        id
+        name
+      }
       location {
         id
         name

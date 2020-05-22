@@ -27,6 +27,9 @@ export type SelectProps<T extends boolean> = {
   className?: string;
   onSort?: (option1: OptionType, option2: OptionType) => 1 | -1 | 0;
   doSort?: boolean;
+  fixedListBox?: boolean;
+  readOnly?: boolean;
+  inputClassName?: string;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -68,8 +71,11 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     className,
     options,
     doSort = true,
+    readOnly = false,
+    inputClassName = "",
     onSort = (a: OptionType, b: OptionType) =>
       a.label > b.label ? 1 : b.label > a.label ? -1 : 0,
+    fixedListBox,
   } = props;
 
   const sortedOptions = useMemo(
@@ -87,6 +93,8 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   // Reference to all the multiple values display
   const selectedChipsRef = React.useRef(null);
   const inputRef = React.useRef(null);
+  const containerRef = React.useRef(null);
+  const listboxRef = React.useRef(null);
 
   // Operate on the options entry
   const getOptionLabel = (option: OptionType): string => {
@@ -158,9 +166,39 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     open: listOpen,
   });
 
-  const inputClasses = clsx({
-    [classes.attachedInput]: listOpen,
+  /*
+    This section tracks the width of the listbox as compared to the container.
+    If it is wider, it will have a layout overflow wider than the container
+    which requires that the top right border radius get set to not let there be a sharp
+    edge there when there aren't any sharp edges anywhere else
+  */
+  const [listboxHasYOverflow, setListBoxHasYOverflow] = React.useState(false);
+  const listBoxClasses = clsx({
+    [classes.listbox]: true,
+    [classes.listboxXOverflow]: listboxHasYOverflow,
+    [classes.fixedListBox]: fixedListBox,
   });
+  const listBoxStyle = fixedListBox
+    ? {
+        minWidth: "unset",
+        width:
+          (inputRef.current as HTMLInputElement | null)?.parentElement?.getBoundingClientRect()
+            .width ?? 0,
+      }
+    : {};
+  React.useLayoutEffect(() => {
+    const container = containerRef.current as HTMLInputElement | null;
+    const listbox = listboxRef.current as HTMLElement | null;
+
+    const containerWidth = container?.getBoundingClientRect().width ?? 0;
+    const listBoxWidth = listbox?.getBoundingClientRect().width ?? 0;
+
+    setListBoxHasYOverflow(listBoxWidth > containerWidth);
+  }, [setListBoxHasYOverflow, containerRef, listboxRef, listOpen]);
+
+  const inputClasses = `${clsx({
+    [classes.attachedInput]: listOpen,
+  })} ${inputClassName}`;
 
   const selectChipsClasses = clsx({
     [classes.selectedChips]: true,
@@ -198,6 +236,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     <div
       className={`${className} ${containerClasses}`}
       {...(disabled ? {} : getRootProps())}
+      ref={containerRef}
     >
       <div className={classes.inputContainer}>
         <div className={classes.dropdownContainer}>
@@ -210,8 +249,10 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             name={name}
             placeholder={placeholder}
             error={inputStatus === "error"}
+            readOnly={readOnly}
             classes={{
               notchedOutline: inputClasses,
+              input: classes.input,
             }}
             endAdornment={
               <ArrowDropDownIcon
@@ -233,7 +274,12 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
           />
 
           {listOpen && !disabled ? (
-            <ul className={classes.listbox} {...getListboxProps()}>
+            <ul
+              className={listBoxClasses}
+              {...getListboxProps()}
+              style={listBoxStyle}
+              ref={listboxRef}
+            >
               {groupedOptions.map((option: OptionType, index: number) => {
                 const itemClasses = clsx({
                   [classes.optionItem]: true,
@@ -346,7 +392,15 @@ const useStyles = makeStyles(theme => ({
   attachedInput: {
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    borderBottomWidth: 0,
+    borderBottomWidth: "0 !important",
+    zIndex: 110,
+    background: "white",
+    boxShadow: "inset 0 -1px #fff",
+  },
+  input: {
+    textOverflow: "ellipsis",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
   },
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,
@@ -359,27 +413,33 @@ const useStyles = makeStyles(theme => ({
     borderRadius: `0 0 ${theme.typography.pxToRem(
       4
     )} ${theme.typography.pxToRem(4)}`,
-    borderTopWidth: 0,
     color: theme.palette.text.primary,
     fontSize: theme.typography.pxToRem(14),
     lineHeight: theme.typography.pxToRem(32),
     listStyle: "none",
     margin: 0,
-    maxHeight: "200px",
+    maxHeight: theme.typography.pxToRem(200),
     overflow: "auto",
     padding: 0,
     paddingBottom: theme.spacing(1.5),
     position: "absolute",
-    top: "calc(100% - 2px)",
-    width: "100%",
+    top: "calc(100% - 1px)",
+    minWidth: "100%",
     zIndex: 100,
+  },
+  fixedListBox: {
+    position: "fixed!important" as any,
+    top: "auto!important",
+  },
+  listboxXOverflow: {
+    borderTopRightRadius: theme.typography.pxToRem(4),
   },
   optionItem: {
     paddingLeft: theme.spacing(1.5),
     paddingRight: theme.spacing(1.5),
 
     "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
+      backgroundColor: theme.background.hoverRow,
       color: theme.palette.text.primary,
       cursor: "pointer",
     },

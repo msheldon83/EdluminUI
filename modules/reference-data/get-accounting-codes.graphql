@@ -3,7 +3,8 @@ query GetAccountingCodes($orgId: ID!, $locationIds: [ID]) {
     all(orgId: $orgId, locationIds: $locationIds) {
       id
       name
-      locationId
+      locationIds
+      allLocations
     }
   }
 }

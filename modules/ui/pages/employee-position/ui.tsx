@@ -107,7 +107,10 @@ export const PositionEditUI: React.FC<Props> = props => {
     locationIds: string[]
   ) => OptionType[] = locationIds =>
     accountingCodes
-      .filter(p => !p.locationId || locationIds.includes(p.locationId))
+      .filter(
+        ac =>
+          ac.allLocations || ac.locationIds.find(l => locationIds.includes(l))
+      )
       .map(p => ({ label: p.name, value: p.id }));
 
   const getBellSchedules = useQueryBundle(GetBellSchedules, {

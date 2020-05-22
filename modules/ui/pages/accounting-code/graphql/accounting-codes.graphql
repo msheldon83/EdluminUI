@@ -10,8 +10,14 @@ query GetAllAccountingCodesWithinOrg($orgId: ID, $includeExpired: Boolean) {
         id
         name
       }
+      locations {
+        id
+        name
+      }
+      locationIds
       isDeleted
       validUntil
+      allLocations
     }
   }
 }
