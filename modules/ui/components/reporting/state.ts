@@ -259,6 +259,14 @@ const buildFormula = (
         Array.isArray(equalValue) ? `'${equalValue[0]}'` : `'${equalValue}'`
       })`;
     }
+    case ExpressionFunction.NotEqual: {
+      const notEqualValue = processFilterValue(value);
+      return `(${fieldName} != ${
+        Array.isArray(notEqualValue)
+          ? `'${notEqualValue[0]}'`
+          : `'${notEqualValue}'`
+      })`;
+    }
     case ExpressionFunction.ContainedIn: {
       const inValue = processFilterValue(value);
       return `(${fieldName} IN (${
