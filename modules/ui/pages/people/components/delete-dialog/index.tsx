@@ -69,18 +69,26 @@ export const DeleteDialog: React.FC<Props> = ({
       titleString = t("Are you sure you want to delete this user?");
       break;
     case OrgUserRole.Administrator:
-      titleString = "Administrator";
-    // falls through to...
+      titleString = t(
+        "Are you sure you want to remove the Administrator role from this user?"
+      );
+      showEmployee = false;
+      showSubstitute = false;
+      break;
     case OrgUserRole.Employee:
-      titleString = titleString ?? "Employee";
-    // falls through to...
+      titleString = t(
+        "Are you sure you want to remove the Employee role from this user?"
+      );
+      showEmployee = true;
+      showSubstitute = false;
+      break;
     case OrgUserRole.ReplacementEmployee:
       titleString = titleString ?? "Substitute";
       titleString = t(
-        `Are you sure you want to remove the ${titleString} role from this user?`
+        "Are you sure you want to remove the Substitute role from this user?"
       );
-      showEmployee = type == OrgUserRole.Employee;
-      showSubstitute = type == OrgUserRole.ReplacementEmployee;
+      showEmployee = false;
+      showSubstitute = true;
       break;
     default:
       titleString = "";
