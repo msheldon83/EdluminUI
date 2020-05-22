@@ -29,7 +29,6 @@ export type ReportDefinitionInput = {
 export type SelectField = {
   expression: string;
   hiddenFromReport?: boolean;
-  hiddenFromExport?: boolean;
   component?: (row: any[]) => JSX.Element;
   width?: number;
 };
