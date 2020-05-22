@@ -39,6 +39,18 @@ import {
 } from "./routes/accounting-code";
 import { AdminHomeLoader, AdminHomeRoute } from "./routes/admin-home";
 import {
+  AbsenceApprovalWorkflowRoute,
+  AbsenceApprovalWorkflowLoader,
+  VacancyApprovalWorkflowRoute,
+  VacancyApprovalWorkflowLoader,
+  ApprovalWorkflowEditRoute,
+  ApprovalWorkflowEditLoader,
+  AbsenceApprovalWorkflowAddRoute,
+  AbsenceApprovalWorkflowAddLoader,
+  VacancyApprovalWorkflowAddRoute,
+  VacancyApprovalWorkflowAddLoader,
+} from "./routes/approval-workflow";
+import {
   AdminRootChromeRoute,
   AppChromeRoute,
   EmployeeChromeRoute,
@@ -575,6 +587,59 @@ export const App = hot(function() {
                                     <Route
                                       component={UnauthorizedLoader}
                                       path={UnauthorizedAdminRoleRoute.path}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AbsenceApprovalWorkflowAddLoader
+                                      }
+                                      path={
+                                        AbsenceApprovalWorkflowAddRoute.path
+                                      }
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        VacancyApprovalWorkflowAddLoader
+                                      }
+                                      path={
+                                        VacancyApprovalWorkflowAddRoute.path
+                                      }
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsSave,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApprovalWorkflowEditLoader}
+                                      path={ApprovalWorkflowEditRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={AbsenceApprovalWorkflowLoader}
+                                      path={AbsenceApprovalWorkflowRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyApprovalWorkflowLoader}
+                                      path={VacancyApprovalWorkflowRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.ApprovalSettingsView,
+                                      ]}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}

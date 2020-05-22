@@ -11,6 +11,7 @@ type Props = {
   includeAllOption?: boolean;
   label?: string;
   multiple?: boolean;
+  disabled?: boolean;
 };
 
 export const PositionTypeSelect: React.FC<Props> = props => {
@@ -22,6 +23,7 @@ export const PositionTypeSelect: React.FC<Props> = props => {
     setSelectedPositionTypeIds,
     includeAllOption = true,
     multiple = true,
+    disabled = false,
   } = props;
 
   let positionTypeOptions = usePositionTypeOptions(orgId);
@@ -71,6 +73,7 @@ export const PositionTypeSelect: React.FC<Props> = props => {
           : undefined
       }
       doSort={!includeAllOption}
+      disabled={disabled}
     />
   );
 };
