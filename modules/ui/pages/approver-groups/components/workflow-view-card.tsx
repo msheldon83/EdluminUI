@@ -9,7 +9,7 @@ import { Can } from "ui/components/auth/can";
 import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-// import { WorkflowEditRoute }"ui/routes/workflow";
+import { ApprovalWorkflowEditRoute } from "ui/routes/approval-workflow";
 
 type Props = {
   title: string;
@@ -21,7 +21,7 @@ type Props = {
 export const WorkflowViewCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  // const params = useRouteParams(WorkflowEditRoute);
+  const params = useRouteParams(ApprovalWorkflowEditRoute);
 
   const { values, onRemove, savePermissions } = props;
 
@@ -48,13 +48,15 @@ export const WorkflowViewCard: React.FC<Props> = props => {
               return (
                 <Grid item className={className} xs={12} key={i}>
                   <Typography className={classes.label}>
-                    {/* <Link to={
-                      WorkflowEditRoute.generate({
+                    <Link
+                      to={ApprovalWorkflowEditRoute.generate({
                         organizationId: params.organizationId,
-                        workflowId: value.value,
-                      })} className={classes.link}> */}
-                    {value.label}
-                    {/* </Link> */}
+                        approvalWorkflowId: value.value,
+                      })}
+                      className={classes.link}
+                    >
+                      {value.label}
+                    </Link>
                   </Typography>
                   {value.value && onRemove && savePermissions && (
                     <Can do={savePermissions}>

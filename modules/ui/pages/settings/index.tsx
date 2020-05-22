@@ -23,8 +23,16 @@ import { PayCodeRoute } from "ui/routes/pay-code";
 import { ContractsRoute } from "ui/routes/contracts";
 import { Typography } from "@material-ui/core";
 import { Contacts, Tune, Loop, WatchLater } from "@material-ui/icons";
+import GroupIcon from "@material-ui/icons/Group";
 import { Can } from "ui/components/auth/can";
+import CallMergeIcon from "@material-ui/icons/CallMerge";
+import CallSplitIcon from "@material-ui/icons/CallSplit";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { ApproverGroupsRoute } from "ui/routes/approver-groups";
+import {
+  AbsenceApprovalWorkflowRoute,
+  VacancyApprovalWorkflowRoute,
+} from "ui/routes/approval-workflow";
 
 //Create Routes for Pages
 export const SettingsPage: React.FC<{}> = props => {
@@ -181,6 +189,37 @@ export const SettingsPage: React.FC<{}> = props => {
     },
   ];
 
+  //Approval Groups & Workflows
+  const approverGroupsWorkflows = [
+    {
+      name: t("Approver Groups"),
+      icon: (
+        <GroupIcon
+          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        />
+      ),
+      route: ApproverGroupsRoute,
+    },
+    {
+      name: t("Absence Workflows"),
+      icon: (
+        <CallMergeIcon
+          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        />
+      ),
+      route: AbsenceApprovalWorkflowRoute,
+    },
+    {
+      name: t("Vacancy Workflows"),
+      icon: (
+        <CallSplitIcon
+          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        />
+      ),
+      route: VacancyApprovalWorkflowRoute,
+    },
+  ];
+
   return (
     <>
       <PageTitle title={t("Settings")} />
@@ -300,6 +339,37 @@ export const SettingsPage: React.FC<{}> = props => {
           })}
         </Grid>
       </Can>
+      {Config.isDevFeatureOnly && (
+        <Can do={[PermissionEnum.ApprovalSettingsView]}>
+          <Typography className={classes.header} variant="h4">
+            {t("Approver Groups & Workflows")}
+          </Typography>
+          <Grid
+            container
+            className={(classes.root, classes.padding)}
+            spacing={3}
+            item
+            xs={12}
+          >
+            {approverGroupsWorkflows.map((r, i) => {
+              return (
+                <Link
+                  key={i}
+                  to={r.route.generate(params)}
+                  className={classes.textDecoration}
+                >
+                  <Grid className={classes.paddingRight}>
+                    <Paper className={classes.paper}>
+                      {r.icon}
+                      <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                    </Paper>
+                  </Grid>
+                </Link>
+              );
+            })}
+          </Grid>
+        </Can>
+      )}
     </>
   );
 };
