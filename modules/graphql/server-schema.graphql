@@ -46,27 +46,6 @@ type AbsenceApprovalTransitionCriteriaTypeDef {
   absenceReasonIds: [ID]
 }
 
-type AbsenceApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: ID!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  allOthers: Boolean!
-  approvalWorkflowId: ID!
-  approvalWorkflow: ApprovalWorkflow
-  employeeId: ID
-  employee: Employee
-  positionTypeId: ID
-  positionType: PositionType
-}
-
 input AbsenceCreateInput {
   orgId: ID!
   employeeId: ID!
@@ -207,6 +186,9 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   requireNotesToAdmin: Boolean
   code: String
   requiresApproval: Boolean
+  allPositionTypes: Boolean
+  positionTypeIds: [ID!]!
+  positionTypes: [PositionType!]!
 }
 
 type AbsenceReasonBalance implements ModelObjectInterface {
@@ -349,6 +331,8 @@ input AbsenceReasonUpdateInput {
   requireNotesToAdmin: Boolean
   code: String
   requiresApproval: Boolean
+  positionTypeIds: [ID]
+  allPositionTypes: Boolean
 }
 
 type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -713,9 +697,8 @@ type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & Dom
   rowVersion: String!
   name: String!
   description: String
-  approvalWorkflowTypeId: ApprovalWorkflowType!
+  approvalWorkFlowTypeId: ApprovalWorkflowType!
   steps: [ApprovalWorkflowStep]
-  usages: [ApprovalWorkflowUsage]
 }
 
 input ApprovalWorkflowCreateInput {
@@ -723,8 +706,6 @@ input ApprovalWorkflowCreateInput {
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStepInput]
-  usages: String
 }
 
 type ApprovalWorkflowMutations {
@@ -735,33 +716,20 @@ type ApprovalWorkflowMutations {
 
 type ApprovalWorkflowQueries {
   byId(id: ID!): ApprovalWorkflow
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): [ApprovalWorkflow]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): PagedApprovalWorkflow
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApprovalWorkflow]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApprovalWorkflow
 }
 
 type ApprovalWorkflowStep {
   stepId: String
-  deleted: Boolean!
   approverGroupHeaderId: ID
   onApproval: [ApprovalWorkflowTransition]
-}
-
-input ApprovalWorkflowStepInput {
-  stepId: String
-  approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransitionInput]
 }
 
 type ApprovalWorkflowTransition {
   goto: String
   criteria: ApprovalTransitionCriteriaTypeDef
   args: ApprovalTransitionArgumentsTypeDef
-}
-
-input ApprovalWorkflowTransitionInput {
-  goto: String
-  criteria: String
-  args: String
 }
 
 enum ApprovalWorkflowType {
@@ -776,11 +744,7 @@ input ApprovalWorkflowUpdateInput {
   name: String
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType
-  steps: [ApprovalWorkflowStepInput]
-  usages: String
 }
-
-union ApprovalWorkflowUsage = AbsenceApprovalWorkflowUsage | VacancyApprovalWorkflowUsage
 
 type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
@@ -838,6 +802,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
+  approvalWorkflows: [ApprovalWorkflow]
 }
 
 input ApproverGroupHeaderCreateInput {
@@ -3002,6 +2967,7 @@ type OrganizationQueries {
   search(orgIds: [ID], searchTerm: String!): [GlobalSearchTypeDef]
   staffingProviders: [Organization]
   searchDelegatesToOrganizations(orgId: ID!, searchText: String): [Organization]
+  delegatesToOrganizations(orgId: ID!): [Organization]
 }
 
 type OrganizationRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -3097,8 +3063,8 @@ type OrgRef_AbsenceReasonMutations {
 
 type OrgRef_AbsenceReasonQueries {
   byId(id: ID!): AbsenceReason
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReason]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): [AbsenceReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): PagedAbsenceReason
 }
 
 type OrgRef_AccountingCodeMutations {
@@ -5914,25 +5880,6 @@ type VacancyApprovalTransitionCriteriaTypeDef {
   vacancyReasonIds: [ID]
 }
 
-type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
-  _info: [ReturnMessage]
-  id: ID!
-  createdUtc: DateTime!
-  changedUtc: DateTime!
-  deletedUtc: DateTime!
-  isDeleted: Boolean!
-  orgId: ID!
-  organization: Organization!
-  createdLocal: DateTime
-  changedLocal: DateTime
-  deletedLocal: DateTime
-  allOthers: Boolean!
-  approvalWorkflowId: ID!
-  approvalWorkflow: ApprovalWorkflow
-  positionTypeId: ID
-  positionType: PositionType
-}
-
 enum VacancyAvailability {
   YES
   MINOR_CONFLICT
@@ -6170,6 +6117,7 @@ type VacancyNotificationLog {
   conversationId: Short!
   jobNotificationResponse: JobNotificationResponse
   messageId: String
+  notificationMethod: NotificationMethod
 }
 
 enum VacancyQualification {
