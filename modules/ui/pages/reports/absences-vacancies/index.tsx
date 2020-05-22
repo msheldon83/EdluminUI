@@ -78,10 +78,10 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
       exportFilename={t("AbsencesVacanciesReport")}
       filterFieldsOverride={[
         "Date",
+        "LocationId",
+        "PositionTypeId",
         "AbsentEmployeeId",
         "SubEmployeeId",
-        "PositionTypeId",
-        "LocationId",
         "IsFilled",
         "RequiresSub",
         "AbsenceReasonId",

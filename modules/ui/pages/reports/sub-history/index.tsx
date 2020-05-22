@@ -78,11 +78,11 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       showGroupLabels={false}
       filterFieldsOverride={[
         "Date",
-        "LocationId",
         "SubEmployeeId",
+        "LocationId",
+        "PositionTypeId",
         "IsAbsence",
         "IsVacancy",
-        "PositionTypeId",
         "SourceOrgId",
       ]}
     />
