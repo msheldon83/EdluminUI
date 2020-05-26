@@ -127,7 +127,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
         start: startOfWeek(fromDate),
         end: fromDate,
       }).map(date => ({ date, buttonProps: { className: classes.pastDate } })),
-    [fromDate]
+    [fromDate, classes.pastDate]
   );
 
   const uniqueNonWorkingDays = useMemo(() => {
