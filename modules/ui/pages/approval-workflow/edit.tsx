@@ -137,7 +137,7 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
       </div>
       <Section>
         <StepsGraph
-          steps={approvalWorkflow.steps ?? []}
+          steps={approvalWorkflow.steps}
           orgId={params.organizationId}
         />
         <Grid

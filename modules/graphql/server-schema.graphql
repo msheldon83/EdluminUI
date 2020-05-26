@@ -719,7 +719,7 @@ type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & Dom
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStep]
+  steps: [ApprovalWorkflowStep!]!
   usages: [ApprovalWorkflowUsage]
 }
 
