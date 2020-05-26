@@ -136,7 +136,10 @@ export const SmsLogIndex: React.FC<Props> = props => {
             <DatePicker
               variant={"single-hidden"}
               startDate={fromDate}
-              onChange={({ startDate }) => setFromDate(startDate)}
+              onChange={({ startDate }) => {
+                pagination.goToPage(1);
+                return setFromDate(startDate);
+              }}
             />
           </Grid>
           <Grid item xs={isMobile ? 6 : 2}>
@@ -144,7 +147,10 @@ export const SmsLogIndex: React.FC<Props> = props => {
             <DatePicker
               variant={"single-hidden"}
               startDate={toDate}
-              onChange={({ startDate }) => setToDate(startDate)}
+              onChange={({ startDate }) => {
+                pagination.goToPage(1);
+                return setToDate(startDate);
+              }}
             />
           </Grid>
         </Grid>
