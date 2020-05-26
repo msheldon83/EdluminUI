@@ -71,9 +71,11 @@ export const SelectedDistricts: React.FC<Props> = props => {
               <div className={classes.paddingLeft}>{t("Name")}</div>
             </Grid>
             <Grid item xs={4} container className={classes.inline}>
-              {t("District specific attributes")}
+              <div className={classes.paddingLeft}>
+                {t("District specific attributes")}
+              </div>
             </Grid>
-            <Grid item xs={4} container className={classes.inline}></Grid>
+            <Grid item xs={4} container className={classes.inline} />
             <Divider />
             {orgUserRelationships?.length === 0 ? (
               <div className={classes.containerPadding}>

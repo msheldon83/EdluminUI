@@ -39,7 +39,7 @@ export const EndorsementDetail: React.FC<Props> = props => {
             [classes.spacing]: true,
           })}
         >
-          {name}
+          <div className={classes.paddingLeft}> {name}</div>
         </Grid>
         <Grid item xs={5} className={classes.displayInline}>
           <DateInput
@@ -91,6 +91,9 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     paddingTop: theme.spacing(1),
+  },
+  paddingLeft: {
+    paddingLeft: theme.spacing(2),
   },
   spacing: {
     paddingTop: "10px",
