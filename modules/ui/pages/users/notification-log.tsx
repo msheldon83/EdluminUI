@@ -143,6 +143,20 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
       },
     },
     {
+      title: t("Type"),
+      render: data => {
+        if (data.notificationMethod) {
+          return getDisplayName(
+            "notificationMethod",
+            data.notificationMethod,
+            t
+          );
+        } else {
+          return t("No type found");
+        }
+      },
+    },
+    {
       title: t("Replied at"),
       render: data => {
         if (data.repliedAtUtc) {
@@ -208,7 +222,10 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
             <DatePicker
               variant={"single-hidden"}
               startDate={fromDate}
-              onChange={({ startDate }) => setFromDate(startDate)}
+              onChange={({ startDate }) => {
+                pagination.goToPage(1);
+                setFromDate(startDate);
+              }}
             />
           </Grid>
           <Grid item xs={isMobile ? 6 : 2}>
@@ -216,7 +233,10 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
             <DatePicker
               variant={"single-hidden"}
               startDate={toDate}
-              onChange={({ startDate }) => setToDate(startDate)}
+              onChange={({ startDate }) => {
+                pagination.goToPage(1);
+                setToDate(startDate);
+              }}
             />
           </Grid>
         </Grid>

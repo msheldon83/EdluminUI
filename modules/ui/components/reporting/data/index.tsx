@@ -1,5 +1,10 @@
 import * as React from "react";
-import { ReportDefinition, FilterField, DataSourceField } from "../types";
+import {
+  ReportDefinition,
+  FilterField,
+  DataSourceField,
+  SelectField,
+} from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
 import { LoadingDataGrid } from "./loading-data-grid";
@@ -9,6 +14,7 @@ import { DataGrid } from "./data-grid";
 
 type Props = {
   reportDefinition: ReportDefinition | undefined;
+  inputSelects?: SelectField[];
   isLoading: boolean;
   currentFilters: FilterField[];
   filterableFields: DataSourceField[];
@@ -34,6 +40,7 @@ export const ReportData: React.FC<Props> = props => {
     refreshReport,
     exportReport,
     showGroupLabels = true,
+    inputSelects = [],
   } = props;
 
   return !reportDefinition ? (
@@ -58,6 +65,7 @@ export const ReportData: React.FC<Props> = props => {
           reportDefinition={reportDefinition}
           isLoading={isLoading}
           showGroupLabels={showGroupLabels}
+          inputSelects={inputSelects}
         />
       </div>
     </>
