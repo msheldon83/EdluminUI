@@ -275,7 +275,10 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <div className={classes.labelText}>{rowCountLabel}</div>
           <RowStatusFilter
             selectedStatusId={rowStatusFilter}
-            setSelectedStatusId={setRowStatusFilter}
+            setSelectedStatusId={status => {
+              pagination.goToPage(1);
+              setRowStatusFilter(status);
+            }}
           />
           <PaginationControls pagination={pagination} />
         </div>
