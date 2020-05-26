@@ -11,6 +11,17 @@ export type LinkOptions = {
   color?: "blue" | "black";
   displayText?: boolean;
   disabled?: boolean;
+  /*
+  Target behaves as per <a> tag targets.
+  "_self", the default, opens in the current browsing context
+  "_blank" opens in a new tab usually, but can be a new window
+           based on user configuration
+  "_parent" opens in the parent of the current browsing context.
+          (Not added atm, but could be if needed later)
+  "_top" opens in the highest ancestor of the current browsing context.
+          (Not added atm, but could be if needed later)
+   */
+  target?: "_self" | "_blank";
 };
 
 type Props = {
@@ -43,32 +54,35 @@ export const BaseLink: React.FC<Props> = ({
   displayText = true,
   color = "blue",
   disabled,
+  target = "_self",
 }) => {
   const classes = useStyles();
+
   const text = <span className={textClass}>{children}</span>;
   if (disabled) return text;
 
-  const linkClasses = clsx(
-    classes.root,
-    classes.underlineHover,
-    linkClass,
-    classes[color]
+  const link = (
+    <Link
+      className={clsx(
+        classes.root,
+        classes.underlineHover,
+        linkClass,
+        classes[color]
+      )}
+      to={to}
+      target={target}
+      rel={target == "_self" ? "" : "noreferrer noopener"}
+    >
+      {children}
+    </Link>
   );
   if (!permissions) {
-    return (
-      <Link className={linkClasses} to={to}>
-        {children}
-      </Link>
-    );
+    return link;
   }
 
   return (
     <>
-      <Can do={permissions}>
-        <Link className={linkClasses} to={to}>
-          {children}
-        </Link>
-      </Can>
+      <Can do={permissions}>{link}</Can>
       {displayText && (
         <Can not do={permissions}>
           {text}

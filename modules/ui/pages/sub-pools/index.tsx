@@ -26,14 +26,10 @@ export const SubPool: React.FC<Props> = props => {
     variables: { id: params.orgUserId },
   });
 
-  const substitute =
-    getSubstituteById.state === "LOADING"
-      ? undefined
-      : getSubstituteById?.data?.orgUser?.byId?.substitute;
-
   if (getSubstituteById.state === "LOADING") {
     return <></>;
   }
+  const substitute = getSubstituteById?.data?.orgUser?.byId?.substitute;
   const fullName = substitute?.firstName + " " + substitute?.lastName;
 
   //Query for Favorites & Blocked
