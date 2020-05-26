@@ -22,6 +22,7 @@ import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrganizationType } from "graphql/server-types.gen";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
+import { DeleteDialog } from "ui/pages/people/components/delete-dialog";
 
 const editableSections = {
   name: "edit-name",
@@ -67,6 +68,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
   const [inviteSent, setInviteSent] = React.useState(
     orgUser.inviteSent || false
   );
+  const [currentDialog, setCurrentDialog] = React.useState<
+    "delete" | OrgUserRole | null
+  >(null);
+  const [now, setNow] = React.useState<Date>(new Date());
 
   const [inviteUser] = useMutationBundle(InviteSingleUser, {
     onError: error => {
@@ -198,7 +203,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
     }
     menuActions.push({
       name: t("Delete"),
-      onClick: props.deleteOrgUser,
+      onClick: () => {
+        setNow(new Date());
+        setCurrentDialog("delete");
+      },
       permissions: canDeleteThisOrgUser,
     });
 
@@ -206,21 +214,30 @@ export const PersonViewHeader: React.FC<Props> = props => {
     if (orgUser.isAdmin) {
       inactivateRoleOptions.push({
         name: t("Remove admin access"),
-        onClick: () => props.onRemoveRole(OrgUserRole.Administrator),
+        onClick: () => {
+          setNow(new Date());
+          setCurrentDialog(OrgUserRole.Administrator);
+        },
         permissions: canDeleteThisOrgUser,
       });
     }
     if (orgUser.isEmployee) {
       inactivateRoleOptions.push({
         name: t("Remove employee access"),
-        onClick: () => props.onRemoveRole(OrgUserRole.Employee),
+        onClick: () => {
+          setNow(new Date());
+          setCurrentDialog(OrgUserRole.Employee);
+        },
         permissions: canDeleteThisOrgUser,
       });
     }
     if (orgUser.isReplacementEmployee) {
       inactivateRoleOptions.push({
         name: t("Remove substitute access"),
-        onClick: () => props.onRemoveRole(OrgUserRole.ReplacementEmployee),
+        onClick: () => {
+          setNow(new Date());
+          setCurrentDialog(OrgUserRole.ReplacementEmployee);
+        },
         permissions: canDeleteThisOrgUser,
       });
     }
@@ -252,8 +269,24 @@ export const PersonViewHeader: React.FC<Props> = props => {
     }
   };
 
+  const onAccept =
+    currentDialog == "delete"
+      ? props.deleteOrgUser
+      : currentDialog == null
+      ? () => {}
+      : () => props.onRemoveRole(currentDialog);
+  const onCancel = () => setCurrentDialog(null);
+
   return (
     <>
+      <DeleteDialog
+        type={currentDialog}
+        now={now}
+        onAccept={onAccept}
+        onCancel={onCancel}
+        orgId={props.orgId}
+        orgUser={orgUser}
+      />
       <PageHeaderMultiField
         text={`${orgUser.firstName} ${
           orgUser.middleName ? `${orgUser.middleName} ` : ""

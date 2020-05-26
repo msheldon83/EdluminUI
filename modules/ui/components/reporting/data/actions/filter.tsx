@@ -11,6 +11,7 @@ import { OrgUserRole } from "graphql/server-types.gen";
 import { OrgUserSelect } from "ui/components/domain-selects/org-user-select";
 import { useTranslation } from "react-i18next";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
 
 type Props = {
   filterField: FilterField;
@@ -255,6 +256,34 @@ export const Filter: React.FC<Props> = props => {
                   });
                 }}
                 selectedVacancyReasonIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "Endorsement":
+            return (
+              <EndorsementSelect
+                orgId={organizationId ?? ""}
+                setSelectedEndorsementIds={endorsementIds => {
+                  const value = endorsementIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedEndorsementIds={filterField.value ?? []}
                 multiple={
                   filterField.expressionFunction ===
                   ExpressionFunction.ContainedIn

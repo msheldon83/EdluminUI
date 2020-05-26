@@ -11,7 +11,7 @@ import { SubstituteAssignmentsListView } from "./substitute-assignments-list";
 import { ScheduleHeader } from "ui/components/schedule/schedule-header";
 import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
-import { getBeginningOfSchoolYear } from "ui/components/helpers";
+import { getBeginningAndEndOfSchoolYear } from "ui/components/helpers";
 import { numberOfMonthsInSchoolYear } from "ui/components/schedule/helpers";
 import { addMonths, endOfMonth } from "date-fns";
 import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
@@ -37,17 +37,9 @@ export const SubstituteAssignments: React.FC<Props> = props => {
       over multiple days. */
   const today = useMemo(() => new Date(), []);
 
-  const beginningOfSchoolYear = useMemo(() => {
-    return getBeginningOfSchoolYear(today);
+  const [beginningOfSchoolYear, endOfSchoolYear] = useMemo(() => {
+    return getBeginningAndEndOfSchoolYear(today);
   }, [today]);
-
-  const endOfSchoolYear = useMemo(
-    () =>
-      endOfMonth(
-        addMonths(beginningOfSchoolYear, numberOfMonthsInSchoolYear - 1)
-      ),
-    [beginningOfSchoolYear]
-  );
 
   const [queryStartDate, setQueryStartDate] = useState(today);
   const [queryEndDate, setQueryEndDate] = useState(endOfSchoolYear);

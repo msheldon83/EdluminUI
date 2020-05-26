@@ -192,13 +192,25 @@ export const DataImportPage: React.FC<{}> = () => {
       <Section>
         <ImportFilters
           selectedStatusId={importStatusFilter}
-          setSelectedStatusId={setImportStatusFilter}
+          setSelectedStatusId={input => {
+            pagination.goToPage(1);
+            setImportStatusFilter(input);
+          }}
           selectedTypeId={importTypeFilter}
-          setSelectedTypeId={setImportTypeFilter}
+          setSelectedTypeId={input => {
+            pagination.goToPage(1);
+            setImportTypeFilter(input);
+          }}
           fromDate={fromDate}
           toDate={toDate}
-          setFromDate={setFromDate}
-          setToDate={setToDate}
+          setFromDate={input => {
+            pagination.goToPage(1);
+            setFromDate(input);
+          }}
+          setToDate={input => {
+            pagination.goToPage(1);
+            setToDate(input);
+          }}
         />
         <Divider className={classes.divider} />
         <Table

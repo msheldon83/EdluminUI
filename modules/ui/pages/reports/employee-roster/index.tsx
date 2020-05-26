@@ -14,15 +14,15 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
     return {
       from: "Employee",
       select: [
-        "Concat(LastName,', ',FirstName) AS Employee",
-        "ExternalId",
-        "Active",
-        "InvitationStatus",
-        "LocationNames",
-        "Title",
-        "PositionTypeName",
-        "Email",
-        "LoginEmail",
+        { expression: "Concat(LastName,', ',FirstName) AS Employee" },
+        { expression: "ExternalId" },
+        { expression: "Active" },
+        { expression: "InvitationStatus" },
+        { expression: "LocationNames" },
+        { expression: "Title" },
+        { expression: "PositionTypeName" },
+        { expression: "Email" },
+        { expression: "LoginEmail" },
       ],
       filter: [
         {

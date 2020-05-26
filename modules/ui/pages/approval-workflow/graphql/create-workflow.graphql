@@ -1,0 +1,13 @@
+mutation CreateApprovalWorkflow(
+  $approvalWorkflow: ApprovalWorkflowCreateInput!
+) {
+  approvalWorkflow {
+    create(approvalWorkflow: $approvalWorkflow) {
+      id
+      name
+      rowVersion
+      externalId
+      approvalWorkflowTypeId
+    }
+  }
+}

@@ -32,6 +32,13 @@ export const PersonViewPage: React.FC<{}> = props => {
 
   const params = useRouteParams(PersonViewRoute);
 
+  const [currentDialog, setCurrentDialog] = React.useState<
+    "delete" | "role" | "inactivate" | null
+  >(null);
+  const onCloseDialog = React.useCallback(() => setCurrentDialog(null), [
+    setCurrentDialog,
+  ]);
+
   const [editing, setEditing] = React.useState<string | null>(null);
 
   // If the org user changes because we've searched for an org user and selected them
