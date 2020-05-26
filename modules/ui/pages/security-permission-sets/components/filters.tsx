@@ -17,14 +17,16 @@ type Props = {
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const { setSearchText, setRolesFilter } = props;
   const [
     searchText,
     pendingSearchText,
     setPendingSearchText,
   ] = useDeferredState<string | undefined>(undefined, 200);
   useEffect(() => {
-    props.setSearchText(searchText);
-  }, [searchText, props]);
+    setSearchText(searchText);
+  }, [searchText, setSearchText]);
 
   const roleOptions: OptionType[] = [
     { value: OrgUserRole.Invalid, label: "(All)" },
@@ -55,12 +57,12 @@ export const Filters: React.FC<Props> = props => {
   const onChangeRoles = useCallback(
     value => {
       if (value.value === OrgUserRole.Invalid) {
-        props.setRolesFilter([]);
+        setRolesFilter([]);
       } else {
-        props.setRolesFilter([value.value]);
+        setRolesFilter([value.value]);
       }
     },
-    [props]
+    [setRolesFilter]
   );
 
   const updateSearchText = React.useCallback(
