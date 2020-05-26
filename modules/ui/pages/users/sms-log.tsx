@@ -137,7 +137,7 @@ export const SmsLogIndex: React.FC<Props> = props => {
               variant={"single-hidden"}
               startDate={fromDate}
               onChange={({ startDate }) => {
-                pagination.goToPage(1);
+                pagination.resetPage();
                 return setFromDate(startDate);
               }}
             />
@@ -148,7 +148,7 @@ export const SmsLogIndex: React.FC<Props> = props => {
               variant={"single-hidden"}
               startDate={toDate}
               onChange={({ startDate }) => {
-                pagination.goToPage(1);
+                pagination.resetPage();
                 return setToDate(startDate);
               }}
             />

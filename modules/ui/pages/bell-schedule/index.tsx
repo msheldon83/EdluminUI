@@ -151,7 +151,7 @@ export const BellSchedulePage: React.FC<{}> = props => {
         }}
         showIncludeExpired={true}
         onIncludeExpiredChange={checked => {
-          pagination.goToPage(1);
+          pagination.resetPage();
           setIncludeExpired(checked);
         }}
         expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) =>

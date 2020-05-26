@@ -76,7 +76,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const updateNameFilter = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setPendingSearchText(event.target.value);
-      pagination.goToPage(1);
+      pagination.resetPage();
     },
     [setPendingSearchText, pagination]
   );

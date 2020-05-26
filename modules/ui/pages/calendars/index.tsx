@@ -53,6 +53,12 @@ export const Calendars: React.FC<Props> = props => {
   const classes = useStyles();
 
   const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
+  function wrappedSetSchoolYearId(
+    input: React.SetStateAction<string | undefined>
+  ) {
+    pagination.resetPage();
+    setSchoolYearId(input);
+  }
   const allSchoolYears = useAllSchoolYears(params.organizationId);
   const schoolYear = useMemo(
     () => allSchoolYears.find(x => x.id === schoolYearId),
@@ -314,13 +320,10 @@ export const Calendars: React.FC<Props> = props => {
               <div className={classes.scheduleHeader}>
                 <ContractScheduleHeader
                   schoolYearId={schoolYearId}
-                  setSchoolYearId={input => {
-                    pagination.goToPage(1);
-                    setSchoolYearId(input);
-                  }}
+                  setSchoolYearId={wrappedSetSchoolYearId}
                   contractId={contract?.id}
                   setContractId={input => {
-                    pagination.goToPage(1);
+                    pagination.resetPage();
                     setContractId(input);
                   }}
                   orgId={params.organizationId}
@@ -390,12 +393,12 @@ export const Calendars: React.FC<Props> = props => {
                 fromDate={parseISO(schoolYear?.startDate)}
                 toDate={parseISO(schoolYear?.endDate)}
                 setSelectedCalendarChanges={input => {
-                  pagination.goToPage(1);
+                  pagination.resetPage();
                   setSelectedDateCalendarChanges(input);
                 }}
                 selectedDate={selectedDate}
                 setSelectedDate={input => {
-                  pagination.goToPage(1);
+                  pagination.resetPage();
                   setSelectedDate(input);
                 }}
               />

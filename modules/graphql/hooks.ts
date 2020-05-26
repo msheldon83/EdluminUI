@@ -112,6 +112,7 @@ export type PaginationInfo = {
   nextPage: () => void;
   previousPage: () => void;
   goToPage: (page: number) => void;
+  resetPage: () => void;
   setResultsPerPage: (resultsPerPage: number) => void;
 };
 
@@ -171,6 +172,11 @@ export function usePagedQueryBundle<Result, Vars extends QueryPaginationVars>(
       previousPage: () => setParams({ page: Math.max(currentPage - 1, 1) }),
       goToPage: page =>
         setParams({ page: Math.max(1, Math.min(totalPages, page)) }),
+      resetPage: () => {
+        if (currentPage != 1) {
+          setParams({ page: 1 });
+        }
+      },
       setResultsPerPage: r => setParams({ limit: r, page: 1 }),
     }),
     [setParams, currentPage, totalPages, count, params.limit]

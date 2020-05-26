@@ -223,7 +223,7 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
               variant={"single-hidden"}
               startDate={fromDate}
               onChange={({ startDate }) => {
-                pagination.goToPage(1);
+                pagination.resetPage();
                 setFromDate(startDate);
               }}
             />
@@ -234,7 +234,7 @@ export const UserNotificationLogIndex: React.FC<{}> = props => {
               variant={"single-hidden"}
               startDate={toDate}
               onChange={({ startDate }) => {
-                pagination.goToPage(1);
+                pagination.resetPage();
                 setToDate(startDate);
               }}
             />

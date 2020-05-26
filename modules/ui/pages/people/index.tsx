@@ -105,7 +105,7 @@ export const PeoplePage: React.FC<Props> = props => {
   useEffect(
     () => {
       /* When filters are changed, go to page 1 */
-      if (!isEqual(oldFilters, filters)) pagination.goToPage(1);
+      if (!isEqual(oldFilters, filters)) pagination.resetPage();
     },
     /* eslint-disable-next-line */
     [filters, oldFilters]

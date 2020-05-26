@@ -86,7 +86,7 @@ export const UsersPage: React.FC<Props> = props => {
               label={t("Search")}
               value={pendingSearchText}
               onChange={e => {
-                pagination.goToPage(1);
+                pagination.resetPage();
                 if (!e.target.value) {
                   setPendingSearchText(undefined);
                 } else {

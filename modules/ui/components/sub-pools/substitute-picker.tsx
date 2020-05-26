@@ -70,7 +70,7 @@ export const SubstitutePicker: React.FC<Props> = props => {
 
   const updateNameFilter = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      pagination.goToPage(1);
+      pagination.resetPage();
       setPendingSearchText(event.target.value);
     },
     [setPendingSearchText, pagination]
