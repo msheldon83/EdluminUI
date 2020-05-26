@@ -163,7 +163,6 @@ const useStyles = makeStyles(theme => ({
   evenRow: {
     backgroundColor: "#F8F8F8",
     padding: "15px",
-    /*border: "1px solid red",*/
   },
   oddRow: {
     backgroundColor: "#FFFFFF",
