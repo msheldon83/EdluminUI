@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/styles";
 import {
   AbsenceReasonTrackingTypeId,
   PermissionEnum,
+  PositionType,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -22,6 +23,7 @@ import {
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
 import * as yup from "yup";
+import { AbsenceReasonPositionTypesCard } from "./components/abs-reason-position-types-card";
 
 type Props = {
   id: string;
@@ -35,12 +37,16 @@ type Props = {
   allowNegativeBalance: boolean;
   absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   category?: { id: string; name: string };
-  updateNameOrExternalId: (values: {
+  updateNameOrExternalIdOrPositionTypes: (values: {
     name?: string | null;
     externalId?: string | null;
+    allPositionTypes?: boolean | null;
+    posititionTypeIds?: string[] | null;
   }) => Promise<any>;
   onDelete: () => void;
   isCategory?: boolean;
+  positionTypes?: Pick<PositionType, "id" | "name">[];
+  allPositionTypes?: boolean | null;
 };
 
 export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
@@ -103,7 +109,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           .shape({ value: yup.string().required(t("Name is required")) })}
         onCancel={() => setEditing(null)}
         onSubmit={async value => {
-          await props.updateNameOrExternalId({ name: value });
+          await props.updateNameOrExternalIdOrPositionTypes({ name: value });
           setEditing(null);
         }}
         actions={[
@@ -129,7 +135,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           value: yup.string().nullable(),
         })}
         onSubmit={async v => {
-          await props.updateNameOrExternalId({ externalId: v });
+          await props.updateNameOrExternalIdOrPositionTypes({ externalId: v });
           setEditing(null);
         }}
         onCancel={() => setEditing(null)}
@@ -197,6 +203,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               </Typography>
             </Grid>
           )}
+
           {!props.isCategory && (
             <Grid item xs={12} sm={6}>
               <Typography variant="h6">{t("Category")}</Typography>
@@ -207,6 +214,15 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
           )}
         </Grid>
       </Section>
+
+      {!props.isCategory && (
+        <AbsenceReasonPositionTypesCard
+          editable={false}
+          positionTypes={props.positionTypes ?? []}
+          allPositionTypes={props.allPositionTypes ?? false}
+          updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}
+        />
+      )}
     </>
   );
 };

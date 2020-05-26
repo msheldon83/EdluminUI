@@ -59,11 +59,13 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
 
   const absenceReason = result.data.orgRef_AbsenceReason?.byId!;
 
-  const updateAbsenceReason = (values: {
+  const updateAbsenceReason = async (values: {
     name?: string | null;
     externalId?: string | null;
-  }) =>
-    updateAbsenceReasonMutation({
+    allPositions?: boolean | null;
+    positionTypeIds?: string[] | null;
+  }) => {
+    await updateAbsenceReasonMutation({
       variables: {
         absenceReason: {
           id: absenceReason.id,
@@ -74,6 +76,8 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
         },
       },
     });
+    await result.refetch();
+  };
 
   return (
     <AbsenceReasonViewEditUI
@@ -90,8 +94,10 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       }
       category={absenceReason.category || undefined}
       id={absenceReason.id}
-      updateNameOrExternalId={updateAbsenceReason}
+      updateNameOrExternalIdOrPositionTypes={updateAbsenceReason}
       onDelete={deleteAbsenceReasonCallback}
+      positionTypes={absenceReason.positionTypes}
+      allPositionTypes={absenceReason.allPositionTypes}
     />
   );
 };
