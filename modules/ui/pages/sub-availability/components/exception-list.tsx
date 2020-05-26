@@ -54,6 +54,7 @@ export const ExceptionList: React.FC<Props> = props => {
       },
     }
   );
+
   const exceptions = useMemo(() => {
     if (
       getExceptions.state === "DONE" &&
@@ -115,8 +116,14 @@ export const ExceptionList: React.FC<Props> = props => {
           beginningOfCurrentSchoolYear={beginningOfSchoolYear}
           endOfSchoolCurrentYear={endOfSchoolYear}
           startDate={queryStartDate}
-          setStartDate={setQueryStartDate}
-          setEndDate={setQueryEndDate}
+          setStartDate={input => {
+            pagination.goToPage(1);
+            setQueryStartDate(input);
+          }}
+          setEndDate={input => {
+            pagination.goToPage(1);
+            setQueryEndDate(input);
+          }}
           userCreatedDate={props.userCreatedDate}
         />
         <EditableTable
