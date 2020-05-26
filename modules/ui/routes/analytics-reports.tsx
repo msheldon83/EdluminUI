@@ -82,3 +82,20 @@ export const AnalyticsReportsEmployeeRosterLoader = asyncComponent({
   },
   name: "EmployeeRosterReport",
 });
+
+// Substitute Roster Report
+export const AnalyticsReportsSubstituteRosterRoute = defineSubRoute(
+  AnalyticsReportsRoute,
+  "/substitute-roster",
+  []
+);
+
+export const AnalyticsReportsSubstituteRosterLoader = asyncComponent({
+  resolve: async () => {
+    const SubstituteRosterReport = (
+      await import("ui/pages/reports/substitute-roster")
+    ).SubstituteRosterReport;
+    return SubstituteRosterReport;
+  },
+  name: "SubstituteRosterReport",
+});

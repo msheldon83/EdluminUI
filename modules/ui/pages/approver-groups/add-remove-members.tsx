@@ -1,9 +1,10 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
 import { PermissionEnum, OrgUserRole } from "graphql/server-types.gen";
-import { ViewCard } from "./components/view-card";
+import { MemberViewCard } from "./components/member-view-card";
 import { AdminPicker } from "./components/admin-picker";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useHistory } from "react-router";
 import { makeStyles } from "@material-ui/styles";
 import { useRouteParams } from "ui/routes/definition";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -19,9 +20,11 @@ import {
   ApproverGroupsRoute,
   ApproverGroupAddLocationsRoute,
 } from "ui/routes/approver-groups";
+import { LocationViewRoute } from "ui/routes/locations";
 import { AddMember } from "./graphql/add-member.gen";
 import { GetAdminsByName } from "./graphql/get-admins-by-name.gen";
 import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
+import { WorkflowViewCard } from "./components/workflow-view-card";
 
 type OptionType = {
   label: string;
@@ -31,6 +34,7 @@ type OptionType = {
 export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(ApproverGroupAddRemoveMembersRoute);
 
@@ -136,12 +140,22 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
       })
     ) ?? [];
 
-  //TODO: Implement when we have workflow data.
-  const workflows: OptionType = [];
+  const approvalWorkflows = compact(
+    approverGroup?.approvalWorkflows?.map(e => {
+      return { value: e?.id, label: e?.name ?? "" };
+    })
+  );
 
-  const to = approverGroup?.location
+  //Check state first on location
+  const locationId = history.location.state?.locationId;
+  const to = locationId
+    ? LocationViewRoute.generate({
+        locationId: locationId,
+        organizationId: params.organizationId,
+      })
+    : approverGroup?.location
     ? ApproverGroupAddLocationsRoute.generate({
-        approverGroupHeaderId: approverGroup?.id ?? "",
+        approverGroupHeaderId: approverGroup?.approverGroupHeaderId ?? "",
         organizationId: params.organizationId,
       })
     : ApproverGroupsRoute.generate({ organizationId: params.organizationId });
@@ -166,7 +180,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>
-            <ViewCard
+            <MemberViewCard
               title={t("Members")}
               values={groupMembers}
               onRemove={onRemoveMember}
@@ -174,7 +188,10 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
             />
           </Grid>
           <Grid item xs={12}>
-            <ViewCard title={t("Referenced by")} values={workflows} />
+            <WorkflowViewCard
+              title={t("Referenced by")}
+              values={approvalWorkflows}
+            />
           </Grid>
         </Grid>
         <Grid item xs={6}>

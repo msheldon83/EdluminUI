@@ -1,5 +1,6 @@
 import * as i18next from "i18next";
 import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
+import { subDays, addYears } from "date-fns";
 
 type Props = {
   firstName?: string | null | undefined;
@@ -36,14 +37,18 @@ export const boolToDisplay = (t: i18next.TFunction, bool?: boolean | null) => {
   return bool ? t("Yes") : t("No");
 };
 
-export const getBeginningOfSchoolYear = (date: Date) => {
+export const getBeginningAndEndOfSchoolYear: (
+  date: Date
+) => [Date, Date] = date => {
   // School years are defined as july to june
   const july = 6; /* months start at 0 in js dates */
   let year = date.getFullYear();
   if (date.getMonth() < july) {
     year -= 1;
   }
-  return new Date(year, july);
+  const beginning = new Date(year, july);
+  const end = addYears(subDays(beginning, 1), 1);
+  return [beginning, end];
 };
 
 export const getPayLabel = (

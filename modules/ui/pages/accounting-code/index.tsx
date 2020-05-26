@@ -37,9 +37,7 @@ import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { Can } from "ui/components/auth/can";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 
-type Props = {};
-
-export const AccountingCode: React.FC<Props> = props => {
+export const AccountingCode: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();

@@ -5,6 +5,7 @@ import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { CreateAbsenceUI } from "./ui";
 import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
+import { NotFound } from "ui/pages/not-found";
 
 type Props = {};
 
@@ -18,8 +19,11 @@ export const CreateAbsence: React.FC<Props> = props => {
     },
   });
 
-  if (employeeInfo.state !== "DONE" || !employeeInfo.data.employee?.byId) {
+  if (employeeInfo.state !== "DONE") {
     return <></>;
+  }
+  if (!employeeInfo.data.employee?.byId) {
+    return <NotFound />;
   }
 
   const locationIds = employeeInfo.data.employee?.byId?.locations?.map(

@@ -160,6 +160,22 @@ const buildEnumMap = (t: i18next.TFunction) => {
       displayName: t("Ignored"),
     },
     {
+      name: "notificationMethod.IN_APP",
+      displayName: t("In app"),
+    },
+    {
+      name: "notificationMethod.EMAIL",
+      displayName: t("Email"),
+    },
+    {
+      name: "notificationMethod.SMS",
+      displayName: t("Text message"),
+    },
+    {
+      name: "notificationMethod.PUSH",
+      displayName: t("Push notification"),
+    },
+    {
       name: "absenceReasonTrackingTypeId.HOURLY",
       displayName: t("Hourly"),
     },
