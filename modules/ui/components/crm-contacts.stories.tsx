@@ -123,11 +123,11 @@ const useStyles = makeStyles(theme => ({
   header: {
     fontSize: "24px",
     lineHeight: "36px",
-    margin: "10px 0px 0px 10px",
+    margin: "20px 0px 0px 20px",
   },
   contactSubfield: {
     display: "inline-block",
-    margin: "10px 100px 10px 10px",
+    margin: "20px 100px 10px 20px",
     verticalAlign: "top",
   },
   title: {

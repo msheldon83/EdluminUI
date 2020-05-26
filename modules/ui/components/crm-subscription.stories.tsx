@@ -1,5 +1,9 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
+import { useTranslation } from "react-i18next";
+import { Table } from "ui/components/table";
+import { Column } from "material-table";
+import { compact } from "lodash-es";
 
 export const CRMSubscription = () => {
   const classes = useStyles();
@@ -44,6 +48,50 @@ export const CRMSubscription = () => {
     </React.Fragment>
   );
 };
+
+/*export const CRMSubscriptionReact = () => {
+  const { t } = useTranslation();
+
+  const [getWorkDaySchedules, pagination] = usePagedQueryBundle(
+    GetAllWorkDaySchedulesWithinOrg,
+    r => r.workDaySchedule?.paged?.totalCount,
+    {
+      variables: { orgId: params.organizationId, includeExpired },
+    }
+  );
+
+  const columns: Column<Record<string, any>>[] = [
+    {
+      title: t("Name"),
+    },
+    {
+      title: t("Identifier"),
+    },
+    {
+      title: t("In Use"),
+    },
+    {
+      title: t("# of Periods"),
+    },
+  ];
+
+  const tableData = [Object, Object, Object];
+
+  const workDaySchedules = compact(
+    getWorkDaySchedules?.data?.workDaySchedule?.paged?.results ?? []
+  );
+
+  <Table
+    title={"Hello title"}
+    columns={columns}
+    data={tableData}
+    selection={false}
+    options={{
+      search: false,
+      sorting: true,
+    }}
+  />;
+};*/
 
 const useStyles = makeStyles(theme => ({
   container: {
