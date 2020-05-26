@@ -62,6 +62,7 @@ export const SubstituteRosterReport: React.FC<{}> = () => {
         "InvitationStatus",
         "EndorsementId",
         "HasEndorsements",
+        "SourceOrgId",
       ]}
     />
   );

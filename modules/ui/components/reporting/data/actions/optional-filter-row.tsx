@@ -151,35 +151,38 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const getExpressionOptions = (t: TFunction, field?: DataSourceField) => {
+  const possibleOptions = [
+    {
+      label: t("is"),
+      value: ExpressionFunction.Equal,
+    },
+    {
+      label: t("is not"),
+      value: ExpressionFunction.NotEqual,
+    },
+    {
+      label: t("is any of"),
+      value: ExpressionFunction.ContainedIn,
+    },
+  ];
+
   if (!field) {
-    return [
-      {
-        label: t("is"),
-        value: ExpressionFunction.Equal,
-      },
-    ];
+    return possibleOptions.filter(o => o.value === ExpressionFunction.Equal);
   }
 
   switch (field.filterType) {
     case FilterType.Boolean:
-      return [
-        {
-          label: t("is"),
-          value: ExpressionFunction.Equal,
-        },
-      ];
-    case FilterType.Custom:
+      return possibleOptions.filter(o => o.value === ExpressionFunction.Equal);
     case FilterType.PredefinedSelection:
-      return [
-        {
-          label: t("is"),
-          value: ExpressionFunction.Equal,
-        },
-        {
-          label: t("is any of"),
-          value: ExpressionFunction.ContainedIn,
-        },
-      ];
+      return possibleOptions.filter(
+        o =>
+          o.value === ExpressionFunction.Equal ||
+          o.value === ExpressionFunction.ContainedIn
+      );
+    case FilterType.Custom:
+      return possibleOptions.filter(o =>
+        field.filterTypeDefinition?.supportedExpressions?.includes(o.value)
+      );
   }
 
   return [];
