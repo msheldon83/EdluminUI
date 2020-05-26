@@ -790,8 +790,8 @@ type ApprovalWorkflowQueries {
     sortBy: [SortDetailsInput]
     workFlowType: ApprovalWorkflowType
   ): [ApprovalWorkflow]
-  orgId: ID
   paged(
+    orgId: ID
     orgIds: [ID]
     limit: Int
     offset: Int

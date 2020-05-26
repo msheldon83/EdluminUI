@@ -25,7 +25,7 @@ type Props = {
   }) => Promise<any>;
 };
 
-export const AbsReasonPositionTypesCard: React.FC<Props> = props => {
+export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const [editing, setEditing] = React.useState(false);
