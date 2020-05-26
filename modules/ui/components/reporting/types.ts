@@ -120,6 +120,7 @@ export type DataSourceField = {
     key: string;
     filterDataSourceFieldName: string;
     friendlyName: string;
+    supportedExpressions: ExpressionFunction[];
   };
 };
 

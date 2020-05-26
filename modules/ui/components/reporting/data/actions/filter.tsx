@@ -12,6 +12,7 @@ import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-
 import { useTranslation } from "react-i18next";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
+import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 
 type Props = {
   filterField: FilterField;
@@ -73,7 +74,7 @@ export const Filter: React.FC<Props> = props => {
             value={
               filterField.expressionFunction === ExpressionFunction.ContainedIn
                 ? value
-                : value[0]
+                : value[0] ?? { value: "", label: "" }
             }
             multiple={
               filterField.expressionFunction === ExpressionFunction.ContainedIn
@@ -295,6 +296,29 @@ export const Filter: React.FC<Props> = props => {
                     ? filterField.field.filterTypeDefinition?.friendlyName
                     : undefined
                 }
+              />
+            );
+          case "SourceOrganization":
+            return (
+              <OrgRelationshipSelect
+                orgId={organizationId ?? ""}
+                includeAllOption={false}
+                selectedOrgId={filterField.value}
+                setSelectedOrgId={shadowOrgId => {
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: shadowOrgId,
+                  });
+                }}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+                key={filterField.expressionFunction}
               />
             );
         }

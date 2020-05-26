@@ -2,7 +2,7 @@ import * as React from "react";
 import { Divider, Grid, makeStyles } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { OptionType } from "ui/components/form/select-new";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { Formik } from "formik";
 import {
@@ -14,7 +14,6 @@ import { Section } from "ui/components/section";
 import clsx from "clsx";
 import { CustomOrgUserRelationship } from "../helpers";
 import { SectionHeader } from "ui/components/section-header";
-import { AutoCompleteSearch } from "ui/components/autocomplete-search";
 import { EndorsementDetail } from "./endorsement-detail";
 
 type Props = {
@@ -27,11 +26,21 @@ type Props = {
 export const SelectedDistricts: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [searchText, setSearchText] = useState<string | undefined>();
 
   const { orgUserRelationships, onRemoveOrg, orgEndorsements, onSave } = props;
 
-  const initialValues = { orgUserRelationships: orgUserRelationships };
+  const sortedOrgUserRelationships = orgUserRelationships?.sort((a, b) =>
+    a?.otherOrganization?.name!.toLowerCase() >
+    b?.otherOrganization?.name!.toLowerCase()
+      ? 1
+      : -1
+  );
+
+  const sortedOrgEndorsements = orgEndorsements?.sort((a, b) =>
+    a?.label?.toLowerCase() > b?.label?.toLowerCase() ? 1 : -1
+  );
+
+  const initialValues = { orgUserRelationships: sortedOrgUserRelationships };
 
   return (
     <Formik
@@ -62,9 +71,11 @@ export const SelectedDistricts: React.FC<Props> = props => {
               <div className={classes.paddingLeft}>{t("Name")}</div>
             </Grid>
             <Grid item xs={4} container className={classes.inline}>
-              {t("District specific attributes")}
+              <div className={classes.paddingLeft}>
+                {t("District specific attributes")}
+              </div>
             </Grid>
-            <Grid item xs={4} container className={classes.inline}></Grid>
+            <Grid item xs={4} container className={classes.inline} />
             <Divider />
             {orgUserRelationships?.length === 0 ? (
               <div className={classes.containerPadding}>
@@ -97,23 +108,25 @@ export const SelectedDistricts: React.FC<Props> = props => {
                           </div>
                         </Grid>
                         <Grid item xs={4} container className={classes.inline}>
-                          <AutoCompleteSearch
-                            searchText={searchText}
-                            onClick={(id: string, name?: string) => {
-                              {
+                          <div className={classes.paddingTop}>
+                            <SelectNew
+                              value={{
+                                value: "",
+                                label: "",
+                              }}
+                              multiple={false}
+                              placeholder={t("search")}
+                              onChange={(value: OptionType) => {
                                 values.orgUserRelationships[i].attributes.push({
-                                  endorsementId: id,
-                                  name: name,
+                                  endorsementId: value.value.toString(),
+                                  name: value.label,
                                 });
                                 handleSubmit();
-                              }
-                            }}
-                            options={orgEndorsements ?? []}
-                            setSearchText={setSearchText}
-                            placeholder={t("search")}
-                            useLabel={false}
-                            includeName
-                          />
+                              }}
+                              options={sortedOrgEndorsements ?? []}
+                              withResetValue={false}
+                            />
+                          </div>
                           {n?.attributes?.length === 0 ? (
                             <div></div>
                           ) : (
@@ -194,6 +207,9 @@ const useStyles = makeStyles(theme => ({
   },
   paddingLeft: {
     paddingLeft: theme.spacing(2),
+  },
+  paddingTop: {
+    padding: theme.spacing(2),
   },
   linkText: {
     color: theme.customColors.primary,

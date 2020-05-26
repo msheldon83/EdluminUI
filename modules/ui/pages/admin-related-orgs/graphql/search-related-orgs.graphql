@@ -1,8 +1,0 @@
-query SearchDelegatesToOrganizations($searchText: String, $orgId: ID!) {
-  organization {
-    searchDelegatesToOrganizations(searchText: $searchText, orgId: $orgId) {
-      id
-      name
-    }
-  }
-}
