@@ -203,6 +203,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               </Typography>
             </Grid>
           )}
+
           {!props.isCategory && (
             <Grid item xs={12} sm={6}>
               <Typography variant="h6">{t("Category")}</Typography>
