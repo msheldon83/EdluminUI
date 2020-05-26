@@ -276,7 +276,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <RowStatusFilter
             selectedStatusId={rowStatusFilter}
             setSelectedStatusId={status => {
-              pagination.goToPage(1);
+              pagination.resetPage();
               setRowStatusFilter(status);
             }}
           />
