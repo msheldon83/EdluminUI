@@ -6,7 +6,7 @@ export const CRMContacts = () => {
 
   return (
     <React.Fragment>
-      <div className={classes.contacts}>
+      <div className={classes.container}>
         <div className={classes.header}>Contacts</div>
         <div className={classes.contactSubfield}>
           <div className={classes.title}>Primary business contact</div>
@@ -43,7 +43,7 @@ export const CRMContactsReact: React.FC<Props> = props => {
 
   return (
     <React.Fragment>
-      <div className={classes.contacts}>
+      <div className={classes.container}>
         <div className={classes.header}>Contacts</div>
         <ContactSubfield
           title="Primary business contact"
@@ -113,7 +113,7 @@ type Props = {
 };
 
 const useStyles = makeStyles(theme => ({
-  contacts: {
+  container: {
     backgroundColor: "#FFFFFF",
     display: "block",
     border: "1px solid #E5E5E5",
