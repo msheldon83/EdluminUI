@@ -70,8 +70,8 @@ export const AdminNotificationLink: React.FC<Props> = props => {
           <Link
             to={route}
             className={classes.hyperlink}
-            onClick={() => {
-              props.markSingleNotificationAsViewed(
+            onClick={async () => {
+              await props.markSingleNotificationAsViewed(
                 notification.id,
                 notification.isLinkable
               );
@@ -85,8 +85,8 @@ export const AdminNotificationLink: React.FC<Props> = props => {
         <>
           <div
             className={classes.hyperlink}
-            onClick={() => {
-              props.markSingleNotificationAsViewed(
+            onClick={async () => {
+              await props.markSingleNotificationAsViewed(
                 notification.id,
                 notification.isLinkable
               );
