@@ -99,15 +99,4 @@ export const BasicInfo: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  header: {
-    marginBottom: theme.spacing(2),
-  },
-  placeholder: {
-    opacity: "0.2",
-    filter: "alpha(opacity = 20)",
-  },
-  checkboxError: {
-    color: theme.palette.error.main,
-  },
-}));
+const useStyles = makeStyles(theme => ({}));

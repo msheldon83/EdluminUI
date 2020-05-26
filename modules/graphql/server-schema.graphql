@@ -38,11 +38,11 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   positionTypes: [PositionType]
 }
 
-type AbsenceApprovalTransitionArgumentsTypeDef {
+type AbsenceApprovalTransitionArguments {
   makeAvailableToFill: Boolean!
 }
 
-type AbsenceApprovalTransitionCriteriaTypeDef {
+type AbsenceApprovalTransitionCriteria {
   absenceReasonIds: [ID]
 }
 
@@ -698,9 +698,9 @@ enum ApprovalStatus {
   NO_APPROVAL_REQUIRED
 }
 
-union ApprovalTransitionArgumentsTypeDef = AbsenceApprovalTransitionArgumentsTypeDef | VacancyApprovalTransitionArgumentsTypeDef
+union ApprovalTransitionArguments = AbsenceApprovalTransitionArguments | VacancyApprovalTransitionArguments
 
-union ApprovalTransitionCriteriaTypeDef = AbsenceApprovalTransitionCriteriaTypeDef | VacancyApprovalTransitionCriteriaTypeDef
+union ApprovalTransitionCriteria = AbsenceApprovalTransitionCriteria | VacancyApprovalTransitionCriteria
 
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
@@ -735,7 +735,7 @@ input ApprovalWorkflowCreateInput {
 type ApprovalWorkflowMutations {
   create(approvalWorkflow: ApprovalWorkflowCreateInput!): ApprovalWorkflow
   update(approvalWorkflow: ApprovalWorkflowUpdateInput!): ApprovalWorkflow
-  delete(approvalWorkflowId: Int!): Boolean
+  delete(approvalWorkflowId: ID!): Boolean
 }
 
 type ApprovalWorkflowQueries {
@@ -768,8 +768,8 @@ input ApprovalWorkflowStepInput {
 
 type ApprovalWorkflowTransition {
   goto: String
-  criteria: ApprovalTransitionCriteriaTypeDef
-  args: ApprovalTransitionArgumentsTypeDef
+  criteria: ApprovalTransitionCriteria
+  args: ApprovalTransitionArguments
 }
 
 input ApprovalWorkflowTransitionInput {
@@ -5922,11 +5922,11 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   payInfoSummary: PayInfoSummary
 }
 
-type VacancyApprovalTransitionArgumentsTypeDef {
+type VacancyApprovalTransitionArguments {
   makeAvailableToFill: Boolean!
 }
 
-type VacancyApprovalTransitionCriteriaTypeDef {
+type VacancyApprovalTransitionCriteria {
   vacancyReasonIds: [ID]
 }
 

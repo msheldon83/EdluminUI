@@ -129,7 +129,7 @@ export const initialSteps: ApprovalWorkflowStepInput[] = [
     isLastStep: true,
     deleted: false,
     onApproval: [{ goto: null, criteria: null, args: null }],
-    xPosition: 1000,
+    xPosition: 2000,
     yPosition: 250,
   },
 ];

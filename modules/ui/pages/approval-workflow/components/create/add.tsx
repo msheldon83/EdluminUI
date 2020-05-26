@@ -10,7 +10,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { PageTitle } from "ui/components/page-title";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
-import { CreateApprovalWorkflow } from "../graphql/create-workflow.gen";
+import { CreateApprovalWorkflow } from "../../graphql/create-workflow.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
@@ -19,7 +19,7 @@ import {
 } from "ui/routes/approval-workflow";
 import { useHistory } from "react-router";
 import { BasicInfo } from "./basic-info";
-import { initialSteps } from "../types";
+import { initialSteps } from "../../types";
 import { WorkflowSteps } from "./workflow-steps";
 
 type Props = {

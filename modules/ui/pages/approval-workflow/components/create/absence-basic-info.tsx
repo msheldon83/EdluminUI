@@ -7,7 +7,12 @@ import {
   Checkbox,
 } from "@material-ui/core";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
-import { buildVacancyUsagesJsonString, VacancyWorkflowUsage } from "../types";
+import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-user-select";
+import { OrgUserRole } from "graphql/server-types.gen";
+import {
+  buildAbsenceUsagesJsonString,
+  AbsenceWorkflowUsage,
+} from "../../types";
 import { compact } from "lodash-es";
 
 type Props = {
@@ -16,12 +21,13 @@ type Props = {
   orgId: string;
 };
 
-export const VacancyBasicInfo: React.FC<Props> = props => {
+export const AbsenceBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const usages: VacancyWorkflowUsage[] = JSON.parse(props.usages);
+  const usages: AbsenceWorkflowUsage[] = JSON.parse(props.usages);
   const positionTypeIds = compact(usages.map(x => x.positionTypeId));
+  const employeeIds = compact(usages.map(x => x.employeeId));
   const isAllOthers = usages.some(x => x.allOthers) ?? false;
 
   return (
@@ -35,10 +41,26 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
           setSelectedPositionTypeIds={(ids?: string[]) =>
             props.setFieldValue(
               "usages",
-              buildVacancyUsagesJsonString(isAllOthers, ids)
+              buildAbsenceUsagesJsonString(isAllOthers, ids, employeeIds)
             )
           }
           disabled={isAllOthers}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <OrgUserSelect
+          orgId={props.orgId}
+          role={OrgUserRole.Employee}
+          selectedOrgUserIds={employeeIds}
+          label={t("Employees")}
+          disabled={isAllOthers}
+          includeAllOption={false}
+          setSelectedOrgUserIds={(ids?: string[]) =>
+            props.setFieldValue(
+              "usages",
+              buildAbsenceUsagesJsonString(isAllOthers, positionTypeIds, ids)
+            )
+          }
         />
       </Grid>
       <Grid item xs={12}>
@@ -50,14 +72,15 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
                 if (e.target.checked) {
                   props.setFieldValue(
                     "usages",
-                    buildVacancyUsagesJsonString(e.target.checked)
+                    buildAbsenceUsagesJsonString(e.target.checked)
                   );
                 } else {
                   props.setFieldValue(
                     "usages",
-                    buildVacancyUsagesJsonString(
-                      !e.target.checked,
-                      positionTypeIds
+                    buildAbsenceUsagesJsonString(
+                      e.target.checked,
+                      positionTypeIds,
+                      employeeIds
                     )
                   );
                 }
@@ -66,7 +89,7 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
               color="primary"
             />
           }
-          label={t("All non-specified")}
+          label={t("All non-specified employees and position types")}
         />
       </Grid>
     </Grid>

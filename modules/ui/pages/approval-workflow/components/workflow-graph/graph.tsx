@@ -20,7 +20,7 @@ import {
   convertStepsToEdges,
   getNextId,
 } from "./graph-helpers";
-import { AddUpdateApprover } from "./add-approver";
+import { AddUpdateApprover } from "./approver-popper";
 import { compact } from "lodash-es";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 
@@ -53,10 +53,6 @@ export const StepsGraph: React.FC<Props> = props => {
     steps,
     approverGroups.map(x => x.id)
   );
-
-  console.log(nodes);
-  console.log(edges);
-  console.log(steps);
 
   const selected = {};
 

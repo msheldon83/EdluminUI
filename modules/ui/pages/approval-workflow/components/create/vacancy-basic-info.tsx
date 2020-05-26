@@ -7,9 +7,10 @@ import {
   Checkbox,
 } from "@material-ui/core";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
-import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-user-select";
-import { OrgUserRole } from "graphql/server-types.gen";
-import { buildAbsenceUsagesJsonString, AbsenceWorkflowUsage } from "../types";
+import {
+  buildVacancyUsagesJsonString,
+  VacancyWorkflowUsage,
+} from "../../types";
 import { compact } from "lodash-es";
 
 type Props = {
@@ -18,13 +19,12 @@ type Props = {
   orgId: string;
 };
 
-export const AbsenceBasicInfo: React.FC<Props> = props => {
+export const VacancyBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const usages: AbsenceWorkflowUsage[] = JSON.parse(props.usages);
+  const usages: VacancyWorkflowUsage[] = JSON.parse(props.usages);
   const positionTypeIds = compact(usages.map(x => x.positionTypeId));
-  const employeeIds = compact(usages.map(x => x.employeeId));
   const isAllOthers = usages.some(x => x.allOthers) ?? false;
 
   return (
@@ -38,26 +38,10 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
           setSelectedPositionTypeIds={(ids?: string[]) =>
             props.setFieldValue(
               "usages",
-              buildAbsenceUsagesJsonString(isAllOthers, ids, employeeIds)
+              buildVacancyUsagesJsonString(isAllOthers, ids)
             )
           }
           disabled={isAllOthers}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <OrgUserSelect
-          orgId={props.orgId}
-          role={OrgUserRole.Employee}
-          selectedOrgUserIds={employeeIds}
-          label={t("Employees")}
-          disabled={isAllOthers}
-          includeAllOption={false}
-          setSelectedOrgUserIds={(ids?: string[]) =>
-            props.setFieldValue(
-              "usages",
-              buildAbsenceUsagesJsonString(isAllOthers, positionTypeIds, ids)
-            )
-          }
         />
       </Grid>
       <Grid item xs={12}>
@@ -69,15 +53,14 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
                 if (e.target.checked) {
                   props.setFieldValue(
                     "usages",
-                    buildAbsenceUsagesJsonString(e.target.checked)
+                    buildVacancyUsagesJsonString(e.target.checked)
                   );
                 } else {
                   props.setFieldValue(
                     "usages",
-                    buildAbsenceUsagesJsonString(
-                      e.target.checked,
-                      positionTypeIds,
-                      employeeIds
+                    buildVacancyUsagesJsonString(
+                      !e.target.checked,
+                      positionTypeIds
                     )
                   );
                 }
@@ -86,22 +69,11 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
               color="primary"
             />
           }
-          label={t("All non-specified employees and position types")}
+          label={t("All non-specified")}
         />
       </Grid>
     </Grid>
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  header: {
-    marginBottom: theme.spacing(2),
-  },
-  placeholder: {
-    opacity: "0.2",
-    filter: "alpha(opacity = 20)",
-  },
-  checkboxError: {
-    color: theme.palette.error.main,
-  },
-}));
+const useStyles = makeStyles(theme => ({}));

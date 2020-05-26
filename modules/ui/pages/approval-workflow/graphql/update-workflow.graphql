@@ -1,0 +1,12 @@
+mutation UpdateApprovalWorkflow(
+  $approvalWorkflow: ApprovalWorkflowUpdateInput!
+) {
+  approvalWorkflow {
+    update(approvalWorkflow: $approvalWorkflow) {
+      id
+      name
+      rowVersion
+      approvalWorkflowTypeId
+    }
+  }
+}
