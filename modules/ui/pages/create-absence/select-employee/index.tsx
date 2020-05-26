@@ -138,7 +138,10 @@ export const SelectEmployee: React.FC<Props> = props => {
             <Input
               label={t("Name")}
               value={pendingName}
-              onChange={e => setPendingName(e.target.value)}
+              onChange={e => {
+                pagination.goToPage(1);
+                setPendingName(e.target.value);
+              }}
             />
           </div>
         </div>
