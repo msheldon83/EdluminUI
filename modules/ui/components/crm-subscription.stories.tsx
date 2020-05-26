@@ -81,7 +81,9 @@ export const CRMSubscription = () => {
             <div className={classes.rowItem} style={{ marginRight: "71px" }}>
               203
             </div>
-            <div className={classes.rowItem}>200 (-3)</div>
+            <div className={classes.rowItem}>
+              200 <span style={{ color: "#4CC17B" }}>(-3)</span>
+            </div>
             <div className={classes.rowItem} style={{ float: "right" }}>
               $310.59
             </div>
@@ -97,7 +99,9 @@ export const CRMSubscription = () => {
             <div className={classes.rowItem} style={{ marginRight: "87px" }}>
               0
             </div>
-            <div className={classes.rowItem}>5 (+5)</div>
+            <div className={classes.rowItem}>
+              5 <span style={{ color: "#C62828" }}>(+5)</span>
+            </div>
             <div className={classes.rowItem} style={{ float: "right" }}>
               $0.00
             </div>
