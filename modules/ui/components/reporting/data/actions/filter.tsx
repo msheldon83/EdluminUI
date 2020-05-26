@@ -74,7 +74,7 @@ export const Filter: React.FC<Props> = props => {
             value={
               filterField.expressionFunction === ExpressionFunction.ContainedIn
                 ? value
-                : value[0]
+                : value[0] ?? { value: "", label: "" }
             }
             multiple={
               filterField.expressionFunction === ExpressionFunction.ContainedIn

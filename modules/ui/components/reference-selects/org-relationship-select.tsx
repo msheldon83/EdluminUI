@@ -62,7 +62,7 @@ export const OrgRelationshipSelect: React.FC<Props> = props => {
   return (
     <SelectNew
       label={label}
-      value={selectedValue}
+      value={selectedValue ?? { value: "", label: "" }}
       multiple={false}
       options={orgOptions}
       withResetValue={false}
