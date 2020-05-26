@@ -50,7 +50,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
   const history = useHistory();
 
-  const [rowStatusFilter, rawSetRowStatusFilter] = useState<
+  const [rowStatusFilter, setRowStatusFilter] = useState<
     DataImportRowStatus | undefined
   >(undefined);
 
@@ -105,11 +105,6 @@ export const DataImportViewPage: React.FC<{}> = () => {
       },
     }
   );
-
-  const setRowStatusFilter = (input: DataImportRowStatus | undefined) => {
-    pagination.goToPage(1);
-    return rawSetRowStatusFilter(input);
-  };
 
   const downloadFailedRows = useImperativeQuery(DownloadFailedRowsQuery, {
     onError: error => {
@@ -280,7 +275,10 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <div className={classes.labelText}>{rowCountLabel}</div>
           <RowStatusFilter
             selectedStatusId={rowStatusFilter}
-            setSelectedStatusId={setRowStatusFilter}
+            setSelectedStatusId={status => {
+              pagination.goToPage(1);
+              setRowStatusFilter(status);
+            }}
           />
           <PaginationControls pagination={pagination} />
         </div>
