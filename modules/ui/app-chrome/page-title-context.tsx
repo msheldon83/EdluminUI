@@ -77,7 +77,7 @@ export const PageTitleProvider: React.FC<{}> = props => {
       supplyOrganizationId,
       title,
     }),
-    [screenSize, supplyTitle, title]
+    [screenSize, supplyTitle, title, supplyOrganizationId]
   );
   return (
     <PageTitleContext.Provider value={ctx}>

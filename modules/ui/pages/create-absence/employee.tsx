@@ -91,7 +91,7 @@ function parseOptions(opts: {
     if (!isValid(initialStartHour)) initialStartHour = undefined;
     initialEndHour = parseISO(opts.end);
     if (!isValid(initialEndHour)) initialEndHour = undefined;
-  } catch (e) {}
+  } catch (e) {} // eslint-disable-line no-empty
   return {
     initialDates,
     initialAbsenceReason,

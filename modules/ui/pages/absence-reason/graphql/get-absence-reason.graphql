@@ -22,6 +22,12 @@ query GetAbsenceReason($absenceReasonId: ID!) {
         id
         name
       }
+      allPositionTypes
+      positionTypeIds
+      positionTypes {
+        id
+        name
+      }
     }
   }
 }

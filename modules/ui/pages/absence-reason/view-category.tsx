@@ -92,7 +92,7 @@ export const AbsenceReasonCategoryViewEditPage: React.FC<{}> = props => {
         absenceReasonCategory.absenceReasonTrackingTypeId || undefined
       }
       id={absenceReasonCategory.id}
-      updateNameOrExternalId={updateAbsenceReason}
+      updateNameOrExternalIdOrPositionTypes={updateAbsenceReason}
       onDelete={deleteAbsenceReasonCallback}
       isCategory={true}
     />
