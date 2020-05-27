@@ -644,7 +644,7 @@ export const canViewAbsenceAndVacancyReports = (
       x === PermissionEnum.ReportsAbsVacSchema ||
       x === PermissionEnum.AbsVacView
   );
-  return (viewPermissions?.length ?? 0) > 1;
+  return (viewPermissions?.length ?? 0) > 0;
 };
 
 export const canViewRosterReports = (
@@ -660,5 +660,5 @@ export const canViewRosterReports = (
       x === PermissionEnum.ReportsEmpSchema ||
       x === PermissionEnum.ReportsSubSchema
   );
-  return (viewPermissions?.length ?? 0) > 1;
+  return (viewPermissions?.length ?? 0) > 0;
 };
