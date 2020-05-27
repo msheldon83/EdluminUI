@@ -229,6 +229,7 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   usedBalance: Decimal!
   unusedBalance: Decimal!
   netBalance: Decimal!
@@ -244,6 +245,7 @@ input AbsenceReasonBalanceCreateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
 }
 
 type AbsenceReasonBalanceMutations {
@@ -265,6 +267,7 @@ input AbsenceReasonBalanceUpdateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3990,6 +3993,9 @@ enum PermissionEnum {
   ORGANIZATION_RELATIONSHIP_SAVE
   ORGANIZATION_RELATIONSHIP_DELETE
   DATA_IMPORT
+  REPORTS_ABS_VAC_SCHEMA
+  REPORTS_EMP_SCHEMA
+  REPORTS_SUB_SCHEMA
   FILE_UPLOAD
   FILE_DELETE
   REPLACEMENT_POOL_CONFIG_SAVE
