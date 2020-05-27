@@ -1,17 +1,7 @@
 import * as React from "react";
-import { useState, useRef } from "react";
-import {
-  GraphView, // required
-  Edge, // optional
-  INode, // optional
-  BwdlTransformer, // optional, Example JSON transformer
-  GraphUtils, // optional, useful utility functions
-  IEdge,
-} from "react-digraph";
-import {
-  ApprovalWorkflowStepInput,
-  ApprovalWorkflowStep,
-} from "graphql/server-types.gen";
+import { useState } from "react";
+import { GraphView, INode, IEdge } from "react-digraph";
+import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { makeStyles, Popper, Fade, ClickAwayListener } from "@material-ui/core";
 import { GraphConfig, NODE_KEY } from "./graph-config";
@@ -27,13 +17,14 @@ import { useApproverGroups } from "ui/components/domain-selects/approver-group-s
 type Props = {
   steps: ApprovalWorkflowStepInput[];
   orgId: string;
+  setSteps: (steps: ApprovalWorkflowStepInput[]) => void;
 };
 
 export const StepsGraph: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const [steps, setSteps] = useState<ApprovalWorkflowStepInput[]>(props.steps);
+  const { steps, setSteps } = props;
 
   const [elAnchor, setElAnchor] = useState<null | HTMLElement>(null);
   const [conditionOpen, setConditionOpen] = useState(false);
@@ -71,14 +62,12 @@ export const StepsGraph: React.FC<Props> = props => {
       setSelectedStep(step);
     }
   };
-  const onCreateNode = () => {};
 
   const onUpdateNode = (node: INode) => {
     const stepIndex = steps.findIndex(x => x.stepId == node.id);
     steps[stepIndex].xPosition = node.x;
     steps[stepIndex].yPosition = node.y;
   };
-  const onDeleteNode = () => {};
 
   const onSelectEdge = (edge: IEdge) => {
     if (edge.type === "addEdge") {
@@ -89,10 +78,6 @@ export const StepsGraph: React.FC<Props> = props => {
       setConditionOpen(true);
     }
   };
-
-  const onCreateEdge = () => {};
-  const onSwapEdge = () => {};
-  const onDeleteEdge = () => {};
 
   const renderNodeText = (
     data: any,
@@ -198,16 +183,17 @@ export const StepsGraph: React.FC<Props> = props => {
         nodeSubtypes={NodeSubtypes}
         edgeTypes={EdgeTypes}
         onSelectNode={onSelectNode}
-        onCreateNode={onCreateNode}
         onUpdateNode={onUpdateNode}
-        onDeleteNode={onDeleteNode}
         onSelectEdge={onSelectEdge}
-        onCreateEdge={onCreateEdge}
-        onSwapEdge={onSwapEdge}
-        onDeleteEdge={onDeleteEdge}
         showGraphControls={true}
         renderNodeText={renderNodeText}
         afterRenderEdge={afterRenderEdge}
+        // The following functions are required props, but we aren't implementing them
+        onCreateNode={() => {}}
+        onDeleteNode={() => {}}
+        onCreateEdge={() => {}}
+        onDeleteEdge={() => {}}
+        onSwapEdge={() => {}}
       />
       <Popper
         transition

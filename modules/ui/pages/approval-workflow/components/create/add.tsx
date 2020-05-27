@@ -18,9 +18,10 @@ import {
   AbsenceApprovalWorkflowRoute,
 } from "ui/routes/approval-workflow";
 import { useHistory } from "react-router";
-import { BasicInfo } from "./basic-info";
+import { BasicInfo, editableSections } from "./basic-info";
 import { initialSteps } from "../../types";
 import { WorkflowSteps } from "./workflow-steps";
+import { Section } from "ui/components/section";
 
 type Props = {
   workflowType: ApprovalWorkflowType;
@@ -64,19 +65,27 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
     setStep: React.Dispatch<React.SetStateAction<number>>
   ) => {
     return (
-      <BasicInfo
-        orgId={props.orgId}
-        workflowType={props.workflowType}
-        onCancel={handleCancel}
-        onSave={(name: string, usages: string) => {
-          setWorkflow({
-            ...workflow,
-            name: name,
-            usages: usages,
-          });
-          setStep(steps[1].stepNumber);
-        }}
-      />
+      <Section>
+        <BasicInfo
+          orgId={props.orgId}
+          workflowType={props.workflowType}
+          name={""}
+          usages={"[]"}
+          editName={true}
+          saveLabel={t("Next")}
+          editing={editableSections.usageInfo}
+          editable={false}
+          onCancel={handleCancel}
+          onSave={(usages: string, name?: string) => {
+            setWorkflow({
+              ...workflow,
+              name: name ?? "",
+              usages: usages,
+            });
+            setStep(steps[1].stepNumber);
+          }}
+        />
+      </Section>
     );
   };
 

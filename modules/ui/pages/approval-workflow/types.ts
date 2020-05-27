@@ -14,18 +14,6 @@ export type VacancyWorkflowUsage = {
   allOthers: boolean;
 };
 
-export type ApprovalStep = {
-  stepId: string;
-  approverGroupHeaderId?: string | null;
-  onApproval: ApprovalWorkflowTransition[];
-};
-
-export type ApprovalWorkflowTransition = {
-  goto?: string | null;
-  criteria?: AbsenceTransitionCriteria | VacancyTransitionCriteria | null;
-  args: AbsenceTransitionArgs | VacancyTransitionArgs;
-};
-
 export type AbsenceTransitionCriteria = {};
 
 export type VacancyTransitionCriteria = {};
@@ -33,6 +21,23 @@ export type VacancyTransitionCriteria = {};
 export type AbsenceTransitionArgs = {};
 
 export type VacancyTransitionArgs = {};
+
+export const buildCleanStepInput = (steps: ApprovalWorkflowStep[]) => {
+  return steps.map(s => ({
+    stepId: s.stepId,
+    isFirstStep: s.isFirstStep,
+    isLastStep: s.isLastStep,
+    approverGroupHeaderId: s.approverGroupHeaderId,
+    deleted: s.deleted,
+    xPosition: s.xPosition,
+    yPosition: s.yPosition,
+    onApproval: s.onApproval.map(a => ({
+      goto: a.goto,
+      args: null,
+      criteria: null,
+    })),
+  })) as ApprovalWorkflowStepInput[];
+};
 
 export const buildAbsenceUsagesJsonString = (
   allOthers: boolean,
@@ -72,43 +77,6 @@ export const buildVacancyUsagesJsonString = (
   }
 
   return JSON.stringify(usages);
-};
-
-export const exampleSteps: ApprovalWorkflowStepInput[] = [
-  {
-    stepId: "1",
-    approverGroupHeaderId: null,
-    isFirstStep: true,
-    isLastStep: false,
-    deleted: false,
-    onApproval: [{ goto: "2", criteria: null, args: null }],
-    xPosition: 100,
-    yPosition: 250,
-  },
-  {
-    stepId: "2",
-    approverGroupHeaderId: "1000",
-    isFirstStep: false,
-    isLastStep: false,
-    deleted: false,
-    onApproval: [{ goto: "3", criteria: null, args: null }],
-    xPosition: 1000,
-    yPosition: 250,
-  },
-  {
-    stepId: "3",
-    approverGroupHeaderId: null,
-    isFirstStep: false,
-    isLastStep: true,
-    deleted: false,
-    onApproval: [{ goto: null, criteria: null, args: null }],
-    xPosition: 2000,
-    yPosition: 250,
-  },
-];
-
-export const buildStepsJsonString = (steps: ApprovalStep[]) => {
-  return JSON.stringify(steps);
 };
 
 export const initialSteps: ApprovalWorkflowStepInput[] = [

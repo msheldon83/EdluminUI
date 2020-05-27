@@ -45,7 +45,13 @@ export const WorkflowSteps: React.FC<Props> = props => {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <StepsGraph steps={values.steps} orgId={props.orgId} />
+                <StepsGraph
+                  steps={values.steps}
+                  orgId={props.orgId}
+                  setSteps={(steps: ApprovalWorkflowStepInput[]) =>
+                    setFieldValue("steps", steps)
+                  }
+                />
               </Grid>
             </Grid>
             <ActionButtons
