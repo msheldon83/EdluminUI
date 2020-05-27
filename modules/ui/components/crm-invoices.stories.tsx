@@ -37,10 +37,10 @@ export const CRMInvoices = () => {
             <div className={classes.rowItem} style={{ marginRight: "99px" }}>
               June 1, 2020
             </div>
-            <div className={classes.linkItem} style={{ marginRight: "110px" }}>
+            <div className={classes.link} style={{ marginRight: "110px" }}>
               123943
             </div>
-            <div className={classes.linkItem} style={{ marginRight: "156px" }}>
+            <div className={classes.link} style={{ marginRight: "156px" }}>
               Add
             </div>
             <div className={classes.rowItem}>$3105.90</div>
@@ -53,13 +53,13 @@ export const CRMInvoices = () => {
             <div className={classes.rowItem} style={{ marginRight: "105px" }}>
               July 1, 2020
             </div>
-            <div className={classes.linkItem} style={{ marginRight: "102px" }}>
+            <div className={classes.link} style={{ marginRight: "102px" }}>
               1239123
             </div>
             <div className={classes.rowItem} style={{ marginRight: "10px" }}>
               1239
             </div>
-            <div className={classes.linkItem} style={{ marginRight: "115px" }}>
+            <div className={classes.link} style={{ marginRight: "115px" }}>
               Edit
             </div>
             <div className={classes.rowItem}>$3105.90</div>
@@ -68,6 +68,21 @@ export const CRMInvoices = () => {
             </div>
           </div>
           <div className={classes.divider}></div>
+        </div>
+        <div className={classes.invoicePaymentWrapper}>
+          <div className={classes.link}>Red Rover Technologies LLC W-9</div>
+          <div className={classes.awaitingPaymentBox}>
+            <div className={classes.boxHeader}>Awaiting Payment</div>
+            <div className={classes.boxMiddle}>$3105.90</div>
+            <div className={classes.boxFooter}>Invoice #123456 due Aug 1</div>
+          </div>
+          <div className={classes.noPendingInvoicesBox}>
+            <div className={classes.boxHeader}>No pending invoices</div>
+            <div className={classes.boxMiddle}>Thank you!</div>
+            <div className={classes.boxFooter}>
+              It&apos;s our pleasure to serve you
+            </div>
+          </div>
         </div>
       </div>
     </React.Fragment>
@@ -111,7 +126,7 @@ const useStyles = makeStyles(theme => ({
   rowItem: {
     display: "inline",
   },
-  linkItem: {
+  link: {
     color: "#FF5555",
     textDecoration: "underline",
     display: "inline",
@@ -127,5 +142,38 @@ const useStyles = makeStyles(theme => ({
   },
   divider: {
     border: "1px solid #E5E5E5",
+  },
+  invoicePaymentWrapper: {
+    width: "223px",
+    margin: "20px",
+  },
+  awaitingPaymentBox: {
+    backgroundColor: "#FFE3E3",
+    border: "1px solid #FFBAB9",
+    borderRadius: "4px",
+    padding: "10px",
+    marginTop: "20px",
+  },
+  noPendingInvoicesBox: {
+    backgroundColor: "#D1E0D8",
+    border: "1px solid #4CC17C",
+    borderRadius: "4px",
+    padding: "10px",
+    marginTop: "20px",
+  },
+  boxHeader: {
+    fontWeight: "bold",
+    fontSize: "14px",
+    lineHeight: "22px",
+  },
+  boxMiddle: {
+    fontWeight: "bold",
+    fontSize: "32px",
+    lineHeight: "40px",
+  },
+  boxFooter: {
+    fontSize: "14px",
+    lineHeight: "22px",
+    marginTop: "5px",
   },
 }));

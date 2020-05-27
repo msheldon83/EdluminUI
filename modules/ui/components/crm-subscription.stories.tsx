@@ -5,44 +5,6 @@ export const CRMSubscription = () => {
   const classes = useStyles();
 
   return (
-    /*<React.Fragment>
-      <div className={classes.container}>
-        <div className={classes.header}>Subscription for 2020-21</div>
-        <table className={classes.subscriptionTable}>
-          <thead className={classes.evenRow}>
-            <td className={classes.columnName}>Item</td>
-            <td className={classes.columnName}>Rate</td>
-            <td className={classes.columnName}>Qty</td>
-            <td className={classes.columnName}>In use</td>
-            <td className={classes.columnName}>Total /mo</td>
-          </thead>
-          <tbody>
-            <tr className={classes.oddRow}>
-              <td>Employees requiring a substitute</td>
-              <td>$1.53/mo</td>
-              <td>203</td>
-              <td>200 (-3)</td>
-              <td>$310.59</td>
-            </tr>
-            <tr className={classes.evenRow}>
-              <td>Employees not requiring a substitute</td>
-              <td>$0.73/mo</td>
-              <td>0</td>
-              <td>5 (+5)</td>
-              <td>$0.00</td>
-            </tr>
-            <tr className={classes.oddRow}>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td>$310.59</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </React.Fragment>*/
-
     <React.Fragment>
       <div className={classes.container}>
         <div className={classes.header}>Subscription for 2020-21</div>
@@ -183,15 +145,14 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid #E5E5E5",
   },
   subscriptionCostWrapper: {
-    margin: "0px 20px 0px 20px",
+    margin: "20px",
+    width: "223px",
   },
   subscriptionCost: {
     backgroundColor: "#D8DCF7",
     border: "1px solid #6471DF",
     borderRadius: "4px",
-    width: "223px",
     padding: "10px",
-    display: "inlineBlock",
   },
   subscriptionCostHeader: {
     fontWeight: "bold",
@@ -209,7 +170,6 @@ const useStyles = makeStyles(theme => ({
     marginTop: "5px",
   },
   disclaimer: {
-    width: "223px",
     paddingLeft: "5px",
     marginTop: "10px",
     fontSize: "14px",
