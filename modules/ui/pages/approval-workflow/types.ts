@@ -1,6 +1,7 @@
 import {
   ApprovalWorkflowStepInput,
   ApprovalWorkflowStep,
+  Maybe,
 } from "graphql/server-types.gen";
 
 export type AbsenceWorkflowUsage = {
@@ -14,13 +15,45 @@ export type VacancyWorkflowUsage = {
   allOthers: boolean;
 };
 
-export type AbsenceTransitionCriteria = {};
+export type AbsenceTransitionCriteria = {
+  absenceReasonIds?: Maybe<string>[] | null;
+};
 
-export type VacancyTransitionCriteria = {};
+export type VacancyTransitionCriteria = {
+  vacancyReasonIds?: Maybe<string>[] | null;
+};
 
-export type AbsenceTransitionArgs = {};
+export const buildTransitionCriteriaJsonString = (
+  criteria?: AbsenceTransitionCriteria | VacancyTransitionCriteria | null
+) => {
+  return JSON.stringify(criteria);
+};
 
-export type VacancyTransitionArgs = {};
+export type AbsenceTransitionArgs = {
+  makeAvailableToFill: boolean;
+};
+
+export const buildAbsenceTransitionArgsJsonString = (
+  args?: AbsenceTransitionArgs | null
+) => {
+  return JSON.stringify(args);
+};
+
+export type VacancyTransitionArgs = {
+  makeAvailableToFill: boolean;
+};
+
+export const buildVacancyTransitionArgsJsonString = (
+  args?: VacancyTransitionArgs | null
+) => {
+  return JSON.stringify(args);
+};
+
+export const buildTransitionArgsJsonString = (
+  args?: VacancyTransitionArgs | AbsenceTransitionArgs | null
+) => {
+  return JSON.stringify(args);
+};
 
 export const buildCleanStepInput = (steps: ApprovalWorkflowStep[]) => {
   return steps.map(s => ({
@@ -33,8 +66,8 @@ export const buildCleanStepInput = (steps: ApprovalWorkflowStep[]) => {
     yPosition: s.yPosition,
     onApproval: s.onApproval.map(a => ({
       goto: a.goto,
-      args: null,
-      criteria: null,
+      args: buildTransitionArgsJsonString(a.args),
+      criteria: buildTransitionCriteriaJsonString(a.criteria),
     })),
   })) as ApprovalWorkflowStepInput[];
 };

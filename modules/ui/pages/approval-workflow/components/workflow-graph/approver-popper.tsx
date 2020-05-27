@@ -1,16 +1,27 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { makeStyles, Button } from "@material-ui/core";
+import {
+  makeStyles,
+  Button,
+  FormControlLabel,
+  Checkbox,
+} from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { ApproverGroupSelect } from "ui/components/domain-selects/approver-group-select/approver-group-select";
 import { Section } from "ui/components/section";
+import {
+  AbsenceTransitionArgs,
+  buildTransitionArgsJsonString,
+} from "../../types";
 
 type Props = {
   orgId: string;
   onClose: () => void;
-  onSave: (approverGroupId: string) => void;
+  onSave: (approverGroupId: string, args?: string, criteria?: string) => void;
   onRemove?: () => void;
   selectedGroupId?: string;
+  transitionArgs?: string | null;
+  transitionCriteria?: string | null;
   idsToFilterOut?: string[];
 };
 
@@ -20,6 +31,9 @@ export const AddUpdateApprover: React.FC<Props> = props => {
   const [approverGroupIds, setApproverGroupIds] = useState<
     string[] | undefined
   >(undefined);
+  const [transitionArgs, setTransitionArgs] = useState<
+    AbsenceTransitionArgs | undefined
+  >(); // TODO: make this use either type
 
   useEffect(() => {
     if (props.selectedGroupId) {
@@ -33,7 +47,10 @@ export const AddUpdateApprover: React.FC<Props> = props => {
 
   const handleSave = () => {
     if (approverGroupIds && approverGroupIds.length === 1) {
-      props.onSave(approverGroupIds[0]);
+      props.onSave(
+        approverGroupIds[0],
+        buildTransitionArgsJsonString(transitionArgs)
+      );
     }
   };
 
@@ -49,6 +66,24 @@ export const AddUpdateApprover: React.FC<Props> = props => {
         setSelectedApproverGroupHeaderIds={onSetGroup}
         idsToFilterOut={props.idsToFilterOut}
       />
+      <div className={classes.labelText}>{t("When approved")}</div>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={transitionArgs?.makeAvailableToFill}
+            onChange={e =>
+              setTransitionArgs({
+                makeAvailableToFill: !transitionArgs?.makeAvailableToFill,
+              })
+            }
+            value={transitionArgs?.makeAvailableToFill}
+            color="primary"
+          />
+        }
+        label={t("Release to be filled")}
+      />
+      <div className={classes.labelText}>{t("Route to:")}</div>
+
       <div className={classes.buttonContainer}>
         <Button
           variant="contained"

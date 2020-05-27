@@ -15,6 +15,15 @@ mutation UpdateApprovalWorkflow(
         approverGroupHeaderId
         onApproval {
           goto
+          args {
+            __typename
+            ... on AbsenceApprovalTransitionArguments {
+              makeAvailableToFill
+            }
+            ... on VacancyApprovalTransitionArguments {
+              makeAvailableToFill
+            }
+          }
         }
         xPosition
         yPosition

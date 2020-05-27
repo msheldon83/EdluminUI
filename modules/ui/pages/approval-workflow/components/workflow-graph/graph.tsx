@@ -114,7 +114,11 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
-  const handleAddCondition = (groupId: string) => {
+  const handleAddCondition = (
+    groupId: string,
+    args?: string,
+    criteria?: string
+  ) => {
     const nextId = getNextId(steps);
     const sourceIndex = steps.findIndex(x => x.stepId == selectedEdge?.source);
     const sourceStep = steps[sourceIndex];
@@ -131,7 +135,7 @@ export const StepsGraph: React.FC<Props> = props => {
       isFirstStep: false,
       isLastStep: false,
       deleted: false,
-      onApproval: [{ goto: selectedEdge?.target }],
+      onApproval: [{ goto: selectedEdge?.target, args, criteria }],
       yPosition: sourceStep.yPosition,
       xPosition:
         sourceStep.xPosition +
@@ -214,6 +218,9 @@ export const StepsGraph: React.FC<Props> = props => {
                   orgId={props.orgId}
                   onClose={() => handleClosePopper()}
                   onSave={handleAddCondition}
+                  transitionArgs={
+                    selectedStep?.onApproval?.find(x => !x.criteria)?.args
+                  }
                   selectedGroupId={
                     selectedStep?.approverGroupHeaderId ?? undefined
                   }

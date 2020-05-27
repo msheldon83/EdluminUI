@@ -176,19 +176,21 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
         />
       </div>
       <Section>
-        <BasicInfo
-          orgId={params.organizationId}
-          workflowType={approvalWorkflow.approvalWorkflowTypeId}
-          usages={JSON.stringify(approvalWorkflow.usages)}
-          editing={editing}
-          setEditing={setEditing}
-          editable={editing !== "usage-info"}
-          onSave={handleUpdateUsages}
-          onCancel={() => setEditing(null)}
-          editName={false}
-          name={approvalWorkflow.name}
-          saveLabel={t("Save")}
-        />
+        <div className={classes.infoWrapper}>
+          <BasicInfo
+            orgId={params.organizationId}
+            workflowType={approvalWorkflow.approvalWorkflowTypeId}
+            usages={JSON.stringify(approvalWorkflow.usages)}
+            editing={editing}
+            setEditing={setEditing}
+            editable={editing !== "usage-info"}
+            onSave={handleUpdateUsages}
+            onCancel={() => setEditing(null)}
+            editName={false}
+            name={approvalWorkflow.name}
+            saveLabel={t("Save")}
+          />
+        </div>
         <StepsGraph
           steps={steps}
           setSteps={setSteps}
@@ -230,5 +232,8 @@ const useStyles = makeStyles(theme => ({
   link: {
     paddingBottom: theme.spacing(2),
     paddingLeft: theme.spacing(0.5),
+  },
+  infoWrapper: {
+    paddingBottom: theme.spacing(2),
   },
 }));
