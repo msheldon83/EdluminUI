@@ -84,11 +84,11 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
                 !props.allPositionTypes &&
                 props.positionTypes.length === 0 && (
                   <Typography>
-                    {t("Not valid for any postion types")}
+                    {t("Not valid for any position types")}
                   </Typography>
                 )}
               {!editing && props.allPositionTypes && (
-                <Typography>{t("Valid for all postion types")}</Typography>
+                <Typography>{t("Valid for all position types")}</Typography>
               )}
               {!editing &&
                 !props.allPositionTypes &&
@@ -105,7 +105,7 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
                 )}
               {editing && (
                 <FormControlLabel
-                  label={t("All Postion Types")}
+                  label={t("All Position Types")}
                   control={
                     <Checkbox
                       checked={values.allPositionTypes}
