@@ -117,11 +117,11 @@ export const ExceptionList: React.FC<Props> = props => {
           endOfSchoolCurrentYear={endOfSchoolYear}
           startDate={queryStartDate}
           setStartDate={input => {
-            pagination.goToPage(1);
+            pagination.resetPage();
             setQueryStartDate(input);
           }}
           setEndDate={input => {
-            pagination.goToPage(1);
+            pagination.resetPage();
             setQueryEndDate(input);
           }}
           userCreatedDate={props.userCreatedDate}

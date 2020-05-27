@@ -315,12 +315,12 @@ export const Calendars: React.FC<Props> = props => {
                 <ContractScheduleHeader
                   schoolYearId={schoolYearId}
                   setSchoolYearId={input => {
-                    pagination.goToPage(1);
+                    pagination.resetPage();
                     setSchoolYearId(input);
                   }}
                   contractId={contract?.id}
                   setContractId={input => {
-                    pagination.goToPage(1);
+                    pagination.resetPage();
                     setContractId(input);
                   }}
                   orgId={params.organizationId}
@@ -390,12 +390,12 @@ export const Calendars: React.FC<Props> = props => {
                 fromDate={parseISO(schoolYear?.startDate)}
                 toDate={parseISO(schoolYear?.endDate)}
                 setSelectedCalendarChanges={input => {
-                  pagination.goToPage(1);
+                  pagination.resetPage();
                   setSelectedDateCalendarChanges(input);
                 }}
                 selectedDate={selectedDate}
                 setSelectedDate={input => {
-                  pagination.goToPage(1);
+                  pagination.resetPage();
                   setSelectedDate(input);
                 }}
               />

@@ -30,7 +30,7 @@ export const SchoolYearSelect: React.FC<Props> = props => {
     if (defaultToCurrentSchoolYear) {
       setSelectedSchoolYearId(currentSchoolYear?.id);
     }
-  }, [currentSchoolYear, defaultToCurrentSchoolYear, setSelectedSchoolYearId]);
+  }, [currentSchoolYear, defaultToCurrentSchoolYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedSchoolYear = schoolYearOptions.find(
     (sy: any) => sy.value === selectedSchoolYearId
