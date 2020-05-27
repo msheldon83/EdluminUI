@@ -88,7 +88,7 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
                   </Typography>
                 )}
               {!editing && props.allPositionTypes && (
-                <Typography>{t("Valid for all postion types")}</Typography>
+                <Typography>{t("Valid for all position types")}</Typography>
               )}
               {!editing &&
                 !props.allPositionTypes &&
