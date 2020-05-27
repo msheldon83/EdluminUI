@@ -78,10 +78,11 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
   const actingAsEmployee = props.actingAsEmployee;
 
   const absenceReasons = useAbsenceReasons(props.organizationId);
-  const filteredAbsenceReasons = props.positionId
+  const filteredAbsenceReasons = props.positionTypeId
     ? absenceReasons.filter(
         ar =>
-          ar.positionTypeIds.includes(props.positionId!) || ar.allPositionTypes
+          ar.positionTypeIds.includes(props.positionTypeId!) ||
+          ar.allPositionTypes
       )
     : absenceReasons;
 
@@ -485,7 +486,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                 isClosed={false}
                 setRequireAdminNotes={setRequireAdminNotes}
                 requireAdminNotes={requireAdminNotes}
-                positionTypeId={props.positionId}
+                positionTypeId={props.positionTypeId}
               />
             </Section>
           </>

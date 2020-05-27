@@ -215,11 +215,13 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
         </Grid>
       </Section>
 
-      <AbsenceReasonPositionTypesCard
-        positionTypes={props.positionTypes ?? []}
-        allPositionTypes={props.allPositionTypes ?? false}
-        updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}
-      />
+      {!props.isCategory && (
+        <AbsenceReasonPositionTypesCard
+          positionTypes={props.positionTypes ?? []}
+          allPositionTypes={props.allPositionTypes ?? false}
+          updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}
+        />
+      )}
     </>
   );
 };
