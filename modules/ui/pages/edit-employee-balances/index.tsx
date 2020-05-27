@@ -24,6 +24,7 @@ import {
   AbsenceReasonBalanceCreateInput,
   AbsenceReasonBalanceUpdateInput,
   DataImportType,
+  AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { compact } from "lodash-es";
@@ -134,6 +135,18 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
     params.organizationId
   );
 
+  const absenceReasonTrackingTypeOptions = [
+    { label: "-", value: null },
+    {
+      label: "Daily",
+      value: AbsenceReasonTrackingTypeId.Daily,
+    },
+    {
+      label: "Hourly",
+      value: AbsenceReasonTrackingTypeId.Hourly,
+    },
+  ];
+
   const reasonOptions = useMemo(() => {
     const usedAbsReasonIds = balances.map(x => x?.absenceReasonId);
     const usedAbsReasonCatIds = balances.map(x => x?.absenceReasonCategoryId);
@@ -190,6 +203,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
                 key={i}
                 absenceReasonBalance={balance}
                 orgId={params.organizationId}
+                absenceReasonTrackingTypeOptions={
+                  absenceReasonTrackingTypeOptions
+                }
                 shadeRow={i % 2 == 1}
                 onRemove={onDeleteBalance}
                 onUpdate={onUpdateBalance}
@@ -212,6 +228,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
               }}
               orgId={params.organizationId}
               shadeRow={balances.length % 2 == 1}
+              absenceReasonTrackingTypeOptions={
+                absenceReasonTrackingTypeOptions
+              }
               onRemove={onDeleteBalance}
               onUpdate={onUpdateBalance}
               onCreate={onCreateBalance}

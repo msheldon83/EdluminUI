@@ -245,7 +245,7 @@ input AbsenceReasonBalanceCreateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonBalanceMutations {
