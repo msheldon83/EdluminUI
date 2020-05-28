@@ -44,6 +44,7 @@ type Props = {
   } | null;
   orgId: string;
   shadeRow: boolean;
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId;
   absenceReasonTrackingTypeOptions: { label: string; value: string }[];
   onRemove: (absenceReasonBalanceId: string) => Promise<void>;
   onUpdate: (
@@ -305,7 +306,11 @@ export const BalanceRow: React.FC<Props> = props => {
                       e =>
                         e.value &&
                         e.value === values.absenceReasonTrackingTypeId
-                    ) ?? { label: "", value: "" }
+                    ) ??
+                    props.absenceReasonTrackingTypeOptions.find(
+                      e =>
+                        e.value && e.value === props.absenceReasonTrackingTypeId
+                    )
                   }
                   multiple={false}
                   onChange={(value: any) => {

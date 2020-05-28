@@ -135,6 +135,10 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
     params.organizationId
   );
 
+  const absenceReasonTrackingTypeId =
+    employee?.position?.positionType?.absenceReasonTrackingId ??
+    AbsenceReasonTrackingTypeId.Daily;
+
   const absenceReasonTrackingTypeOptions = [
     {
       label: "Daily",
@@ -201,6 +205,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
               <BalanceRow
                 key={i}
                 absenceReasonBalance={balance}
+                absenceReasonTrackingTypeId={absenceReasonTrackingTypeId}
                 orgId={params.organizationId}
                 absenceReasonTrackingTypeOptions={
                   absenceReasonTrackingTypeOptions
@@ -225,6 +230,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
                 employeeId: params.orgUserId,
                 schoolYearId: schoolYearId ?? "",
               }}
+              absenceReasonTrackingTypeId={absenceReasonTrackingTypeId}
               orgId={params.organizationId}
               shadeRow={balances.length % 2 == 1}
               absenceReasonTrackingTypeOptions={
