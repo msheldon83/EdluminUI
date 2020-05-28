@@ -25,7 +25,6 @@ export const StepsGraph: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const { steps, setSteps } = props;
-  console.log(steps);
 
   const [elAnchor, setElAnchor] = useState<null | HTMLElement>(null);
   const [conditionOpen, setConditionOpen] = useState(false);
@@ -222,34 +221,18 @@ export const StepsGraph: React.FC<Props> = props => {
                 handleClosePopper();
               }}
             >
-              <div>
+              <>
                 <AddUpdateApprover
                   orgId={props.orgId}
                   onClose={() => handleClosePopper()}
                   onSave={handleAddCondition}
-                  transitionArgs={
-                    selectedStep?.onApproval?.find(x => !x.criteria)?.args
-                  }
-                  selectedGroupId={
-                    selectedStep?.approverGroupHeaderId ?? undefined
-                  }
+                  steps={steps}
+                  approverGroups={approverGroups}
+                  myStep={selectedStep}
+                  defaultGotoStepId={selectedEdge?.target ?? ""}
                   onRemove={selectedStep ? handleRemoveStep : undefined}
-                  idsToFilterOut={compact(
-                    steps
-                      .filter(x => !x.deleted)
-                      .map(x => {
-                        if (
-                          !selectedStep ||
-                          (selectedStep &&
-                            selectedStep.approverGroupHeaderId !=
-                              x.approverGroupHeaderId)
-                        ) {
-                          return x.approverGroupHeaderId;
-                        }
-                      })
-                  )}
                 />
-              </div>
+              </>
             </ClickAwayListener>
           </Fade>
         )}

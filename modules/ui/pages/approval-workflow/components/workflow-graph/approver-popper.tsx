@@ -13,21 +13,24 @@ import {
   AbsenceTransitionArgs,
   buildTransitionArgsJsonString,
 } from "../../types";
+import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
+import { compact } from "lodash-es";
 
 type Props = {
   orgId: string;
   onClose: () => void;
   onSave: (approverGroupId: string, args?: string, criteria?: string) => void;
   onRemove?: () => void;
-  selectedGroupId?: string;
-  transitionArgs?: string | null;
-  transitionCriteria?: string | null;
-  idsToFilterOut?: string[];
+  steps: ApprovalWorkflowStepInput[];
+  myStep?: ApprovalWorkflowStepInput | null;
+  defaultGotoStepId: string;
+  approverGroups: { id: string; name: string }[];
 };
 
 export const AddUpdateApprover: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+
   const [approverGroupIds, setApproverGroupIds] = useState<
     string[] | undefined
   >(undefined);
@@ -35,24 +38,26 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     AbsenceTransitionArgs | undefined
   >(); // TODO: make this use either type
 
+  const myStep = props.myStep;
+
   useEffect(() => {
-    if (props.selectedGroupId) {
-      setApproverGroupIds([props.selectedGroupId]);
+    if (myStep && myStep.approverGroupHeaderId) {
+      setApproverGroupIds([myStep.approverGroupHeaderId]);
     }
-  }, [props.selectedGroupId]);
+  }, [myStep]);
 
   const onSetGroup = (ids?: string[]) => {
     setApproverGroupIds(ids);
   };
 
   useEffect(() => {
-    if (props.transitionArgs) {
-      const args: AbsenceTransitionArgs = JSON.parse(props.transitionArgs);
+    if (myStep) {
+      const args: AbsenceTransitionArgs = JSON.parse(
+        myStep.onApproval?.find(x => !x.criteria)?.args ?? "{}"
+      );
       setTransitionArgs(args);
     }
-  }, [setTransitionArgs, props.transitionArgs]);
-
-  console.log(transitionArgs);
+  }, [myStep]);
 
   const handleSave = () => {
     if (approverGroupIds && approverGroupIds.length === 1) {
@@ -63,18 +68,48 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     }
   };
 
+  const myTransitions = myStep ? myStep.onApproval : null;
+
+  const findApproverGroupName = (stepId?: string | null) => {
+    const nextStep = props.steps.find(s => s.stepId === stepId);
+    const approverGroupName = nextStep?.approverGroupHeaderId
+      ? props.approverGroups.find(x => x.id === nextStep.approverGroupHeaderId)
+          ?.name
+      : t("Approved");
+    return approverGroupName;
+  };
+
+  const approverGroupIdsToFilterOut = compact(
+    props.steps
+      .filter(x => !x.deleted)
+      .map(x => {
+        if (
+          !myStep ||
+          (myStep && myStep.approverGroupHeaderId != x.approverGroupHeaderId)
+        ) {
+          return x.approverGroupHeaderId;
+        }
+      })
+  );
+
+  const renderCondition = (criteria?: string | null) => {
+    return criteria ? "" : `(${t("Default")})`;
+  };
+
   return (
     <Section>
       <div className={classes.labelText}>
-        {props.selectedGroupId ? t("Update approver group") : t("Add approver")}
+        {myStep ? t("Update approver group") : t("Add approver")}
       </div>
-      <ApproverGroupSelect
-        orgId={props.orgId}
-        multiple={false}
-        selectedApproverGroupHeaderIds={approverGroupIds}
-        setSelectedApproverGroupHeaderIds={onSetGroup}
-        idsToFilterOut={props.idsToFilterOut}
-      />
+      <div className={classes.selectContainer}>
+        <ApproverGroupSelect
+          orgId={props.orgId}
+          multiple={false}
+          selectedApproverGroupHeaderIds={approverGroupIds}
+          setSelectedApproverGroupHeaderIds={onSetGroup}
+          idsToFilterOut={approverGroupIdsToFilterOut}
+        />
+      </div>
       <div className={classes.labelText}>{t("When approved")}</div>
       <FormControlLabel
         control={
@@ -92,14 +127,32 @@ export const AddUpdateApprover: React.FC<Props> = props => {
         label={t("Release to be filled")}
       />
       <div className={classes.labelText}>{t("Route to:")}</div>
-
+      {myTransitions ? (
+        myTransitions.map((t, i) => (
+          <div key={i} className={classes.gotoNameContainer}>
+            <div className={classes.gotoName}>
+              {findApproverGroupName(t.goto)}
+            </div>
+            <div className={classes.gotoCondition}>
+              {renderCondition(t.criteria)}
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className={classes.gotoNameContainer}>
+          <div className={classes.gotoName}>
+            {findApproverGroupName(props.defaultGotoStepId)}
+          </div>
+          <div className={classes.gotoCondition}>{renderCondition()}</div>
+        </div>
+      )}
       <div className={classes.buttonContainer}>
         <Button
           variant="contained"
           onClick={handleSave}
           className={classes.button}
         >
-          {t("Save")}
+          {myStep ? t("Update") : t("Add")}
         </Button>
         {props.onRemove && (
           <Button
@@ -126,7 +179,6 @@ const useStyles = makeStyles(theme => ({
   labelText: {
     fontWeight: "bold",
     fontSize: theme.typography.pxToRem(14),
-    paddingBottom: theme.spacing(1),
   },
   buttonContainer: {
     display: "flex",
@@ -134,5 +186,18 @@ const useStyles = makeStyles(theme => ({
   },
   button: {
     marginRight: theme.spacing(2),
+  },
+  selectContainer: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(2),
+  },
+  gotoNameContainer: {
+    display: "flex",
+  },
+  gotoName: {
+    flex: 2,
+  },
+  gotoCondition: {
+    flex: 3,
   },
 }));

@@ -41,7 +41,6 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
     approvalWorkflowTypeId: props.workflowType,
     steps: cloneDeep(initialSteps),
   });
-  console.log(workflow.steps);
 
   const [createApprovalWorkflow] = useMutationBundle(CreateApprovalWorkflow, {
     onError: error => {

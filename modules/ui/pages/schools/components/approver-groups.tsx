@@ -45,8 +45,6 @@ export const ApproverGroupsUI: React.FC<Props> = props => {
       };
     }) ?? [];
 
-  console.log(approverGroups);
-
   const columns: Column<ApproverGroup>[] = [
     {
       title: t("Name"),

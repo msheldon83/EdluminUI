@@ -23,8 +23,6 @@ export const WorkflowSteps: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  console.log(props.steps);
-
   return (
     <Section>
       <SectionHeader title={t("Workflow steps")} />
