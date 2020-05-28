@@ -1,5 +1,15 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
+import { Typography, withStyles, createStyles, Theme } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import clsx from "clsx";
 
 export const CRMInvoices = () => {
   const classes = useStyles();
@@ -89,6 +99,97 @@ export const CRMInvoices = () => {
   );
 };
 
+function createData(date: any, invoice: any, po: any, total: any, status: any) {
+  return { date, invoice, po, total, status };
+}
+
+const rows = [
+  createData(
+    "June 1, 2020",
+    123943,
+    "Add",
+    (3105.9).toFixed(2),
+    "Due August 1"
+  ),
+  createData("July 1, 2020", 1239123, "1239 Edit", (3105.9).toFixed(2), "Paid"),
+];
+
+export const CRMInvoicesReact = () => {
+  const { t } = useTranslation();
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <div className={classes.container}>
+        <Typography variant="h5" className={classes.header}>
+          Invoices
+        </Typography>
+        <div className={classes.table}>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <StyledHeaderTableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Invoice #</TableCell>
+                  <TableCell>PO #</TableCell>
+                  <TableCell>Total</TableCell>
+                  <TableCell style={{ float: "right" }}>Status</TableCell>
+                </StyledHeaderTableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map(row => (
+                  <StyledTableRow key={row.invoice}>
+                    <TableCell component="th" scope="row">
+                      {row.date}
+                    </TableCell>
+                    <TableCell className={classes.reactLink}>
+                      {row.invoice}
+                    </TableCell>
+                    <TableCell>{row.po}</TableCell>
+                    <TableCell>${row.total}</TableCell>
+                    <TableCell
+                      className={clsx({
+                        [classes.paidCell]: true,
+                        [classes.paidItem]: row.status == `Paid`,
+                        [classes.dueItem]: row.status != `Paid`,
+                      })}
+                    >
+                      {row.status}
+                    </TableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+};
+
+const StyledHeaderTableRow = withStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      border: `1px solid ${theme.customColors.sectionBorder}`,
+      "&:nth-of-type(odd)": {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  })
+)(TableRow);
+
+const StyledTableRow = withStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      borderTop: `1px solid ${theme.customColors.sectionBorder}`,
+      borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
+      "&:nth-of-type(even)": {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  })
+)(TableRow);
+
 const useStyles = makeStyles(theme => ({
   container: {
     backgroundColor: "#FFFFFF",
@@ -130,6 +231,13 @@ const useStyles = makeStyles(theme => ({
     color: "#FF5555",
     textDecoration: "underline",
     display: "inline",
+  },
+  reactLink: {
+    color: "#FF5555",
+    textDecoration: "underline",
+  },
+  paidCell: {
+    float: "right",
   },
   dueItem: {
     color: "#E53935",
@@ -175,5 +283,9 @@ const useStyles = makeStyles(theme => ({
     fontSize: "14px",
     lineHeight: "22px",
     marginTop: "5px",
+  },
+  table: {
+    borderRadius: "4px",
+    margin: "20px",
   },
 }));

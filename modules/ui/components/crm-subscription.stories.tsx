@@ -9,6 +9,7 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import clsx from "clsx";
 
 export const CRMSubscription = () => {
   const classes = useStyles();
@@ -111,20 +112,8 @@ function createData(item: any, rate: any, qty: any, inUse: any, totalMo: any) {
 }
 
 const rows = [
-  createData(
-    "Employees requiring a substitute",
-    "$1.53/mo",
-    203,
-    "200 (-3)",
-    "$310.59"
-  ),
-  createData(
-    "Employees not requiring a substitute",
-    "$0.73/mo",
-    0,
-    "5 (+5)",
-    "$0.00"
-  ),
+  createData("Employees requiring a substitute", 1.53, 203, 200, 310.59),
+  createData("Employees not requiring a substitute", 0.73, 0, 5, 0.0),
 ];
 
 export const CRMSubscriptionReact = () => {
@@ -158,11 +147,24 @@ export const CRMSubscriptionReact = () => {
                     <TableCell component="th" scope="row">
                       {row.item}
                     </TableCell>
-                    <TableCell>{row.rate}</TableCell>
+                    <TableCell>${row.rate.toFixed(2)}/mo</TableCell>
                     <TableCell>{row.qty}</TableCell>
-                    <TableCell>{row.inUse}</TableCell>
+                    <TableCell>
+                      {row.inUse}{" "}
+                      <span
+                        className={clsx({
+                          [classes.negVal]: row.inUse - row.qty < 0,
+                          [classes.posVal]: row.inUse - row.qty >= 0,
+                        })}
+                      >
+                        (
+                        {`${row.inUse - row.qty >= 0 ? "+" : ""}${row.inUse -
+                          row.qty}`}
+                        )
+                      </span>
+                    </TableCell>
                     <TableCell style={{ float: "right" }}>
-                      {row.totalMo}
+                      ${row.totalMo.toFixed(2)}
                     </TableCell>
                   </StyledTableRow>
                 ))}
@@ -200,7 +202,7 @@ const CostBox: React.FC<Props> = props => {
         <div className={classes.subscriptionCostHeader}>
           {props.schoolYear} subscription cost
         </div>
-        <div className={classes.totalCost}>${props.cost}</div>
+        <div className={classes.totalCost}>${props.cost.toFixed(2)}</div>
         <div className={classes.renewalDate}>renews {props.renewalDate}</div>
       </div>
     </React.Fragment>
@@ -235,20 +237,6 @@ const StyledTableRow = withStyles((theme: Theme) =>
     },
   })
 )(TableRow);
-
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    head: {
-      color: `${theme.palette.secondary.main} !important`,
-      fontSize: 14,
-      fontWeight: "bold",
-      paddingTop: 0,
-    },
-    body: {
-      color: `${theme.palette.secondary.main} !important`,
-    },
-  })
-)(TableCell);
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -331,5 +319,11 @@ const useStyles = makeStyles(theme => ({
   table: {
     borderRadius: "4px",
     margin: "20px",
+  },
+  negVal: {
+    color: "#4CC17B",
+  },
+  posVal: {
+    color: "#C62828",
   },
 }));

@@ -9,3 +9,4 @@ export { CRMContactsReact } from "./crm-contacts.stories";
 export { CRMSubscription } from "./crm-subscription.stories";
 export { CRMSubscriptionReact } from "./crm-subscription.stories";
 export { CRMInvoices } from "./crm-invoices.stories";
+export { CRMInvoicesReact } from "./crm-invoices.stories";
