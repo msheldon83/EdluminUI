@@ -74,7 +74,6 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
           allowNegativeBalance,
           description,
           code,
-          absenceReasonTrackingId,
         },
       },
     });
@@ -101,9 +100,6 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
         description={absenceReasonCategory.description || undefined}
         code={absenceReasonCategory.code || undefined}
         allowNegativeBalance={absenceReasonCategory.allowNegativeBalance}
-        absenceReasonTrackingTypeId={
-          absenceReasonCategory.absenceReasonTrackingTypeId || undefined
-        }
         onSubmit={updateAbsenceReasonCategory}
         onCancel={() => {
           history.push(AbsenceReasonCategoryViewEditRoute.generate(params));

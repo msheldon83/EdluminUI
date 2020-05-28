@@ -7,7 +7,6 @@ query GetAbsenceReasons($orgId: ID) {
       externalId
       description
       expired
-      absenceReasonTrackingTypeId
       allowNegativeBalance
       requireNotesToAdmin
       category {

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { makeStyles, Grid, Button, Typography } from "@material-ui/core";
+import { makeStyles, Grid, Typography } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useHistory } from "react-router";

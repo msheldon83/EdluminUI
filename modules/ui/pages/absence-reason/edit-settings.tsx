@@ -53,7 +53,6 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
     description?: string;
     code?: string;
     isRestricted: boolean;
-    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     requireNotesToAdmin: boolean;
     absenceReasonCategoryId?: string;
   }) => {
@@ -66,7 +65,6 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
       description,
       code,
       isRestricted,
-      absenceReasonTrackingTypeId: absenceReasonTrackingId,
       requireNotesToAdmin,
       absenceReasonCategoryId,
     } = updatedValues;
@@ -80,7 +78,6 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
           description,
           code,
           isRestricted,
-          absenceReasonTrackingId,
           requireNotesToAdmin,
           absenceReasonCategoryId: absenceReasonCategoryId
             ? absenceReasonCategoryId
@@ -111,9 +108,6 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
         code={absenceReason.code || undefined}
         allowNegativeBalance={absenceReason.allowNegativeBalance}
         isRestricted={absenceReason.isRestricted}
-        absenceReasonTrackingTypeId={
-          absenceReason.absenceReasonTrackingTypeId || undefined
-        }
         requireNotesToAdmin={absenceReason.requireNotesToAdmin ?? false}
         absenceReasonCategoryId={
           absenceReason.absenceReasonCategoryId || undefined
