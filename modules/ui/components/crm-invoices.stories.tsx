@@ -145,7 +145,9 @@ export const CRMInvoicesReact = () => {
                     <TableCell className={classes.reactLink}>
                       {row.invoice}
                     </TableCell>
-                    <TableCell>{row.po}</TableCell>
+                    <TableCell className={classes.reactLink}>
+                      {row.po}
+                    </TableCell>
                     <TableCell>${row.total}</TableCell>
                     <TableCell
                       className={clsx({
@@ -162,9 +164,61 @@ export const CRMInvoicesReact = () => {
             </Table>
           </TableContainer>
         </div>
+        <div className={classes.invoicePaymentWrapper}>
+          <div className={classes.awaitingPaymentBox}>
+            <AwaitingPaymentBox
+              paymentAmount={3105.9}
+              invoiceNumber={123456}
+              dueDate="Aug 1"
+            />
+          </div>
+          <div className={classes.noPendingInvoicesBox}>
+            <NoPendingInvoicesBox />
+          </div>
+        </div>
       </div>
     </React.Fragment>
   );
+};
+
+const AwaitingPaymentBox: React.FC<Props> = props => {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <div className={classes.invoicePaymentWrapper}>
+        <div className={classes.boxHeader}>Awaiting Payment</div>
+        <div className={classes.boxMiddle}>
+          ${props.paymentAmount.toFixed(2)}
+        </div>
+        <div className={classes.boxFooter}>
+          Invoice #{props.invoiceNumber} due {props.dueDate}
+        </div>
+      </div>
+    </React.Fragment>
+  );
+};
+
+const NoPendingInvoicesBox: React.FC<Props> = props => {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <div className={classes.invoicePaymentWrapper}>
+        <div className={classes.boxHeader}>No pending invoices</div>
+        <div className={classes.boxMiddle}>Thank you!</div>
+        <div className={classes.boxFooter}>
+          It&apos;s our pleasure to serve you
+        </div>
+      </div>
+    </React.Fragment>
+  );
+};
+
+type Props = {
+  paymentAmount?: number;
+  invoiceNumber?: number;
+  dueDate?: string;
 };
 
 const StyledHeaderTableRow = withStyles((theme: Theme) =>
@@ -252,7 +306,7 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid #E5E5E5",
   },
   invoicePaymentWrapper: {
-    width: "223px",
+    width: "251px",
     margin: "20px",
   },
   awaitingPaymentBox: {
