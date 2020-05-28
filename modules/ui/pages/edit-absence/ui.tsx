@@ -327,7 +327,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ignoreAbsenceId: props.absenceId,
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
-    onError: () => {},
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
   });
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
@@ -365,7 +367,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ? (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[])
-      : null;
+      : [];
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
