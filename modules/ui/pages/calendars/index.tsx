@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
-import { Divider, Grid, Typography } from "@material-ui/core";
+import { Divider, Grid, Typography, Button } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
@@ -19,6 +19,7 @@ import {
   CalendarDayType,
   PermissionEnum,
   DataImportType,
+  CalendarChangeCreateInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore } from "date-fns";
@@ -42,6 +43,10 @@ import { useContracts } from "reference-data/contracts";
 import { ContractScheduleWarning } from "./components/contract-schedule-warning";
 import { GetContractsWithoutSchedules } from "./graphql/get-contracts-without-schedules.gen";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { CalendarChangeEventDialog } from "./components/calendar-change-event-dialog";
+import { useSnackbar } from "hooks/use-snackbar";
+import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   view: "list" | "calendar";
@@ -51,7 +56,9 @@ export const Calendars: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(CalendarRoute);
   const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
 
+  const [openEventDialog, setOpenEventDialog] = useState(false);
   const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
   const allSchoolYears = useAllSchoolYears(params.organizationId);
   const schoolYear = useMemo(
@@ -186,6 +193,92 @@ export const Calendars: React.FC<Props> = props => {
     await getCalendarChanges.refetch();
   };
 
+  const dateInSchoolYear = (date: string) => {
+    let found = false;
+    const d = new Date(date);
+
+    allSchoolYears.forEach(sy => {
+      const sd = parseISO(sy.startDate);
+      const ed = parseISO(sy.endDate);
+      if (d >= sd && d <= ed) {
+        found = true;
+        return found;
+      }
+    });
+    return found;
+  };
+
+  const [createCalendarChange] = useMutationBundle(CreateCalendarChange, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const onCreateCalendarChange = async (
+    calendarChange: CalendarChangeCreateInput
+  ) => {
+    if (
+      isBefore(
+        parseISO(calendarChange.startDate),
+        parseISO(calendarChange.endDate)
+      )
+    ) {
+      openSnackbar({
+        message: t("The from date has to be before the to date."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+    if (
+      !dateInSchoolYear(calendarChange.startDate) ||
+      !dateInSchoolYear(calendarChange.endDate)
+    ) {
+      openSnackbar({
+        message: t("Please enter a date within the available school years."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+
+    if (calendarChange.calendarChangeReasonId == undefined) {
+      openSnackbar({
+        message: t("Please provide a change reason."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+    if (
+      !calendarChange.affectsAllContracts &&
+      calendarChange.contractIds == undefined
+    ) {
+      openSnackbar({
+        message: t("Select a contract or choose, Apply To All Contracts."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+
+    const result = await createCalendarChange({
+      variables: {
+        calendarChange,
+      },
+    });
+    if (result !== undefined) {
+      await refectchCalendarChanges();
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const columns: Column<GetCalendarChanges.Results>[] = [
     {
       title: t("Date"),
@@ -259,6 +352,13 @@ export const Calendars: React.FC<Props> = props => {
 
   return (
     <>
+      <CalendarChangeEventDialog
+        open={openEventDialog}
+        onAdd={onCreateCalendarChange}
+        onClose={() => {
+          setOpenEventDialog(false);
+        }}
+      />
       <div>
         <Grid container alignItems="center" justify="space-between" spacing={2}>
           <Grid item>
@@ -287,14 +387,7 @@ export const Calendars: React.FC<Props> = props => {
           contracts={contractsWithoutSchedules}
           orgId={params.organizationId}
         />
-        <Can do={[PermissionEnum.CalendarChangeSave]}>
-          <Section className={classes.container}>
-            <CreateExpansionPanel
-              refetchQuery={refectchCalendarChanges}
-              orgId={params.organizationId}
-            />
-          </Section>
-        </Can>
+
         <div className={props.view === "calendar" ? classes.sticky : ""}>
           {props.view === "calendar" && (
             <Section className={classes.calendarchanges}>
@@ -336,6 +429,21 @@ export const Calendars: React.FC<Props> = props => {
             </Grid>
             <Grid item xs={12}>
               <Divider />
+            </Grid>
+            <Grid direction={"row-reverse"} item container xs={12}>
+              {changesLoaded && (
+                <Can do={[PermissionEnum.CalendarChangeSave]}>
+                  <Button
+                    className={classes.addEventButton}
+                    onClick={() => {
+                      setOpenEventDialog(true);
+                    }}
+                    variant="contained"
+                  >
+                    {t("Add Event")}
+                  </Button>
+                </Can>
+              )}
             </Grid>
             {props.view === "list" && (
               <Grid item xs={12} className={classes.listContent}>
@@ -467,5 +575,10 @@ const useStyles = makeStyles(theme => ({
   calendarchanges: {
     padding: theme.spacing(1),
     marginBottom: 0,
+  },
+  addEventButton: {
+    marginTop: theme.typography.pxToRem(27),
+    zIndex: 1000,
+    marginRight: theme.typography.pxToRem(30),
   },
 }));
