@@ -83,7 +83,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         "PositionTypeId",
         "IsAbsence",
         "IsVacancy",
-        "SourceOrgId",
+        "SubSourceOrgId",
       ]}
     />
   );
