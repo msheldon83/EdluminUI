@@ -175,6 +175,7 @@ export const Report: React.FC<Props> = props => {
         currentFilters={[...state.filters.required, ...state.filters.optional]}
         filterableFields={state.filterableFields}
         setFilters={setFilters}
+        currentOrderByFields={[]}
         setOrderBy={setOrderBy}
         refreshReport={refreshReport}
         exportReport={async () => {

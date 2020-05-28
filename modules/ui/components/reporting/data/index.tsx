@@ -5,6 +5,7 @@ import {
   DataSourceField,
   SelectField,
   Direction,
+  OrderByField,
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
@@ -15,7 +16,7 @@ import { DataGrid } from "./data-grid";
 
 type Props = {
   reportDefinition: ReportDefinition | undefined;
-  inputSelects?: SelectField[];
+  inputSelects: SelectField[];
   isLoading: boolean;
   currentFilters: FilterField[];
   filterableFields: DataSourceField[];
@@ -24,6 +25,7 @@ type Props = {
     areOptional: boolean,
     refreshReport?: boolean
   ) => void;
+  currentOrderByFields: OrderByField[];
   setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
@@ -39,6 +41,7 @@ export const ReportData: React.FC<Props> = props => {
     currentFilters,
     filterableFields,
     setFilters,
+    currentOrderByFields,
     setOrderBy,
     refreshReport,
     exportReport,
@@ -58,6 +61,8 @@ export const ReportData: React.FC<Props> = props => {
           setFilters={setFilters}
           refreshReport={refreshReport}
           currentFilters={currentFilters}
+          currentOrderByFields={currentOrderByFields}
+          possibleOrderByFields={reportDefinition.metadata.query.selects}
         />
         {exportReport && (
           <TextButton onClick={exportReport}>{t("Export Report")}</TextButton>

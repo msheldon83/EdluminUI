@@ -191,6 +191,7 @@ export enum ExpressionFunction {
 export type DataExpression = {
   displayName: string;
   dataSourceField?: DataSourceField;
+  expressionAsQueryLanguage: string;
 };
 
 export type OrderByField = {
