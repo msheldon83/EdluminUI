@@ -16,7 +16,8 @@ export const SubstituteRosterReport: React.FC<{}> = () => {
       from: "Substitute",
       select: [
         {
-          expression: "Concat(LastName,', ',FirstName) AS Substitute",
+          expression: "Concat(LastName,', ',FirstName)",
+          alias: "Substitute",
           component: (row: any[]) => {
             return (
               <div>

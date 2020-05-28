@@ -21,13 +21,17 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         { expression: "LocationName" },
         {
           expression:
-            "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee",
+            "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName)",
+          alias: "Employee",
         },
         { expression: "AbsentEmployeeExternalId" },
         { expression: "AbsStartTime" },
         { expression: "AbsEndTime" },
         { expression: "ReasonName" },
-        { expression: "Concat(SubFirstName,' ',SubLastName) AS Substitute" },
+        {
+          expression: "Concat(SubFirstName,' ',SubLastName)",
+          alias: "Substitute",
+        },
         { expression: "SubExternalId" },
         { expression: "SubStartTime" },
         { expression: "SubEndTime" },

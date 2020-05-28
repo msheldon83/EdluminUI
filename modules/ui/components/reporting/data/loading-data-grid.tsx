@@ -28,13 +28,14 @@ export const LoadingDataGrid: React.FC<Props> = props => {
                 height={50}
                 width={width}
                 columnWidth={columnWidth}
+                setOrderBy={async () => {}}
               />
             </div>
             <div>
               <MultiGrid
                 columnWidth={columnWidth}
                 columnCount={columnCount}
-                height={height-50}
+                height={height - 50}
                 rowHeight={50}
                 rowCount={rowCount}
                 width={width}

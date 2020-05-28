@@ -3,22 +3,32 @@ import { makeStyles, Menu, MenuItem } from "@material-ui/core";
 import { ArrowDropDown } from "@material-ui/icons";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
-import { OrderByField } from "../types";
+import { Direction } from "../types";
 
 type Props = {
   columns: string[];
   height: MultiGridProps["height"];
   width: MultiGridProps["width"];
+  setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
   columnWidth: MultiGridProps["columnWidth"];
   numberOfLockedColumns?: number;
   onScroll?: MultiGridProps["onScroll"];
   scrollLeft?: MultiGridProps["scrollLeft"];
 };
 
+type HeaderMenuItem = {
+  label: string;
+  onClick: (columnIndex: number) => Promise<void>;
+};
+
 export const DataGridHeader: React.FC<Props> = props => {
+  const { t } = useTranslation();
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [menuInfo, setMenuInfo] = React.useState<null | {
+    columnIndex: number;
+    anchor: HTMLElement;
+  }>(null);
+  const open = Boolean(menuInfo?.anchor);
   const {
     columns,
     onScroll,
@@ -26,19 +36,34 @@ export const DataGridHeader: React.FC<Props> = props => {
     height,
     width,
     columnWidth,
+    setOrderBy,
     numberOfLockedColumns = 0,
   } = props;
 
-  // TODO: For V1 we're not supporting this, but will want to add in items as we implement them
-  //const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
-  const menuItems: string[] = React.useMemo(() => [], []);
+  const menuItems: HeaderMenuItem[] = [
+    {
+      label: t("Sort A > Z"),
+      onClick: async (columnIndex: number) => {
+        await setOrderBy(columnIndex, Direction.Asc);
+      },
+    },
+    {
+      label: t("Sort Z > A"),
+      onClick: async (columnIndex: number) => {
+        await setOrderBy(columnIndex, Direction.Desc);
+      },
+    },
+  ];
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLElement>,
+    columnIndex: number
+  ) => {
+    setMenuInfo({ columnIndex, anchor: event.currentTarget });
   };
 
   const handleCloseMenu = () => {
-    setAnchorEl(null);
+    setMenuInfo(null);
   };
 
   const headerCellRenderer = React.useCallback(
@@ -47,7 +72,10 @@ export const DataGridHeader: React.FC<Props> = props => {
         <div key={key} style={style} className={classes.headerCell}>
           <div>{columns[columnIndex]}</div>
           {menuItems && menuItems.length > 0 && (
-            <div onClick={handleMenuClick} className={classes.action}>
+            <div
+              onClick={e => handleMenuClick(e, columnIndex)}
+              className={classes.action}
+            >
               <ArrowDropDown />
             </div>
           )}
@@ -78,7 +106,7 @@ export const DataGridHeader: React.FC<Props> = props => {
         }}
       />
       <Menu
-        anchorEl={anchorEl}
+        anchorEl={menuInfo?.anchor}
         transformOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -94,10 +122,13 @@ export const DataGridHeader: React.FC<Props> = props => {
           return (
             <MenuItem
               key={i}
-              onClick={handleCloseMenu}
+              onClick={async () => {
+                handleCloseMenu();
+                await m.onClick(menuInfo!.columnIndex);
+              }}
               className={classes.headerMenuItem}
             >
-              {m}
+              {m.label}
             </MenuItem>
           );
         })}

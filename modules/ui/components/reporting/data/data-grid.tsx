@@ -39,6 +39,7 @@ type Props = {
   reportDefinition: ReportDefinition;
   inputSelects?: SelectField[];
   isLoading: boolean;
+  setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
   showGroupLabels?: boolean;
 };
 
@@ -48,6 +49,7 @@ export const DataGrid: React.FC<Props> = props => {
   const [groupedData, setGroupedData] = React.useState<GroupedData[]>([]);
   const {
     isLoading,
+    setOrderBy,
     reportDefinition: { data: reportData, metadata },
     showGroupLabels = true,
     inputSelects = [],
@@ -127,6 +129,7 @@ export const DataGrid: React.FC<Props> = props => {
                       inputSelects
                     )
                   }
+                  setOrderBy={setOrderBy}
                 />
                 {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (
                   <MultiGrid

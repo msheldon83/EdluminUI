@@ -21,7 +21,8 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         { expression: "LocationName" },
         {
           expression:
-            "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee",
+            "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName)",
+          alias: "Employee",
         },
         { expression: "AbsStartTime" },
         { expression: "AbsEndTime" },
@@ -55,6 +56,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         {
           expression: "Concat(SubFirstName,' ',SubLastName)",
           direction: Direction.Asc,
+          isRequired: true,
         },
         {
           expression: "Date",

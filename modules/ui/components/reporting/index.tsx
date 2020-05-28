@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { ReportDefinitionInput, FilterField } from "./types";
+import { ReportDefinitionInput, FilterField, Direction } from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
 import {
@@ -135,6 +135,13 @@ export const Report: React.FC<Props> = props => {
     dispatch({ action: "refreshReport" });
   }, []);
 
+  const setOrderBy = React.useCallback(
+    async (columnIndex: number, direction: Direction) => {
+      dispatch({ action: "setOrderBy", columnIndex, direction });
+    },
+    []
+  );
+
   return (
     <AppConfig contentWidth="100%">
       <div className={classes.header}>
@@ -168,6 +175,7 @@ export const Report: React.FC<Props> = props => {
         currentFilters={[...state.filters.required, ...state.filters.optional]}
         filterableFields={state.filterableFields}
         setFilters={setFilters}
+        setOrderBy={setOrderBy}
         refreshReport={refreshReport}
         exportReport={async () => {
           await downloadCsvFile({

@@ -4,6 +4,7 @@ import {
   FilterField,
   DataSourceField,
   SelectField,
+  Direction,
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
@@ -23,6 +24,7 @@ type Props = {
     areOptional: boolean,
     refreshReport?: boolean
   ) => void;
+  setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
   showGroupLabels?: boolean;
@@ -37,6 +39,7 @@ export const ReportData: React.FC<Props> = props => {
     currentFilters,
     filterableFields,
     setFilters,
+    setOrderBy,
     refreshReport,
     exportReport,
     showGroupLabels = true,
@@ -66,6 +69,7 @@ export const ReportData: React.FC<Props> = props => {
           isLoading={isLoading}
           showGroupLabels={showGroupLabels}
           inputSelects={inputSelects}
+          setOrderBy={setOrderBy}
         />
       </div>
     </>

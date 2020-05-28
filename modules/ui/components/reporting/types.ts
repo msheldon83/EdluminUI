@@ -5,6 +5,7 @@ export type ReportDefinitionInput = {
   orderBy?: {
     expression: string;
     direction: Direction;
+    isRequired?: boolean;
   }[];
   filter?: {
     fieldName: string;
@@ -28,6 +29,7 @@ export type ReportDefinitionInput = {
 
 export type SelectField = {
   expression: string;
+  alias?: string;
   hiddenFromReport?: boolean;
   component?: (row: any[]) => JSX.Element;
   width?: number;

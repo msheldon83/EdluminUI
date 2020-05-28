@@ -1,6 +1,5 @@
 import { Reducer } from "react";
 import {
-  OrderByField,
   ReportDefinition,
   ReportChartDefinition,
   DataSourceField,
@@ -22,7 +21,6 @@ export type ReportState = {
     required: FilterField[];
   };
   filterableFields: DataSourceField[];
-  orderBy?: OrderByField;
   rdlString: string;
   rdlChartString: string | null;
 };
@@ -49,7 +47,8 @@ export type ReportActions =
     }
   | {
       action: "setOrderBy";
-      field: OrderByField;
+      columnIndex: number;
+      direction: Direction;
     }
   | {
       action: "refreshReport";
@@ -196,19 +195,28 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       return updatedState;
     }
     case "setOrderBy": {
-      return {
+      const selectField = prev.reportDefinitionInput.select.filter(
+        s => !s.hiddenFromReport
+      )[action.columnIndex];
+
+      const updatedState = {
         ...prev,
-        orderBy: action.field,
         reportDefinitionInput: {
           ...prev.reportDefinitionInput,
           orderBy: [
+            ...(prev.reportDefinitionInput.orderBy?.filter(o => o.isRequired) ??
+              []),
             {
-              expression: action.field.expression.displayName,
-              direction: action.field.direction,
+              expression: selectField.expression,
+              direction: action.direction,
             },
           ],
         },
       };
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.reportDefinitionInput
+      );
+      return updatedState;
     }
     case "refreshReport": {
       return {
@@ -343,7 +351,17 @@ export const convertReportDefinitionInputToRdl = (
     }
   }
 
-  rdlPieces.push(`SELECT ${selects.map(s => s.expression).join(", ")}`);
+  rdlPieces.push(
+    `SELECT ${selects
+      .map(s => {
+        if (!s.alias) {
+          return s.expression;
+        }
+
+        return `${s.expression} AS ${s.alias}`;
+      })
+      .join(", ")}`
+  );
 
   if (input.orderBy && input.orderBy.length > 0) {
     rdlPieces.push(
