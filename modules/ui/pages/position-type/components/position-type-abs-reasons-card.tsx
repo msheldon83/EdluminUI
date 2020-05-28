@@ -1,30 +1,18 @@
 import * as React from "react";
-import {
-  Typography,
-  FormControlLabel,
-  Checkbox,
-  Chip,
-  makeStyles,
-  Divider,
-} from "@material-ui/core";
+import { Typography, Chip, makeStyles, Divider } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { PositionType, PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { AbsenceReasonViewEditRoute } from "ui/routes/absence-reason";
-import { usePositionTypeOptions } from "reference-data/position-types";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import {
-  useAbsenceReasons,
-  useAbsenceReasonOptions,
-} from "reference-data/absence-reasons";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useMutationBundle } from "graphql/hooks";
 import { UpdateAbsenceReason } from "ui/pages/absence-reason/graphql/update-absence-reason.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { AbsenceReason } from "ui/pages/absence-reason";
 
 type Props = {
   positionTypeId: string;
