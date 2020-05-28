@@ -89,7 +89,7 @@ export const CRMSubscription = () => {
           </div>
         </div>
         <div className={classes.subscriptionCostWrapper}>
-          <div className={classes.subscriptionCost}>
+          <div className={classes.subscriptionCost} style={{ padding: "10px" }}>
             <div className={classes.subscriptionCostHeader}>
               2020-21 subscription cost
             </div>
@@ -106,11 +106,33 @@ export const CRMSubscription = () => {
   );
 };
 
+function createData(item: any, rate: any, qty: any, inUse: any, totalMo: any) {
+  return { item, rate, qty, inUse, totalMo };
+}
+
+const rows = [
+  createData(
+    "Employees requiring a substitute",
+    "$1.53/mo",
+    203,
+    "200 (-3)",
+    "$310.59"
+  ),
+  createData(
+    "Employees not requiring a substitute",
+    "$0.73/mo",
+    0,
+    "5 (+5)",
+    "$0.00"
+  ),
+];
+
 export const CRMSubscriptionReact = () => {
   const { t } = useTranslation();
   const classes = useStyles();
 
   const schoolYear = "2020-21";
+  const totalCost = 310.59;
 
   return (
     <React.Fragment>
@@ -121,80 +143,112 @@ export const CRMSubscriptionReact = () => {
         <div className={classes.table}>
           <TableContainer component={Paper}>
             <Table>
+              <TableHead>
+                <StyledHeaderTableRow>
+                  <TableCell>Item</TableCell>
+                  <TableCell>Rate</TableCell>
+                  <TableCell>Qty</TableCell>
+                  <TableCell>In use</TableCell>
+                  <TableCell style={{ float: "right" }}>Total /mo</TableCell>
+                </StyledHeaderTableRow>
+              </TableHead>
               <TableBody>
-                <StyledTableRow>
-                  <StyledTableCell className={classes.firstRowItem}>
-                    Item
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.firstRowItem}>
-                    Rate
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.firstRowItem}>
-                    Qty
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.firstRowItem}>
-                    In Use
-                  </StyledTableCell>
-                  <StyledTableCell
-                    className={classes.firstRowItem}
-                    style={{ float: "right" }}
-                  >
-                    Total /mo
-                  </StyledTableCell>
-                </StyledTableRow>
-                <StyledTableRow>
-                  <StyledTableCell className={classes.rowItem}>
-                    Employees requiring a substitute
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.rowItem}>
-                    $1.53/mo
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.rowItem}>
-                    203
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.rowItem}>
-                    200 (-3)
-                  </StyledTableCell>
-                  <StyledTableCell
-                    className={classes.rowItem}
-                    style={{ float: "right" }}
-                  >
-                    $310.59
-                  </StyledTableCell>
-                </StyledTableRow>
-                <StyledTableRow>
-                  <StyledTableCell className={classes.rowItem}>
-                    Employees not requiring a substitute
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.rowItem}>
-                    $0.73/mo
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.rowItem}>
-                    0
-                  </StyledTableCell>
-                  <StyledTableCell className={classes.rowItem}>
-                    5 (+5)
-                  </StyledTableCell>
-                  <StyledTableCell
-                    className={classes.rowItem}
-                    style={{ float: "right" }}
-                  >
-                    $0.00
-                  </StyledTableCell>
-                </StyledTableRow>
-                <StyledTableRow>
-                  <StyledTableCell style={{ float: "right" }}>
-                    $310.59
-                  </StyledTableCell>
-                </StyledTableRow>
+                {rows.map(row => (
+                  <StyledTableRow key={row.item}>
+                    <TableCell component="th" scope="row">
+                      {row.item}
+                    </TableCell>
+                    <TableCell>{row.rate}</TableCell>
+                    <TableCell>{row.qty}</TableCell>
+                    <TableCell>{row.inUse}</TableCell>
+                    <TableCell style={{ float: "right" }}>
+                      {row.totalMo}
+                    </TableCell>
+                  </StyledTableRow>
+                ))}
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
+                  <TableCell style={{ float: "right" }}>${totalCost}</TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
+        </div>
+        <div className={classes.subscriptionCostWrapper}>
+          <div className={classes.subscriptionCost}>
+            <CostBox
+              schoolYear="2020-21"
+              cost={3105.9}
+              renewalDate="July 1, 2021"
+            />
+          </div>
         </div>
       </div>
     </React.Fragment>
   );
 };
+
+const CostBox: React.FC<Props> = props => {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <div className={classes.subscriptionCostWrapper}>
+        <div className={classes.subscriptionCostHeader}>
+          {props.schoolYear} subscription cost
+        </div>
+        <div className={classes.totalCost}>${props.cost}</div>
+        <div className={classes.renewalDate}>renews {props.renewalDate}</div>
+      </div>
+    </React.Fragment>
+  );
+};
+
+type Props = {
+  schoolYear: string;
+  cost: number;
+  renewalDate: string;
+};
+
+const StyledHeaderTableRow = withStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      border: `1px solid ${theme.customColors.sectionBorder}`,
+      "&:nth-of-type(odd)": {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  })
+)(TableRow);
+
+const StyledTableRow = withStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      borderTop: `1px solid ${theme.customColors.sectionBorder}`,
+      borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
+      "&:nth-of-type(even)": {
+        backgroundColor: theme.palette.action.hover,
+      },
+    },
+  })
+)(TableRow);
+
+const StyledTableCell = withStyles((theme: Theme) =>
+  createStyles({
+    head: {
+      color: `${theme.palette.secondary.main} !important`,
+      fontSize: 14,
+      fontWeight: "bold",
+      paddingTop: 0,
+    },
+    body: {
+      color: `${theme.palette.secondary.main} !important`,
+    },
+  })
+)(TableCell);
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -246,13 +300,12 @@ const useStyles = makeStyles(theme => ({
   },
   subscriptionCostWrapper: {
     margin: "20px",
-    width: "223px",
+    width: "251px",
   },
   subscriptionCost: {
     backgroundColor: "#D8DCF7",
     border: "1px solid #6471DF",
     borderRadius: "4px",
-    padding: "10px",
   },
   subscriptionCostHeader: {
     fontWeight: "bold",
@@ -280,28 +333,3 @@ const useStyles = makeStyles(theme => ({
     margin: "20px",
   },
 }));
-
-const StyledTableRow = withStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      borderTop: `1px solid ${theme.customColors.sectionBorder}`,
-      "&:nth-of-type(odd)": {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-  })
-)(TableRow);
-
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    head: {
-      color: `${theme.palette.secondary.main} !important`,
-      fontSize: 14,
-      fontWeight: "bold",
-      paddingTop: 0,
-    },
-    body: {
-      color: `${theme.palette.secondary.main} !important`,
-    },
-  })
-)(TableCell);
