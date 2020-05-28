@@ -44,7 +44,7 @@ type Props = {
   } | null;
   orgId: string;
   shadeRow: boolean;
-  absenceReasonTrackingTypeOptions: OptionType[];
+  absenceReasonTrackingTypeOptions: { label: string; value: string }[];
   onRemove: (absenceReasonBalanceId: string) => Promise<void>;
   onUpdate: (
     absenceReasonBalance: AbsenceReasonBalanceUpdateInput
@@ -196,6 +196,17 @@ export const BalanceRow: React.FC<Props> = props => {
           .number()
           .nullable()
           .required(t("Required")),
+        absenceReasonTrackingTypeId: yup
+          .string()
+          .nullable()
+          .test("typeSelected", t("A type must be selected"), function(value) {
+            if (!value) {
+              return this.createError({
+                message: t("A type must be selected"),
+              });
+            }
+            return true;
+          }),
         asOf: yup
           .date()
           .nullable()
@@ -303,7 +314,7 @@ export const BalanceRow: React.FC<Props> = props => {
                     setChanges(true);
                   }}
                   options={props.absenceReasonTrackingTypeOptions}
-                  withResetValue={true}
+                  withResetValue={false}
                   inputStatus={errors.absenceReasonId ? "error" : "default"}
                 />
               </div>
@@ -395,15 +406,14 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1),
   },
   balanceInput: {
-    width: theme.typography.pxToRem(60),
-    padding: theme.spacing(1),
+    width: theme.typography.pxToRem(80),
+    padding: theme.spacing(2),
   },
   balanceType: {
-    width: theme.typography.pxToRem(80),
-    padding: theme.spacing(1),
+    width: theme.typography.pxToRem(120),
   },
   balanceValueContainer: {
-    width: theme.typography.pxToRem(140),
+    width: theme.typography.pxToRem(200),
     display: "flex",
     alignItems: "center",
   },
@@ -413,7 +423,7 @@ const useStyles = makeStyles(theme => ({
   },
   valueContainer: {
     width: theme.typography.pxToRem(120),
-    paddingLeft: theme.spacing(3),
+    paddingLeft: theme.spacing(6),
   },
   button: {
     padding: theme.spacing(0.5),

@@ -136,7 +136,6 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   );
 
   const absenceReasonTrackingTypeOptions = [
-    { label: "-", value: null },
     {
       label: "Daily",
       value: AbsenceReasonTrackingTypeId.Daily,
