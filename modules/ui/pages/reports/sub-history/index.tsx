@@ -21,7 +21,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         { expression: "LocationName" },
         {
           expression:
-            "Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName)",
+            "If(IsVacancy=1, AbsentEmployeeLastName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName))",
           alias: "Employee",
         },
         { expression: "AbsStartTime" },
