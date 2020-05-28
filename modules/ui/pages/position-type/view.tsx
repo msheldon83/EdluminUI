@@ -308,6 +308,16 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               </div>
             </div>
           </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Tracking Type")}</Typography>
+            <div>
+              {getDisplayName(
+                "absenceReasonTrackingTypeId",
+                positionType.absenceReasonTrackingTypeId?.toString() ?? "",
+                t
+              )}
+            </div>
+          </Grid>
         </Grid>
       </Section>
       <ReplacementCriteria

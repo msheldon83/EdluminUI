@@ -76,6 +76,10 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
           needsReplacement: NeedsReplacement | undefined | null,
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
+          absenceReasonTrackingTypeId:
+            | AbsenceReasonTrackingTypeId
+            | undefined
+            | null,
           payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
           payCodeId: string | undefined | null,
           defaultContractId?: string | null,
@@ -92,6 +96,7 @@ export const PositionTypeEditSettingsPage: React.FC<{}> = props => {
             payTypeId: payTypeId,
             payCodeId: payCodeId,
             code,
+            absenceReasonTrackingTypeId: absenceReasonTrackingTypeId,
           };
 
           // Update the Position Type

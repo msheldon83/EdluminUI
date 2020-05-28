@@ -9,7 +9,7 @@ import {
   useAbsenceReasons,
 } from "reference-data/absence-reasons";
 import { Section } from "ui/components/section";
-import { GetOrgUserById } from "ui/pages/people/graphql/get-orguser-by-id.gen";
+import { GetEmployeeById } from "./graphql/get-employee-by-id.gen";
 import { PeopleEmployeeBalancesEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
@@ -91,13 +91,13 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
     await getAbsenceReasonBalances.refetch();
   };
 
-  const getEmployee = useQueryBundle(GetOrgUserById, {
+  const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: {
       id: params.orgUserId,
     },
   });
   const employee =
-    getEmployee.state === "DONE" ? getEmployee.data.orgUser?.byId : null;
+    getEmployee.state === "DONE" ? getEmployee.data.employee?.byId : null;
 
   const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
 
@@ -136,7 +136,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   );
 
   const absenceReasonTrackingTypeId =
-    employee?.position?.positionType?.absenceReasonTrackingId ??
+    employee?.primaryPosition?.positionType?.absenceReasonTrackingTypeId ??
     AbsenceReasonTrackingTypeId.Daily;
 
   const absenceReasonTrackingTypeOptions = [

@@ -57,6 +57,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
     minAbsenceDurationMinutes: 15,
     defaultContractId: null,
     payCodeId: null,
+    absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId.Hourly,
     payTypeId: AbsenceReasonTrackingTypeId.Daily,
   });
 
@@ -97,6 +98,10 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
           needsReplacement: NeedsReplacement | undefined | null,
           forStaffAugmentation: boolean,
           minAbsenceDurationMinutes: number,
+          absenceReasonTrackingTypeId:
+            | AbsenceReasonTrackingTypeId
+            | undefined
+            | null,
           payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
           payCodeId: string | undefined | null,
           defaultContractId: string | undefined | null,
@@ -106,6 +111,7 @@ export const PositionTypeAddPage: React.FC<{}> = props => {
             ...positionType,
             forPermanentPositions: forPermanentPositions,
             needsReplacement: needsReplacement,
+            absenceReasonTrackingTypeId: absenceReasonTrackingTypeId,
             forStaffAugmentation: forStaffAugmentation,
             minAbsenceDurationMinutes: minAbsenceDurationMinutes,
             defaultContractId: defaultContractId,

@@ -29,16 +29,6 @@ query GetOrgUserById($id: ID!) {
       isShadowRecord
       shadowFromOrgId
       shadowFromOrgName
-      employee {
-        id
-        position {
-          id
-          positionType {
-            id
-            absenceReasonTrackingTypeId
-          }
-        }
-      }
     }
   }
 }

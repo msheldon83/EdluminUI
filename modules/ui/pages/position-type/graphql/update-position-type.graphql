@@ -11,6 +11,7 @@ mutation UpdatePositionType($positionType: PositionTypeUpdateInput!) {
       minAbsenceDurationMinutes
       needsReplacement
       expired
+      absenceReasonTrackingTypeId
       defaultContractId
       defaultContract {
         id

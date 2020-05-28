@@ -320,7 +320,9 @@ export const BalanceRow: React.FC<Props> = props => {
                   }}
                   options={props.absenceReasonTrackingTypeOptions}
                   withResetValue={false}
-                  inputStatus={errors.absenceReasonId ? "error" : "default"}
+                  inputStatus={
+                    errors.absenceReasonTrackingTypeId ? "error" : "default"
+                  }
                 />
               </div>
             </div>
