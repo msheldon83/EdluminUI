@@ -4501,6 +4501,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   code: String
   payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
@@ -4519,6 +4520,7 @@ input PositionTypeCreateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type PositionTypeDr {
@@ -4563,6 +4565,7 @@ input PositionTypeUpdateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type QualifiedEmployeeCounts {
