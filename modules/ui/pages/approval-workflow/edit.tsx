@@ -189,6 +189,7 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
             editName={false}
             name={approvalWorkflow.name}
             saveLabel={t("Save")}
+            approvalWorkflowId={params.approvalWorkflowId}
           />
         </div>
         <StepsGraph

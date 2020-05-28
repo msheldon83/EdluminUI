@@ -27,6 +27,7 @@ type Props = {
   name: string;
   usages: string;
   saveLabel: string;
+  approvalWorkflowId?: string;
 };
 
 export const BasicInfo: React.FC<Props> = props => {
@@ -47,6 +48,7 @@ export const BasicInfo: React.FC<Props> = props => {
             editing={props.editing === editableSections.usageInfo}
             setEditing={props.setEditing}
             editable={props.editable}
+            approvalWorkflowId={props.approvalWorkflowId}
           />
         );
       case ApprovalWorkflowType.Vacancy:
@@ -58,6 +60,7 @@ export const BasicInfo: React.FC<Props> = props => {
             editing={props.editing === editableSections.usageInfo}
             setEditing={props.setEditing}
             editable={props.editable}
+            approvalWorkflowId={props.approvalWorkflowId}
           />
         );
     }

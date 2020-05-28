@@ -11,11 +11,13 @@ import {
   buildVacancyUsagesJsonString,
   VacancyWorkflowUsage,
 } from "../../types";
-import { PermissionEnum } from "graphql/server-types.gen";
-import { compact } from "lodash-es";
+import { PermissionEnum, ApprovalWorkflowType } from "graphql/server-types.gen";
+import { compact, flatMap } from "lodash-es";
 import { usePositionTypes } from "reference-data/position-types";
 import { Edit } from "@material-ui/icons";
 import { Can } from "ui/components/auth/can";
+import { useQueryBundle } from "graphql/hooks";
+import { GetApprovalWorkflows } from "../../graphql/get-approval-workflows.gen";
 
 type Props = {
   setFieldValue: Function;
@@ -24,11 +26,37 @@ type Props = {
   editing: boolean;
   editable: boolean;
   setEditing?: (editing: string | null) => void;
+  approvalWorkflowId?: string;
 };
 
 export const VacancyBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const getApprovalWorkflows = useQueryBundle(GetApprovalWorkflows, {
+    variables: {
+      orgId: props.orgId,
+      workFlowType: ApprovalWorkflowType.Vacancy,
+    },
+  });
+
+  let allApprovalWorkflows =
+    getApprovalWorkflows.state === "DONE"
+      ? getApprovalWorkflows.data?.approvalWorkflow?.all
+      : [];
+  if (props.approvalWorkflowId) {
+    allApprovalWorkflows = allApprovalWorkflows?.filter(
+      x => x?.id !== props.approvalWorkflowId
+    );
+  }
+  const allExistingUsages = compact(
+    flatMap(allApprovalWorkflows?.map(a => a?.usages)) as VacancyWorkflowUsage[]
+  );
+  const existingAllOthersUsage =
+    allExistingUsages.some(x => x.allOthers) ?? false;
+  const existingPositionTypeIds = compact(
+    allExistingUsages.map(x => x.positionTypeId)
+  );
 
   const usages: VacancyWorkflowUsage[] = JSON.parse(props.usages);
   const positionTypeIds = compact(usages.map(x => x.positionTypeId));
@@ -52,6 +80,11 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
               )
             }
             disabled={isAllOthers}
+            idsToRemoveFromOptions={
+              existingPositionTypeIds.length > 0
+                ? existingPositionTypeIds
+                : undefined
+            }
           />
         ) : (
           <div className={classes.container}>
@@ -78,7 +111,7 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
           </div>
         )}
       </Grid>
-      {props.editing && (
+      {props.editing && !existingAllOthersUsage && (
         <Grid item xs={12}>
           <FormControlLabel
             control={

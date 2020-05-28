@@ -719,7 +719,7 @@ input ApprovalWorkflowCreateInput {
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStepInput]
+  steps: [ApprovalWorkflowStepInput!]!
   usages: String
 }
 

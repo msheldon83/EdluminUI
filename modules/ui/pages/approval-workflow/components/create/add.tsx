@@ -22,6 +22,7 @@ import { BasicInfo, editableSections } from "./basic-info";
 import { initialSteps } from "../../types";
 import { WorkflowSteps } from "./workflow-steps";
 import { Section } from "ui/components/section";
+import { cloneDeep } from "lodash-es";
 
 type Props = {
   workflowType: ApprovalWorkflowType;
@@ -38,7 +39,9 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
     orgId: props.orgId,
     name: "",
     approvalWorkflowTypeId: props.workflowType,
+    steps: cloneDeep(initialSteps),
   });
+  console.log(workflow.steps);
 
   const [createApprovalWorkflow] = useMutationBundle(CreateApprovalWorkflow, {
     onError: error => {
@@ -97,7 +100,7 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
         workflowType={props.workflowType}
         onCancel={handleCancel}
         orgId={props.orgId}
-        steps={initialSteps}
+        steps={workflow.steps}
         onSave={async (steps: ApprovalWorkflowStepInput[]) => {
           const result = await create({
             ...workflow,

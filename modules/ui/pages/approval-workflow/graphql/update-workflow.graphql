@@ -32,6 +32,11 @@ mutation UpdateApprovalWorkflow(
             name
           }
           employeeId
+          employee {
+            id
+            firstName
+            lastName
+          }
         }
         ... on VacancyApprovalWorkflowUsage {
           id

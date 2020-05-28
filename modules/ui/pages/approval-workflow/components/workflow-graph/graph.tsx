@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { GraphView, INode, IEdge } from "react-digraph";
 import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
@@ -25,6 +25,7 @@ export const StepsGraph: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const { steps, setSteps } = props;
+  console.log(steps);
 
   const [elAnchor, setElAnchor] = useState<null | HTMLElement>(null);
   const [conditionOpen, setConditionOpen] = useState(false);
@@ -39,10 +40,18 @@ export const StepsGraph: React.FC<Props> = props => {
 
   const approverGroups = useApproverGroups(props.orgId);
 
-  const nodes = convertStepsToNodes(steps, approverGroups, t);
-  const edges = convertStepsToEdges(
+  const nodes = useMemo(() => convertStepsToNodes(steps, approverGroups, t), [
+    approverGroups,
     steps,
-    approverGroups.map(x => x.id)
+    t,
+  ]);
+  const edges = useMemo(
+    () =>
+      convertStepsToEdges(
+        steps,
+        approverGroups.map(x => x.id)
+      ),
+    [steps, approverGroups]
   );
 
   const selected = {};
