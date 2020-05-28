@@ -161,11 +161,6 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
                     <Typography>
                       {t("Not associated with any absence reasons")}
                     </Typography>
-                    <Typography>
-                      {t(
-                        "The following Absence Reasons are assoicated with this position type because they are assoicated with all position types:"
-                      )}
-                    </Typography>
                   </>
                 )}
 
@@ -180,24 +175,24 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
                         className={classes.positionTypeChip}
                       />
                     ))}
-                    {allPositionTypeAbsenceReasons.length > 0 && (
-                      <>
-                        <Typography className={classes.allReasonsText}>
-                          {t(
-                            "The following Absence Reasons are assoicated with this position type because they are assoicated with all position types:"
-                          )}
-                        </Typography>
-                        {allPositionTypeAbsenceReasons.map((ar, i) => (
-                          <Chip
-                            key={i}
-                            label={ar.name}
-                            className={classes.positionTypeChip}
-                          />
-                        ))}
-                      </>
-                    )}
                   </>
                 )}
+              {!editing && allPositionTypeAbsenceReasons.length > 0 && (
+                <>
+                  <Typography className={classes.allReasonsText}>
+                    {t(
+                      "The following Absence Reasons are assoicated with this position type because they are assoicated with all position types:"
+                    )}
+                  </Typography>
+                  {allPositionTypeAbsenceReasons.map((ar, i) => (
+                    <Chip
+                      key={i}
+                      label={ar.name}
+                      className={classes.positionTypeChip}
+                    />
+                  ))}
+                </>
+              )}
               {editing && allPositionTypeAbsenceReasons.length > 0 && (
                 <>
                   <Typography className={classes.allReasonsText}>
