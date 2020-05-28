@@ -8,16 +8,22 @@ import {
 } from "@material-ui/core";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
 import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-user-select";
-import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
+import {
+  OrgUserRole,
+  PermissionEnum,
+  ApprovalWorkflowType,
+} from "graphql/server-types.gen";
 import {
   buildAbsenceUsagesJsonString,
   AbsenceWorkflowUsage,
 } from "../../types";
-import { compact } from "lodash-es";
+import { compact, flatMap } from "lodash-es";
 import { usePositionTypes } from "reference-data/position-types";
 import { useOrgUsers } from "ui/components/domain-selects/org-user-select/org-users";
 import { Edit } from "@material-ui/icons";
 import { Can } from "ui/components/auth/can";
+import { useQueryBundle } from "graphql/hooks";
+import { GetApprovalWorkflows } from "../../graphql/get-approval-workflows.gen";
 
 type Props = {
   setFieldValue: Function;
@@ -26,11 +32,38 @@ type Props = {
   editing: boolean;
   editable: boolean;
   setEditing?: (editing: string | null) => void;
+  approvalWorkflowId?: string;
 };
 
 export const AbsenceBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const getApprovalWorkflows = useQueryBundle(GetApprovalWorkflows, {
+    variables: {
+      orgId: props.orgId,
+      workFlowType: ApprovalWorkflowType.Absence,
+    },
+  });
+
+  let allApprovalWorkflows =
+    getApprovalWorkflows.state === "DONE"
+      ? getApprovalWorkflows.data?.approvalWorkflow?.all
+      : [];
+  if (props.approvalWorkflowId) {
+    allApprovalWorkflows = allApprovalWorkflows?.filter(
+      x => x?.id !== props.approvalWorkflowId
+    );
+  }
+  const allExistingUsages: AbsenceWorkflowUsage[] = compact(
+    flatMap(allApprovalWorkflows?.map(a => a?.usages))
+  );
+  const existingAllOthersUsage =
+    allExistingUsages.some(x => x.allOthers) ?? false;
+  const existingPositionTypeIds = compact(
+    allExistingUsages.map(x => x.positionTypeId)
+  );
+  const existingEmployeeIds = compact(allExistingUsages.map(x => x.employeeId));
 
   const usages: AbsenceWorkflowUsage[] = JSON.parse(props.usages);
   const positionTypeIds = compact(usages.map(x => x.positionTypeId));
@@ -56,6 +89,11 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
               )
             }
             disabled={isAllOthers}
+            idsToRemoveFromOptions={
+              existingPositionTypeIds.length > 0
+                ? existingPositionTypeIds
+                : undefined
+            }
           />
         ) : (
           <div className={classes.container}>
@@ -97,6 +135,9 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
                 buildAbsenceUsagesJsonString(isAllOthers, positionTypeIds, ids)
               )
             }
+            idsToRemoveFromOptions={
+              existingEmployeeIds.length > 0 ? existingEmployeeIds : undefined
+            }
           />
         ) : (
           <div className={classes.text}>{`${t("For employees")}: ${
@@ -111,7 +152,7 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
           }`}</div>
         )}
       </Grid>
-      {props.editing && (
+      {props.editing && !existingAllOthersUsage && (
         <Grid item xs={12}>
           <FormControlLabel
             control={

@@ -12,6 +12,7 @@ type Props = {
   label?: string;
   multiple?: boolean;
   disabled?: boolean;
+  idsToRemoveFromOptions?: string[];
 };
 
 export const PositionTypeSelect: React.FC<Props> = props => {
@@ -33,6 +34,12 @@ export const PositionTypeSelect: React.FC<Props> = props => {
       a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
     );
     positionTypeOptions.unshift({ label: t("(All)"), value: "0" });
+  }
+
+  if (props.idsToRemoveFromOptions) {
+    positionTypeOptions = positionTypeOptions.filter(
+      x => !props.idsToRemoveFromOptions?.includes(x.value)
+    );
   }
 
   const selectedPositionTypes = positionTypeOptions.filter(

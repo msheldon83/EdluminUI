@@ -66,8 +66,8 @@ export const buildCleanStepInput = (steps: ApprovalWorkflowStep[]) => {
     yPosition: s.yPosition,
     onApproval: s.onApproval.map(a => ({
       goto: a.goto,
-      args: buildTransitionArgsJsonString(a.args),
-      criteria: buildTransitionCriteriaJsonString(a.criteria),
+      args: a.args,
+      criteria: a.criteria,
     })),
   })) as ApprovalWorkflowStepInput[];
 };

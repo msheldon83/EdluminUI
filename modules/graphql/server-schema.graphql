@@ -38,14 +38,6 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   positionTypes: [PositionType]
 }
 
-type AbsenceApprovalTransitionArguments {
-  makeAvailableToFill: Boolean!
-}
-
-type AbsenceApprovalTransitionCriteria {
-  absenceReasonIds: [ID]
-}
-
 type AbsenceApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -229,6 +221,7 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   usedBalance: Decimal!
   unusedBalance: Decimal!
   netBalance: Decimal!
@@ -244,6 +237,7 @@ input AbsenceReasonBalanceCreateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonBalanceMutations {
@@ -265,6 +259,7 @@ input AbsenceReasonBalanceUpdateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -698,10 +693,6 @@ enum ApprovalStatus {
   NO_APPROVAL_REQUIRED
 }
 
-union ApprovalTransitionArguments = AbsenceApprovalTransitionArguments | VacancyApprovalTransitionArguments
-
-union ApprovalTransitionCriteria = AbsenceApprovalTransitionCriteria | VacancyApprovalTransitionCriteria
-
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -768,8 +759,8 @@ input ApprovalWorkflowStepInput {
 
 type ApprovalWorkflowTransition {
   goto: String
-  criteria: ApprovalTransitionCriteria
-  args: ApprovalTransitionArguments
+  criteria: String
+  args: String
 }
 
 input ApprovalWorkflowTransitionInput {
@@ -3990,6 +3981,9 @@ enum PermissionEnum {
   ORGANIZATION_RELATIONSHIP_SAVE
   ORGANIZATION_RELATIONSHIP_DELETE
   DATA_IMPORT
+  REPORTS_ABS_VAC_SCHEMA
+  REPORTS_EMP_SCHEMA
+  REPORTS_SUB_SCHEMA
   FILE_UPLOAD
   FILE_DELETE
   REPLACEMENT_POOL_CONFIG_SAVE
@@ -5920,14 +5914,6 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
-}
-
-type VacancyApprovalTransitionArguments {
-  makeAvailableToFill: Boolean!
-}
-
-type VacancyApprovalTransitionCriteria {
-  vacancyReasonIds: [ID]
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {

@@ -45,6 +45,15 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     setApproverGroupIds(ids);
   };
 
+  useEffect(() => {
+    if (props.transitionArgs) {
+      const args: AbsenceTransitionArgs = JSON.parse(props.transitionArgs);
+      setTransitionArgs(args);
+    }
+  }, [setTransitionArgs, props.transitionArgs]);
+
+  console.log(transitionArgs);
+
   const handleSave = () => {
     if (approverGroupIds && approverGroupIds.length === 1) {
       props.onSave(
@@ -70,13 +79,13 @@ export const AddUpdateApprover: React.FC<Props> = props => {
       <FormControlLabel
         control={
           <Checkbox
-            checked={transitionArgs?.makeAvailableToFill}
+            checked={transitionArgs?.makeAvailableToFill ?? false}
             onChange={e =>
               setTransitionArgs({
                 makeAvailableToFill: !transitionArgs?.makeAvailableToFill,
               })
             }
-            value={transitionArgs?.makeAvailableToFill}
+            value={transitionArgs?.makeAvailableToFill ?? false}
             color="primary"
           />
         }
