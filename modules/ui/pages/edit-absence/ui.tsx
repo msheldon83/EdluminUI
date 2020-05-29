@@ -12,6 +12,7 @@ import {
   PermissionEnum,
   Vacancy,
   AbsenceDetail,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
@@ -62,6 +63,7 @@ import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log"
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
+import { ApprovalState } from "ui/components/absence-vacancy/approval-state";
 
 type Props = {
   firstName: string;
@@ -109,6 +111,11 @@ type Props = {
     | null;
   isClosed: boolean;
   positionTypeId?: string;
+  approvalStatus?: {
+    approvalStatusId: ApprovalStatus;
+    approvalWorkflowId: string;
+    currentStepId: string;
+  } | null;
 };
 
 type EditAbsenceFormData = {
@@ -630,6 +637,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               />
             </div>
           </div>
+
+          {Config.isDevFeatureOnly && props.approvalStatus && (
+            <ApprovalState
+              orgId={props.organizationId}
+              approvalStatusId={props.approvalStatus?.approvalStatusId}
+              approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
+              currentStepId={props.approvalStatus?.currentStepId}
+            />
+          )}
 
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
