@@ -1,0 +1,5 @@
+mutation DeleteApprovalWorkflow($approvalWorkflowId: ID!) {
+  approvalWorkflow {
+    delete(approvalWorkflowId: $approvalWorkflowId)
+  }
+}

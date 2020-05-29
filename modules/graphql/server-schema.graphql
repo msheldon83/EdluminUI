@@ -38,14 +38,6 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   positionTypes: [PositionType]
 }
 
-type AbsenceApprovalTransitionArgumentsTypeDef {
-  makeAvailableToFill: Boolean!
-}
-
-type AbsenceApprovalTransitionCriteriaTypeDef {
-  absenceReasonIds: [ID]
-}
-
 type AbsenceApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -741,14 +733,6 @@ enum ApprovalStatus {
   NO_APPROVAL_REQUIRED
 }
 
-union ApprovalTransitionArgumentsTypeDef =
-    AbsenceApprovalTransitionArgumentsTypeDef
-  | VacancyApprovalTransitionArgumentsTypeDef
-
-union ApprovalTransitionCriteriaTypeDef =
-    AbsenceApprovalTransitionCriteriaTypeDef
-  | VacancyApprovalTransitionCriteriaTypeDef
-
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -766,7 +750,7 @@ type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & Dom
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStep]
+  steps: [ApprovalWorkflowStep!]!
   usages: [ApprovalWorkflowUsage]
 }
 
@@ -775,14 +759,14 @@ input ApprovalWorkflowCreateInput {
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStepInput]
+  steps: [ApprovalWorkflowStepInput!]!
   usages: String
 }
 
 type ApprovalWorkflowMutations {
   create(approvalWorkflow: ApprovalWorkflowCreateInput!): ApprovalWorkflow
   update(approvalWorkflow: ApprovalWorkflowUpdateInput!): ApprovalWorkflow
-  delete(approvalWorkflowId: Int!): Boolean
+  delete(approvalWorkflowId: ID!): Boolean
 }
 
 type ApprovalWorkflowQueries {
@@ -804,10 +788,10 @@ type ApprovalWorkflowQueries {
 }
 
 type ApprovalWorkflowStep {
-  stepId: String
+  stepId: String!
   deleted: Boolean!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransition]
+  onApproval: [ApprovalWorkflowTransition!]!
   isFirstStep: Boolean!
   isLastStep: Boolean!
   xPosition: Decimal
@@ -815,20 +799,20 @@ type ApprovalWorkflowStep {
 }
 
 input ApprovalWorkflowStepInput {
-  stepId: String
+  stepId: String!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransitionInput]
-  isFirstStep: Boolean
-  isLastStep: Boolean
+  onApproval: [ApprovalWorkflowTransitionInput!]!
+  isFirstStep: Boolean!
+  isLastStep: Boolean!
   xPosition: Decimal
   yPosition: Decimal
-  deleted: Boolean
+  deleted: Boolean!
 }
 
 type ApprovalWorkflowTransition {
   goto: String
-  criteria: ApprovalTransitionCriteriaTypeDef
-  args: ApprovalTransitionArgumentsTypeDef
+  criteria: String
+  args: String
 }
 
 input ApprovalWorkflowTransitionInput {
@@ -4974,6 +4958,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   code: String
   payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
@@ -4992,6 +4977,7 @@ input PositionTypeCreateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type PositionTypeDr {
@@ -5067,6 +5053,7 @@ input PositionTypeUpdateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type QualifiedEmployeeCounts {
@@ -6516,14 +6503,6 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
-}
-
-type VacancyApprovalTransitionArgumentsTypeDef {
-  makeAvailableToFill: Boolean!
-}
-
-type VacancyApprovalTransitionCriteriaTypeDef {
-  vacancyReasonIds: [ID]
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {

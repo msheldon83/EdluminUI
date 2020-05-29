@@ -104,7 +104,9 @@ export const VacancyApprovalWorkflowIndex: React.FC<{}> = props => {
       </Grid>
       <Section>
         <Table
-          title={`${workflows.length} ${t("Vacancy Approval Workflows")}`}
+          title={`${workflows.length} ${
+            workflows.length === 1 ? t("Workflow") : t("Workflows")
+          }`}
           columns={columns}
           data={tableData}
           selection={false}
@@ -125,8 +127,5 @@ export const VacancyApprovalWorkflowIndex: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
-  },
-  importButton: {
-    marginLeft: theme.spacing(1),
   },
 }));
