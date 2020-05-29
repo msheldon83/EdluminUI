@@ -1,0 +1,8 @@
+query GetAllApproverGroups($orgId: ID!) {
+  approverGroup {
+    all(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}

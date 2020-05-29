@@ -1,10 +1,26 @@
-query GetApprovalWorkflows($orgId: ID, $workFlowType: ApprovalWorkflowType) {
+mutation UpdateApprovalWorkflow(
+  $approvalWorkflow: ApprovalWorkflowUpdateInput!
+) {
   approvalWorkflow {
-    all(orgId: $orgId, workFlowType: $workFlowType) {
+    update(approvalWorkflow: $approvalWorkflow) {
       id
       name
       rowVersion
       approvalWorkflowTypeId
+      steps {
+        stepId
+        deleted
+        isFirstStep
+        isLastStep
+        approverGroupHeaderId
+        onApproval {
+          goto
+          args
+          criteria
+        }
+        xPosition
+        yPosition
+      }
       usages {
         __typename
         ... on AbsenceApprovalWorkflowUsage {
