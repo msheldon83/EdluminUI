@@ -181,7 +181,7 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
                 <>
                   <Typography className={classes.allReasonsText}>
                     {t(
-                      "The following Absence Reasons are associated with this position type because they are associated with all position types:"
+                      "The following Absence Reasons are available to employees with this position type because they are associated with all position types:"
                     )}
                   </Typography>
                   {allPositionTypeAbsenceReasons.map((ar, i) => (
@@ -197,7 +197,7 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
                 <>
                   <Typography className={classes.allReasonsText}>
                     {t(
-                      "The following Absence Reasons are associated with this position type because they are associated with all position types and can not be chosen:"
+                      "The following Absence Reasons are available to employees with this position type because they are associated with all position types and can not be chosen:"
                     )}
                   </Typography>
                   <div className={classes.chipContainer}>
