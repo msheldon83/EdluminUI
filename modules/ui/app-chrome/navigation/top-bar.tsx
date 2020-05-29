@@ -134,7 +134,6 @@ const useMobileToolbarClasses = makeStyles<any, AppConfig>(theme => ({
     background: theme.customColors.white,
     boxSizing: "border-box",
     paddingLeft: 0,
-    maxWidth: props => props.contentWidth,
     paddingRight: theme.spacing(3),
   },
 }));

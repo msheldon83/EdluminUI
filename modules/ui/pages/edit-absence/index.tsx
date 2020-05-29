@@ -381,6 +381,7 @@ export const EditAbsence: React.FC<Props> = props => {
         assignmentsByDate={assignmentsByDate}
         closedDates={data.closedDetails}
         isClosed={data.isClosed}
+        positionTypeId={employee?.primaryPosition?.positionType?.id}
       />
     </>
   );
