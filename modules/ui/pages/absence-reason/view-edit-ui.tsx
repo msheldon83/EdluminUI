@@ -190,7 +190,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
 
       {!props.isCategory && (
         <AbsenceReasonPositionTypesCard
-          editable={false}
           positionTypes={props.positionTypes ?? []}
           allPositionTypes={props.allPositionTypes ?? false}
           updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}

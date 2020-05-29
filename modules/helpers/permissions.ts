@@ -122,11 +122,10 @@ export const canViewAnalyticsReportsNavLink = (
   orgId?: string,
   forRole?: Role | null | undefined
 ) => {
-  if (isSysAdmin) return true;
-  const userPerms = getUserPermissions(permissions, orgId, forRole);
-  //perform permission checks
-
-  return true;
+  return (
+    canViewAbsenceAndVacancyReports(permissions, isSysAdmin, orgId, forRole) ||
+    canViewRosterReports(permissions, isSysAdmin, orgId, forRole)
+  );
 };
 export const canViewSchoolsNavLink = (
   permissions: OrgUserPermissions[],
@@ -630,4 +629,36 @@ export const canEditPermissionSet = (
 
   const userPerms = getUserPermissions(permissions, orgId, forRole);
   return !!userPerms?.includes(PermissionEnum.PermissionSetSave);
+};
+
+export const canViewAbsenceAndVacancyReports = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  forRole?: Role | null | undefined
+) => {
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
+  const viewPermissions = userPerms?.filter(
+    x =>
+      x === PermissionEnum.ReportsAbsVacSchema ||
+      x === PermissionEnum.AbsVacView
+  );
+  return (viewPermissions?.length ?? 0) > 0;
+};
+
+export const canViewRosterReports = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  orgId?: string,
+  forRole?: Role | null | undefined
+) => {
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
+  const viewPermissions = userPerms?.filter(
+    x =>
+      x === PermissionEnum.ReportsEmpSchema ||
+      x === PermissionEnum.ReportsSubSchema
+  );
+  return (viewPermissions?.length ?? 0) > 0;
 };

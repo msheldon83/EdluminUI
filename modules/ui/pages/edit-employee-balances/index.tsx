@@ -34,6 +34,7 @@ import {
 } from "reference-data/absence-reason-categories";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 
 export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
@@ -93,7 +94,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: {
-      id: params.orgUserId,
+      employeeId: params.orgUserId,
     },
   });
   const employee =
@@ -128,7 +129,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
       : [];
 
   const allAbsenceReasonOptions = useAbsenceReasonOptions(
-    params.organizationId
+    params.organizationId,
+    undefined,
+    employee?.primaryPosition?.positionType?.id
   );
 
   const allAbsenceReasonCategoryOptions = useAbsenceReasonCategoryOptions(

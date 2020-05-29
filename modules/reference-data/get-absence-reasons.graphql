@@ -7,12 +7,15 @@ query GetAbsenceReasons($orgId: ID) {
       externalId
       description
       expired
+      isRestricted
       allowNegativeBalance
       requireNotesToAdmin
       category {
         id
         name
       }
+      positionTypeIds
+      allPositionTypes
     }
   }
 }
