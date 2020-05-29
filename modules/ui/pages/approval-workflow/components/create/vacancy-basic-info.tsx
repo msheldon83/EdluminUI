@@ -66,8 +66,8 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
 
   return (
     <Grid item container xs={12} spacing={2}>
-      <Grid item xs={12}>
-        {props.editing ? (
+      {props.editing ? (
+        <Grid item xs={4}>
           <PositionTypeSelect
             orgId={props.orgId}
             includeAllOption={false}
@@ -86,7 +86,9 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
                 : undefined
             }
           />
-        ) : (
+        </Grid>
+      ) : (
+        <Grid item xs={12}>
           <div className={classes.container}>
             <div className={classes.text}>{`${t("For position types")}: ${
               isAllOthers
@@ -109,8 +111,8 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
               </Can>
             )}
           </div>
-        )}
-      </Grid>
+        </Grid>
+      )}
       {props.editing && !existingAllOthersUsage && (
         <Grid item xs={12}>
           <FormControlLabel

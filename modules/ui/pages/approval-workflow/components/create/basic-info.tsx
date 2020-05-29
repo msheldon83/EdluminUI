@@ -93,9 +93,9 @@ export const BasicInfo: React.FC<Props> = props => {
         setFieldValue,
       }) => (
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={2} item xs={6}>
+          <Grid container spacing={2}>
             {props.editName && (
-              <Grid item xs={6}>
+              <Grid item xs={3}>
                 <Input
                   value={values.name}
                   label={t("Name")}

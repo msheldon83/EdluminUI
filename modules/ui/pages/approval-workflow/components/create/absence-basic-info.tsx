@@ -75,8 +75,8 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
 
   return (
     <Grid item container xs={12} spacing={2}>
-      <Grid item xs={12}>
-        {props.editing ? (
+      {props.editing ? (
+        <Grid item xs={4}>
           <PositionTypeSelect
             orgId={props.orgId}
             includeAllOption={false}
@@ -95,7 +95,9 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
                 : undefined
             }
           />
-        ) : (
+        </Grid>
+      ) : (
+        <Grid item xs={12}>
           <div className={classes.container}>
             <div className={classes.text}>{`${t("For position types")}: ${
               isAllOthers
@@ -118,10 +120,11 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
               </Can>
             )}
           </div>
-        )}
-      </Grid>
-      <Grid item xs={12}>
-        {props.editing ? (
+        </Grid>
+      )}
+
+      {props.editing ? (
+        <Grid item xs={4}>
           <OrgUserSelect
             orgId={props.orgId}
             role={OrgUserRole.Employee}
@@ -139,7 +142,9 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
               existingEmployeeIds.length > 0 ? existingEmployeeIds : undefined
             }
           />
-        ) : (
+        </Grid>
+      ) : (
+        <Grid item xs={12}>
           <div className={classes.text}>{`${t("For employees")}: ${
             isAllOthers
               ? t("All non-specified")
@@ -150,8 +155,8 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
                   .map(x => `${x.firstName} ${x.lastName}`)
                   .join(", ")
           }`}</div>
-        )}
-      </Grid>
+        </Grid>
+      )}
       {props.editing && !existingAllOthersUsage && (
         <Grid item xs={12}>
           <FormControlLabel
