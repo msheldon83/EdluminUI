@@ -10,7 +10,7 @@ import {
   Maybe,
   AbsenceDr,
 } from "graphql/server-types.gen";
-import { flatMap, groupBy, some, every } from "lodash-es";
+import { flatMap, groupBy, identity, keyBy, some, every } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 import { TFunction } from "i18next";
 
@@ -81,6 +81,20 @@ export type Detail = {
   };
 };
 
+export const filterDetailGroups = (
+  groups: DetailGroup[],
+  filterFn: (detail: Detail) => boolean
+) => {
+  groups.forEach(g => {
+    if (g.subGroups) {
+      filterDetailGroups(g.subGroups, filterFn);
+    }
+    if (g.details) {
+      g.details = g.details.filter(filterFn);
+    }
+  });
+};
+
 export const MapDailyReportDetails = (
   dailyReport: DailyReportType,
   orgId: string,
@@ -89,6 +103,7 @@ export const MapDailyReportDetails = (
   showVacancies: boolean,
   groupByFillStatus: boolean,
   groupByPositionType: boolean,
+  groupBySchool: boolean,
   t: TFunction
 ): DailyReportDetails => {
   const details: Detail[] = [];
@@ -615,8 +630,37 @@ export const MapDailyReportDetails = (
   );
 
   // Group the results based on the group by selection
-  const groups: DetailGroup[] = [];
+  const groupFns: {
+    grouper: (d: Detail) => unknown;
+    labeller?: (key: string) => string;
+    sorter?: (key1: string, key2: string) => number;
+  }[] = [];
   if (groupByFillStatus) {
+    groupFns.push({
+      grouper: d => d.state,
+      labeller: k =>
+        k == "noSubRequired"
+          ? "No sub required"
+          : k.charAt(0).toUpperCase() + k.slice(1),
+      sorter: (k1, k2) => {
+        const order = ["Unfilled", "Filled", "No sub required", "Closed"];
+        return order.indexOf(k1) - order.indexOf(k2);
+      },
+    });
+  }
+  if (groupByPositionType) {
+    groupFns.push({
+      grouper: d => d.positionType?.name,
+    });
+  }
+  if (groupBySchool) {
+    groupFns.push({
+      grouper: d => d.location?.name,
+    });
+  }
+
+  const groups: DetailGroup[] = subGroupBy(details, groupFns);
+  /*if (groupByFillStatus) {
     const unfilledGroup = {
       label: t("Unfilled"),
       details: filteredDetails.filter(x => x.state === "unfilled"),
@@ -672,7 +716,7 @@ export const MapDailyReportDetails = (
         details: value,
       });
     });
-  }
+  } */
 
   // Return an object that gives all of the groups as well as the raw details data
   return {
@@ -887,4 +931,39 @@ const filterOutVacancyClosedDays = (vacancies: Maybe<VacancyDr>[]) => {
       return !arr?.isClosed;
     });
   });
+};
+
+function labelledGroupBy(
+  details: Detail[],
+  grouper: (d: Detail) => unknown,
+  labeller?: (key: string) => string,
+  sorter?: (key1: string, key2: string) => number
+): DetailGroup[] {
+  const rawGroups = groupBy(details, grouper);
+  const detailGroups = Object.entries(rawGroups).map(([key, value]) => ({
+    label: labeller ? labeller(key) : key,
+    details: value,
+  }));
+  return sorter
+    ? detailGroups.sort((dG1, dG2) => sorter(dG1.label, dG2.label))
+    : detailGroups;
+}
+
+const subGroupBy = (
+  details: Detail[],
+  groupsAndLabels: {
+    grouper: (d: Detail) => unknown;
+    labeller?: (key: string) => string;
+    sorter?: (key1: string, key2: string) => number;
+  }[]
+) => {
+  if (groupsAndLabels.length === 0) return [];
+  const { grouper, labeller, sorter } = groupsAndLabels[0];
+  const groups = labelledGroupBy(details, grouper, labeller, sorter);
+  groups.forEach(group => {
+    if (!group.details) return;
+    const subGroups = subGroupBy(group.details, groupsAndLabels.slice(1));
+    group.subGroups = subGroups.length === 0 ? undefined : subGroups;
+  });
+  return groups;
 };

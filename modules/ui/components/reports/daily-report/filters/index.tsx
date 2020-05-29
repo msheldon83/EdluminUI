@@ -81,7 +81,11 @@ export const Filters: React.FC<Props> = props => {
                 checked={filters.groupByFillStatus}
                 onChange={e => {
                   let isChecked = e.target.checked;
-                  if (!isChecked && !filters.groupByPositionType) {
+                  if (
+                    !isChecked &&
+                    !filters.groupByPositionType &&
+                    !filters.groupBySchool
+                  ) {
                     isChecked = true;
                   }
 
@@ -98,7 +102,11 @@ export const Filters: React.FC<Props> = props => {
                 checked={filters.groupByPositionType}
                 onChange={e => {
                   const isChecked = e.target.checked;
-                  if (!isChecked && !filters.groupByFillStatus) {
+                  if (
+                    !isChecked &&
+                    !filters.groupByFillStatus &&
+                    !filters.groupBySchool
+                  ) {
                     updateFilters({
                       groupByFillStatus: true,
                       groupByPositionType: isChecked,
@@ -110,6 +118,30 @@ export const Filters: React.FC<Props> = props => {
               />
             }
             label={t("Position type")}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                color="primary"
+                checked={filters.groupBySchool}
+                onChange={e => {
+                  const isChecked = e.target.checked;
+                  if (
+                    !isChecked &&
+                    !filters.groupByFillStatus &&
+                    !filters.groupByPositionType
+                  ) {
+                    updateFilters({
+                      groupByFillStatus: true,
+                      groupBySchool: isChecked,
+                    });
+                  } else {
+                    updateFilters({ groupBySchool: isChecked });
+                  }
+                }}
+              />
+            }
+            label={t("School")}
           />
         </Grid>
       </Grid>

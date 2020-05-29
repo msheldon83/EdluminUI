@@ -52,6 +52,7 @@ import {
   Detail,
   DetailGroup,
   MapDailyReportDetails,
+  filterDetailGroups,
 } from "./helpers";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
@@ -172,6 +173,7 @@ export const DailyReport: React.FC<Props> = props => {
       filters.showVacancies,
       filters.groupByFillStatus,
       filters.groupByPositionType,
+      filters.groupBySchool,
       t
     );
     allDetails = mappedDetails.allDetails;
@@ -582,20 +584,7 @@ const displaySections = (
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
   if (selectedCard) {
-    groupedDetails.forEach(g => {
-      if (g.subGroups) {
-        g.subGroups.forEach(s => {
-          if (g.details) {
-            g.details = g.details.filter(d => d.state === selectedCard);
-          }
-        });
-        if (g.details) {
-          g.details = g.details.filter(d => d.state === selectedCard);
-        }
-      } else if (g.details) {
-        g.details = g.details.filter(d => d.state === selectedCard);
-      }
-    });
+    filterDetailGroups(groupedDetails, d => d.state === selectedCard);
   }
 
   let selectedCardDisplayText = "";
@@ -662,8 +651,8 @@ const displaySections = (
       ) : (
         <div className={classes.groupedDetailsContainer}>
           {groupedDetails.map((g, i) => {
-            const hasDetails = !!(g.details && g.details.length);
-            if (selectedCard && !hasDetails) {
+            const hasNoDetails = !(g.details && g.details.length);
+            if (selectedCard && hasNoDetails) {
               return null;
             }
 

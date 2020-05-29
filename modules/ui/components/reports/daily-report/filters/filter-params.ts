@@ -10,6 +10,7 @@ export const FilterQueryParamDefaults: DailyReportFilters = {
   showVacancies: "true",
   groupByFillStatus: "true",
   groupByPositionType: "true",
+  groupBySchool: "true",
 };
 
 export type DailyReportFilters = {
@@ -20,6 +21,7 @@ export type DailyReportFilters = {
   showVacancies: string;
   groupByFillStatus: string;
   groupByPositionType: string;
+  groupBySchool: string;
 };
 
 type DailyReportFilterQueryParams = Omit<
@@ -31,6 +33,7 @@ type DailyReportFilterQueryParams = Omit<
   | "showVacancies"
   | "groupByFillStatus"
   | "groupByPositionType"
+  | "groupBySchool"
 > &
   DailyReportQueryFilters;
 
@@ -42,6 +45,7 @@ export type DailyReportQueryFilters = {
   showVacancies: boolean;
   groupByFillStatus: boolean;
   groupByPositionType: boolean;
+  groupBySchool: boolean;
 };
 
 export const FilterParams: Isomorphism<
@@ -58,6 +62,7 @@ export const FilterParams: Isomorphism<
     showVacancies: boolToString(s.showVacancies),
     groupByFillStatus: boolToString(s.groupByFillStatus),
     groupByPositionType: boolToString(s.groupByPositionType),
+    groupBySchool: boolToString(s.groupBySchool),
   }),
 };
 
@@ -98,6 +103,7 @@ const to = (o: DailyReportFilters): DailyReportQueryFilters => {
     showVacancies: stringToBool(o.showVacancies, true),
     groupByFillStatus: stringToBool(o.groupByFillStatus, true),
     groupByPositionType: stringToBool(o.groupByPositionType, true),
+    groupBySchool: stringToBool(o.groupBySchool, true),
   };
 };
 
