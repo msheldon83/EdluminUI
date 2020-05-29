@@ -19,7 +19,6 @@ import { SectionHeader } from "ui/components/section-header";
 type Props = {
   positionTypes: Pick<PositionType, "id" | "name">[];
   allPositionTypes: boolean;
-  editable: boolean;
   updatePositionTypes: (values: {
     allPositionTypes?: boolean | null;
     posititionTypeIds?: string[] | null;

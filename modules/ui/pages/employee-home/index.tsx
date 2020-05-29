@@ -117,6 +117,7 @@ export const EmployeeHome: React.FC<Props> = props => {
               defaultReplacementNeeded={
                 employee?.primaryPosition?.needsReplacement
               }
+              positionTypeId={employee!.primaryPosition?.positionType?.id}
             />
           </Grid>
         </Can>
