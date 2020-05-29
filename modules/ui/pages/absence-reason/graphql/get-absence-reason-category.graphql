@@ -8,7 +8,6 @@ query GetAbsenceReasonCategory($absenceReasonCategoryId: ID!) {
       name
       description
       validUntil
-      absenceReasonTrackingTypeId
       allowNegativeBalance
       expired
     }
