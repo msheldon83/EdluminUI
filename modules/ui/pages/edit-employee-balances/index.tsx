@@ -94,7 +94,7 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: {
-      employeeId: params.orgUserId,
+      id: params.orgUserId,
     },
   });
   const employee =
