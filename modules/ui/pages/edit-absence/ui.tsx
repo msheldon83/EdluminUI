@@ -108,6 +108,7 @@ type Props = {
     | Maybe<Pick<AbsenceDetail, "id" | "startDate"> | null | undefined>[]
     | null;
   isClosed: boolean;
+  positionTypeId?: string;
 };
 
 type EditAbsenceFormData = {
@@ -687,6 +688,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               isClosed={props.isClosed}
               setRequireAdminNotes={setRequireAdminNotes}
               requireAdminNotes={requireAdminNotes}
+              positionTypeId={props.positionTypeId}
             />
           </Section>
         </form>
