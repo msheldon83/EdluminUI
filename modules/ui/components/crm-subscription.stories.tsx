@@ -107,7 +107,13 @@ export const CRMSubscription = () => {
   );
 };
 
-function createData(item: any, rate: any, qty: any, inUse: any, totalMo: any) {
+function createData(
+  item: string,
+  rate: number,
+  qty: number,
+  inUse: number,
+  totalMo: number
+) {
   return { item, rate, qty, inUse, totalMo };
 }
 
@@ -138,7 +144,9 @@ export const CRMSubscriptionReact = () => {
                   <TableCell>Rate</TableCell>
                   <TableCell>Qty</TableCell>
                   <TableCell>In use</TableCell>
-                  <TableCell style={{ float: "right" }}>Total /mo</TableCell>
+                  <TableCell style={{ textAlign: "right" }}>
+                    Total /mo
+                  </TableCell>
                 </StyledHeaderTableRow>
               </TableHead>
               <TableBody>
@@ -163,7 +171,7 @@ export const CRMSubscriptionReact = () => {
                         )
                       </span>
                     </TableCell>
-                    <TableCell style={{ float: "right" }}>
+                    <TableCell style={{ textAlign: "right" }}>
                       ${row.totalMo.toFixed(2)}
                     </TableCell>
                   </StyledTableRow>
@@ -173,7 +181,9 @@ export const CRMSubscriptionReact = () => {
                   <TableCell></TableCell>
                   <TableCell></TableCell>
                   <TableCell></TableCell>
-                  <TableCell style={{ float: "right" }}>${totalCost}</TableCell>
+                  <TableCell style={{ textAlign: "right" }}>
+                    ${totalCost}
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>

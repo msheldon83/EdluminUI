@@ -129,11 +129,13 @@ export const CRMInvoicesReact = () => {
             <Table>
               <TableHead>
                 <StyledHeaderTableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Invoice #</TableCell>
-                  <TableCell>PO #</TableCell>
-                  <TableCell>Total</TableCell>
-                  <TableCell style={{ float: "right" }}>Status</TableCell>
+                  <TableCell>{t("Date")}</TableCell>
+                  <TableCell>{t("Invoice #")}</TableCell>
+                  <TableCell>{t("PO #")}</TableCell>
+                  <TableCell>{t("Total")}</TableCell>
+                  <TableCell style={{ textAlign: "right" }}>
+                    {t("Status")}
+                  </TableCell>
                 </StyledHeaderTableRow>
               </TableHead>
               <TableBody>
@@ -199,7 +201,7 @@ const AwaitingPaymentBox: React.FC<Props> = props => {
   );
 };
 
-const NoPendingInvoicesBox: React.FC<Props> = props => {
+const NoPendingInvoicesBox: React.FC = () => {
   const classes = useStyles();
 
   return (
@@ -216,7 +218,7 @@ const NoPendingInvoicesBox: React.FC<Props> = props => {
 };
 
 type Props = {
-  paymentAmount?: number;
+  paymentAmount: number;
   invoiceNumber?: number;
   dueDate?: string;
 };
@@ -291,7 +293,7 @@ const useStyles = makeStyles(theme => ({
     textDecoration: "underline",
   },
   paidCell: {
-    float: "right",
+    align: "right",
   },
   dueItem: {
     color: "#E53935",
