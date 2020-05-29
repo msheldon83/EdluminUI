@@ -13,6 +13,13 @@ import {
   AnalyticsReportsSubstituteRosterRoute,
 } from "ui/routes/analytics-reports";
 import { BaseLink, pickUrl } from "ui/components/links/base";
+import { CanDo } from "ui/components/auth/types";
+import { Can } from "ui/components/auth/can";
+import { PermissionEnum } from "graphql/server-types.gen";
+import {
+  canViewAbsenceAndVacancyReports,
+  canViewRosterReports,
+} from "helpers/permissions";
 
 type Props = {};
 
@@ -21,7 +28,9 @@ type ReportGroup = {
   reports: {
     name: string;
     url: () => string;
+    permission: PermissionEnum;
   }[];
+  permissionCheck: CanDo;
   ref: React.RefObject<HTMLDivElement>;
 };
 
@@ -40,16 +49,20 @@ export const ReportsPage: React.FC<Props> = props => {
         {
           name: t("Absences & Vacancies"),
           url: () => AnalyticsReportsAbsencesVacanciesRoute.generate(params),
+          permission: PermissionEnum.ReportsAbsVacSchema,
         },
         {
           name: t("Daily Report"),
           url: () => AnalyticsReportsDailyReportRoute.generate(params),
+          permission: PermissionEnum.AbsVacView,
         },
         {
           name: t("Substitute History"),
           url: () => AnalyticsReportsSubHistoryRoute.generate(params),
+          permission: PermissionEnum.ReportsAbsVacSchema,
         },
       ],
+      permissionCheck: canViewAbsenceAndVacancyReports,
       ref: React.useRef<HTMLDivElement>(null),
     },
     {
@@ -58,12 +71,15 @@ export const ReportsPage: React.FC<Props> = props => {
         {
           name: t("Employee Roster"),
           url: () => AnalyticsReportsEmployeeRosterRoute.generate(params),
+          permission: PermissionEnum.ReportsEmpSchema,
         },
         {
           name: t("Substitute Roster"),
           url: () => AnalyticsReportsSubstituteRosterRoute.generate(params),
+          permission: PermissionEnum.ReportsSubSchema,
         },
       ],
+      permissionCheck: canViewRosterReports,
       ref: React.useRef<HTMLDivElement>(null),
     },
   ];
@@ -92,32 +108,36 @@ export const ReportsPage: React.FC<Props> = props => {
       >
         {reportGroups.map((rg, i) => {
           return (
-            <Grid item xs={6} key={i} ref={rg.ref}>
-              <div style={{ height: groupCardHeight }}>
-                <Section className={classes.section}>
-                  <Typography variant="h4">{rg.title}</Typography>
-                  <div className={classes.reportList}>
-                    <Typography variant="h6">{t("Reports")}</Typography>
-                    {rg.reports.map((r, i) => {
-                      return (
-                        <div className={classes.reportItem} key={i}>
-                          <div className={classes.reportLink}>
-                            <BaseLink
-                              to={{
-                                ...pickUrl(r.url()),
-                              }}
-                            >
-                              {r.name}
-                            </BaseLink>
-                          </div>
-                          <Divider />
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Section>
-              </div>
-            </Grid>
+            <Can do={rg.permissionCheck} key={i}>
+              <Grid item xs={6} ref={rg.ref}>
+                <div style={{ height: groupCardHeight }}>
+                  <Section className={classes.section}>
+                    <Typography variant="h4">{rg.title}</Typography>
+                    <div className={classes.reportList}>
+                      <Typography variant="h6">{t("Reports")}</Typography>
+                      {rg.reports.map((r, i) => {
+                        return (
+                          <Can do={[r.permission]} key={i}>
+                            <div className={classes.reportItem}>
+                              <div className={classes.reportLink}>
+                                <BaseLink
+                                  to={{
+                                    ...pickUrl(r.url()),
+                                  }}
+                                >
+                                  {r.name}
+                                </BaseLink>
+                              </div>
+                              <Divider />
+                            </div>
+                          </Can>
+                        );
+                      })}
+                    </div>
+                  </Section>
+                </div>
+              </Grid>
+            </Can>
           );
         })}
       </Grid>
