@@ -95,16 +95,6 @@ export const AbsenceReason: React.FC<{}> = () => {
               <Minimize />
             </Grid>
           )}
-
-          <Grid item xs={2} className={classes.trackingCol}>
-            {group.trackingType
-              ? getDisplayName(
-                  "absenceReasonTrackingTypeId",
-                  group.trackingType,
-                  t
-                )
-              : ""}
-          </Grid>
         </Grid>
         {sortedChildren.map((c, x) => {
           return (
@@ -143,16 +133,6 @@ export const AbsenceReason: React.FC<{}> = () => {
                   <Minimize />
                 </Grid>
               )}
-
-              <Grid item xs={2} className={classes.trackingCol}>
-                {c.absenceReasonTrackingTypeId
-                  ? getDisplayName(
-                      "absenceReasonTrackingTypeId",
-                      c.absenceReasonTrackingTypeId,
-                      t
-                    )
-                  : ""}
-              </Grid>
             </Grid>
           );
         })}
@@ -264,9 +244,6 @@ export const AbsenceReason: React.FC<{}> = () => {
         </Grid>
         <Grid item xs={3} className={classes.columnTitle}>
           {t("Allow Negative Balances")}
-        </Grid>
-        <Grid item xs={2} className={classes.columnTitle}>
-          {t("Tracking Type")}
         </Grid>
       </Grid>
       <Grid item container>

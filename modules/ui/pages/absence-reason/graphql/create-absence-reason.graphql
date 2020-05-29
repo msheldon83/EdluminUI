@@ -9,7 +9,6 @@ mutation CreateAbsenceReason($absenceReason: AbsenceReasonCreateInput!) {
       description
       validUntil
       appliesToAssignmentTypes
-      absenceReasonTrackingTypeId
       allowNegativeBalance
       appliesToAssignmentTypes
       limitPerDay
