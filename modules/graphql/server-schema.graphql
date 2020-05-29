@@ -4489,7 +4489,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
   code: String
   payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
