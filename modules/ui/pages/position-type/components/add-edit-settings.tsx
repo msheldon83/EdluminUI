@@ -36,10 +36,7 @@ type Props = {
     forPermanentPositions: boolean;
     forStaffAugmentation: boolean;
     minAbsenceDurationMinutes: number;
-    absenceReasonTrackingTypeId?:
-      | AbsenceReasonTrackingTypeId
-      | undefined
-      | null;
+    absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId;
     payTypeId?: AbsenceReasonTrackingTypeId | undefined | null;
     needsReplacement?: NeedsReplacement | undefined | null;
     defaultContractId?: string | undefined | null;
@@ -56,7 +53,7 @@ type Props = {
     needsReplacement: NeedsReplacement | undefined | null,
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
-    absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId | undefined | null,
+    absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId,
     payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
     payCodeId: string | undefined | null,
     defaultContractId: string | undefined | null,
@@ -150,9 +147,7 @@ export const Settings: React.FC<Props> = props => {
             data.needsReplacement,
             data.forStaffAugmentation,
             data.minAbsenceDurationMinutes,
-            data.absenceReasonTrackingTypeId
-              ? data.absenceReasonTrackingTypeId
-              : null,
+            data.absenceReasonTrackingTypeId,
             data.payTypeId ? data.payTypeId : null,
             data.payCodeId ? data.payCodeId : null,
             data.defaultContractId ? data.defaultContractId : null,
