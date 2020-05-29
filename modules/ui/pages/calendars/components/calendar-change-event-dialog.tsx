@@ -26,12 +26,20 @@ import { OptionTypeBase } from "react-select/src/types";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "ui/components/action-buttons";
 import { Input } from "ui/components/form/input";
-import { CalendarChangeCreateInput } from "graphql/server-types.gen";
+import {
+  CalendarChangeCreateInput,
+  CalendarChangeUpdateInput,
+} from "graphql/server-types.gen";
+import Maybe from "graphql/tsutils/Maybe";
+import { CalendarEvent } from "../types";
+import { parseISO, format } from "date-fns";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onAdd: (calendarChange: CalendarChangeCreateInput) => Promise<boolean>;
+  onUpdate: (calendarChange: CalendarChangeUpdateInput) => Promise<boolean>;
+  calendarChange: CalendarEvent;
 };
 
 export const CalendarChangeEventDialog: React.FC<Props> = props => {
@@ -48,6 +56,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
     [contracts]
   );
 
+  const updating = !!props.calendarChange.id;
+
   if (!orgId) {
     return <></>;
   }
@@ -61,12 +71,20 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
     >
       <Formik
         initialValues={{
-          changeReason: changeReasonOptions[0]?.value ?? undefined,
-          toDate: today,
-          fromDate: today,
-          notes: undefined,
-          contracts: [] as string[],
-          applyToAll: true,
+          changeReason:
+            props.calendarChange.calendarChangeReasonId ??
+            changeReasonOptions[0]?.value,
+          toDate: format(
+            parseISO(props.calendarChange.endDate!),
+            "MMMM d, yyyy"
+          ),
+          fromDate: format(
+            parseISO(props.calendarChange.startDate!),
+            "MMMM d, yyyy"
+          ),
+          notes: props.calendarChange.description,
+          contracts: props.calendarChange.contractIds,
+          applyToAll: props.calendarChange.affectsAllContracts,
         }}
         onReset={(values, formProps) => {
           formProps.setFieldValue("toDate", today);
@@ -79,19 +97,36 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           // setPanelOpened(false);
         }}
         onSubmit={async (data: any, formProps) => {
-          const newCalendarChangeCreate: CalendarChangeCreateInput = {
-            orgId: orgId,
-            description: data.notes,
-            startDate: data.fromDate,
-            endDate: data.toDate,
-            calendarChangeReasonId: data.changeReason
-              ? data.changeReason
-              : changeReasonOptions[0]?.value,
-            contractIds: data.contracts ?? [],
-            affectsAllContracts: data.applyToAll,
-          };
+          if (updating) {
+            const calendarChange: CalendarChangeUpdateInput = {
+              id: props.calendarChange.id!,
+              rowVersion: props.calendarChange.rowVersion!,
+              description: data.notes,
+              startDate: data.fromDate,
+              endDate: data.toDate,
+              calendarChangeReasonId: data.changeReason
+                ? data.changeReason
+                : changeReasonOptions[0]?.value,
+              contractIds: data.contracts ?? [],
+              affectsAllContracts: data.applyToAll,
+            };
 
-          const result = await props.onAdd(newCalendarChangeCreate);
+            const result = await props.onUpdate(calendarChange);
+          } else {
+            const calendarChange: CalendarChangeCreateInput = {
+              orgId: orgId,
+              description: data.notes,
+              startDate: data.fromDate,
+              endDate: data.toDate,
+              calendarChangeReasonId: data.changeReason
+                ? data.changeReason
+                : changeReasonOptions[0]?.value,
+              contractIds: data.contracts ?? [],
+              affectsAllContracts: data.applyToAll,
+            };
+
+            const result = await props.onAdd(calendarChange);
+          }
           formProps.resetForm();
           props.onClose();
         }}
@@ -99,7 +134,9 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
         {({ values, handleSubmit, setFieldValue, submitForm, handleReset }) => (
           <>
             <DialogTitle disableTypography>
-              <Typography variant="h5">{t("Create an Event")}</Typography>
+              <Typography variant="h5">
+                {updating ? t("Update Event") : t("Add Event")}
+              </Typography>
             </DialogTitle>
             <DialogContent>
               <form onSubmit={handleSubmit}>
@@ -109,50 +146,6 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                   alignItems="center"
                   spacing={2}
                 >
-                  <Grid item xs={4} container>
-                    <Grid item xs={12}>
-                      <FormControlLabel
-                        checked={values.applyToAll}
-                        control={
-                          <Checkbox
-                            onChange={e => {
-                              setFieldValue("applyToAll", !values.applyToAll);
-                              if (!values.applyToAll) {
-                                setFieldValue("contracts", []);
-                              }
-                            }}
-                          />
-                        }
-                        label={t("Apply To All Contracts")}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <SelectNew
-                        name={"contracts"}
-                        className={classes.contractSelector}
-                        disabled={values.applyToAll}
-                        label={t("Contracts")}
-                        value={
-                          contractOptions.filter(
-                            e =>
-                              e.value &&
-                              values.contracts.includes(e.value.toString())
-                          ) ?? [{ label: "", id: "" }]
-                        }
-                        onChange={e => {
-                          const ids = e.map((v: OptionType) =>
-                            v.value.toString()
-                          );
-                          setFieldValue("contracts", ids);
-                        }}
-                        options={contractOptions}
-                        multiple={true}
-                        placeholder={t("Search for Contracts")}
-                        fixedListBox={true}
-                      />
-                    </Grid>
-                  </Grid>
-
                   <Grid
                     item
                     container
@@ -165,10 +158,13 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     <Grid item xs={6}>
                       <DatePicker
                         variant={"single-hidden"}
-                        startDate={values.fromDate}
+                        startDate={values.fromDate ?? today}
                         onChange={({ startDate }) => {
                           setFieldValue("fromDate", startDate);
-                          if (isAfterDate(startDate, values.fromDate)) {
+                          if (
+                            values.fromDate &&
+                            isAfterDate(startDate, values.fromDate)
+                          ) {
                             setFieldValue("toDate", startDate);
                           }
                         }}
@@ -178,7 +174,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     <Grid item xs={6}>
                       <DatePicker
                         variant={"single-hidden"}
-                        startDate={values.toDate}
+                        startDate={values.toDate ?? today}
                         onChange={({ startDate: toDate }) =>
                           setFieldValue("toDate", toDate)
                         }
@@ -206,6 +202,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         }}
                         multiple={false}
                         withResetValue={false}
+                        fixedListBox={true}
                       />
                     </Grid>
 
@@ -227,6 +224,50 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                       />
                     </Grid>
                   </Grid>
+                  <Grid item xs={4} container>
+                    <Grid item xs={12}>
+                      <FormControlLabel
+                        checked={values.applyToAll ?? false}
+                        className={classes.contractSelector}
+                        control={
+                          <Checkbox
+                            onChange={e => {
+                              setFieldValue("applyToAll", !values.applyToAll);
+                              if (!values.applyToAll) {
+                                setFieldValue("contracts", []);
+                              }
+                            }}
+                          />
+                        }
+                        label={t("Apply To All Contracts")}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <SelectNew
+                        name={"contracts"}
+                        className={classes.contractSelector}
+                        disabled={values.applyToAll ?? false}
+                        label={t("Contracts")}
+                        value={
+                          contractOptions.filter(
+                            e =>
+                              e.value &&
+                              values.contracts?.includes(e.value.toString())
+                          ) ?? [{ label: "", id: "" }]
+                        }
+                        onChange={e => {
+                          const ids = e.map((v: OptionType) =>
+                            v.value.toString()
+                          );
+                          setFieldValue("contracts", ids);
+                        }}
+                        options={contractOptions}
+                        multiple={true}
+                        placeholder={t("Search for Contracts")}
+                        fixedListBox={true}
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
               </form>
             </DialogContent>
@@ -239,7 +280,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 {t("Cancel")}
               </TextButton>
               <ButtonDisableOnClick variant="contained" onClick={submitForm}>
-                {t("Add")}
+                {updating ? t("Update") : t("Add")}
               </ButtonDisableOnClick>
             </DialogActions>
           </>
@@ -260,9 +301,9 @@ const useStyles = makeStyles(theme => ({
   cancel: { color: theme.customColors.darkRed },
   dialog: { width: theme.typography.pxToRem(800) },
   dateReasonContainer: {
-    borderLeft: "1px solid #E5E5E5",
+    borderRight: "1px solid #E5E5E5",
   },
   contractSelector: {
-    marginRight: theme.spacing(2),
+    marginLeft: theme.spacing(2),
   },
 }));

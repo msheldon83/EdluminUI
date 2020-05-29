@@ -20,6 +20,7 @@ import {
   PermissionEnum,
   DataImportType,
   CalendarChangeCreateInput,
+  CalendarChangeUpdateInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore } from "date-fns";
@@ -47,6 +48,8 @@ import { CalendarChangeEventDialog } from "./components/calendar-change-event-di
 import { useSnackbar } from "hooks/use-snackbar";
 import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
 import { ShowErrors } from "ui/components/error-helpers";
+import { Table } from "ui/components/table";
+import { CalendarEvent } from "./types";
 
 type Props = {
   view: "list" | "calendar";
@@ -73,11 +76,19 @@ export const Calendars: React.FC<Props> = props => {
     contractId,
   ]);
 
+  const today = useMemo(() => new Date(), []);
+
+  const initialCalendarChange: CalendarEvent = {
+    startDate: today.toISOString(),
+    endDate: today.toISOString(),
+    affectsAllContracts: true,
+  };
+
   const [
     selectedDateCalendarChanges,
     setSelectedDateCalendarChanges,
-  ] = useState();
-  const today = useMemo(() => new Date(), []);
+  ] = useState(initialCalendarChange);
+
   const [selectedDate, setSelectedDate] = useState(today);
 
   const getContractsWithoutSchedules = useQueryBundle(
@@ -138,36 +149,28 @@ export const Calendars: React.FC<Props> = props => {
   );
 
   const [updateCalendarChangeMutation] = useMutationBundle(
-    UpdateCalendarChange
+    UpdateCalendarChange,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const updateCalendarChange = useCallback(
-    async (updatedValues: {
-      id: string;
-      rowVersion: string;
-      description?: string | null;
-      changedContracts?: { id?: string }[];
-      affectsAllContracts: boolean;
-    }) => {
-      const {
-        id,
-        rowVersion,
-        changedContracts,
-        affectsAllContracts,
-        description,
-      } = updatedValues;
-      const contractIds = compact(changedContracts?.map(c => c?.id ?? ""));
-      if (!id) return;
-      await updateCalendarChangeMutation({
+    async (calendarChange: CalendarChangeUpdateInput) => {
+      //const contractIds = compact(changedContracts?.map(c => c?.id ?? ""));
+
+      const result = await updateCalendarChangeMutation({
         variables: {
-          calendarChange: {
-            id: id,
-            rowVersion,
-            contractIds,
-            affectsAllContracts,
-            description,
-          },
+          calendarChange,
         },
       });
+      if (result.data) {
+        await refectchCalendarChanges();
+        return true;
+      } else {
+        return false;
+      }
     },
     [updateCalendarChangeMutation]
   );
@@ -292,7 +295,7 @@ export const Calendars: React.FC<Props> = props => {
               "MMM d, yyyy"
             )}`,
       sorting: false,
-      editable: "never",
+      //editable: "never",
     },
     {
       title: t("Type"),
@@ -313,21 +316,21 @@ export const Calendars: React.FC<Props> = props => {
             )?.name;
       },
       sorting: false,
-      editable: "never",
+      //editable: "never",
     },
     {
       title: t("Reason"),
       field: "calendarChangeReason.name",
       searchable: false,
       sorting: false,
-      editable: "never",
+      //editable: "never",
     },
     {
       title: t("Note"),
       field: "description",
       searchable: false,
       sorting: false,
-      editable: "onUpdate",
+      // editable: "onUpdate",
     },
     {
       title: t("Contract"),
@@ -342,7 +345,7 @@ export const Calendars: React.FC<Props> = props => {
         return contracts?.join(",");
       },
       sorting: false,
-      editable: "never",
+      //  editable: "never",
     },
   ];
 
@@ -355,9 +358,11 @@ export const Calendars: React.FC<Props> = props => {
       <CalendarChangeEventDialog
         open={openEventDialog}
         onAdd={onCreateCalendarChange}
+        onUpdate={updateCalendarChange}
         onClose={() => {
           setOpenEventDialog(false);
         }}
+        calendarChange={selectedDateCalendarChanges}
       />
       <div>
         <Grid container alignItems="center" justify="space-between" spacing={2}>
@@ -393,7 +398,7 @@ export const Calendars: React.FC<Props> = props => {
             <Section className={classes.calendarchanges}>
               <StickyHeader
                 orgId={params.organizationId}
-                calendarChanges={selectedDateCalendarChanges}
+                calendarChange={selectedDateCalendarChanges}
                 onDelete={onDeleteCalendarChange}
                 date={selectedDate}
               />
@@ -436,6 +441,7 @@ export const Calendars: React.FC<Props> = props => {
                   <Button
                     className={classes.addEventButton}
                     onClick={() => {
+                      setSelectedDateCalendarChanges(initialCalendarChange);
                       setOpenEventDialog(true);
                     }}
                     variant="contained"
@@ -454,7 +460,49 @@ export const Calendars: React.FC<Props> = props => {
                 )}
                 {changesLoaded && (
                   <div>
-                    <EditableTable
+                    <Table
+                      columns={columns}
+                      data={sortedCalendarChanges}
+                      selection={true}
+                      onRowClick={async (event, calendarChange) => {
+                        const calendarEvent: CalendarEvent = {
+                          id: calendarChange?.id,
+                          rowVersion: calendarChange?.rowVersion,
+                          description: calendarChange?.description,
+                          startDate: calendarChange?.startDate,
+                          endDate: calendarChange?.endDate,
+                          calendarChangeReasonId:
+                            calendarChange?.calendarChangeReason?.id,
+                          affectsAllContracts:
+                            calendarChange?.affectsAllContracts,
+                          contractIds: calendarChange?.changedContracts?.map(
+                            c => c?.id
+                          ),
+                        };
+                        setSelectedDateCalendarChanges(calendarEvent);
+                        setOpenEventDialog(true);
+                      }}
+                      actions={[
+                        {
+                          tooltip: t("Delete selected events"),
+                          icon: () => <DeleteIcon />,
+                          onClick: async (evt, data) => {
+                            if (Array.isArray(data)) {
+                              await Promise.all(
+                                data.map(cc => deleteCalendarChange(cc.id))
+                              );
+                            } else {
+                              await Promise.resolve(
+                                deleteCalendarChange(data.id)
+                              );
+                            }
+                            await getCalendarChanges.refetch();
+                          },
+                          permissions: [PermissionEnum.CalendarChangeDelete],
+                        },
+                      ]}
+                    />
+                    {/* <EditableTable
                       selection={true}
                       selectionPermissions={[
                         PermissionEnum.CalendarChangeDelete,
@@ -487,7 +535,7 @@ export const Calendars: React.FC<Props> = props => {
                         },
                       ]}
                       pagination={pagination}
-                    />
+                    /> */}
                   </div>
                 )}
               </Grid>
