@@ -274,7 +274,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
       ? props.deleteOrgUser
       : currentDialog == null
       ? () => {}
-      : () => props.onRemoveRole(currentDialog);
+      : async () => {
+          await props.onRemoveRole(currentDialog);
+          setCurrentDialog(null);
+        };
   const onCancel = () => setCurrentDialog(null);
 
   return (

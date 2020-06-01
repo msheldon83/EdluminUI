@@ -123,6 +123,7 @@ export const PersonViewPage: React.FC<{}> = props => {
         orgUserRole,
       },
     });
+    if (selectedRole == orgUserRole) setSelectedRole(null);
   };
 
   const defaultSelectedRole = orgUser.isAdmin
