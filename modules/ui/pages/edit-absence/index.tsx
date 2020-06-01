@@ -257,6 +257,16 @@ export const EditAbsence: React.FC<Props> = props => {
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
+
+  if (!absence.data) {
+    // const absence = useQueryBundle(GetAbsence, {
+    //   variables: {
+    //     id: params.absenceId,
+    //   },
+    // });
+    return <></>;
+  }
+
   if (!absence.data.absence?.byId) {
     return <NotFound />;
   }

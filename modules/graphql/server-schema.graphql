@@ -189,7 +189,6 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   validUntil: Date
   expired: Boolean!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   appliesToAssignmentTypes: AssignmentType
@@ -281,7 +280,6 @@ type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface 
   description: String
   validUntil: Date
   expired: Boolean!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -291,7 +289,6 @@ input AbsenceReasonCategoryCreateInput {
   name: String!
   description: String
   externalId: String
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -303,7 +300,6 @@ input AbsenceReasonCategoryUpdateInput {
   description: String
   externalId: String
   expired: Boolean
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -314,7 +310,6 @@ input AbsenceReasonCreateInput {
   description: String
   externalId: String
   appliesToAssignmentTypes: AssignmentType
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
@@ -323,6 +318,12 @@ input AbsenceReasonCreateInput {
   requireNotesToAdmin: Boolean
   code: String
   requiresApproval: Boolean
+}
+
+enum AbsenceReasonTrackingTypeEnum {
+  INVALID
+  HOURLY
+  DAILY
 }
 
 enum AbsenceReasonTrackingTypeId {
@@ -339,7 +340,6 @@ input AbsenceReasonUpdateInput {
   externalId: String
   expired: Boolean
   appliesToAssignmentTypes: AssignmentType
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
@@ -692,6 +692,7 @@ enum ApprovalStatus {
   APPROVED
   DENIED
   NO_APPROVAL_REQUIRED
+  CANCELLED
 }
 
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2394,6 +2395,13 @@ enum EventType {
   ORGANIZATION_RELATIONSHIP_CREATED
   ORGANIZATION_RELATIONSHIP_UPDATED
   ORGANIZATION_RELATIONSHIP_DELETED
+  WORKFLOW_STARTED
+  WORKFLOW_ENDED
+  WORKFLOW_CANCELLED
+  WORKFLOW_STEP_APPROVED
+  WORKFLOW_STEP_DENIED
+  WORKFLOW_STEP_SKIPPED
+  WORKFLOW_STEP_RESET
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
@@ -4527,7 +4535,7 @@ input PositionTypeCreateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
 }
 
 type PositionTypeDr {
@@ -5677,6 +5685,7 @@ input TimeOffBalancesInput {
   schoolYear: LocatorInput
   asOf: Date
   balance: Decimal
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeEnum
 }
 
 enum TimeZone {
