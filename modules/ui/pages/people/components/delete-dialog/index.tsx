@@ -116,7 +116,6 @@ export const DeleteDialog: React.FC<Props> = ({
             hours: getHours(parseISO(absence.startTimeLocal)),
             minutes: getMinutes(parseISO(absence.startTimeLocal)),
           });
-          console.log(startDateTime);
           return isBefore(now, startDateTime);
         })
         .map(absence => {

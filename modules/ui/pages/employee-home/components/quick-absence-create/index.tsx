@@ -43,6 +43,7 @@ type QuickCreateAbsenceFormData = {
 
 type Props = {
   employeeId: string;
+  positionTypeId?: string;
   organizationId: string;
   defaultReplacementNeeded?: NeedsReplacement | null;
 };
@@ -125,9 +126,18 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
   });
 
   const absenceReasons = useAbsenceReasons(props.organizationId);
+  const filteredAbsenceReasons = props.positionTypeId
+    ? absenceReasons.filter(
+        ar =>
+          ar.positionTypeIds.includes(props.positionTypeId!) ||
+          ar.allPositionTypes
+      )
+    : absenceReasons;
 
   const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
-    props.organizationId
+    props.organizationId,
+    undefined,
+    props.positionTypeId
   );
 
   const onReasonChange = React.useCallback(
@@ -135,11 +145,11 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
       await setValue("absenceReason", event.value);
       await triggerValidation({ name: "absenceReason" });
       setRequireAdminNotes(
-        absenceReasons.find(ar => ar.id === event.value)?.requireNotesToAdmin ||
-          false
+        filteredAbsenceReasons.find(ar => ar.id === event.value)
+          ?.requireNotesToAdmin || false
       );
     },
-    [setValue, triggerValidation, absenceReasons]
+    [setValue, triggerValidation, filteredAbsenceReasons]
   );
 
   const onMonthChange = (month: Date) =>

@@ -10,7 +10,7 @@ import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { PageTitle } from "ui/components/page-title";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
-import { CreateApprovalWorkflow } from "../graphql/create-workflow.gen";
+import { CreateApprovalWorkflow } from "../../graphql/create-workflow.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
@@ -18,9 +18,11 @@ import {
   AbsenceApprovalWorkflowRoute,
 } from "ui/routes/approval-workflow";
 import { useHistory } from "react-router";
-import { BasicInfo } from "./basic-info";
-import { exampleSteps } from "../types";
+import { BasicInfo, editableSections } from "./basic-info";
+import { initialSteps } from "../../types";
 import { WorkflowSteps } from "./workflow-steps";
+import { Section } from "ui/components/section";
+import { cloneDeep } from "lodash-es";
 
 type Props = {
   workflowType: ApprovalWorkflowType;
@@ -37,6 +39,7 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
     orgId: props.orgId,
     name: "",
     approvalWorkflowTypeId: props.workflowType,
+    steps: cloneDeep(initialSteps),
   });
 
   const [createApprovalWorkflow] = useMutationBundle(CreateApprovalWorkflow, {
@@ -64,19 +67,27 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
     setStep: React.Dispatch<React.SetStateAction<number>>
   ) => {
     return (
-      <BasicInfo
-        orgId={props.orgId}
-        workflowType={props.workflowType}
-        onCancel={handleCancel}
-        onSave={(name: string, usages: string) => {
-          setWorkflow({
-            ...workflow,
-            name: name,
-            usages: usages,
-          });
-          setStep(steps[1].stepNumber);
-        }}
-      />
+      <Section>
+        <BasicInfo
+          orgId={props.orgId}
+          workflowType={props.workflowType}
+          name={""}
+          usages={"[]"}
+          editName={true}
+          saveLabel={t("Next")}
+          editing={editableSections.usageInfo}
+          editable={false}
+          onCancel={handleCancel}
+          onSave={(usages: string, name?: string) => {
+            setWorkflow({
+              ...workflow,
+              name: name ?? "",
+              usages: usages,
+            });
+            setStep(steps[1].stepNumber);
+          }}
+        />
+      </Section>
     );
   };
 
@@ -88,7 +99,7 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
         workflowType={props.workflowType}
         onCancel={handleCancel}
         orgId={props.orgId}
-        steps={exampleSteps}
+        steps={workflow.steps}
         onSave={async (steps: ApprovalWorkflowStepInput[]) => {
           const result = await create({
             ...workflow,

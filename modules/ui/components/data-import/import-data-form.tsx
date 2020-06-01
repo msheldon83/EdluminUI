@@ -106,6 +106,9 @@ export const ImportDataForm: React.FC<Props> = props => {
                       .replace(/\s/g, "")
                       .split(",")
                   : undefined,
+              maxParseErrors: 100000,
+              maxValidationErrors: 100000,
+              maxImportErrors: 100000,
             },
             file: data.file,
           });

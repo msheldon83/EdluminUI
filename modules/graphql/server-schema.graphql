@@ -320,6 +320,12 @@ input AbsenceReasonCreateInput {
   requiresApproval: Boolean
 }
 
+enum AbsenceReasonTrackingTypeEnum {
+  INVALID
+  HOURLY
+  DAILY
+}
+
 enum AbsenceReasonTrackingTypeId {
   INVALID
   HOURLY

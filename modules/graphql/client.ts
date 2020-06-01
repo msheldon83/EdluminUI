@@ -1,10 +1,15 @@
-import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
+import {
+  InMemoryCache,
+  NormalizedCacheObject,
+  IntrospectionFragmentMatcher,
+} from "apollo-cache-inmemory";
 import ApolloClient from "apollo-client";
 import { ApolloLink } from "apollo-link";
 import { RestLink } from "apollo-link-rest";
 import { createHttpLink } from "apollo-link-http";
 import { History } from "history";
 import { compact } from "lodash-es";
+import introspectionQueryResultData from "./fragment-types.gen.json";
 
 export function buildGraphqlClient(opts: {
   history: History<any>;
@@ -16,7 +21,12 @@ export function buildGraphqlClient(opts: {
     uri: Config.apiUri,
     ...opts,
   };
-  const cache = new InMemoryCache();
+
+  const fragmentMatcher = new IntrospectionFragmentMatcher({
+    introspectionQueryResultData,
+  });
+  const cache = new InMemoryCache({ fragmentMatcher });
+
   const restLink = new RestLink({
     uri: Config.restUri,
     endpoints: {
