@@ -8,7 +8,7 @@ import { DateRangePickerPopover } from "ui/components/form/date-range-picker-pop
 import { AbsenceReasonSelect } from "ui/components/reference-selects/absence-reason-select";
 import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-reason-select";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { OrgUserSelect } from "ui/components/domain-selects/org-user-select";
+import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-user-select";
 import { useTranslation } from "react-i18next";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";

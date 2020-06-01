@@ -9,7 +9,7 @@ import {
   useAbsenceReasons,
 } from "reference-data/absence-reasons";
 import { Section } from "ui/components/section";
-import { GetOrgUserById } from "ui/pages/people/graphql/get-orguser-by-id.gen";
+import { GetEmployeeById } from "./graphql/get-employee-by-id.gen";
 import { PeopleEmployeeBalancesEditRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
@@ -24,6 +24,7 @@ import {
   AbsenceReasonBalanceCreateInput,
   AbsenceReasonBalanceUpdateInput,
   DataImportType,
+  AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { compact } from "lodash-es";
@@ -91,9 +92,9 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
     await getAbsenceReasonBalances.refetch();
   };
 
-  const getEmployee = useQueryBundle(GetEmployee, {
+  const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: {
-      employeeId: params.orgUserId,
+      id: params.orgUserId,
     },
   });
   const employee =
@@ -136,6 +137,21 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const allAbsenceReasonCategoryOptions = useAbsenceReasonCategoryOptions(
     params.organizationId
   );
+
+  const absenceReasonTrackingTypeId =
+    employee?.primaryPosition?.positionType?.absenceReasonTrackingTypeId ??
+    AbsenceReasonTrackingTypeId.Daily;
+
+  const absenceReasonTrackingTypeOptions = [
+    {
+      label: "Daily",
+      value: AbsenceReasonTrackingTypeId.Daily,
+    },
+    {
+      label: "Hourly",
+      value: AbsenceReasonTrackingTypeId.Hourly,
+    },
+  ];
 
   const reasonOptions = useMemo(() => {
     const usedAbsReasonIds = balances.map(x => x?.absenceReasonId);
@@ -192,7 +208,11 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
               <BalanceRow
                 key={i}
                 absenceReasonBalance={balance}
+                absenceReasonTrackingTypeId={absenceReasonTrackingTypeId}
                 orgId={params.organizationId}
+                absenceReasonTrackingTypeOptions={
+                  absenceReasonTrackingTypeOptions
+                }
                 shadeRow={i % 2 == 1}
                 onRemove={onDeleteBalance}
                 onUpdate={onUpdateBalance}
@@ -213,8 +233,12 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
                 employeeId: params.orgUserId,
                 schoolYearId: schoolYearId ?? "",
               }}
+              absenceReasonTrackingTypeId={absenceReasonTrackingTypeId}
               orgId={params.organizationId}
               shadeRow={balances.length % 2 == 1}
+              absenceReasonTrackingTypeOptions={
+                absenceReasonTrackingTypeOptions
+              }
               onRemove={onDeleteBalance}
               onUpdate={onUpdateBalance}
               onCreate={onCreateBalance}

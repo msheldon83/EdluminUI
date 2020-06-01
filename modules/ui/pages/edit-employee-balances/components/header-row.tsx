@@ -10,18 +10,26 @@ export const BalanceHeaderRow: React.FC<{}> = () => {
     <div className={classes.container}>
       <div className={classes.reasonContainer}></div>
       <div className={[classes.text, classes.balanceValueContainer].join(" ")}>
-        {t("Initial balance")}
+        <div className={classes.inline}>{t("Balance")}</div>
+        <div className={classes.inline}> {t("Type")}</div>
       </div>
       <div className={[classes.text, classes.asOfContainer].join(" ")}>
         {t("As of")}
       </div>
+      <div className={classes.spacer}></div>
       <div className={[classes.text, classes.valueContainer].join(" ")}>
         {t("Used")}
       </div>
       <div className={[classes.text, classes.valueContainer].join(" ")}>
         {t("Planned")}
       </div>
-      <div className={[classes.text, classes.valueContainer].join(" ")}>
+      <div
+        className={[
+          classes.text,
+          classes.valueContainer,
+          classes.marginLeft,
+        ].join(" ")}
+      >
         {t("Remaining")}
       </div>
     </div>
@@ -41,19 +49,31 @@ const useStyles = makeStyles(theme => ({
     color: "#9E9E9E",
   },
   reasonContainer: {
-    width: theme.typography.pxToRem(270),
+    width: theme.typography.pxToRem(240),
     padding: theme.spacing(2),
+  },
+  inline: {
+    display: "inline-block",
+    paddingRight: theme.spacing(2),
+  },
+  paddingLeft: {
+    paddingLeft: theme.spacing(1),
   },
   balanceValueContainer: {
     width: theme.typography.pxToRem(150),
-    paddingLeft: theme.spacing(1),
   },
   asOfContainer: {
     width: theme.typography.pxToRem(140),
-    margin: theme.spacing(1, 4, 1, 4),
+    paddingLeft: theme.spacing(7),
   },
   valueContainer: {
     width: theme.typography.pxToRem(100),
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
+  },
+  spacer: {
+    width: theme.typography.pxToRem(90),
+  },
+  marginLeft: {
+    marginLeft: theme.spacing(1),
   },
 }));

@@ -1,10 +1,7 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useMutationBundle } from "graphql/hooks";
-import {
-  AbsenceReasonTrackingTypeId,
-  AssignmentType,
-} from "graphql/server-types.gen";
+import { AssignmentType } from "graphql/server-types.gen";
 import * as React from "react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -57,7 +54,6 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       description?: string;
       code?: string;
       isRestricted: boolean;
-      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
       requireNotesToAdmin: boolean;
     }) => {
       if (!basicInfo) {
@@ -65,7 +61,6 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       }
       const {
         allowNegativeBalance,
-        absenceReasonTrackingTypeId: absenceReasonTrackingId,
         description,
         code,
         isRestricted,
@@ -79,7 +74,6 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             ...basicInfo,
             externalId: basicInfo?.externalId,
             allowNegativeBalance,
-            absenceReasonTrackingId,
             isRestricted,
             appliesToAssignmentTypes: AssignmentType.ContractAssignment,
             description,
@@ -137,7 +131,6 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         return (
           <AbsenceReasonSettings
             allowNegativeBalance={false}
-            absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
             requireNotesToAdmin={false}
             description={""}
             code={""}
