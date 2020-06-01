@@ -9,20 +9,15 @@ import {
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
-import { PeriodSelect } from "./period-select";
 
 type Props = {
+  showVerified: boolean;
   orgId: string;
-  timePeriod: { start: Date; end: Date };
-  setTimePeriod: React.Dispatch<
-    React.SetStateAction<{ start: Date; end: Date }>
-  >;
+  setShowVerified: React.Dispatch<React.SetStateAction<boolean>>;
   locationsFilter: string[];
-  setLocationsFilter: React.Dispatch<React.SetStateAction<string[]>>;
   subSourceFilter: string;
+  setLocationsFilter: React.Dispatch<React.SetStateAction<string[]>>;
   setSubSourceFilter: React.Dispatch<React.SetStateAction<string>>;
-  showFullyVerified: boolean;
-  setShowFullyVerified: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const Filters: React.FC<Props> = props => {
@@ -48,14 +43,6 @@ export const Filters: React.FC<Props> = props => {
         spacing={2}
         className={classes.filters}
       >
-        <Grid item xs={12} sm={3} md={3} lg={3}>
-          <DateRangePickerPopover
-            startDate={props.timePeriod.start}
-            endDate={props.timePeriod.end}
-            onDateRangeSelected={() => {}}
-            label={"Period"}
-          />
-        </Grid>
         <Grid item xs={12} sm={6} md={3} lg={3}>
           <LocationSelect
             label={t("Schools")}
@@ -74,14 +61,12 @@ export const Filters: React.FC<Props> = props => {
             />
           </Grid>
         )}
-        <Grid item xs={12} sm={3} md={3} lg={3}>
+        <Grid item xs={12} sm={6} md={3} lg={3}>
           <FormControlLabel
-            checked={props.showFullyVerified}
+            checked={props.showVerified}
             control={
               <Checkbox
-                onChange={() =>
-                  props.setShowFullyVerified(!props.showFullyVerified)
-                }
+                onChange={() => props.setShowVerified(!props.showVerified)}
               />
             }
             label={t("Show verified")}
