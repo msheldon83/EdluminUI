@@ -320,12 +320,6 @@ input AbsenceReasonCreateInput {
   requiresApproval: Boolean
 }
 
-enum AbsenceReasonTrackingTypeEnum {
-  INVALID
-  HOURLY
-  DAILY
-}
-
 enum AbsenceReasonTrackingTypeId {
   INVALID
   HOURLY
@@ -5685,7 +5679,7 @@ input TimeOffBalancesInput {
   schoolYear: LocatorInput
   asOf: Date
   balance: Decimal
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeEnum
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 enum TimeZone {
