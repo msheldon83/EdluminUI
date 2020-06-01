@@ -1,7 +1,6 @@
 import { Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useMutationBundle } from "graphql/hooks";
-import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 import * as React from "react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,7 +10,6 @@ import { Step, TabbedHeader } from "ui/components/tabbed-header";
 import {
   AbsenceReasonAddRoute,
   AbsenceReasonRoute,
-  AbsenceReasonCategoryViewEditRoute,
 } from "ui/routes/absence-reason";
 import { useRouteParams } from "ui/routes/definition";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -64,17 +62,11 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
       allowNegativeBalance: boolean;
       description?: string;
       code?: string;
-      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
     }) => {
       if (!basicInfo) {
         return;
       }
-      const {
-        allowNegativeBalance,
-        absenceReasonTrackingTypeId: absenceReasonTrackingId,
-        description,
-        code,
-      } = updatedValues;
+      const { allowNegativeBalance, description, code } = updatedValues;
 
       const result = await createAbsenceReasonCategory({
         variables: {
@@ -83,7 +75,6 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
             ...basicInfo,
             externalId: basicInfo?.externalId,
             allowNegativeBalance,
-            absenceReasonTrackingId,
             description,
             code,
           },
@@ -133,7 +124,6 @@ export const AbsenceReasonCategoryAddPage: React.FC<Props> = props => {
         return (
           <AbsenceReasonCategorySettings
             allowNegativeBalance={false}
-            absenceReasonTrackingTypeId={AbsenceReasonTrackingTypeId.Hourly}
             description={""}
             code={""}
             onSubmit={settingsOnSubmit}

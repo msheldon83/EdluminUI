@@ -36,6 +36,7 @@ type Props = {
     forPermanentPositions: boolean;
     forStaffAugmentation: boolean;
     minAbsenceDurationMinutes: number;
+    absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId;
     payTypeId?: AbsenceReasonTrackingTypeId | undefined | null;
     needsReplacement?: NeedsReplacement | undefined | null;
     defaultContractId?: string | undefined | null;
@@ -52,6 +53,7 @@ type Props = {
     needsReplacement: NeedsReplacement | undefined | null,
     forStaffAugmentation: boolean,
     minAbsenceDurationMinutes: number,
+    absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId,
     payTypeId: AbsenceReasonTrackingTypeId | undefined | null,
     payCodeId: string | undefined | null,
     defaultContractId: string | undefined | null,
@@ -136,6 +138,8 @@ export const Settings: React.FC<Props> = props => {
           payTypeId: props.positionType.payTypeId,
           payCodeId: props.positionType.payCodeId,
           code: props.positionType.code,
+          absenceReasonTrackingTypeId:
+            props.positionType.absenceReasonTrackingTypeId,
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
@@ -143,6 +147,7 @@ export const Settings: React.FC<Props> = props => {
             data.needsReplacement,
             data.forStaffAugmentation,
             data.minAbsenceDurationMinutes,
+            data.absenceReasonTrackingTypeId,
             data.payTypeId ? data.payTypeId : null,
             data.payCodeId ? data.payCodeId : null,
             data.defaultContractId ? data.defaultContractId : null,
@@ -155,6 +160,19 @@ export const Settings: React.FC<Props> = props => {
             minAbsenceDurationMinutes: yup
               .number()
               .required(t("Minimum Absence Duration is required")),
+            absenceReasonTrackingTypeId: yup
+              .string()
+              .nullable()
+              .test("typeSelected", t("A type must be selected"), function(
+                value
+              ) {
+                if (!value) {
+                  return this.createError({
+                    message: t("A type must be selected"),
+                  });
+                }
+                return true;
+              }),
           })
           .test({
             name: "forStaffAugmentationCheck",
@@ -401,6 +419,30 @@ export const Settings: React.FC<Props> = props => {
                     setFieldValue("payTypeId", selectedValue);
                   }}
                 />
+                <div className={classes.paddingTop}>
+                  <div>{t("Tracking type")}</div>
+                  <SelectNew
+                    name="absenceReasonTrackingTypeId"
+                    value={{
+                      value: values.absenceReasonTrackingTypeId ?? "",
+                      label:
+                        payTypeOptions
+                          .find(
+                            a => a.value === values.absenceReasonTrackingTypeId
+                          )
+                          ?.label.toString() || "",
+                    }}
+                    options={payTypeOptions}
+                    withResetValue={false}
+                    multiple={false}
+                    inputStatus={
+                      errors.absenceReasonTrackingTypeId ? "error" : "default"
+                    }
+                    onChange={(value: any) => {
+                      setFieldValue("absenceReasonTrackingTypeId", value.value);
+                    }}
+                  />
+                </div>
                 <div className={classes.paddingTop}>
                   <div>{t("Pay code")}</div>
                   <SelectNew

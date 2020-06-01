@@ -194,8 +194,9 @@ export const SettingsPage: React.FC<{}> = props => {
     {
       name: t("Approver Groups"),
       icon: (
-        <GroupIcon
-          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        <img
+          className={classes.alignIcon}
+          src={require("ui/icons/approver-groups.svg")}
         />
       ),
       route: ApproverGroupsRoute,
@@ -203,8 +204,9 @@ export const SettingsPage: React.FC<{}> = props => {
     {
       name: t("Absence Workflows"),
       icon: (
-        <CallMergeIcon
-          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        <img
+          className={classes.alignIcon}
+          src={require("ui/icons/absence-workflows.svg")}
         />
       ),
       route: AbsenceApprovalWorkflowRoute,
@@ -212,8 +214,9 @@ export const SettingsPage: React.FC<{}> = props => {
     {
       name: t("Vacancy Workflows"),
       icon: (
-        <CallSplitIcon
-          className={[classes.alignIcon, classes.alignMUIIcon].join(" ")}
+        <img
+          className={classes.alignIcon}
+          src={require("ui/icons/vacancy-workflows.svg")}
         />
       ),
       route: VacancyApprovalWorkflowRoute,
@@ -342,7 +345,7 @@ export const SettingsPage: React.FC<{}> = props => {
       {Config.isDevFeatureOnly && (
         <Can do={[PermissionEnum.ApprovalSettingsView]}>
           <Typography className={classes.header} variant="h4">
-            {t("Approver Groups & Workflows")}
+            {t("Approvals")}
           </Typography>
           <Grid
             container

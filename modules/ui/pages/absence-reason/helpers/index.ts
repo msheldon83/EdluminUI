@@ -39,7 +39,6 @@ export const mergeCatgoriesAndReasons = (
     | "description"
     | "code"
     | "expired"
-    | "absenceReasonTrackingTypeId"
     | "allowNegativeBalance"
   >[],
   reasons: Pick<
@@ -53,7 +52,6 @@ export const mergeCatgoriesAndReasons = (
     | "expired"
     | "isRestricted"
     | "requireNotesToAdmin"
-    | "absenceReasonTrackingTypeId"
     | "allowNegativeBalance"
     | "absenceReasonCategoryId"
   >[]
@@ -73,7 +71,6 @@ export const mergeCatgoriesAndReasons = (
         id: c.id,
         name: c.name,
         externalId: c.externalId,
-        trackingType: c.absenceReasonTrackingTypeId,
         allowNegativeBalance: c.allowNegativeBalance,
         rowVersion: c.rowVersion,
         /*children: reasons
