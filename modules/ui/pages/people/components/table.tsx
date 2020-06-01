@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   Button,
   Checkbox,
+  ClickAwayListener,
   Fade,
   IconButton,
   Link,
@@ -29,6 +30,8 @@ import { PaginationControls } from "ui/components/pagination-controls";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { AccessIcon } from "./access-icon";
 import { TablePerson } from "../types";
+import { ShadowIndicator } from "ui/components/shadow-indicator";
+import clsx from "clsx";
 
 type ToolbarProps = {
   rowCount: number;
@@ -48,7 +51,10 @@ const PeopleToolbar: React.FC<ToolbarProps> = ({
     <Toolbar>
       {numberSelected > 0 ? (
         <>
-          <Typography className={classes.title} variant="subtitle1">
+          <Typography
+            className={clsx(classes.title, classes.selected)}
+            variant="subtitle1"
+          >
             {numberSelected} {t("selected")}
           </Typography>
           <Tooltip title="Invite selected people">
@@ -69,6 +75,9 @@ const PeopleToolbar: React.FC<ToolbarProps> = ({
 const useToolbarStyles = makeStyles(theme => ({
   title: {
     flex: "1 1 100%",
+  },
+  selected: {
+    background: theme.customColors.lightGray,
   },
 }));
 
@@ -134,39 +143,49 @@ const PeopleRow: React.FC<RowProps> = ({
     <TableRow className={classes.tableRow} onClick={toUserPage}>
       <Can do={[PermissionEnum.OrgUserInvite]}>
         <TableCell padding="checkbox">
-          <Checkbox checked={selected} onChange={onSelectClick} />
-        </TableCell>
-        <TableCell>
-          <div className={classes.account}>
-            <AccountCircleOutlined />
-            <AccessIcon
-              inviteSent={person.inviteSent}
-              accountSetup={person.accountSetup}
-              inviteSentAtUtc={person.inviteSentAtUtc}
-              inviteRequestedAtUtc={person.invitationRequestedAtUtc}
-            />
-          </div>
-        </TableCell>
-        <TableCell>
-          {person.lastName}, {person.firstName}
-        </TableCell>
-        <TableCell>{person.userName}</TableCell>
-        <TableCell>{person.externalId}</TableCell>
-        {extraColumns.map((column, i) => (
-          <TableCell key={i}>{column(person)}</TableCell>
-        ))}
-        <TableCell>
-          <Link
-            href={`mailto:${person.email}`}
-            onClick={(e: React.MouseEvent<HTMLElement>) => {
-              e.stopPropagation();
-            }}
-            color="secondary"
-          >
-            <MailIcon />
-          </Link>
+          <Checkbox
+            checked={selected}
+            onClick={event => event.stopPropagation()}
+            onChange={onSelectClick}
+          />
         </TableCell>
       </Can>
+      <TableCell>
+        <div className={classes.account}>
+          <AccountCircleOutlined />
+          <AccessIcon
+            inviteSent={person.inviteSent}
+            accountSetup={person.accountSetup}
+            inviteSentAtUtc={person.inviteSentAtUtc}
+            inviteRequestedAtUtc={person.invitationRequestedAtUtc}
+          />
+        </div>
+      </TableCell>
+      <TableCell>
+        <Typography>
+          {person.lastName}, {person.firstName}
+        </Typography>
+        <ShadowIndicator
+          isShadow={person.isShadowRecord}
+          orgName={person.shadowFromOrgName}
+        />
+      </TableCell>
+      <TableCell>{person.userName}</TableCell>
+      <TableCell>{person.externalId}</TableCell>
+      {extraColumns.map((column, i) => (
+        <TableCell key={i}>{column(person)}</TableCell>
+      ))}
+      <TableCell>
+        <Link
+          href={`mailto:${person.email}`}
+          onClick={(e: React.MouseEvent<HTMLElement>) => {
+            e.stopPropagation();
+          }}
+          color="secondary"
+        >
+          <MailIcon />
+        </Link>
+      </TableCell>
     </TableRow>
   );
 };
@@ -178,13 +197,14 @@ const useRowStyles = makeStyles(theme => ({
   },
   tableRow: {
     borderTop: `1px solid ${theme.customColors.sectionBorder}`,
+    cursor: "pointer",
 
     "&:nth-child(even)": {
       background: theme.customColors.lightGray,
     },
 
     "&:hover": {
-      background: theme.customColors.gray,
+      background: theme.customColors.lightGray,
     },
   },
 }));
@@ -225,29 +245,34 @@ const BaseTable: React.FC<BaseProps> = ({
   return (
     <>
       <PeopleToolbar
-        rowCount={data.length}
+        rowCount={pagination.totalCount}
         numberSelected={selected.length}
         inviteSelected={() => inviteSelected(selected)}
       />
       <PaginationControls pagination={pagination} />
       <TableContainer>
-        <PeopleTableHead
-          rowCount={data.length}
-          numberSelected={selected.length}
-          onSelectAllClick={handleSelectAllClick}
-          extraHeaders={extraColumns.map(c => c.header)}
-        />
-        {data.map(person => (
-          <PeopleRow
-            key={person.id}
-            person={person}
-            extraColumns={extraColumns.map(c => c.row)}
-            selected={selected.includes(person.id)}
-            onSelectClick={handleSelectClick(person.id)}
-            toUserPage={() => toUserPage(person.id)}
+        <Table>
+          <PeopleTableHead
+            rowCount={data.length}
+            numberSelected={selected.length}
+            onSelectAllClick={handleSelectAllClick}
+            extraHeaders={extraColumns.map(c => c.header)}
           />
-        ))}
+          <TableBody>
+            {data.map(person => (
+              <PeopleRow
+                key={person.id}
+                person={person}
+                extraColumns={extraColumns.map(c => c.row)}
+                selected={selected.includes(person.id)}
+                onSelectClick={handleSelectClick(person.id)}
+                toUserPage={() => toUserPage(person.id)}
+              />
+            ))}
+          </TableBody>
+        </Table>
       </TableContainer>
+      <PaginationControls pagination={pagination} />
     </>
   );
 };
@@ -265,9 +290,9 @@ const ButtonPopper: React.FC<ButtonPopperProps> = ({
 }) => {
   const classes = useButtonPopperStyles();
   const [anchor, setAnchor] = React.useState<null | HTMLElement>(null);
-  const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchor(anchor ? null : event.currentTarget);
-    event.stopPropagation();
+  const handleToggle = (event?: React.MouseEvent<HTMLElement>) => {
+    setAnchor(anchor || !event ? null : event.currentTarget);
+    if (event) event.stopPropagation();
   };
   const isOpen = Boolean(anchor);
 
@@ -279,11 +304,18 @@ const ButtonPopper: React.FC<ButtonPopperProps> = ({
       <Popper transition open={isOpen} anchorEl={anchor} placement="bottom-end">
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={150}>
-            <List className={classes.paper}>
-              {objects.map((l, index) => (
-                <ListItemText key={index}>{l?.name}</ListItemText>
-              ))}
-            </List>
+            <div>
+              <ClickAwayListener
+                mouseEvent="onClick"
+                onClickAway={() => handleToggle()}
+              >
+                <List className={classes.paper}>
+                  {objects.map((l, index) => (
+                    <ListItemText key={index}>{l?.name}</ListItemText>
+                  ))}
+                </List>
+              </ClickAwayListener>
+            </div>
           </Fade>
         )}
       </Popper>
@@ -353,7 +385,7 @@ const AdminTable: React.FC<InternalProps> = props => {
           header: t("Manages position type"),
           row: person => (
             <MaybeManyCell
-              allIf={person.allLocationIdsInScope || person.isSuperUser}
+              allIf={person.allPositionTypeIdsInScope || person.isSuperUser}
               objects={person.adminPositionTypes}
               objectName={t("Position Types Managed")}
               objectType={"posTypesManaged"}
