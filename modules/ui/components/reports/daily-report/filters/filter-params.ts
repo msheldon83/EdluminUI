@@ -2,15 +2,17 @@ import { Isomorphism } from "@atomic-object/lenses";
 import { format } from "date-fns";
 
 const today = new Date();
+export const groupOptions = ["fillStatus", "positionType", "school"] as const;
+export type GroupOption = typeof groupOptions[number];
+
 export const FilterQueryParamDefaults: DailyReportFilters = {
   date: format(today, "P"),
   locationIds: "",
   positionTypeIds: "",
   showAbsences: "true",
   showVacancies: "true",
-  groupByFillStatus: "true",
-  groupByPositionType: "true",
-  groupBySchool: "true",
+  groupDetailsBy: "fillStatus",
+  subGroupDetailsBy: "positionType",
 };
 
 export type DailyReportFilters = {
@@ -19,9 +21,8 @@ export type DailyReportFilters = {
   positionTypeIds: string;
   showAbsences: string;
   showVacancies: string;
-  groupByFillStatus: string;
-  groupByPositionType: string;
-  groupBySchool: string;
+  groupDetailsBy: string;
+  subGroupDetailsBy: string;
 };
 
 type DailyReportFilterQueryParams = Omit<
@@ -31,9 +32,8 @@ type DailyReportFilterQueryParams = Omit<
   | "positionTypeIds"
   | "showAbsences"
   | "showVacancies"
-  | "groupByFillStatus"
-  | "groupByPositionType"
-  | "groupBySchool"
+  | "groupDetailsBy"
+  | "subGroupDetailsBy"
 > &
   DailyReportQueryFilters;
 
@@ -43,9 +43,8 @@ export type DailyReportQueryFilters = {
   positionTypeIds: string[];
   showAbsences: boolean;
   showVacancies: boolean;
-  groupByFillStatus: boolean;
-  groupByPositionType: boolean;
-  groupBySchool: boolean;
+  groupDetailsBy: GroupOption;
+  subGroupDetailsBy?: GroupOption;
 };
 
 export const FilterParams: Isomorphism<
@@ -60,9 +59,6 @@ export const FilterParams: Isomorphism<
     ...from(s),
     showAbsences: boolToString(s.showAbsences),
     showVacancies: boolToString(s.showVacancies),
-    groupByFillStatus: boolToString(s.groupByFillStatus),
-    groupByPositionType: boolToString(s.groupByPositionType),
-    groupBySchool: boolToString(s.groupBySchool),
   }),
 };
 
@@ -77,7 +73,6 @@ export const stringToBool = (s: string, defaultValue: boolean): boolean => {
       return true;
     case "false":
       return false;
-    case "":
     default:
       return defaultValue;
   }
@@ -92,6 +87,13 @@ const boolToString = (b: boolean): "true" | "false" | "" => {
       return "";
   }
 };
+export const stringToGroupOption: (
+  s: string,
+  defaultValue: GroupOption
+) => GroupOption = (s, defaultValue) => {
+  const option = groupOptions.find(o => o === s);
+  return option ?? defaultValue;
+};
 
 const to = (o: DailyReportFilters): DailyReportQueryFilters => {
   return {
@@ -101,9 +103,11 @@ const to = (o: DailyReportFilters): DailyReportQueryFilters => {
     locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
     showAbsences: stringToBool(o.showAbsences, true),
     showVacancies: stringToBool(o.showVacancies, true),
-    groupByFillStatus: stringToBool(o.groupByFillStatus, true),
-    groupByPositionType: stringToBool(o.groupByPositionType, true),
-    groupBySchool: stringToBool(o.groupBySchool, true),
+    groupDetailsBy: stringToGroupOption(o.groupDetailsBy, "fillStatus"),
+    subGroupDetailsBy:
+      o.subGroupDetailsBy == ""
+        ? undefined
+        : stringToGroupOption(o.subGroupDetailsBy, "positionType"),
   };
 };
 
@@ -114,7 +118,7 @@ const from = (o: DailyReportQueryFilters) => {
     positionTypeIds: o.positionTypeIds.join(","),
     showAbsences: o.showAbsences,
     showVacancies: o.showVacancies,
-    groupByFillStatus: o.groupByFillStatus,
-    groupByPositionType: o.groupByPositionType,
+    groupDetailsBy: o.groupDetailsBy,
+    subGroupDetailsBy: o.subGroupDetailsBy ?? "",
   };
 };

@@ -7,30 +7,40 @@ import { Filters } from "./components/filters";
 import { VerifyUI } from "./ui";
 import { useRouteParams } from "ui/routes/definition";
 import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import Typography from "@material-ui/core/Typography";
+import { startOfToday, subDays } from "date-fns";
 
 export const VerifyPage: React.FC<{}> = props => {
   const { t } = useTranslation();
-  const [showVerified, setShowVerified] = useState(false);
+  const today = startOfToday();
+  const [timePeriod, setTimePeriod] = useState<{ start: Date; end: Date }>({
+    start: subDays(today, 29),
+    end: today,
+  });
   const [locationsFilter, setLocationsFilter] = useState<string[]>([]);
   const [subSourceFilter, setSubSourceFilter] = useState<string>("");
+  const [showFullyVerified, setShowFullyVerified] = useState(false);
   const params = useRouteParams(VerifyRoute);
 
   return (
     <>
+      <Typography variant="h5">{t("Verify substitute assignments")}</Typography>
       <PageTitle title={t("Verify substitute assignments")} />
       <Section>
         <Filters
-          showVerified={showVerified}
+          timePeriod={timePeriod}
+          setTimePeriod={setTimePeriod}
           locationsFilter={locationsFilter}
-          subSourceFilter={subSourceFilter}
-          setShowVerified={setShowVerified}
           setLocationsFilter={setLocationsFilter}
+          subSourceFilter={subSourceFilter}
           setSubSourceFilter={setSubSourceFilter}
+          showFullyVerified={showFullyVerified}
+          setShowFullyVerified={setShowFullyVerified}
           orgId={params.organizationId}
         />
       </Section>
       <VerifyUI
-        showVerified={showVerified}
+        showVerified={showFullyVerified}
         locationsFilter={locationsFilter}
         subSourceFilter={subSourceFilter}
       />

@@ -171,9 +171,8 @@ export const DailyReport: React.FC<Props> = props => {
       new Date(filters.date),
       filters.showAbsences,
       filters.showVacancies,
-      filters.groupByFillStatus,
-      filters.groupByPositionType,
-      filters.groupBySchool,
+      filters.groupDetailsBy,
+      filters.subGroupDetailsBy,
       t
     );
     allDetails = mappedDetails.allDetails;

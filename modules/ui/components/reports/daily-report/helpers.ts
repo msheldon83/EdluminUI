@@ -13,6 +13,7 @@ import {
 import { flatMap, groupBy, identity, keyBy, some, every } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 import { TFunction } from "i18next";
+import { GroupOption } from "./filters/filter-params";
 
 export type CardType =
   | "unfilled"
@@ -101,9 +102,8 @@ export const MapDailyReportDetails = (
   date: Date,
   showAbsences: boolean,
   showVacancies: boolean,
-  groupByFillStatus: boolean,
-  groupByPositionType: boolean,
-  groupBySchool: boolean,
+  groupDetailsBy: GroupOption,
+  subGroupDetailsBy: GroupOption | undefined,
   t: TFunction
 ): DailyReportDetails => {
   const details: Detail[] = [];
@@ -630,13 +630,14 @@ export const MapDailyReportDetails = (
   );
 
   // Group the results based on the group by selection
-  const groupFns: {
-    grouper: (d: Detail) => unknown;
-    labeller?: (key: string) => string;
-    sorter?: (key1: string, key2: string) => number;
-  }[] = [];
-  if (groupByFillStatus) {
-    groupFns.push({
+  const groupDictionary: {
+    [key in GroupOption]: {
+      grouper: (d: Detail) => unknown;
+      labeller?: (key: string) => string;
+      sorter?: (key1: string, key2: string) => number;
+    };
+  } = {
+    fillStatus: {
       grouper: d => d.state,
       labeller: k =>
         k == "noSubRequired"
@@ -646,18 +647,21 @@ export const MapDailyReportDetails = (
         const order = ["Unfilled", "Filled", "No sub required", "Closed"];
         return order.indexOf(k1) - order.indexOf(k2);
       },
-    });
-  }
-  if (groupByPositionType) {
-    groupFns.push({
+    },
+    positionType: {
       grouper: d => d.positionType?.name,
-    });
-  }
-  if (groupBySchool) {
-    groupFns.push({
+    },
+    school: {
       grouper: d => d.location?.name,
-    });
-  }
+    },
+  };
+  const groupFns: {
+    grouper: (d: Detail) => unknown;
+    labeller?: (key: string) => string;
+    sorter?: (key1: string, key2: string) => number;
+  }[] = [groupDictionary[groupDetailsBy]];
+
+  if (subGroupDetailsBy) groupFns.push(groupDictionary[subGroupDetailsBy]);
 
   const groups: DetailGroup[] = subGroupBy(details, groupFns);
 

@@ -9,10 +9,15 @@ import {
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { FilterQueryParams } from "./filter-params";
+import {
+  groupOptions,
+  FilterQueryParams,
+  stringToGroupOption,
+} from "./filter-params";
 import { SchoolFilter } from "./school-filter";
 import { PositionTypeFilter } from "./position-type-filter";
 import { DateFilter } from "./date-filter";
+import { OptionType, SelectNew } from "ui/components/form/select-new";
 
 type Props = {
   orgId: string;
@@ -24,6 +29,12 @@ export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
+
+  const makeOption = (value: string) => {
+    let label = value.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+    label = label[0].toUpperCase() + label.substring(1);
+    return { label, value };
+  };
 
   return (
     <Grid
@@ -74,6 +85,46 @@ export const Filters: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={6}>
           <InputLabel>{t("Group by")}</InputLabel>
+          <SelectNew
+            options={groupOptions.map(makeOption)}
+            value={makeOption(filters.groupDetailsBy)}
+            onChange={value => {
+              updateFilters({
+                groupDetailsBy: stringToGroupOption(
+                  value.value.toString(),
+                  "fillStatus"
+                ),
+              });
+            }}
+            multiple={false}
+          />
+          <SelectNew
+            options={groupOptions.map(makeOption)}
+            value={
+              filters.subGroupDetailsBy
+                ? makeOption(filters.subGroupDetailsBy)
+                : undefined
+            }
+            onChange={value => {
+              updateFilters({
+                subGroupDetailsBy:
+                  value.value === ""
+                    ? undefined
+                    : stringToGroupOption(
+                        value.value.toString(),
+                        "positionType"
+                      ),
+              });
+            }}
+            multiple={false}
+          />
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+};
+
+/*
           <FormControlLabel
             control={
               <Checkbox
@@ -143,11 +194,7 @@ export const Filters: React.FC<Props> = props => {
             }
             label={t("School")}
           />
-        </Grid>
-      </Grid>
-    </Grid>
-  );
-};
+*/
 
 export const useStyles = makeStyles(theme => ({
   filters: {
