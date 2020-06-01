@@ -2,20 +2,14 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, makeStyles } from "@material-ui/core";
 import { Formik } from "formik";
-import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import * as Yup from "yup";
 import { ActionButtons } from "ui/components/action-buttons";
-import { Input } from "ui/components/form/input";
 import {
   ApprovalWorkflowType,
   ApprovalWorkflowStepInput,
 } from "graphql/server-types.gen";
-import { AbsenceBasicInfo } from "./absence-basic-info";
-import { VacancyBasicInfo } from "./vacancy-basic-info";
-import { exampleSteps } from "../types";
-import { StepsGraph } from "./graph";
+import { StepsGraph } from "../workflow-graph/graph";
 
 type Props = {
   onCancel: () => void;
@@ -31,7 +25,7 @@ export const WorkflowSteps: React.FC<Props> = props => {
 
   return (
     <Section>
-      <SectionHeader title={t("Basic info")} />
+      <SectionHeader title={t("Workflow steps")} />
       <Formik
         initialValues={{
           steps: props.steps,
@@ -51,11 +45,17 @@ export const WorkflowSteps: React.FC<Props> = props => {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <StepsGraph steps={values.steps} />
+                <StepsGraph
+                  steps={values.steps}
+                  orgId={props.orgId}
+                  setSteps={(steps: ApprovalWorkflowStepInput[]) =>
+                    setFieldValue("steps", steps)
+                  }
+                />
               </Grid>
             </Grid>
             <ActionButtons
-              submit={{ text: t("Next"), execute: submitForm }}
+              submit={{ text: t("Save"), execute: submitForm }}
               cancel={{ text: t("Cancel"), execute: props.onCancel }}
             />
           </form>
@@ -65,15 +65,4 @@ export const WorkflowSteps: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-  header: {
-    marginBottom: theme.spacing(2),
-  },
-  placeholder: {
-    opacity: "0.2",
-    filter: "alpha(opacity = 20)",
-  },
-  checkboxError: {
-    color: theme.palette.error.main,
-  },
-}));
+const useStyles = makeStyles(theme => ({}));

@@ -10,7 +10,6 @@ query GetAllAbsenceReasonsWithinOrg($orgId: ID, $includeExpired: Boolean) {
       expired
       isRestricted
       requireNotesToAdmin
-      absenceReasonTrackingTypeId
       allowNegativeBalance
       absenceReasonCategoryId
     }

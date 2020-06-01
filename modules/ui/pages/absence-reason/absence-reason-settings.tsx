@@ -1,6 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
 import { Formik } from "formik";
-import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { pick } from "lodash-es";
 import * as React from "react";
@@ -26,14 +25,12 @@ type Props = {
   code?: string;
   allowNegativeBalance: boolean;
   isRestricted: boolean;
-  absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   requireNotesToAdmin: boolean;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
     isRestricted: boolean;
     description?: string;
-    code?: string;
-    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
+    code?: string;  
     requireNotesToAdmin: boolean;
   }) => Promise<void>;
   onCancel: () => void;
@@ -51,8 +48,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
     "description",
     "code",
     "allowNegativeBalance",
-    "isRestricted",
-    "absenceReasonTrackingTypeId",
+    "isRestricted",   
     "requireNotesToAdmin",
     "absenceReasonCategoryId",
   ]);
@@ -93,34 +89,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                 variant: "outlined",
                 fullWidth: true,
               }}
-            />
-
-            <Typography variant="h6" className={classes.label}>
-              {t("How is this absence reason tracked?")}
-            </Typography>
-            <RadioGroup
-              aria-label="absenceReasonTrackingTypeId"
-              name="absenceReasonTrackingTypeId"
-              value={values.absenceReasonTrackingTypeId || ""}
-              onChange={e => {
-                setFieldValue("absenceReasonTrackingTypeId", e.target.value);
-              }}
-              row={!isMobile}
-            >
-              <FormControlLabel
-                value={AbsenceReasonTrackingTypeId.Hourly}
-                control={<Radio color="primary" />}
-                label={t("Hourly")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={AbsenceReasonTrackingTypeId.Daily}
-                control={<Radio color="primary" />}
-                label={t("Daily")}
-                labelPlacement="end"
-              />
-            </RadioGroup>
-
+            />      
             <Typography variant="h6" className={classes.label}>
               {t(
                 "Should a balance be allowed to go negative for this absence reason?"

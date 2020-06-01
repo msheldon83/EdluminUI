@@ -110,6 +110,7 @@ junit.xml
 **/*.gen.ts
 **/*.gen.tsx
 .*.deps
+**/*.gen.json
 
 # Database backups
 backups/

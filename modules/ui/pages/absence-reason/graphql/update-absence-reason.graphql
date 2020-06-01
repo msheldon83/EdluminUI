@@ -9,7 +9,6 @@ mutation updateAbsenceReason($absenceReason: AbsenceReasonUpdateInput!) {
       description
       expired
       appliesToAssignmentTypes
-      absenceReasonTrackingTypeId
       allowNegativeBalance
       isRestricted
       requireNotesToAdmin
