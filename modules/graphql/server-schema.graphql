@@ -1809,10 +1809,10 @@ type DeletedAbsenceType {
 type DeletedVacancyType {
   _info: [ReturnMessage]
   id: Int!
-  locationNames: [String]!
+  locationName: String!
   vacancyLocalStartTime: Date!
   vacancyLocalEndTime: Date!
-  positionTypeName: String!
+  positionTitle: String!
 }
 
 input DeleteUserDeviceInput {
