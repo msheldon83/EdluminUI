@@ -660,63 +660,6 @@ export const MapDailyReportDetails = (
   }
 
   const groups: DetailGroup[] = subGroupBy(details, groupFns);
-  /*if (groupByFillStatus) {
-    const unfilledGroup = {
-      label: t("Unfilled"),
-      details: filteredDetails.filter(x => x.state === "unfilled"),
-    };
-    const filledGroup = {
-      label: t("Filled"),
-      details: filteredDetails.filter(x => x.state === "filled"),
-    };
-    const noSubRequiredGroup = {
-      label: t("No sub required"),
-      details: filteredDetails.filter(x => x.state === "noSubRequired"),
-    };
-    const closedGroup = {
-      label: t("Closed"),
-      details: filteredDetails.filter(x => x.state === "closed"),
-    };
-    groups.push(
-      ...[unfilledGroup, filledGroup, noSubRequiredGroup, closedGroup]
-    );
-
-    if (groupByPositionType) {
-      groups.forEach(g => {
-        const detailsGroupedByPositionType = groupBy(
-          g.details,
-          d => d.positionType?.name
-        );
-        Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
-          if (g.subGroups) {
-            g.subGroups.push({
-              label: key,
-              details: value,
-            });
-          } else {
-            g.subGroups = [
-              {
-                label: key,
-                details: value,
-              },
-            ];
-          }
-        });
-      });
-    }
-  } else if (groupByPositionType) {
-    // Only grouping by the Position Type and not the fill status
-    const detailsGroupedByPositionType = groupBy(
-      filteredDetails,
-      d => d.positionType?.name
-    );
-    Object.entries(detailsGroupedByPositionType).forEach(([key, value]) => {
-      groups.push({
-        label: key,
-        details: value,
-      });
-    });
-  } */
 
   // Return an object that gives all of the groups as well as the raw details data
   return {
