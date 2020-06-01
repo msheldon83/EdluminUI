@@ -21,13 +21,13 @@ export const DeletedData: React.FC<Props> = props => {
         spacing={2}
         className={classes.headerContainer}
       >
-        <Grid item xs={10}>
-          <Typography variant="h6" className={classes.header}>
+        <Grid item xs={12}>
+          <Typography variant="h5" className={classes.header}>
             {props.header}
           </Typography>
           <PageTitle title={props.subHeader} />
         </Grid>
-        <Grid item xs={10}>
+        <Grid item xs={12}>
           <div className={classes.noteText}>{props.message}</div>
         </Grid>
       </Grid>
@@ -38,11 +38,13 @@ export const DeletedData: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   noteText: {
     backgroundColor: "#FFBAB9",
-    padding: theme.spacing(2),
+    padding: theme.spacing(3),
     float: "left",
+    width: "100%",
+    borderRadius: "2px",
   },
   header: {
-    backgroundColor: "#FF5555",
+    color: "#FF5555",
   },
   headerContainer: {
     marginBottom: theme.spacing(1),

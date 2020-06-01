@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-
+import { useMemo } from "react";
+import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { DeletedData } from "ui/components/deleted-data";
 import { GetDeleteAbsenceInfo } from "./graphql/get-deleted-absence-info.gen";
 
@@ -27,11 +28,20 @@ export const DeletedDataIndex: React.FC<Props> = props => {
 
   const deletedAbsence = getDeletedAbsence.data.absence?.deletedAbsenceInfo;
 
-  console.log(deletedAbsence);
+  const formattedDate = getDateRangeDisplayText(
+    deletedAbsence?.absenceLocalStartTime
+      ? convertStringToDate(deletedAbsence?.absenceLocalStartTime)
+      : null,
+    deletedAbsence?.absenceLocalEndTime
+      ? convertStringToDate(deletedAbsence?.absenceLocalEndTime)
+      : null
+  );
 
-  const message = t("The absence originally scheduled for");
-  const header = deletedAbsence?.firstName + " " + deletedAbsence?.lastName;
-  const subHeader = t("Absence ") + deletedAbsence?.id;
+  const message = t(
+    `This absence, originally scheduled for ${formattedDate} has been declined`
+  );
+  const subHeader = deletedAbsence?.firstName + " " + deletedAbsence?.lastName;
+  const header = t("Absence #") + deletedAbsence?.id;
 
   return (
     <DeletedData message={message} header={header} subHeader={subHeader} />

@@ -320,12 +320,6 @@ input AbsenceReasonCreateInput {
   requiresApproval: Boolean
 }
 
-enum AbsenceReasonTrackingTypeEnum {
-  INVALID
-  HOURLY
-  DAILY
-}
-
 enum AbsenceReasonTrackingTypeId {
   INVALID
   HOURLY
@@ -1211,7 +1205,7 @@ input CalendarChangeUpdateInput {
   description: String
   startDate: Date
   endDate: Date
-  calendarChangeReasonId: [ID]
+  calendarChangeReasonId: ID
   contractIds: [ID]
   countTowardContractDays: Boolean
   affectsAllContracts: Boolean!
@@ -1804,12 +1798,12 @@ type DeletedAbsenceType {
   lastName: String!
   absenceLocalStartTime: Date!
   absenceLocalEndTime: Date!
-  id: Int!
+  id: ID!
 }
 
 type DeletedVacancyType {
   _info: [ReturnMessage]
-  id: Int!
+  id: ID!
   locationName: String!
   vacancyLocalStartTime: Date!
   vacancyLocalEndTime: Date!
@@ -5685,7 +5679,7 @@ input TimeOffBalancesInput {
   schoolYear: LocatorInput
   asOf: Date
   balance: Decimal
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeEnum
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 enum TimeZone {

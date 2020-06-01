@@ -1,0 +1,11 @@
+query GetDeleteVacancyInfo($vacancyId: ID!) {
+  vacancy {
+    deletedVacancyInfo(vacancyId: $vacancyId) {
+      id
+      positionTitle
+      locationName
+      vacancyLocalStartTime
+      vacancyLocalEndTime
+    }
+  }
+}
