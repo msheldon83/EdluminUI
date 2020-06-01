@@ -11,6 +11,7 @@ import { compact } from "lodash-es";
 import { Chat } from "@material-ui/icons";
 import { ApprovalViewRoute } from "ui/routes/approval-detail";
 import { ApproveDenyDialog } from "./approve-dialog";
+import { CommentDialog } from "./comment-dialog";
 
 type Props = {
   orgId: string;
@@ -19,20 +20,27 @@ type Props = {
   approvalWorkflowId: string;
   currentStepId: string;
   countOfComments: number;
+  viewingAsEmployee?: boolean;
 };
 
 export const ApprovalState: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
 
   const onCloseDialog = () => {
-    setDialogOpen(false);
+    setApproveDialogOpen(false);
+    setCommentDialogOpen(false);
   };
 
-  const onOpenDialog = () => {
-    setDialogOpen(true);
+  const onOpenApproveDialog = () => {
+    setApproveDialogOpen(true);
+  };
+
+  const onOpenCommentDialog = () => {
+    setCommentDialogOpen(true);
   };
 
   const getApprovalWorkflow = useQueryBundle(GetApprovalWorkflowById, {
@@ -123,9 +131,15 @@ export const ApprovalState: React.FC<Props> = props => {
       return (
         <>
           <ApproveDenyDialog
-            open={dialogOpen}
+            open={approveDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
+          />
+          <CommentDialog
+            open={commentDialogOpen}
+            onClose={onCloseDialog}
+            approvalStateId={props.approvalStateId}
+            viewingAsEmployee={props.viewingAsEmployee}
           />
           <div className={[classes.container, classes.pending].join(" ")}>
             <div className={classes.buttonContainer}>
@@ -144,9 +158,16 @@ export const ApprovalState: React.FC<Props> = props => {
                 />
               </div>
               <div className={classes.button}>
-                <Button variant="outlined" onClick={onOpenDialog}>
-                  {t("Approve/Deny")}
-                </Button>
+                {props.viewingAsEmployee ? (
+                  <Button variant="outlined" onClick={onOpenCommentDialog}>
+                    {t("Comment")}
+                  </Button>
+                ) : (
+                  // TODO: Determine if the admin is able to approve this absence/vacancy and show the approve button otherwise show the comment button
+                  <Button variant="outlined" onClick={onOpenApproveDialog}>
+                    {t("Approve/Deny")}
+                  </Button>
+                )}
               </div>
             </div>
             <div className={classes.detailsContainer}>
