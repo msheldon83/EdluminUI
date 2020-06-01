@@ -9,6 +9,9 @@ query GetAbsence($id: ID!) {
         approvalStatusId
         approvalWorkflowId
         currentStepId
+        comments {
+          id
+        }
       }
       closedDetails {
         id

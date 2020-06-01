@@ -1,23 +1,39 @@
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { Button, makeStyles, LinearProgress } from "@material-ui/core";
 import { ApprovalStatus } from "graphql/server-types.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { GetApprovalWorkflowById } from "./graphql/get-approval-workflow-steps-by-id.gen";
 import { GetApproverGroupHeaderById } from "./graphql/get-approver-group-by-id.gen";
 import { compact } from "lodash-es";
+import { Chat } from "@material-ui/icons";
+import { ApprovalViewRoute } from "ui/routes/approval-detail";
+import { ApproveDenyDialog } from "./approve-dialog";
 
 type Props = {
   orgId: string;
+  approvalStateId: string;
   approvalStatusId: ApprovalStatus;
   approvalWorkflowId: string;
   currentStepId: string;
+  countOfComments: number;
 };
 
 export const ApprovalState: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const onCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const onOpenDialog = () => {
+    setDialogOpen(true);
+  };
 
   const getApprovalWorkflow = useQueryBundle(GetApprovalWorkflowById, {
     variables: {
@@ -105,29 +121,49 @@ export const ApprovalState: React.FC<Props> = props => {
       );
     case ApprovalStatus.Pending:
       return (
-        <div className={[classes.container, classes.pending].join(" ")}>
-          <div className={classes.buttonContainer}>
-            <div className={classes.progressContainer}>
-              <div className={classes.statusText}>{`${t(
-                "Pending approval from"
-              )} ${approverGroup?.name}`}</div>
-              <LinearProgress
-                className={classes.progress}
-                variant="determinate"
-                value={barPercentage}
-                classes={{
-                  barColorPrimary: classes.pendingBar,
-                  colorPrimary: classes.unfilledBar,
-                }}
-              />
+        <>
+          <ApproveDenyDialog
+            open={dialogOpen}
+            onClose={onCloseDialog}
+            approvalStateId={props.approvalStateId}
+          />
+          <div className={[classes.container, classes.pending].join(" ")}>
+            <div className={classes.buttonContainer}>
+              <div className={classes.progressContainer}>
+                <div className={classes.statusText}>{`${t(
+                  "Pending approval from"
+                )} ${approverGroup?.name}`}</div>
+                <LinearProgress
+                  className={classes.progress}
+                  variant="determinate"
+                  value={barPercentage}
+                  classes={{
+                    barColorPrimary: classes.pendingBar,
+                    colorPrimary: classes.unfilledBar,
+                  }}
+                />
+              </div>
+              <div className={classes.button}>
+                <Button variant="outlined" onClick={onOpenDialog}>
+                  {t("Approve/Deny")}
+                </Button>
+              </div>
             </div>
-            <div className={classes.button}>
-              <Button variant="outlined" onClick={() => {}}>
-                {t("Approve/Deny")}
-              </Button>
+            <div className={classes.detailsContainer}>
+              <Chat />
+              <div>{`${props.countOfComments} ${t("comments")}`}</div>
+              <Link
+                to={ApprovalViewRoute.generate({
+                  organizationId: props.orgId,
+                  approvalStateId: props.approvalStateId,
+                })}
+                className={classes.link}
+              >
+                {t("View details")}
+              </Link>
             </div>
           </div>
-        </div>
+        </>
       );
     default:
       return <></>;
@@ -146,8 +182,16 @@ const useStyles = makeStyles(theme => ({
   button: {
     paddingLeft: theme.spacing(4),
   },
+  detailsContainer: {
+    paddingTop: theme.spacing(0.5),
+    display: "flex",
+  },
   progressContainer: {
     width: "85%",
+  },
+  link: {
+    paddingLeft: theme.spacing(1),
+    color: theme.customColors.black,
   },
   progress: {
     height: "10px",

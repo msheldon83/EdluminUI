@@ -11,6 +11,8 @@ export const ApprovedStory = () => {
   return (
     <Provider>
       <ApprovalState
+        approvalStateId={"1000"}
+        countOfComments={3}
         orgId={"1000"}
         approvalStatusId={ApprovalStatus.Approved}
         approvalWorkflowId={"1000"}
@@ -24,6 +26,8 @@ export const DeniedStory = () => {
   return (
     <Provider>
       <ApprovalState
+        approvalStateId={"1000"}
+        countOfComments={3}
         orgId={"1000"}
         approvalStatusId={ApprovalStatus.Denied}
         approvalWorkflowId={"1000"}
@@ -37,6 +41,8 @@ export const PendingStory = () => {
   return (
     <Provider>
       <ApprovalState
+        approvalStateId={"1000"}
+        countOfComments={3}
         orgId={"1000"}
         approvalStatusId={ApprovalStatus.Pending}
         approvalWorkflowId={"1000"}

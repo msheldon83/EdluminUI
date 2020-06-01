@@ -57,6 +57,8 @@ type Props = {
     approvalStatusId: ApprovalStatus;
     approvalWorkflowId: string;
     currentStepId: string;
+    id: string;
+    comments: { id: string }[];
   } | null;
 };
 
@@ -547,9 +549,11 @@ export const VacancyUI: React.FC<Props> = props => {
       {Config.isDevFeatureOnly && props.approvalStatus && (
         <ApprovalState
           orgId={params.organizationId}
+          approvalStateId={props.approvalStatus?.id}
           approvalStatusId={props.approvalStatus?.approvalStatusId}
           approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
           currentStepId={props.approvalStatus?.currentStepId}
+          countOfComments={props.approvalStatus.comments.length}
         />
       )}
       {vacancy.closedDetails.length > 0 && (

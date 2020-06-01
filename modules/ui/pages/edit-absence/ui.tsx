@@ -112,9 +112,11 @@ type Props = {
   isClosed: boolean;
   positionTypeId?: string;
   approvalStatus?: {
+    id: string;
     approvalStatusId: ApprovalStatus;
     approvalWorkflowId: string;
     currentStepId: string;
+    comments: { id: string }[];
   } | null;
 };
 
@@ -641,9 +643,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           {Config.isDevFeatureOnly && props.approvalStatus && (
             <ApprovalState
               orgId={props.organizationId}
+              approvalStateId={props.approvalStatus?.id}
               approvalStatusId={props.approvalStatus?.approvalStatusId}
               approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
               currentStepId={props.approvalStatus?.currentStepId}
+              countOfComments={props.approvalStatus?.comments.length}
             />
           )}
 

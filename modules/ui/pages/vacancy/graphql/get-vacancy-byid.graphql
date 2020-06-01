@@ -11,6 +11,9 @@ query GetVacancyById($id: ID!) {
         approvalStatusId
         approvalWorkflowId
         currentStepId
+        comments {
+          id
+        }
       }
       closedDetails {
         id
