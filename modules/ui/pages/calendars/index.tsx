@@ -360,6 +360,7 @@ export const Calendars: React.FC<Props> = props => {
         onUpdate={updateCalendarChange}
         onClose={() => {
           setOpenEventDialog(false);
+          setErrorMessage("");
         }}
         calendarChange={selectedDateCalendarChanges}
         errorMessage={errorMessage}

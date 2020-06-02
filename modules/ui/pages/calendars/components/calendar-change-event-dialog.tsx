@@ -8,6 +8,7 @@ import {
   Grid,
   FormControlLabel,
   Checkbox,
+  Button,
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -54,6 +55,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
     () => contracts.map(c => ({ label: c.name, value: c.id })),
     [contracts]
   );
+  const [submittingData, setSubmittingData] = React.useState(false);
 
   const updating = !!props.calendarChange.id;
 
@@ -97,6 +99,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
         }}
         onSubmit={async (data: any, formProps) => {
           let resultSucceeded = false;
+          setSubmittingData(true);
           if (updating) {
             const calendarChange: CalendarChangeUpdateInput = {
               id: props.calendarChange.id!,
@@ -127,6 +130,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
 
             resultSucceeded = await props.onAdd(calendarChange);
           }
+          setSubmittingData(false);
           if (resultSucceeded) {
             formProps.resetForm();
             props.onClose();
@@ -286,9 +290,13 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
               >
                 {t("Cancel")}
               </TextButton>
-              <ButtonDisableOnClick variant="contained" onClick={submitForm}>
+              <Button
+                disabled={submittingData}
+                variant="contained"
+                onClick={submitForm}
+              >
                 {updating ? t("Update") : t("Add")}
-              </ButtonDisableOnClick>
+              </Button>
             </DialogActions>
           </>
         )}
