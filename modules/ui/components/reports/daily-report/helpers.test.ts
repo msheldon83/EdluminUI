@@ -192,6 +192,8 @@ describe("labelledGroupBy", () => {
     const { grouper, labeller, sorter } = groupDictionary.positionType;
     fc.assert(
       fc.property(
+        // The chain method lets us use the results of one generator to create another.
+        // In this case, we create some predefined positionTypes, and use them to create details.
         presetPositionTypes.chain(positionTypes =>
           fc
             // We're making an array of...
