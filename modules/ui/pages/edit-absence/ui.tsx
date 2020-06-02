@@ -649,6 +649,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               currentStepId={props.approvalStatus?.currentStepId}
               countOfComments={props.approvalStatus?.comments.length}
               viewingAsEmployee={props.actingAsEmployee}
+              isTrueVacancy={false}
+              absenceId={props.absenceId}
             />
           )}
 

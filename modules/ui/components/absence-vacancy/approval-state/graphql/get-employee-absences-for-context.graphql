@@ -1,0 +1,29 @@
+query GetEmployeeAbsencesForContext(
+  $id: ID!
+  $fromDate: Date!
+  $toDate: Date!
+) {
+  employee {
+    employeeAbsenceSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      id
+      startDate
+      endDate
+      createdLocal
+      employee {
+        id
+        firstName
+        lastName
+      }
+      details {
+        id
+        reasonUsages {
+          id
+          absenceReason {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}

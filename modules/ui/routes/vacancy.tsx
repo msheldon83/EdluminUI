@@ -29,3 +29,18 @@ export const VacancyViewLoader = asyncComponent({
   },
   name: "VacancyView",
 });
+
+export const VacancyApprovalViewRoute = defineSubRoute(
+  AdminChromeRoute,
+  "/vacancy/approval/:vacancyId",
+  ["vacancyId"]
+);
+
+export const VacancyApprovalViewLoader = asyncComponent({
+  resolve: async () => {
+    const ApprovalViewPage = (await import("ui/pages/vacancy/approval-detail"))
+      .VacancyApprovalDetail;
+    return ApprovalViewPage;
+  },
+  name: "VacancyApprovalViewPage",
+});

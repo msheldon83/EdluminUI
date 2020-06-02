@@ -9,7 +9,11 @@ import { GetApprovalWorkflowById } from "../graphql/get-approval-workflow-steps-
 import { GetApproverGroupHeaderById } from "../graphql/get-approver-group-by-id.gen";
 import { compact } from "lodash-es";
 import { Chat } from "@material-ui/icons";
-import { ApprovalViewRoute } from "ui/routes/approval-detail";
+import { VacancyApprovalViewRoute } from "ui/routes/vacancy";
+import {
+  AdminAbsenceApprovalViewRoute,
+  EmployeeAbsenceApprovalViewRoute,
+} from "ui/routes/edit-absence";
 import { ApproveDenyDialog } from "./approve-dialog";
 import { CommentDialog } from "./comment-dialog";
 
@@ -21,6 +25,9 @@ type Props = {
   currentStepId: string;
   countOfComments: number;
   viewingAsEmployee?: boolean;
+  absenceId?: string;
+  vacancyId?: string;
+  isTrueVacancy: boolean;
 };
 
 export const ApprovalState: React.FC<Props> = props => {
@@ -171,13 +178,24 @@ export const ApprovalState: React.FC<Props> = props => {
               </div>
             </div>
             <div className={classes.detailsContainer}>
-              <Chat />
+              <img src={require("ui/icons/comment.svg")} />
               <div>{`${props.countOfComments} ${t("comments")}`}</div>
               <Link
-                to={ApprovalViewRoute.generate({
-                  organizationId: props.orgId,
-                  approvalStateId: props.approvalStateId,
-                })}
+                to={
+                  props.isTrueVacancy
+                    ? VacancyApprovalViewRoute.generate({
+                        organizationId: props.orgId,
+                        vacancyId: props.vacancyId!,
+                      })
+                    : props.viewingAsEmployee
+                    ? EmployeeAbsenceApprovalViewRoute.generate({
+                        absenceId: props.absenceId!,
+                      })
+                    : AdminAbsenceApprovalViewRoute.generate({
+                        organizationId: props.orgId,
+                        absenceId: props.absenceId!,
+                      })
+                }
                 className={classes.link}
               >
                 {t("View details")}
