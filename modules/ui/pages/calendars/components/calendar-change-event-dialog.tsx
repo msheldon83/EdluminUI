@@ -63,12 +63,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   }
 
   return (
-    <Dialog
-      className="dialog"
-      open={props.open}
-      onClose={props.onClose}
-      fullWidth={true}
-    >
+    <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
       <Formik
         initialValues={{
           changeReason:
@@ -97,6 +92,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           // setPanelOpened(false);
         }}
         onSubmit={async (data: any, formProps) => {
+          let resultSucceeded = false;
           if (updating) {
             const calendarChange: CalendarChangeUpdateInput = {
               id: props.calendarChange.id!,
@@ -111,7 +107,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
               affectsAllContracts: data.applyToAll,
             };
 
-            const result = await props.onUpdate(calendarChange);
+            resultSucceeded = await props.onUpdate(calendarChange);
           } else {
             const calendarChange: CalendarChangeCreateInput = {
               orgId: orgId,
@@ -125,10 +121,12 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
               affectsAllContracts: data.applyToAll,
             };
 
-            const result = await props.onAdd(calendarChange);
+            resultSucceeded = await props.onAdd(calendarChange);
           }
-          formProps.resetForm();
-          props.onClose();
+          if (resultSucceeded) {
+            formProps.resetForm();
+            props.onClose();
+          }
         }}
       >
         {({ values, handleSubmit, setFieldValue, submitForm, handleReset }) => (

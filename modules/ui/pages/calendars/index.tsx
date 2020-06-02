@@ -222,8 +222,8 @@ export const Calendars: React.FC<Props> = props => {
   ) => {
     if (
       isBefore(
-        parseISO(calendarChange.startDate),
-        parseISO(calendarChange.endDate)
+        parseISO(calendarChange.endDate),
+        parseISO(calendarChange.startDate)
       )
     ) {
       openSnackbar({
@@ -274,7 +274,7 @@ export const Calendars: React.FC<Props> = props => {
         calendarChange,
       },
     });
-    if (result !== undefined) {
+    if (result?.data?.calendarChange?.create !== undefined) {
       await refectchCalendarChanges();
       return true;
     } else {
@@ -464,6 +464,7 @@ export const Calendars: React.FC<Props> = props => {
                       columns={columns}
                       data={sortedCalendarChanges}
                       selection={true}
+                      pagination={pagination}
                       onRowClick={async (event, calendarChange) => {
                         const calendarEvent: CalendarEvent = {
                           id: calendarChange?.id,
@@ -502,40 +503,6 @@ export const Calendars: React.FC<Props> = props => {
                         },
                       ]}
                     />
-                    {/* <EditableTable
-                      selection={true}
-                      selectionPermissions={[
-                        PermissionEnum.CalendarChangeDelete,
-                      ]}
-                      columns={columns}
-                      data={sortedCalendarChanges}
-                      title={""}
-                      onRowUpdate={{
-                        action: async (newData, oldData) =>
-                          await updateCalendarChange(newData),
-                        permissions: [PermissionEnum.CalendarChangeSave],
-                      }}
-                      actions={[
-                        {
-                          tooltip: t("Delete selected events"),
-                          icon: () => <DeleteIcon />,
-                          onClick: async (evt, data) => {
-                            if (Array.isArray(data)) {
-                              await Promise.all(
-                                data.map(cc => deleteCalendarChange(cc.id))
-                              );
-                            } else {
-                              await Promise.resolve(
-                                deleteCalendarChange(data.id)
-                              );
-                            }
-                            await getCalendarChanges.refetch();
-                          },
-                          permissions: [PermissionEnum.CalendarChangeDelete],
-                        },
-                      ]}
-                      pagination={pagination}
-                    /> */}
                   </div>
                 )}
               </Grid>
