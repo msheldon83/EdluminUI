@@ -38,14 +38,6 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   positionTypes: [PositionType]
 }
 
-type AbsenceApprovalTransitionArgumentsTypeDef {
-  makeAvailableToFill: Boolean!
-}
-
-type AbsenceApprovalTransitionCriteriaTypeDef {
-  absenceReasonIds: [ID]
-}
-
 type AbsenceApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -196,7 +188,6 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   validUntil: Date
   expired: Boolean!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   appliesToAssignmentTypes: AssignmentType
@@ -229,6 +220,7 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   usedBalance: Decimal!
   unusedBalance: Decimal!
   netBalance: Decimal!
@@ -244,6 +236,7 @@ input AbsenceReasonBalanceCreateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonBalanceMutations {
@@ -265,6 +258,7 @@ input AbsenceReasonBalanceUpdateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -285,7 +279,6 @@ type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface 
   description: String
   validUntil: Date
   expired: Boolean!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -295,7 +288,6 @@ input AbsenceReasonCategoryCreateInput {
   name: String!
   description: String
   externalId: String
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -307,7 +299,6 @@ input AbsenceReasonCategoryUpdateInput {
   description: String
   externalId: String
   expired: Boolean
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -318,7 +309,6 @@ input AbsenceReasonCreateInput {
   description: String
   externalId: String
   appliesToAssignmentTypes: AssignmentType
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
@@ -327,6 +317,12 @@ input AbsenceReasonCreateInput {
   requireNotesToAdmin: Boolean
   code: String
   requiresApproval: Boolean
+}
+
+enum AbsenceReasonTrackingTypeEnum {
+  INVALID
+  HOURLY
+  DAILY
 }
 
 enum AbsenceReasonTrackingTypeId {
@@ -343,7 +339,6 @@ input AbsenceReasonUpdateInput {
   externalId: String
   expired: Boolean
   appliesToAssignmentTypes: AssignmentType
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
@@ -698,10 +693,6 @@ enum ApprovalStatus {
   NO_APPROVAL_REQUIRED
 }
 
-union ApprovalTransitionArgumentsTypeDef = AbsenceApprovalTransitionArgumentsTypeDef | VacancyApprovalTransitionArgumentsTypeDef
-
-union ApprovalTransitionCriteriaTypeDef = AbsenceApprovalTransitionCriteriaTypeDef | VacancyApprovalTransitionCriteriaTypeDef
-
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -719,7 +710,7 @@ type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & Dom
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStep]
+  steps: [ApprovalWorkflowStep!]!
   usages: [ApprovalWorkflowUsage]
 }
 
@@ -728,14 +719,14 @@ input ApprovalWorkflowCreateInput {
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStepInput]
+  steps: [ApprovalWorkflowStepInput!]!
   usages: String
 }
 
 type ApprovalWorkflowMutations {
   create(approvalWorkflow: ApprovalWorkflowCreateInput!): ApprovalWorkflow
   update(approvalWorkflow: ApprovalWorkflowUpdateInput!): ApprovalWorkflow
-  delete(approvalWorkflowId: Int!): Boolean
+  delete(approvalWorkflowId: ID!): Boolean
 }
 
 type ApprovalWorkflowQueries {
@@ -745,10 +736,10 @@ type ApprovalWorkflowQueries {
 }
 
 type ApprovalWorkflowStep {
-  stepId: String
+  stepId: String!
   deleted: Boolean!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransition]
+  onApproval: [ApprovalWorkflowTransition!]!
   isFirstStep: Boolean!
   isLastStep: Boolean!
   xPosition: Decimal
@@ -756,20 +747,20 @@ type ApprovalWorkflowStep {
 }
 
 input ApprovalWorkflowStepInput {
-  stepId: String
+  stepId: String!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransitionInput]
-  isFirstStep: Boolean
-  isLastStep: Boolean
+  onApproval: [ApprovalWorkflowTransitionInput!]!
+  isFirstStep: Boolean!
+  isLastStep: Boolean!
   xPosition: Decimal
   yPosition: Decimal
-  deleted: Boolean
+  deleted: Boolean!
 }
 
 type ApprovalWorkflowTransition {
   goto: String
-  criteria: ApprovalTransitionCriteriaTypeDef
-  args: ApprovalTransitionArgumentsTypeDef
+  criteria: String
+  args: String
 }
 
 input ApprovalWorkflowTransitionInput {
@@ -4498,6 +4489,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
   code: String
   payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
@@ -4516,6 +4508,7 @@ input PositionTypeCreateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
 }
 
 type PositionTypeDr {
@@ -4560,6 +4553,7 @@ input PositionTypeUpdateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type QualifiedEmployeeCounts {
@@ -5664,6 +5658,7 @@ input TimeOffBalancesInput {
   schoolYear: LocatorInput
   asOf: Date
   balance: Decimal
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeEnum
 }
 
 enum TimeZone {
@@ -5923,14 +5918,6 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
-}
-
-type VacancyApprovalTransitionArgumentsTypeDef {
-  makeAvailableToFill: Boolean!
-}
-
-type VacancyApprovalTransitionCriteriaTypeDef {
-  vacancyReasonIds: [ID]
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {

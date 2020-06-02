@@ -118,7 +118,9 @@ export const AbsenceApprovalWorkflowIndex: React.FC<{}> = props => {
       </Grid>
       <Section>
         <Table
-          title={`${workflows.length} ${t("Absence Approval Workflows")}`}
+          title={`${workflows.length} ${
+            workflows.length === 1 ? t("Workflow") : t("Workflows")
+          }`}
           columns={columns}
           data={tableData}
           selection={false}
@@ -139,8 +141,5 @@ export const AbsenceApprovalWorkflowIndex: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   header: {
     marginBottom: theme.spacing(),
-  },
-  importButton: {
-    marginLeft: theme.spacing(1),
   },
 }));

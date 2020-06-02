@@ -28,6 +28,7 @@ import { ReplacementCriteria } from "./replacement-criteria";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { GetPositionTypesDocument } from "reference-data/get-position-types.gen";
+import { PositionTypeAbsReasonsCard } from "./components/position-type-abs-reasons-card";
 
 const editableSections = {
   name: "edit-name",
@@ -308,11 +309,27 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               </div>
             </div>
           </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Tracking Type")}</Typography>
+            <div>
+              {getDisplayName(
+                "absenceReasonTrackingTypeId",
+                positionType.absenceReasonTrackingTypeId?.toString() ?? "",
+                t
+              )}
+            </div>
+          </Grid>
         </Grid>
       </Section>
       <ReplacementCriteria
         editing={editing}
         replacementCriteria={replacementCriteria}
+      />
+      <PositionTypeAbsReasonsCard
+        positionTypeId={positionType?.id}
+        updateAbsenceReasons={async (values: {
+          absenceReasonIds?: string[] | null;
+        }) => {}}
       />
     </>
   );

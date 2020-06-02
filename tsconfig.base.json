@@ -12,7 +12,8 @@
     "rootDir": ".",
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": true
+    "strict": true,
+    "resolveJsonModule": true
   },
   "exclude": ["./dist", "./es"]
 }

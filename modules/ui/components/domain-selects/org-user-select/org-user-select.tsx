@@ -14,6 +14,7 @@ type Props = {
   label?: string;
   multiple?: boolean;
   disabled?: boolean;
+  idsToRemoveFromOptions?: string[];
 };
 
 export const OrgUserSelect: React.FC<Props> = props => {
@@ -36,6 +37,12 @@ export const OrgUserSelect: React.FC<Props> = props => {
       a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
     );
     orgUserOptions.unshift({ label: t("(All)"), value: "0" });
+  }
+
+  if (props.idsToRemoveFromOptions) {
+    orgUserOptions = orgUserOptions.filter(
+      x => !props.idsToRemoveFromOptions?.includes(x.value)
+    );
   }
 
   const selectedOrgUsers = orgUserOptions.filter(

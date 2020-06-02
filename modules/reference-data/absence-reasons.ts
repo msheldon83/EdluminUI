@@ -22,12 +22,18 @@ export function useAbsenceReasons(orgId: string) {
 
 export function useAbsenceReasonOptions(
   orgId: string,
-  additionalOptions?: { label: string; value: string }[]
+  additionalOptions?: { label: string; value: string }[],
+  positionTypeId?: string
 ) {
   const absenceReasons = useAbsenceReasons(orgId);
+  const filteredReasons = positionTypeId
+    ? absenceReasons.filter(
+        ar => ar.positionTypeIds.includes(positionTypeId) || ar.allPositionTypes
+      )
+    : absenceReasons;
   const absenceReasonOptions = useMemo(
-    () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
-    [absenceReasons]
+    () => filteredReasons.map(r => ({ label: r.name, value: r.id })),
+    [filteredReasons]
   );
   if (additionalOptions && additionalOptions.length > 0) {
     additionalOptions.forEach(x => {
@@ -41,16 +47,22 @@ export function useAbsenceReasonOptions(
 
 export function useAbsenceReasonOptionsWithCategories(
   orgId: string,
-  additionalOptions?: { label: string; value: string }[]
+  additionalOptions?: { label: string; value: string }[],
+  positionTypeId?: string
 ) {
   const absenceReasons = useAbsenceReasons(orgId);
+  const filteredReasons = positionTypeId
+    ? absenceReasons.filter(
+        ar => ar.positionTypeIds.includes(positionTypeId) || ar.allPositionTypes
+      )
+    : absenceReasons;
   const absenceReasonOptions = useMemo(
     () =>
-      absenceReasons.map(r => ({
+      filteredReasons.map(r => ({
         label: r.category ? `${r.name} (${r.category.name})` : r.name,
         value: r.id,
       })),
-    [absenceReasons]
+    [filteredReasons]
   );
   if (additionalOptions && additionalOptions.length > 0) {
     additionalOptions.forEach(x => {

@@ -2,11 +2,9 @@ import {
   Button,
   Grid,
   makeStyles,
-  Paper,
   Typography,
   useTheme,
 } from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay, parseISO } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
@@ -16,13 +14,11 @@ import {
   Vacancy,
   AbsenceDetail,
 } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import {
-  useAbsenceReasonOptions,
   useAbsenceReasons,
   useAbsenceReasonOptionsWithCategories,
 } from "reference-data/absence-reasons";
@@ -117,6 +113,7 @@ type Props = {
     | null;
   setRequireAdminNotes: React.Dispatch<React.SetStateAction<boolean>>;
   requireAdminNotes: boolean;
+  positionTypeId?: string;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -138,6 +135,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     assignmentsByDate,
     setRequireAdminNotes,
     requireAdminNotes,
+    positionTypeId,
   } = props;
 
   const [negativeBalanceWarning, setNegativeBalanceWarning] = useState(false);
@@ -149,10 +147,16 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
     organizationId,
-    absenceReasonsFromProps
+    absenceReasonsFromProps,
+    positionTypeId
   );
 
   const absenceReasons = useAbsenceReasons(organizationId);
+  const filteredAbsenceReaons = positionTypeId
+    ? absenceReasons.filter(
+        ar => ar.positionTypeIds.includes(positionTypeId) || ar.allPositionTypes
+      )
+    : absenceReasons;
 
   const startDate = startOfDay(min(props.absenceDates));
 
@@ -160,11 +164,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
     async event => {
       await setValue("absenceReason", event.value);
       setRequireAdminNotes(
-        absenceReasons.find(ar => ar.id === event.value)?.requireNotesToAdmin ||
-          false
+        filteredAbsenceReaons.find(ar => ar.id === event.value)
+          ?.requireNotesToAdmin || false
       );
     },
-    [absenceReasons, setRequireAdminNotes, setValue]
+    [filteredAbsenceReaons, setRequireAdminNotes, setValue]
   );
 
   const onDayPartChange = React.useCallback(
