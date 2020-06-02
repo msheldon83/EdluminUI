@@ -29,7 +29,6 @@ import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
-import { CreateExpansionPanel } from "./components/create-expansion-panel";
 import { CalendarView } from "./components/calendar-view";
 import { StickyHeader } from "./components/sticky-header";
 import {
@@ -37,7 +36,6 @@ import {
   CalendarCalendarViewRoute,
 } from "ui/routes/calendar/calendar";
 import { Can } from "ui/components/auth/can";
-import { EditableTable } from "ui/components/editable-table";
 import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { useContracts } from "reference-data/contracts";
@@ -47,7 +45,7 @@ import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { CalendarChangeEventDialog } from "./components/calendar-change-event-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
-import { ShowErrors } from "ui/components/error-helpers";
+import { ConvertApolloErrors } from "ui/components/error-helpers";
 import { Table } from "ui/components/table";
 import { CalendarEvent } from "./types";
 
@@ -60,6 +58,7 @@ export const Calendars: React.FC<Props> = props => {
   const params = useRouteParams(CalendarRoute);
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [openEventDialog, setOpenEventDialog] = useState(false);
   const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
@@ -152,20 +151,20 @@ export const Calendars: React.FC<Props> = props => {
     UpdateCalendarChange,
     {
       onError: error => {
-        ShowErrors(error, openSnackbar);
+        setErrorMessage(ConvertApolloErrors(error));
       },
     }
   );
   const updateCalendarChange = useCallback(
     async (calendarChange: CalendarChangeUpdateInput) => {
-      //const contractIds = compact(changedContracts?.map(c => c?.id ?? ""));
+      console.log("in update");
 
       const result = await updateCalendarChangeMutation({
         variables: {
           calendarChange,
         },
       });
-      if (result.data) {
+      if (result && result.data) {
         await refectchCalendarChanges();
         return true;
       } else {
@@ -213,7 +212,7 @@ export const Calendars: React.FC<Props> = props => {
 
   const [createCalendarChange] = useMutationBundle(CreateCalendarChange, {
     onError: error => {
-      ShowErrors(error, openSnackbar);
+      setErrorMessage(ConvertApolloErrors(error));
     },
   });
 
@@ -363,6 +362,7 @@ export const Calendars: React.FC<Props> = props => {
           setOpenEventDialog(false);
         }}
         calendarChange={selectedDateCalendarChanges}
+        errorMessage={errorMessage}
       />
       <div>
         <Grid container alignItems="center" justify="space-between" spacing={2}>

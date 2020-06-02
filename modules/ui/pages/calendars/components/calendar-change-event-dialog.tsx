@@ -24,13 +24,11 @@ import { DatePicker } from "ui/components/form/date-picker";
 import { isAfterDate } from "helpers/date";
 import { OptionTypeBase } from "react-select/src/types";
 import { TextField as FormTextField } from "ui/components/form/text-field";
-import { ActionButtons } from "ui/components/action-buttons";
 import { Input } from "ui/components/form/input";
 import {
   CalendarChangeCreateInput,
   CalendarChangeUpdateInput,
 } from "graphql/server-types.gen";
-import Maybe from "graphql/tsutils/Maybe";
 import { CalendarEvent } from "../types";
 import { parseISO, format } from "date-fns";
 
@@ -40,6 +38,7 @@ type Props = {
   onAdd: (calendarChange: CalendarChangeCreateInput) => Promise<boolean>;
   onUpdate: (calendarChange: CalendarChangeUpdateInput) => Promise<boolean>;
   calendarChange: CalendarEvent;
+  errorMessage?: string;
 };
 
 export const CalendarChangeEventDialog: React.FC<Props> = props => {
@@ -271,6 +270,11 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
             </DialogContent>
             <Divider className={classes.divider} />
             <DialogActions>
+              {props.errorMessage && (
+                <div className={classes.errorContainer}>
+                  {props.errorMessage}
+                </div>
+              )}
               <TextButton
                 onClick={handleReset}
                 className={classes.buttonSpacing}
@@ -297,7 +301,10 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
   },
   cancel: { color: theme.customColors.darkRed },
-  dialog: { width: theme.typography.pxToRem(800) },
+  errorContainer: {
+    width: "100%",
+    color: theme.customColors.darkRed,
+  },
   dateReasonContainer: {
     borderRight: "1px solid #E5E5E5",
   },
