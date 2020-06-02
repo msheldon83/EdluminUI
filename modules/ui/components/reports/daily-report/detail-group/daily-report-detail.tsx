@@ -51,11 +51,22 @@ export const DailyReportDetail: React.FC<Props> = props => {
       existingUnfilledSelection &&
       props.detail.state === "unfilled");
 
-  const goToAbsenceEdit = (absenceId: string, editSub?: boolean) => {
-    const url = `${AdminEditAbsenceRoute.generate({
-      ...absenceEditParams,
-      absenceId,
-    })}${editSub ? "?step=preAssignSub" : ""}`;
+  const goToAbsenceEdit = (
+    absVacId: string,
+    absVacType: "absence" | "vacancy",
+    editSub?: boolean
+  ) => {
+    const url = `${
+      absVacType == "absence"
+        ? AdminEditAbsenceRoute.generate({
+            ...absenceEditParams,
+            absenceId: absVacId,
+          })
+        : VacancyViewRoute.generate({
+            ...absenceEditParams,
+            vacancyId: absVacId,
+          })
+    }${editSub ? "?step=preAssignSub" : ""}`;
     history.push(url, {
       returnUrl: `${history.location.pathname}${history.location.search}`,
     });
@@ -64,7 +75,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
   const rowActions = [
     {
       name: t("Edit"),
-      onClick: () => goToAbsenceEdit(props.detail.id),
+      onClick: () => goToAbsenceEdit(props.detail.id, props.detail.type),
       permissions: (
         permissions: OrgUserPermissions[],
         isSysAdmin: boolean,
@@ -90,7 +101,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
             props.detail.assignmentRowVersion
           );
         } else {
-          goToAbsenceEdit(props.detail.id, true);
+          goToAbsenceEdit(props.detail.id, props.detail.type, true);
         }
       },
       permissions: props.detail.substitute
