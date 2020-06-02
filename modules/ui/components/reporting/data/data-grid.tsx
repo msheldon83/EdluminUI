@@ -62,14 +62,13 @@ export const DataGrid: React.FC<Props> = props => {
       return;
     }
 
-    const groupedDataResult = groupAndSortData(
+    const groupedDataResult = groupData(
       reportData.rawData,
       reportData.dataColumnIndexMap,
-      metadata.query.orderBy ?? [],
       metadata.query.subtotalBy ?? []
     );
     setGroupedData(groupedDataResult);
-  }, [reportData, metadata.query.orderBy, metadata.query.subtotalBy]);
+  }, [reportData, metadata.query.subtotalBy]);
 
   // We're maintaining a data structure around groups, but in order
   // to benefit from the windowing React Virtualized gives us, we
@@ -517,38 +516,15 @@ const nestDivs = (
   }
 };
 
-const groupAndSortData = (
+const groupData = (
   data: any[][],
   dataColumnIndexMap: Record<string, DataExpression>,
-  orderBy: OrderByField[],
   subtotalBy: SubtotalField[]
 ): GroupedData[] => {
   const groupByFields = Array.from(subtotalBy ?? []);
   const groupBy = groupByFields[0];
   if (!groupBy) {
     const localData = Array.from(data ?? []);
-    if (orderBy.length > 0) {
-      // TODO: Address in V2 or move ordering to server
-      // Sort the data according to our orderBy
-      // const orderByColumnIndexes = orderBy.map(o =>
-      //   findColumnIndex(dataColumnIndexMap, o.expression)
-      // );
-      // localData.sort((a, b) => {
-      //   const equalReturnValue = 0;
-      //   for (let i = 0; i < orderByColumnIndexes.length; i++) {
-      //     const orderByColumnIndex = orderByColumnIndexes[i];
-      //     const sortAsc = orderBy[i].direction === Direction.Asc;
-      //     if (a[orderByColumnIndex] < b[orderByColumnIndex]) {
-      //       return sortAsc ? -1 : 1;
-      //     }
-      //     if (a[orderByColumnIndex] > b[orderByColumnIndex]) {
-      //       return sortAsc ? 1 : -1;
-      //     }
-      //   }
-      //   return equalReturnValue;
-      // });
-    }
-
     return [
       {
         data: localData,
@@ -603,10 +579,9 @@ const groupAndSortData = (
 
   if (subtotalBy.length) {
     groups.forEach(g => {
-      g.children = groupAndSortData(
+      g.children = groupData(
         g.data,
         dataColumnIndexMap,
-        orderBy,
         groupByFields.slice(1)
       );
     });
