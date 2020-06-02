@@ -8,26 +8,38 @@ import {
   subGroupBy,
 } from "./helpers";
 
-const natString = fc.nat().map(n => n.toString());
+// natString is a _revolutionary_ function that...
+const natString = fc
+  //...generates a natural number...
+  .nat()
+  // ...and turns it into a string.
+  .map(n => n.toString());
+// fc.option returns nulls, which isn't going to work with strict null checks, so we have optional.
 const optional: <T>(
+  // It takes in a generator that makes arbitrary T...
   arb: fc.Arbitrary<T>
-) => fc.Arbitrary<T | undefined> = arb =>
-  fc.option(arb).map(a => a ?? undefined);
+) => // ...and returns a generator that makes T or undefined
+fc.Arbitrary<T | undefined> = arb => fc.option(arb).map(a => a ?? undefined);
 
 type DetailSkeleton = {
   [key in keyof Detail]: fc.Arbitrary<Detail[key]>;
 };
 
+// arbitraryDetailField descibes how to (separately) generate each field of a Detail.
 const arbitraryDetailFields: Required<DetailSkeleton> = {
+  // ids are natural strings, naturally.
   id: natString,
   detailId: natString,
   orgId: natString,
+  // fc.constantFrom randomly picks one of the provided constant values.
   state: fc.constantFrom("unfilled", "filled", "noSubRequired", "closed"),
   type: fc.constantFrom("absence", "vacancy"),
   absenceRowVersion: optional(natString),
   vacancyRowVersion: optional(natString),
   vacancyId: optional(natString),
   employee: optional(
+    // fc.record generates objects in the shape of a blueprint, which itself has
+    // generator values.
     fc.record({
       id: natString,
       name: fc.string(),
@@ -36,7 +48,11 @@ const arbitraryDetailFields: Required<DetailSkeleton> = {
   ),
   absenceReason: optional(fc.string()),
   vacancyReason: optional(fc.string()),
+  // fc.date does what you think.
   date: fc.date(),
+  // We _could_ be more specific with the date and time strings,
+  // but it's not as simple to do as making natural strings,
+  // and we're not doing anything with these atm.
   dateRange: fc.string(),
   startTime: fc.string(),
   endTime: fc.string(),
@@ -93,7 +109,10 @@ const arbitraryDetailFields: Required<DetailSkeleton> = {
   ),
 };
 
+// arbitraryDetail uses arbitraryDetailFields to actually construct arbitrary Details
 const arbitraryDetail: (
+  // the overides argument allows us to replace some generators;
+  // used later for passing in a fixed list of locations or positionTypes.
   overides?: Partial<DetailSkeleton>
 ) => fc.Arbitrary<Detail> = overides =>
   fc.record({ ...arbitraryDetailFields, ...overides });
@@ -141,7 +160,6 @@ describe("labelledGroupBy", () => {
     const { grouper, labeller, sorter } = groupDictionary.fillStatus;
 
     // fc.assert runs a property against random data, multiple times (100 times by default)
-    //
     fc.assert(
       // fc.property describes random data, and tests that should succeed against it.
       fc.property(
