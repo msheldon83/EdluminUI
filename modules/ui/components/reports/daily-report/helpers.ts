@@ -630,31 +630,6 @@ export const MapDailyReportDetails = (
   );
 
   // Group the results based on the group by selection
-  const groupDictionary: {
-    [key in GroupOption]: {
-      grouper: (d: Detail) => unknown;
-      labeller?: (key: string) => string;
-      sorter?: (key1: string, key2: string) => number;
-    };
-  } = {
-    fillStatus: {
-      grouper: d => d.state,
-      labeller: k =>
-        k == "noSubRequired"
-          ? "No sub required"
-          : k.charAt(0).toUpperCase() + k.slice(1),
-      sorter: (k1, k2) => {
-        const order = ["Unfilled", "Filled", "No sub required", "Closed"];
-        return order.indexOf(k1) - order.indexOf(k2);
-      },
-    },
-    positionType: {
-      grouper: d => d.positionType?.name,
-    },
-    school: {
-      grouper: d => d.location?.name,
-    },
-  };
   const groupFns: {
     grouper: (d: Detail) => unknown;
     labeller?: (key: string) => string;
@@ -880,6 +855,35 @@ const filterOutVacancyClosedDays = (vacancies: Maybe<VacancyDr>[]) => {
   });
 };
 
+// Options to be passed to subGroupBy, based on the values of groupBy and subGroupBy
+export const groupDictionary: {
+  [key in GroupOption]: {
+    grouper: (d: Detail) => unknown;
+    labeller?: (key: string) => string;
+    sorter?: (key1: string, key2: string) => number;
+  };
+} = {
+  fillStatus: {
+    grouper: d => d.state,
+    labeller: k =>
+      k == "noSubRequired"
+        ? "No sub required"
+        : k.charAt(0).toUpperCase() + k.slice(1),
+    sorter: (k1, k2) => {
+      const order = ["Unfilled", "Filled", "No sub required", "Closed"];
+      return order.indexOf(k1) - order.indexOf(k2);
+    },
+  },
+  positionType: {
+    grouper: d => d.positionType?.name,
+    labeller: k => (k == "undefined" ? "Undefined Position Type" : k),
+  },
+  school: {
+    grouper: d => d.location?.name,
+    labeller: k => (k == "undefined" ? "Undefined School" : k),
+  },
+};
+
 /**
  * Helper function to group, format, and sort Details into DetailGroups
  * @param details  A list of details to arrange into groups
@@ -908,7 +912,7 @@ export function labelledGroupBy(
 /**
  * Helper function to group, format, and sort Details into DetailGroups
  * @param details  A list of details to arrange into groups
- * @param groupsAndLabels: list of argument objects.
+ * @param groupFns: list of argument objects.
  *          The first element of the array will be passed to labelledGroupBy to make groups.
  *          If present, the second element will be used on each resulting group to make subgroups
  *          If present, the third element will be used on each resulting subgroup to make sub-subgroups
@@ -920,7 +924,7 @@ export function labelledGroupBy(
  */
 export const subGroupBy = (
   details: Detail[],
-  groupsAndLabels: {
+  groupFns: {
     // grouper's type is inherited from _.groupBy. The `unknown` type is the most generic type that can be safely checked for equality
     grouper: (d: Detail) => unknown;
     labeller?: (key: string) => string;
@@ -928,15 +932,15 @@ export const subGroupBy = (
     sorter?: (key1: string, key2: string) => number;
   }[]
 ) => {
-  if (groupsAndLabels.length === 0) return [];
-  const { grouper, labeller, sorter } = groupsAndLabels[0];
+  if (groupFns.length === 0) return [];
+  const { grouper, labeller, sorter } = groupFns[0];
   const groups = labelledGroupBy(details, grouper, labeller, sorter);
   groups.forEach(group => {
     // Here for type safety. Since we're in forEach, return just moves on to the next group.
     if (!group.details) return;
-    // Recursive call, with the tail of groupsAndLabels.
+    // Recursive call, with the tail of groupFns.
     // _Techically_ could cause stack overflows, but something has gone wrong if we're finding sub-sub-sub-sub-...-sub-groups.
-    const subGroups = subGroupBy(group.details, groupsAndLabels.slice(1));
+    const subGroups = subGroupBy(group.details, groupFns.slice(1));
     // Don't define group.subGroups if subGroups if its empty.
     group.subGroups = subGroups.length === 0 ? undefined : subGroups;
   });
