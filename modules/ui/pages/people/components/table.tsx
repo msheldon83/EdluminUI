@@ -48,13 +48,10 @@ const PeopleToolbar: React.FC<ToolbarProps> = ({
   const classes = useToolbarStyles();
 
   return (
-    <Toolbar>
+    <Toolbar className={clsx({ [classes.selected]: numberSelected > 0 })}>
       {numberSelected > 0 ? (
         <>
-          <Typography
-            className={clsx(classes.title, classes.selected)}
-            variant="subtitle1"
-          >
+          <Typography className={classes.title} variant="subtitle1">
             {numberSelected} {t("selected")}
           </Typography>
           <Tooltip title="Invite selected people">
@@ -75,9 +72,11 @@ const PeopleToolbar: React.FC<ToolbarProps> = ({
 const useToolbarStyles = makeStyles(theme => ({
   title: {
     flex: "1 1 100%",
+    padding: theme.spacing(1),
   },
   selected: {
     background: theme.customColors.lightGray,
+    padding: theme.spacing(1),
   },
 }));
 
