@@ -42,7 +42,7 @@ import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { VacancyDetailsFormData, VacancyFormValues } from "../helpers/types";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
-import { ApprovalState } from "ui/components/absence-vacancy/approval-state";
+import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;

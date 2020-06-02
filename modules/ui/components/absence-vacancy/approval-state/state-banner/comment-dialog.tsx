@@ -11,8 +11,7 @@ import {
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useMutationBundle } from "graphql/hooks";
-import { Approve } from "./graphql/approve.gen";
-import { Deny } from "./graphql/deny.gen";
+import { Comment } from "../graphql/comment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 
@@ -20,20 +19,15 @@ type Props = {
   approvalStateId: string;
   open: boolean;
   onClose: () => void;
+  viewingAsEmployee?: boolean;
 };
 
-export const ApproveDenyDialog: React.FC<Props> = props => {
+export const CommentDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
-  const [approve] = useMutationBundle(Approve, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [deny] = useMutationBundle(Deny, {
+  const [doComment] = useMutationBundle(Comment, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -42,25 +36,10 @@ export const ApproveDenyDialog: React.FC<Props> = props => {
   const [comment, setComment] = useState("");
   const [commentIsPublic, setCommentIsPublic] = useState(true);
 
-  const handleApprove = async () => {
-    const result = await approve({
+  const handleComment = async () => {
+    const result = await doComment({
       variables: {
-        approvalState: {
-          approvalStateId: props.approvalStateId,
-          comment: comment,
-          commentIsPublic: commentIsPublic,
-        },
-      },
-    });
-    if (result.data) {
-      props.onClose();
-    }
-  };
-
-  const handleDeny = async () => {
-    const result = await deny({
-      variables: {
-        approvalState: {
+        approvalComment: {
           approvalStateId: props.approvalStateId,
           comment: comment,
           commentIsPublic: commentIsPublic,
@@ -92,31 +71,22 @@ export const ApproveDenyDialog: React.FC<Props> = props => {
           }}
         />
         <div className={classes.buttonContainer}>
-          <FormControlLabel
-            checked={commentIsPublic}
-            control={
-              <Checkbox
-                onChange={e => {
-                  setCommentIsPublic(e.target.checked);
-                }}
-                color="primary"
-              />
-            }
-            label={t("Visible to employee")}
-          />
-          <Button
-            className={classes.denyButton}
-            variant="contained"
-            onClick={handleDeny}
-          >
-            {t("Deny")}
-          </Button>
-          <Button
-            className={classes.approveButton}
-            variant="contained"
-            onClick={handleApprove}
-          >
-            {t("Approve")}
+          {!props.viewingAsEmployee && (
+            <FormControlLabel
+              checked={commentIsPublic}
+              control={
+                <Checkbox
+                  onChange={e => {
+                    setCommentIsPublic(e.target.checked);
+                  }}
+                  color="primary"
+                />
+              }
+              label={t("Visible to employee")}
+            />
+          )}
+          <Button variant="contained" onClick={handleComment}>
+            {t("Save")}
           </Button>
         </div>
       </DialogContent>
@@ -125,16 +95,10 @@ export const ApproveDenyDialog: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  approveButton: {
-    background: "#4CC17C",
-  },
-  denyButton: {
-    background: "#FF5555",
-    marginRight: theme.spacing(1),
-  },
   buttonContainer: {
     display: "flex",
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
+    alignItems: "space-between",
   },
 }));

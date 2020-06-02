@@ -63,7 +63,7 @@ import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log"
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
-import { ApprovalState } from "ui/components/absence-vacancy/approval-state";
+import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 
 type Props = {
   firstName: string;
