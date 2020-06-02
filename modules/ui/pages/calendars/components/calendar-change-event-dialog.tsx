@@ -62,7 +62,12 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   }
 
   return (
-    <Dialog open={props.open} onClose={props.onClose} fullWidth={true}>
+    <Dialog
+      open={props.open}
+      onClose={props.onClose}
+      fullWidth={true}
+      maxWidth={"md"}
+    >
       <Formik
         initialValues={{
           changeReason:
@@ -135,7 +140,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 {updating ? t("Update Event") : t("Add Event")}
               </Typography>
             </DialogTitle>
-            <DialogContent>
+            <DialogContent className={classes.content}>
               <form onSubmit={handleSubmit}>
                 <Grid
                   container
@@ -149,7 +154,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     justify="flex-start"
                     alignItems="center"
                     spacing={2}
-                    xs={8}
+                    xs={7}
                     className={classes.dateReasonContainer}
                   >
                     <Grid item xs={6}>
@@ -221,7 +226,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                       />
                     </Grid>
                   </Grid>
-                  <Grid item xs={4} container>
+                  <Grid item xs={5} container>
                     <Grid item xs={12}>
                       <FormControlLabel
                         checked={values.applyToAll ?? false}
@@ -305,6 +310,7 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
     color: theme.customColors.darkRed,
   },
+  content: { minHeight: theme.typography.pxToRem(200) },
   dateReasonContainer: {
     borderRight: "1px solid #E5E5E5",
   },
