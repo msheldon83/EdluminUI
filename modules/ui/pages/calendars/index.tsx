@@ -157,8 +157,6 @@ export const Calendars: React.FC<Props> = props => {
   );
   const updateCalendarChange = useCallback(
     async (calendarChange: CalendarChangeUpdateInput) => {
-      console.log("in update");
-
       const result = await updateCalendarChangeMutation({
         variables: {
           calendarChange,
@@ -171,7 +169,9 @@ export const Calendars: React.FC<Props> = props => {
         return false;
       }
     },
-    [updateCalendarChangeMutation]
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [
+      updateCalendarChangeMutation,
+    ]
   );
 
   const [deleteCalendarChangeMutation] = useMutationBundle(
