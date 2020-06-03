@@ -1,5 +1,5 @@
 import { Grid, InputLabel, makeStyles } from "@material-ui/core";
-import { isSameDay, parseISO, isWithinInterval } from "date-fns";
+import { isSameDay, parseISO, isWithinInterval, addDays } from "date-fns";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -48,13 +48,21 @@ export const ScheduleHeader: React.FC<Props> = props => {
 
     // 1. fill in the years between the startYear and the current year
     // 2. create the respective values for each
-    return startYear !== endYear
-      ? range(startYear, endYear).map(d => {
-          const year = props.userCreatedDate;
-          year.setFullYear(d);
-          return createYearOption(year);
-        })
-      : [createYearOption(props.beginningOfCurrentSchoolYear)];
+    const yearOptions =
+      startYear !== endYear
+        ? range(startYear, endYear).map(d => {
+            const year = props.userCreatedDate;
+            year.setFullYear(d);
+            return createYearOption(year);
+          })
+        : [createYearOption(props.beginningOfCurrentSchoolYear)];
+
+    // Always add the next school year to the list
+    yearOptions.push(
+      createYearOption(addDays(props.endOfSchoolCurrentYear, 1))
+    );
+    console.log(yearOptions);
+    return yearOptions;
   }, [
     props.beginningOfCurrentSchoolYear,
     props.endOfSchoolCurrentYear,
