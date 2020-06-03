@@ -1,0 +1,4 @@
+{
+  "pathspec": ["./modules/**/*.{ts,tsx}"],
+  "port": 5004
+}
