@@ -31,7 +31,7 @@ import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { AccessIcon } from "./access-icon";
 import { TablePerson } from "../types";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
-import { compact } from "lodash";
+import { compact } from "lodash-es";
 import clsx from "clsx";
 
 type ToolbarProps = {
