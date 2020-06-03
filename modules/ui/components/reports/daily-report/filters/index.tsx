@@ -89,17 +89,21 @@ export const Filters: React.FC<Props> = props => {
             options={groupOptions.map(makeOption)}
             value={makeOption(filters.groupDetailsBy)}
             onChange={value => {
+              const newValue = value.value.toString();
               updateFilters({
-                groupDetailsBy: stringToGroupOption(
-                  value.value.toString(),
-                  "fillStatus"
-                ),
+                groupDetailsBy: stringToGroupOption(newValue, "fillStatus"),
+                subGroupDetailsBy:
+                  filters.subGroupDetailsBy == newValue
+                    ? undefined
+                    : filters.subGroupDetailsBy,
               });
             }}
             multiple={false}
           />
           <SelectNew
-            options={groupOptions.map(makeOption)}
+            options={groupOptions
+              .filter(o => o != filters.groupDetailsBy)
+              .map(makeOption)}
             value={
               filters.subGroupDetailsBy
                 ? makeOption(filters.subGroupDetailsBy)
