@@ -249,7 +249,7 @@ const BaseTable: React.FC<BaseProps> = ({
         numberSelected={selected.length}
         inviteSelected={() =>
           inviteSelected(
-            compact(selected.map(s => data.find(d => (d.id = s))?.userId))
+            compact(selected.map(s => data.find(d => d.id == s)?.userId))
           )
         }
       />
