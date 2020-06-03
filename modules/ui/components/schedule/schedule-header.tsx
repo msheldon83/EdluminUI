@@ -61,7 +61,6 @@ export const ScheduleHeader: React.FC<Props> = props => {
     yearOptions.push(
       createYearOption(addDays(props.endOfSchoolCurrentYear, 1))
     );
-    console.log(yearOptions);
     return yearOptions;
   }, [
     props.beginningOfCurrentSchoolYear,

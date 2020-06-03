@@ -21,6 +21,7 @@ import { ScheduledAbsences } from "ui/components/employee/components/scheduled-a
 import { CalendarView } from "ui/pages/employee-schedule/components/calendar-view";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { isWithinInterval } from "date-fns/esm";
 
 type Props = {
   view: "list" | "calendar";
@@ -58,6 +59,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
       currentSchoolYear ? parseISO(currentSchoolYear?.endDate) : new Date(),
     [currentSchoolYear]
   );
+
   const [queryStartDate, setQueryStartDate] = useState(startDateOfToday);
   const [queryEndDate, setQueryEndDate] = useState(endDate);
 
@@ -65,11 +67,19 @@ export const AbsenceSchedule: React.FC<Props> = props => {
     setQueryEndDate(endDate);
   }, [endDate]);
 
+  const calendarStartDate = useMemo(() => {
+    return isWithinInterval(queryStartDate, {
+      start: startDateOfSchoolYear,
+      end: endDate,
+    })
+      ? startDateOfSchoolYear
+      : queryStartDate;
+  }, [endDate, queryStartDate, startDateOfSchoolYear]);
+
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: props.employeeId,
-      fromDate:
-        props.view === "calendar" ? startDateOfSchoolYear : queryStartDate,
+      fromDate: props.view === "calendar" ? calendarStartDate : queryStartDate,
       toDate: queryEndDate,
     },
     skip: !endDate,
@@ -182,8 +192,8 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     selectedScheduleDates={selectedScheduleDates}
                     setSelectedScheduleDates={setSelectedScheduleDates}
                     employeeId={props.employeeId}
-                    startDate={startDateOfSchoolYear}
-                    endDate={endDate}
+                    startDate={calendarStartDate}
+                    endDate={queryEndDate}
                     absences={employeeAbsenceDetails}
                   />
                 )}
