@@ -135,29 +135,31 @@ export const AbsenceSchedule: React.FC<Props> = props => {
 
       <Section className={classes.container}>
         <Grid container>
-          {getAbsenceSchedule.state === "DONE" && (
-            <Grid item xs={12} className={classes.filters}>
-              <div className={classes.scheduleHeader}>
-                <ScheduleHeader
-                  view={props.view}
-                  today={startDateOfToday}
-                  beginningOfCurrentSchoolYear={startDateOfSchoolYear}
-                  endOfSchoolCurrentYear={endDate}
-                  startDate={queryStartDate}
-                  setStartDate={setQueryStartDate}
-                  setEndDate={setQueryEndDate}
-                  userCreatedDate={props.userCreatedDate}
-                />
-              </div>
-              <div>
-                <ScheduleViewToggle
-                  view={props.view}
-                  listViewRoute={props.listViewRoute}
-                  calendarViewRoute={props.calendarViewRoute}
-                />
-              </div>
-            </Grid>
-          )}
+          <Grid item xs={12} className={classes.filters}>
+            {getAbsenceSchedule.state === "DONE" && (
+              <>
+                <div className={classes.scheduleHeader}>
+                  <ScheduleHeader
+                    view={props.view}
+                    today={startDateOfToday}
+                    beginningOfCurrentSchoolYear={startDateOfSchoolYear}
+                    endOfSchoolCurrentYear={endDate}
+                    startDate={queryStartDate}
+                    setStartDate={setQueryStartDate}
+                    setEndDate={setQueryEndDate}
+                    userCreatedDate={props.userCreatedDate}
+                  />
+                </div>
+                <div>
+                  <ScheduleViewToggle
+                    view={props.view}
+                    listViewRoute={props.listViewRoute}
+                    calendarViewRoute={props.calendarViewRoute}
+                  />
+                </div>
+              </>
+            )}
+          </Grid>
           <Grid item xs={12}>
             <Divider />
           </Grid>
