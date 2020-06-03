@@ -1,5 +1,5 @@
 import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { isSameDay, isSameMonth, parseISO } from "date-fns";
+import { isSameDay, isSameMonth, parseISO, isWithinInterval } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import * as React from "react";
 import { useEffect, useMemo } from "react";
@@ -30,7 +30,12 @@ type Props = {
 export const CalendarView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { selectedScheduleDates, setSelectedScheduleDates } = props;
+  const {
+    selectedScheduleDates,
+    setSelectedScheduleDates,
+    startDate,
+    endDate,
+  } = props;
   const today = useMemo(() => new Date(), []);
 
   const onSelectDate = React.useCallback(
@@ -43,8 +48,8 @@ export const CalendarView: React.FC<Props> = props => {
     {
       variables: {
         id: props.employeeId ?? "0",
-        fromDate: props.startDate,
-        toDate: props.endDate,
+        fromDate: startDate,
+        toDate: endDate,
       },
       skip: !props.employeeId,
     }
@@ -67,46 +72,56 @@ export const CalendarView: React.FC<Props> = props => {
   const monthGroups = useMemo(
     () =>
       GroupEmployeeScheduleByMonth(
-        props.startDate,
-        props.endDate,
+        startDate,
+        endDate,
         props.absences,
         GetContractDates(contractSchedule),
         GetPositionScheduleDates(positionSchedule)
       ),
-    [
-      props.absences,
-      props.startDate,
-      props.endDate,
-      positionSchedule,
-      contractSchedule,
-    ]
+    [props.absences, startDate, endDate, positionSchedule, contractSchedule]
   );
 
   // Default to Today if it exists in the current set of Months
-
   useEffect(() => {
     if (
       getEmployeeSchedule.state === "DONE" &&
       monthGroups &&
-      monthGroups.length > 0 &&
-      selectedScheduleDates.length === 0
+      monthGroups.length > 0
     ) {
-      const currentMonth = monthGroups.find(m =>
-        isSameMonth(parseISO(m.month), today)
-      );
-      if (currentMonth) {
-        setSelectedScheduleDates(
-          currentMonth.scheduleDates.filter(s => isSameDay(s.date, today))
+      const dateToSelect = isWithinInterval(today, {
+        start: startDate,
+        end: endDate,
+      })
+        ? today
+        : startDate;
+
+      if (
+        selectedScheduleDates.filter(s =>
+          isWithinInterval(s.date, {
+            start: startDate,
+            end: endDate,
+          })
+        ).length === 0
+      ) {
+        const month = monthGroups.find(m =>
+          isSameMonth(parseISO(m.month), dateToSelect)
         );
+        if (month) {
+          setSelectedScheduleDates(
+            month.scheduleDates.filter(s => isSameDay(s.date, dateToSelect))
+          );
+        }
       }
     }
-    /* eslint-disable-line react-hooks/exhaustive-deps */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     getEmployeeSchedule.state,
     today,
     monthGroups,
     selectedScheduleDates.length,
     setSelectedScheduleDates,
+    startDate,
+    endDate,
   ]);
 
   if (getEmployeeSchedule.state !== "DONE") {

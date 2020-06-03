@@ -1,6 +1,12 @@
 import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { addDays, isAfter, parseISO, startOfDay, startOfWeek } from "date-fns";
+import {
+  addDays,
+  differenceInDays,
+  parseISO,
+  startOfDay,
+  startOfWeek,
+} from "date-fns";
 import {
   HookQueryResult,
   useMutationBundle,
@@ -22,7 +28,6 @@ import {
   GetEmployeeContractScheduleDatesQueryVariables,
 } from "ui/components/employee/graphql/get-employee-contract-schedule-dates.gen";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
-import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { ScheduledAbsences } from "../../components/employee/components/scheduled-absences";
@@ -43,7 +48,15 @@ export const EmployeeHome: React.FC<Props> = props => {
 
   const startDate = useMemo(() => startOfWeek(new Date()), []);
   const today = useMemo(() => new Date(), []);
-  const endDate = currentSchoolYear?.endDate;
+  const endDate = useMemo(() => {
+    if (!currentSchoolYear?.endDate) {
+      return undefined;
+    }
+
+    return differenceInDays(parseISO(currentSchoolYear.endDate), startDate) < 45
+      ? addDays(parseISO(currentSchoolYear.endDate), 45)
+      : currentSchoolYear.endDate;
+  }, [startDate, currentSchoolYear]);
 
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
