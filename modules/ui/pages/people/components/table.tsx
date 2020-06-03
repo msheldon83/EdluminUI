@@ -31,6 +31,7 @@ import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { AccessIcon } from "./access-icon";
 import { TablePerson } from "../types";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
+import { compact } from "lodash";
 import clsx from "clsx";
 
 type ToolbarProps = {
@@ -215,7 +216,7 @@ type BaseProps = {
     row: (person: TablePerson) => React.ReactChild;
   }[];
   data: TablePerson[];
-  inviteSelected: (ids: (string | undefined)[]) => void;
+  inviteSelected: (ids: string[]) => void;
   toUserPage: (id: string) => void;
 };
 
@@ -247,7 +248,9 @@ const BaseTable: React.FC<BaseProps> = ({
         rowCount={pagination.totalCount}
         numberSelected={selected.length}
         inviteSelected={() =>
-          inviteSelected(selected.map(s => data.find(d => (d.id = s))?.userId))
+          inviteSelected(
+            compact(selected.map(s => data.find(d => (d.id = s))?.userId))
+          )
         }
       />
       <PaginationControls pagination={pagination} />
@@ -363,7 +366,7 @@ function MaybeManyCell({
 type InternalProps = {
   pagination: PaginationInfo;
   data: TablePerson[];
-  inviteSelected: (ids: (string | undefined)[]) => void;
+  inviteSelected: (ids: string[]) => void;
   toUserPage: (id: string) => void;
 };
 
@@ -464,7 +467,7 @@ const SubTable: React.FC<InternalProps> = props => {
 type Props = {
   pagination: PaginationInfo;
   data: TablePerson[];
-  inviteSelected: (ids: (string | undefined)[]) => void;
+  inviteSelected: (ids: string[]) => void;
   role:
     | OrgUserRole.Administrator
     | OrgUserRole.Employee
