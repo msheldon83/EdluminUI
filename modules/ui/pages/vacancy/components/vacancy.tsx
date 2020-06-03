@@ -804,7 +804,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(3),
   },
   subHeader: {
-    height: theme.typography.pxToRem(60),
+    minHeight: theme.typography.pxToRem(60),
   },
   vacDetailColumn: {
     marginRight: theme.typography.pxToRem(20),
