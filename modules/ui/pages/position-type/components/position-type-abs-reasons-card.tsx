@@ -247,7 +247,7 @@ const useStyles = makeStyles(theme => ({
   },
   allReasonsText: {
     marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
   chipContainer: {
     marginBottom: theme.spacing(2),
