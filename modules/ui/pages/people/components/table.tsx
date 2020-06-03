@@ -215,7 +215,7 @@ type BaseProps = {
     row: (person: TablePerson) => React.ReactChild;
   }[];
   data: TablePerson[];
-  inviteSelected: (ids: string[]) => void;
+  inviteSelected: (ids: (string | undefined)[]) => void;
   toUserPage: (id: string) => void;
 };
 
@@ -246,7 +246,9 @@ const BaseTable: React.FC<BaseProps> = ({
       <PeopleToolbar
         rowCount={pagination.totalCount}
         numberSelected={selected.length}
-        inviteSelected={() => inviteSelected(selected)}
+        inviteSelected={() =>
+          inviteSelected(selected.map(s => data.find(d => (d.id = s))?.userId))
+        }
       />
       <PaginationControls pagination={pagination} />
       <TableContainer>
@@ -361,7 +363,7 @@ function MaybeManyCell({
 type InternalProps = {
   pagination: PaginationInfo;
   data: TablePerson[];
-  inviteSelected: (ids: string[]) => void;
+  inviteSelected: (ids: (string | undefined)[]) => void;
   toUserPage: (id: string) => void;
 };
 
@@ -462,7 +464,7 @@ const SubTable: React.FC<InternalProps> = props => {
 type Props = {
   pagination: PaginationInfo;
   data: TablePerson[];
-  inviteSelected: (ids: string[]) => void;
+  inviteSelected: (ids: (string | undefined)[]) => void;
   role:
     | OrgUserRole.Administrator
     | OrgUserRole.Employee
