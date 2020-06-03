@@ -1,0 +1,59 @@
+query GetVacanciesForContext(
+  $orgId: ID!
+  $locationIds: [ID]
+  $absenceReasonIds: [ID]
+  $vacancyReasonIds: [ID]
+  $toDate: Date
+  $fromDate: Date
+) {
+  vacancy {
+    vacanciesForApprovalContext(
+      orgId: $orgId
+      locationIds: $locationIds
+      absenceReasonIds: $absenceReasonIds
+      vacancyReasonIds: $vacancyReasonIds
+      toDate: $toDate
+      fromDate: $fromDate
+    ) {
+      id
+      createdLocal
+      isNormalVacancy
+      startDate
+      endDate
+      details {
+        id
+        locationId
+        location {
+          id
+          name
+        }
+        vacancyReason {
+          id
+          name
+        }
+      }
+      absence {
+        id
+        employee {
+          id
+          firstName
+          lastName
+        }
+        details {
+          id
+          reasonUsages {
+            id
+            absenceReason {
+              id
+              name
+            }
+          }
+        }
+      }
+      position {
+        id
+        title
+      }
+    }
+  }
+}

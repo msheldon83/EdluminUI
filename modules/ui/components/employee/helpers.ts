@@ -4,6 +4,7 @@ import {
   PositionScheduleDateDetail,
   CalendarDayType,
   VacancyDetail,
+  DayPart,
 } from "graphql/server-types.gen";
 import {
   parseISO,
@@ -11,12 +12,14 @@ import {
   differenceInCalendarMonths,
   startOfMonth,
   addMonths,
+  isSameMonth,
   isSameDay,
   differenceInHours,
   eachDayOfInterval,
+  isEqual,
 } from "date-fns";
 import { GetEmployeePositionContractSchedule } from "./graphql/get-employee-position-contract-schedule.gen";
-import { flatMap, range, groupBy, compact } from "lodash-es";
+import { flatMap, range, groupBy, compact, uniq } from "lodash-es";
 import {
   EmployeeAbsenceDetail,
   PositionScheduleDate,
@@ -25,6 +28,7 @@ import {
   ScheduleDate,
   EmployeeAbsenceAssignment,
 } from "./types";
+import { TFunction } from "i18next";
 
 export const GetEmployeeAbsenceDetails = (
   absences: GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]
@@ -282,4 +286,55 @@ const getScheduleDateType = (
     default:
       return "instructionalDay";
   }
+};
+
+export const getDateRangeDisplay = (startDate: Date, endDate: Date) => {
+  return isEqual(startDate, endDate)
+    ? format(startDate, "MMM d")
+    : isSameMonth(startDate, endDate)
+    ? `${format(startDate, "MMM d")} - ${format(endDate, "d")}`
+    : `${format(startDate, "MMM d")} - ${format(endDate, "MMM d")}`;
+};
+
+const determineDayPartLabel = (
+  dayPart: DayPart,
+  count: number,
+  t: TFunction
+) => {
+  switch (dayPart) {
+    case DayPart.FullDay:
+      return count > 1 ? t("Full Days") : t("Full Day");
+    case DayPart.HalfDayAfternoon:
+    case DayPart.HalfDayMorning:
+      return count > 1 ? t("Half Days") : t("Half Day");
+    case DayPart.Hourly:
+      return count > 1 ? t("Hours") : t("Hour");
+    case DayPart.QuarterDayEarlyAfternoon:
+    case DayPart.QuarterDayLateAfternoon:
+    case DayPart.QuarterDayEarlyMorning:
+    case DayPart.QuarterDayLateMorning:
+      return count > 1 ? t("Quarter Days") : t("Quarter Day");
+    default:
+      break;
+  }
+};
+
+export const getDayPartCountLabels = (
+  allDayParts: {
+    dayPart: DayPart;
+    dayPortion: number;
+    hourDuration: number;
+  }[],
+  t: TFunction
+) => {
+  return uniq(compact(allDayParts.map(d => d.dayPart))).map(u => {
+    const count =
+      u === DayPart.Hourly
+        ? allDayParts
+            .filter(x => x.dayPart === u)
+            .map(x => x.hourDuration)
+            .reduce((a, b) => a + b, 0)
+        : allDayParts.filter(x => x.dayPart === u).length;
+    return `${count} ${determineDayPartLabel(u, count, t)}`;
+  });
 };

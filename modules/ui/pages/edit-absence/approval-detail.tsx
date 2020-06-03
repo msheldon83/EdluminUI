@@ -53,7 +53,7 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
 
   const approvalState = absence?.approvalState;
 
-  if (!approvalState) {
+  if (!approvalState || !absence) {
     return <></>;
   }
 
@@ -72,8 +72,7 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
         approvalWorkflowId={approvalState.approvalWorkflowId}
         comments={approvalState.comments}
         isTrueVacancy={false}
-        absenceId={params.absenceId}
-        employeeId={absence?.employeeId}
+        absence={absence}
       />
     </>
   );

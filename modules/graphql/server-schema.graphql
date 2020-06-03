@@ -221,7 +221,7 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
   usedBalance: Decimal!
   unusedBalance: Decimal!
   netBalance: Decimal!
@@ -739,6 +739,7 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   approvalStatusId: ApprovalStatus!
   approvalWorkflowTypeId: ApprovalWorkflowType!
   comments: [ApprovalComment!]!
+  decisions: [ApprovalDecision!]!
 }
 
 input ApprovalStateUpdateInput {
@@ -6285,6 +6286,7 @@ type VacancyQueries {
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
+  vacanciesForApprovalContext(orgId: ID!, locationIds: [ID], vacancyReasonIds: [ID], absenceReasonIds: [ID], fromDate: Date, toDate: Date): [Vacancy]
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
   vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]

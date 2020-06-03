@@ -9,6 +9,7 @@ query GetEmployeeAbsencesForContext(
       startDate
       endDate
       createdLocal
+      isDeleted
       employee {
         id
         firstName

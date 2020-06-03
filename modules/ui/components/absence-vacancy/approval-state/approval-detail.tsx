@@ -8,10 +8,15 @@ import {
   Checkbox,
   Button,
 } from "@material-ui/core";
-import { useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { ApprovalAction } from "graphql/server-types.gen";
+import {
+  ApprovalAction,
+  Maybe,
+  DayPart,
+  AbsenceReasonTrackingTypeId,
+} from "graphql/server-types.gen";
 import { Approve } from "./graphql/approve.gen";
 import { Deny } from "./graphql/deny.gen";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -21,6 +26,8 @@ import { WorkflowSummary } from "./approval-flow";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { GetApprovalWorkflowById } from "./graphql/get-approval-workflow-steps-by-id.gen";
 import { AbsenceContext } from "./context-absence";
+import { AbsenceDetails } from "./absence-details";
+import { compact, groupBy, flatMap } from "lodash-es";
 
 type Props = {
   orgId: string;
@@ -41,16 +48,47 @@ type Props = {
       approvalActionId: ApprovalAction;
     } | null;
   }[];
-  absenceId?: string;
-  employeeId?: string | null;
   vacancyId?: string;
   isTrueVacancy: boolean;
+  absence?: {
+    id: string;
+    employeeId: string;
+    employee?: {
+      firstName: string;
+      lastName: string;
+    } | null;
+    notesToApprover?: string | null;
+    adminOnlyNotes?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    locationIds: string[];
+    details?:
+      | Maybe<{
+          dayPartId?: DayPart | null;
+          dayPortion: number;
+          endTimeLocal?: string | null;
+          startTimeLocal?: string | null;
+          reasonUsages?:
+            | Maybe<{
+                amount: number;
+                absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+                absenceReasonId: string;
+                absenceReason?: {
+                  name: string;
+                } | null;
+              }>[]
+            | null;
+        }>[]
+      | null;
+  };
 };
 
 export const ApprovalDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+
+  console.log(props.absence);
 
   const [approve] = useMutationBundle(Approve, {
     onError: error => {
@@ -96,18 +134,53 @@ export const ApprovalDetail: React.FC<Props> = props => {
 
   const approverGroups = useApproverGroups(props.orgId);
 
+  const absence = props.absence;
+  const absenceReasons = useMemo(
+    () =>
+      absence
+        ? Object.entries(
+            groupBy(
+              flatMap(
+                compact(absence.details).map(x => compact(x.reasonUsages))
+              ),
+              r => r?.absenceReasonId
+            )
+          ).map(([absenceReasonId, usages]) => ({
+            absenceReasonId: absenceReasonId,
+            absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
+            absenceReasonName: usages[0].absenceReason?.name,
+            totalAmount: usages.reduce((m, v) => m + v.amount, 0),
+          }))
+        : [],
+    [absence]
+  );
+
   return (
     <Section>
-      <Grid container>
-        <Grid item container xs={6}>
-          {!props.isTrueVacancy && props.absenceId && props.employeeId && (
-            <AbsenceContext
-              orgId={props.orgId}
-              employeeId={props.employeeId}
-              absenceId={props.absenceId}
-            />
-          )}
-        </Grid>
+      <Grid container spacing={2}>
+        {!props.isTrueVacancy && props.absence && (
+          <Grid item container xs={6} spacing={2}>
+            <Grid item xs={12}>
+              <AbsenceDetails
+                orgId={props.orgId}
+                absence={props.absence}
+                absenceReasons={absenceReasons}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <AbsenceContext
+                orgId={props.orgId}
+                employeeId={props.absence.employeeId}
+                absenceId={props.absence.id}
+                employeeName={`${props.absence.employee?.firstName} ${props.absence.employee?.lastName}`}
+                locationIds={props.absence.locationIds}
+                startDate={props.absence.startDate}
+                endDate={props.absence.endDate}
+                absenceReasons={absenceReasons}
+              />
+            </Grid>
+          </Grid>
+        )}
         <Grid item container xs={6} spacing={2}>
           <Grid item container xs={12} spacing={2} justify="flex-end">
             <Button
