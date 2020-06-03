@@ -11,11 +11,11 @@ import { RequiredFilters } from "./required-filters";
 import { OrderBy } from "./order-by";
 
 type Props = {
-  currentFilters: FilterField[];
+  filters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (
-    filterFields: FilterField[],
-    areOptional: boolean,
+    filters: FilterField[],
+    areRequiredFilters: boolean,
     refreshReport?: boolean
   ) => void;
   currentOrderByFields: OrderByField[];
@@ -26,7 +26,7 @@ type Props = {
 export const ActionBar: React.FC<Props> = props => {
   const classes = useStyles();
   const {
-    currentFilters,
+    filters,
     filterableFields,
     setFilters,
     currentOrderByFields,
@@ -37,18 +37,16 @@ export const ActionBar: React.FC<Props> = props => {
   return (
     <div className={classes.actionBar}>
       <RequiredFilters
-        currentFilters={currentFilters}
+        filters={filters}
         filterableFields={filterableFields.filter(f => f.isRequiredFilter)}
-        setFilters={(filterFields: FilterField[]) =>
-          setFilters(filterFields, false, true)
-        }
+        setFilters={(filters: FilterField[]) => setFilters(filters, true, true)}
       />
       <div className={classes.actionButtons}>
         <OptionalFilters
-          currentFilters={currentFilters}
+          filters={filters}
           filterableFields={filterableFields.filter(f => !f.isRequiredFilter)}
-          setFilters={(filterFields: FilterField[]) =>
-            setFilters(filterFields, true)
+          setFilters={(filters: FilterField[]) =>
+            setFilters(filters, false, false)
           }
           refreshReport={refreshReport}
         />

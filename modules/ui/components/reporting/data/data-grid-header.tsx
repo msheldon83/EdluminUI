@@ -3,10 +3,10 @@ import { makeStyles, Menu, MenuItem } from "@material-ui/core";
 import { ArrowDropDown } from "@material-ui/icons";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
-import { Direction } from "../types";
+import { Direction, DataExpression } from "../types";
 
 type Props = {
-  columns: string[];
+  columns: DataExpression[];
   height: MultiGridProps["height"];
   width: MultiGridProps["width"];
   setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
@@ -67,10 +67,10 @@ export const DataGridHeader: React.FC<Props> = props => {
   };
 
   const headerCellRenderer = React.useCallback(
-    (columns: string[], { columnIndex, key, style }: GridCellProps) => {
+    (columns: DataExpression[], { columnIndex, key, style }: GridCellProps) => {
       return (
         <div key={key} style={style} className={classes.headerCell}>
-          <div>{columns[columnIndex]}</div>
+          <div>{columns[columnIndex].displayName}</div>
           {menuItems && menuItems.length > 0 && (
             <div
               onClick={e => handleMenuClick(e, columnIndex)}

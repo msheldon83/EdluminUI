@@ -1,11 +1,10 @@
 import * as React from "react";
 import {
-  ReportDefinition,
   FilterField,
   DataSourceField,
-  SelectField,
+  Report,
   Direction,
-  OrderByField,
+  ReportDefinitionData,
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
@@ -15,17 +14,15 @@ import { TextButton } from "ui/components/text-button";
 import { DataGrid } from "./data-grid";
 
 type Props = {
-  reportDefinition: ReportDefinition | undefined;
-  inputSelects: SelectField[];
+  report: Report | undefined;
+  reportData: ReportDefinitionData | undefined;
   isLoading: boolean;
-  currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (
-    filterFields: FilterField[],
-    areOptional: boolean,
+    filters: FilterField[],
+    areRequiredFilters: boolean,
     refreshReport?: boolean
   ) => void;
-  currentOrderByFields: OrderByField[];
   setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
@@ -36,20 +33,18 @@ export const ReportData: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const {
-    reportDefinition,
+    report,
+    reportData,
     isLoading,
-    currentFilters,
     filterableFields,
     setFilters,
-    currentOrderByFields,
     setOrderBy,
     refreshReport,
     exportReport,
     showGroupLabels = true,
-    inputSelects = [],
   } = props;
 
-  return !reportDefinition ? (
+  return !report ? (
     <div className={classes.gridWrapper}>
       <LoadingDataGrid />
     </div>
@@ -60,22 +55,24 @@ export const ReportData: React.FC<Props> = props => {
           filterableFields={filterableFields}
           setFilters={setFilters}
           refreshReport={refreshReport}
-          currentFilters={currentFilters}
-          currentOrderByFields={currentOrderByFields}
-          possibleOrderByFields={reportDefinition.metadata.query.selects}
+          filters={report.filters ?? []}
+          currentOrderByFields={report.orderBy ?? []}
+          possibleOrderByFields={report.selects}
         />
         {exportReport && (
           <TextButton onClick={exportReport}>{t("Export Report")}</TextButton>
         )}
       </div>
       <div className={classes.gridWrapper}>
-        <DataGrid
-          reportDefinition={reportDefinition}
-          isLoading={isLoading}
-          showGroupLabels={showGroupLabels}
-          inputSelects={inputSelects}
-          setOrderBy={setOrderBy}
-        />
+        {reportData && (
+          <DataGrid
+            report={report}
+            reportData={reportData}
+            isLoading={isLoading}
+            showGroupLabels={showGroupLabels}
+            setOrderBy={setOrderBy}
+          />
+        )}
       </div>
     </>
   );

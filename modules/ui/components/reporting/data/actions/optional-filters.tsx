@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { OptionalFilterRow } from "./optional-filter-row";
 
 type Props = {
-  currentFilters: FilterField[];
+  filters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (filterFields: FilterField[]) => void;
   refreshReport: () => Promise<void>;
@@ -25,10 +25,10 @@ type Props = {
 export const OptionalFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
+  const { filters, filterableFields, setFilters, refreshReport } = props;
   const [filtersOpen, setFiltersOpen] = React.useState(false);
   const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
-    currentFilters.filter(c =>
+    filters.filter(c =>
       filterableFields
         .map(f => f.dataSourceFieldName)
         .includes(c.field.dataSourceFieldName)
@@ -39,7 +39,7 @@ export const OptionalFilters: React.FC<Props> = props => {
             expressionFunction: ExpressionFunction.Equal,
           },
         ]
-      : currentFilters.filter(c =>
+      : filters.filter(c =>
           filterableFields
             .map(f => f.dataSourceFieldName)
             .includes(c.field.dataSourceFieldName)

@@ -3,6 +3,7 @@ import { AutoSizer, MultiGrid, GridCellProps } from "react-virtualized";
 import { makeStyles, CircularProgress } from "@material-ui/core";
 import clsx from "clsx";
 import { DataGridHeader } from "./data-grid-header";
+import { DataExpression } from "../types";
 
 type Props = {
   numberOfColumns?: number;
@@ -14,6 +15,14 @@ export const LoadingDataGrid: React.FC<Props> = props => {
   const columnWidth = 200;
   const rowCount = 100;
 
+  const columns: DataExpression[] = [];
+  Array(columnCount).forEach(x =>
+    columns.push({
+      displayName: "...",
+      expressionAsQueryLanguage: x,
+    })
+  );
+
   return (
     <>
       <div className={classes.overlay}>
@@ -24,7 +33,7 @@ export const LoadingDataGrid: React.FC<Props> = props => {
           <div>
             <div>
               <DataGridHeader
-                columns={[...Array(columnCount).map(x => "...")]}
+                columns={columns}
                 height={50}
                 width={width}
                 columnWidth={columnWidth}

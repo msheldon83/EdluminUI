@@ -1,47 +1,66 @@
 // Structured view of the Report that is converted into RDL
-export type ReportDefinitionInput = {
+export type Report = {
   from: string;
-  select: SelectField[];
-  orderBy?: {
-    expression: string;
-    direction: Direction;
-    isRequired?: boolean;
-  }[];
-  filter?: {
-    fieldName: string;
-    expressionFunction: ExpressionFunction;
-    value?: any;
-    isRequired?: boolean;
-  }[];
-  subtotalBy?: {
-    expression: string;
-    showExpression?: string;
-  }[];
+  selects: DataExpression[];
+  filters?: FilterField[];
+  orderBy?: OrderByField[];
+  subtotalBy?: SubtotalField[];
   chart?: {
     graphs: {
       type: GraphType;
-      series: string[];
+      series: DataExpression[];
       byExpression?: string;
     }[];
     againstExpression: string;
   };
+  numberOfLockedColumns?: number;
 };
 
-export type SelectField = {
-  expression: string;
-  alias?: string;
-  hiddenFromReport?: boolean;
-  component?: (row: any[]) => JSX.Element;
-  width?: number;
+export type FilterField = {
+  field: DataSourceField;
+  expressionFunction: ExpressionFunction;
+  value?: any;
+  isRequired?: boolean;
 };
 
 // Response from the server which represents the Report
+export type DataExpression = {
+  displayName: string;
+  expressionAsQueryLanguage: string;
+  dataSourceField?: DataSourceField;
+  expressionFunction?: ExpressionFunction;
+  args?: DataExpression[];
+  alias?: string;
+  columnWidthPx?: number;
+  color?: string;
+};
+
+export type DataSourceField = {
+  friendlyName: string;
+  dataSourceFieldName: string;
+  dataType: DataType;
+  defaultColumnWidthInPixels?: number;
+  isRequiredFilter: boolean;
+  defaultExpressionFunction: ExpressionFunction;
+  displayValueMap?: {
+    value: string;
+    display: string;
+  }[];
+  filterType?: FilterType;
+  filterTypeDefinition?: {
+    key: string;
+    filterDataSourceFieldName: string;
+    friendlyName: string;
+    supportedExpressions: ExpressionFunction[];
+  };
+};
+
 export type ReportDefinition = {
-  data: ReportData;
+  data: ReportDefinitionData;
   metadata: ReportMetadata;
 };
 
-export type ReportData = {
+export type ReportDefinitionData = {
   rawData: any[][];
   dataColumnIndexMap: Record<string, DataExpression>;
 };
@@ -80,22 +99,6 @@ export type Query = {
   };
 };
 
-export type Chart = {
-  graphs: {
-    series: DataExpression[];
-    type: GraphType;
-    by: DataExpression | undefined;
-  }[];
-  against: DataExpression;
-};
-
-export enum GraphType {
-  Bar = 0,
-  StackedBar = 1,
-  Line = 2,
-  Pie = 3,
-}
-
 export type LogicalTerm = {
   operator: LogicalOperator;
   conditions: (LogicalTerm | Formula)[];
@@ -103,27 +106,26 @@ export type LogicalTerm = {
 
 export type Formula = {
   expressionFunction: ExpressionFunction;
-  args: DataExpression[];
+  args: (DataExpression & { value: any })[];
 };
 
-export type DataSourceField = {
-  friendlyName: string;
-  dataSourceFieldName: string;
-  dataType: DataType;
-  defaultColumnWidthInPixels?: number;
-  isRequiredFilter: boolean;
-  defaultExpressionFunction: ExpressionFunction;
-  displayValueMap?: {
-    value: string;
-    display: string;
+export type OrderByField = {
+  expression: DataExpression;
+  direction: Direction;
+};
+
+export type SubtotalField = {
+  expression: DataExpression;
+  showExpression?: DataExpression;
+};
+
+export type Chart = {
+  graphs: {
+    series: DataExpression[];
+    type: GraphType;
+    by: DataExpression | undefined;
   }[];
-  filterType?: FilterType;
-  filterTypeDefinition?: {
-    key: string;
-    filterDataSourceFieldName: string;
-    friendlyName: string;
-    supportedExpressions: ExpressionFunction[];
-  };
+  against: DataExpression;
 };
 
 export enum DataType {
@@ -188,32 +190,17 @@ export enum ExpressionFunction {
   Format = 28,
 }
 
-export type DataExpression = {
-  displayName: string;
-  dataSourceField?: DataSourceField;
-  expressionAsQueryLanguage: string;
-};
-
-export type OrderByField = {
-  expression: DataExpression;
-  direction: Direction;
-};
-
 export enum Direction {
   Asc = 0,
   Desc = 1,
 }
 
-export type SubtotalField = {
-  expression: DataExpression;
-  showExpression?: DataExpression;
-};
-
-export type FilterField = {
-  field: DataSourceField;
-  expressionFunction: ExpressionFunction;
-  value?: any;
-};
+export enum GraphType {
+  Bar = 0,
+  StackedBar = 1,
+  Line = 2,
+  Pie = 3,
+}
 
 // Structure used by the Data Grid to determine how and if
 // groups of data are defined

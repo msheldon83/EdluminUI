@@ -1,6 +1,5 @@
 import { Index } from "react-virtualized";
-import { Row, DataExpression, GraphType, SelectField } from "./types";
-import { compact } from "lodash-es";
+import { Row, DataExpression, GraphType } from "./types";
 
 export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
   const row = rows[index];
@@ -13,55 +12,30 @@ export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
 export const calculateColumnWidth = (
   { index }: Index,
   isGrouped: boolean,
-  dataColumnIndexMap: Record<string, DataExpression>,
-  inputSelects: SelectField[]
+  dataColumnIndexMap: Record<string, DataExpression>
 ) => {
-  if (isGrouped && index === 0) {
+  if (isGrouped && index === 0 && !dataColumnIndexMap[index]?.columnWidthPx) {
     return 300;
   }
 
-  const visibleMap = getVisibleDataColumnIndexMap(
-    dataColumnIndexMap,
-    inputSelects
-  );
-
   return (
-    inputSelects.filter(s => !s.hiddenFromReport)[index]?.width ??
-    visibleMap[index]?.dataSourceField?.defaultColumnWidthInPixels ??
+    dataColumnIndexMap[index]?.columnWidthPx ??
+    dataColumnIndexMap[index]?.dataSourceField?.defaultColumnWidthInPixels ??
     200
   );
 };
 
-export const getVisibleData = (
-  data: any[],
-  inputSelects: SelectField[]
-): any[] => {
-  const visibleData: any[] = [];
-  data.forEach((d, i) => {
-    if (!inputSelects[i]?.hiddenFromReport) {
-      visibleData.push(d);
-    }
-  });
-  return visibleData;
-};
-
-export const getVisibleDataColumnIndexMap = (
+export const findColumnIndex = (
   dataColumnIndexMap: Record<string, DataExpression>,
-  inputSelects: SelectField[]
-): Record<string, DataExpression> => {
-  let object: Record<string, DataExpression> = {};
-  let key = 0;
-  Object.entries(dataColumnIndexMap).forEach((d, i) => {
-    if (!inputSelects[i]?.hiddenFromReport) {
-      const value = d[1];
-      object = {
-        ...object,
-        [key.toString()]: value,
-      };
-      key = key + 1;
+  dataExpression: DataExpression
+): number => {
+  let index = 0;
+  Object.keys(dataColumnIndexMap).forEach(k => {
+    if (dataColumnIndexMap[k].displayName === dataExpression.displayName) {
+      index = Number(k);
     }
   });
-  return object;
+  return index;
 };
 
 export const getGraphTypeString = (graphType: GraphType): string | null => {

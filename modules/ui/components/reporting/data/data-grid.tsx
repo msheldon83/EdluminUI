@@ -1,14 +1,13 @@
 import * as React from "react";
 import {
-  ReportDefinition,
   GroupedData,
   DataExpression,
-  OrderByField,
   SubtotalField,
   Direction,
   Row,
   DataType,
-  SelectField,
+  Report,
+  ReportDefinitionData,
 } from "../types";
 import {
   GridCellProps,
@@ -24,20 +23,19 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import clsx from "clsx";
-import { isNumber, round, compact } from "lodash-es";
+import { isNumber, round } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
 import {
   calculateColumnWidth,
   calculateRowHeight,
-  getVisibleData,
-  getVisibleDataColumnIndexMap,
+  findColumnIndex,
 } from "../helpers";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 
 type Props = {
-  reportDefinition: ReportDefinition;
-  inputSelects?: SelectField[];
+  report: Report;
+  reportData: ReportDefinitionData;
   isLoading: boolean;
   setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
   showGroupLabels?: boolean;
@@ -50,9 +48,9 @@ export const DataGrid: React.FC<Props> = props => {
   const {
     isLoading,
     setOrderBy,
-    reportDefinition: { data: reportData, metadata },
+    report,
+    reportData,
     showGroupLabels = true,
-    inputSelects = [],
   } = props;
 
   // Convert report data into a grouped structure.
@@ -65,10 +63,10 @@ export const DataGrid: React.FC<Props> = props => {
     const groupedDataResult = groupData(
       reportData.rawData,
       reportData.dataColumnIndexMap,
-      metadata.query.subtotalBy ?? []
+      report.subtotalBy ?? []
     );
     setGroupedData(groupedDataResult);
-  }, [reportData, metadata.query.subtotalBy]);
+  }, [report, reportData]);
 
   // We're maintaining a data structure around groups, but in order
   // to benefit from the windowing React Virtualized gives us, we
@@ -80,23 +78,12 @@ export const DataGrid: React.FC<Props> = props => {
   }, [groupedData]);
 
   const numberOfLockedColumns = React.useMemo(() => {
-    return rows.length > 0 ? metadata.numberOfLockedColumns : 0;
-  }, [metadata, rows.length]);
+    return rows.length > 0 ? report.numberOfLockedColumns : 0;
+  }, [report, rows.length]);
 
   const isGrouped = React.useMemo(() => {
-    return (metadata.query.subtotalBy ?? []).length > 0;
-  }, [metadata]);
-
-  const columnHeaders = React.useMemo(() => {
-    return compact(
-      metadata.query.selects.map((s, i) => {
-        if (inputSelects[i]?.hiddenFromReport) {
-          return null;
-        }
-        return s.displayName;
-      })
-    );
-  }, [inputSelects, metadata.query.selects]);
+    return (report.subtotalBy ?? []).length > 0;
+  }, [report]);
 
   const dataGridHeight = 75;
   const summaryGridHeight = 40;
@@ -114,7 +101,7 @@ export const DataGrid: React.FC<Props> = props => {
             {({ onScroll, scrollLeft }) => (
               <div>
                 <DataGridHeader
-                  columns={columnHeaders}
+                  columns={report.selects}
                   numberOfLockedColumns={numberOfLockedColumns}
                   onScroll={onScroll}
                   scrollLeft={scrollLeft}
@@ -124,8 +111,7 @@ export const DataGrid: React.FC<Props> = props => {
                     calculateColumnWidth(
                       params,
                       isGrouped,
-                      reportData.dataColumnIndexMap,
-                      inputSelects
+                      reportData.dataColumnIndexMap
                     )
                   }
                   setOrderBy={setOrderBy}
@@ -149,12 +135,11 @@ export const DataGrid: React.FC<Props> = props => {
                       calculateColumnWidth(
                         params,
                         isGrouped,
-                        reportData.dataColumnIndexMap,
-                        inputSelects
+                        reportData.dataColumnIndexMap
                       )
                     }
                     estimatedColumnSize={120}
-                    columnCount={columnHeaders.length}
+                    columnCount={report.selects.length}
                     height={summaryGridHeight}
                     rowHeight={summaryGridHeight}
                     rowCount={1}
@@ -171,27 +156,22 @@ export const DataGrid: React.FC<Props> = props => {
                   cellRenderer={props =>
                     cellRenderer(
                       rows,
-                      getVisibleDataColumnIndexMap(
-                        reportData.dataColumnIndexMap,
-                        inputSelects
-                      ),
+                      reportData.dataColumnIndexMap,
                       props,
                       classes,
                       t,
-                      showGroupLabels,
-                      inputSelects
+                      showGroupLabels
                     )
                   }
                   columnWidth={(params: Index) =>
                     calculateColumnWidth(
                       params,
                       isGrouped,
-                      reportData.dataColumnIndexMap,
-                      inputSelects
+                      reportData.dataColumnIndexMap
                     )
                   }
                   estimatedColumnSize={120}
-                  columnCount={columnHeaders.length}
+                  columnCount={report.selects.length}
                   height={
                     height -
                     (isGrouped
@@ -240,9 +220,6 @@ const useStyles = makeStyles(theme => ({
     borderTop: "1px solid #E5E5E5",
     marginTop: theme.typography.pxToRem(20),
     height: "100%",
-  },
-  mainGroupHeaderFirstCell: {
-    //borderTopLeftRadius: 10,
   },
   groupHeaderRow: {
     backgroundColor: "#F8F8F8",
@@ -356,19 +333,15 @@ const dataCellRenderer = (
   level: number,
   dataRowIndex: number,
   { columnIndex, key, style }: GridCellProps,
-  classes: any,
-  inputSelects: SelectField[]
+  classes: any
 ) => {
-  // Account for any hidden columns
-  const visibleData = getVisibleData(data, inputSelects);
-
-  const originalValue = visibleData[columnIndex];
+  const originalValue = data[columnIndex];
   const displayValue =
-    typeof visibleData[columnIndex] === "boolean"
-      ? visibleData[columnIndex]
+    typeof data[columnIndex] === "boolean"
+      ? data[columnIndex]
         ? "Y"
         : "N"
-      : visibleData[columnIndex] ?? "--";
+      : data[columnIndex] ?? "--";
   const isAlternatingRow = dataRowIndex % 2 !== 0;
   const isNormalRow = !isAlternatingRow;
   const isLongText =
@@ -388,18 +361,10 @@ const dataCellRenderer = (
 
   const cellDisplay = isLongText ? (
     <Tooltip title={displayValue} placement="top-start">
-      <div className={dataClasses}>
-        {(inputSelects[columnIndex]?.component &&
-          inputSelects[columnIndex]?.component(data)) ??
-          displayValue}
-      </div>
+      <div className={dataClasses}>{displayValue}</div>
     </Tooltip>
   ) : (
-    <div className={dataClasses}>
-      {(inputSelects[columnIndex]?.component &&
-        inputSelects[columnIndex]?.component(data)) ??
-        displayValue}
-    </div>
+    <div className={dataClasses}>{displayValue}</div>
   );
 
   if (columnIndex === 0) {
@@ -473,8 +438,7 @@ const cellRenderer = (
   gridProps: GridCellProps,
   classes: any,
   t: TFunction,
-  showGroupLabels: boolean,
-  inputSelects: SelectField[]
+  showGroupLabels: boolean
 ) => {
   const row = rows[gridProps.rowIndex];
   if (Array.isArray(row.item)) {
@@ -484,8 +448,7 @@ const cellRenderer = (
       row.level,
       row.dataRowIndex ?? 0,
       gridProps,
-      classes,
-      inputSelects
+      classes
     );
   } else {
     return groupHeaderCellRenderer(
@@ -607,19 +570,6 @@ const sumRows = (row1: any[], row2: any[]) => {
     }
   }
   return row;
-};
-
-const findColumnIndex = (
-  dataColumnIndexMap: Record<string, DataExpression>,
-  dataExpression: DataExpression
-): number => {
-  let index = 0;
-  Object.keys(dataColumnIndexMap).forEach(k => {
-    if (dataColumnIndexMap[k].displayName === dataExpression.displayName) {
-      index = Number(k);
-    }
-  });
-  return index;
 };
 
 const buildRows = (data: GroupedData[], level = 0): Row[] => {

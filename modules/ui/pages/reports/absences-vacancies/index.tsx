@@ -1,86 +1,22 @@
 import * as React from "react";
 import { Report } from "ui/components/reporting";
 import { useTranslation } from "react-i18next";
-import {
-  ReportDefinitionInput,
-  Direction,
-  ExpressionFunction,
-  GraphType,
-} from "ui/components/reporting/types";
-import { addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 
 export const AbsencesVacanciesReport: React.FC<{}> = () => {
   const { t } = useTranslation();
-
-  const reportInput: ReportDefinitionInput = React.useMemo(() => {
-    return {
-      from: "AbsenceAndVacancy",
-      select: [
-        { expression: "ConfirmationNumber" },
-        { expression: "Date" },
-        { expression: "LocationName" },
-        {
-          expression:
-            "If(IsVacancy=1, AbsentEmployeeLastName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName))",
-          alias: "Employee",
-        },
-        { expression: "AbsentEmployeeExternalId" },
-        { expression: "AbsStartTime" },
-        { expression: "AbsEndTime" },
-        { expression: "ReasonName" },
-        {
-          expression: "Concat(SubFirstName,' ',SubLastName)",
-          alias: "Substitute",
-        },
-        { expression: "SubExternalId" },
-        { expression: "SubStartTime" },
-        { expression: "SubEndTime" },
-        { expression: "PayDays" },
-        { expression: "PayHours" },
-        { expression: "Title" },
-        { expression: "PositionTypeName" },
-        { expression: "RequiresSub" },
-        { expression: "IsFilled" },
-        { expression: "NotesToAdmin" },
-        { expression: "AdminOnlyNotes" },
-        { expression: "NotesToReplacement" },
-      ],
-      filter: [
-        {
-          fieldName: "Date",
-          expressionFunction: ExpressionFunction.Between,
-          value: [addDays(new Date(), -6), new Date()],
-          isRequired: true,
-        },
-      ],
-      orderBy: [
-        {
-          expression: "Date",
-          direction: Direction.Desc,
-        },
-      ],
-      chart: {
-        graphs: [
-          {
-            type: GraphType.StackedBar,
-            series: [
-              'CountIf(FillStatus = "Filled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Filled',
-              'CountIf(FillStatus = "Unfilled", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS Unfilled',
-              'CountIf(FillStatus = "NoSubRequired", If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS "No Sub Required"',
-            ],
-          },
-        ],
-        againstExpression: "Date",
-      },
-    };
-  }, []);
+  const startDate = React.useMemo(
+    () => format(addDays(new Date(), -6), "MM/dd/yyyy"),
+    []
+  );
+  const endDate = React.useMemo(() => format(new Date(), "MM/dd/yyyy"), []);
 
   return (
     <Report
       title={t("Absences & Vacancies")}
-      input={reportInput}
+      rdl={`QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN '${startDate}' AND '${endDate}') SELECT ConfirmationNumber, Date, LocationName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee, AbsentEmployeeExternalId, AbsStartTime, AbsEndTime, ReasonName, Concat(SubFirstName,' ',SubLastName) AS Substitute, SubExternalId, SubStartTime, SubEndTime, PayDays, PayHours, Title, PositionTypeName, RequiresSub, IsFilled, NotesToAdmin, AdminOnlyNotes, NotesToReplacement ORDER BY Date DESC CHART STACKEDBAR [CountIf(FillStatus = 'Filled', If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS 'Filled', CountIf(FillStatus = 'Unfilled', AbsenceDetailId) AS 'Unfilled', CountIf(FillStatus = 'NoSubNeeded', AbsenceDetailId) AS 'No Sub Required'] AGAINST Date`}
       exportFilename={t("AbsencesVacanciesReport")}
-      filterFieldsOverride={[
+      allowedFilterFieldsOverride={[
         "Date",
         "LocationId",
         "PositionTypeId",

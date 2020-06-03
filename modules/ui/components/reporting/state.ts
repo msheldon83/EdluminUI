@@ -3,53 +3,50 @@ import {
   ReportDefinition,
   ReportChartDefinition,
   DataSourceField,
-  ReportDefinitionInput,
   FilterField,
   ExpressionFunction,
   Direction,
+  Report,
+  LogicalTerm,
+  Formula,
+  DataExpression,
+  FilterType,
 } from "./types";
-import { compact } from "lodash-es";
-import { format, startOfDay, endOfDay } from "date-fns";
+import { compact, flatMap } from "lodash-es";
+import { format, parseISO } from "date-fns";
 import { getGraphTypeString } from "./helpers";
 
 export type ReportState = {
-  reportDefinitionInput: ReportDefinitionInput;
+  rdlString: string;
+  rdlChartString?: string | null | undefined;
+  report?: Report;
   reportDefinition?: ReportDefinition;
   reportChartDefinition?: ReportChartDefinition;
-  filters: {
-    optional: FilterField[];
-    required: FilterField[];
-  };
   filterableFields: DataSourceField[];
-  rdlString: string;
-  rdlChartString: string | null;
+  baseFilterFieldNames?: string[];
 };
 
 export type ReportActions =
   | {
-      action: "setReportDefinition";
+      action: "processReportDefinition";
       reportDefinition: ReportDefinition;
-      filterFieldsOverride?: string[];
+      allowedFilterFieldsOverride?: string[];
     }
   | {
       action: "setReportChartDefinition";
       reportChartDefinition: ReportChartDefinition;
     }
   | {
-      action: "setOptionalFilters";
+      action: "setFilters";
       filters: FilterField[];
+      areRequiredFilters: boolean;
       refreshReport?: boolean;
     }
-  | {
-      action: "setRequiredFilters";
-      filters: FilterField[];
-      refreshReport?: boolean;
-    }
-  | {
-      action: "setOrderBy";
-      columnIndex: number;
-      direction: Direction;
-    }
+  // | {
+  //     action: "setOrderBy";
+  //     columnIndex: number;
+  //     direction: Direction;
+  //   }
   | {
       action: "refreshReport";
     };
@@ -59,73 +56,77 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
   action
 ) => {
   switch (action.action) {
-    case "setReportDefinition": {
+    case "processReportDefinition": {
       const allFields = action.reportDefinition.metadata.query.schema.allFields;
-      let filterableFields = allFields.filter(f => !!f.filterType);
-      // If we have filterFieldsOverride, then filter the list down to the matching ones
-      if (
-        !!action.filterFieldsOverride &&
-        action.filterFieldsOverride.length > 0
-      ) {
-        filterableFields = [];
-        // Maintain the ordering of the filterFieldsOverride list
-        action.filterFieldsOverride.forEach(ff => {
-          const matchingField = allFields.find(
-            m => m.dataSourceFieldName === ff
-          );
-          if (matchingField) {
-            filterableFields.push(matchingField);
-          }
-        });
-      }
+      const queryMetadata = action.reportDefinition.metadata.query;
+      const chartMetadata = action.reportDefinition.metadata.chart;
 
-      //TODO: Process the current filters from the Report Definition and put them
-      // into the currentFilters array
-
-      // If setting the report definition for the first time, carry any defined
-      // filters from the ReportDefinitionInput into the matching filters list
-      if (!prev.reportDefinition && prev.reportDefinitionInput.filter) {
-        const updatedFilters: {
-          optional: FilterField[];
-          required: FilterField[];
-        } = {
-          optional: [],
-          required: [],
+      if (!prev.report) {
+        // Build out the Report based on the report definition
+        const report: Report = {
+          from: queryMetadata.schema.name,
+          selects: queryMetadata.selects,
+          filters: queryMetadata.filters
+            ? buildFilters(queryMetadata.filters)
+            : [],
+          orderBy: queryMetadata.orderBy,
+          subtotalBy: queryMetadata.subtotalBy,
+          numberOfLockedColumns:
+            action.reportDefinition.metadata.numberOfLockedColumns ?? 0,
+          chart: chartMetadata
+            ? {
+                againstExpression:
+                  chartMetadata.against.expressionAsQueryLanguage,
+                graphs: chartMetadata.graphs.map(g => {
+                  return {
+                    type: g.type,
+                    series: g.series,
+                    byExpression: g.by?.expressionAsQueryLanguage,
+                  };
+                }),
+              }
+            : undefined,
         };
-        const fields = action.reportDefinition.metadata.query.schema.allFields;
-        prev.reportDefinitionInput.filter.forEach(filter => {
-          const matchingField = fields.find(
-            field => field.dataSourceFieldName === filter.fieldName
-          );
-          if (matchingField) {
-            if (matchingField.isRequiredFilter || filter.isRequired) {
-              updatedFilters.required.push({
-                field: matchingField,
-                expressionFunction: filter.expressionFunction,
-                value: filter.value,
-              });
-            } else {
-              updatedFilters.optional.push({
-                field: matchingField,
-                expressionFunction: filter.expressionFunction,
-                value: filter.value,
-              });
+
+        // Figure out which fields are filterable
+        let filterableFields = allFields.filter(f => !!f.filterType);
+        // If we have filterFieldsOverride, then filter the list down to the matching ones
+        if (
+          !!action.allowedFilterFieldsOverride &&
+          action.allowedFilterFieldsOverride.length > 0
+        ) {
+          filterableFields = [];
+          // Maintain the ordering of the filterFieldsOverride list
+          action.allowedFilterFieldsOverride.forEach(ff => {
+            const matchingField = allFields.find(
+              m => m.dataSourceFieldName === ff
+            );
+            if (matchingField) {
+              filterableFields.push(matchingField);
             }
-          }
-        });
+          });
+        }
+
+        // If we have any base filters defined, remove them from the list of filterableFields
+        // since they are defined when we need to form a specific foundation for a Report
+        filterableFields = filterableFields.filter(
+          f => !prev.baseFilterFieldNames?.includes(f.dataSourceFieldName)
+        );
 
         return {
           ...prev,
+          report: report,
           reportDefinition: action.reportDefinition,
           filterableFields: filterableFields,
-          filters: updatedFilters,
+          rdlChartString: report.chart
+            ? convertReportDefinitionInputToRdlForChart(report)
+            : undefined,
         };
       }
 
       return {
         ...prev,
         reportDefinition: action.reportDefinition,
-        filterableFields: filterableFields,
       };
     }
     case "setReportChartDefinition": {
@@ -134,125 +135,112 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         reportChartDefinition: action.reportChartDefinition,
       };
     }
-    case "setOptionalFilters": {
-      const updatedFilters = {
-        ...prev.filters,
-        optional: [...action.filters],
-      };
-      const updatedState = {
-        ...prev,
-        filters: updatedFilters,
-        reportDefinitionInput: {
-          ...prev.reportDefinitionInput,
-          filter: getFiltersForReportDefinitionInput(
-            updatedFilters.required,
-            updatedFilters.optional
-          ),
-        },
-      };
-      if (action.refreshReport) {
-        updatedState.rdlString = convertReportDefinitionInputToRdl(
-          updatedState.reportDefinitionInput
-        );
-        updatedState.rdlChartString = convertReportDefinitionInputToRdlForChart(
-          updatedState.reportDefinitionInput
-        );
+    case "setFilters": {
+      const resolvedBaseFilters =
+        prev.report?.filters?.filter(f =>
+          prev.baseFilterFieldNames?.includes(f.field.dataSourceFieldName)
+        ) ?? [];
+      let requiredFilters =
+        prev.report?.filters?.filter(f => f.field.isRequiredFilter) ?? [];
+      let optionalFilters =
+        prev.report?.filters?.filter(f => !f.field.isRequiredFilter) ?? [];
+
+      if (action.areRequiredFilters) {
+        requiredFilters = action.filters;
+      } else {
+        optionalFilters = action.filters;
       }
-      return updatedState;
-    }
-    case "setRequiredFilters": {
-      const filtersNotIncludedInTheIncomingList = prev.filters.required.filter(
-        f =>
-          !action.filters.find(
-            a => f.field.dataSourceFieldName === a.field.dataSourceFieldName
-          )
-      );
-
-      const updatedFilters = {
-        ...prev.filters,
-        required: [...action.filters, ...filtersNotIncludedInTheIncomingList],
-      };
 
       const updatedState = {
         ...prev,
-        filters: updatedFilters,
-        reportDefinitionInput: {
-          ...prev.reportDefinitionInput,
-          filter: getFiltersForReportDefinitionInput(
-            updatedFilters.required,
-            updatedFilters.optional
-          ),
-        },
-      };
-      if (action.refreshReport) {
-        updatedState.rdlString = convertReportDefinitionInputToRdl(
-          updatedState.reportDefinitionInput
-        );
-        updatedState.rdlChartString = convertReportDefinitionInputToRdlForChart(
-          updatedState.reportDefinitionInput
-        );
-      }
-      return updatedState;
-    }
-    case "setOrderBy": {
-      const selectField = prev.reportDefinitionInput.select.filter(
-        s => !s.hiddenFromReport
-      )[action.columnIndex];
-
-      const updatedState = {
-        ...prev,
-        reportDefinitionInput: {
-          ...prev.reportDefinitionInput,
-          orderBy: [
-            ...(prev.reportDefinitionInput.orderBy?.filter(o => o.isRequired) ??
-              []),
-            {
-              expression: selectField.expression,
-              direction: action.direction,
-            },
+        report: {
+          ...prev.report!,
+          filters: [
+            ...resolvedBaseFilters,
+            ...requiredFilters,
+            ...optionalFilters,
           ],
         },
       };
-      updatedState.rdlString = convertReportDefinitionInputToRdl(
-        updatedState.reportDefinitionInput
-      );
+
+      if (action.refreshReport) {
+        updatedState.rdlString = convertReportDefinitionInputToRdl(
+          updatedState.report
+        );
+        if (prev.rdlChartString) {
+          updatedState.rdlChartString = convertReportDefinitionInputToRdlForChart(
+            updatedState.report
+          );
+        }
+      }
       return updatedState;
     }
+    // case "setOrderBy": {
+    //   const selectField = prev.reportDefinitionInput.select.filter(
+    //     s => !s.hiddenFromReport
+    //   )[action.columnIndex];
+
+    //   const updatedState = {
+    //     ...prev,
+    //     reportDefinitionInput: {
+    //       ...prev.reportDefinitionInput,
+    //       orderBy: [
+    //         ...(prev.reportDefinitionInput.orderBy?.filter(o => o.isRequired) ??
+    //           []),
+    //         {
+    //           expression: selectField.expression,
+    //           direction: action.direction,
+    //         },
+    //       ],
+    //     },
+    //   };
+    //   updatedState.rdlString = convertReportDefinitionInputToRdl(
+    //     updatedState.reportDefinitionInput
+    //   );
+    //   return updatedState;
+    // }
     case "refreshReport": {
       return {
         ...prev,
-        rdlString: convertReportDefinitionInputToRdl(
-          prev.reportDefinitionInput
-        ),
-        rdlChartString: convertReportDefinitionInputToRdlForChart(
-          prev.reportDefinitionInput
-        ),
+        rdlString: convertReportDefinitionInputToRdl(prev.report!),
+        rdlChartString: convertReportDefinitionInputToRdlForChart(prev.report!),
       };
     }
   }
 };
 
-const getFiltersForReportDefinitionInput = (
-  requiredFilters: FilterField[],
-  optionalFilters: FilterField[]
-): ReportDefinitionInput["filter"] => {
-  return [
-    ...requiredFilters.map(f => {
-      return {
-        fieldName: getFilterFieldName(f),
-        expressionFunction: f.expressionFunction,
-        value: f.value,
-        isRequired: true,
-      };
-    }),
-    ...optionalFilters.map(f => {
-      return {
-        fieldName: getFilterFieldName(f),
-        expressionFunction: f.expressionFunction,
-        value: f.value,
-      };
-    }),
-  ];
+const buildFilters = (condition: LogicalTerm | Formula): FilterField[] => {
+  const filters: FilterField[] = [];
+
+  if ((condition as LogicalTerm).conditions !== undefined) {
+    filters.push(
+      ...flatMap(
+        (condition as LogicalTerm).conditions.map(c => buildFilters(c))
+      )
+    );
+    return filters;
+  }
+
+  // This is a Formula so pull apart the expression function,
+  // field and value(s) and build our Report filter info from that
+  const formula = condition as Formula;
+  const args = [...formula.args];
+  const field = args.shift() as DataExpression;
+  const isDateFilter =
+    field.dataSourceField?.filterType === FilterType.Date ||
+    field.dataSourceField?.filterType === FilterType.DateTime;
+  filters.push({
+    field: field.dataSourceField!,
+    expressionFunction: formula.expressionFunction,
+    value:
+      args.length === 1
+        ? isDateFilter
+          ? parseISO(args[0].value)
+          : args[0].value
+        : args.map(a => (isDateFilter ? parseISO(a.value) : a.value)),
+    isRequired: field.dataSourceField?.isRequiredFilter ?? false,
+  });
+  return filters;
 };
 
 const getFilterFieldName = (filterField: FilterField): string => {
@@ -297,8 +285,8 @@ const buildFormula = (
       ) {
         // Handle date range between
         betweenValues = [
-          `'${format(startOfDay(value[0]), "MM/dd/yyyy H:mm:ss")}'`,
-          `'${format(endOfDay(value[1]), "MM/dd/yyyy H:mm:ss")}'`,
+          `'${format(value[0], "MM/dd/yyyy")}'`,
+          `'${format(value[1], "MM/dd/yyyy")}'`,
         ];
       } else {
         betweenValues = processFilterValue(value);
@@ -323,30 +311,30 @@ const processFilterValue = (value: any): any => {
 };
 
 export const convertReportDefinitionInputToRdl = (
-  input: ReportDefinitionInput,
+  report: Report,
   forExport?: boolean
 ): string => {
   const rdlPieces: string[] = [];
-  rdlPieces.push(...getRdlFromAndWhere(input));
+  rdlPieces.push(...getRdlFromAndWhere(report));
 
-  const selects = [...input.select];
-  if (forExport && input.subtotalBy && input.subtotalBy.length > 0) {
+  const selects = [...report.selects];
+  if (forExport && report.subtotalBy && report.subtotalBy.length > 0) {
     // When exporting a grouped report, we need to make sure
     // the things we are gouping by are represented in the data
     // that is going to be put into the file
-    for (let i = input.subtotalBy.length - 1; i >= 0; i--) {
-      const subtotalBy = input.subtotalBy[i];
+    for (let i = report.subtotalBy.length - 1; i >= 0; i--) {
+      const subtotalBy = report.subtotalBy[i];
       if (
         subtotalBy.showExpression &&
-        !selects.map(s => s.expression).includes(subtotalBy.showExpression)
+        !selects.includes(subtotalBy.showExpression)
       ) {
-        selects.unshift({ expression: subtotalBy.showExpression });
+        selects.unshift(subtotalBy.showExpression);
       }
       if (
         !subtotalBy.showExpression &&
-        !selects.map(s => s.expression).includes(subtotalBy.expression)
+        !selects.includes(subtotalBy.expression)
       ) {
-        selects.unshift({ expression: subtotalBy.expression });
+        selects.unshift(subtotalBy.expression);
       }
     }
   }
@@ -354,33 +342,33 @@ export const convertReportDefinitionInputToRdl = (
   rdlPieces.push(
     `SELECT ${selects
       .map(s => {
-        if (!s.alias) {
-          return s.expression;
-        }
-
-        return `${s.expression} AS ${s.alias}`;
+        return s.expressionAsQueryLanguage;
       })
       .join(", ")}`
   );
 
-  if (input.orderBy && input.orderBy.length > 0) {
+  if (report.orderBy && report.orderBy.length > 0) {
     rdlPieces.push(
-      `ORDER BY ${input.orderBy
+      `ORDER BY ${report.orderBy
         .map(
           o =>
-            `${o.expression} ${o.direction === Direction.Asc ? "ASC" : "DESC"}`
+            `${o.expression.expressionAsQueryLanguage} ${
+              o.direction === Direction.Asc ? "ASC" : "DESC"
+            }`
         )
         .join(", ")}`
     );
   }
 
-  if (input.subtotalBy && input.subtotalBy.length > 0) {
+  if (report.subtotalBy && report.subtotalBy.length > 0) {
     rdlPieces.push(
-      `WITH SUBTOTALS ${input.subtotalBy
+      `WITH SUBTOTALS ${report.subtotalBy
         .map(
           s =>
-            `${s.expression} ${
-              s.showExpression ? `SHOW ${s.showExpression}` : ""
+            `${s.expression.expressionAsQueryLanguage} ${
+              s.showExpression
+                ? `SHOW ${s.showExpression.expressionAsQueryLanguage}`
+                : ""
             }`
         )
         .join(", ")}`
@@ -391,14 +379,14 @@ export const convertReportDefinitionInputToRdl = (
   return rdlString;
 };
 
-const getRdlFromAndWhere = (input: ReportDefinitionInput) => {
+const getRdlFromAndWhere = (report: Report) => {
   const rdlPieces: string[] = [];
-  rdlPieces.push(`QUERY FROM ${input.from}`);
+  rdlPieces.push(`QUERY FROM ${report.from}`);
 
-  if (input.filter && input.filter.length > 0) {
+  if (report.filters && report.filters.length > 0) {
     const filterStrings = compact(
-      input.filter.map(f =>
-        buildFormula(f.fieldName, f.expressionFunction, f.value)
+      report.filters.map(f =>
+        buildFormula(getFilterFieldName(f), f.expressionFunction, f.value)
       )
     );
     rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
@@ -406,38 +394,38 @@ const getRdlFromAndWhere = (input: ReportDefinitionInput) => {
   return rdlPieces;
 };
 
-const getRdlChart = (input: ReportDefinitionInput) => {
+const getRdlChart = (report: Report) => {
   const rdlPieces: string[] = [];
-  if (!input.chart) {
+  if (!report.chart) {
     return rdlPieces;
   }
 
   rdlPieces.push("CHART");
 
   rdlPieces.push(
-    input.chart.graphs
+    report.chart.graphs
       .map(g => {
         return `${getGraphTypeString(g.type)} [${g.series
-          .map(s => s)
+          .map(s => s.expressionAsQueryLanguage)
           .join(", ")}]${g.byExpression ? ` BY ${g.byExpression}` : ""}`;
       })
       .join(", ")
   );
 
-  rdlPieces.push(`AGAINST ${input.chart.againstExpression}`);
+  rdlPieces.push(`AGAINST ${report.chart.againstExpression}`);
   return rdlPieces;
 };
 
 export const convertReportDefinitionInputToRdlForChart = (
-  input: ReportDefinitionInput
+  report: Report
 ): string | null => {
-  if (!input.chart) {
+  if (!report.chart) {
     return null;
   }
 
   const rdlPieces: string[] = [];
-  rdlPieces.push(...getRdlFromAndWhere(input));
-  rdlPieces.push(...getRdlChart(input));
+  rdlPieces.push(...getRdlFromAndWhere(report));
+  rdlPieces.push(...getRdlChart(report));
 
   const rdlString = rdlPieces.join(" ");
   return rdlString;
