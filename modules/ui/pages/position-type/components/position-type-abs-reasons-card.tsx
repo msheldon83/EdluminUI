@@ -243,6 +243,7 @@ const useStyles = makeStyles(theme => ({
     background: theme.customColors.blue,
     color: theme.customColors.white,
     marginRight: theme.spacing(1),
+    marginTop: theme.spacing(1),
   },
   allReasonsText: {
     marginTop: theme.spacing(2),
