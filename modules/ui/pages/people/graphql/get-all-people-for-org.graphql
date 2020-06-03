@@ -43,6 +43,7 @@ query GetAllPeopleForOrg(
         isEmployee
         isAdmin
         email
+        loginEmail
         phoneNumber
         inviteSent
         inviteSentAtUtc

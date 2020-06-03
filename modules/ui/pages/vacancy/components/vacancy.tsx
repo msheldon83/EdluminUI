@@ -6,9 +6,7 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { useState, useMemo, useReducer } from "react";
 import { useRouteParams } from "ui/routes/definition";
 import {
-  VacancyDetailInput,
   PermissionEnum,
-  Vacancy,
   Assignment,
   CancelVacancyAssignmentInput,
 } from "graphql/server-types.gen";
@@ -23,13 +21,11 @@ import { VacancyStepParams } from "helpers/step-params";
 import { Formik } from "formik";
 import { VacancyDetailSection } from "./vacancy-details-section";
 import { ContentFooter } from "ui/components/content-footer";
-import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { Can } from "ui/components/auth/can";
-import { canAssignSub } from "helpers/permissions";
 import { parseISO, isSameDay, format } from "date-fns";
 import { AssignSub } from "ui/components/assign-sub";
 import { VacancyConfirmation } from "./vacancy-confirmation";
-import { compact } from "lodash-es";
+import { compact, isEqual } from "lodash-es";
 import { ExecutionResult } from "graphql";
 import { Prompt, useRouteMatch } from "react-router";
 import { buildVacancyCreateInput } from "../helpers";
@@ -43,8 +39,7 @@ import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { VacancyDetailsFormData } from "../helpers/types";
-import { useVacancyReasonOptions } from "reference-data/vacancy-reasons";
+import { VacancyDetailsFormData, VacancyFormValues } from "../helpers/types";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
 
 type Props = {
@@ -243,6 +238,7 @@ export const VacancyUI: React.FC<Props> = props => {
           )
         : vacancy.details.filter(d => d.assignment);
 
+      const updatedDetails = [...vacancy.details];
       const localDetailIdsToClearAssignmentsOn: string[] = [];
       if (vacancy.id) {
         // Get all of the Assignment Ids and Row Versions to Cancel
@@ -272,8 +268,23 @@ export const VacancyUI: React.FC<Props> = props => {
               assignment: a,
             },
           });
-          if (result?.data && a.vacancyDetailIds) {
-            localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
+          if (result?.data) {
+            if (a.vacancyDetailIds) {
+              localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
+            }
+            updatedDetails
+              .filter(
+                d =>
+                  d.assignment?.id &&
+                  d.assignment?.id ===
+                    result?.data?.assignment?.cancelAssignment?.id
+              )
+              .forEach(d => {
+                if (d.assignment) {
+                  d.assignment.rowVersion =
+                    result.data?.assignment?.cancelAssignment?.rowVersion;
+                }
+              });
           }
         }
       } else {
@@ -282,19 +293,18 @@ export const VacancyUI: React.FC<Props> = props => {
         );
       }
 
-      // Clear out any Assignments on the details we store locally
-      const updatedDetails = vacancy.details.map(d => {
-        if (localDetailIdsToClearAssignmentsOn.find(i => d.id === i)) {
-          return {
-            ...d,
-            assignment: undefined,
-          };
-        }
-        return d;
-      });
       setVacancy({
         ...vacancy,
-        details: updatedDetails,
+        details: updatedDetails.map(d => {
+          if (localDetailIdsToClearAssignmentsOn.find(i => d.id === i)) {
+            // Clear out any Assignments on the details we store locally
+            return {
+              ...d,
+              assignment: undefined,
+            };
+          }
+          return d;
+        }),
       });
     },
     [vacancy, cancelAssignment]
@@ -333,6 +343,141 @@ export const VacancyUI: React.FC<Props> = props => {
       return "";
     }
   }, [vacancy.closedDetails]);
+
+  const isDirty = React.useCallback(
+    (
+      initialValues: VacancyFormValues,
+      currentValues: VacancyFormValues,
+      formikDirtyFlag: boolean
+    ) => {
+      // If this is Create or both values are equal, return what Formik thinks
+      if (!vacancy.id || isEqual(initialValues, currentValues)) {
+        return formikDirtyFlag;
+      }
+
+      // Compare the two sets of values excluding the assignment on the details
+      const initialVacancyValues: VacancyFormValues = {
+        ...initialValues,
+        details: initialValues.details.map(d => {
+          const { assignment, ...remaining } = d;
+          return remaining;
+        }),
+      };
+
+      const currentVacancyValues: VacancyFormValues = {
+        ...currentValues,
+        details: currentValues.details.map(d => {
+          const { assignment, ...remaining } = d;
+          return remaining;
+        }),
+      };
+
+      return !isEqual(initialVacancyValues, currentVacancyValues);
+    },
+    [vacancy.id]
+  );
+
+  const footer = React.useCallback(
+    (
+      initialValues: VacancyFormValues,
+      currentValues: VacancyFormValues,
+      formikDirtyFlag: boolean,
+      isSubmitting: boolean,
+      handleReset: (e: any) => void
+    ) => {
+      const formIsDirty = isDirty(
+        initialValues,
+        currentValues,
+        formikDirtyFlag
+      );
+
+      return (
+        <ContentFooter>
+          <Grid item xs={12} className={classes.contentFooter}>
+            <div className={classes.actionButtons}>
+              <div className={classes.unsavedText}>
+                {formIsDirty && !vacancy.isClosed && (
+                  <Typography>{t("This page has unsaved changes")}</Typography>
+                )}
+              </div>
+              {onDelete && vacancyExists && !formIsDirty && (
+                <Can do={[PermissionEnum.AbsVacDelete]}>
+                  <Button
+                    onClick={() => onDelete()}
+                    variant="text"
+                    className={classes.deleteButton}
+                  >
+                    {t("Delete")}
+                  </Button>
+                </Can>
+              )}
+              {vacancyExists && formIsDirty && !vacancy.isClosed && (
+                <Button
+                  onClick={handleReset}
+                  variant="outlined"
+                  className={classes.cancelButton}
+                  disabled={!formIsDirty}
+                >
+                  {t("Discard Changes")}
+                </Button>
+              )}
+              {showAssign && (
+                <FilteredAssignmentButton
+                  {...{
+                    vacancy,
+                    vacancyExists,
+                    dirty: formIsDirty,
+                    disableAssign,
+                    isSubmitting,
+                    dispatch,
+                    setStep,
+                  }}
+                />
+              )}
+
+              <Can do={[PermissionEnum.AbsVacSave]}>
+                <Button
+                  form="vacancy-form"
+                  type="submit"
+                  variant="contained"
+                  className={classes.saveButton}
+                  disabled={
+                    vacancyExists
+                      ? !formIsDirty || vacancy.isClosed
+                      : !showSubmit || isSubmitting
+                  }
+                >
+                  {vacancyExists
+                    ? t("Save")
+                    : isUnfilled
+                    ? t("Create without assigning a substitute")
+                    : t("Create")}
+                </Button>
+              </Can>
+            </div>
+          </Grid>
+        </ContentFooter>
+      );
+    },
+    [
+      classes.actionButtons,
+      classes.cancelButton,
+      classes.contentFooter,
+      classes.deleteButton,
+      classes.saveButton,
+      classes.unsavedText,
+      disableAssign,
+      isDirty,
+      isUnfilled,
+      onDelete,
+      setStep,
+      showAssign,
+      showSubmit,
+      t,
+      vacancy,
+      vacancyExists,
+    ]
+  );
 
   if (
     getPositionTypes.state === "LOADING" ||
@@ -375,6 +520,18 @@ export const VacancyUI: React.FC<Props> = props => {
     return vacancy.positionTypeId === "" ? "" : label;
   };
 
+  const initialFormValues: VacancyFormValues = {
+    positionTypeId: vacancy.positionTypeId,
+    title: vacancy.title,
+    locationId: vacancy.locationId,
+    locationName: vacancy.locationName,
+    contractId: vacancy.contractId,
+    workDayScheduleId: vacancy.workDayScheduleId,
+    details: vacancy.details,
+    notesToReplacement: vacancy.notesToReplacement,
+    adminOnlyNotes: vacancy.adminOnlyNotes,
+  };
+
   return (
     <>
       <Typography className={classes.subHeader} variant="h4">
@@ -391,17 +548,7 @@ export const VacancyUI: React.FC<Props> = props => {
         </Grid>
       )}
       <Formik
-        initialValues={{
-          positionTypeId: vacancy.positionTypeId,
-          title: vacancy.title,
-          locationId: vacancy.locationId,
-          locationName: vacancy.locationName,
-          contractId: vacancy.contractId,
-          workDayScheduleId: vacancy.workDayScheduleId,
-          details: vacancy.details,
-          notesToReplacement: vacancy.notesToReplacement,
-          adminOnlyNotes: vacancy.adminOnlyNotes,
-        }}
+        initialValues={initialFormValues}
         onReset={(values, e) => {
           setResetKey(resetKey + 1);
           setVacancy({ ...initialVacancy });
@@ -499,13 +646,15 @@ export const VacancyUI: React.FC<Props> = props => {
           isSubmitting,
           resetForm,
           touched,
+          initialValues,
         }) => (
           <form id="vacancy-form" onSubmit={handleSubmit}>
             <Prompt
               message={location => {
                 if (
                   vacancyExists
-                    ? match.url === location.pathname || !dirty
+                    ? match.url === location.pathname ||
+                      !isDirty(initialValues, values, dirty)
                     : match.url === location.pathname ||
                       (!showSubmit && !isSubmitting)
                 ) {
@@ -577,73 +726,13 @@ export const VacancyUI: React.FC<Props> = props => {
                     />
                   </Grid>
                 </Grid>
-                <ContentFooter>
-                  <Grid item xs={12} className={classes.contentFooter}>
-                    <div className={classes.actionButtons}>
-                      <div className={classes.unsavedText}>
-                        {dirty && !vacancy.isClosed && (
-                          <Typography>
-                            {t("This page has unsaved changes")}
-                          </Typography>
-                        )}
-                      </div>
-                      {onDelete && vacancyExists && !dirty && (
-                        <Can do={[PermissionEnum.AbsVacDelete]}>
-                          <Button
-                            onClick={() => onDelete()}
-                            variant="text"
-                            className={classes.deleteButton}
-                          >
-                            {t("Delete")}
-                          </Button>
-                        </Can>
-                      )}
-                      {vacancyExists && dirty && !vacancy.isClosed && (
-                        <Button
-                          onClick={handleReset}
-                          variant="outlined"
-                          className={classes.cancelButton}
-                          disabled={!dirty}
-                        >
-                          {t("Discard Changes")}
-                        </Button>
-                      )}
-                      {showAssign && (
-                        <FilteredAssignmentButton
-                          {...{
-                            vacancy,
-                            vacancyExists,
-                            dirty,
-                            disableAssign,
-                            isSubmitting,
-                            dispatch,
-                            setStep,
-                          }}
-                        />
-                      )}
-
-                      <Can do={[PermissionEnum.AbsVacSave]}>
-                        <Button
-                          form="vacancy-form"
-                          type="submit"
-                          variant="contained"
-                          className={classes.saveButton}
-                          disabled={
-                            vacancyExists
-                              ? !dirty || vacancy.isClosed
-                              : !showSubmit || isSubmitting
-                          }
-                        >
-                          {vacancyExists
-                            ? t("Save")
-                            : isUnfilled
-                            ? t("Create without assigning a substitute")
-                            : t("Create")}
-                        </Button>
-                      </Can>
-                    </div>
-                  </Grid>
-                </ContentFooter>
+                {footer(
+                  initialValues,
+                  values,
+                  dirty,
+                  isSubmitting,
+                  handleReset
+                )}
               </>
             )}
             {step === "preAssignSub" && (
