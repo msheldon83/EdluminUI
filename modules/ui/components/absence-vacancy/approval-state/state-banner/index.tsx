@@ -24,7 +24,7 @@ type Props = {
   approvalWorkflowId: string;
   currentStepId: string;
   countOfComments: number;
-  viewingAsEmployee?: boolean;
+  actingAsEmployee?: boolean;
   absenceId?: string;
   vacancyId?: string;
   isTrueVacancy: boolean;
@@ -146,7 +146,7 @@ export const ApprovalState: React.FC<Props> = props => {
             open={commentDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
-            viewingAsEmployee={props.viewingAsEmployee}
+            actingAsEmployee={props.actingAsEmployee}
           />
           <div className={[classes.container, classes.pending].join(" ")}>
             <div className={classes.buttonContainer}>
@@ -165,7 +165,7 @@ export const ApprovalState: React.FC<Props> = props => {
                 />
               </div>
               <div className={classes.button}>
-                {props.viewingAsEmployee ? (
+                {props.actingAsEmployee ? (
                   <Button variant="outlined" onClick={onOpenCommentDialog}>
                     {t("Comment")}
                   </Button>
@@ -187,7 +187,7 @@ export const ApprovalState: React.FC<Props> = props => {
                         organizationId: props.orgId,
                         vacancyId: props.vacancyId!,
                       })
-                    : props.viewingAsEmployee
+                    : props.actingAsEmployee
                     ? EmployeeAbsenceApprovalViewRoute.generate({
                         absenceId: props.absenceId!,
                       })

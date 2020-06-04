@@ -16,6 +16,7 @@ query GetVacanciesForContext(
       fromDate: $fromDate
     ) {
       id
+      absenceId
       createdLocal
       isNormalVacancy
       startDate
@@ -27,6 +28,7 @@ query GetVacanciesForContext(
           id
           name
         }
+        vacancyReasonId
         vacancyReason {
           id
           name

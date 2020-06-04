@@ -6,14 +6,8 @@ import {
   Maybe,
   AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
-import {
-  parseISO,
-  format,
-  differenceInHours,
-  isAfter,
-  isBefore,
-} from "date-fns";
-import { makeStyles, Grid, Divider } from "@material-ui/core";
+import { parseISO, differenceInHours, isAfter, isBefore } from "date-fns";
+import { makeStyles, Grid } from "@material-ui/core";
 import {
   getDateRangeDisplay,
   getDayPartCountLabels,
@@ -21,7 +15,7 @@ import {
 import { useAllSchoolYears } from "reference-data/school-years";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { compact, groupBy, flatMap } from "lodash-es";
+import { compact } from "lodash-es";
 
 type Props = {
   orgId: string;
@@ -46,6 +40,7 @@ type Props = {
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
     totalAmount: number;
   }[];
+  actingAsEmployee?: boolean;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -188,12 +183,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
           {absence.notesToApprover ? absence.notesToApprover : t("No notes")}
         </div>
       </Grid>
-      <Grid item xs={12}>
-        <div className={classes.subTitle}>{t("Administrator comments")}</div>
-        <div className={classes.text}>
-          {absence.adminOnlyNotes ? absence.adminOnlyNotes : t("No comments")}
-        </div>
-      </Grid>
+      {!props.actingAsEmployee && (
+        <Grid item xs={12}>
+          <div className={classes.subTitle}>{t("Administrator comments")}</div>
+          <div className={classes.text}>
+            {absence.adminOnlyNotes ? absence.adminOnlyNotes : t("No comments")}
+          </div>
+        </Grid>
+      )}
     </Grid>
   );
 };

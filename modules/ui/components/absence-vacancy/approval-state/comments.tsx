@@ -24,7 +24,7 @@ import { parseISO, format } from "date-fns";
 
 type Props = {
   orgId: string;
-  viewingAsEmployee?: boolean;
+  actingAsEmployee?: boolean;
   approvalStateId: string;
   comments: {
     comment?: string | null;
@@ -89,7 +89,7 @@ export const ApprovalComments: React.FC<Props> = props => {
       <Grid item xs={12}>
         <LeaveComment
           approvalStateId={props.approvalStateId}
-          viewingAsEmployee={props.viewingAsEmployee}
+          actingAsEmployee={props.actingAsEmployee}
         />
       </Grid>
     </Grid>

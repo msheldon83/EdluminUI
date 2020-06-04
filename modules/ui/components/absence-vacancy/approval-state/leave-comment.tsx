@@ -16,7 +16,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 type Props = {
   approvalStateId: string;
   onSave?: () => void;
-  viewingAsEmployee?: boolean;
+  actingAsEmployee?: boolean;
 };
 
 export const LeaveComment: React.FC<Props> = props => {
@@ -63,7 +63,7 @@ export const LeaveComment: React.FC<Props> = props => {
         }}
       />
       <div className={classes.buttonContainer}>
-        {!props.viewingAsEmployee && (
+        {!props.actingAsEmployee && (
           <FormControlLabel
             checked={commentIsPublic}
             control={

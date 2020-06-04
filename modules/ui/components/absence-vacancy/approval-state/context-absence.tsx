@@ -26,6 +26,7 @@ type Props = {
     absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
     totalAmount: number;
   }[];
+  actingAsEmployee?: boolean;
 };
 
 export const AbsenceContext: React.FC<Props> = props => {
@@ -75,6 +76,7 @@ export const AbsenceContext: React.FC<Props> = props => {
       locationIds: props.locationIds,
       absenceReasonIds: absenceReasonIds,
     },
+    skip: props.actingAsEmployee,
   });
 
   const vacancies =
@@ -83,7 +85,6 @@ export const AbsenceContext: React.FC<Props> = props => {
           getVacanciesForContext.data.vacancy?.vacanciesForApprovalContext
         )
       : [];
-  console.log(vacancies);
 
   if (!employeeAbsences || !vacancies) {
     return <></>;
@@ -94,26 +95,28 @@ export const AbsenceContext: React.FC<Props> = props => {
       <Grid item xs={12}>
         <div className={classes.title}>{t("Context")}</div>
       </Grid>
-      {props.locationIds.map((l, i) => {
-        const vacanciesForLocation = vacancies.filter(v => {
-          const vlocationIds = [...new Set(v.details.map(vd => vd.locationId))];
-          return vlocationIds.includes(l);
-        });
-        return (
-          <Grid item xs={12} container key={i}>
-            <Grid item xs={12}>
-              <div className={classes.subTitle}>{`${t("Other")} ${
-                props.absenceReasons[0].absenceReasonName
-              } ${t("requests")} "@" ${
-                locations.find(x => x.id === l)?.name
-              }`}</div>
-            </Grid>
-            <Grid item xs={12}>
-              {vacanciesForLocation.length === 0 ? (
-                <div className={classes.text}>{t("No absences")}</div>
-              ) : (
-                vacanciesForLocation.map((v, i) => {
-                  return (
+      {!props.actingAsEmployee &&
+        props.locationIds.map((l, i) => {
+          const vacanciesForLocation = vacancies.filter(v => {
+            const vlocationIds = [
+              ...new Set(v.details.map(vd => vd.locationId)),
+            ];
+            return vlocationIds.includes(l) && v.absenceId !== props.absenceId;
+          });
+          return (
+            <Grid item xs={12} container key={i}>
+              <Grid item xs={12}>
+                <div className={classes.subTitle}>{`${t("Other")} ${
+                  props.absenceReasons[0].absenceReasonName
+                } ${t("requests")} @ ${
+                  locations.find(x => x.id === l)?.name
+                }`}</div>
+              </Grid>
+              <Grid item xs={12}>
+                {vacanciesForLocation.length === 0 ? (
+                  <div className={classes.text}>{t("No absences")}</div>
+                ) : (
+                  vacanciesForLocation.map((v, i) => {
                     <Grid container key={i} spacing={0}>
                       <Grid item xs={4}>
                         {v?.isNormalVacancy
@@ -130,19 +133,18 @@ export const AbsenceContext: React.FC<Props> = props => {
                         {v?.createdLocal &&
                           format(parseISO(v?.createdLocal), "MMM d h:mm a")}
                       </Grid>
-                    </Grid>
-                  );
-                })
-              )}
+                    </Grid>;
+                  })
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-        );
-      })}
+          );
+        })}
 
       <Grid item xs={12}>
-        <div className={classes.subTitle}>{`${props.employeeName}'s ${t(
-          "absences this school year"
-        )}`}</div>
+        <div className={classes.subTitle}>{`${
+          props.actingAsEmployee ? t("Your") : `${props.employeeName}'s`
+        } ${t("absences this school year")}`}</div>
       </Grid>
       <Grid item xs={12}>
         {employeeAbsences.length === 0 ? (

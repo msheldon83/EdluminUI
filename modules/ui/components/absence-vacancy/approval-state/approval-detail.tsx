@@ -31,7 +31,7 @@ import { compact, groupBy, flatMap } from "lodash-es";
 
 type Props = {
   orgId: string;
-  viewingAsEmployee?: boolean;
+  actingAsEmployee?: boolean;
   approvalStateId: string;
   currentStepId: string;
   approvalWorkflowId: string;
@@ -87,8 +87,6 @@ export const ApprovalDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
-
-  console.log(props.absence);
 
   const [approve] = useMutationBundle(Approve, {
     onError: error => {
@@ -165,6 +163,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
                 orgId={props.orgId}
                 absence={props.absence}
                 absenceReasons={absenceReasons}
+                actingAsEmployee={props.actingAsEmployee}
               />
             </Grid>
             <Grid item xs={12}>
@@ -177,6 +176,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
                 startDate={props.absence.startDate}
                 endDate={props.absence.endDate}
                 absenceReasons={absenceReasons}
+                actingAsEmployee={props.actingAsEmployee}
               />
             </Grid>
           </Grid>
@@ -209,7 +209,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
             <ApprovalComments
               orgId={props.orgId}
               approvalStateId={props.approvalStateId}
-              viewingAsEmployee={props.viewingAsEmployee}
+              actingAsEmployee={props.actingAsEmployee}
               comments={props.comments}
             />
           </Grid>

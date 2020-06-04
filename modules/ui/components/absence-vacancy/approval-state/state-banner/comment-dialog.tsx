@@ -6,7 +6,7 @@ type Props = {
   approvalStateId: string;
   open: boolean;
   onClose: () => void;
-  viewingAsEmployee?: boolean;
+  actingAsEmployee?: boolean;
 };
 
 export const CommentDialog: React.FC<Props> = props => {
@@ -20,7 +20,7 @@ export const CommentDialog: React.FC<Props> = props => {
       <DialogContent>
         <LeaveComment
           approvalStateId={props.approvalStateId}
-          viewingAsEmployee={props.viewingAsEmployee}
+          actingAsEmployee={props.actingAsEmployee}
           onSave={props.onClose}
         />
       </DialogContent>
