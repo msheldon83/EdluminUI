@@ -38,14 +38,6 @@ type Absence implements ModelObjectInterface & OrgObjectInterface & DomainObject
   positionTypes: [PositionType]
 }
 
-type AbsenceApprovalTransitionArgumentsTypeDef {
-  makeAvailableToFill: Boolean!
-}
-
-type AbsenceApprovalTransitionCriteriaTypeDef {
-  absenceReasonIds: [ID]
-}
-
 type AbsenceApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -176,6 +168,7 @@ type AbsenceQueries {
   subSignInReport(orgId: ID!, date: Date!, locationIds: [ID]): [VacancyDetail]
   byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
   activityLog(id: ID!): ActivityLog
+  deletedAbsenceInfo(absenceId: ID!): DeletedAbsenceType
 }
 
 type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -196,7 +189,6 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   description: String
   validUntil: Date
   expired: Boolean!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   appliesToAssignmentTypes: AssignmentType
@@ -229,6 +221,7 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
   usedBalance: Decimal!
   unusedBalance: Decimal!
   netBalance: Decimal!
@@ -244,6 +237,7 @@ input AbsenceReasonBalanceCreateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonBalanceMutations {
@@ -265,6 +259,7 @@ input AbsenceReasonBalanceUpdateInput {
   initialBalance: Decimal
   balanceAsOf: Date
   ignoreWarnings: Boolean
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -285,7 +280,6 @@ type AbsenceReasonCategory implements ModelObjectInterface & OrgObjectInterface 
   description: String
   validUntil: Date
   expired: Boolean!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -295,7 +289,6 @@ input AbsenceReasonCategoryCreateInput {
   name: String!
   description: String
   externalId: String
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -307,7 +300,6 @@ input AbsenceReasonCategoryUpdateInput {
   description: String
   externalId: String
   expired: Boolean
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   code: String
 }
@@ -318,7 +310,6 @@ input AbsenceReasonCreateInput {
   description: String
   externalId: String
   appliesToAssignmentTypes: AssignmentType
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
@@ -343,7 +334,6 @@ input AbsenceReasonUpdateInput {
   externalId: String
   expired: Boolean
   appliesToAssignmentTypes: AssignmentType
-  absenceReasonTrackingId: AbsenceReasonTrackingTypeId
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
@@ -672,6 +662,66 @@ input ApplicationGrantUpdateInput {
   active: Boolean!
 }
 
+enum ApprovalAction {
+  INVALID
+  APPROVE
+  DENY
+  SKIP
+}
+
+type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approvalStateId: ID!
+  stepId: String!
+  comment: String
+  commentIsPublic: Boolean!
+  actingOrgUserId: ID!
+  actingOrgUser: OrgUser!
+  actualOrgUserId: ID!
+  actualOrgUser: OrgUser!
+  approvalDecisionId: ID
+  approvalDecision: ApprovalDecision
+}
+
+type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approvalStateId: ID!
+  stepId: String!
+  approvalActionId: ApprovalAction!
+  actingOrgUserId: ID!
+  actingOrgUser: OrgUser!
+  actualOrgUserId: ID!
+  actualOrgUser: OrgUser!
+  approverGroupId: ID
+  approverGroup: ApproverGroup
+}
+
+type ApprovalMutations {
+  approve(approvalState: ApprovalStateUpdateInput!): ApprovalState
+  deny(approvalState: ApprovalStateUpdateInput!): ApprovalState
+  comment(approvalComment: ApprovalStateUpdateInput!): ApprovalComment
+}
+
 type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -688,6 +738,13 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   currentStepId: String!
   approvalStatusId: ApprovalStatus!
   approvalWorkflowTypeId: ApprovalWorkflowType!
+  comments: [ApprovalComment!]!
+}
+
+input ApprovalStateUpdateInput {
+  approvalStateId: ID!
+  comment: String
+  commentIsPublic: Boolean
 }
 
 enum ApprovalStatus {
@@ -696,11 +753,8 @@ enum ApprovalStatus {
   APPROVED
   DENIED
   NO_APPROVAL_REQUIRED
+  CANCELLED
 }
-
-union ApprovalTransitionArgumentsTypeDef = AbsenceApprovalTransitionArgumentsTypeDef | VacancyApprovalTransitionArgumentsTypeDef
-
-union ApprovalTransitionCriteriaTypeDef = AbsenceApprovalTransitionCriteriaTypeDef | VacancyApprovalTransitionCriteriaTypeDef
 
 type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
@@ -719,7 +773,7 @@ type ApprovalWorkflow implements ModelObjectInterface & OrgObjectInterface & Dom
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStep]
+  steps: [ApprovalWorkflowStep!]!
   usages: [ApprovalWorkflowUsage]
 }
 
@@ -728,14 +782,14 @@ input ApprovalWorkflowCreateInput {
   name: String!
   description: String
   approvalWorkflowTypeId: ApprovalWorkflowType!
-  steps: [ApprovalWorkflowStepInput]
+  steps: [ApprovalWorkflowStepInput!]!
   usages: String
 }
 
 type ApprovalWorkflowMutations {
   create(approvalWorkflow: ApprovalWorkflowCreateInput!): ApprovalWorkflow
   update(approvalWorkflow: ApprovalWorkflowUpdateInput!): ApprovalWorkflow
-  delete(approvalWorkflowId: Int!): Boolean
+  delete(approvalWorkflowId: ID!): Boolean
 }
 
 type ApprovalWorkflowQueries {
@@ -745,10 +799,10 @@ type ApprovalWorkflowQueries {
 }
 
 type ApprovalWorkflowStep {
-  stepId: String
+  stepId: String!
   deleted: Boolean!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransition]
+  onApproval: [ApprovalWorkflowTransition!]!
   isFirstStep: Boolean!
   isLastStep: Boolean!
   xPosition: Decimal
@@ -756,20 +810,20 @@ type ApprovalWorkflowStep {
 }
 
 input ApprovalWorkflowStepInput {
-  stepId: String
+  stepId: String!
   approverGroupHeaderId: ID
-  onApproval: [ApprovalWorkflowTransitionInput]
-  isFirstStep: Boolean
-  isLastStep: Boolean
+  onApproval: [ApprovalWorkflowTransitionInput!]!
+  isFirstStep: Boolean!
+  isLastStep: Boolean!
   xPosition: Decimal
   yPosition: Decimal
-  deleted: Boolean
+  deleted: Boolean!
 }
 
 type ApprovalWorkflowTransition {
   goto: String
-  criteria: ApprovalTransitionCriteriaTypeDef
-  args: ApprovalTransitionArgumentsTypeDef
+  criteria: String
+  args: String
 }
 
 input ApprovalWorkflowTransitionInput {
@@ -1218,7 +1272,7 @@ input CalendarChangeUpdateInput {
   description: String
   startDate: Date
   endDate: Date
-  calendarChangeReasonId: [ID]
+  calendarChangeReasonId: ID
   contractIds: [ID]
   countTowardContractDays: Boolean
   affectsAllContracts: Boolean!
@@ -1805,6 +1859,24 @@ enum DefaultNotificationStatus {
   OFF
 }
 
+type DeletedAbsenceType {
+  _info: [ReturnMessage]
+  firstName: String!
+  lastName: String!
+  absenceLocalStartTime: Date!
+  absenceLocalEndTime: Date!
+  id: ID!
+}
+
+type DeletedVacancyType {
+  _info: [ReturnMessage]
+  id: ID!
+  locationName: String!
+  vacancyLocalStartTime: Date!
+  vacancyLocalEndTime: Date!
+  positionTitle: String!
+}
+
 input DeleteUserDeviceInput {
   userId: ID
   deviceId: String!
@@ -2384,6 +2456,13 @@ enum EventType {
   ORGANIZATION_RELATIONSHIP_CREATED
   ORGANIZATION_RELATIONSHIP_UPDATED
   ORGANIZATION_RELATIONSHIP_DELETED
+  WORKFLOW_STARTED
+  WORKFLOW_ENDED
+  WORKFLOW_CANCELLED
+  WORKFLOW_STEP_APPROVED
+  WORKFLOW_STEP_DENIED
+  WORKFLOW_STEP_SKIPPED
+  WORKFLOW_STEP_RESET
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
@@ -2729,6 +2808,7 @@ type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
   applicationGrant: ApplicationGrantMutations
+  approval: ApprovalMutations
   approvalWorkflow: ApprovalWorkflowMutations
   approverGroup: ApproverGroupMutations
   assignment: AssignmentMutations
@@ -3990,6 +4070,9 @@ enum PermissionEnum {
   ORGANIZATION_RELATIONSHIP_SAVE
   ORGANIZATION_RELATIONSHIP_DELETE
   DATA_IMPORT
+  REPORTS_ABS_VAC_SCHEMA
+  REPORTS_EMP_SCHEMA
+  REPORTS_SUB_SCHEMA
   FILE_UPLOAD
   FILE_DELETE
   REPLACEMENT_POOL_CONFIG_SAVE
@@ -4495,6 +4578,7 @@ type PositionType implements ModelObjectInterface & OrgObjectInterface & DomainO
   expired: Boolean!
   payTypeId: AbsenceReasonTrackingTypeId
   payCodeId: ID
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
   code: String
   payCode: PayCode
   replacementCriteria: ObjectReplacementCriteria
@@ -4513,6 +4597,7 @@ input PositionTypeCreateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
 }
 
 type PositionTypeDr {
@@ -4557,6 +4642,7 @@ input PositionTypeUpdateInput {
   payCodeId: ID
   replacementCriteria: ReplacementCriteriaInput
   code: String
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 type QualifiedEmployeeCounts {
@@ -5661,6 +5747,7 @@ input TimeOffBalancesInput {
   schoolYear: LocatorInput
   asOf: Date
   balance: Decimal
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
 enum TimeZone {
@@ -5920,14 +6007,6 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
-}
-
-type VacancyApprovalTransitionArgumentsTypeDef {
-  makeAvailableToFill: Boolean!
-}
-
-type VacancyApprovalTransitionCriteriaTypeDef {
-  vacancyReasonIds: [ID]
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -6212,6 +6291,7 @@ type VacancyQueries {
   vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   activityLog(id: ID!): ActivityLog
+  deletedVacancyInfo(vacancyId: ID!): DeletedVacancyType
 }
 
 type VacancyReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {

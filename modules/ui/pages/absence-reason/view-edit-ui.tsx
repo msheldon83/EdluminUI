@@ -1,10 +1,6 @@
 import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import {
-  AbsenceReasonTrackingTypeId,
-  PermissionEnum,
-  PositionType,
-} from "graphql/server-types.gen";
+import { PermissionEnum, PositionType } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useCallback, useState } from "react";
@@ -35,7 +31,6 @@ type Props = {
   requireNotesToAdmin?: boolean;
   description?: string;
   allowNegativeBalance: boolean;
-  absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   category?: { id: string; name: string };
   updateNameOrExternalIdOrPositionTypes: (values: {
     name?: string | null;
@@ -61,21 +56,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
       : AbsenceReasonViewEditRoute
   );
   const [editing, setEditing] = useState<string | null>(null);
-
-  const translateTracking = useCallback(
-    (v: AbsenceReasonTrackingTypeId | undefined) => {
-      switch (v) {
-        case AbsenceReasonTrackingTypeId.Daily:
-          return t("Daily");
-        case AbsenceReasonTrackingTypeId.Hourly:
-          return t("Hourly");
-        case AbsenceReasonTrackingTypeId.Invalid:
-          return t("Invalid");
-      }
-      return "";
-    },
-    [t]
-  );
 
   const displayBool = useCallback(
     (b: boolean | undefined | null) => {
@@ -171,13 +151,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
             <Typography variant="body1">{props.description}</Typography>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Typography variant="h6">{t("Tracking Type")}</Typography>
-            <Typography variant="body1">
-              {translateTracking(props.absenceReasonTrackingTypeId)}
-            </Typography>
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
             <Typography variant="h6">{t("Allow negative balances")}</Typography>
             <Typography variant="body1">
               {displayBool(props.allowNegativeBalance)}
@@ -217,7 +190,6 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
 
       {!props.isCategory && (
         <AbsenceReasonPositionTypesCard
-          editable={false}
           positionTypes={props.positionTypes ?? []}
           allPositionTypes={props.allPositionTypes ?? false}
           updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}

@@ -88,9 +88,6 @@ export const AbsenceReasonCategoryViewEditPage: React.FC<{}> = props => {
       code={absenceReasonCategory.code || undefined}
       description={absenceReasonCategory.description || undefined}
       allowNegativeBalance={absenceReasonCategory.allowNegativeBalance}
-      absenceReasonTrackingTypeId={
-        absenceReasonCategory.absenceReasonTrackingTypeId || undefined
-      }
       id={absenceReasonCategory.id}
       updateNameOrExternalIdOrPositionTypes={updateAbsenceReason}
       onDelete={deleteAbsenceReasonCallback}

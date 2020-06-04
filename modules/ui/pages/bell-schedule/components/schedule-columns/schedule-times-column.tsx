@@ -35,17 +35,20 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
           i > 0 && props.periods[i - 1].endTime
             ? props.periods[i - 1].endTime
             : undefined;
-        const priorPeriodTravelDuration =
-          i > 0 && props.periods[i - 1].travelDuration
-            ? props.periods[i - 1].travelDuration
-            : 0;
-        const earliestStartTime =
-          priorPeriodEndTime && isValid(new Date(priorPeriodEndTime))
-            ? addMinutes(
-                new Date(priorPeriodEndTime),
-                priorPeriodTravelDuration
-              ).toISOString()
-            : undefined;
+
+        const hasStartTime = p.startTime && isValid(new Date(p.startTime));
+        const hasPriorPerionEndTime =
+          priorPeriodEndTime && isValid(new Date(priorPeriodEndTime));
+
+        let earliestStartTime = undefined;
+        if (hasStartTime && hasPriorPerionEndTime) {
+          earliestStartTime = new Date(priorPeriodEndTime!).toISOString();
+        } else if (hasPriorPerionEndTime) {
+          earliestStartTime = addMinutes(
+            new Date(priorPeriodEndTime!),
+            1
+          ).toISOString();
+        }
 
         const startTimeError = GetError(props.errors, "startTime", i);
         const endTimeError = GetError(props.errors, "endTime", i);
@@ -66,6 +69,7 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       earliestTime={earliestStartTime}
                       inputStatus={startTimeError ? "error" : "default"}
                       validationMessage={startTimeError}
+                      highlightOnFocus
                     />
                   </div>
                   <div className={classes.timeInput}>
@@ -76,6 +80,7 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       earliestTime={p.startTime || earliestStartTime}
                       inputStatus={endTimeError ? "error" : "default"}
                       validationMessage={endTimeError}
+                      highlightOnFocus
                     />
                   </div>
                 </Can>

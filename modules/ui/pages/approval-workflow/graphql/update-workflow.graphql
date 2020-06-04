@@ -1,0 +1,53 @@
+mutation UpdateApprovalWorkflow(
+  $approvalWorkflow: ApprovalWorkflowUpdateInput!
+) {
+  approvalWorkflow {
+    update(approvalWorkflow: $approvalWorkflow) {
+      id
+      name
+      rowVersion
+      approvalWorkflowTypeId
+      steps {
+        stepId
+        deleted
+        isFirstStep
+        isLastStep
+        approverGroupHeaderId
+        onApproval {
+          goto
+          args
+          criteria
+        }
+        xPosition
+        yPosition
+      }
+      usages {
+        __typename
+        ... on AbsenceApprovalWorkflowUsage {
+          id
+          allOthers
+          positionTypeId
+          positionType {
+            id
+            name
+          }
+          employeeId
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
+        ... on VacancyApprovalWorkflowUsage {
+          id
+          allOthers
+          positionTypeId
+          positionType {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}

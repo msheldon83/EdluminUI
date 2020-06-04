@@ -10,12 +10,12 @@ import {
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import { Formik } from "formik";
-import { SelectNew } from "ui/components/form/select-new";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { DatePicker } from "ui/components/form/date-picker";
 import { parseISO, isBefore, isAfter } from "date-fns";
-import { round, values } from "lodash-es";
+import { round } from "lodash-es";
 import * as yup from "yup";
 import { ConfirmNegativeBalance } from "./confirm-negative-balance";
 
@@ -25,16 +25,15 @@ type Props = {
     employeeId: string;
     schoolYearId: string;
     rowVersion?: string | null;
+    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
     absenceReason?: {
       id: string;
       name: string;
-      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
       allowNegativeBalance: boolean;
     } | null;
     absenceReasonCategory?: {
       id: string;
       name: string;
-      absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
       allowNegativeBalance: boolean;
     } | null;
     initialBalance?: number;
@@ -45,6 +44,8 @@ type Props = {
   } | null;
   orgId: string;
   shadeRow: boolean;
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId;
+  absenceReasonTrackingTypeOptions: { label: string; value: string }[];
   onRemove: (absenceReasonBalanceId: string) => Promise<void>;
   onUpdate: (
     absenceReasonBalance: AbsenceReasonBalanceUpdateInput
@@ -56,13 +57,11 @@ type Props = {
   absenceReasons: {
     id: string;
     name: string;
-    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
     allowNegativeBalance?: boolean | null;
   }[];
   absenceReasonCategories: {
     id: string;
     name: string;
-    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
     allowNegativeBalance?: boolean | null;
   }[];
   creatingNew: boolean;
@@ -118,22 +117,13 @@ export const BalanceRow: React.FC<Props> = props => {
     ]
   );
 
-  const balanceTypeLabel = useMemo(
-    () =>
-      selectedReason
-        ? selectedReason.absenceReasonTrackingTypeId ===
-          AbsenceReasonTrackingTypeId.Daily
-          ? t("Days")
-          : t("Hours")
-        : "",
-    [selectedReason, t]
-  );
-
   return (
     <Formik
       initialValues={{
         absenceReasonId: absenceReasonId,
         absenceReasonCategoryId: absenceReasonCategoryId,
+        absenceReasonTrackingTypeId:
+          absenceReasonBalance?.absenceReasonTrackingTypeId ?? undefined,
         balance: absenceReasonBalance?.initialBalance ?? 0,
         asOf: absenceReasonBalance?.balanceAsOf
           ? parseISO(absenceReasonBalance?.balanceAsOf)
@@ -155,6 +145,8 @@ export const BalanceRow: React.FC<Props> = props => {
               employeeId: absenceReasonBalance?.employeeId,
               schoolYearId: absenceReasonBalance?.schoolYearId,
               absenceReasonId: data.absenceReasonId ?? null,
+              absenceReasonTrackingTypeId:
+                data.absenceReasonTrackingTypeId ?? null,
               absenceReasonCategoryId: data.absenceReasonCategoryId ?? null,
               initialBalance: data.balance,
               balanceAsOf: data.asOf,
@@ -175,6 +167,8 @@ export const BalanceRow: React.FC<Props> = props => {
               id: absenceReasonBalance?.id ?? "",
               rowVersion: absenceReasonBalance?.rowVersion ?? "",
               schoolYearId: absenceReasonBalance?.schoolYearId,
+              absenceReasonTrackingTypeId:
+                data.absenceReasonTrackingTypeId ?? null,
               absenceReasonId: data.absenceReasonId ?? null,
               absenceReasonCategoryId: data.absenceReasonCategoryId ?? null,
               initialBalance: data.balance,
@@ -203,6 +197,17 @@ export const BalanceRow: React.FC<Props> = props => {
           .number()
           .nullable()
           .required(t("Required")),
+        absenceReasonTrackingTypeId: yup
+          .string()
+          .nullable()
+          .test("typeSelected", t("A type must be selected"), function(value) {
+            if (!value) {
+              return this.createError({
+                message: t("A type must be selected"),
+              });
+            }
+            return true;
+          }),
         asOf: yup
           .date()
           .nullable()
@@ -293,7 +298,33 @@ export const BalanceRow: React.FC<Props> = props => {
                   />
                 }
               </div>
-              <div>{balanceTypeLabel}</div>
+              <div className={classes.balanceType}>
+                <SelectNew
+                  name="absenceReasonTrackingTypeId"
+                  value={
+                    props.absenceReasonTrackingTypeOptions.find(
+                      e =>
+                        e.value &&
+                        e.value === values.absenceReasonTrackingTypeId
+                    ) ??
+                    props.absenceReasonTrackingTypeOptions.find(
+                      e =>
+                        e.value && e.value === props.absenceReasonTrackingTypeId
+                    )
+                  }
+                  multiple={false}
+                  onChange={(value: any) => {
+                    setFieldValue("absenceReasonTrackingTypeId", value.value);
+
+                    setChanges(true);
+                  }}
+                  options={props.absenceReasonTrackingTypeOptions}
+                  withResetValue={false}
+                  inputStatus={
+                    errors.absenceReasonTrackingTypeId ? "error" : "default"
+                  }
+                />
+              </div>
             </div>
             <div className={classes.asOfContainer}>
               {
@@ -371,7 +402,6 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
   },
   shadedRow: {
-    //border: "1px solid #F5F5F5",
     backgroundColor: "#F5F5F5",
   },
   text: {
@@ -379,25 +409,28 @@ const useStyles = makeStyles(theme => ({
     color: "#9E9E9E",
   },
   reasonContainer: {
-    width: theme.typography.pxToRem(270),
-    padding: theme.spacing(2),
+    width: theme.typography.pxToRem(240),
+    paddingLeft: theme.spacing(1),
   },
   balanceInput: {
-    width: theme.typography.pxToRem(70),
-    padding: theme.spacing(1),
+    width: theme.typography.pxToRem(80),
+    padding: theme.spacing(2),
+  },
+  balanceType: {
+    width: theme.typography.pxToRem(120),
   },
   balanceValueContainer: {
-    width: theme.typography.pxToRem(150),
+    width: theme.typography.pxToRem(200),
     display: "flex",
     alignItems: "center",
   },
   asOfContainer: {
     width: theme.typography.pxToRem(140),
-    margin: theme.spacing(1, 4, 0, 4),
+    margin: theme.spacing(1, 2, 0, 2),
   },
   valueContainer: {
-    width: theme.typography.pxToRem(100),
-    paddingLeft: theme.spacing(3),
+    width: theme.typography.pxToRem(120),
+    paddingLeft: theme.spacing(6),
   },
   button: {
     padding: theme.spacing(0.5),

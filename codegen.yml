@@ -22,3 +22,8 @@ generates:
       - typescript-compatibility:
           strict: true
       - "./scripts/codegen-type-constants.js"
+  modules/graphql/fragment-types.gen.json:
+    schema:
+      - modules/graphql/server-schema.graphql
+    plugins:
+      - fragment-matcher:
