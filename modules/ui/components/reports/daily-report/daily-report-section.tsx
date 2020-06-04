@@ -68,43 +68,42 @@ export const DailyReportSection: React.FC<Props> = props => {
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
         {detailGroup.subGroups ? (
-          detailGroup.subGroups.map((s, i) => {
-            const subGroupHasDetails = !!(s.details && s.details.length);
-            let subHeaderText = s.label;
-            if (subGroupHasDetails) {
-              subHeaderText = `${subHeaderText} (${s.details!.length})`;
-            }
-            const subGroupPanelId = `${panelId}-subGroup-${i}`;
+          detailGroup.subGroups
+            .filter(s => s.details?.length)
+            .map((s, i) => {
+              const details = s.details!;
+              const subHeaderText = `${s.label} (${details.length})`;
+              const subGroupPanelId = `${panelId}-subGroup-${i}`;
 
-            return (
-              <ExpansionPanel
-                className={classes.subDetailHeader}
-                defaultExpanded={subGroupHasDetails}
-                key={`subGroup-${i}`}
-                classes={{
-                  expanded: classes.subGroupExpanded,
-                }}
-              >
-                <ExpansionPanelSummary
-                  expandIcon={<ExpandMore />}
-                  aria-label="Expand"
-                  aria-controls={`${subGroupPanelId}-content`}
-                  id={subGroupPanelId}
-                  className={classes.summary}
+              return (
+                <ExpansionPanel
+                  className={classes.subDetailHeader}
+                  defaultExpanded={true}
+                  key={`subGroup-${i}`}
+                  classes={{
+                    expanded: classes.subGroupExpanded,
+                  }}
                 >
-                  <div className={classes.subGroupSummaryText}>
-                    {subHeaderText}
-                  </div>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails className={classes.details}>
-                  <DetailsGroupUI
-                    parentId={subGroupPanelId}
-                    details={s.details}
-                  />
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
-            );
-          })
+                  <ExpansionPanelSummary
+                    expandIcon={<ExpandMore />}
+                    aria-label="Expand"
+                    aria-controls={`${subGroupPanelId}-content`}
+                    id={subGroupPanelId}
+                    className={classes.summary}
+                  >
+                    <div className={classes.subGroupSummaryText}>
+                      {subHeaderText}
+                    </div>
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails className={classes.details}>
+                    <DetailsGroupUI
+                      parentId={subGroupPanelId}
+                      details={details}
+                    />
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
+              );
+            })
         ) : (
           <DetailsGroupUI parentId={panelId} details={detailGroup.details} />
         )}
