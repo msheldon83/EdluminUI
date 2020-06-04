@@ -221,7 +221,7 @@ type AbsenceReasonBalance implements ModelObjectInterface {
   absenceReasonCategory: AbsenceReasonCategory
   balanceAsOf: Date!
   initialBalance: Decimal!
-  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
+  absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId!
   usedBalance: Decimal!
   unusedBalance: Decimal!
   netBalance: Decimal!
@@ -662,6 +662,66 @@ input ApplicationGrantUpdateInput {
   active: Boolean!
 }
 
+enum ApprovalAction {
+  INVALID
+  APPROVE
+  DENY
+  SKIP
+}
+
+type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approvalStateId: ID!
+  stepId: String!
+  comment: String
+  commentIsPublic: Boolean!
+  actingOrgUserId: ID!
+  actingOrgUser: OrgUser!
+  actualOrgUserId: ID!
+  actualOrgUser: OrgUser!
+  approvalDecisionId: ID
+  approvalDecision: ApprovalDecision
+}
+
+type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  approvalStateId: ID!
+  stepId: String!
+  approvalActionId: ApprovalAction!
+  actingOrgUserId: ID!
+  actingOrgUser: OrgUser!
+  actualOrgUserId: ID!
+  actualOrgUser: OrgUser!
+  approverGroupId: ID
+  approverGroup: ApproverGroup
+}
+
+type ApprovalMutations {
+  approve(approvalState: ApprovalStateUpdateInput!): ApprovalState
+  deny(approvalState: ApprovalStateUpdateInput!): ApprovalState
+  comment(approvalComment: ApprovalStateUpdateInput!): ApprovalComment
+}
+
 type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -678,6 +738,13 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   currentStepId: String!
   approvalStatusId: ApprovalStatus!
   approvalWorkflowTypeId: ApprovalWorkflowType!
+  comments: [ApprovalComment!]!
+}
+
+input ApprovalStateUpdateInput {
+  approvalStateId: ID!
+  comment: String
+  commentIsPublic: Boolean
 }
 
 enum ApprovalStatus {
@@ -2741,6 +2808,7 @@ type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
   applicationGrant: ApplicationGrantMutations
+  approval: ApprovalMutations
   approvalWorkflow: ApprovalWorkflowMutations
   approverGroup: ApproverGroupMutations
   assignment: AssignmentMutations
