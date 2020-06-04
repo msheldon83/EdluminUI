@@ -44,7 +44,7 @@ export type DailyReportQueryFilters = {
   showAbsences: boolean;
   showVacancies: boolean;
   groupDetailsBy: GroupOption;
-  subGroupDetailsBy?: GroupOption;
+  subGroupDetailsBy: GroupOption | "";
 };
 
 export const FilterParams: Isomorphism<
@@ -106,7 +106,7 @@ const to = (o: DailyReportFilters): DailyReportQueryFilters => {
     groupDetailsBy: stringToGroupOption(o.groupDetailsBy, "fillStatus"),
     subGroupDetailsBy:
       o.subGroupDetailsBy == ""
-        ? undefined
+        ? ""
         : stringToGroupOption(o.subGroupDetailsBy, "positionType"),
   };
 };

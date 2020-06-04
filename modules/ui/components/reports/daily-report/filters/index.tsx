@@ -88,13 +88,14 @@ export const Filters: React.FC<Props> = props => {
           <SelectNew
             options={groupOptions.map(makeOption)}
             value={makeOption(filters.groupDetailsBy)}
+            withResetValue={false}
             onChange={value => {
               const newValue = value.value.toString();
               updateFilters({
                 groupDetailsBy: stringToGroupOption(newValue, "fillStatus"),
                 subGroupDetailsBy:
                   filters.subGroupDetailsBy == newValue
-                    ? undefined
+                    ? ""
                     : filters.subGroupDetailsBy,
               });
             }}

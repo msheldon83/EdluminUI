@@ -157,7 +157,12 @@ describe("labelledGroupBy", () => {
       },
     ];
     const properOrder = labelMap.map(l => l.external);
-    const { grouper, labeller, sorter } = groupDictionary.fillStatus;
+    const {
+      grouper,
+      labeller,
+      sorter,
+      mandatoryGroups,
+    } = groupDictionary.fillStatus;
 
     // fc.assert runs a property against random data, multiple times (100 times by default)
     fc.assert(
@@ -168,8 +173,17 @@ describe("labelledGroupBy", () => {
         fc.array(arbitraryDetail(), 2, 20),
         // This describes the test to run, taking in the generated details as its argument
         details => {
-          const groups = labelledGroupBy(details, grouper, labeller, sorter);
+          const groups = labelledGroupBy(
+            details,
+            grouper,
+            labeller,
+            sorter,
+            mandatoryGroups
+          );
 
+          expect(groups.map(g => g.label)).toEqual(
+            labelMap.map(l => l.external)
+          );
           groups.forEach((group, ind) => {
             expect(properOrder).toContain(group.label);
             if (ind + 1 < groups.length) {
@@ -189,7 +203,12 @@ describe("labelledGroupBy", () => {
   });
 
   it("groups by position type", () => {
-    const { grouper, labeller, sorter } = groupDictionary.positionType;
+    const {
+      grouper,
+      labeller,
+      sorter,
+      mandatoryGroups,
+    } = groupDictionary.positionType;
     fc.assert(
       fc.property(
         // The chain method lets us use the results of one generator to create another.
@@ -213,7 +232,13 @@ describe("labelledGroupBy", () => {
             }))
         ),
         ({ positionTypes, details }) => {
-          const groups = labelledGroupBy(details, grouper, labeller, sorter);
+          const groups = labelledGroupBy(
+            details,
+            grouper,
+            labeller,
+            sorter,
+            mandatoryGroups
+          );
 
           groups.forEach((group, ind) => {
             // Make sure nothing's gone wrong with the arbitrary.
@@ -236,7 +261,12 @@ describe("labelledGroupBy", () => {
   });
 
   it("groups by school", () => {
-    const { grouper, labeller, sorter } = groupDictionary.school;
+    const {
+      grouper,
+      labeller,
+      sorter,
+      mandatoryGroups,
+    } = groupDictionary.school;
     fc.assert(
       fc.property(
         presetSchools.chain(locations =>
@@ -256,7 +286,13 @@ describe("labelledGroupBy", () => {
             }))
         ),
         ({ locations, details }) => {
-          const groups = labelledGroupBy(details, grouper, labeller, sorter);
+          const groups = labelledGroupBy(
+            details,
+            grouper,
+            labeller,
+            sorter,
+            mandatoryGroups
+          );
 
           groups.forEach((group, ind) => {
             // Make sure nothing's gone wrong with the arbitrary.
@@ -306,9 +342,14 @@ describe(subGroupBy, () => {
       fc.property(
         fc.tuple(fc.constantFrom(...groupOptions), detailsWithPresets),
         ([groupOption, details]) => {
-          const { grouper, labeller, sorter } = groupDictionary[groupOption];
+          const {
+            grouper,
+            labeller,
+            sorter,
+            mandatoryGroups,
+          } = groupDictionary[groupOption];
           expect(subGroupBy(details, [groupDictionary[groupOption]])).toEqual(
-            labelledGroupBy(details, grouper, labeller, sorter)
+            labelledGroupBy(details, grouper, labeller, sorter, mandatoryGroups)
           );
         }
       )
@@ -326,6 +367,7 @@ describe(subGroupBy, () => {
       grouper: (d: Detail) => unknown;
       labeller?: (key: string) => string;
       sorter?: (key1: string, key2: string) => number;
+      mandatoryGroups?: string[];
     }[]
   ) {
     expect(group.details).not.toBeUndefined();
@@ -336,9 +378,16 @@ describe(subGroupBy, () => {
     }
 
     const details = group.details!;
-    const { grouper, labeller, sorter } = groupFns[0];
-    const simpleGroups = labelledGroupBy(details, grouper, labeller, sorter);
+    const { grouper, labeller, sorter, mandatoryGroups } = groupFns[0];
+    const simpleGroups = labelledGroupBy(
+      details,
+      grouper,
+      labeller,
+      sorter,
+      mandatoryGroups
+    );
 
+    if (!group.details || group.details?.length == 0) return;
     expect(group.subGroups).not.toBeUndefined();
     const subGroups = group.subGroups!;
     expect(subGroups.map(removeSubGroups)).toEqual(
@@ -358,7 +407,7 @@ describe(subGroupBy, () => {
         ),
         ([groupOptions, details]) => {
           const groupFns = groupOptions.map(o => groupDictionary[o]);
-          const { grouper, labeller, sorter } = groupFns[0];
+          const { grouper, labeller, sorter, mandatoryGroups } = groupFns[0];
 
           const detailGroups = subGroupBy(details, groupFns);
 
@@ -366,7 +415,8 @@ describe(subGroupBy, () => {
             details,
             grouper,
             labeller,
-            sorter
+            sorter,
+            mandatoryGroups
           );
           expect(detailGroups.map(removeSubGroups)).toEqual(
             simpleGroups.map(removeSubGroups)

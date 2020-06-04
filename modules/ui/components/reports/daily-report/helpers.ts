@@ -103,7 +103,7 @@ export const MapDailyReportDetails = (
   showAbsences: boolean,
   showVacancies: boolean,
   groupDetailsBy: GroupOption,
-  subGroupDetailsBy: GroupOption | undefined,
+  subGroupDetailsBy: GroupOption | "",
   t: TFunction
 ): DailyReportDetails => {
   const details: Detail[] = [];
@@ -634,6 +634,7 @@ export const MapDailyReportDetails = (
     grouper: (d: Detail) => unknown;
     labeller?: (key: string) => string;
     sorter?: (key1: string, key2: string) => number;
+    mandatoryGroups?: string[];
   }[] = [groupDictionary[groupDetailsBy]];
 
   if (subGroupDetailsBy) groupFns.push(groupDictionary[subGroupDetailsBy]);
@@ -861,6 +862,7 @@ export const groupDictionary: {
     grouper: (d: Detail) => unknown;
     labeller?: (key: string) => string;
     sorter?: (key1: string, key2: string) => number;
+    mandatoryGroups?: string[];
   };
 } = {
   fillStatus: {
@@ -873,6 +875,7 @@ export const groupDictionary: {
       const order = ["Unfilled", "Filled", "No sub required", "Closed"];
       return order.indexOf(k1) - order.indexOf(k2);
     },
+    mandatoryGroups: ["unfilled", "filled", "noSubRequired", "closed"],
   },
   positionType: {
     grouper: d => d.positionType?.name,
@@ -897,9 +900,13 @@ export function labelledGroupBy(
   grouper: (d: Detail) => unknown,
   labeller?: (key: string) => string,
   // Sorter is passed to array's sort method, so if it returns a negative value, key1 goes before key2; positive, key2 before key1; zero, leave them in their original order.
-  sorter?: (key1: string, key2: string) => number
+  sorter?: (key1: string, key2: string) => number,
+  mandatoryGroups?: string[]
 ): DetailGroup[] {
   const rawGroups = groupBy(details, grouper);
+  (mandatoryGroups ?? []).forEach(group => {
+    if (!(group in rawGroups)) rawGroups[group] = [];
+  });
   const detailGroups = Object.entries(rawGroups).map(([key, value]) => ({
     label: labeller ? labeller(key) : key,
     details: value,
@@ -930,18 +937,25 @@ export const subGroupBy = (
     labeller?: (key: string) => string;
     // Sorter is passed to array's sort method, so if it returns a negative value, key1 goes before key2; positive, key2 before key1; zero, leave them in their original order.
     sorter?: (key1: string, key2: string) => number;
+    mandatoryGroups?: string[];
   }[]
 ) => {
   if (groupFns.length === 0) return [];
-  const { grouper, labeller, sorter } = groupFns[0];
-  const groups = labelledGroupBy(details, grouper, labeller, sorter);
+  const { grouper, labeller, sorter, mandatoryGroups } = groupFns[0];
+  const groups = labelledGroupBy(
+    details,
+    grouper,
+    labeller,
+    sorter,
+    mandatoryGroups
+  );
   groups.forEach(group => {
     // Here for type safety. Since we're in forEach, return just moves on to the next group.
     if (!group.details) return;
     // Recursive call, with the tail of groupFns.
     // _Techically_ could cause stack overflows, but something has gone wrong if we're finding sub-sub-sub-sub-...-sub-groups.
     const subGroups = subGroupBy(group.details, groupFns.slice(1));
-    // Don't define group.subGroups if subGroups if its empty.
+    // Don't define group.subGroups if subGroups is empty.
     group.subGroups = subGroups.length === 0 ? undefined : subGroups;
   });
   return groups;
