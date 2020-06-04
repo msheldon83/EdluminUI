@@ -66,7 +66,7 @@ export const AdminNotificationLink: React.FC<Props> = props => {
   return (
     <>
       {route ? (
-        <Can do={[PermissionEnum.AbsVacView]}>
+        <Can do={[PermissionEnum.AbsVacView]} checkAgainstCurrentRole={false}>
           <Link
             to={route}
             className={classes.hyperlink}
