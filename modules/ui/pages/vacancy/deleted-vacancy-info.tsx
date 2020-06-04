@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
 import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { DeletedData } from "ui/components/deleted-data";
 import { GetDeleteVacancyInfo } from "./graphql/get-deleted-vacancy-info.gen";
+import { NotFound } from "../not-found";
 
 type Props = {
   vacancyId: string;
@@ -27,6 +27,9 @@ export const DeletedVacancyInfo: React.FC<Props> = props => {
   }
 
   const deletedVacancy = getDeleteVacancyInfo.data.vacancy?.deletedVacancyInfo;
+  if (!deletedVacancy) {
+    return <NotFound />;
+  }
 
   const formattedDate = getDateRangeDisplayText(
     deletedVacancy?.vacancyLocalStartTime
