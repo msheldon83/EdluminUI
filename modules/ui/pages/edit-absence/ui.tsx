@@ -368,6 +368,8 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ? (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[])
+      : getProjectedVacancies.state === "ERROR"
+      ? []
       : props.initialVacancies;
 
   const onChangedVacancies = useCallback(
