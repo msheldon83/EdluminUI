@@ -9,10 +9,15 @@ import {
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { FilterQueryParams } from "./filter-params";
+import {
+  groupOptions,
+  FilterQueryParams,
+  stringToGroupOption,
+} from "./filter-params";
 import { SchoolFilter } from "./school-filter";
 import { PositionTypeFilter } from "./position-type-filter";
 import { DateFilter } from "./date-filter";
+import { OptionType, SelectNew } from "ui/components/form/select-new";
 
 type Props = {
   orgId: string;
@@ -24,6 +29,12 @@ export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
+
+  const makeOption = (value: string) => {
+    let label = value.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+    label = label[0].toUpperCase() + label.substring(1);
+    return { label, value };
+  };
 
   return (
     <Grid
@@ -74,42 +85,43 @@ export const Filters: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={6}>
           <InputLabel>{t("Group by")}</InputLabel>
-          <FormControlLabel
-            control={
-              <Checkbox
-                color="primary"
-                checked={filters.groupByFillStatus}
-                onChange={e => {
-                  let isChecked = e.target.checked;
-                  if (!isChecked && !filters.groupByPositionType) {
-                    isChecked = true;
-                  }
-
-                  updateFilters({ groupByFillStatus: isChecked });
-                }}
-              />
-            }
-            label={t("Fill status")}
+          <SelectNew
+            options={groupOptions.map(makeOption)}
+            value={makeOption(filters.groupDetailsBy)}
+            withResetValue={false}
+            onChange={value => {
+              const newValue = value.value.toString();
+              updateFilters({
+                groupDetailsBy: stringToGroupOption(newValue, "fillStatus"),
+                subGroupDetailsBy:
+                  filters.subGroupDetailsBy == newValue
+                    ? ""
+                    : filters.subGroupDetailsBy,
+              });
+            }}
+            multiple={false}
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                color="primary"
-                checked={filters.groupByPositionType}
-                onChange={e => {
-                  const isChecked = e.target.checked;
-                  if (!isChecked && !filters.groupByFillStatus) {
-                    updateFilters({
-                      groupByFillStatus: true,
-                      groupByPositionType: isChecked,
-                    });
-                  } else {
-                    updateFilters({ groupByPositionType: isChecked });
-                  }
-                }}
-              />
+          <SelectNew
+            options={groupOptions
+              .filter(o => o != filters.groupDetailsBy)
+              .map(makeOption)}
+            value={
+              filters.subGroupDetailsBy
+                ? makeOption(filters.subGroupDetailsBy)
+                : undefined
             }
-            label={t("Position type")}
+            onChange={value => {
+              updateFilters({
+                subGroupDetailsBy:
+                  value.value === ""
+                    ? undefined
+                    : stringToGroupOption(
+                        value.value.toString(),
+                        "positionType"
+                      ),
+              });
+            }}
+            multiple={false}
           />
         </Grid>
       </Grid>
