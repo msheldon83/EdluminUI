@@ -63,7 +63,7 @@ export const DailyReportDetail: React.FC<Props> = props => {
             absenceId: absVacId,
           })
         : VacancyViewRoute.generate({
-            ...absenceEditParams,
+            ...vacancyEditParams,
             vacancyId: absVacId,
           })
     }${editSub ? "?step=preAssignSub" : ""}`;
