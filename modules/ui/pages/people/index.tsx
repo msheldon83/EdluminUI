@@ -48,6 +48,7 @@ import { Can } from "ui/components/auth/can";
 import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
 import { OrganizationType, DataImportType } from "graphql/server-types.gen";
 import { ImportDataMultiButton } from "ui/components/data-import/import-data-multi-button";
+import { PeopleTable } from "./components/table";
 
 type Props = {};
 
@@ -217,10 +218,10 @@ export const PeoplePage: React.FC<Props> = props => {
   const tableData = useMemo(() => {
     return people.map(person => ({
       id: person.id,
-      userId: person.userId,
+      userId: person.userId ?? undefined,
       firstName: person.firstName,
       lastName: person.lastName,
-      email: person.email,
+      email: person.email ?? undefined,
       externalId: truncateString(person.externalId ?? "", 8),
       roles: listRoles(
         person.isAdmin,
@@ -228,9 +229,13 @@ export const PeoplePage: React.FC<Props> = props => {
         person.isReplacementEmployee
       ),
       positionType: person.employee?.primaryPosition?.positionType?.name,
-      userName: person.email,
-      phone: person.phoneNumber,
-      locations: person.employee?.locations,
+      userName: person.loginEmail ?? undefined,
+      phone: person.phoneNumber ?? undefined,
+      locations:
+        (person.employee?.locations?.filter(l => l) as {
+          id: string;
+          name: string;
+        }[]) ?? undefined,
       endorsements: person.substitute?.attributes
         ? compact(
             flatMap(person.substitute?.attributes, a =>
@@ -238,11 +243,18 @@ export const PeoplePage: React.FC<Props> = props => {
             )
           )
         : [],
-      adminLocations: person.administrator?.accessControl?.locations ?? [],
+      adminLocations:
+        (person.administrator?.accessControl?.locations?.filter(l => l) as {
+          id: string;
+          name: string;
+        }[]) ?? [],
       allLocationIdsInScope:
         person.administrator?.accessControl?.allLocationIdsInScope ?? false,
       adminPositionTypes:
-        person.administrator?.accessControl?.positionTypes ?? [],
+        (person.administrator?.accessControl?.positionTypes?.filter(l => l) as {
+          id: string;
+          name: string;
+        }[]) ?? [],
       allPositionTypeIdsInScope:
         person.administrator?.accessControl?.allPositionTypeIdsInScope ?? false,
       inviteSent: person.inviteSent,
@@ -251,7 +263,7 @@ export const PeoplePage: React.FC<Props> = props => {
       accountSetup: person.isAccountSetup,
       isSuperUser: person.administrator?.isSuperUser ?? false,
       isShadowRecord: person.isShadowRecord,
-      shadowFromOrgName: person.shadowFromOrgName,
+      shadowFromOrgName: person.shadowFromOrgName ?? undefined,
     }));
   }, [people, listRoles]);
 
@@ -266,224 +278,6 @@ export const PeoplePage: React.FC<Props> = props => {
     getOrgStatus.state === "LOADING"
       ? undefined
       : getOrgStatus?.data?.organization?.byId?.config?.organizationTypeId;
-
-  const peopleCount = pagination.totalCount;
-
-  const columns: TableColumn<typeof tableData[0]>[] = [
-    {
-      cellStyle: {
-        paddingRight: 0,
-        width: isMobile
-          ? theme.typography.pxToRem(40)
-          : theme.typography.pxToRem(70),
-      },
-      sorting: false,
-      render: o => (
-        <div className={classes.accountCell}>
-          <AccountCircleOutlined />
-          <AccessIcon
-            inviteSent={o.inviteSent}
-            accountSetup={o.accountSetup}
-            inviteSentAtUtc={o.inviteSentAtUtc}
-            inviteRequestedAtUtc={o.invitationRequestedAtUtc}
-          />
-        </div>
-      ),
-    },
-    {
-      title: t("Name"),
-      sorting: false,
-      render: o => (
-        <>
-          <Typography>
-            {o.lastName}, {o.firstName}
-          </Typography>
-          <ShadowIndicator
-            isShadow={o.isShadowRecord}
-            orgName={o.shadowFromOrgName}
-          />
-        </>
-      ),
-    },
-    {
-      title: t("Username"),
-      field: "userName",
-      sorting: false,
-    },
-
-    { title: t("Identifier"), field: "externalId", sorting: false },
-    {
-      title: t("Role"),
-      field: "roles",
-      sorting: false,
-      hidden: filters.roleFilter != null,
-    },
-    {
-      title: t("Position Type"),
-      field: "positionType",
-      sorting: false,
-      hidden: filters.roleFilter != OrgUserRole.Employee,
-    },
-    {
-      title: t("Location"),
-      field: "locations",
-      sorting: false,
-      hidden: filters.roleFilter != OrgUserRole.Employee,
-      render: o =>
-        !o.locations || o.locations?.length < 1 ? (
-          t("None")
-        ) : o.locations.length === 1 ? (
-          o.locations[0]?.name
-        ) : (
-          <>
-            <Button id={locationsId} onClick={handleShowLocations}>
-              {`${o.locations?.length} ${t("Locations")}`}
-            </Button>
-            <Popper
-              transition
-              open={locationsOpen}
-              anchorEl={locationsAnchor}
-              placement="bottom-end"
-            >
-              {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={150}>
-                  <List className={classes.paper}>
-                    {o.locations?.map((l, index) => (
-                      <ListItemText key={index}>{l?.name}</ListItemText>
-                    ))}
-                  </List>
-                </Fade>
-              )}
-            </Popper>
-          </>
-        ),
-    },
-    {
-      title: t("Manages position type"),
-      field: "managesPositionTypes",
-      sorting: false,
-      hidden: filters.roleFilter != OrgUserRole.Administrator,
-      render: o =>
-        o.allPositionTypeIdsInScope || o.isSuperUser ? (
-          t("All")
-        ) : !o.adminPositionTypes || o.adminPositionTypes?.length < 1 ? (
-          t("None")
-        ) : o.adminPositionTypes?.length === 1 ? (
-          o.adminPositionTypes[0]?.name
-        ) : (
-          <>
-            <Button id={posTypesManagedId} onClick={handleShowPosTypesManaged}>
-              {`${o.adminPositionTypes?.length} ${t("Position Types Managed")}`}
-            </Button>
-            <Popper
-              transition
-              open={posTypesManagedOpen}
-              anchorEl={posTypesManagedAnchor}
-              placement="bottom-end"
-            >
-              {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={150}>
-                  <List className={classes.paper}>
-                    {o.adminPositionTypes.map((l, index) => (
-                      <ListItemText key={index}>{l?.name}</ListItemText>
-                    ))}
-                  </List>
-                </Fade>
-              )}
-            </Popper>
-          </>
-        ),
-    },
-    {
-      title: t("Manages location"),
-      field: "managesLocations",
-      sorting: false,
-      hidden: filters.roleFilter != OrgUserRole.Administrator,
-      render: o =>
-        o.allLocationIdsInScope || o.isSuperUser ? (
-          t("All")
-        ) : !o.adminLocations || o.adminLocations?.length < 1 ? (
-          t("None")
-        ) : o.adminLocations?.length === 1 ? (
-          o.adminLocations[0]?.name
-        ) : (
-          <>
-            <Button
-              id={locationsManagedId}
-              onClick={handleShowLocationsManaged}
-            >
-              {`${o.adminLocations?.length} ${t("Locations Managed")}`}
-            </Button>
-            <Popper
-              transition
-              open={locationsManagedOpen}
-              anchorEl={locationsManagedAnchor}
-              placement="bottom-end"
-            >
-              {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={150}>
-                  <List className={classes.paper}>
-                    {o.adminLocations?.map((l, index) => (
-                      <ListItemText key={index}>{l?.name}</ListItemText>
-                    ))}
-                  </List>
-                </Fade>
-              )}
-            </Popper>
-          </>
-        ),
-    },
-    {
-      title: t("Attributes"),
-      field: "endorsements",
-      sorting: false,
-      hidden: filters.roleFilter != OrgUserRole.ReplacementEmployee,
-      render: o =>
-        !o.endorsements || o.endorsements?.length < 1 ? (
-          t("None")
-        ) : o.endorsements.length === 1 ? (
-          o.endorsements[0]?.name
-        ) : (
-          <>
-            <Button id={endorsementsId} onClick={handleShowEndorsements}>
-              {`${o.endorsements?.length} ${t("Attributes")}`}
-            </Button>
-            <Popper
-              transition
-              open={endorsementsOpen}
-              anchorEl={endorsementsAnchor}
-              placement="bottom-end"
-            >
-              {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={150}>
-                  <List className={classes.paper}>
-                    {o.endorsements.map((e, index) => (
-                      <ListItemText key={index}>{e?.name}</ListItemText>
-                    ))}
-                  </List>
-                </Fade>
-              )}
-            </Popper>
-          </>
-        ),
-    },
-    {
-      title: "",
-      field: "email",
-      sorting: false,
-      render: o => (
-        <Link
-          href={`mailto:${o.email}`}
-          onClick={(e: React.MouseEvent<HTMLElement>) => {
-            e.stopPropagation();
-          }}
-          color="secondary"
-        >
-          <MailIcon />
-        </Link>
-      ),
-    },
-  ];
 
   return (
     <>
@@ -530,50 +324,31 @@ export const PeoplePage: React.FC<Props> = props => {
       </Grid>
       <PeopleFilters />
       <div className={classes.tableContainer}>
-        <Table
-          title={`${peopleCount} ${
-            peopleCount === 1 ? t("person") : t("people")
-          }`}
-          columns={columns}
+        <PeopleTable
+          pagination={pagination}
           data={tableData}
-          selection={true}
-          selectionPermissions={[PermissionEnum.OrgUserInvite]}
-          onRowClick={(event, orgUser) => {
-            if (!orgUser) return;
+          inviteSelected={async userIds => {
+            if (orgStatus === OrganizationType.Demo) {
+              openSnackbar({
+                message: t(
+                  "This Organization is in Demo Mode. No invites have been sent"
+                ),
+                dismissable: true,
+                status: "info",
+                autoHideDuration: 5000,
+              });
+            } else {
+              await invite(userIds, params.organizationId);
+            }
+          }}
+          role={filters.roleFilter}
+          toUserPage={id => {
             const newParams = {
               ...params,
-              orgUserId: orgUser.id,
+              orgUserId: id,
             };
             history.push(PersonViewRoute.generate(newParams));
           }}
-          actions={[
-            {
-              tooltip: t("Invite selected people"),
-              icon: () => <MailIcon />,
-              onClick: async (evt, data) => {
-                const userIds = [];
-                if (Array.isArray(data)) {
-                  userIds.push(...data.map(d => d.userId));
-                } else {
-                  userIds.push(data.userId);
-                }
-                if (orgStatus === OrganizationType.Demo) {
-                  openSnackbar({
-                    message: t(
-                      "This Organization is in Demo Mode. No invites have been sent"
-                    ),
-                    dismissable: true,
-                    status: "info",
-                    autoHideDuration: 5000,
-                  });
-                } else {
-                  await invite(compact(userIds), params.organizationId);
-                }
-              },
-              permissions: [PermissionEnum.OrgUserInvite],
-            },
-          ]}
-          pagination={pagination}
         />
       </div>
     </>
@@ -589,15 +364,6 @@ const useStyles = makeStyles(theme => ({
       5
     )} ${theme.typography.pxToRem(5)}`,
     padding: theme.spacing(3),
-  },
-  paper: {
-    border: "1px solid",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
-  },
-  accountCell: {
-    display: "flex",
-    alignItems: "center",
   },
   header: {
     marginBottom: theme.spacing(),
