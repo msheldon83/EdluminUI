@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => ({
     borderRadius: "2px",
   },
   header: {
-    color: "#FF5555",
+    color: theme.customColors.primary,
   },
   headerContainer: {
     marginBottom: theme.spacing(1),
