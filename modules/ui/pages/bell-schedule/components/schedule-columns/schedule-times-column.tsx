@@ -36,11 +36,6 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
             ? props.periods[i - 1].endTime
             : undefined;
 
-        const priorPeriodTravelDuration =
-          i > 0 && props.periods[i - 1].travelDuration
-            ? props.periods[i - 1].travelDuration
-            : 0;
-
         const hasStartTime = p.startTime && isValid(new Date(p.startTime));
         const hasPriorPerionEndTime =
           priorPeriodEndTime && isValid(new Date(priorPeriodEndTime));
