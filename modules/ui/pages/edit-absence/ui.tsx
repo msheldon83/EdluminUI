@@ -368,7 +368,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ? (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[])
-      : [];
+      : props.initialVacancies;
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
@@ -656,7 +656,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               absenceReason={props.absenceReason}
               errors={errors}
               triggerValidation={triggerValidation}
-              vacancies={projectedVacancies || props.initialVacancies}
+              vacancies={projectedVacancies}
               vacancyDetails={theVacancyDetails}
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
@@ -717,7 +717,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeName={employeeName}
           absenceId={props.absenceId}
           orgId={props.organizationId}
-          vacancies={projectedVacancies || props.initialVacancies}
+          vacancies={projectedVacancies}
           actingAsEmployee={actingAsEmployee}
           employeeId={props.employeeId}
           positionId={props.positionId}
