@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { useMemo } from "react";
 import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { DeletedData } from "ui/components/deleted-data";
 import { GetDeleteAbsenceInfo } from "./graphql/get-deleted-absence-info.gen";
+import { NotFound } from "../not-found";
 
 type Props = {
   absenceId: string;
@@ -27,6 +27,9 @@ export const DeletedDataIndex: React.FC<Props> = props => {
   }
 
   const deletedAbsence = getDeletedAbsence.data.absence?.deletedAbsenceInfo;
+  if (!deletedAbsence) {
+    return <NotFound />;
+  }
 
   const formattedDate = getDateRangeDisplayText(
     deletedAbsence?.absenceLocalStartTime
