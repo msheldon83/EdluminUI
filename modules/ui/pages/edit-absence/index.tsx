@@ -19,11 +19,11 @@ import { DeleteAbsence } from "ui/components/employee/graphql/delete-absence.gen
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useSnackbar } from "hooks/use-snackbar";
+import { DeletedDataIndex } from "./deleted-data-index";
 import { DeleteAbsenceVacancyDialog } from "../../components/absence-vacancy/delete-absence-vacancy-dialog";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
-import { NotFound } from "ui/pages/not-found";
 
 type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
@@ -257,8 +257,9 @@ export const EditAbsence: React.FC<Props> = props => {
   if (absence.state !== "DONE" && absence.state !== "UPDATING") {
     return <></>;
   }
+
   if (!absence.data.absence?.byId) {
-    return <NotFound />;
+    return <DeletedDataIndex absenceId={params.absenceId} />;
   }
 
   const data = absence.data?.absence?.byId;
