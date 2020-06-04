@@ -362,7 +362,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         )
       : [];
 
-  const projectedVacancies =
+  const vacancies =
     getProjectedVacancies.state === "DONE" ||
     getProjectedVacancies.state === "UPDATING"
       ? (compact(
@@ -658,7 +658,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               absenceReason={props.absenceReason}
               errors={errors}
               triggerValidation={triggerValidation}
-              vacancies={projectedVacancies}
+              vacancies={vacancies}
               vacancyDetails={theVacancyDetails}
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
@@ -719,7 +719,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeName={employeeName}
           absenceId={props.absenceId}
           orgId={props.organizationId}
-          vacancies={projectedVacancies}
+          vacancies={vacancies}
           actingAsEmployee={actingAsEmployee}
           employeeId={props.employeeId}
           positionId={props.positionId}
