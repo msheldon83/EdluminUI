@@ -31,6 +31,7 @@ import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { AccessIcon } from "./access-icon";
 import { TablePerson } from "../types";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
+import { compact } from "lodash-es";
 import clsx from "clsx";
 
 type ToolbarProps = {
@@ -246,7 +247,11 @@ const BaseTable: React.FC<BaseProps> = ({
       <PeopleToolbar
         rowCount={pagination.totalCount}
         numberSelected={selected.length}
-        inviteSelected={() => inviteSelected(selected)}
+        inviteSelected={() =>
+          inviteSelected(
+            compact(selected.map(s => data.find(d => d.id == s)?.userId))
+          )
+        }
       />
       <PaginationControls pagination={pagination} />
       <TableContainer>
