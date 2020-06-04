@@ -1,4 +1,4 @@
-import { isAfter } from "date-fns";
+import { addDays, differenceInDays, parseISO } from "date-fns";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import * as React from "react";
 import { useMemo, useCallback } from "react";
@@ -8,7 +8,6 @@ import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { ScheduledAbsences } from "ui/components/employee/components/scheduled-absences";
 import { GetEmployeeAbsenceSchedule } from "ui/components/employee/graphql/get-employee-absence-schedule.gen";
 import { GetEmployeeAbsenceDetails } from "ui/components/employee/helpers";
-import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useRouteParams } from "ui/routes/definition";
@@ -33,7 +32,15 @@ export const UpcomingAbsences: React.FC<Props> = props => {
 
   const currentSchoolYear = useCurrentSchoolYear(props.orgId.toString());
   const startDate = useMemo(() => new Date(), []);
-  const endDate = currentSchoolYear?.endDate;
+  const endDate = useMemo(() => {
+    if (!currentSchoolYear?.endDate) {
+      return undefined;
+    }
+
+    return differenceInDays(parseISO(currentSchoolYear.endDate), startDate) < 45
+      ? addDays(parseISO(currentSchoolYear.endDate), 45)
+      : currentSchoolYear.endDate;
+  }, [startDate, currentSchoolYear]);
   const getAbsenceSchedule = useQueryBundle(GetEmployeeAbsenceSchedule, {
     variables: {
       id: props.employeeId,

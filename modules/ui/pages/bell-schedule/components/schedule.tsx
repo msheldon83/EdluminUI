@@ -113,7 +113,6 @@ export const Schedule: React.FC<Props> = props => {
               endTime: nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime,
               skipped: false,
               isEndOfDayPeriod: true,
-              travelDuration: 0,
             });
           }
 

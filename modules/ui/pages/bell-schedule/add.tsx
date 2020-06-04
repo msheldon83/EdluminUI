@@ -60,8 +60,6 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     ScheduleSettings
   >(scheduleSettingsDefaults);
 
-  const travelDuration = 0; // TODO: Get this from org Config
-
   const orgFeatureFlags = useOrgFeatureFlags(params.organizationId);
   const orgWorkDayPatterns = useWorkDayPatterns(params.organizationId);
   const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(
@@ -138,7 +136,6 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
         ...BuildPeriodsFromScheduleSettings(
           scheduleSettings,
           orgUsesHalfDayBreaks,
-          travelDuration,
           t
         )
       );
@@ -201,7 +198,6 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
         ...BuildPeriodsFromScheduleSettings(
           scheduleSettings,
           orgUsesHalfDayBreaks,
-          travelDuration,
           t
         )
       );
