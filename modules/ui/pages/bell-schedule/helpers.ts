@@ -1,5 +1,6 @@
 import { TFunction } from "i18next";
 import { isValid, differenceInMinutes, addMinutes, parseISO } from "date-fns";
+import { tryDateFromString, tryDifferenceInMinutes } from "helpers/date";
 
 export type ScheduleSettings = {
   isBasic: boolean;
@@ -34,13 +35,11 @@ export type Period = {
   skipped: boolean;
   sequence?: number;
   isEndOfDayPeriod?: boolean;
-  travelDuration: number;
 };
 
 export const BuildPeriodsFromScheduleSettings = (
   settings: ScheduleSettings,
   useHalfDayBreaks: boolean,
-  travelDuration: number,
   t: TFunction
 ): Array<Period> => {
   const periods: Array<Period> = [];
@@ -52,14 +51,12 @@ export const BuildPeriodsFromScheduleSettings = (
       startTime: undefined,
       endTime: undefined,
       skipped: false,
-      travelDuration,
     });
     periods.push({
       placeholder: t("Afternoon"),
       startTime: undefined,
       endTime: undefined,
       skipped: false,
-      travelDuration,
     });
   } else {
     // Period Schedule
@@ -69,7 +66,6 @@ export const BuildPeriodsFromScheduleSettings = (
         startTime: undefined,
         endTime: undefined,
         skipped: false,
-        travelDuration,
       });
     }
   }
@@ -83,7 +79,6 @@ export const BuildPeriodsFromScheduleSettings = (
       endTime: undefined,
       isHalfDayAfternoonStart: true,
       skipped: false,
-      travelDuration,
     });
     periods[middleIndex - 1].isHalfDayMorningEnd = true;
   }
@@ -121,7 +116,6 @@ export const BuildPeriodsFromSchedule = (
         (variantPeriod?.isHalfDayAfternoonStart || false),
       skipped: false,
       isEndOfDayPeriod: p.isEndOfDayPeriod,
-      travelDuration: p.travelDuration,
     };
   });
 
@@ -153,6 +147,20 @@ export const BuildPeriodsFromSchedule = (
   }
 
   return schedulePeriods;
+};
+
+export const travelDurationFromPeriods = (
+  periods: Period[],
+  currentPeriod: Period,
+  currentIndex: number
+) => {
+  const isLastPeriod = currentIndex + 1 >= periods.length;
+  const nextPeriod = isLastPeriod ? undefined : periods[currentIndex + 1];
+
+  const travelEnd = tryDateFromString(nextPeriod?.startTime);
+  const travelStart = tryDateFromString(currentPeriod.endTime);
+
+  return tryDifferenceInMinutes(travelEnd, travelStart);
 };
 
 export const GetPeriodDurationInMinutes = (
