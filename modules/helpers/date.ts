@@ -15,6 +15,7 @@ import {
   isTomorrow,
   differenceInCalendarDays,
   isSameDay,
+  differenceInMinutes,
 } from "date-fns";
 import { useMemo } from "react";
 import { differenceWith } from "lodash-es";
@@ -23,6 +24,29 @@ export type PolymorphicDateType = Date | string | undefined;
 export type DateInterval = {
   start: Date;
   end: Date;
+};
+
+export const tryDateFromString = (date: string | undefined) => {
+  if (date === undefined) {
+    return undefined;
+  }
+
+  try {
+    return new Date(date);
+  } catch (e) {
+    return undefined;
+  }
+};
+
+export const tryDifferenceInMinutes = (
+  endDate: Date | undefined,
+  startDate: Date | undefined
+) => {
+  if (!endDate || !startDate) {
+    return 0;
+  }
+
+  return differenceInMinutes(endDate, startDate);
 };
 
 export const isAfterDate = (

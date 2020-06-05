@@ -338,7 +338,7 @@ export const PeoplePage: React.FC<Props> = props => {
                 autoHideDuration: 5000,
               });
             } else {
-              await invite(compact(userIds), params.organizationId);
+              await invite(userIds, params.organizationId);
             }
           }}
           role={filters.roleFilter}

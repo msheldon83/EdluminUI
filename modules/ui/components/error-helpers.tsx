@@ -92,6 +92,25 @@ export const ShowErrors = (
   });
 };
 
+export const ConvertApolloErrors = (error: ApolloError) => {
+  const messages = uniq(
+    compact(
+      error.graphQLErrors.map((e, i) => {
+        const errorMessage =
+          e.extensions?.data?.text ?? e.extensions?.data?.code;
+        if (!errorMessage) {
+          return null;
+        }
+        return errorMessage[errorMessage.length - 1] === "."
+          ? errorMessage
+          : `${errorMessage}.`;
+      })
+    )
+  );
+
+  return messages.join(", ");
+};
+
 export const ShowNetworkErrors = (
   error: ApolloError,
   openSnackbar: (snackbarConfig: SnackbarHookType) => void

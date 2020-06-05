@@ -39,6 +39,10 @@ import {
 } from "./routes/accounting-code";
 import { AdminHomeLoader, AdminHomeRoute } from "./routes/admin-home";
 import {
+  ApprovalViewRoute,
+  ApprovalViewLoader,
+} from "./routes/approval-detail";
+import {
   AbsenceApprovalWorkflowRoute,
   AbsenceApprovalWorkflowLoader,
   VacancyApprovalWorkflowRoute,
@@ -639,6 +643,15 @@ export const App = hot(function() {
                                       devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApprovalViewLoader}
+                                      path={ApprovalViewRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.AbsVacApprovalsView,
                                       ]}
                                     />
                                     <ProtectedRoute

@@ -6,6 +6,15 @@ query GetVacancyById($id: ID!) {
       adminOnlyNotes
       rowVersion
       isClosed
+      approvalState {
+        id
+        approvalStatusId
+        approvalWorkflowId
+        currentStepId
+        comments {
+          id
+        }
+      }
       closedDetails {
         id
         locationId

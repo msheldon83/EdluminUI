@@ -1,0 +1,8 @@
+query GetApproverGroupHeaderById($approverGroupHeaderId: ID!) {
+  approverGroup {
+    byId(id: $approverGroupHeaderId) {
+      id
+      name
+    }
+  }
+}
