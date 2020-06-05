@@ -9,6 +9,7 @@ import {
   PermissionEnum,
   Assignment,
   CancelVacancyAssignmentInput,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
 import { GetAllLocationsWithSchedulesWithinOrg } from "../graphql/get-locations-with-schedules.gen";
@@ -41,6 +42,7 @@ import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { VacancyDetailsFormData, VacancyFormValues } from "../helpers/types";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
+import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -51,6 +53,13 @@ type Props = {
     v: VacancyDetailsFormData
   ) => Promise<ExecutionResult<UpdateVacancyMutation>>;
   onDelete?: () => void;
+  approvalStatus?: {
+    approvalStatusId: ApprovalStatus;
+    approvalWorkflowId: string;
+    currentStepId: string;
+    id: string;
+    comments: { id: string }[];
+  } | null;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -537,6 +546,16 @@ export const VacancyUI: React.FC<Props> = props => {
       <Typography className={classes.subHeader} variant="h4">
         {subHeader()}
       </Typography>
+      {Config.isDevFeatureOnly && props.approvalStatus && (
+        <ApprovalState
+          orgId={params.organizationId}
+          approvalStateId={props.approvalStatus?.id}
+          approvalStatusId={props.approvalStatus?.approvalStatusId}
+          approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
+          currentStepId={props.approvalStatus?.currentStepId}
+          countOfComments={props.approvalStatus.comments.length}
+        />
+      )}
       {vacancy.closedDetails.length > 0 && (
         <Grid className={classes.closedDayBanner} item xs={12}>
           <Typography>
