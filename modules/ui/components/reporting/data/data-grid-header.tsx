@@ -77,8 +77,8 @@ export const DataGridHeader: React.FC<Props> = props => {
       const orderByDirection = getOrderByDirection(expression, orderedBy);
       return (
         <div key={key} style={style} className={classes.headerCell}>
-          {orderByDirection === Direction.Asc && <ArrowDownward />}
-          {orderByDirection === Direction.Desc && <ArrowUpward />}
+          {orderByDirection === Direction.Asc && <ArrowUpward />}
+          {orderByDirection === Direction.Desc && <ArrowDownward />}
           <div>{expression.displayName}</div>
           {menuItems && menuItems.length > 0 && (
             <div
