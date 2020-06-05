@@ -1,5 +1,11 @@
 import { Index } from "react-virtualized";
-import { Row, DataExpression, GraphType, FilterField } from "./types";
+import {
+  Row,
+  DataExpression,
+  GraphType,
+  FilterField,
+  OrderByField,
+} from "./types";
 import { difference, differenceWith } from "lodash-es";
 
 export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {

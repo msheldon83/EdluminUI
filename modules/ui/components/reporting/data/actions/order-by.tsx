@@ -23,51 +23,46 @@ export const OrderBy: React.FC<Props> = props => {
   const classes = useStyles();
   const { orderedBy, possibleOrderByFields, setOrderBy, refreshReport } = props;
   const [orderByOpen, setOrderByOpen] = React.useState(false);
-  const [localOrderBy, setLocalOrderBy] = React.useState<OrderByField[]>(
-    orderedBy
-  );
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const buttonText =
-    localOrderBy.length > 0
-      ? `${t("Sorted by:")} ${localOrderBy.length} ${
-          localOrderBy.length === 1 ? t("field") : t("fields")
+    orderedBy.length > 0
+      ? `${t("Sorted by:")} ${orderedBy.length} ${
+          orderedBy.length === 1 ? t("field") : t("fields")
         }`
       : t("Sort");
 
-  React.useEffect(() => {
-    setOrderBy(localOrderBy);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localOrderBy]);
-
   const updateOrderBy = React.useCallback(
     (orderByField: OrderByField, index: number) => {
-      const updatedList = [...localOrderBy];
+      const updatedList = [...orderedBy];
       updatedList[index] = orderByField;
-      setLocalOrderBy(updatedList);
+      setOrderBy(updatedList);
     },
-    [localOrderBy]
+    [orderedBy, setOrderBy]
   );
 
   const addOrderBy = React.useCallback(() => {
-    setLocalOrderBy(current => {
-      return [
-        ...current,
-        {
-          expression: possibleOrderByFields[0],
-          direction: Direction.Asc,
-        },
-      ];
-    });
-  }, [possibleOrderByFields]);
+    const possibleFields =
+      getPossibleOrderByFields(
+        possibleOrderByFields,
+        orderedBy.map(ob => ob.expression)
+      ) ?? [];
+    setOrderBy([
+      ...orderedBy,
+      {
+        expression: possibleFields[0],
+        direction: Direction.Asc,
+      },
+    ]);
+  }, [orderedBy, possibleOrderByFields, setOrderBy]);
 
   const removeOrderBy = React.useCallback(
     (orderByIndex: number) => {
-      const updatedlist = [...localOrderBy];
+      const updatedlist = [...orderedBy];
       updatedlist.splice(orderByIndex, 1);
-      setLocalOrderBy(updatedlist);
+      setOrderBy(updatedlist);
     },
-    [localOrderBy]
+    [orderedBy, setOrderBy]
   );
 
   return (
@@ -101,12 +96,16 @@ export const OrderBy: React.FC<Props> = props => {
                 }}
               >
                 <div className={classes.orderByFields}>
-                  {localOrderBy.length > 0 ? (
-                    localOrderBy.map((o, i) => {
+                  {orderedBy.length > 0 ? (
+                    orderedBy.map((o, i) => {
                       return (
                         <OrderByRow
                           orderByField={o}
-                          possibleOrderByFields={possibleOrderByFields}
+                          possibleOrderByFields={getPossibleOrderByFields(
+                            possibleOrderByFields,
+                            orderedBy.map(ob => ob.expression),
+                            o.expression
+                          )}
                           updateOrderBy={(orderByField: OrderByField) =>
                             updateOrderBy(orderByField, i)
                           }
@@ -127,7 +126,7 @@ export const OrderBy: React.FC<Props> = props => {
                       variant="text"
                       className={classes.addOrderBy}
                     >
-                      {localOrderBy.length === 0
+                      {orderedBy.length === 0
                         ? t("Add a field to sort by")
                         : t("Add another field to sort by")}
                     </Button>
@@ -174,3 +173,20 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.edluminSubText,
   },
 }));
+
+const getPossibleOrderByFields = (
+  allFields: DataExpression[],
+  usedFields: DataExpression[],
+  currentField: DataExpression | undefined = undefined
+): DataExpression[] => {
+  const possibleOrderByFields = allFields.filter(
+    f =>
+      !usedFields
+        .map(uf => uf.baseExpressionAsQueryLanguage)
+        .includes(f.baseExpressionAsQueryLanguage) ||
+      (currentField &&
+        f.baseExpressionAsQueryLanguage ===
+          currentField.baseExpressionAsQueryLanguage)
+  );
+  return possibleOrderByFields;
+};
