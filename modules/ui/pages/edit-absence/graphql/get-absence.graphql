@@ -4,6 +4,15 @@ query GetAbsence($id: ID!) {
       id
       isClosed
       rowVersion
+      approvalState {
+        id
+        approvalStatusId
+        approvalWorkflowId
+        currentStepId
+        comments {
+          id
+        }
+      }
       closedDetails {
         id
         startDate
