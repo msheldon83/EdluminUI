@@ -37,13 +37,13 @@ export const ActionBar: React.FC<Props> = props => {
   return (
     <div className={classes.actionBar}>
       <RequiredFilters
-        filters={filters}
+        filters={filters.filter(f => f.field.isRequiredFilter)}
         filterableFields={filterableFields.filter(f => f.isRequiredFilter)}
         setFilters={(filters: FilterField[]) => setFilters(filters, true, true)}
       />
       <div className={classes.actionButtons}>
         <OptionalFilters
-          filters={filters}
+          filters={filters.filter(f => !f.field.isRequiredFilter)}
           filterableFields={filterableFields.filter(f => !f.isRequiredFilter)}
           setFilters={(filters: FilterField[]) =>
             setFilters(filters, false, false)
