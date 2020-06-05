@@ -54,15 +54,36 @@ export type PositionScheduleDate = {
   nonStandardVariantTypeName?: string;
 };
 
-export type ScheduleDate = {
+export type AbsenceScheduleDate = {
   date: Date;
-  type:
-    | "absence"
-    | "vacancy"
-    | "instructionalDay"
-    | "nonWorkDay"
-    | "teacherWorkDay"
-    | "cancelledDay";
+  type: "absence";
+  description?: string;
+  rawData: EmployeeAbsenceDetail;
+};
+
+export type VacancyScheduleDate = {
+  date: Date;
+  type: "vacancy";
   description?: string;
   rawData: EmployeeAbsenceDetail | ContractDate | PositionScheduleDate;
 };
+
+export type InstructionalScheduleDate = {
+  date: Date;
+  type: "instructionalDay";
+  description?: string;
+  rawData: PositionScheduleDate;
+};
+
+export type OtherScheduleDate = {
+  date: Date;
+  type: "nonWorkDay" | "teacherWorkDay" | "cancelledDay";
+  description?: string;
+  rawData: ContractDate;
+};
+
+export type ScheduleDate =
+  | AbsenceScheduleDate
+  | VacancyScheduleDate
+  | InstructionalScheduleDate
+  | OtherScheduleDate;

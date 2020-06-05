@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useField, useFormikContext } from "formik";
-import { TimeInput, Props as TimeInputProps } from "./time-input";
+import { TimeInput, TimeInputProps } from "./time-input";
 import { useState } from "react";
 import { convertStringToDate } from "helpers/date";
 import { parseISO, getHours, getMinutes } from "date-fns";
@@ -34,7 +34,7 @@ export const FormikTimeInput: React.FC<Props> = props => {
       placeHolder={props.placeHolder}
       {...props}
       value={time}
-      onChange={v => {
+      onChange={(v: string | undefined) => {
         setTime(v);
         if (!v) {
           setFieldValue(props.name, undefined);
