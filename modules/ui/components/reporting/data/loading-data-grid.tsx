@@ -20,6 +20,7 @@ export const LoadingDataGrid: React.FC<Props> = props => {
     columns.push({
       displayName: "...",
       expressionAsQueryLanguage: x,
+      baseExpressionAsQueryLanguage: x,
     })
   );
 

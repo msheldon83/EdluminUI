@@ -26,6 +26,7 @@ export type FilterField = {
 export type DataExpression = {
   displayName: string;
   expressionAsQueryLanguage: string;
+  baseExpressionAsQueryLanguage: string;
   dataSourceField?: DataSourceField;
   expressionFunction?: ExpressionFunction;
   args?: DataExpression[];

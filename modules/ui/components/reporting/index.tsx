@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { Direction, FilterField, DataExpression } from "./types";
+import { Direction, FilterField, DataExpression, OrderByField } from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
 import { reportReducer } from "./state";
@@ -121,8 +121,12 @@ export const Report: React.FC<Props> = props => {
     dispatch({ action: "refreshReport" });
   }, []);
 
+  const setOrderBy = React.useCallback((orderBy: OrderByField[]) => {
+    dispatch({ action: "setOrderBy", orderBy });
+  }, []);
+
   const addOrUpdateOrderBy = React.useCallback(
-    async (expression: DataExpression, direction: Direction) => {
+    (expression: DataExpression, direction: Direction) => {
       dispatch({ action: "addOrUpdateOrderBy", expression, direction });
     },
     []
@@ -160,6 +164,7 @@ export const Report: React.FC<Props> = props => {
         }
         filterableFields={state.filterableFields}
         setFilters={setFilters}
+        setOrderBy={setOrderBy}
         addOrUpdateOrderBy={addOrUpdateOrderBy}
         refreshReport={refreshReport}
         exportReport={async () => {

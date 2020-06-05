@@ -20,6 +20,7 @@ type Props = {
   ) => void;
   orderedBy: OrderByField[];
   possibleOrderByFields: DataExpression[];
+  setOrderBy: (orderBy: OrderByField[]) => void;
   refreshReport: () => Promise<void>;
 };
 
@@ -31,6 +32,7 @@ export const ActionBar: React.FC<Props> = props => {
     setFilters,
     orderedBy,
     possibleOrderByFields,
+    setOrderBy,
     refreshReport,
   } = props;
 
@@ -55,6 +57,7 @@ export const ActionBar: React.FC<Props> = props => {
         <OrderBy
           orderedBy={orderedBy}
           possibleOrderByFields={possibleOrderByFields}
+          setOrderBy={setOrderBy}
           refreshReport={refreshReport}
         />
       </div>

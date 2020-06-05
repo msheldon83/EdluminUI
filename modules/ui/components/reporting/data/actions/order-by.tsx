@@ -14,19 +14,20 @@ import { OrderByRow } from "./order-by-row";
 type Props = {
   orderedBy: OrderByField[];
   possibleOrderByFields: DataExpression[];
-  //setFilters: (filterFields: FilterField[]) => void;
+  setOrderBy: (orderBy: OrderByField[]) => void;
   refreshReport: () => Promise<void>;
 };
 
 export const OrderBy: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { orderedBy, possibleOrderByFields, refreshReport } = props;
+  const { orderedBy, possibleOrderByFields, setOrderBy, refreshReport } = props;
   const [orderByOpen, setOrderByOpen] = React.useState(false);
-  const [localOrderBy, setLocalOrderBy] = React.useState<OrderByField[]>([]);
+  const [localOrderBy, setLocalOrderBy] = React.useState<OrderByField[]>(
+    orderedBy
+  );
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
-
   const buttonText =
     localOrderBy.length > 0
       ? `${t("Sorted by:")} ${localOrderBy.length} ${
@@ -34,11 +35,10 @@ export const OrderBy: React.FC<Props> = props => {
         }`
       : t("Sort");
 
-  // React.useEffect(() => {
-  //   const definedFilters = localFilters.filter(f => f.value !== undefined);
-  //   //setFilters(definedFilters);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [localFilters]);
+  React.useEffect(() => {
+    setOrderBy(localOrderBy);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localOrderBy]);
 
   const updateOrderBy = React.useCallback(
     (orderByField: OrderByField, index: number) => {
@@ -127,7 +127,9 @@ export const OrderBy: React.FC<Props> = props => {
                       variant="text"
                       className={classes.addOrderBy}
                     >
-                      {t("Add another field to sort by")}
+                      {localOrderBy.length === 0
+                        ? t("Add a field to sort by")
+                        : t("Add another field to sort by")}
                     </Button>
                   </div>
                 </div>

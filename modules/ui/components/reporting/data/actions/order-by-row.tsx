@@ -33,7 +33,7 @@ export const OrderByRow: React.FC<Props> = props => {
     return possibleOrderByFields.map(f => {
       return {
         label: f.displayName,
-        value: f.expressionAsQueryLanguage,
+        value: f.baseExpressionAsQueryLanguage,
       };
     });
   }, [possibleOrderByFields]);
@@ -48,13 +48,17 @@ export const OrderByRow: React.FC<Props> = props => {
       </div>
       <div className={`${classes.field} ${classes.rowItem}`}>
         <SelectNew
-          value={orderByOptions.find(
-            o => o.value === orderByField.expression.expressionAsQueryLanguage
-          )}
+          value={
+            orderByOptions.find(
+              o =>
+                o.value ===
+                orderByField.expression.baseExpressionAsQueryLanguage
+            ) ?? { value: "", label: "" }
+          }
           options={orderByOptions}
           onChange={v => {
             const field = possibleOrderByFields.find(
-              o => o.expressionAsQueryLanguage === v.value
+              o => o.baseExpressionAsQueryLanguage === v.value
             );
             if (field) {
               updateOrderBy({

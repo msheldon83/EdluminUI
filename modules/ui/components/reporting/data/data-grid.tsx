@@ -42,7 +42,7 @@ type Props = {
   addOrUpdateOrderBy: (
     expression: DataExpression,
     direction: Direction
-  ) => Promise<void>;
+  ) => void;
   showGroupLabels?: boolean;
 };
 

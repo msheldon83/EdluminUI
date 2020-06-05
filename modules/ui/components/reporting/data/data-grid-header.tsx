@@ -12,7 +12,7 @@ type Props = {
   addOrUpdateOrderBy: (
     expression: DataExpression,
     direction: Direction
-  ) => Promise<void>;
+  ) => void;
   orderedBy: OrderByField[];
   columnWidth: MultiGridProps["columnWidth"];
   numberOfLockedColumns?: number;
@@ -49,13 +49,13 @@ export const DataGridHeader: React.FC<Props> = props => {
     {
       label: t("Sort A > Z"),
       onClick: async (expression: DataExpression) => {
-        await addOrUpdateOrderBy(expression, Direction.Asc);
+        addOrUpdateOrderBy(expression, Direction.Asc);
       },
     },
     {
       label: t("Sort Z > A"),
       onClick: async (expression: DataExpression) => {
-        await addOrUpdateOrderBy(expression, Direction.Desc);
+        addOrUpdateOrderBy(expression, Direction.Desc);
       },
     },
   ];
@@ -192,7 +192,8 @@ const getOrderByDirection = (
 ): Direction | undefined => {
   const orderByMatch = orderedBy.find(
     o =>
-      o.expression.expressionAsQueryLanguage === field.expressionAsQueryLanguage
+      o.expression.baseExpressionAsQueryLanguage ===
+      field.baseExpressionAsQueryLanguage
   );
   return orderByMatch?.direction;
 };

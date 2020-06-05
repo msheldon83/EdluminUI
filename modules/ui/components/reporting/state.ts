@@ -11,6 +11,7 @@ import {
   Formula,
   DataExpression,
   FilterType,
+  OrderByField,
 } from "./types";
 import { compact, flatMap } from "lodash-es";
 import { format, parseISO } from "date-fns";
@@ -41,6 +42,10 @@ export type ReportActions =
       filters: FilterField[];
       areRequiredFilters: boolean;
       refreshReport?: boolean;
+    }
+  | {
+      action: "setOrderBy";
+      orderBy: OrderByField[];
     }
   | {
       action: "addOrUpdateOrderBy";
@@ -194,12 +199,21 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       }
       return updatedState;
     }
+    case "setOrderBy": {
+      return {
+        ...prev,
+        report: {
+          ...prev.report!,
+          orderBy: action.orderBy,
+        },
+      };
+    }
     case "addOrUpdateOrderBy": {
       const updatedOrderBy = [...(prev.report!.orderBy ?? [])];
       const match = updatedOrderBy.find(
         o =>
-          o.expression.expressionAsQueryLanguage ===
-          action.expression.expressionAsQueryLanguage
+          o.expression.baseExpressionAsQueryLanguage ===
+          action.expression.baseExpressionAsQueryLanguage
       );
       if (match) {
         match.direction = action.direction;
@@ -374,7 +388,7 @@ export const convertReportDefinitionInputToRdl = (
       `ORDER BY ${report.orderBy
         .map(
           o =>
-            `${o.expression.expressionAsQueryLanguage} ${
+            `${o.expression.baseExpressionAsQueryLanguage} ${
               o.direction === Direction.Asc ? "ASC" : "DESC"
             }`
         )
