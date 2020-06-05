@@ -9,7 +9,7 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
     <Report
       title={t("Employee Roster")}
       rdl={
-        "QUERY FROM Employee WHERE (Active = '1') SELECT Concat(LastName,', ',FirstName) AS Employee, ExternalId, Active, InvitationStatus, LocationNames, Title, PositionTypeName, Email, LoginEmail ORDER BY Concat(LastName,', ',FirstName) ASC"
+        "QUERY FROM Employee WHERE (Active = '1') SELECT Concat(LastName,', ',FirstName) AS Employee WIDTH(250), ExternalId, Active, InvitationStatus, LocationNames, Title WIDTH(250), PositionTypeName, Email, LoginEmail ORDER BY Concat(LastName,', ',FirstName) ASC"
       }
       exportFilename={t("EmployeeRosterReport")}
       allowedFilterFieldsOverride={[
