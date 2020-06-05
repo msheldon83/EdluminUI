@@ -67,7 +67,7 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       const chartMetadata = action.reportDefinition.metadata.chart;
 
       if (!prev.report) {
-        // Build out the Report based on the report definition
+        // Build out the Report based on the report definition from the server
         const report: Report = {
           from: queryMetadata.schema.name,
           selects: queryMetadata.selects,
@@ -215,6 +215,8 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
           o.expression.baseExpressionAsQueryLanguage ===
           action.expression.baseExpressionAsQueryLanguage
       );
+      // Don't duplicate an OrderByField or change its location in the list.
+      // If we find a match, just update its Direction value
       if (match) {
         match.direction = action.direction;
       } else {
@@ -246,6 +248,13 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
   }
 };
 
+// There's some recursion as to how the Filter on the server is defined
+// so we need to handle when the condition is a LogicalTerm, following
+// that list of conditions down until we have a Formula and can build
+// out a proper FilterField for our components to work with.
+// The definition on the backed of a LogicalTerm has an Operator property
+// to support AND or OR conditions. For now we are only allowing the User
+// to create AND conditions so we're assuming AND for everything here.
 const buildFilters = (condition: LogicalTerm | Formula): FilterField[] => {
   const filters: FilterField[] = [];
 
@@ -279,6 +288,11 @@ const buildFilters = (condition: LogicalTerm | Formula): FilterField[] => {
   return filters;
 };
 
+// It's possible that we have multiple fields that resolve to the same
+// DataSourceFieldName for filtering. Like if we show a Location Id
+// column and a Location Name column. Both ultimately filter on the LocationId
+// and the presence of the filterTypeDefinition will tell us if
+// we need to use the filterDataSourceFieldName from that object.
 const getFilterFieldName = (filterField: FilterField): string => {
   const dataSourceFieldName = filterField.field.filterTypeDefinition
     ? filterField.field.filterTypeDefinition.filterDataSourceFieldName
@@ -286,6 +300,10 @@ const getFilterFieldName = (filterField: FilterField): string => {
   return dataSourceFieldName;
 };
 
+// For the Expressions that we support in the frontend we need to take our
+// structure of those filters and convert them into valid Report Definition
+// Language to send to the server. Adding handling for new Expressions will
+// also require updates here to make sure we construct the correct string.
 const buildFormula = (
   fieldName: string,
   expressionFunction: ExpressionFunction,
@@ -346,6 +364,8 @@ const processFilterValue = (value: any): any => {
   return value;
 };
 
+// Build a Report Definition Language string from our
+// Report object that we are managing in this reducer
 export const convertReportDefinitionInputToRdl = (
   report: Report,
   forExport?: boolean
