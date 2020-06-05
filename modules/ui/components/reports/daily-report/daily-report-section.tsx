@@ -22,6 +22,11 @@ type Props = {
   swapSubs?: (detail: Detail) => void;
 };
 
+type DetailsGroupProps = {
+  details?: Detail[];
+  parentId: string;
+};
+
 export const DailyReportSection: React.FC<Props> = props => {
   const classes = useStyles();
 
@@ -30,9 +35,25 @@ export const DailyReportSection: React.FC<Props> = props => {
   if (!detailGroup.subGroups && detailGroup.details) {
     headerText = `${headerText} (${detailGroup.details.length})`;
   }
-  const hasSubGroups = !!detailGroup.subGroups;
   const hasDetails = !!(detailGroup.details && detailGroup.details.length);
   const panelId = detailGroup.label;
+
+  const DetailsGroupUI: React.FC<DetailsGroupProps> = ({
+    details,
+    parentId,
+  }) => (
+    <Grid container alignItems="flex-start">
+      <DailyReportDetailsGroup
+        panelId={parentId}
+        removeSub={props.removeSub}
+        updateSelectedDetails={props.updateSelectedDetails}
+        selectedDetails={props.selectedDetails}
+        details={details ?? []}
+        vacancyDate={props.vacancyDate}
+        swapSubs={props.swapSubs}
+      />
+    </Grid>
+  );
 
   return (
     <ExpansionPanel defaultExpanded={hasDetails}>
@@ -46,63 +67,45 @@ export const DailyReportSection: React.FC<Props> = props => {
         <div className={classes.summaryText}>{headerText}</div>
       </ExpansionPanelSummary>
       <ExpansionPanelDetails className={classes.details}>
-        {hasSubGroups &&
-          detailGroup.subGroups!.map((s, i) => {
-            const subGroupHasDetails = !!(s.details && s.details.length);
-            let subHeaderText = `${s.label}`;
-            if (subGroupHasDetails) {
-              subHeaderText = `${subHeaderText} (${s.details!.length})`;
-            }
-            const subGroupPanelId = `${panelId}-subGroup-${i}`;
+        {detailGroup.subGroups ? (
+          detailGroup.subGroups
+            .filter(s => s.details?.length)
+            .map((s, i) => {
+              const details = s.details!;
+              const subHeaderText = `${s.label} (${details.length})`;
+              const subGroupPanelId = `${panelId}-subGroup-${i}`;
 
-            return (
-              <ExpansionPanel
-                className={classes.subDetailHeader}
-                defaultExpanded={subGroupHasDetails}
-                key={`subGroup-${i}`}
-                classes={{
-                  expanded: classes.subGroupExpanded,
-                }}
-              >
-                <ExpansionPanelSummary
-                  expandIcon={<ExpandMore />}
-                  aria-label="Expand"
-                  aria-controls={`${subGroupPanelId}-content`}
-                  id={subGroupPanelId}
-                  className={classes.summary}
+              return (
+                <ExpansionPanel
+                  className={classes.subDetailHeader}
+                  defaultExpanded={true}
+                  key={`subGroup-${i}`}
+                  classes={{
+                    expanded: classes.subGroupExpanded,
+                  }}
                 >
-                  <div className={classes.subGroupSummaryText}>
-                    {subHeaderText}
-                  </div>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails className={classes.details}>
-                  <Grid container alignItems="flex-start">
-                    <DailyReportDetailsGroup
-                      panelId={subGroupPanelId}
-                      removeSub={props.removeSub}
-                      updateSelectedDetails={props.updateSelectedDetails}
-                      selectedDetails={props.selectedDetails}
-                      details={s.details ?? []}
-                      vacancyDate={props.vacancyDate}
-                      swapSubs={props.swapSubs}
+                  <ExpansionPanelSummary
+                    expandIcon={<ExpandMore />}
+                    aria-label="Expand"
+                    aria-controls={`${subGroupPanelId}-content`}
+                    id={subGroupPanelId}
+                    className={classes.summary}
+                  >
+                    <div className={classes.subGroupSummaryText}>
+                      {subHeaderText}
+                    </div>
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails className={classes.details}>
+                    <DetailsGroupUI
+                      parentId={subGroupPanelId}
+                      details={details}
                     />
-                  </Grid>
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
-            );
-          })}
-        {!hasSubGroups && (
-          <Grid container alignItems="flex-start">
-            <DailyReportDetailsGroup
-              panelId={panelId}
-              removeSub={props.removeSub}
-              updateSelectedDetails={props.updateSelectedDetails}
-              selectedDetails={props.selectedDetails}
-              details={detailGroup.details ?? []}
-              vacancyDate={props.vacancyDate}
-              swapSubs={props.swapSubs}
-            />
-          </Grid>
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
+              );
+            })
+        ) : (
+          <DetailsGroupUI parentId={panelId} details={detailGroup.details} />
         )}
       </ExpansionPanelDetails>
     </ExpansionPanel>

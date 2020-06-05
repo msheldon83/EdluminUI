@@ -1,5 +1,9 @@
 import * as React from "react";
-import { Period, GetPeriodDurationInMinutes } from "../../helpers";
+import {
+  Period,
+  GetPeriodDurationInMinutes,
+  travelDurationFromPeriods,
+} from "../../helpers";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 
@@ -23,15 +27,17 @@ export const ScheduleDurationColumn: React.FC<Props> = props => {
           periodClasses.push(props.scheduleClasses.skippedPeriod);
         }
 
+        const travelDuration = travelDurationFromPeriods(props.periods, p, i);
+
         return (
-          <div key={i} className={periodClasses.join(" ")}>
+          <div key={p.periodId ?? i} className={periodClasses.join(" ")}>
             {!p.skipped && (
               <div className={classes.duration}>
                 {GetPeriodDurationInMinutes(
                   p.startTime,
                   p.endTime,
-                  p.travelDuration,
-                  i < props.periods.length - 1 && p.travelDuration > 0,
+                  travelDuration,
+                  i < props.periods.length - 1 && travelDuration > 0,
                   t
                 )}
               </div>

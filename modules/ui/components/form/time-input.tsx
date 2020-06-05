@@ -7,8 +7,9 @@ import {
   isoToTimestamp,
 } from "../../../helpers/time";
 import { Input } from "./input";
+import { InputBaseComponentProps } from "@material-ui/core";
 
-export type Props = {
+export type TimeInputProps = {
   label: string;
   value?: string;
   name?: string;
@@ -21,10 +22,11 @@ export type Props = {
   disabled?: boolean;
   className?: string;
   placeHolder?: string;
+  highlightOnFocus?: boolean;
+  inputProps?: InputBaseComponentProps;
 };
 
-export const TimeInput = React.forwardRef((props: Props, ref) => {
-  //2019-11-04T06:00:00.000Z/
+export const TimeInput = React.forwardRef((props: TimeInputProps, ref) => {
   const {
     earliestTime,
     onValidTime,
@@ -37,13 +39,64 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
     disabled,
     className,
     placeHolder,
+    highlightOnFocus = false,
+    inputProps,
   } = props;
+
+  // Sometimes this ref is null if the parent doens't give a ref
+  const inputRef = ref ?? React.useRef();
+  const inputElement = (inputRef as React.RefObject<HTMLInputElement>).current;
+
+  /*
+  Using start to tracking a forced text selection to ensure that the selection sticks even if
+  the props change from the parent. Sometimes the selection would get lost of there was data
+  changing at the same time as the focus.
+  */
+  const [focusInitiated, setFocusInitiated] = React.useState(false);
+  React.useEffect(() => {
+    if (focusInitiated) {
+      inputElement?.select();
+      setFocusInitiated(false);
+    }
+  }, [inputElement, focusInitiated]);
+
+  // Track if tab was used to initiate interaction with the input component
+  const [tabKeyDown, setTabKeyDown] = React.useState(false);
+  const handleWindowKeyDown = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Tab") {
+        setTabKeyDown(true);
+      }
+    },
+    [setTabKeyDown]
+  );
+  const handleWindowKeyUp = React.useCallback(() => setTabKeyDown(false), [
+    setTabKeyDown,
+  ]);
+  React.useEffect(() => {
+    /*
+      These event are only necessary if the parent wants to make sure that the text
+      gets highlighted on focus from a tab event. If not, there's no need to initiate them.
+    */
+    if (highlightOnFocus) {
+      window.addEventListener("keydown", handleWindowKeyDown);
+      window.addEventListener("keyup", handleWindowKeyUp);
+    }
+
+    // Remove event listeners
+    return () => {
+      if (highlightOnFocus) {
+        window.removeEventListener("keydown", handleWindowKeyDown);
+        window.removeEventListener("keyup", handleWindowKeyUp);
+      }
+    };
+  }, [handleWindowKeyDown, handleWindowKeyUp, highlightOnFocus]);
 
   const parsedValue = isIso(value)
     ? humanizeTimeStamp(isoToTimestamp(value))
     : value;
 
-  const handleBlur = React.useCallback(
+  const attemptToParseValidTime = React.useCallback(
     event => {
       // It's not a valid time if there is no input
       if (!parsedValue) {
@@ -57,6 +110,19 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
     [earliestTime, onValidTime, parsedValue]
   );
 
+  const handleFocus = React.useCallback(
+    event => {
+      /*
+        Tracking the focus status to select the text on next render due to re-rendering
+        and lifecycle of the component
+      */
+      setFocusInitiated(highlightOnFocus && tabKeyDown);
+
+      attemptToParseValidTime(event);
+    },
+    [attemptToParseValidTime, highlightOnFocus, tabKeyDown]
+  );
+
   return (
     <Input
       label={label}
@@ -64,12 +130,14 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
       name={name}
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
-      onBlur={handleBlur}
-      inputRef={ref}
+      onBlur={attemptToParseValidTime}
+      onFocus={handleFocus}
+      inputRef={inputRef}
       inputStatus={inputStatus}
       disabled={disabled}
       validationMessage={validationMessage}
       placeholder={placeHolder}
+      inputProps={inputProps}
     />
   );
 });
