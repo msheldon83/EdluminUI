@@ -15,7 +15,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
   return (
     <Report
       title={t("Substitute History")}
-      rdl={`QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN '${startDate}' AND '${endDate}') AND (IsFilled = '1') SELECT ConfirmationNumber, SubExternalId, Date, LocationName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee, AbsStartTime, AbsEndTime, ReasonName, SubStartTime, SubEndTime, PayDays, PayHours, Title, PositionTypeName, RequiresSub, NotesToAdmin, AdminOnlyNotes, NotesToReplacement ORDER BY Concat(SubFirstName,' ',SubLastName) ASC, Date DESC WITH SUBTOTALS SubEmployeeId SHOW Concat(SubFirstName,' ',SubLastName) AS Substitute`}
+      rdl={`QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN '${startDate}' AND '${endDate}') AND (IsFilled = '1') SELECT ConfirmationNumber, SubExternalId, Date, LocationName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee WIDTH(300), AbsStartTime, AbsEndTime, ReasonName, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, Title, PositionTypeName, RequiresSub WIDTH(150), NotesToAdmin, AdminOnlyNotes, NotesToReplacement ORDER BY Concat(SubFirstName,' ',SubLastName) ASC, Date DESC WITH SUBTOTALS SubEmployeeId SHOW Concat(SubFirstName,' ',SubLastName) AS Substitute`}
       baseFilterFieldNames={["IsFilled"]}
       exportFilename={t("SubstituteHistoryReport")}
       showGroupLabels={false}
