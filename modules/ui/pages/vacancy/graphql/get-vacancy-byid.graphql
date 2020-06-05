@@ -2,6 +2,7 @@ query GetVacancyById($id: ID!) {
   vacancy {
     byId(id: $id) {
       id
+      isNormalVacancy
       notesToReplacement
       adminOnlyNotes
       rowVersion
@@ -88,6 +89,10 @@ query GetVacancyById($id: ID!) {
           name
         }
         vacancyReasonId
+        vacancyReason {
+          id
+          name
+        }
         accountingCodeAllocations {
           id
           accountingCodeId

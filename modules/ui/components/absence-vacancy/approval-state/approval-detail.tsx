@@ -1,13 +1,6 @@
 import * as React from "react";
 import { Section } from "ui/components/section";
-import {
-  Grid,
-  makeStyles,
-  FormControlLabel,
-  TextField,
-  Checkbox,
-  Button,
-} from "@material-ui/core";
+import { Grid, makeStyles, Button } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
@@ -25,9 +18,10 @@ import { ApprovalComments } from "./comments";
 import { WorkflowSummary } from "./approval-flow";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { GetApprovalWorkflowById } from "./graphql/get-approval-workflow-steps-by-id.gen";
-import { AbsenceContext } from "./context-absence";
+import { VacancyDetails } from "./vacancy-details";
 import { AbsenceDetails } from "./absence-details";
 import { compact, groupBy, flatMap } from "lodash-es";
+import { Context } from "./context";
 
 type Props = {
   orgId: string;
@@ -48,8 +42,24 @@ type Props = {
       approvalActionId: ApprovalAction;
     } | null;
   }[];
-  vacancyId?: string;
   isTrueVacancy: boolean;
+  vacancy?: {
+    id: string;
+    adminOnlyNotes?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    details?:
+      | Maybe<{
+          startDate: string;
+          endDate: string;
+          locationId: string;
+          vacancyReason: {
+            id: string;
+            name: string;
+          };
+        }>[]
+      | null;
+  } | null;
   absence?: {
     id: string;
     employeeId: string;
@@ -157,46 +167,61 @@ export const ApprovalDetail: React.FC<Props> = props => {
     <Section>
       <Grid container spacing={2}>
         {!props.isTrueVacancy && props.absence && (
-          <Grid item container xs={6} spacing={2}>
-            <Grid item xs={12}>
-              <AbsenceDetails
-                orgId={props.orgId}
-                absence={props.absence}
-                absenceReasons={absenceReasons}
-                actingAsEmployee={props.actingAsEmployee}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <AbsenceContext
-                orgId={props.orgId}
-                employeeId={props.absence.employeeId}
-                absenceId={props.absence.id}
-                employeeName={`${props.absence.employee?.firstName} ${props.absence.employee?.lastName}`}
-                locationIds={props.absence.locationIds}
-                startDate={props.absence.startDate}
-                endDate={props.absence.endDate}
-                absenceReasons={absenceReasons}
-                actingAsEmployee={props.actingAsEmployee}
-              />
-            </Grid>
+          <Grid item xs={6} spacing={2}>
+            <AbsenceDetails
+              orgId={props.orgId}
+              absence={props.absence}
+              absenceReasons={absenceReasons}
+              actingAsEmployee={props.actingAsEmployee}
+            />
+            <Context
+              orgId={props.orgId}
+              employeeId={props.absence.employeeId}
+              absenceId={props.absence.id}
+              employeeName={`${props.absence.employee?.firstName} ${props.absence.employee?.lastName}`}
+              locationIds={props.absence.locationIds}
+              startDate={props.absence.startDate}
+              endDate={props.absence.endDate}
+              actingAsEmployee={props.actingAsEmployee}
+              isNormalVacancy={false}
+            />
           </Grid>
         )}
-        <Grid item container xs={6} spacing={2}>
-          <Grid item container xs={12} spacing={2} justify="flex-end">
-            <Button
-              className={classes.denyButton}
-              variant="contained"
-              onClick={handleDeny}
-            >
-              {t("Deny")}
-            </Button>
-            <Button
-              className={classes.approveButton}
-              variant="contained"
-              onClick={handleApprove}
-            >
-              {t("Approve")}
-            </Button>
+        {props.isTrueVacancy && props.vacancy && (
+          <Grid item xs={6}>
+            <VacancyDetails orgId={props.orgId} vacancy={props.vacancy} />
+            <Context
+              orgId={props.orgId}
+              vacancyId={props.vacancy?.id ?? ""}
+              startDate={props.vacancy?.startDate}
+              endDate={props.vacancy?.endDate}
+              locationIds={
+                compact(props.vacancy?.details?.map(x => x?.locationId)) ?? []
+              }
+              isNormalVacancy={true}
+            />
+          </Grid>
+        )}
+        <Grid item xs={6}>
+          <Grid item container alignItems="center" justify="flex-end" xs={12}>
+            <Grid item>
+              <Button
+                className={classes.denyButton}
+                variant="contained"
+                onClick={handleDeny}
+              >
+                {t("Deny")}
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                className={classes.approveButton}
+                variant="contained"
+                onClick={handleApprove}
+              >
+                {t("Approve")}
+              </Button>
+            </Grid>
           </Grid>
           <Grid item xs={12}>
             <WorkflowSummary
@@ -226,11 +251,5 @@ const useStyles = makeStyles(theme => ({
   denyButton: {
     background: "#FF5555",
     marginRight: theme.spacing(1),
-  },
-  buttonContainer: {
-    display: "flex",
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    alignItems: "space-between",
   },
 }));

@@ -135,7 +135,7 @@ export const ApprovalState: React.FC<Props> = props => {
         </div>
       );
     case ApprovalStatus.Pending:
-      return (
+      return approvalWorkflow ? (
         <>
           <ApproveDenyDialog
             open={approveDialogOpen}
@@ -178,7 +178,10 @@ export const ApprovalState: React.FC<Props> = props => {
               </div>
             </div>
             <div className={classes.detailsContainer}>
-              <img src={require("ui/icons/comment.svg")} />
+              <img
+                src={require("ui/icons/comment.svg")}
+                className={classes.commentIcon}
+              />
               <div>{`${props.countOfComments} ${t("comments")}`}</div>
               <Link
                 to={
@@ -203,6 +206,8 @@ export const ApprovalState: React.FC<Props> = props => {
             </div>
           </div>
         </>
+      ) : (
+        <></>
       );
     default:
       return <></>;
@@ -269,5 +274,8 @@ const useStyles = makeStyles(theme => ({
   statusText: {
     fontWeight: 600,
     fontSize: theme.typography.pxToRem(16),
+  },
+  commentIcon: {
+    marginRight: theme.spacing(0.7),
   },
 }));

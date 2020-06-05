@@ -38,6 +38,7 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
         subHeader={vacancy?.position?.title}
         pageHeader={`${t("Approval status for vacancy")} #V${params.vacancyId}`}
         onCancel={onReturn}
+        isForVacancy={true}
       />
       <ApprovalDetail
         orgId={params.organizationId}
@@ -46,7 +47,7 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
         approvalWorkflowId={approvalState.approvalWorkflowId}
         comments={approvalState.comments}
         isTrueVacancy={true}
-        vacancyId={params.vacancyId}
+        vacancy={vacancy}
       />
     </>
   );

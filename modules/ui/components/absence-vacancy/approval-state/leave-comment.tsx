@@ -77,9 +77,11 @@ export const LeaveComment: React.FC<Props> = props => {
             label={t("Visible to employee")}
           />
         )}
-        <Button variant="contained" onClick={handleComment}>
-          {t("Send")}
-        </Button>
+        <div className={classes.button}>
+          <Button variant="contained" onClick={handleComment}>
+            {t("Send")}
+          </Button>
+        </div>
       </div>
     </>
   );
@@ -88,11 +90,17 @@ export const LeaveComment: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   buttonContainer: {
     display: "flex",
-    paddingTop: theme.spacing(1),
+    marginTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
-    alignItems: "space-between",
+    width: "100%",
+    position: "relative",
   },
   label: {
     fontWeight: "bold",
+  },
+  button: {
+    top: 0,
+    right: 0,
+    position: "absolute",
   },
 }));
