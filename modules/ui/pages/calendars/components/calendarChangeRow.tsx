@@ -6,9 +6,10 @@ import { parseISO, format } from "date-fns";
 import { useContracts } from "reference-data/contracts";
 import { useTranslation } from "react-i18next";
 import { Can } from "ui/components/auth/can";
+import { CalendarEvent } from "../types";
 
 type Props = {
-  calendarChange: CalendarChange;
+  calendarChange: CalendarEvent;
   orgId: string;
   onDelete: (calendarChangeId: string) => void;
   date: Date;
@@ -43,17 +44,17 @@ export const CalendarChangeRow: React.FC<Props> = props => {
 
   const dateLabel =
     props.calendarChange.startDate == props.calendarChange.endDate
-      ? format(parseISO(props.calendarChange.startDate), "MMM d")
+      ? format(parseISO(props.calendarChange.startDate!), "MMM d")
       : `${format(
-          parseISO(props.calendarChange.startDate),
+          parseISO(props.calendarChange.startDate!),
           "MMM d"
-        )} - ${format(parseISO(props.calendarChange.endDate), "MMM d")}`;
+        )} - ${format(parseISO(props.calendarChange.endDate!), "MMM d")}`;
 
   const dayLabel =
     props.calendarChange.startDate == props.calendarChange.endDate
-      ? format(parseISO(props.calendarChange.startDate), "EEE")
-      : `${format(parseISO(props.calendarChange.startDate), "EEE")} - ${format(
-          parseISO(props.calendarChange.endDate),
+      ? format(parseISO(props.calendarChange.startDate!), "EEE")
+      : `${format(parseISO(props.calendarChange.startDate!), "EEE")} - ${format(
+          parseISO(props.calendarChange.endDate!),
           "EEE"
         )}`;
 
@@ -90,7 +91,7 @@ export const CalendarChangeRow: React.FC<Props> = props => {
             className={classes.delete}
             onClick={e => {
               e.stopPropagation();
-              props.onDelete(props.calendarChange.id);
+              props.onDelete(props.calendarChange.id!);
             }}
           >
             {t("Delete")}

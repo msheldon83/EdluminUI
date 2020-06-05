@@ -7,8 +7,9 @@ import {
   isoToTimestamp,
 } from "../../../helpers/time";
 import { Input } from "./input";
+import { InputBaseComponentProps } from "@material-ui/core";
 
-export type Props = {
+export type TimeInputProps = {
   label: string;
   value?: string;
   name?: string;
@@ -22,9 +23,10 @@ export type Props = {
   className?: string;
   placeHolder?: string;
   highlightOnFocus?: boolean;
+  inputProps?: InputBaseComponentProps;
 };
 
-export const TimeInput = React.forwardRef((props: Props, ref) => {
+export const TimeInput = React.forwardRef((props: TimeInputProps, ref) => {
   const {
     earliestTime,
     onValidTime,
@@ -38,6 +40,7 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
     className,
     placeHolder,
     highlightOnFocus = false,
+    inputProps,
   } = props;
 
   // Sometimes this ref is null if the parent doens't give a ref
@@ -134,6 +137,7 @@ export const TimeInput = React.forwardRef((props: Props, ref) => {
       disabled={disabled}
       validationMessage={validationMessage}
       placeholder={placeHolder}
+      inputProps={inputProps}
     />
   );
 });
