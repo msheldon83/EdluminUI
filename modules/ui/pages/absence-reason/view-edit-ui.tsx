@@ -5,7 +5,7 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { PageHeader } from "ui/components/page-header";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -20,6 +20,7 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import * as yup from "yup";
 import { AbsenceReasonPositionTypesCard } from "./components/abs-reason-position-types-card";
+import { ReturnLink } from "ui/components/links/return";
 
 type Props = {
   id: string;
@@ -73,9 +74,11 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.linkPadding}>
-        <Link to={AbsenceReasonRoute.generate(params)} className={classes.link}>
-          {t("Return to all absence reasons")}
-        </Link>
+        <ReturnLink
+          linkClass={classes.link}
+          defaultComingFrom="all absence reasons"
+          defaultReturnUrl={AbsenceReasonRoute.generate(params)}
+        />
       </div>
       <PageTitle title={t("Absence Reason")} withoutHeading={!isMobile} />
       <PageHeader
@@ -190,6 +193,8 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
 
       {!props.isCategory && (
         <AbsenceReasonPositionTypesCard
+          absenceReasonId={props.id}
+          absenceReasonName={props.name}
           positionTypes={props.positionTypes ?? []}
           allPositionTypes={props.allPositionTypes ?? false}
           updatePositionTypes={props.updateNameOrExternalIdOrPositionTypes}
