@@ -120,7 +120,7 @@ export const OrderBy: React.FC<Props> = props => {
                       {t("No sorts applied")}
                     </div>
                   )}
-                  <div>
+                  <div className={classes.actions}>
                     <Button
                       onClick={addOrderBy}
                       variant="text"
@@ -129,6 +129,15 @@ export const OrderBy: React.FC<Props> = props => {
                       {orderedBy.length === 0
                         ? t("Add a field to sort by")
                         : t("Add another field to sort by")}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={async () => {
+                        setOrderByOpen(false);
+                        await refreshReport();
+                      }}
+                    >
+                      {t("Apply")}
                     </Button>
                   </div>
                 </div>
@@ -171,6 +180,11 @@ const useStyles = makeStyles(theme => ({
   },
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  actions: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 }));
 

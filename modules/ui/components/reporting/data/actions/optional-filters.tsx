@@ -159,13 +159,22 @@ export const OptionalFilters: React.FC<Props> = props => {
                       {t("No filters applied")}
                     </div>
                   )}
-                  <div>
+                  <div className={classes.actions}>
                     <Button
                       onClick={addFilter}
                       variant="text"
                       className={classes.addFilter}
                     >
                       {t("Add filter")}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={async () => {
+                        setFiltersOpen(false);
+                        await refreshReport();
+                      }}
+                    >
+                      {t("Apply")}
                     </Button>
                   </div>
                 </div>
@@ -208,5 +217,10 @@ const useStyles = makeStyles(theme => ({
   },
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  actions: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 }));
