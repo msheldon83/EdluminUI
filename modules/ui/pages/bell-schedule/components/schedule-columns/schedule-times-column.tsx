@@ -35,17 +35,20 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
           i > 0 && props.periods[i - 1].endTime
             ? props.periods[i - 1].endTime
             : undefined;
-        const priorPeriodTravelDuration =
-          i > 0 && props.periods[i - 1].travelDuration
-            ? props.periods[i - 1].travelDuration
-            : 0;
-        const earliestStartTime =
-          priorPeriodEndTime && isValid(new Date(priorPeriodEndTime))
-            ? addMinutes(
-                new Date(priorPeriodEndTime),
-                priorPeriodTravelDuration
-              ).toISOString()
-            : undefined;
+
+        const hasStartTime = p.startTime && isValid(new Date(p.startTime));
+        const hasPriorPerionEndTime =
+          priorPeriodEndTime && isValid(new Date(priorPeriodEndTime));
+
+        let earliestStartTime = undefined;
+        if (hasStartTime && hasPriorPerionEndTime) {
+          earliestStartTime = new Date(priorPeriodEndTime!).toISOString();
+        } else if (hasPriorPerionEndTime) {
+          earliestStartTime = addMinutes(
+            new Date(priorPeriodEndTime!),
+            1
+          ).toISOString();
+        }
 
         const startTimeError = GetError(props.errors, "startTime", i);
         const endTimeError = GetError(props.errors, "endTime", i);
@@ -66,6 +69,23 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       earliestTime={earliestStartTime}
                       inputStatus={startTimeError ? "error" : "default"}
                       validationMessage={startTimeError}
+                      highlightOnFocus
+                      inputProps={{
+                        /*
+                          These inputs should come after the period name inputs in
+                          tab order.
+
+                          - props.periods.length starts that tab order after the period
+                            name inputs
+                          - The rest of the calculation is as follows
+                            - Multiple the number of inputs by the index of the set in the list,
+                              then add the number of the input in the pair (not confusing at all)
+                              - Period 1 (index is 0): 2 * 0 + 1 = 1 --- 2 * 0 + 2 = 2
+                              - Period 2 (index is 1): 2 * 1 + 1 = 3 --- 2 * 1 + 2 = 4
+                              - Period 3 (index is 2): 2 * 2 + 1 = 5 --- 2 * 2 + 2 = 6
+                        */
+                        tabindex: props.periods.length + (2 * i + 1),
+                      }}
                     />
                   </div>
                   <div className={classes.timeInput}>
@@ -76,6 +96,10 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       earliestTime={p.startTime || earliestStartTime}
                       inputStatus={endTimeError ? "error" : "default"}
                       validationMessage={endTimeError}
+                      highlightOnFocus
+                      inputProps={{
+                        tabindex: props.periods.length + (2 * i + 2),
+                      }}
                     />
                   </div>
                 </Can>

@@ -78,6 +78,9 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                                 <div className={classes.nameInput}>
                                   {props.isStandard && (
                                     <FormTextField
+                                      inputProps={{
+                                        tabindex: i + 1,
+                                      }}
                                       placeholder={p.placeholder}
                                       value={p.name || ""}
                                       name={`periods[${i}].name`}
@@ -97,6 +100,7 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                                 <div
                                   className={classes.actionDiv}
                                   {...provided.dragHandleProps}
+                                  tabIndex={-1}
                                 >
                                   {props.periods.length > 1 && !p.skipped && (
                                     <DragHandle />
