@@ -14,7 +14,7 @@ import {
 } from "./types";
 import { compact, flatMap } from "lodash-es";
 import { format, parseISO } from "date-fns";
-import { getGraphTypeString } from "./helpers";
+import { getGraphTypeString, filtersAreDifferent } from "./helpers";
 
 export type ReportState = {
   rdlString: string;
@@ -158,15 +158,27 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
             )
         ) ?? [];
 
+      const updatedFilters = [
+        ...resolvedBaseFilters,
+        ...requiredFilters,
+        ...optionalFilters,
+      ];
+
+      // Determine if the filters have actually changed and warrant an update
+      const filtersHaveChanged = filtersAreDifferent(
+        prev.report!.filters ?? [],
+        updatedFilters
+      );
+      if (!filtersHaveChanged) {
+        // No changes to the filters, don't update anything
+        return prev;
+      }
+
       const updatedState = {
         ...prev,
         report: {
           ...prev.report!,
-          filters: [
-            ...resolvedBaseFilters,
-            ...requiredFilters,
-            ...optionalFilters,
-          ],
+          filters: updatedFilters,
         },
       };
 
@@ -245,7 +257,6 @@ const buildFilters = (condition: LogicalTerm | Formula): FilterField[] => {
           ? parseISO(args[0].value)
           : args[0].value
         : args.map(a => (isDateFilter ? parseISO(a.value) : a.value)),
-    isRequired: field.dataSourceField?.isRequiredFilter ?? false,
   });
   return filters;
 };
@@ -381,6 +392,9 @@ export const convertReportDefinitionInputToRdl = (
         .join(", ")}`
     );
   }
+
+  // Keep the Chart information in the RDL
+  rdlPieces.push(...getRdlChart(report));
 
   const rdlString = rdlPieces.join(" ");
   return rdlString;

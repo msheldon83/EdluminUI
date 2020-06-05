@@ -20,7 +20,6 @@ export type FilterField = {
   field: DataSourceField;
   expressionFunction: ExpressionFunction;
   value?: any;
-  isRequired?: boolean;
 };
 
 // Response from the server which represents the Report
