@@ -136,10 +136,6 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       };
     }
     case "setFilters": {
-      const resolvedBaseFilters =
-        prev.report?.filters?.filter(f =>
-          prev.baseFilterFieldNames?.includes(f.field.dataSourceFieldName)
-        ) ?? [];
       let requiredFilters =
         prev.report?.filters?.filter(f => f.field.isRequiredFilter) ?? [];
       let optionalFilters =
@@ -150,6 +146,17 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       } else {
         optionalFilters = action.filters;
       }
+
+      // Make sure we don't lose any base filters for the Report
+      // that may have been defined
+      const resolvedBaseFilters =
+        prev.report?.filters?.filter(
+          f =>
+            prev.baseFilterFieldNames?.includes(f.field.dataSourceFieldName) &&
+            ![...requiredFilters, ...optionalFilters].find(
+              cf => cf.field.dataSourceFieldName === f.field.dataSourceFieldName
+            )
+        ) ?? [];
 
       const updatedState = {
         ...prev,
