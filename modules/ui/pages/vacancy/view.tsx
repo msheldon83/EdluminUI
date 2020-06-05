@@ -161,6 +161,7 @@ export const VacancyView: React.FC<Props> = props => {
         initialVacancy={buildFormData(vacancy)}
         updateVacancy={onUpdateVacancy}
         onDelete={onClickDelete}
+        approvalStatus={vacancy.approvalState}
       />
     </>
   );

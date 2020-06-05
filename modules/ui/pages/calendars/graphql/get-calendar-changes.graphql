@@ -23,6 +23,7 @@ query getCalendarChanges(
         rowVersion
         affectsAllContracts
         calendarChangeReason {
+          id
           name
           calendarDayTypeId
           workDayScheduleVariantType {

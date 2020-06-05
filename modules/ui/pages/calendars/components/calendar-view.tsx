@@ -10,12 +10,13 @@ import { startOfMonth } from "date-fns/esm";
 import { parseISO, eachDayOfInterval, format } from "date-fns";
 import { groupBy, range } from "lodash-es";
 import { useState } from "react";
+import { CalendarEvent } from "../types";
 
 type Props = {
   calandarChangeDates: any[];
   fromDate: Date;
   toDate: Date;
-  setSelectedCalendarChanges: (cc: CalendarChange[]) => void;
+  setSelectedCalendarChanges: (cc: CalendarEvent) => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
 };
@@ -25,7 +26,7 @@ export const CalendarView: React.FC<Props> = props => {
   const empty = generateEmptyDateMap(props.fromDate, props.toDate);
 
   const onSelectDate = (date: Date) => {
-    const calendarChanges = props.calandarChangeDates.filter(cc => {
+    const calendarChanges = props.calandarChangeDates.find(cc => {
       return date >= parseISO(cc.startDate) && date <= parseISO(cc.endDate);
     });
     props.setSelectedCalendarChanges(calendarChanges);

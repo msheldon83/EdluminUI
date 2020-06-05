@@ -1,0 +1,7 @@
+mutation Deny($approvalState: ApprovalStateUpdateInput!) {
+  approval {
+    deny(approvalState: $approvalState) {
+      id
+    }
+  }
+}
