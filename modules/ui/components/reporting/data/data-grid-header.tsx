@@ -1,15 +1,19 @@
 import * as React from "react";
 import { makeStyles, Menu, MenuItem } from "@material-ui/core";
-import { ArrowDropDown } from "@material-ui/icons";
+import { ArrowDropDown, ArrowDownward, ArrowUpward } from "@material-ui/icons";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
-import { Direction, DataExpression } from "../types";
+import { Direction, DataExpression, OrderByField } from "../types";
 
 type Props = {
   columns: DataExpression[];
   height: MultiGridProps["height"];
   width: MultiGridProps["width"];
-  setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
+  addOrUpdateOrderBy: (
+    expression: DataExpression,
+    direction: Direction
+  ) => Promise<void>;
+  orderedBy: OrderByField[];
   columnWidth: MultiGridProps["columnWidth"];
   numberOfLockedColumns?: number;
   onScroll?: MultiGridProps["onScroll"];
@@ -18,14 +22,14 @@ type Props = {
 
 type HeaderMenuItem = {
   label: string;
-  onClick: (columnIndex: number) => Promise<void>;
+  onClick: (expression: DataExpression) => Promise<void>;
 };
 
 export const DataGridHeader: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [menuInfo, setMenuInfo] = React.useState<null | {
-    columnIndex: number;
+    expression: DataExpression;
     anchor: HTMLElement;
   }>(null);
   const open = Boolean(menuInfo?.anchor);
@@ -36,30 +40,31 @@ export const DataGridHeader: React.FC<Props> = props => {
     height,
     width,
     columnWidth,
-    setOrderBy,
+    orderedBy,
+    addOrUpdateOrderBy,
     numberOfLockedColumns = 0,
   } = props;
 
   const menuItems: HeaderMenuItem[] = [
     {
       label: t("Sort A > Z"),
-      onClick: async (columnIndex: number) => {
-        await setOrderBy(columnIndex, Direction.Asc);
+      onClick: async (expression: DataExpression) => {
+        await addOrUpdateOrderBy(expression, Direction.Asc);
       },
     },
     {
       label: t("Sort Z > A"),
-      onClick: async (columnIndex: number) => {
-        await setOrderBy(columnIndex, Direction.Desc);
+      onClick: async (expression: DataExpression) => {
+        await addOrUpdateOrderBy(expression, Direction.Desc);
       },
     },
   ];
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
-    columnIndex: number
+    expression: DataExpression
   ) => {
-    setMenuInfo({ columnIndex, anchor: event.currentTarget });
+    setMenuInfo({ expression, anchor: event.currentTarget });
   };
 
   const handleCloseMenu = () => {
@@ -68,12 +73,16 @@ export const DataGridHeader: React.FC<Props> = props => {
 
   const headerCellRenderer = React.useCallback(
     (columns: DataExpression[], { columnIndex, key, style }: GridCellProps) => {
+      const expression = columns[columnIndex];
+      const orderByDirection = getOrderByDirection(expression, orderedBy);
       return (
         <div key={key} style={style} className={classes.headerCell}>
-          <div>{columns[columnIndex].displayName}</div>
+          {orderByDirection === Direction.Asc && <ArrowDownward />}
+          {orderByDirection === Direction.Desc && <ArrowUpward />}
+          <div>{expression.displayName}</div>
           {menuItems && menuItems.length > 0 && (
             <div
-              onClick={e => handleMenuClick(e, columnIndex)}
+              onClick={e => handleMenuClick(e, expression)}
               className={classes.action}
             >
               <ArrowDropDown />
@@ -82,7 +91,7 @@ export const DataGridHeader: React.FC<Props> = props => {
         </div>
       );
     },
-    [menuItems, classes.action, classes.headerCell]
+    [menuItems, orderedBy, classes.action, classes.headerCell]
   );
 
   return (
@@ -124,7 +133,7 @@ export const DataGridHeader: React.FC<Props> = props => {
               key={i}
               onClick={async () => {
                 handleCloseMenu();
-                await m.onClick(menuInfo!.columnIndex);
+                await m.onClick(menuInfo!.expression);
               }}
               className={classes.headerMenuItem}
             >
@@ -176,3 +185,14 @@ const useStyles = makeStyles(theme => ({
     cursor: "pointer",
   },
 }));
+
+const getOrderByDirection = (
+  field: DataExpression,
+  orderedBy: OrderByField[]
+): Direction | undefined => {
+  const orderByMatch = orderedBy.find(
+    o =>
+      o.expression.expressionAsQueryLanguage === field.expressionAsQueryLanguage
+  );
+  return orderByMatch?.direction;
+};

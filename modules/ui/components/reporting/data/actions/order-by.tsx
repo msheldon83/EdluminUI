@@ -12,7 +12,7 @@ import { SwapVert } from "@material-ui/icons";
 import { OrderByRow } from "./order-by-row";
 
 type Props = {
-  currentOrderByFields: OrderByField[];
+  orderedBy: OrderByField[];
   possibleOrderByFields: DataExpression[];
   //setFilters: (filterFields: FilterField[]) => void;
   refreshReport: () => Promise<void>;
@@ -21,7 +21,7 @@ type Props = {
 export const OrderBy: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { currentOrderByFields, possibleOrderByFields, refreshReport } = props;
+  const { orderedBy, possibleOrderByFields, refreshReport } = props;
   const [orderByOpen, setOrderByOpen] = React.useState(false);
   const [localOrderBy, setLocalOrderBy] = React.useState<OrderByField[]>([]);
 

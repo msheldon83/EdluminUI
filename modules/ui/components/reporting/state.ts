@@ -42,11 +42,11 @@ export type ReportActions =
       areRequiredFilters: boolean;
       refreshReport?: boolean;
     }
-  // | {
-  //     action: "setOrderBy";
-  //     columnIndex: number;
-  //     direction: Direction;
-  //   }
+  | {
+      action: "addOrUpdateOrderBy";
+      expression: DataExpression;
+      direction: Direction;
+    }
   | {
       action: "refreshReport";
     };
@@ -194,30 +194,34 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       }
       return updatedState;
     }
-    // case "setOrderBy": {
-    //   const selectField = prev.reportDefinitionInput.select.filter(
-    //     s => !s.hiddenFromReport
-    //   )[action.columnIndex];
+    case "addOrUpdateOrderBy": {
+      const updatedOrderBy = [...(prev.report!.orderBy ?? [])];
+      const match = updatedOrderBy.find(
+        o =>
+          o.expression.expressionAsQueryLanguage ===
+          action.expression.expressionAsQueryLanguage
+      );
+      if (match) {
+        match.direction = action.direction;
+      } else {
+        updatedOrderBy.push({
+          expression: action.expression,
+          direction: action.direction,
+        });
+      }
 
-    //   const updatedState = {
-    //     ...prev,
-    //     reportDefinitionInput: {
-    //       ...prev.reportDefinitionInput,
-    //       orderBy: [
-    //         ...(prev.reportDefinitionInput.orderBy?.filter(o => o.isRequired) ??
-    //           []),
-    //         {
-    //           expression: selectField.expression,
-    //           direction: action.direction,
-    //         },
-    //       ],
-    //     },
-    //   };
-    //   updatedState.rdlString = convertReportDefinitionInputToRdl(
-    //     updatedState.reportDefinitionInput
-    //   );
-    //   return updatedState;
-    // }
+      const updatedState = {
+        ...prev,
+        report: {
+          ...prev.report!,
+          orderBy: updatedOrderBy,
+        },
+      };
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.report
+      );
+      return updatedState;
+    }
     case "refreshReport": {
       return {
         ...prev,

@@ -5,6 +5,7 @@ import {
   Report,
   Direction,
   ReportDefinitionData,
+  DataExpression
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
@@ -23,7 +24,7 @@ type Props = {
     areRequiredFilters: boolean,
     refreshReport?: boolean
   ) => void;
-  setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
+  addOrUpdateOrderBy: (expression: DataExpression, direction: Direction) => Promise<void>;
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
   showGroupLabels?: boolean;
@@ -38,7 +39,7 @@ export const ReportData: React.FC<Props> = props => {
     isLoading,
     filterableFields,
     setFilters,
-    setOrderBy,
+    addOrUpdateOrderBy,
     refreshReport,
     exportReport,
     showGroupLabels = true,
@@ -56,7 +57,7 @@ export const ReportData: React.FC<Props> = props => {
           setFilters={setFilters}
           refreshReport={refreshReport}
           filters={report.filters ?? []}
-          currentOrderByFields={report.orderBy ?? []}
+          orderedBy={report.orderBy ?? []}
           possibleOrderByFields={report.selects}
         />
         {exportReport && (
@@ -70,7 +71,8 @@ export const ReportData: React.FC<Props> = props => {
             reportData={reportData}
             isLoading={isLoading}
             showGroupLabels={showGroupLabels}
-            setOrderBy={setOrderBy}
+            addOrUpdateOrderBy={addOrUpdateOrderBy}
+            orderedBy={report.orderBy ?? []}
           />
         )}
       </div>

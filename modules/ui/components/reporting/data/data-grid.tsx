@@ -8,6 +8,7 @@ import {
   DataType,
   Report,
   ReportDefinitionData,
+  OrderByField,
 } from "../types";
 import {
   GridCellProps,
@@ -37,7 +38,11 @@ type Props = {
   report: Report;
   reportData: ReportDefinitionData;
   isLoading: boolean;
-  setOrderBy: (columnIndex: number, direction: Direction) => Promise<void>;
+  orderedBy: OrderByField[];
+  addOrUpdateOrderBy: (
+    expression: DataExpression,
+    direction: Direction
+  ) => Promise<void>;
   showGroupLabels?: boolean;
 };
 
@@ -47,9 +52,10 @@ export const DataGrid: React.FC<Props> = props => {
   const [groupedData, setGroupedData] = React.useState<GroupedData[]>([]);
   const {
     isLoading,
-    setOrderBy,
     report,
     reportData,
+    orderedBy,
+    addOrUpdateOrderBy,
     showGroupLabels = true,
   } = props;
 
@@ -114,7 +120,8 @@ export const DataGrid: React.FC<Props> = props => {
                       reportData.dataColumnIndexMap
                     )
                   }
-                  setOrderBy={setOrderBy}
+                  addOrUpdateOrderBy={addOrUpdateOrderBy}
+                  orderedBy={orderedBy}
                 />
                 {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (
                   <MultiGrid

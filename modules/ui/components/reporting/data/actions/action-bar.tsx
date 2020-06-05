@@ -18,7 +18,7 @@ type Props = {
     areRequiredFilters: boolean,
     refreshReport?: boolean
   ) => void;
-  currentOrderByFields: OrderByField[];
+  orderedBy: OrderByField[];
   possibleOrderByFields: DataExpression[];
   refreshReport: () => Promise<void>;
 };
@@ -29,7 +29,7 @@ export const ActionBar: React.FC<Props> = props => {
     filters,
     filterableFields,
     setFilters,
-    currentOrderByFields,
+    orderedBy,
     possibleOrderByFields,
     refreshReport,
   } = props;
@@ -53,7 +53,7 @@ export const ActionBar: React.FC<Props> = props => {
       </div>
       <div className={classes.actionButtons}>
         <OrderBy
-          currentOrderByFields={currentOrderByFields}
+          orderedBy={orderedBy}
           possibleOrderByFields={possibleOrderByFields}
           refreshReport={refreshReport}
         />
