@@ -19,7 +19,7 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { TextButton } from "ui/components/text-button";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
-import { DeleteWorkDaySchedule } from "../../graphql/delete-workday-schedule.gen";
+import { DeleteWorkDaySchedule } from "../graphql/delete-workday-schedule.gen";
 
 type Props = {
   isOpen: boolean;
