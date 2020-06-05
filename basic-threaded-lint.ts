@@ -35,3 +35,4 @@ async function divvyUp(parent: string): Promise<[string[], number]> {
   process.exitCode = 1;
   console.error(error);
 });
+console.log("Hello world");
