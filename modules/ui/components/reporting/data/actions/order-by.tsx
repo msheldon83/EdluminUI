@@ -161,42 +161,38 @@ export const OrderBy: React.FC<Props> = props => {
                             {orderedBy.length > 0 ? (
                               orderedBy.map((o, i) => {
                                 return (
-                                  <>
-                                    <Draggable
-                                      key={
-                                        o.expression
-                                          .baseExpressionAsQueryLanguage
-                                      }
-                                      draggableId={
-                                        o.expression
-                                          .baseExpressionAsQueryLanguage
-                                      }
-                                      index={i}
-                                    >
-                                      {(provided, snapshot) => {
-                                        const { innerRef } = provided;
-                                        return (
+                                  <Draggable
+                                    key={
+                                      o.expression.baseExpressionAsQueryLanguage
+                                    }
+                                    draggableId={
+                                      o.expression.baseExpressionAsQueryLanguage
+                                    }
+                                    index={i}
+                                  >
+                                    {(provided, snapshot) => {
+                                      const { innerRef } = provided;
+                                      return (
+                                        <div
+                                          ref={innerRef}
+                                          {...provided.draggableProps}
+                                          className={classes.draggableRow}
+                                        >
+                                          {orderByRow(
+                                            orderedBy[i].expression
+                                              .baseExpressionAsQueryLanguage,
+                                            i
+                                          )}
                                           <div
-                                            ref={innerRef}
-                                            {...provided.draggableProps}
-                                            className={classes.draggableRow}
+                                            {...provided.dragHandleProps}
+                                            tabIndex={-1}
                                           >
-                                            {orderByRow(
-                                              orderedBy[i].expression
-                                                .baseExpressionAsQueryLanguage,
-                                              i
-                                            )}
-                                            <div
-                                              {...provided.dragHandleProps}
-                                              tabIndex={-1}
-                                            >
-                                              <DragHandle />
-                                            </div>
+                                            <DragHandle />
                                           </div>
-                                        );
-                                      }}
-                                    </Draggable>
-                                  </>
+                                        </div>
+                                      );
+                                    }}
+                                  </Draggable>
                                 );
                               })
                             ) : (
