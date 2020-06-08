@@ -17,19 +17,20 @@ export const LocationLink: React.FC<Props> = ({
   state,
   ...props
 }) => {
-  const contextOrgId = useOrganizationId();
+  const contextOrgId = useOrganizationId() ?? undefined;
+  orgId = orgId ?? contextOrgId;
 
-  if (!locationId || !contextOrgId) {
+  if (!locationId || !orgId) {
     return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = LocationViewRoute.generate({
-    organizationId: orgId ?? contextOrgId,
+    organizationId: orgId,
     locationId,
   });
   return (
     <BaseLink
       permissions={[PermissionEnum.LocationView]}
-      to={{ ...pickUrl(urlStr), state: state }}
+      to={{ ...pickUrl(urlStr), state }}
       {...props}
     />
   );
