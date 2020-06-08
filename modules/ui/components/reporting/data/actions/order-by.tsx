@@ -141,18 +141,24 @@ export const OrderBy: React.FC<Props> = props => {
                   >
                     <Droppable
                       droppableId="orderBy"
-                      renderClone={(provided, snapshot, rubric) => (
-                        <div
-                          {...provided.draggableProps}
-                          ref={provided.innerRef}
-                          className={classes.draggableRow}
-                        >
-                          {orderByRow(rubric.draggableId, rubric.source.index)}
-                          <div {...provided.dragHandleProps} tabIndex={-1}>
-                            <DragHandle />
+                      renderClone={(provided, snapshot, rubric) => {
+                        const { innerRef } = provided;
+                        return (
+                          <div
+                            {...provided.draggableProps}
+                            ref={innerRef}
+                            className={classes.draggableRow}
+                          >
+                            {orderByRow(
+                              rubric.draggableId,
+                              rubric.source.index
+                            )}
+                            <div {...provided.dragHandleProps} tabIndex={-1}>
+                              <DragHandle />
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      }}
                     >
                       {(provided, snapshot) => {
                         const { innerRef } = provided;
