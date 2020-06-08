@@ -54,7 +54,7 @@ export const OrganizationList: React.FC<Props> = props => {
               {orgs?.length === 0 ? (
                 <div>{t("No related districts")}</div>
               ) : (
-                orgs?.map((n: any, i: any) => <div key={i}>{n?.name}</div>)
+                orgs?.map((n, i) => <div key={i}>{n?.name}</div>)
               )}
             </Grid>
           </Grid>

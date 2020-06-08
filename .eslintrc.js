@@ -54,6 +54,7 @@ module.exports = {
             message: "Use FunctionComponent instead",
             fixWith: "React.FunctionComponent",
           },
+          "{}": false,
         },
       },
     ],
@@ -94,15 +95,6 @@ module.exports = {
     "@typescript-eslint/no-unsafe-return": "warn",
     "@typescript-eslint/no-unsafe-assignment": "warn",
     "@typescript-eslint/no-unsafe-call": "warn",
-    "@typescript-eslint/ban-types": [
-      "warn",
-      {
-        types: {
-          // Can't seem to override this as _just_ a warning, so I have to disable it.
-          "{}": false,
-        },
-      },
-    ],
     "no-async-promise-executor": "warn",
     "no-case-declarations": "warn",
     "no-empty": "warn",
