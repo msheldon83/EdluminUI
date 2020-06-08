@@ -71,7 +71,7 @@ export const DeleteDialog: React.FC<Props> = ({
       <DialogTitle disableTypography>
         <Typography variant="h5">{`${
           usages > 0 ? t("Inactivate") : t("Delete")
-        } work day schedule?`}</Typography>
+        } ${t("work day schedule?")}`}</Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
