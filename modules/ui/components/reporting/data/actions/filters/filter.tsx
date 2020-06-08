@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Checkbox } from "@material-ui/core";
-import { FilterField, FilterType, ExpressionFunction } from "../../types";
+import { FilterField, FilterType, ExpressionFunction } from "../../../types";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 import { useOrganizationId } from "core/org-context";

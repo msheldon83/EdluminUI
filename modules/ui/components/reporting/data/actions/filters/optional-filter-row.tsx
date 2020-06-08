@@ -4,7 +4,7 @@ import {
   FilterType,
   FilterField,
   ExpressionFunction,
-} from "../../types";
+} from "../../../types";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { SelectNew } from "ui/components/form/select-new";
