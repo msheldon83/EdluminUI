@@ -1,7 +1,7 @@
 const {
 	divvyUp,
 	runLint,
-} = require("../dist/threaded-lint/basic-threaded-lint");
+} = require("./dist/threaded-lint/basic-threaded-lint");
 
 (async function main() {
 	const chunks = await divvyUp("modules");
