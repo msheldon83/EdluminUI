@@ -54,7 +54,11 @@ module.exports = {
             message: "Use FunctionComponent instead",
             fixWith: "React.FunctionComponent",
           },
+          // These might be things we should remove,
+          // but it'd be a lot of work, so I'm disabling them for now
           "{}": false,
+          Function: false,
+          object: false,
         },
       },
     ],
