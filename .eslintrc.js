@@ -90,6 +90,19 @@ module.exports = {
     "@typescript-eslint/no-empty-interface": "warn",
     "@typescript-eslint/no-floating-promises": "warn",
     "@typescript-eslint/no-inferrable-types": "warn",
+    "@typescript-eslint/no-unsafe-member-access": "warn",
+    "@typescript-eslint/no-unsafe-return": "warn",
+    "@typescript-eslint/no-unsafe-assignment": "warn",
+    "@typescript-eslint/no-unsafe-call": "warn",
+    "@typescript-eslint/ban-types": [
+      "warn",
+      {
+        types: {
+          // Can't seem to override this as _just_ a warning, so I have to disable it.
+          "{}": false,
+        },
+      },
+    ],
     "no-async-promise-executor": "warn",
     "no-case-declarations": "warn",
     "no-empty": "warn",
@@ -107,6 +120,8 @@ module.exports = {
     "@typescript-eslint/interface-name-prefix": 0,
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/no-non-null-assertion": 0,
+    // the translation function t returns string | undefined, so this one causes a lot of problems
+    "@typescript-eslint/restrict-template-expressions": 0,
     "@typescript-eslint/no-object-literal-type-assertion": 0, // e.g. `{...} as Foo`, which we use for branding and permissions
     // "@typescript-eslint/no-parameter-properties": 0,
     // "jest/no-alias-methods": 0,

@@ -22,7 +22,11 @@ export const OrganizationList: React.FC<Props> = props => {
   const params = useRouteParams(PersonViewRoute);
 
   const orgs = props?.orgs?.sort((a, b) =>
-    a?.name!.toLowerCase() > b?.name!.toLowerCase() ? 1 : -1
+    a?.name && b?.name
+      ? a.name.toLowerCase() > b.name.toLowerCase()
+        ? 1
+        : -1
+      : 0
   );
 
   return (

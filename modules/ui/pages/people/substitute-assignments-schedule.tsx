@@ -63,7 +63,7 @@ export const SubstituteAssignmentsSchedulePage: React.FC<Props> = props => {
               params={params}
             />
           }
-          userId={orgUser?.userId!.toString()}
+          userId={orgUser.userId!.toString()}
           listViewRoute={SubstituteAssignmentScheduleListViewRoute.generate(
             params
           )}

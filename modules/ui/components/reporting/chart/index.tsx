@@ -144,7 +144,7 @@ export const ReportChart: React.FC<Props> = props => {
               chart.legend.afterFit = function() {
                 // Only way to add padding between the
                 // legend and the content of the chart
-                this.height = this.height + 10;
+                this.height = (this.height as number) + 10;
               };
             },
           },

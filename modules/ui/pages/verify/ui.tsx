@@ -36,7 +36,7 @@ import {
   Maybe,
 } from "graphql/server-types.gen";
 import { Assignment } from "./components/assignment";
-import { useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
@@ -59,6 +59,7 @@ export const VerifyUI: React.FC<Props> = props => {
   const classes = useStyles();
   const vacancyDetailAnimationClasses = useVacancyDetailAnimationStyles();
   const history = useHistory();
+  const location = useLocation<{ selectedDateTab?: string }>();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(VerifyRoute);
   const [selectedVacancyDetail, setSelectedVacancyDetail] = useState<
@@ -165,8 +166,8 @@ export const VerifyUI: React.FC<Props> = props => {
   }
 
   // Check to see if we've been provided a default tab date to start with
-  if (history.location.state?.selectedDateTab && !!dateTabOptions.length) {
-    if (history.location.state?.selectedDateTab === "older") {
+  if (location.state?.selectedDateTab && !!dateTabOptions.length) {
+    if (location.state?.selectedDateTab === "older") {
       selectedDateToUse = dateTabOptions[dateTabOptions.length - 1].date;
     } else {
       const providedDate = new Date(history.location.state?.selectedDateTab);
@@ -293,15 +294,15 @@ export const VerifyUI: React.FC<Props> = props => {
   const goToEdit = (vacancyId: string, absenceId?: string | null) => {
     if (absenceId) {
       const url = AdminEditAbsenceRoute.generate({
-          ...absenceEditParams,
-          absenceId}
-      );
+        ...absenceEditParams,
+        absenceId,
+      });
       history.push(url);
     } else {
       const url = VacancyViewRoute.generate({
-          ...vacancyEditParams,
-          vacancyId}
-      );
+        ...vacancyEditParams,
+        vacancyId,
+      });
       history.push(url);
     }
   };

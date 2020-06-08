@@ -47,7 +47,7 @@ export const OrganicationContactInfo: React.FC<{}> = props => {
         {sortedOrganizations?.map((e, i) => (
           <OrganizationContactCard
             key={i}
-            organizationName={e?.organization!.name}
+            organizationName={e!.organization.name}
             isEmployee={e?.isEmployee ?? false}
             isReplacementEmployee={e?.isReplacementEmployee ?? false}
             subContact={e?.organization.config?.absenceSubContact}
