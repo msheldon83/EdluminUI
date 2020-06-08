@@ -51,6 +51,10 @@ import {
   VacancyApprovalWorkflowAddLoader,
 } from "./routes/approval-workflow";
 import {
+  ApprovalInboxRoute,
+  ApprovalInboxLoader,
+} from "./routes/approval-inbox";
+import {
   AdminRootChromeRoute,
   AppChromeRoute,
   EmployeeChromeRoute,
@@ -674,6 +678,12 @@ export const App = hot(function() {
                                       permissions={[
                                         PermissionEnum.AbsVacApprovalsView,
                                       ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApprovalInboxLoader}
+                                      path={ApprovalInboxRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}

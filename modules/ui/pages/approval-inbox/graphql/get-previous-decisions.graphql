@@ -1,0 +1,43 @@
+query GetPreviousApprovalDecisions($orgId: ID!) {
+  vacancy {
+    pastApprovalDecisions(orgId: $orgId) {
+      results {
+        id
+        isNormalVacancy
+        absenceId
+        startDate
+        endDate
+        createdLocal
+        position {
+          id
+          title
+        }
+        details {
+          id
+          vacancyReason {
+            id
+            name
+          }
+        }
+        absence {
+          id
+          employee {
+            id
+            firstName
+            lastName
+          }
+          details {
+            id
+            reasonUsages {
+              id
+              absenceReason {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
