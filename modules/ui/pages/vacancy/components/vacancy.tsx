@@ -554,6 +554,8 @@ export const VacancyUI: React.FC<Props> = props => {
           approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
           currentStepId={props.approvalStatus?.currentStepId}
           countOfComments={props.approvalStatus.comments.length}
+          isTrueVacancy={true}
+          vacancyId={vacancy.id}
         />
       )}
       {vacancy.closedDetails.length > 0 && (

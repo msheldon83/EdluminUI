@@ -17,6 +17,8 @@ export const ApprovedStory = () => {
         approvalStatusId={ApprovalStatus.Approved}
         approvalWorkflowId={"1000"}
         currentStepId={"2"}
+        isTrueVacancy={false}
+        absenceId={"1000"}
       />
     </Provider>
   );
@@ -32,6 +34,8 @@ export const DeniedStory = () => {
         approvalStatusId={ApprovalStatus.Denied}
         approvalWorkflowId={"1000"}
         currentStepId={"3"}
+        isTrueVacancy={false}
+        absenceId={"1000"}
       />
     </Provider>
   );
@@ -47,6 +51,8 @@ export const PendingStory = () => {
         approvalStatusId={ApprovalStatus.Pending}
         approvalWorkflowId={"1000"}
         currentStepId={"3"}
+        isTrueVacancy={true}
+        vacancyId={"1000"}
       />
     </Provider>
   );
