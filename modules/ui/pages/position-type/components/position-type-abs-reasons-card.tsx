@@ -41,8 +41,6 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
     return <></>;
   }
 
-  console.log(sortedReasons);
-
   return (
     <Section>
       <SectionHeader title={t("Associated absence reasons")} />
