@@ -68,7 +68,6 @@ function distributeWork(
 export async function divvyUp(root: string): Promise<string[][]> {
   const [chunks, ,] = await sliceFiles(root);
   const piles = distributeWork(chunks);
-  console.log(piles.map(([files, size]) => files));
   return piles.map(([files, size]) => files);
 }
 
@@ -80,7 +79,6 @@ export async function runLint<T>(
   const lintData = await Promise.all(
     piles.map(
       async (files, i): Promise<ESLint.LintResult[]> => {
-        console.log(i);
         const tmpFile = `${tmp}/${i}.json`;
         const warn = warnIgnored ? ["--warnIgnored"] : [];
         const buffer = await spawn(
