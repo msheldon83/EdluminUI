@@ -27,10 +27,7 @@ import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { GetAllContractsDocument } from "reference-data/get-contracts.gen";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { Can } from "ui/components/auth/can";
-import { ContractScheduleWarning } from "ui/pages/calendars/components/contract-schedule-warning";
-import { GetContractsWithoutSchedules } from "ui/pages/calendars/graphql/get-contracts-without-schedules.gen";
-import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { parseISO } from "date-fns";
+import { ContractScheduleWarning } from "ui/components/contract-schedule/contract-schedule-warning";
 
 type Props = {};
 
@@ -88,26 +85,6 @@ export const Contracts: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-
-  const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
-
-  const getContractsWithoutSchedules = useQueryBundle(
-    GetContractsWithoutSchedules,
-    {
-      variables: {
-        orgId: params.organizationId,
-        schoolYearId: currentSchoolYear?.id ?? "",
-      },
-      skip: !currentSchoolYear,
-    }
-  );
-  const contractsWithoutSchedules =
-    getContractsWithoutSchedules.state !== "LOADING"
-      ? compact(
-          getContractsWithoutSchedules?.data?.contract
-            ?.contractsWithoutSchedules ?? []
-        )
-      : [];
 
   const contract: ContractCreateInput = useMemo(
     () => ({
@@ -170,10 +147,6 @@ export const Contracts: React.FC<Props> = props => {
   if (getContracts.state === "LOADING") {
     return <></>;
   }
-
-  const schoolYearName = `${parseISO(
-    currentSchoolYear?.startDate
-  ).getFullYear()} - ${parseISO(currentSchoolYear?.endDate).getFullYear()}`;
 
   const contracts = compact(getContracts?.data?.contract?.all ?? []);
 
@@ -261,13 +234,7 @@ export const Contracts: React.FC<Props> = props => {
         </Can>
       </Grid>
 
-      <ContractScheduleWarning
-        showWarning={contractsWithoutSchedules.length > 0}
-        schoolYearName={schoolYearName}
-        schoolYear={currentSchoolYear}
-        contracts={contractsWithoutSchedules}
-        orgId={params.organizationId}
-      />
+      <ContractScheduleWarning orgId={params.organizationId} />
 
       <EditableTable
         title={`${contractsCount} ${t("Contracts")}`}
