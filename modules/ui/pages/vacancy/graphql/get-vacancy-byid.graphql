@@ -2,6 +2,7 @@ query GetVacancyById($id: ID!) {
   vacancy {
     byId(id: $id) {
       id
+      isNormalVacancy
       notesToReplacement
       adminOnlyNotes
       rowVersion
@@ -13,6 +14,19 @@ query GetVacancyById($id: ID!) {
         currentStepId
         comments {
           id
+          comment
+          commentIsPublic
+          createdLocal
+          actingOrgUser {
+            id
+            firstName
+            lastName
+          }
+          approvalDecisionId
+          approvalDecision {
+            id
+            approvalActionId
+          }
         }
       }
       closedDetails {
@@ -75,6 +89,10 @@ query GetVacancyById($id: ID!) {
           name
         }
         vacancyReasonId
+        vacancyReason {
+          id
+          name
+        }
         accountingCodeAllocations {
           id
           accountingCodeId

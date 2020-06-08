@@ -337,7 +337,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ignoreAbsenceId: props.absenceId,
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
-    onError: () => {},
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
   });
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
@@ -369,13 +371,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         )
       : [];
 
-  const projectedVacancies =
+  const vacancies =
     getProjectedVacancies.state === "DONE" ||
     getProjectedVacancies.state === "UPDATING"
       ? (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[])
-      : null;
+      : getProjectedVacancies.state === "ERROR"
+      ? []
+      : props.initialVacancies;
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
@@ -648,7 +652,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
               currentStepId={props.approvalStatus?.currentStepId}
               countOfComments={props.approvalStatus?.comments.length}
-              viewingAsEmployee={props.actingAsEmployee}
+              actingAsEmployee={props.actingAsEmployee}
+              isTrueVacancy={false}
+              absenceId={props.absenceId}
             />
           )}
 
@@ -675,7 +681,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               absenceReason={props.absenceReason}
               errors={errors}
               triggerValidation={triggerValidation}
-              vacancies={projectedVacancies || props.initialVacancies}
+              vacancies={vacancies}
               vacancyDetails={theVacancyDetails}
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
@@ -736,7 +742,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeName={employeeName}
           absenceId={props.absenceId}
           orgId={props.organizationId}
-          vacancies={projectedVacancies || props.initialVacancies}
+          vacancies={vacancies}
           actingAsEmployee={actingAsEmployee}
           employeeId={props.employeeId}
           positionId={props.positionId}

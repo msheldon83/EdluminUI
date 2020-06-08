@@ -1,23 +1,12 @@
-import {
-  Link,
-  Popper,
-  Fade,
-  List,
-  ListItemText,
-  Grid,
-  Button,
-  Typography,
-} from "@material-ui/core";
-import { AccountCircleOutlined } from "@material-ui/icons";
-import MailIcon from "@material-ui/icons/Mail";
-import { makeStyles, useTheme } from "@material-ui/styles";
+import { Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/styles";
 import {
   usePagedQueryBundle,
   useMutationBundle,
   useQueryBundle,
 } from "graphql/hooks";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
-import { useIsMobile, usePrevious } from "hooks";
+import { usePrevious } from "hooks";
 import {
   useQueryParamIso,
   makeQueryIso,
@@ -29,20 +18,14 @@ import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { PageTitle } from "ui/components/page-title";
-import { ShadowIndicator } from "ui/components/shadow-indicator";
-import { Table, TableColumn } from "ui/components/table";
 import { useRouteParams } from "ui/routes/definition";
 import { PeopleRoute, PersonViewRoute } from "ui/routes/people";
-import {
-  GetAllPeopleForOrg,
-  GetAllPeopleForOrgDocument,
-} from "./graphql/get-all-people-for-org.gen";
+import { GetAllPeopleForOrg } from "./graphql/get-all-people-for-org.gen";
 import { PeopleFilters } from "./people-filters";
 import { FilterQueryParams } from "./people-filters/filter-params";
 import { InviteUsers } from "./graphql/invite-users.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { AccessIcon } from "./components/access-icon";
 import { CreateButton } from "./components/create-button";
 import { Can } from "ui/components/auth/can";
 import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
@@ -56,9 +39,7 @@ export const PeoplePage: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PeopleRoute);
-  const theme = useTheme();
   const classes = useStyles();
-  const isMobile = useIsMobile();
   const { openSnackbar } = useSnackbar();
 
   const [filters] = useQueryParamIso(FilterQueryParams);
@@ -160,54 +141,6 @@ export const PeoplePage: React.FC<Props> = props => {
     },
     [inviteUsers, openSnackbar, t, allPeopleQuery]
   );
-
-  const [
-    locationsManagedAnchor,
-    setLocationsManagedAnchor,
-  ] = React.useState<null | HTMLElement>(null);
-  const handleShowLocationsManaged = (event: React.MouseEvent<HTMLElement>) => {
-    setLocationsManagedAnchor(
-      locationsManagedAnchor ? null : event.currentTarget
-    );
-  };
-  const locationsManagedOpen = Boolean(locationsManagedAnchor);
-  const locationsManagedId = locationsManagedOpen
-    ? "locationsManaged-popper"
-    : undefined;
-
-  const [
-    posTypesManagedAnchor,
-    setPosTypesManagedAnchor,
-  ] = React.useState<null | HTMLElement>(null);
-  const handleShowPosTypesManaged = (event: React.MouseEvent<HTMLElement>) => {
-    setPosTypesManagedAnchor(
-      posTypesManagedAnchor ? null : event.currentTarget
-    );
-  };
-  const posTypesManagedOpen = Boolean(posTypesManagedAnchor);
-  const posTypesManagedId = posTypesManagedOpen
-    ? "posTypesManaged-popper"
-    : undefined;
-
-  const [
-    endorsementsAnchor,
-    setEndorsementsAnchor,
-  ] = React.useState<null | HTMLElement>(null);
-  const handleShowEndorsements = (event: React.MouseEvent<HTMLElement>) => {
-    setEndorsementsAnchor(endorsementsAnchor ? null : event.currentTarget);
-  };
-  const endorsementsOpen = Boolean(endorsementsAnchor);
-  const endorsementsId = endorsementsOpen ? "endorsements-popper" : undefined;
-
-  const [
-    locationsAnchor,
-    setLocationsAnchor,
-  ] = React.useState<null | HTMLElement>(null);
-  const handleShowLocations = (event: React.MouseEvent<HTMLElement>) => {
-    setLocationsAnchor(locationsAnchor ? null : event.currentTarget);
-  };
-  const locationsOpen = Boolean(locationsAnchor);
-  const locationsId = locationsOpen ? "locations-popper" : undefined;
 
   let people: GetAllPeopleForOrg.Results[] = [];
   if (allPeopleQuery.state === "DONE" || allPeopleQuery.state === "UPDATING") {

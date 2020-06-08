@@ -22,6 +22,7 @@ import { compact, uniq } from "lodash-es";
 import { getBasicDateRangeDisplayText } from "ui/components/date-helpers";
 import { useState } from "react";
 import clsx from "clsx";
+import { getDateRangeDisplay, getDayPartCountLabels } from "../helpers";
 
 type Props = {
   absence: EmployeeAbsenceDetail;
@@ -36,49 +37,6 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
   const classes = useStyles();
   const [assignmentsExpanded, setAssignmentsExpanded] = useState(false);
 
-  const dateRangeDisplay = isEqual(
-    props.absence.startDate,
-    props.absence.endDate
-  )
-    ? format(props.absence.startDate, "MMM d")
-    : `${format(props.absence.startDate, "MMM d")} - ${format(
-        props.absence.endDate,
-        "MMM d"
-      )}`;
-
-  const determineDayPartLabel = (dayPart: DayPart, count: number) => {
-    switch (dayPart) {
-      case DayPart.FullDay:
-        return count > 1 ? t("Full Days") : t("Full Day");
-      case DayPart.HalfDayAfternoon:
-      case DayPart.HalfDayMorning:
-        return count > 1 ? t("Half Days") : t("Half Day");
-      case DayPart.Hourly:
-        return count > 1 ? t("Hours") : t("Hour");
-      case DayPart.QuarterDayEarlyAfternoon:
-      case DayPart.QuarterDayLateAfternoon:
-      case DayPart.QuarterDayEarlyMorning:
-      case DayPart.QuarterDayLateMorning:
-        return count > 1 ? t("Quarter Days") : t("Quarter Day");
-      default:
-        break;
-    }
-  };
-
-  const uniqueDayParts = uniq(
-    compact(props.absence.allDayParts.map(d => d.dayPart))
-  );
-  const dayPartCountLabels = uniqueDayParts.map(u => {
-    const count =
-      u === DayPart.Hourly
-        ? props.absence.allDayParts
-            .filter(x => x.dayPart === u)
-            .map(x => x.hourDuration)
-            .reduce((a, b) => a + b, 0)
-        : props.absence.allDayParts.filter(x => x.dayPart === u).length;
-    return `${count} ${determineDayPartLabel(u, count)}`;
-  });
-
   const canCancel = props.actingAsEmployee
     ? isAfter(props.absence.startTimeLocal, new Date())
     : true;
@@ -87,7 +45,9 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
     <>
       <Grid item xs={3}>
         <div className={classes.detailText}>{props.absence.absenceReason}</div>
-        <div className={classes.subText}>{dateRangeDisplay}</div>
+        <div className={classes.subText}>
+          {getDateRangeDisplay(props.absence.startDate, props.absence.endDate)}
+        </div>
         {props.showAbsenceChip && <Chip label={t("Absence")} />}
       </Grid>
       <Grid item xs={3}>
@@ -151,13 +111,15 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
             startTime={props.absence.startTimeLocal.toString()}
           />
           <div className={classes.dayPart}>
-            {dayPartCountLabels.map((dp, i) => {
-              return (
-                <div key={`daypart-i`} className={classes.detailText}>
-                  {dp}
-                </div>
-              );
-            })}
+            {getDayPartCountLabels(props.absence.allDayParts, t).map(
+              (dp, i) => {
+                return (
+                  <div key={i} className={classes.detailText}>
+                    {dp}
+                  </div>
+                );
+              }
+            )}
 
             <div className={classes.subText}>
               {`${props.absence.startTime} - ${props.absence.endTime}`}

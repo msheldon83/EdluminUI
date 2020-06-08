@@ -1,13 +1,14 @@
 import * as React from "react";
 import { useState } from "react";
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { Section } from "ui/components/section";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { CreateContractScheduleDialog } from "./create-contract-schedule-dialog";
 import { TextButton } from "ui/components/text-button";
 import { ErrorOutline } from "@material-ui/icons";
-import { CreateContractSchedule } from "../graphql/create-contract-schedule.gen";
+import { CreateContractSchedule } from "./graphql/create-contract-schedule.gen";
+import { GetContractsWithoutSchedules } from "./graphql/get-contracts-without-schedules.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import {
@@ -15,26 +16,24 @@ import {
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
+import { compact } from "lodash-es";
+import { parseISO } from "date-fns";
 
 type Props = {
-  showWarning: boolean;
   orgId: string;
-  schoolYear?: {
+  schoolYear: {
     id: string;
     startDate: string;
     endDate: string;
-  } | null;
-  schoolYearName: string;
-  contracts: {
-    id: string;
-    name: string;
-  }[];
+  };
 };
 
-export const ContractScheduleWarning: React.FC<Props> = props => {
+export const ContractScheduleWarningSingleSchoolYear: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
+
+  const schoolYear = props.schoolYear;
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [contract, setContract] = useState<
@@ -44,6 +43,27 @@ export const ContractScheduleWarning: React.FC<Props> = props => {
       }
     | undefined
   >(undefined);
+
+  const schoolYearName = `${parseISO(
+    schoolYear.startDate
+  ).getFullYear()} - ${parseISO(schoolYear.endDate).getFullYear()}`;
+
+  const getContractsWithoutSchedules = useQueryBundle(
+    GetContractsWithoutSchedules,
+    {
+      variables: {
+        orgId: props.orgId,
+        schoolYearId: schoolYear.id,
+      },
+    }
+  );
+  const contractsWithoutSchedules =
+    getContractsWithoutSchedules.state !== "LOADING"
+      ? compact(
+          getContractsWithoutSchedules?.data?.contract
+            ?.contractsWithoutSchedules ?? []
+        )
+      : [];
 
   const onCloseCreateDialog = () => {
     setContract(undefined);
@@ -58,7 +78,7 @@ export const ContractScheduleWarning: React.FC<Props> = props => {
         contractSchedule: {
           ...contractScheduleInput,
           orgId: props.orgId,
-          schoolYearId: props.schoolYear?.id,
+          schoolYearId: schoolYear.id,
         },
       },
     });
@@ -74,7 +94,7 @@ export const ContractScheduleWarning: React.FC<Props> = props => {
     refetchQueries: ["GetContractsWithoutSchedules"],
   });
 
-  if (!props.showWarning) {
+  if (contractsWithoutSchedules.length === 0) {
     return <></>;
   }
 
@@ -84,7 +104,7 @@ export const ContractScheduleWarning: React.FC<Props> = props => {
         onClose={onCloseCreateDialog}
         onSave={onSaveContractSchedule}
         open={createDialogOpen}
-        schoolYear={props.schoolYear}
+        schoolYear={schoolYear}
         contract={contract}
         orgId={props.orgId}
       />
@@ -95,14 +115,14 @@ export const ContractScheduleWarning: React.FC<Props> = props => {
           <div className={classes.textContainer}>
             <div className={classes.headingText}>{`${t(
               "These contracts do not have a start date for the"
-            )} ${props.schoolYearName} ${t("school year")}`}</div>
+            )} ${schoolYearName} ${t("school year")}`}</div>
             <div className={classes.headingSubText}>
               {t(
                 "Employees assigned to these contracts will not be able to create absences until this step is completed"
               )}
             </div>
             <div>
-              {props.contracts.map((c, i) => {
+              {contractsWithoutSchedules.map((c, i) => {
                 return (
                   <div key={i} className={classes.contractContainer}>
                     <div className={classes.contractName}>{c.name} </div>
