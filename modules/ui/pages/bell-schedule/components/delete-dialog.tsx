@@ -17,6 +17,8 @@ import {
   BellScheduleViewRoute,
 } from "ui/routes/bell-schedule";
 import { useRouteParams } from "ui/routes/definition";
+import { ShowErrors } from "ui/components/error-helpers";
+import { useSnackbar } from "hooks/use-snackbar";
 import { TextButton } from "ui/components/text-button";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { DeleteWorkDaySchedule } from "../graphql/delete-workday-schedule.gen";
@@ -40,19 +42,26 @@ export const DeleteDialog: React.FC<Props> = ({
   const classes = useStyles();
   const history = useHistory();
   const params = useRouteParams(BellScheduleViewRoute);
+  const { openSnackbar } = useSnackbar();
 
   const [deleteWorkDayScheduleMutation] = useMutationBundle(
-    DeleteWorkDaySchedule
+    DeleteWorkDaySchedule,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
   );
   const deleteWorkDaySchedule = React.useCallback(async () => {
-    await deleteWorkDayScheduleMutation({
+    const result = await deleteWorkDayScheduleMutation({
       variables: {
         workDayScheduleId,
       },
       awaitRefetchQueries: true,
       refetchQueries: ["GetAllWorkDaySchedulesWithinOrg"],
     });
-    history.push(BellScheduleRoute.generate(params));
+    if (result.data?.workDaySchedule?.delete)
+      history.push(BellScheduleRoute.generate(params));
   }, [deleteWorkDayScheduleMutation, history, params, workDayScheduleId]);
 
   const onCancel = () => setIsOpen(false);
@@ -61,16 +70,18 @@ export const DeleteDialog: React.FC<Props> = ({
     <Dialog open={isOpen} onClose={onCancel}>
       <DialogTitle disableTypography>
         <Typography variant="h5">{`${
-          usages > 0 ? "Inactivate" : "Delete"
+          usages > 0 ? t("Inactivate") : t("Delete")
         } work day schedule?`}</Typography>
       </DialogTitle>
       <DialogContent>
         <Typography>
-          {t(
-            usages > 0
-              ? "This work day schedule is currently in use, and so will merely be inactivated."
-              : "This work day schedule is not in use, and so will really, truly be deleted."
-          )}
+          {usages > 0
+            ? t(
+                "This work day schedule is currently in use, and so will merely be inactivated."
+              )
+            : t(
+                "This work day schedule is not in use, and so will really, truly be deleted."
+              )}
         </Typography>
       </DialogContent>
       <Divider variant="fullWidth" />
