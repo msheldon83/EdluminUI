@@ -1,7 +1,8 @@
-import { Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles, TextField } from "@material-ui/core";
 import { Formik, ErrorMessage } from "formik";
 import { StateCode } from "graphql/server-types.gen";
 import * as yup from "yup";
+import { useIsMobile } from "hooks";
 import * as React from "react";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { useTranslation } from "react-i18next";
@@ -12,7 +13,7 @@ import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { ActionButtons } from "../../../components/action-buttons";
-import { phoneRegExp } from "helpers/regexp"
+import { phoneRegExp } from "helpers/regexp";
 
 type Props = {
   locationGroupOptions: OptionType[];
@@ -28,6 +29,7 @@ type Props = {
       | null;
     phoneNumber?: string | undefined | null;
     locationGroupId?: string | undefined | null;
+    notes?: string | undefined | null;
   };
   submitText: string;
   onSubmit: (
@@ -36,14 +38,17 @@ type Props = {
     city?: string | undefined | null,
     state?: StateCode | undefined | null,
     postalCode?: string | undefined | null,
-    phoneNumber?: string | undefined | null
+    phoneNumber?: string | undefined | null,
+    notes?: string | undefined | null
   ) => Promise<unknown>;
   onCancel: () => void;
 };
 
 export const AddSettingsInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const textFieldClasses = useTextFieldClasses();
   const classes = useStyles();
+  const isMobile = useIsMobile();
 
   const stateOptions = USStates.map(s => ({
     label: s.name,
@@ -65,6 +70,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
           postalCode: props?.location?.address?.postalCode ?? "",
           phoneNumber: props.location.phoneNumber ?? "",
           locationGroupId: props.location.locationGroupId ?? "",
+          notes: props.location.notes ?? "",
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
@@ -75,7 +81,8 @@ export const AddSettingsInfo: React.FC<Props> = props => {
             data.postalCode.trim().length === 0 ? null : data.postalCode,
             data.phoneNumber.trim().length === 0
               ? null
-              : cleanPhoneNumber(data.phoneNumber)
+              : cleanPhoneNumber(data.phoneNumber),
+            data.notes ?? null
           );
         }}
         validationSchema={yup.object({
@@ -110,8 +117,8 @@ export const AddSettingsInfo: React.FC<Props> = props => {
           return (
             <form onSubmit={handleSubmit}>
               <Grid container>
-                <Grid container item xs={8} component="dl" spacing={2}>
-                  <Grid container item xs={6} spacing={2}>
+                <Grid container item xs={12} component="dl" spacing={2}>
+                  <Grid container item xs={isMobile ? 12 : 4} spacing={2}>
                     <Grid item xs={12}>
                       <dt className={classes.title}>{t("School group")}</dt>
                       <span className={classes.required}>*</span>
@@ -155,72 +162,85 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                       />
                     </Grid>
                   </Grid>
-                  <Grid container item xs={6} spacing={2}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <dt className={classes.title}>{t("Street")}</dt>
-                        <span className={classes.required}>*</span>
-                        <Input
-                          value={values.address1}
-                          InputComponent={FormTextField}
-                          inputComponentProps={{
-                            name: "address1",
-                            id: "address1",
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <dt className={classes.title}>{t("City")}</dt>
-                        <span className={classes.required}>*</span>
-                        <Input
-                          value={values.city}
-                          InputComponent={FormTextField}
-                          inputComponentProps={{
-                            name: "city",
-                            id: "city",
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <dt className={classes.title}>{t("State")}</dt>
-                        <span className={classes.required}>*</span>
-                        <SelectNew
-                          name="state"
-                          value={{
-                            value: values.state ?? "",
-                            label:
-                              stateOptions.find(a => a.value === values.state)
-                                ?.label || "",
-                          }}
-                          onChange={(e: OptionType) => {
-                            let selectedValue = null;
-                            if (e) {
-                              if (Array.isArray(e)) {
-                                selectedValue = (e as Array<OptionTypeBase>)[0]
-                                  .value;
-                              } else {
-                                selectedValue = (e as OptionTypeBase).value;
-                              }
+                  <Grid container item xs={isMobile ? 12 : 4} spacing={2}>
+                    <Grid item xs={12}>
+                      <dt className={classes.title}>{t("Street")}</dt>
+                      <span className={classes.required}>*</span>
+                      <Input
+                        value={values.address1}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          name: "address1",
+                          id: "address1",
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <dt className={classes.title}>{t("City")}</dt>
+                      <span className={classes.required}>*</span>
+                      <Input
+                        value={values.city}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          name: "city",
+                          id: "city",
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <dt className={classes.title}>{t("State")}</dt>
+                      <span className={classes.required}>*</span>
+                      <SelectNew
+                        name="state"
+                        value={{
+                          value: values.state ?? "",
+                          label:
+                            stateOptions.find(a => a.value === values.state)
+                              ?.label || "",
+                        }}
+                        onChange={(e: OptionType) => {
+                          let selectedValue = null;
+                          if (e) {
+                            if (Array.isArray(e)) {
+                              selectedValue = (e as Array<OptionTypeBase>)[0]
+                                .value;
+                            } else {
+                              selectedValue = (e as OptionTypeBase).value;
                             }
-                            setFieldValue("state", selectedValue);
-                          }}
-                          inputStatus={errors.state ? "error" : undefined}
-                          multiple={false}
-                          options={stateOptions}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <dt className={classes.title}>{t("Zip")}</dt>
-                        <span className={classes.required}>*</span>
-                        <Input
-                          value={values.postalCode}
-                          InputComponent={FormTextField}
-                          inputComponentProps={{
-                            name: "postalCode",
-                            id: "postalCode",
-                          }}
-                        />
-                      </Grid>
+                          }
+                          setFieldValue("state", selectedValue);
+                        }}
+                        inputStatus={errors.state ? "error" : undefined}
+                        multiple={false}
+                        options={stateOptions}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <dt className={classes.title}>{t("Zip")}</dt>
+                      <span className={classes.required}>*</span>
+                      <Input
+                        value={values.postalCode}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          name: "postalCode",
+                          id: "postalCode",
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid container xs={isMobile ? 12 : 4} item>
+                    <Grid item xs={12}>
+                      <dt className={classes.title}>{t("Notes")}</dt>
+                      <TextField
+                        multiline={true}
+                        rows="4"
+                        value={values.notes}
+                        fullWidth={true}
+                        variant="outlined"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setFieldValue("notes", e.target.value);
+                        }}
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -251,5 +271,11 @@ const useStyles = makeStyles(theme => ({
   required: {
     color: "#C62828",
     marginLeft: theme.typography.pxToRem(5),
+  },
+}));
+
+const useTextFieldClasses = makeStyles(theme => ({
+  multiline: {
+    padding: theme.spacing(1),
   },
 }));
