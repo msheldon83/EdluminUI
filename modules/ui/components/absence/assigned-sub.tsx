@@ -85,6 +85,8 @@ export const AssignedSub: React.FC<Props> = props => {
     allGroupedDetails,
   ]);
 
+  if (props.vacancies.length < 1) return <> </>;
+
   return (
     <>
       {props.onCancelAssignment && props.assignmentId && (

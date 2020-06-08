@@ -31,11 +31,11 @@ import * as yup from "yup";
 import { Assign } from "./components/assign";
 import { Schedule } from "./components/schedule";
 import { Period } from "./helpers";
-import { DeleteWorkDaySchedule } from "./graphql/delete-workday-schedule.gen";
 import { UpdateWorkDayScheduleVariant } from "./graphql/update-workday-schedule-variant.gen";
 import { UpdateWorkDaySchedule } from "./graphql/update-workday-schedule.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
+import { DeleteDialog } from "./components/delete-dialog";
 
 const editableSections = {
   name: "edit-name",
@@ -50,6 +50,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const params = useRouteParams(BellScheduleViewRoute);
   const [editing, setEditing] = useState<string | null>(null);
   const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState<boolean>(false);
   const { openSnackbar } = useSnackbar();
   const orgWorkDayScheduleVariantTypes = useWorkDayScheduleVariantTypes(
     params.organizationId
@@ -69,20 +70,6 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
   const variantTypes = orgWorkDayScheduleVariantTypes.filter(
     v => v.id !== standardVariantType?.id
   );
-
-  const [deleteWorkDayScheduleMutation] = useMutationBundle(
-    DeleteWorkDaySchedule
-  );
-  const deleteWorkDaySchedule = React.useCallback(async () => {
-    await deleteWorkDayScheduleMutation({
-      variables: {
-        workDayScheduleId: params.workDayScheduleId,
-      },
-      awaitRefetchQueries: true,
-      refetchQueries: ["GetAllWorkDaySchedulesWithinOrg"],
-    });
-    history.push(BellScheduleRoute.generate(params));
-  }, [deleteWorkDayScheduleMutation, history, params]);
 
   const [updateWorkDaySchedule] = useMutationBundle(UpdateWorkDaySchedule, {
     onError: error => {
@@ -440,6 +427,13 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
 
   return (
     <>
+      <DeleteDialog
+        isOpen={deleteDialogIsOpen}
+        setIsOpen={setDeleteDialogIsOpen}
+        workDayScheduleId={workDaySchedule.id}
+        workDayScheduleName={workDaySchedule.name}
+        usages={workDaySchedule.usages?.length ?? 0}
+      />
       <div className={classes.linkPadding}>
         <Link to={BellScheduleRoute.generate(params)} className={classes.link}>
           {t("Return to all bell schedules")}
@@ -478,7 +472,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
           },
           {
             name: t("Delete"),
-            onClick: deleteWorkDaySchedule,
+            onClick: () => setDeleteDialogIsOpen(true),
             permissions: [PermissionEnum.ScheduleSettingsDelete],
           },
         ]}
