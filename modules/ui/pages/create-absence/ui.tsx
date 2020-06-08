@@ -16,7 +16,6 @@ import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
-import { useSnackbar } from "hooks/use-snackbar";
 import { compact, flatMap, size, some } from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
@@ -37,6 +36,7 @@ import { AssignSub } from "../../components/assign-sub/index";
 import { Confirmation } from "./confirmation";
 import { EditVacancies } from "./edit-vacancies";
 import { CreateAbsence } from "./graphql/create.gen";
+import { useSnackbar } from "hooks/use-snackbar";
 import { GetProjectedAbsenceUsage } from "./graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacancies } from "./graphql/get-projected-vacancies.gen";
 import { projectVacancyDetails } from "./project-vacancy-details";
@@ -46,6 +46,7 @@ import { ApolloError } from "apollo-client";
 import { Prompt, useRouteMatch } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { ShowErrors } from "ui/components/error-helpers";
 
 type Props = {
   firstName: string;
@@ -275,7 +276,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       },
     },
     skip: projectedVacanciesInput === null,
-    onError: () => {},
+    onError: error => {
+      ShowErrors(error, snackbar.openSnackbar);
+    },
   });
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
@@ -304,7 +307,8 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
   const projectedVacancies =
     getProjectedVacancies.state === "LOADING" ||
-    getProjectedVacancies.state === "UPDATING"
+    getProjectedVacancies.state === "UPDATING" ||
+    getProjectedVacancies.state === "ERROR"
       ? []
       : (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
