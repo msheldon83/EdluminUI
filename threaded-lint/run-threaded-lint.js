@@ -1,23 +1,13 @@
-const { ESLint } = require("eslint");
-const { divvyUp, runLint } = require("./basic-threaded-lint");
-const yargs = require("yargs");
-
 const {
-  warnIgnored,
-  _: [root],
-} = yargs
-  .option("--warnIgnored", {
-    description: "Tells whether to ignore eslint warnings.",
-    default: false,
-    type: "boolean",
-  })
-  .help()
-  .alias("help", "h").argv;
+	divvyUp,
+	runLint,
+} = require("../dist/threaded-lint/basic-threaded-lint");
 
 (async function main() {
-  const chunks = await divvyUp(root ? root : "modules");
-  await runLint(chunks, warnIgnored);
+	const chunks = await divvyUp("modules");
+	console.log(chunks);
+	await runLint(chunks);
 })().catch(error => {
-  process.exitCode = 1;
-  console.error(error);
+	process.exitCode = 1;
+	console.error(error);
 });

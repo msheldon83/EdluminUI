@@ -80,11 +80,12 @@ export async function runLint<T>(
   const lintData = await Promise.all(
     piles.map(
       async (files, i): Promise<ESLint.LintResult[]> => {
+        console.log(i);
         const tmpFile = `${tmp}/${i}.json`;
         const warn = warnIgnored ? ["--warnIgnored"] : [];
         const buffer = await spawn(
           "node",
-          ["threaded-lint/json-eslint.js", tmpFile].concat(warn).concat(files)
+          [`${__dirname}/json-eslint.js`, tmpFile].concat(warn).concat(files)
         );
         return require(tmpFile) as ESLint.LintResult[];
       }
