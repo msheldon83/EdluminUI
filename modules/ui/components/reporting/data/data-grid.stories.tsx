@@ -19,7 +19,7 @@ export const Basic = () => {
           numberOfLockedColumns: 0,
         }}
         orderedBy={[]}
-        addOrUpdateOrderBy={() => {}}
+        setFirstLevelOrderBy={() => {}}
         isLoading={false}
       />
     </div>
@@ -39,7 +39,7 @@ export const BasicLoading = () => {
           numberOfLockedColumns: 0,
         }}
         orderedBy={[]}
-        addOrUpdateOrderBy={() => {}}
+        setFirstLevelOrderBy={() => {}}
         isLoading={true}
       />
     </div>
@@ -68,7 +68,7 @@ export const SingleGrouping = () => {
           numberOfLockedColumns: 1,
         }}
         orderedBy={[]}
-        addOrUpdateOrderBy={() => {}}
+        setFirstLevelOrderBy={() => {}}
         isLoading={false}
       />
     </div>
@@ -104,7 +104,7 @@ export const MultipleGroupings = () => {
           numberOfLockedColumns: 2,
         }}
         orderedBy={[]}
-        addOrUpdateOrderBy={() => {}}
+        setFirstLevelOrderBy={() => {}}
         isLoading={false}
       />
     </div>

@@ -48,7 +48,7 @@ export type ReportActions =
       orderBy: OrderByField[];
     }
   | {
-      action: "addOrUpdateOrderBy";
+      action: "setFirstLevelOrderBy";
       expression: DataExpression;
       direction: Direction;
     }
@@ -208,23 +208,20 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         },
       };
     }
-    case "addOrUpdateOrderBy": {
-      const updatedOrderBy = [...(prev.report!.orderBy ?? [])];
-      const match = updatedOrderBy.find(
-        o =>
-          o.expression.baseExpressionAsQueryLanguage ===
-          action.expression.baseExpressionAsQueryLanguage
-      );
-      // Don't duplicate an OrderByField or change its location in the list.
-      // If we find a match, just update its Direction value
-      if (match) {
-        match.direction = action.direction;
-      } else {
-        updatedOrderBy.push({
-          expression: action.expression,
-          direction: action.direction,
-        });
-      }
+    case "setFirstLevelOrderBy": {
+      // Get our current order bys minus the one we want at the top of the list
+      const updatedOrderBy = [
+        ...(prev.report!.orderBy?.filter(
+          f =>
+            f.expression.baseExpressionAsQueryLanguage !==
+            action.expression.baseExpressionAsQueryLanguage
+        ) ?? []),
+      ];
+      // Add the current expression as the top level sort
+      updatedOrderBy.unshift({
+        expression: action.expression,
+        direction: action.direction,
+      });
 
       const updatedState = {
         ...prev,

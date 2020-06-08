@@ -39,7 +39,7 @@ type Props = {
   reportData: ReportDefinitionData;
   isLoading: boolean;
   orderedBy: OrderByField[];
-  addOrUpdateOrderBy: (
+  setFirstLevelOrderBy: (
     expression: DataExpression,
     direction: Direction
   ) => void;
@@ -55,7 +55,7 @@ export const DataGrid: React.FC<Props> = props => {
     report,
     reportData,
     orderedBy,
-    addOrUpdateOrderBy,
+    setFirstLevelOrderBy,
     showGroupLabels = true,
   } = props;
 
@@ -120,7 +120,7 @@ export const DataGrid: React.FC<Props> = props => {
                       reportData.dataColumnIndexMap
                     )
                   }
-                  addOrUpdateOrderBy={addOrUpdateOrderBy}
+                  setFirstLevelOrderBy={setFirstLevelOrderBy}
                   orderedBy={orderedBy}
                 />
                 {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (

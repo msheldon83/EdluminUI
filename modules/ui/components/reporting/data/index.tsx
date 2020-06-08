@@ -27,7 +27,7 @@ type Props = {
     refreshReport?: boolean
   ) => void;
   setOrderBy: (orderBy: OrderByField[]) => void;
-  addOrUpdateOrderBy: (
+  setFirstLevelOrderBy: (
     expression: DataExpression,
     direction: Direction
   ) => void;
@@ -46,7 +46,7 @@ export const ReportData: React.FC<Props> = props => {
     filterableFields,
     setFilters,
     setOrderBy,
-    addOrUpdateOrderBy,
+    setFirstLevelOrderBy,
     refreshReport,
     exportReport,
     showGroupLabels = true,
@@ -97,7 +97,7 @@ export const ReportData: React.FC<Props> = props => {
             reportData={reportData}
             isLoading={isLoading}
             showGroupLabels={showGroupLabels}
-            addOrUpdateOrderBy={addOrUpdateOrderBy}
+            setFirstLevelOrderBy={setFirstLevelOrderBy}
             orderedBy={report.orderBy ?? []}
           />
         )}

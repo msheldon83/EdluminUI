@@ -125,9 +125,9 @@ export const Report: React.FC<Props> = props => {
     dispatch({ action: "setOrderBy", orderBy });
   }, []);
 
-  const addOrUpdateOrderBy = React.useCallback(
+  const setFirstLevelOrderBy = React.useCallback(
     (expression: DataExpression, direction: Direction) => {
-      dispatch({ action: "addOrUpdateOrderBy", expression, direction });
+      dispatch({ action: "setFirstLevelOrderBy", expression, direction });
     },
     []
   );
@@ -165,7 +165,7 @@ export const Report: React.FC<Props> = props => {
         filterableFields={state.filterableFields}
         setFilters={setFilters}
         setOrderBy={setOrderBy}
-        addOrUpdateOrderBy={addOrUpdateOrderBy}
+        setFirstLevelOrderBy={setFirstLevelOrderBy}
         refreshReport={refreshReport}
         exportReport={async () => {
           await downloadCsvFile({

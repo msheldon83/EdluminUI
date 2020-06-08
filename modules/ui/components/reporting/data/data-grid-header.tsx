@@ -9,7 +9,7 @@ type Props = {
   columns: DataExpression[];
   height: MultiGridProps["height"];
   width: MultiGridProps["width"];
-  addOrUpdateOrderBy: (
+  setFirstLevelOrderBy: (
     expression: DataExpression,
     direction: Direction
   ) => void;
@@ -41,7 +41,7 @@ export const DataGridHeader: React.FC<Props> = props => {
     width,
     columnWidth,
     orderedBy,
-    addOrUpdateOrderBy,
+    setFirstLevelOrderBy,
     numberOfLockedColumns = 0,
   } = props;
 
@@ -49,13 +49,13 @@ export const DataGridHeader: React.FC<Props> = props => {
     {
       label: t("Sort A > Z"),
       onClick: async (expression: DataExpression) => {
-        addOrUpdateOrderBy(expression, Direction.Asc);
+        setFirstLevelOrderBy(expression, Direction.Asc);
       },
     },
     {
       label: t("Sort Z > A"),
       onClick: async (expression: DataExpression) => {
-        addOrUpdateOrderBy(expression, Direction.Desc);
+        setFirstLevelOrderBy(expression, Direction.Desc);
       },
     },
   ];
