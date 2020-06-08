@@ -53,6 +53,10 @@ export type ReportActions =
       direction: Direction;
     }
   | {
+      action: "addColumns";
+      fields: DataSourceField[];
+    }
+  | {
       action: "refreshReport";
     };
 
@@ -230,6 +234,30 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
           orderBy: updatedOrderBy,
         },
       };
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.report
+      );
+      return updatedState;
+    }
+    case "addColumns": {
+      const updatedState = {
+        ...prev,
+        report: {
+          ...prev.report!,
+          selects: [
+            ...prev.report!.selects,
+            ...action.fields.map(f => {
+              return {
+                displayName: f.friendlyName,
+                expressionAsQueryLanguage: f.dataSourceFieldName,
+                baseExpressionAsQueryLanguage: f.dataSourceFieldName,
+                dataSourceField: f,
+              };
+            }),
+          ],
+        },
+      };
+
       updatedState.rdlString = convertReportDefinitionInputToRdl(
         updatedState.report
       );

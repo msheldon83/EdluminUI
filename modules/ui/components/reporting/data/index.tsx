@@ -20,6 +20,8 @@ type Props = {
   report: Report | undefined;
   reportData: ReportDefinitionData | undefined;
   isLoading: boolean;
+  allFields: DataSourceField[];
+  addColumns: (fields: DataSourceField[]) => void;
   filterableFields: DataSourceField[];
   setFilters: (
     filters: FilterField[],
@@ -47,6 +49,8 @@ export const ReportData: React.FC<Props> = props => {
     setFilters,
     setOrderBy,
     setFirstLevelOrderBy,
+    allFields,
+    addColumns,
     refreshReport,
     exportReport,
     showGroupLabels = true,
@@ -85,6 +89,9 @@ export const ReportData: React.FC<Props> = props => {
           setOrderBy={setOrderBy}
           orderedBy={report.orderBy ?? []}
           possibleOrderByFields={possibleOrderByFields}
+          columns={report.selects}
+          allFields={allFields}
+          addColumns={addColumns}
         />
         {exportReport && (
           <TextButton onClick={exportReport}>{t("Export Report")}</TextButton>

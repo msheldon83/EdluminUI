@@ -9,6 +9,7 @@ import { makeStyles } from "@material-ui/core";
 import { OptionalFilters } from "./filters/optional-filters";
 import { RequiredFilters } from "./filters/required-filters";
 import { OrderBy } from "./order-by/order-by";
+import { AddColumns } from "./columns/add-columns";
 
 type Props = {
   filters: FilterField[];
@@ -21,6 +22,9 @@ type Props = {
   orderedBy: OrderByField[];
   possibleOrderByFields: DataExpression[];
   setOrderBy: (orderBy: OrderByField[]) => void;
+  columns: DataExpression[];
+  allFields: DataSourceField[];
+  addColumns: (fields: DataSourceField[]) => void;
   refreshReport: () => Promise<void>;
 };
 
@@ -33,6 +37,9 @@ export const ActionBar: React.FC<Props> = props => {
     orderedBy,
     possibleOrderByFields,
     setOrderBy,
+    columns,
+    allFields,
+    addColumns,
     refreshReport,
   } = props;
 
@@ -58,6 +65,14 @@ export const ActionBar: React.FC<Props> = props => {
           orderedBy={orderedBy}
           possibleOrderByFields={possibleOrderByFields}
           setOrderBy={setOrderBy}
+          refreshReport={refreshReport}
+        />
+      </div>
+      <div className={classes.actionButtons}>
+        <AddColumns
+          columns={columns}
+          allFields={allFields}
+          addColumns={addColumns}
           refreshReport={refreshReport}
         />
       </div>

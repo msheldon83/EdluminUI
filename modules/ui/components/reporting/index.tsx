@@ -1,6 +1,12 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { Direction, FilterField, DataExpression, OrderByField } from "./types";
+import {
+  Direction,
+  FilterField,
+  DataExpression,
+  OrderByField,
+  DataSourceField,
+} from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
 import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
@@ -132,6 +138,10 @@ export const Report: React.FC<Props> = props => {
     []
   );
 
+  const addColumns = React.useCallback((fields: DataSourceField[]) => {
+    dispatch({ action: "addColumns", fields });
+  }, []);
+
   return (
     <AppConfig contentWidth="100%">
       <div className={classes.header}>
@@ -163,6 +173,10 @@ export const Report: React.FC<Props> = props => {
           reportDataResponse.state === "UPDATING"
         }
         filterableFields={state.filterableFields}
+        allFields={
+          state.reportDefinition?.metadata?.query?.schema?.allFields ?? []
+        }
+        addColumns={addColumns}
         setFilters={setFilters}
         setOrderBy={setOrderBy}
         setFirstLevelOrderBy={setFirstLevelOrderBy}
