@@ -76,7 +76,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
       <div className={classes.linkPadding}>
         <ReturnLink
           linkClass={classes.link}
-          defaultComingFrom="all absence reasons"
+          defaultComingFrom={t("all absence reasons")}
           defaultReturnUrl={AbsenceReasonRoute.generate(params)}
         />
       </div>

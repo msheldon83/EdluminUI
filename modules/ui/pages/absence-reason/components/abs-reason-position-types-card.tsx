@@ -15,7 +15,7 @@ import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { AbsencePositionTypeLink } from "ui/components/links/position-types";
+import { PositionTypeLink } from "ui/components/links/position-types";
 
 type Props = {
   absenceReasonId: string;
@@ -101,7 +101,7 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
                       .sort((pt1, pt2) => pt1.name.localeCompare(pt2.name))
                       .map((pt, i) => (
                         <Typography key={pt.id}>
-                          <AbsencePositionTypeLink
+                          <PositionTypeLink
                             positionTypeId={pt.id}
                             state={{
                               comingFrom: `${props.absenceReasonName} settings`,
@@ -109,7 +109,7 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
                             }}
                           >
                             {pt.name}
-                          </AbsencePositionTypeLink>
+                          </PositionTypeLink>
                         </Typography>
                       ))}
                   </>

@@ -24,17 +24,24 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
 
   const absenceReasons = useAbsenceReasons(params.organizationId);
 
+  const { positionTypeId } = props;
+
   const sortedReasons = React.useMemo(
     () =>
       absenceReasons
-        .slice()
+        .filter(
+          ar =>
+            ar.allPositionTypes || ar.positionTypeIds.includes(positionTypeId)
+        )
         .sort((ar1, ar2) => ar1.name.localeCompare(ar2.name)),
-    [absenceReasons]
+    [absenceReasons, positionTypeId]
   );
 
   if (sortedReasons.length === 0) {
     return <></>;
   }
+
+  console.log(sortedReasons);
 
   return (
     <Section>
@@ -44,7 +51,7 @@ export const PositionTypeAbsReasonsCard: React.FC<Props> = props => {
           <AbsenceReasonLink
             absenceReasonId={ar.id}
             state={{
-              comingFrom: `${props.positionTypeName} settings`,
+              comingFrom: `${props.positionTypeName} ${t("settings")}`,
               returnLocation: location,
             }}
           >

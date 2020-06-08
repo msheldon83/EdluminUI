@@ -160,7 +160,7 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
       <div className={classes.linkPadding}>
         <ReturnLink
           linkClass={classes.link}
-          defaultComingFrom="all position types"
+          defaultComingFrom={t("all position types")}
           defaultReturnUrl={PositionTypeRoute.generate(params)}
         />
       </div>

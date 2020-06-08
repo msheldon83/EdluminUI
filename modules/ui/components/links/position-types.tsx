@@ -10,7 +10,7 @@ type Props = {
   state?: any;
 } & LinkOptions;
 
-export const AbsencePositionTypeLink: React.FC<Props> = ({
+export const PositionTypeLink: React.FC<Props> = ({
   orgId,
   positionTypeId,
   state,
@@ -30,7 +30,7 @@ export const AbsencePositionTypeLink: React.FC<Props> = ({
 
   return (
     <BaseLink
-      permissions={[PermissionEnum.AbsVacSettingsView]}
+      permissions={[PermissionEnum.FinanceSettingsView]}
       to={{ ...pickUrl(urlStr), state }}
       {...props}
     />
