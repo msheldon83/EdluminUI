@@ -26,7 +26,7 @@ steps:
     displayName: "build"
 
   - script: |
-      yarn lint &&
+      yarn threaded-lint &&
       yarn run jest --reporters=jest-junit
     condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
     displayName: "lint and unit tests"

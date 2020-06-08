@@ -5,7 +5,6 @@ import { ESLint } from "eslint";
 import spawn from "./ts-await-spawn";
 
 const threshold = 1000000;
-const subProcessNumber = 3;
 
 async function sliceFiles(
   parent: string
@@ -50,9 +49,10 @@ async function sliceFiles(
 }
 
 function distributeWork(
-  chunks: { path: string; size: number }[]
+  chunks: { path: string; size: number }[],
+  workers: number
 ): [string[], number][] {
-  const piles: [string[], number][] = Array(subProcessNumber)
+  const piles: [string[], number][] = Array(workers)
     .fill(0)
     .map(n => [[], 0]);
   chunks.sort(({ size: size1 }, { size: size2 }) => size1 - size2);
@@ -65,9 +65,12 @@ function distributeWork(
   return piles;
 }
 
-export async function divvyUp(root: string): Promise<string[][]> {
+export async function divvyUp(
+  root: string,
+  workers: number
+): Promise<string[][]> {
   const [chunks, ,] = await sliceFiles(root);
-  const piles = distributeWork(chunks);
+  const piles = distributeWork(chunks, workers);
   return piles.map(([files, size]) => files);
 }
 
