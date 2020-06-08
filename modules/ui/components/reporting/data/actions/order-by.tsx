@@ -99,7 +99,6 @@ export const OrderBy: React.FC<Props> = props => {
                 <div className={classes.orderByFields}>
                   <DragDropContext
                     onDragEnd={(result: DropResult) => {
-                      console.log(result);
                       const updatedOrderBy = onDragEnd(result, orderedBy);
                       if (updatedOrderBy) {
                         setOrderBy(updatedOrderBy);
@@ -254,12 +253,15 @@ const onDragEnd = (
   const updatedOrderBy = [...orderBy].filter(
     o => o.expression.baseExpressionAsQueryLanguage !== result.draggableId
   );
-  if (source.index < destination.index) {
+  if (
+    source.index > destination.index ||
+    destination.index === orderBy.length - 1
+  ) {
+    // Dragging up the list or to the last item in the list
+    updatedOrderBy.splice(destination.index, 0, orderByBeingMoved);
+  } else {
     // Dragging down the list
     updatedOrderBy.splice(destination.index - 1, 0, orderByBeingMoved);
-  } else {
-    // Dragging up the list
-    updatedOrderBy.splice(destination.index, 0, orderByBeingMoved);
   }
 
   return updatedOrderBy;
