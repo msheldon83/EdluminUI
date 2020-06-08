@@ -27,10 +27,12 @@ export const Filter: React.FC<Props> = props => {
 
   const filter = React.useMemo(() => {
     switch (filterField.field.filterType) {
-      case FilterType.Boolean:
+      case FilterType.Boolean: {
+        const checked =
+          filterField.value === "1" || (filterField.value ?? false);
         return (
           <Checkbox
-            checked={filterField.value ?? false}
+            checked={checked}
             onChange={(e, checked) =>
               updateFilter({
                 field: filterField.field,
@@ -41,6 +43,7 @@ export const Filter: React.FC<Props> = props => {
             color="primary"
           />
         );
+      }
       case FilterType.Date: {
         const start = filterField.value[0] ?? undefined;
         const end = filterField.value[1] ?? undefined;

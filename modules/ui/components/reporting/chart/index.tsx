@@ -30,7 +30,6 @@ export const ReportChart: React.FC<Props> = props => {
       };
     }
 
-    let colorIndex = -1;
     return {
       labels: reportChartDefinition.data.againstRawData,
       datasets: flatMap(
@@ -44,7 +43,15 @@ export const ReportChart: React.FC<Props> = props => {
           const stackId =
             g.type === GraphType.StackedBar ? `stack-${graphIndex}` : undefined;
           return g.series.map((s, seriesIndex) => {
-            colorIndex = colorIndex + 1;
+            const colorDefinition = s.color
+              ? {
+                  backgroundColor: hexToRgb(s.color, 0.8),
+                  borderColor: hexToRgb(s.color, 1),
+                  hoverBackgroundColor: hexToRgb(s.color, 0.9),
+                  hoverBorderColor: hexToRgb(s.color, 1),
+                }
+              : {};
+
             return {
               label: s.displayName,
               type: graphType,
@@ -53,10 +60,7 @@ export const ReportChart: React.FC<Props> = props => {
               yAxisID,
               stack: stackId,
               borderWidth: 1,
-              backgroundColor: hexToRgb(possibleColors[colorIndex], 0.8),
-              borderColor: hexToRgb(possibleColors[colorIndex], 1),
-              hoverBackgroundColor: hexToRgb(possibleColors[colorIndex], 0.9),
-              hoverBorderColor: hexToRgb(possibleColors[colorIndex], 1),
+              ...colorDefinition,
             };
           });
         })
@@ -193,17 +197,3 @@ const getChartJsGraphType = (type: GraphType): ChartJsChartType => {
       return "bar";
   }
 };
-
-// TODO: Add support to the Report Definition on the
-// backend to accept a Series string that includes a hex
-// color. For now we have full control over how complicated
-// our charts are going to be, so supporting up to 6 series
-// should do it.
-const possibleColors = [
-  "#3d4ed7",
-  "#FF5555",
-  "#ffcc01",
-  "#d8d8d8",
-  "#4caf50",
-  "#B80FD5",
-];
