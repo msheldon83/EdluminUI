@@ -114,26 +114,6 @@ export const BalanceUsage: React.FC<Props> = props => {
     return { name, trackingType, amount, negativeWarning, remainingBalance };
   }, [balance, usages, employeeBalances, usageAmount]);
 
-  const balanceUsageText = useMemo(() => {
-    if (!usageAmount || !usageAmount.trackingType) return null;
-
-    const { trackingType, amount, remainingBalance } = usageAmount;
-    const unitText = {
-      INVALID: null,
-      DAILY: ["day", "days"],
-      HOURLY: ["hour", "hours"],
-    }[trackingType];
-
-    if (!unitText) return null;
-    return `${t("Uses")} ${round(amount, 2)} ${t(
-      unitText[Number(amount !== 1)]
-    )} ${t("of")} ${actingAsEmployee ? t("your") : t("employee's")} ${t(
-      "balance leaving"
-    )} ${round(remainingBalance, 2)} ${t(
-      unitText[Number(remainingBalance !== 1)]
-    )}`;
-  }, [usageAmount, t, actingAsEmployee]);
-
   const calculateBalanceUsageText = React.useCallback(
     (usageAmount: usageAmountData) => {
       if (!usageAmount || !usageAmount.trackingType) return null;
