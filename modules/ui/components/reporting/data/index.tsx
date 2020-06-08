@@ -6,7 +6,7 @@ import {
   Direction,
   ReportDefinitionData,
   DataExpression,
-  OrderByField
+  OrderByField,
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
@@ -14,6 +14,7 @@ import { LoadingDataGrid } from "./loading-data-grid";
 import { ActionBar } from "./actions/action-bar";
 import { TextButton } from "ui/components/text-button";
 import { DataGrid } from "./data-grid";
+import { compact } from "lodash-es";
 
 type Props = {
   report: Report | undefined;
@@ -26,7 +27,10 @@ type Props = {
     refreshReport?: boolean
   ) => void;
   setOrderBy: (orderBy: OrderByField[]) => void;
-  addOrUpdateOrderBy: (expression: DataExpression, direction: Direction) => void;
+  addOrUpdateOrderBy: (
+    expression: DataExpression,
+    direction: Direction
+  ) => void;
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
   showGroupLabels?: boolean;
@@ -48,6 +52,24 @@ export const ReportData: React.FC<Props> = props => {
     showGroupLabels = true,
   } = props;
 
+  const possibleOrderByFields = React.useMemo(() => {
+    const fields = report?.selects ?? [];
+    const subtotalDisplayFields = compact(
+      (report?.subtotalBy ?? []).map(s => {
+        const subtotalExpression = s.showExpression
+          ? s.showExpression
+          : s.expression;
+        const match = fields.find(
+          f =>
+            f.baseExpressionAsQueryLanguage ===
+            subtotalExpression.baseExpressionAsQueryLanguage
+        );
+        return match ? null : subtotalExpression;
+      })
+    );
+    return [...subtotalDisplayFields, ...fields];
+  }, [report]);
+
   return !report ? (
     <div className={classes.gridWrapper}>
       <LoadingDataGrid />
@@ -62,7 +84,7 @@ export const ReportData: React.FC<Props> = props => {
           filters={report.filters ?? []}
           setOrderBy={setOrderBy}
           orderedBy={report.orderBy ?? []}
-          possibleOrderByFields={report.selects}
+          possibleOrderByFields={possibleOrderByFields}
         />
         {exportReport && (
           <TextButton onClick={exportReport}>{t("Export Report")}</TextButton>

@@ -3,7 +3,7 @@ import { AppConfig } from "hooks/app-config";
 import { Direction, FilterField, DataExpression, OrderByField } from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
-import { reportReducer } from "./state";
+import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
 import { makeStyles } from "@material-ui/core";
 import { useOrganizationId } from "core/org-context";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -171,7 +171,7 @@ export const Report: React.FC<Props> = props => {
           await downloadCsvFile({
             input: {
               orgIds: [organizationId],
-              queryText: state.rdlString,
+              queryText: convertReportDefinitionInputToRdl(state.report!, true),
             },
             filename: exportFilename,
           });
