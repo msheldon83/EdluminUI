@@ -8,9 +8,14 @@ import {
   Fade,
   ClickAwayListener,
 } from "@material-ui/core";
-import { SwapVert } from "@material-ui/icons";
+import { SwapVert, DragHandle } from "@material-ui/icons";
 import { OrderByRow } from "./order-by-row";
-import { Droppable, DragDropContext, DropResult } from "react-beautiful-dnd";
+import {
+  Droppable,
+  DragDropContext,
+  DropResult,
+  Draggable,
+} from "react-beautiful-dnd";
 
 type Props = {
   orderedBy: OrderByField[];
@@ -66,6 +71,35 @@ export const OrderBy: React.FC<Props> = props => {
     [orderedBy, setOrderBy]
   );
 
+  const orderByRow = React.useCallback(
+    (expressionString: string, index: number) => {
+      const orderByField = orderedBy.find(
+        o => o.expression.baseExpressionAsQueryLanguage === expressionString
+      );
+      if (!orderByField) {
+        return null;
+      }
+
+      return (
+        <OrderByRow
+          orderByField={orderByField}
+          possibleOrderByFields={getPossibleOrderByFields(
+            possibleOrderByFields,
+            orderedBy.map(ob => ob.expression),
+            orderByField.expression
+          )}
+          updateOrderBy={(orderByField: OrderByField) =>
+            updateOrderBy(orderByField, index)
+          }
+          removeOrderBy={() => removeOrderBy(index)}
+          index={index}
+          key={index}
+        />
+      );
+    },
+    [orderedBy, possibleOrderByFields, removeOrderBy, updateOrderBy]
+  );
+
   return (
     <>
       <Button
@@ -105,7 +139,21 @@ export const OrderBy: React.FC<Props> = props => {
                       }
                     }}
                   >
-                    <Droppable droppableId="orderBy">
+                    <Droppable
+                      droppableId="orderBy"
+                      renderClone={(provided, snapshot, rubric) => (
+                        <div
+                          {...provided.draggableProps}
+                          ref={provided.innerRef}
+                          className={classes.draggableRow}
+                        >
+                          {orderByRow(rubric.draggableId, rubric.source.index)}
+                          <div {...provided.dragHandleProps} tabIndex={-1}>
+                            <DragHandle />
+                          </div>
+                        </div>
+                      )}
+                    >
                       {(provided, snapshot) => {
                         const { innerRef } = provided;
                         return (
@@ -113,20 +161,42 @@ export const OrderBy: React.FC<Props> = props => {
                             {orderedBy.length > 0 ? (
                               orderedBy.map((o, i) => {
                                 return (
-                                  <OrderByRow
-                                    orderByField={o}
-                                    possibleOrderByFields={getPossibleOrderByFields(
-                                      possibleOrderByFields,
-                                      orderedBy.map(ob => ob.expression),
-                                      o.expression
-                                    )}
-                                    updateOrderBy={(
-                                      orderByField: OrderByField
-                                    ) => updateOrderBy(orderByField, i)}
-                                    removeOrderBy={() => removeOrderBy(i)}
-                                    index={i}
-                                    key={i}
-                                  />
+                                  <>
+                                    <Draggable
+                                      key={
+                                        o.expression
+                                          .baseExpressionAsQueryLanguage
+                                      }
+                                      draggableId={
+                                        o.expression
+                                          .baseExpressionAsQueryLanguage
+                                      }
+                                      index={i}
+                                    >
+                                      {(provided, snapshot) => {
+                                        const { innerRef } = provided;
+                                        return (
+                                          <div
+                                            ref={innerRef}
+                                            {...provided.draggableProps}
+                                            className={classes.draggableRow}
+                                          >
+                                            {orderByRow(
+                                              orderedBy[i].expression
+                                                .baseExpressionAsQueryLanguage,
+                                              i
+                                            )}
+                                            <div
+                                              {...provided.dragHandleProps}
+                                              tabIndex={-1}
+                                            >
+                                              <DragHandle />
+                                            </div>
+                                          </div>
+                                        );
+                                      }}
+                                    </Draggable>
+                                  </>
                                 );
                               })
                             ) : (
@@ -207,6 +277,10 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  draggableRow: {
+    display: "flex",
+    alignItems: "center",
+  },
 }));
 
 const getPossibleOrderByFields = (
@@ -244,25 +318,15 @@ const onDragEnd = (
   }
 
   const orderByBeingMoved = orderBy.find(
-    o => o.expression.baseExpressionAsQueryLanguage === result.draggableId
+    o => o.expression.baseExpressionAsQueryLanguage === draggableId
   );
   if (!orderByBeingMoved) {
     return null;
   }
 
   const updatedOrderBy = [...orderBy].filter(
-    o => o.expression.baseExpressionAsQueryLanguage !== result.draggableId
+    o => o.expression.baseExpressionAsQueryLanguage !== draggableId
   );
-  if (
-    source.index > destination.index ||
-    destination.index === orderBy.length - 1
-  ) {
-    // Dragging up the list or to the last item in the list
-    updatedOrderBy.splice(destination.index, 0, orderByBeingMoved);
-  } else {
-    // Dragging down the list
-    updatedOrderBy.splice(destination.index - 1, 0, orderByBeingMoved);
-  }
-
+  updatedOrderBy.splice(destination.index, 0, orderByBeingMoved);
   return updatedOrderBy;
 };
