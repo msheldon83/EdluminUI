@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import { SwapVert } from "@material-ui/icons";
 import { OrderByRow } from "./order-by-row";
+import { Droppable, DragDropContext, DropResult } from "react-beautiful-dnd";
 
 type Props = {
   orderedBy: OrderByField[];
@@ -96,30 +97,51 @@ export const OrderBy: React.FC<Props> = props => {
                 }}
               >
                 <div className={classes.orderByFields}>
-                  {orderedBy.length > 0 ? (
-                    orderedBy.map((o, i) => {
-                      return (
-                        <OrderByRow
-                          orderByField={o}
-                          possibleOrderByFields={getPossibleOrderByFields(
-                            possibleOrderByFields,
-                            orderedBy.map(ob => ob.expression),
-                            o.expression
-                          )}
-                          updateOrderBy={(orderByField: OrderByField) =>
-                            updateOrderBy(orderByField, i)
-                          }
-                          removeOrderBy={() => removeOrderBy(i)}
-                          isFirst={i === 0}
-                          key={i}
-                        />
-                      );
-                    })
-                  ) : (
-                    <div className={classes.subText}>
-                      {t("No sorts applied")}
-                    </div>
-                  )}
+                  <DragDropContext
+                    onDragEnd={(result: DropResult) => {
+                      console.log(result);
+                      const updatedOrderBy = onDragEnd(result, orderedBy);
+                      if (updatedOrderBy) {
+                        setOrderBy(updatedOrderBy);
+                      }
+                    }}
+                  >
+                    <Droppable droppableId="orderBy">
+                      {(provided, snapshot) => {
+                        const { innerRef } = provided;
+                        return (
+                          <div ref={innerRef} {...provided.droppableProps}>
+                            {orderedBy.length > 0 ? (
+                              orderedBy.map((o, i) => {
+                                return (
+                                  <OrderByRow
+                                    orderByField={o}
+                                    possibleOrderByFields={getPossibleOrderByFields(
+                                      possibleOrderByFields,
+                                      orderedBy.map(ob => ob.expression),
+                                      o.expression
+                                    )}
+                                    updateOrderBy={(
+                                      orderByField: OrderByField
+                                    ) => updateOrderBy(orderByField, i)}
+                                    removeOrderBy={() => removeOrderBy(i)}
+                                    index={i}
+                                    key={i}
+                                  />
+                                );
+                              })
+                            ) : (
+                              <div className={classes.subText}>
+                                {t("No sorts applied")}
+                              </div>
+                            )}
+                            {provided.placeholder}
+                          </div>
+                        );
+                      }}
+                    </Droppable>
+                  </DragDropContext>
+
                   <div className={classes.actions}>
                     <Button
                       onClick={addOrderBy}
@@ -203,4 +225,42 @@ const getPossibleOrderByFields = (
           currentField.baseExpressionAsQueryLanguage)
   );
   return possibleOrderByFields;
+};
+
+const onDragEnd = (
+  result: DropResult,
+  orderBy: OrderByField[]
+): OrderByField[] | null => {
+  const { destination, source, draggableId } = result;
+
+  if (!destination) {
+    return null;
+  }
+
+  if (
+    destination.droppableId === source.droppableId &&
+    destination.index === source.index
+  ) {
+    return null;
+  }
+
+  const orderByBeingMoved = orderBy.find(
+    o => o.expression.baseExpressionAsQueryLanguage === result.draggableId
+  );
+  if (!orderByBeingMoved) {
+    return null;
+  }
+
+  const updatedOrderBy = [...orderBy].filter(
+    o => o.expression.baseExpressionAsQueryLanguage !== result.draggableId
+  );
+  if (source.index < destination.index) {
+    // Dragging down the list
+    updatedOrderBy.splice(destination.index - 1, 0, orderByBeingMoved);
+  } else {
+    // Dragging up the list
+    updatedOrderBy.splice(destination.index, 0, orderByBeingMoved);
+  }
+
+  return updatedOrderBy;
 };
