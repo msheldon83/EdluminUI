@@ -30,7 +30,7 @@ type Props = {
     allowNegativeBalance: boolean;
     isRestricted: boolean;
     description?: string;
-    code?: string;  
+    code?: string;
     requireNotesToAdmin: boolean;
   }) => Promise<void>;
   onCancel: () => void;
@@ -48,7 +48,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
     "description",
     "code",
     "allowNegativeBalance",
-    "isRestricted",   
+    "isRestricted",
     "requireNotesToAdmin",
     "absenceReasonCategoryId",
   ]);
@@ -89,7 +89,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                 variant: "outlined",
                 fullWidth: true,
               }}
-            />      
+            />
             <Typography variant="h6" className={classes.label}>
               {t(
                 "Should a balance be allowed to go negative for this absence reason?"
@@ -172,7 +172,6 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
                 labelPlacement="end"
               />
             </RadioGroup>
-
             <Typography variant="h6" className={classes.label}>
               {t("Which category is this absence reason a part of?")}
             </Typography>
