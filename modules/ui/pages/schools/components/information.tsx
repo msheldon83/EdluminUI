@@ -87,6 +87,6 @@ const useStyles = makeStyles(theme => ({
     )} ${theme.typography.pxToRem(4)}`,
   },
   wordBreak: {
-    wordBreak: "break-all",
+    wordBreak: "break-word",
   },
 }));
