@@ -77,6 +77,7 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
       state: location?.state,
       postalCode: location?.postalCode,
     },
+    notes: location?.notes,
     locationGroupId: location?.locationGroup?.id,
     phoneNumber: location?.phoneNumber,
   };
@@ -96,7 +97,8 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
           city?: string | null,
           state?: StateCode | null,
           postalCode?: string | null,
-          phoneNumber?: string | null
+          phoneNumber?: string | null,
+          notes?: string | null
         ) => {
           const updateLocation: LocationUpdateInput = {
             id: location?.id ?? "",
@@ -108,6 +110,7 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
               postalCode: postalCode,
               country: CountryCode.Us,
             },
+            notes: notes,
             phoneNumber: phoneNumber,
             locationGroupId: locationGroupId,
           };
