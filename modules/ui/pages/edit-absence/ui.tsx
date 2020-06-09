@@ -12,6 +12,7 @@ import {
   PermissionEnum,
   Vacancy,
   AbsenceDetail,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
@@ -62,6 +63,7 @@ import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log"
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
+import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 
 type Props = {
   firstName: string;
@@ -109,6 +111,13 @@ type Props = {
     | null;
   isClosed: boolean;
   positionTypeId?: string;
+  approvalStatus?: {
+    id: string;
+    approvalStatusId: ApprovalStatus;
+    approvalWorkflowId: string;
+    currentStepId: string;
+    comments: { id: string }[];
+  } | null;
 };
 
 type EditAbsenceFormData = {
@@ -328,7 +337,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
       ignoreAbsenceId: props.absenceId,
     },
     skip: !useProjectedInformation || projectedVacanciesInput === null,
-    onError: () => {},
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
   });
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
@@ -360,13 +371,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         )
       : [];
 
-  const projectedVacancies =
+  const vacancies =
     getProjectedVacancies.state === "DONE" ||
     getProjectedVacancies.state === "UPDATING"
       ? (compact(
           getProjectedVacancies.data?.absence?.projectedVacancies ?? []
         ) as Vacancy[])
-      : null;
+      : getProjectedVacancies.state === "ERROR"
+      ? []
+      : props.initialVacancies;
 
   const onChangedVacancies = useCallback(
     (vacancyDetails: VacancyDetail[]) => {
@@ -631,6 +644,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             </div>
           </div>
 
+          {Config.isDevFeatureOnly && props.approvalStatus && (
+            <ApprovalState
+              orgId={props.organizationId}
+              approvalStateId={props.approvalStatus?.id}
+              approvalStatusId={props.approvalStatus?.approvalStatusId}
+              approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
+              currentStepId={props.approvalStatus?.currentStepId}
+              countOfComments={props.approvalStatus?.comments.length}
+              actingAsEmployee={props.actingAsEmployee}
+              isTrueVacancy={false}
+              absenceId={props.absenceId}
+            />
+          )}
+
           <Section className={classes.absenceDetails}>
             <AbsenceDetails
               absenceDates={state.absenceDates}
@@ -654,7 +681,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               absenceReason={props.absenceReason}
               errors={errors}
               triggerValidation={triggerValidation}
-              vacancies={projectedVacancies || props.initialVacancies}
+              vacancies={vacancies}
               vacancyDetails={theVacancyDetails}
               setVacanciesInput={setVacanciesInput}
               arrangedSubText={t("assigned")}
@@ -715,7 +742,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           employeeName={employeeName}
           absenceId={props.absenceId}
           orgId={props.organizationId}
-          vacancies={projectedVacancies || props.initialVacancies}
+          vacancies={vacancies}
           actingAsEmployee={actingAsEmployee}
           employeeId={props.employeeId}
           positionId={props.positionId}

@@ -22,12 +22,10 @@ type Props = {
   description?: string;
   code?: string;
   allowNegativeBalance: boolean;
-  absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
     description?: string;
     code?: string;
-    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId;
   }) => Promise<void>;
   onCancel: () => void;
   className?: string;
@@ -43,7 +41,6 @@ export const AbsenceReasonCategorySettings: React.FC<Props> = props => {
     "description",
     "code",
     "allowNegativeBalance",
-    "absenceReasonTrackingTypeId",
   ]);
 
   return (
@@ -78,33 +75,6 @@ export const AbsenceReasonCategorySettings: React.FC<Props> = props => {
                 fullWidth: true,
               }}
             />
-
-            <Typography variant="h6" className={classes.label}>
-              {t("How is this absence reason category tracked?")}
-            </Typography>
-            <RadioGroup
-              aria-label="absenceReasonTrackingTypeId"
-              name="absenceReasonTrackingTypeId"
-              value={values.absenceReasonTrackingTypeId || ""}
-              onChange={e => {
-                setFieldValue("absenceReasonTrackingTypeId", e.target.value);
-              }}
-              row={!isMobile}
-            >
-              <FormControlLabel
-                value={AbsenceReasonTrackingTypeId.Hourly}
-                control={<Radio color="primary" />}
-                label={t("Hourly")}
-                labelPlacement="end"
-              />
-              <FormControlLabel
-                value={AbsenceReasonTrackingTypeId.Daily}
-                control={<Radio color="primary" />}
-                label={t("Daily")}
-                labelPlacement="end"
-              />
-            </RadioGroup>
-
             <Typography variant="h6" className={classes.label}>
               {t(
                 "Should a balance be allowed to go negative for this absence reason category?"

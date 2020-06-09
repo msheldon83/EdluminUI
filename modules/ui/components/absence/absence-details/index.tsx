@@ -2,11 +2,9 @@ import {
   Button,
   Grid,
   makeStyles,
-  Paper,
   Typography,
   useTheme,
 } from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
 import { min, startOfDay, parseISO } from "date-fns";
 import { Errors, SetValue, TriggerValidation } from "forms";
 import {
@@ -16,13 +14,11 @@ import {
   Vacancy,
   AbsenceDetail,
 } from "graphql/server-types.gen";
-import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import * as React from "react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import {
-  useAbsenceReasonOptions,
   useAbsenceReasons,
   useAbsenceReasonOptionsWithCategories,
 } from "reference-data/absence-reasons";

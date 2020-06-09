@@ -1,40 +1,63 @@
 import * as React from "react";
-import { DataSourceField, FilterField } from "../../types";
+import {
+  DataSourceField,
+  FilterField,
+  OrderByField,
+  DataExpression,
+} from "../../types";
 import { makeStyles } from "@material-ui/core";
 import { OptionalFilters } from "./optional-filters";
 import { RequiredFilters } from "./required-filters";
+import { OrderBy } from "./order-by";
 
 type Props = {
-  currentFilters: FilterField[];
+  filters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (
-    filterFields: FilterField[],
-    areOptional: boolean,
+    filters: FilterField[],
+    areRequiredFilters: boolean,
     refreshReport?: boolean
   ) => void;
+  orderedBy: OrderByField[];
+  possibleOrderByFields: DataExpression[];
+  setOrderBy: (orderBy: OrderByField[]) => void;
   refreshReport: () => Promise<void>;
 };
 
 export const ActionBar: React.FC<Props> = props => {
   const classes = useStyles();
-  const { currentFilters, filterableFields, setFilters, refreshReport } = props;
+  const {
+    filters,
+    filterableFields,
+    setFilters,
+    orderedBy,
+    possibleOrderByFields,
+    setOrderBy,
+    refreshReport,
+  } = props;
 
   return (
     <div className={classes.actionBar}>
       <RequiredFilters
-        currentFilters={currentFilters}
+        filters={filters.filter(f => f.field.isRequiredFilter)}
         filterableFields={filterableFields.filter(f => f.isRequiredFilter)}
-        setFilters={(filterFields: FilterField[]) =>
-          setFilters(filterFields, false, true)
-        }
+        setFilters={(filters: FilterField[]) => setFilters(filters, true, true)}
       />
-      <div className={classes.optionalFilters}>
+      <div className={classes.actionButtons}>
         <OptionalFilters
-          currentFilters={currentFilters}
+          filters={filters.filter(f => !f.field.isRequiredFilter)}
           filterableFields={filterableFields.filter(f => !f.isRequiredFilter)}
-          setFilters={(filterFields: FilterField[]) =>
-            setFilters(filterFields, true)
+          setFilters={(filters: FilterField[]) =>
+            setFilters(filters, false, false)
           }
+          refreshReport={refreshReport}
+        />
+      </div>
+      <div className={classes.actionButtons}>
+        <OrderBy
+          orderedBy={orderedBy}
+          possibleOrderByFields={possibleOrderByFields}
+          setOrderBy={setOrderBy}
           refreshReport={refreshReport}
         />
       </div>
@@ -47,7 +70,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "flex-end",
   },
-  optionalFilters: {
+  actionButtons: {
     marginLeft: theme.spacing(2),
     height: theme.typography.pxToRem(50),
   },

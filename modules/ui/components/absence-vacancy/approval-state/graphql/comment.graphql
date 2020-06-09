@@ -1,0 +1,7 @@
+mutation Comment($approvalComment: ApprovalStateUpdateInput!) {
+  approval {
+    comment(approvalComment: $approvalComment) {
+      id
+    }
+  }
+}

@@ -12,7 +12,6 @@ import { PageHeader } from "ui/components/page-header";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { Link } from "react-router-dom";
 import { GetPositionTypeById } from "ui/pages/position-type/graphql/position-type.gen";
 import { useRouteParams } from "ui/routes/definition";
 import {
@@ -29,6 +28,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { GetPositionTypesDocument } from "reference-data/get-position-types.gen";
 import { PositionTypeAbsReasonsCard } from "./components/position-type-abs-reasons-card";
+import { ReturnLink } from "ui/components/links/return";
 
 const editableSections = {
   name: "edit-name",
@@ -158,9 +158,11 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
   return (
     <>
       <div className={classes.linkPadding}>
-        <Link to={PositionTypeRoute.generate(params)} className={classes.link}>
-          {t("Return to all position types")}
-        </Link>
+        <ReturnLink
+          linkClass={classes.link}
+          defaultComingFrom={t("all position types")}
+          defaultReturnUrl={PositionTypeRoute.generate(params)}
+        />
       </div>
       <PageTitle title={t("Position Type")} withoutHeading={!isMobile} />
       <PageHeader
@@ -309,6 +311,16 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
               </div>
             </div>
           </Grid>
+          <Grid item xs={12} sm={6} lg={6}>
+            <Typography variant="h6">{t("Tracking Type")}</Typography>
+            <div>
+              {getDisplayName(
+                "absenceReasonTrackingTypeId",
+                positionType.absenceReasonTrackingTypeId?.toString() ?? "",
+                t
+              )}
+            </div>
+          </Grid>
         </Grid>
       </Section>
       <ReplacementCriteria
@@ -316,7 +328,8 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
         replacementCriteria={replacementCriteria}
       />
       <PositionTypeAbsReasonsCard
-        positionTypeId={positionType?.id}
+        positionTypeId={positionType.id}
+        positionTypeName={positionType.name}
         updateAbsenceReasons={async (values: {
           absenceReasonIds?: string[] | null;
         }) => {}}

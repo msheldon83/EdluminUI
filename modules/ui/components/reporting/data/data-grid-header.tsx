@@ -1,24 +1,38 @@
 import * as React from "react";
 import { makeStyles, Menu, MenuItem } from "@material-ui/core";
-import { ArrowDropDown } from "@material-ui/icons";
+import { ArrowDropDown, ArrowDownward, ArrowUpward } from "@material-ui/icons";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
-import { OrderByField } from "../types";
+import { Direction, DataExpression, OrderByField } from "../types";
 
 type Props = {
-  columns: string[];
+  columns: DataExpression[];
   height: MultiGridProps["height"];
   width: MultiGridProps["width"];
+  setFirstLevelOrderBy: (
+    expression: DataExpression,
+    direction: Direction
+  ) => void;
+  orderedBy: OrderByField[];
   columnWidth: MultiGridProps["columnWidth"];
   numberOfLockedColumns?: number;
   onScroll?: MultiGridProps["onScroll"];
   scrollLeft?: MultiGridProps["scrollLeft"];
 };
 
+type HeaderMenuItem = {
+  label: string;
+  onClick: (expression: DataExpression) => Promise<void>;
+};
+
 export const DataGridHeader: React.FC<Props> = props => {
+  const { t } = useTranslation();
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const [menuInfo, setMenuInfo] = React.useState<null | {
+    expression: DataExpression;
+    anchor: HTMLElement;
+  }>(null);
+  const open = Boolean(menuInfo?.anchor);
   const {
     columns,
     onScroll,
@@ -26,35 +40,58 @@ export const DataGridHeader: React.FC<Props> = props => {
     height,
     width,
     columnWidth,
+    orderedBy,
+    setFirstLevelOrderBy,
     numberOfLockedColumns = 0,
   } = props;
 
-  // TODO: For V1 we're not supporting this, but will want to add in items as we implement them
-  //const menuItems = [t("Sort A > Z"), t("Sort Z > A")];
-  const menuItems: string[] = React.useMemo(() => [], []);
+  const menuItems: HeaderMenuItem[] = [
+    {
+      label: t("Sort A > Z"),
+      onClick: async (expression: DataExpression) => {
+        setFirstLevelOrderBy(expression, Direction.Asc);
+      },
+    },
+    {
+      label: t("Sort Z > A"),
+      onClick: async (expression: DataExpression) => {
+        setFirstLevelOrderBy(expression, Direction.Desc);
+      },
+    },
+  ];
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLElement>,
+    expression: DataExpression
+  ) => {
+    setMenuInfo({ expression, anchor: event.currentTarget });
   };
 
   const handleCloseMenu = () => {
-    setAnchorEl(null);
+    setMenuInfo(null);
   };
 
   const headerCellRenderer = React.useCallback(
-    (columns: string[], { columnIndex, key, style }: GridCellProps) => {
+    (columns: DataExpression[], { columnIndex, key, style }: GridCellProps) => {
+      const expression = columns[columnIndex];
+      const orderByDirection = getOrderByDirection(expression, orderedBy);
       return (
         <div key={key} style={style} className={classes.headerCell}>
-          <div>{columns[columnIndex]}</div>
+          {orderByDirection === Direction.Asc && <ArrowUpward />}
+          {orderByDirection === Direction.Desc && <ArrowDownward />}
+          <div>{expression.displayName}</div>
           {menuItems && menuItems.length > 0 && (
-            <div onClick={handleMenuClick} className={classes.action}>
+            <div
+              onClick={e => handleMenuClick(e, expression)}
+              className={classes.action}
+            >
               <ArrowDropDown />
             </div>
           )}
         </div>
       );
     },
-    [menuItems, classes.action, classes.headerCell]
+    [menuItems, orderedBy, classes.action, classes.headerCell]
   );
 
   return (
@@ -78,7 +115,7 @@ export const DataGridHeader: React.FC<Props> = props => {
         }}
       />
       <Menu
-        anchorEl={anchorEl}
+        anchorEl={menuInfo?.anchor}
         transformOrigin={{
           vertical: "top",
           horizontal: "center",
@@ -94,10 +131,13 @@ export const DataGridHeader: React.FC<Props> = props => {
           return (
             <MenuItem
               key={i}
-              onClick={handleCloseMenu}
+              onClick={async () => {
+                handleCloseMenu();
+                await m.onClick(menuInfo!.expression);
+              }}
               className={classes.headerMenuItem}
             >
-              {m}
+              {m.label}
             </MenuItem>
           );
         })}
@@ -145,3 +185,15 @@ const useStyles = makeStyles(theme => ({
     cursor: "pointer",
   },
 }));
+
+const getOrderByDirection = (
+  field: DataExpression,
+  orderedBy: OrderByField[]
+): Direction | undefined => {
+  const orderByMatch = orderedBy.find(
+    o =>
+      o.expression.baseExpressionAsQueryLanguage ===
+      field.baseExpressionAsQueryLanguage
+  );
+  return orderByMatch?.direction;
+};

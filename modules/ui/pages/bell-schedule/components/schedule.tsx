@@ -26,7 +26,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
 import { ActionButtons } from "../../../components/action-buttons";
-import { AddPeriod, Period } from "../helpers";
+import { AddPeriod, Period, travelDurationFromPeriods } from "../helpers";
 import { ScheduleActionColumn } from "./schedule-columns/schedule-action-column";
 import { ScheduleAfternoonColumn } from "./schedule-columns/schedule-afternoon-column";
 import { ScheduleDurationColumn } from "./schedule-columns/schedule-duration-column";
@@ -113,7 +113,6 @@ export const Schedule: React.FC<Props> = props => {
               endTime: nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime,
               skipped: false,
               isEndOfDayPeriod: true,
-              travelDuration: 0,
             });
           }
 
@@ -207,29 +206,6 @@ export const Schedule: React.FC<Props> = props => {
       >
         {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
           <form onSubmit={handleSubmit}>
-            <FormikValuesWatcher
-              onChange={(prev: { periods: Period[] }, next) => {
-                prev.periods.map((p, i) => {
-                  if (!next.periods[i]) return;
-                  const nextEnd = next.periods[i].endTime;
-                  const nextPeriod = next.periods[i + 1];
-                  if (
-                    nextEnd &&
-                    p.endTime !== nextEnd &&
-                    nextPeriod &&
-                    !nextPeriod.startTime
-                  ) {
-                    setFieldValue(
-                      `periods.${i + 1}.startTime` as any,
-                      addMinutes(
-                        new Date(nextEnd),
-                        travelDuration
-                      ).toISOString()
-                    );
-                  }
-                });
-              }}
-            />
             <Grid container justify="space-between" alignItems="center">
               <Grid item>
                 {props.name && <SectionHeader title={props.name} />}
@@ -318,9 +294,20 @@ export const Schedule: React.FC<Props> = props => {
                         {
                           text: t("Add Row"),
                           execute: () => {
+                            /*
+                              Get the travel duration from the previous 2 periods to use for the
+                              new period
+                            */
+                            const targePeriodIndex = values.periods.length - 2;
+                            const previousTravelDuration = travelDurationFromPeriods(
+                              values.periods,
+                              values.periods[targePeriodIndex],
+                              targePeriodIndex
+                            );
+
                             const updatedPeriods = AddPeriod(
                               values.periods,
-                              travelDuration,
+                              previousTravelDuration,
                               t
                             );
                             setFieldValue("periods", updatedPeriods);

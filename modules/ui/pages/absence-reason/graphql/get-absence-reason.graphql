@@ -9,7 +9,6 @@ query GetAbsenceReason($absenceReasonId: ID!) {
       description
       validUntil
       appliesToAssignmentTypes
-      absenceReasonTrackingTypeId
       allowNegativeBalance
       appliesToAssignmentTypes
       limitPerDay

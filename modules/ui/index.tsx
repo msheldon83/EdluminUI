@@ -95,6 +95,9 @@ import {
   AdminEditAbsenceLoader,
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
+  AdminAbsenceApprovalViewRoute,
+  EmployeeAbsenceApprovalViewRoute,
+  AbsenceApprovalViewLoader,
 } from "./routes/edit-absence";
 import {
   AbsenceActivityLogRoute,
@@ -322,6 +325,8 @@ import {
   VacancyCreateLoader,
   VacancyViewLoader,
   VacancyViewRoute,
+  VacancyApprovalViewLoader,
+  VacancyApprovalViewRoute,
 } from "./routes/vacancy";
 import {
   AbsenceVacancyNotificationLogRoute,
@@ -431,6 +436,17 @@ export const App = hot(function() {
                               <Route path={EmployeeEditAbsenceRoute.path}>
                                 <AdminEditAbsenceLoader actingAsEmployee />
                               </Route>
+
+                              <ProtectedRoute
+                                path={EmployeeAbsenceApprovalViewRoute.path}
+                                role={"employee"}
+                                devFeatureOnly={true}
+                                permissions={[
+                                  PermissionEnum.AbsVacApprovalsView,
+                                ]}
+                              >
+                                <AbsenceApprovalViewLoader actingAsEmployee />
+                              </ProtectedRoute>
                               <ProtectedRoute
                                 component={EmployeePtoBalanceLoader}
                                 path={EmployeePtoBalanceRoute.path}
@@ -639,6 +655,24 @@ export const App = hot(function() {
                                       devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={AbsenceApprovalViewLoader}
+                                      path={AdminAbsenceApprovalViewRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.AbsVacApprovalsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VacancyApprovalViewLoader}
+                                      path={VacancyApprovalViewRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
+                                      permissions={[
+                                        PermissionEnum.AbsVacApprovalsView,
                                       ]}
                                     />
                                     <ProtectedRoute

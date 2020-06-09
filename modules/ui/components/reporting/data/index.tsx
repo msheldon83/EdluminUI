@@ -1,9 +1,12 @@
 import * as React from "react";
 import {
-  ReportDefinition,
   FilterField,
   DataSourceField,
-  SelectField,
+  Report,
+  Direction,
+  ReportDefinitionData,
+  DataExpression,
+  OrderByField,
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
@@ -11,17 +14,22 @@ import { LoadingDataGrid } from "./loading-data-grid";
 import { ActionBar } from "./actions/action-bar";
 import { TextButton } from "ui/components/text-button";
 import { DataGrid } from "./data-grid";
+import { compact } from "lodash-es";
 
 type Props = {
-  reportDefinition: ReportDefinition | undefined;
-  inputSelects?: SelectField[];
+  report: Report | undefined;
+  reportData: ReportDefinitionData | undefined;
   isLoading: boolean;
-  currentFilters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (
-    filterFields: FilterField[],
-    areOptional: boolean,
+    filters: FilterField[],
+    areRequiredFilters: boolean,
     refreshReport?: boolean
+  ) => void;
+  setOrderBy: (orderBy: OrderByField[]) => void;
+  setFirstLevelOrderBy: (
+    expression: DataExpression,
+    direction: Direction
   ) => void;
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
@@ -32,18 +40,37 @@ export const ReportData: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const {
-    reportDefinition,
+    report,
+    reportData,
     isLoading,
-    currentFilters,
     filterableFields,
     setFilters,
+    setOrderBy,
+    setFirstLevelOrderBy,
     refreshReport,
     exportReport,
     showGroupLabels = true,
-    inputSelects = [],
   } = props;
 
-  return !reportDefinition ? (
+  const possibleOrderByFields = React.useMemo(() => {
+    const fields = report?.selects ?? [];
+    const subtotalDisplayFields = compact(
+      (report?.subtotalBy ?? []).map(s => {
+        const subtotalExpression = s.showExpression
+          ? s.showExpression
+          : s.expression;
+        const match = fields.find(
+          f =>
+            f.baseExpressionAsQueryLanguage ===
+            subtotalExpression.baseExpressionAsQueryLanguage
+        );
+        return match ? null : subtotalExpression;
+      })
+    );
+    return [...subtotalDisplayFields, ...fields];
+  }, [report]);
+
+  return !report ? (
     <div className={classes.gridWrapper}>
       <LoadingDataGrid />
     </div>
@@ -54,19 +81,26 @@ export const ReportData: React.FC<Props> = props => {
           filterableFields={filterableFields}
           setFilters={setFilters}
           refreshReport={refreshReport}
-          currentFilters={currentFilters}
+          filters={report.filters ?? []}
+          setOrderBy={setOrderBy}
+          orderedBy={report.orderBy ?? []}
+          possibleOrderByFields={possibleOrderByFields}
         />
         {exportReport && (
           <TextButton onClick={exportReport}>{t("Export Report")}</TextButton>
         )}
       </div>
       <div className={classes.gridWrapper}>
-        <DataGrid
-          reportDefinition={reportDefinition}
-          isLoading={isLoading}
-          showGroupLabels={showGroupLabels}
-          inputSelects={inputSelects}
-        />
+        {reportData && (
+          <DataGrid
+            report={report}
+            reportData={reportData}
+            isLoading={isLoading}
+            showGroupLabels={showGroupLabels}
+            setFirstLevelOrderBy={setFirstLevelOrderBy}
+            orderedBy={report.orderBy ?? []}
+          />
+        )}
       </div>
     </>
   );

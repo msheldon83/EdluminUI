@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
-import { Divider, Grid, Typography } from "@material-ui/core";
+import { Divider, Grid, Typography, Button } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
@@ -9,16 +9,14 @@ import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule
 import { useState, useMemo, useCallback } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
-import {
-  usePagedQueryBundle,
-  useMutationBundle,
-  useQueryBundle,
-} from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Column } from "material-table";
 import {
   CalendarDayType,
   PermissionEnum,
   DataImportType,
+  CalendarChangeCreateInput,
+  CalendarChangeUpdateInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore } from "date-fns";
@@ -27,7 +25,6 @@ import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
-import { CreateExpansionPanel } from "./components/create-expansion-panel";
 import { CalendarView } from "./components/calendar-view";
 import { StickyHeader } from "./components/sticky-header";
 import {
@@ -35,13 +32,17 @@ import {
   CalendarCalendarViewRoute,
 } from "ui/routes/calendar/calendar";
 import { Can } from "ui/components/auth/can";
-import { EditableTable } from "ui/components/editable-table";
 import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { useContracts } from "reference-data/contracts";
-import { ContractScheduleWarning } from "./components/contract-schedule-warning";
-import { GetContractsWithoutSchedules } from "./graphql/get-contracts-without-schedules.gen";
+import { ContractScheduleWarning } from "ui/components/contract-schedule/contract-schedule-warning";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { CalendarChangeEventDialog } from "./components/calendar-change-event-dialog";
+import { useSnackbar } from "hooks/use-snackbar";
+import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
+import { ConvertApolloErrors } from "ui/components/error-helpers";
+import { Table } from "ui/components/table";
+import { CalendarEvent } from "./types";
 
 type Props = {
   view: "list" | "calendar";
@@ -51,7 +52,10 @@ export const Calendars: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(CalendarRoute);
   const classes = useStyles();
+  const { openSnackbar } = useSnackbar();
+  const [errorMessage, setErrorMessage] = useState("");
 
+  const [openEventDialog, setOpenEventDialog] = useState(false);
   const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
   const allSchoolYears = useAllSchoolYears(params.organizationId);
   const schoolYear = useMemo(
@@ -66,30 +70,20 @@ export const Calendars: React.FC<Props> = props => {
     contractId,
   ]);
 
+  const today = useMemo(() => new Date(), []);
+
+  const initialCalendarChange: CalendarEvent = {
+    startDate: today.toISOString(),
+    endDate: today.toISOString(),
+    affectsAllContracts: true,
+  };
+
   const [
     selectedDateCalendarChanges,
     setSelectedDateCalendarChanges,
-  ] = useState();
-  const today = useMemo(() => new Date(), []);
-  const [selectedDate, setSelectedDate] = useState(today);
+  ] = useState(initialCalendarChange);
 
-  const getContractsWithoutSchedules = useQueryBundle(
-    GetContractsWithoutSchedules,
-    {
-      variables: {
-        orgId: params.organizationId,
-        schoolYearId: schoolYearId ?? "",
-      },
-      skip: !schoolYearId,
-    }
-  );
-  const contractsWithoutSchedules =
-    getContractsWithoutSchedules.state !== "LOADING"
-      ? compact(
-          getContractsWithoutSchedules?.data?.contract
-            ?.contractsWithoutSchedules ?? []
-        )
-      : [];
+  const [selectedDate, setSelectedDate] = useState(today);
 
   const [getCalendarChanges, pagination] = usePagedQueryBundle(
     GetCalendarChanges,
@@ -131,38 +125,30 @@ export const Calendars: React.FC<Props> = props => {
   );
 
   const [updateCalendarChangeMutation] = useMutationBundle(
-    UpdateCalendarChange
+    UpdateCalendarChange,
+    {
+      onError: error => {
+        setErrorMessage(ConvertApolloErrors(error));
+      },
+    }
   );
   const updateCalendarChange = useCallback(
-    async (updatedValues: {
-      id: string;
-      rowVersion: string;
-      description?: string | null;
-      changedContracts?: { id?: string }[];
-      affectsAllContracts: boolean;
-    }) => {
-      const {
-        id,
-        rowVersion,
-        changedContracts,
-        affectsAllContracts,
-        description,
-      } = updatedValues;
-      const contractIds = compact(changedContracts?.map(c => c?.id ?? ""));
-      if (!id) return;
-      await updateCalendarChangeMutation({
+    async (calendarChange: CalendarChangeUpdateInput) => {
+      const result = await updateCalendarChangeMutation({
         variables: {
-          calendarChange: {
-            id: id,
-            rowVersion,
-            contractIds,
-            affectsAllContracts,
-            description,
-          },
+          calendarChange,
         },
       });
+      if (result && result.data) {
+        await refectchCalendarChanges();
+        return true;
+      } else {
+        return false;
+      }
     },
-    [updateCalendarChangeMutation]
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [
+      updateCalendarChangeMutation,
+    ]
   );
 
   const [deleteCalendarChangeMutation] = useMutationBundle(
@@ -186,6 +172,92 @@ export const Calendars: React.FC<Props> = props => {
     await getCalendarChanges.refetch();
   };
 
+  const dateInSchoolYear = (date: string) => {
+    let found = false;
+    const d = new Date(date);
+
+    allSchoolYears.forEach(sy => {
+      const sd = parseISO(sy.startDate);
+      const ed = parseISO(sy.endDate);
+      if (d >= sd && d <= ed) {
+        found = true;
+        return found;
+      }
+    });
+    return found;
+  };
+
+  const [createCalendarChange] = useMutationBundle(CreateCalendarChange, {
+    onError: error => {
+      setErrorMessage(ConvertApolloErrors(error));
+    },
+  });
+
+  const onCreateCalendarChange = async (
+    calendarChange: CalendarChangeCreateInput
+  ) => {
+    if (
+      isBefore(
+        parseISO(calendarChange.endDate),
+        parseISO(calendarChange.startDate)
+      )
+    ) {
+      openSnackbar({
+        message: t("The from date has to be before the to date."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+    if (
+      !dateInSchoolYear(calendarChange.startDate) ||
+      !dateInSchoolYear(calendarChange.endDate)
+    ) {
+      openSnackbar({
+        message: t("Please enter a date within the available school years."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+
+    if (calendarChange.calendarChangeReasonId == undefined) {
+      openSnackbar({
+        message: t("Please provide a change reason."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+    if (
+      !calendarChange.affectsAllContracts &&
+      calendarChange.contractIds == undefined
+    ) {
+      openSnackbar({
+        message: t("Select a contract or choose, Apply To All Contracts."),
+        dismissable: true,
+        status: "error",
+        autoHideDuration: 5000,
+      });
+      return false;
+    }
+
+    const result = await createCalendarChange({
+      variables: {
+        calendarChange,
+      },
+    });
+    if (result?.data?.calendarChange?.create !== undefined) {
+      await refectchCalendarChanges();
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const columns: Column<GetCalendarChanges.Results>[] = [
     {
       title: t("Date"),
@@ -199,7 +271,7 @@ export const Calendars: React.FC<Props> = props => {
               "MMM d, yyyy"
             )}`,
       sorting: false,
-      editable: "never",
+      //editable: "never",
     },
     {
       title: t("Type"),
@@ -220,21 +292,21 @@ export const Calendars: React.FC<Props> = props => {
             )?.name;
       },
       sorting: false,
-      editable: "never",
+      //editable: "never",
     },
     {
       title: t("Reason"),
       field: "calendarChangeReason.name",
       searchable: false,
       sorting: false,
-      editable: "never",
+      //editable: "never",
     },
     {
       title: t("Note"),
       field: "description",
       searchable: false,
       sorting: false,
-      editable: "onUpdate",
+      // editable: "onUpdate",
     },
     {
       title: t("Contract"),
@@ -249,7 +321,7 @@ export const Calendars: React.FC<Props> = props => {
         return contracts?.join(",");
       },
       sorting: false,
-      editable: "never",
+      //  editable: "never",
     },
   ];
 
@@ -259,6 +331,17 @@ export const Calendars: React.FC<Props> = props => {
 
   return (
     <>
+      <CalendarChangeEventDialog
+        open={openEventDialog}
+        onAdd={onCreateCalendarChange}
+        onUpdate={updateCalendarChange}
+        onClose={() => {
+          setOpenEventDialog(false);
+          setErrorMessage("");
+        }}
+        calendarChange={selectedDateCalendarChanges}
+        errorMessage={errorMessage}
+      />
       <div>
         <Grid container alignItems="center" justify="space-between" spacing={2}>
           <Grid item>
@@ -280,27 +363,14 @@ export const Calendars: React.FC<Props> = props => {
             </Grid>
           </Can>
         </Grid>
-        <ContractScheduleWarning
-          showWarning={contractsWithoutSchedules.length > 0}
-          schoolYearName={schoolYearName}
-          schoolYear={schoolYear}
-          contracts={contractsWithoutSchedules}
-          orgId={params.organizationId}
-        />
-        <Can do={[PermissionEnum.CalendarChangeSave]}>
-          <Section className={classes.container}>
-            <CreateExpansionPanel
-              refetchQuery={refectchCalendarChanges}
-              orgId={params.organizationId}
-            />
-          </Section>
-        </Can>
+        <ContractScheduleWarning orgId={params.organizationId} />
+
         <div className={props.view === "calendar" ? classes.sticky : ""}>
           {props.view === "calendar" && (
             <Section className={classes.calendarchanges}>
               <StickyHeader
                 orgId={params.organizationId}
-                calendarChanges={selectedDateCalendarChanges}
+                calendarChange={selectedDateCalendarChanges}
                 onDelete={onDeleteCalendarChange}
                 date={selectedDate}
               />
@@ -337,6 +407,22 @@ export const Calendars: React.FC<Props> = props => {
             <Grid item xs={12}>
               <Divider />
             </Grid>
+            <Grid direction={"row-reverse"} item container xs={12}>
+              {changesLoaded && (
+                <Can do={[PermissionEnum.CalendarChangeSave]}>
+                  <Button
+                    className={classes.addEventButton}
+                    onClick={() => {
+                      setSelectedDateCalendarChanges(initialCalendarChange);
+                      setOpenEventDialog(true);
+                    }}
+                    variant="contained"
+                  >
+                    {t("Add Event")}
+                  </Button>
+                </Can>
+              )}
+            </Grid>
             {props.view === "list" && (
               <Grid item xs={12} className={classes.listContent}>
                 {!changesLoaded && (
@@ -346,18 +432,28 @@ export const Calendars: React.FC<Props> = props => {
                 )}
                 {changesLoaded && (
                   <div>
-                    <EditableTable
-                      selection={true}
-                      selectionPermissions={[
-                        PermissionEnum.CalendarChangeDelete,
-                      ]}
+                    <Table
                       columns={columns}
                       data={sortedCalendarChanges}
-                      title={""}
-                      onRowUpdate={{
-                        action: async (newData, oldData) =>
-                          await updateCalendarChange(newData),
-                        permissions: [PermissionEnum.CalendarChangeSave],
+                      selection={true}
+                      pagination={pagination}
+                      onRowClick={async (event, calendarChange) => {
+                        const calendarEvent: CalendarEvent = {
+                          id: calendarChange?.id,
+                          rowVersion: calendarChange?.rowVersion,
+                          description: calendarChange?.description,
+                          startDate: calendarChange?.startDate,
+                          endDate: calendarChange?.endDate,
+                          calendarChangeReasonId:
+                            calendarChange?.calendarChangeReason?.id,
+                          affectsAllContracts:
+                            calendarChange?.affectsAllContracts,
+                          contractIds: calendarChange?.changedContracts?.map(
+                            c => c?.id
+                          ),
+                        };
+                        setSelectedDateCalendarChanges(calendarEvent);
+                        setOpenEventDialog(true);
                       }}
                       actions={[
                         {
@@ -378,7 +474,6 @@ export const Calendars: React.FC<Props> = props => {
                           permissions: [PermissionEnum.CalendarChangeDelete],
                         },
                       ]}
-                      pagination={pagination}
                     />
                   </div>
                 )}
@@ -467,5 +562,10 @@ const useStyles = makeStyles(theme => ({
   calendarchanges: {
     padding: theme.spacing(1),
     marginBottom: 0,
+  },
+  addEventButton: {
+    marginTop: theme.typography.pxToRem(27),
+    zIndex: 1000,
+    marginRight: theme.typography.pxToRem(30),
   },
 }));

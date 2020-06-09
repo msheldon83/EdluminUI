@@ -3,16 +3,16 @@ import { FilterField, DataSourceField, ExpressionFunction } from "../../types";
 import { Filter } from "./filter";
 
 type Props = {
-  currentFilters: FilterField[];
+  filters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (filterFields: FilterField[]) => void;
 };
 
 export const RequiredFilters: React.FC<Props> = props => {
-  const { currentFilters, filterableFields, setFilters } = props;
+  const { filters, filterableFields, setFilters } = props;
   const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
     filterableFields.map(f => {
-      const matchingCurrentFilter = currentFilters.find(
+      const matchingCurrentFilter = filters.find(
         c => c.field.dataSourceFieldName === f.dataSourceFieldName
       );
 

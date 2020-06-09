@@ -33,6 +33,7 @@ import { PermissionEnum, FeatureFlag } from "graphql/server-types.gen";
 import { useLocation } from "react-router";
 import { AppConfig } from "hooks/app-config";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
+import { ContractScheduleWarning } from "ui/components/contract-schedule/contract-schedule-warning";
 
 type Props = {};
 
@@ -117,6 +118,9 @@ export const AdminHome: React.FC<Props> = props => {
           </Button>
         </Grid>
       </Grid>
+      <Can do={[PermissionEnum.FinanceSettingsSave]}>
+        <ContractScheduleWarning orgId={params.organizationId} />
+      </Can>
       <Can do={[PermissionEnum.AbsVacVerify]}>
         <DailyReport
           orgId={params.organizationId}
