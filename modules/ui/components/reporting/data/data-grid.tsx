@@ -24,7 +24,7 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import clsx from "clsx";
-import { isNumber, round } from "lodash-es";
+import { round } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
 import {
   calculateColumnWidth,
@@ -499,7 +499,7 @@ const groupData = (
       {
         data: localData,
         subtotals: localData.reduce((subtotals: any[], row: any[]) => {
-          const subtotalRow = sumRows(row, subtotals);
+          const subtotalRow = sumRows(row, subtotals, dataColumnIndexMap);
           return subtotalRow;
         }, []),
       },
@@ -529,7 +529,11 @@ const groupData = (
     // Add to existing or create a new group
     if (matchingGroup) {
       matchingGroup.data.push(row);
-      matchingGroup.subtotals = sumRows(matchingGroup.subtotals, row);
+      matchingGroup.subtotals = sumRows(
+        matchingGroup.subtotals,
+        row,
+        dataColumnIndexMap
+      );
     } else {
       groups.push({
         info: {
@@ -540,7 +544,7 @@ const groupData = (
           groupByValue: groupByValue,
         },
         data: [row],
-        subtotals: sumRows(row, []),
+        subtotals: sumRows(row, [], dataColumnIndexMap),
       });
     }
 
@@ -560,18 +564,34 @@ const groupData = (
   return groups;
 };
 
-const sumRows = (row1: any[], row2: any[]) => {
+const sumRows = (
+  row1: any[],
+  row2: any[],
+  dataColumnIndexMap: Record<string, DataExpression>
+) => {
   const row: any[] = [];
   for (let index = 0; index < row1.length; index++) {
+    const column = dataColumnIndexMap[index];
+    if (
+      column.dataSourceField &&
+      column.dataSourceField.dataType !== DataType.Decimal &&
+      column.dataSourceField.dataType !== DataType.Number
+    ) {
+      // If we have a defined field and it is not a number of some sort
+      // skip over this column as there should be nothing to sum
+      row.push(null);
+      continue;
+    }
+
     const item1 = row1[index];
     const item2 = row2[index];
 
-    if (isNumber(item1) && isNumber(item2)) {
-      row.push(item1 + item2);
-    } else if (isNumber(item1)) {
-      row.push(item1);
-    } else if (isNumber(item2)) {
-      row.push(item2);
+    if (!isNaN(Number(item1)) && !isNaN(Number(item2))) {
+      row.push(Number(item1) + Number(item2));
+    } else if (!isNaN(Number(item1))) {
+      row.push(Number(item1));
+    } else if (!isNaN(Number(item2))) {
+      row.push(Number(item2));
     } else {
       row.push(null);
     }
