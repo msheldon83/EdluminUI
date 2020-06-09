@@ -1334,6 +1334,21 @@ type ConfirmationNumberQueryResultTypeDef {
   isNormalVacancy: Boolean!
 }
 
+type ContactQueries {
+  byId(id: ID!): OrganizationCrmContact
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [OrganizationCrmContact]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedContact
+  crmContactsByContactType(contactType: ContactType, orgId: ID!): [OrganizationCrmContact]
+}
+
+enum ContactType {
+  RED_ROVER_ADMINISTRATOR
+  PRIMARY_BUSINESS
+  BILLING
+  PAYROLL
+  IT
+}
+
 type Contract implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -1511,6 +1526,15 @@ input CreateVacancyAssignmentInput {
   ignoreWarnings: Boolean
 }
 
+type CrmAddress {
+  address1: String
+  address2: String
+  city: String
+  state: String
+  postalCode: String
+  country: String
+}
+
 enum Culture {
   INVALID
   US_ENGLISH
@@ -1520,6 +1544,43 @@ enum Currency {
   INVALID
   USD
   CAD
+}
+
+type Customer {
+  _info: [ReturnMessage]
+  billingContact: OrganizationCrmContact
+  businessContact: OrganizationCrmContact
+  billingAddress: CrmAddress
+  subscription: CustomerSubscription!
+  invoices: [CustomerInvoice]!
+}
+
+type CustomerInvoice {
+  _info: [ReturnMessage]
+  invoiceDate: Date!
+  invoiceNumber: String!
+  poNumber: String
+  amount: Float!
+  status: InvoiceStatus!
+  url: String!
+  dueDate: Date!
+}
+
+type CustomerSubscription {
+  _info: [ReturnMessage]
+  items: [CustomerSubscriptionItem]!
+  annualAmount: Float!
+  monthlyTotal: Float!
+  renewalDate: Date!
+}
+
+type CustomerSubscriptionItem {
+  _info: [ReturnMessage]
+  item: SubscriptionItemType!
+  itemDescription: String!
+  quantity: Int!
+  monthlyRate: Float!
+  monthlyTotal: Float!
 }
 
 type CustomField implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2593,6 +2654,11 @@ enum InvitationStatus {
   INVITE_NOT_SENT
 }
 
+enum InvoiceStatus {
+  PENDING
+  PAID
+}
+
 enum JobNotificationResponse {
   INVALID
   ACCEPTED
@@ -2996,6 +3062,8 @@ type Organization implements ModelObjectInterface & OrgObjectInterface & DomainO
   timeZoneId: TimeZone
   isStaffingProvider: Boolean!
   config: organizationConfig
+  customerInfo: Customer
+  crmContacts: [OrganizationCrmContact!]!
 }
 
 type organizationConfig {
@@ -3089,6 +3157,24 @@ input OrganizationCreateInput {
   seedOrgDataOption: SeedOrgDataOptionEnum
   seedOptionalData: Boolean
   config: organizationConfigInput
+}
+
+type OrganizationCrmContact implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  orgUserId: ID
+  orgUser: OrgUser
+  position: String
+  contactType: ContactType
 }
 
 type OrganizationMutations {
@@ -3545,6 +3631,15 @@ type PagedCalendarChange {
 type PagedCalendarChangeReason {
   _info: [ReturnMessage]
   results: [CalendarChangeReason]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedContact {
+  _info: [ReturnMessage]
+  results: [OrganizationCrmContact]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4672,6 +4767,7 @@ type Query {
   branding: BrandingQueries
   calendarChange: CalendarChangeQueries
   changeLog: ChangeLogQueries
+  contact: ContactQueries
   contract: ContractQueries
   contractSchedule: ContractScheduleQueries
   customField: CustomFieldQueries
@@ -5616,6 +5712,11 @@ type SubJobSearch {
   unavailableToWork: Boolean!
 }
 
+enum SubscriptionItemType {
+  EMPLOYEES_REQUIRING_SUB
+  EMPLOYEES_NOT_REQUIRING_SUB
+}
+
 type Substitute implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -6292,6 +6393,8 @@ type VacancyQueries {
   employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   vacanciesForApprovalContext(orgId: ID!, locationIds: [ID], vacancyReasonIds: [ID], absenceReasonIds: [ID], fromDate: Date, toDate: Date): [Vacancy]
+  vacanciesNeedingApproval(orgId: ID!): [Vacancy]
+  pastApprovalDecisions(orgId: ID!, limit: Int, offset: Int): PagedVacancy
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
   vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]
