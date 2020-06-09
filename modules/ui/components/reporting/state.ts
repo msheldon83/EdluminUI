@@ -57,6 +57,10 @@ export type ReportActions =
       fields: DataSourceField[];
     }
   | {
+      action: "removeColumn";
+      index: number;
+    }
+  | {
       action: "refreshReport";
     };
 
@@ -255,6 +259,37 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
               };
             }),
           ],
+        },
+      };
+
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.report
+      );
+      return updatedState;
+    }
+    case "removeColumn": {
+      const updatedSelects = [...prev.report!.selects];
+      const removedField = updatedSelects.splice(action.index, 1);
+
+      const updatedOrderBy = [...(prev.report!.orderBy ?? [])];
+      // Determine if we're removing a field that is currently being sorted on
+      // If so, then we need to remove that from the Order By list
+      const orderByMatch = updatedOrderBy.find(
+        o =>
+          o.expression.baseExpressionAsQueryLanguage ===
+          removedField[0]?.baseExpressionAsQueryLanguage
+      );
+      if (orderByMatch) {
+        const orderByIndexToRemove = updatedOrderBy.indexOf(orderByMatch);
+        updatedOrderBy.splice(orderByIndexToRemove, 1);
+      }
+
+      const updatedState = {
+        ...prev,
+        report: {
+          ...prev.report!,
+          selects: updatedSelects,
+          orderBy: updatedOrderBy,
         },
       };
 

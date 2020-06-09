@@ -22,6 +22,7 @@ type Props = {
   isLoading: boolean;
   allFields: DataSourceField[];
   addColumns: (fields: DataSourceField[]) => void;
+  removeColumn: (index: number) => void;
   filterableFields: DataSourceField[];
   setFilters: (
     filters: FilterField[],
@@ -51,6 +52,7 @@ export const ReportData: React.FC<Props> = props => {
     setFirstLevelOrderBy,
     allFields,
     addColumns,
+    removeColumn,
     refreshReport,
     exportReport,
     showGroupLabels = true,
@@ -106,6 +108,9 @@ export const ReportData: React.FC<Props> = props => {
             showGroupLabels={showGroupLabels}
             setFirstLevelOrderBy={setFirstLevelOrderBy}
             orderedBy={report.orderBy ?? []}
+            allFields={allFields}
+            addColumns={addColumns}
+            removeColumn={removeColumn}
           />
         )}
       </div>

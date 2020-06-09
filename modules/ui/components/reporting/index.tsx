@@ -142,6 +142,10 @@ export const Report: React.FC<Props> = props => {
     dispatch({ action: "addColumns", fields });
   }, []);
 
+  const removeColumn = React.useCallback((index: number) => {
+    dispatch({ action: "removeColumn", index });
+  }, []);
+
   return (
     <AppConfig contentWidth="100%">
       <div className={classes.header}>
@@ -177,6 +181,7 @@ export const Report: React.FC<Props> = props => {
           state.reportDefinition?.metadata?.query?.schema?.allFields ?? []
         }
         addColumns={addColumns}
+        removeColumn={removeColumn}
         setFilters={setFilters}
         setOrderBy={setOrderBy}
         setFirstLevelOrderBy={setFirstLevelOrderBy}

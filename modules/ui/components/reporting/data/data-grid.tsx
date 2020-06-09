@@ -9,6 +9,7 @@ import {
   Report,
   ReportDefinitionData,
   OrderByField,
+  DataSourceField,
 } from "../types";
 import {
   GridCellProps,
@@ -43,6 +44,9 @@ type Props = {
     expression: DataExpression,
     direction: Direction
   ) => void;
+  allFields: DataSourceField[];
+  addColumns: (fields: DataSourceField[]) => void;
+  removeColumn: (index: number) => void;
   showGroupLabels?: boolean;
 };
 
@@ -56,6 +60,9 @@ export const DataGrid: React.FC<Props> = props => {
     reportData,
     orderedBy,
     setFirstLevelOrderBy,
+    allFields,
+    addColumns,
+    removeColumn,
     showGroupLabels = true,
   } = props;
 
@@ -122,6 +129,8 @@ export const DataGrid: React.FC<Props> = props => {
                   }
                   setFirstLevelOrderBy={setFirstLevelOrderBy}
                   orderedBy={orderedBy}
+                  allFields={allFields}
+                  removeColumn={removeColumn}
                 />
                 {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (
                   <MultiGrid

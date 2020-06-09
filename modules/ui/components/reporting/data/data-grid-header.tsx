@@ -3,10 +3,17 @@ import { makeStyles, Menu, MenuItem } from "@material-ui/core";
 import { ArrowDropDown, ArrowDownward, ArrowUpward } from "@material-ui/icons";
 import { GridCellProps, MultiGrid, MultiGridProps } from "react-virtualized";
 import { useTranslation } from "react-i18next";
-import { Direction, DataExpression, OrderByField } from "../types";
+import {
+  Direction,
+  DataExpression,
+  OrderByField,
+  DataSourceField,
+} from "../types";
+import { AddColumnsDialog } from "./actions/columns/add-columns-dialog";
 
 type Props = {
   columns: DataExpression[];
+  allFields: DataSourceField[];
   height: MultiGridProps["height"];
   width: MultiGridProps["width"];
   setFirstLevelOrderBy: (
@@ -14,6 +21,7 @@ type Props = {
     direction: Direction
   ) => void;
   orderedBy: OrderByField[];
+  removeColumn: (index: number) => void;
   columnWidth: MultiGridProps["columnWidth"];
   numberOfLockedColumns?: number;
   onScroll?: MultiGridProps["onScroll"];
@@ -42,6 +50,7 @@ export const DataGridHeader: React.FC<Props> = props => {
     columnWidth,
     orderedBy,
     setFirstLevelOrderBy,
+    removeColumn,
     numberOfLockedColumns = 0,
   } = props;
 
@@ -56,6 +65,25 @@ export const DataGridHeader: React.FC<Props> = props => {
       label: t("Sort Z > A"),
       onClick: async (expression: DataExpression) => {
         setFirstLevelOrderBy(expression, Direction.Desc);
+      },
+    },
+    {
+      label: t("Add column before"),
+      onClick: async (expression: DataExpression) => {
+        //setFirstLevelOrderBy(expression, Direction.Desc);
+      },
+    },
+    {
+      label: t("Add column after"),
+      onClick: async (expression: DataExpression) => {
+        //setFirstLevelOrderBy(expression, Direction.Desc);
+      },
+    },
+    {
+      label: t("Delete column"),
+      onClick: async (expression: DataExpression) => {
+        const columnIndex = columns.indexOf(expression);
+        removeColumn(columnIndex);
       },
     },
   ];
@@ -142,6 +170,12 @@ export const DataGridHeader: React.FC<Props> = props => {
           );
         })}
       </Menu>
+      <AddColumnsDialog
+        columns={columns}
+        allFields={[]}
+        addColumns={() => {}}
+        refreshReport={() => {}}
+      />
     </>
   );
 };
