@@ -23,7 +23,9 @@ import { DeleteVacancy } from "./graphql/delete-vacancy.gen";
 import { VacancyDetailsFormData } from "./helpers/types";
 import { VacancyActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { OrgUserPermissions } from "ui/components/auth/types";
+import { DeletedVacancyInfo } from "./deleted-vacancy-info";
 import { canViewAsSysAdmin } from "helpers/permissions";
+import { NotFound } from "ui/pages/not-found";
 
 type Props = {};
 
@@ -109,7 +111,16 @@ export const VacancyView: React.FC<Props> = props => {
   if (getVacancy.state === "LOADING") {
     return <></>;
   }
+
   const vacancy: any = getVacancy?.data?.vacancy?.byId ?? undefined;
+
+  if (!vacancy) {
+    return <DeletedVacancyInfo vacancyId={params.vacancyId} />;
+  }
+
+  if (!vacancy.isNormalVacancy) {
+    return <NotFound />;
+  }
 
   return (
     <>
@@ -155,6 +166,7 @@ export const VacancyView: React.FC<Props> = props => {
         initialVacancy={buildFormData(vacancy)}
         updateVacancy={onUpdateVacancy}
         onDelete={onClickDelete}
+        approvalStatus={vacancy.approvalState}
       />
     </>
   );

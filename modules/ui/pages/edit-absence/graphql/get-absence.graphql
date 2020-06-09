@@ -4,6 +4,28 @@ query GetAbsence($id: ID!) {
       id
       isClosed
       rowVersion
+      approvalState {
+        id
+        approvalStatusId
+        approvalWorkflowId
+        currentStepId
+        comments {
+          id
+          comment
+          commentIsPublic
+          createdLocal
+          actingOrgUser {
+            id
+            firstName
+            lastName
+          }
+          approvalDecisionId
+          approvalDecision {
+            id
+            approvalActionId
+          }
+        }
+      }
       closedDetails {
         id
         startDate
@@ -23,6 +45,7 @@ query GetAbsence($id: ID!) {
           }
         }
         dayPartId
+        dayPortion
       }
       details {
         id
@@ -32,6 +55,7 @@ query GetAbsence($id: ID!) {
         endDate
         endTimeLocal
         dayPartId
+        dayPortion
         isClosed
         reasonUsages {
           id
@@ -47,6 +71,7 @@ query GetAbsence($id: ID!) {
         }
       }
       employeeId
+      locationIds
       organization {
         id
       }

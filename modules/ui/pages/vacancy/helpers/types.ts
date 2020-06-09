@@ -49,3 +49,15 @@ export type VacancyDetailItem = {
     };
   };
 };
+
+export type VacancyFormValues = {
+  positionTypeId: string;
+  title: string;
+  contractId: string;
+  locationId: string;
+  locationName: string;
+  workDayScheduleId: string;
+  notesToReplacement?: string | null;
+  adminOnlyNotes?: string | null;
+  details: VacancyDetailItem[];
+};

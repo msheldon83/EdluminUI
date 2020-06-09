@@ -9,6 +9,9 @@ import {
   ContractDate,
   EmployeeAbsenceDetail,
   PositionScheduleDate,
+  AbsenceScheduleDate,
+  InstructionalScheduleDate,
+  OtherScheduleDate,
   ScheduleDate,
 } from "ui/components/employee/types";
 
@@ -24,24 +27,32 @@ export const SelectedDateView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const allInstructionalDays = useMemo(
-    () => props.scheduleDates.filter(s => s.type === "instructionalDay"),
-    [props.scheduleDates]
-  );
-  const absenceDays = useMemo(
-    () => props.scheduleDates.filter(s => s.type === "absence"),
-    [props.scheduleDates]
-  );
-  const nonInstructionalDays = useMemo(
-    () =>
-      props.scheduleDates.filter(
-        s =>
-          s.type === "nonWorkDay" ||
-          s.type === "teacherWorkDay" ||
-          s.type === "cancelledDay"
-      ),
-    [props.scheduleDates]
-  );
+  const {
+    absenceDays,
+    instructionalDays,
+    nonInstructionalDays,
+  } = useMemo(() => {
+    const absenceDays: AbsenceScheduleDate[] = [];
+    const instructionalDays: InstructionalScheduleDate[] = [];
+    const nonInstructionalDays: OtherScheduleDate[] = [];
+
+    props.scheduleDates.forEach(s => {
+      switch (s.type) {
+        case "absence":
+          absenceDays.push(s);
+          break;
+        case "instructionalDay":
+          instructionalDays.push(s);
+          break;
+        case "nonWorkDay":
+        case "teacherWorkDay":
+        case "cancelledDay":
+          nonInstructionalDays.push(s);
+      }
+    });
+
+    return { absenceDays, instructionalDays, nonInstructionalDays };
+  }, [props.scheduleDates]);
 
   return (
     <Grid container className={classes.container}>
@@ -56,7 +67,7 @@ export const SelectedDateView: React.FC<Props> = props => {
         props.actingAsEmployee,
         props.orgId
       )}
-      {displayInstructionalDayInformation(allInstructionalDays, classes)}
+      {displayInstructionalDayInformation(instructionalDays, classes)}
       {displayNonInstructionalDayInformation(nonInstructionalDays, classes, t)}
     </Grid>
   );
@@ -81,36 +92,38 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const displayInstructionalDayInformation = (
-  instructionalDays: ScheduleDate[],
+  instructionalDays: InstructionalScheduleDate[],
   classes: any
 ) => {
-  return instructionalDays.map((d, i) => {
-    const day = d.rawData as PositionScheduleDate;
-    return (
-      <Grid item container xs={12} key={i} className={classes.detail}>
-        <Grid item xs={4}>
-          <div>{day.position}</div>
-          <div className={classes.subText}>{day.location}</div>
-        </Grid>
-        <Grid item>{`${day.startTime} - ${day.endTime}`}</Grid>
-        {day.nonStandardVariantTypeName && (
-          <Grid item>
-            <Chip label={day.nonStandardVariantTypeName} />
+  return instructionalDays
+    .filter(d => d.rawData.startTime != d.rawData.endTime)
+    .map((d, i) => {
+      const day = d.rawData;
+      return (
+        <Grid item container xs={12} key={i} className={classes.detail}>
+          <Grid item xs={4}>
+            <div>{day.position}</div>
+            <div className={classes.subText}>{day.location}</div>
           </Grid>
-        )}
-      </Grid>
-    );
-  });
+          <Grid item>{`${day.startTime} - ${day.endTime}`}</Grid>
+          {day.nonStandardVariantTypeName && (
+            <Grid item>
+              <Chip label={day.nonStandardVariantTypeName} />
+            </Grid>
+          )}
+        </Grid>
+      );
+    });
 };
 
 const displayAbsenceDayInformation = (
-  absenceDays: ScheduleDate[],
+  absenceDays: AbsenceScheduleDate[],
   cancelAbsence?: (absenceId: string) => Promise<void>,
   actingAsEmployee?: boolean,
   orgId?: string
 ) => {
   return absenceDays.map((a, i) => {
-    const day = a.rawData as EmployeeAbsenceDetail;
+    const day = a.rawData;
     const cancel = async () => cancelAbsence && (await cancelAbsence(day.id));
     return (
       <Grid item container xs={12} spacing={4} key={day.id}>
@@ -127,12 +140,12 @@ const displayAbsenceDayInformation = (
 };
 
 const displayNonInstructionalDayInformation = (
-  nonInstructionalDays: ScheduleDate[],
+  nonInstructionalDays: OtherScheduleDate[],
   classes: any,
   t: TFunction
 ) => {
   return nonInstructionalDays.map((d, i) => {
-    const day = d.rawData as ContractDate;
+    const day = d.rawData;
 
     const description = d.description
       ? d.description

@@ -59,6 +59,7 @@ export const LocationAddPage: React.FC<Props> = props => {
       state: null,
       postalCode: null,
     },
+    notes: null,
     locationGroupId: null,
     phoneNumber: null,
     replacementStartOffsetMinutes: null,
@@ -117,6 +118,7 @@ export const LocationAddPage: React.FC<Props> = props => {
           state?: StateCode | null,
           postalCode?: string | null,
           phoneNumber?: string | null,
+          notes?: string | null,
           replacementStartOffsetMinutes?: number | null,
           replacementEndOffsetMinutes?: number | null
         ) => {
@@ -130,6 +132,7 @@ export const LocationAddPage: React.FC<Props> = props => {
               country: CountryCode.Us,
             },
             phoneNumber: phoneNumber,
+            notes: notes,
             timeZoneId: timeZoneId,
             locationGroupId: locationGroupId,
             replacementStartOffsetMinutes: replacementStartOffsetMinutes,

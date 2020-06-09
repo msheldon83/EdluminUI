@@ -200,7 +200,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
-                          startDate={values.fromDate ?? today}
+                          startDate={new Date(values.fromDate) ?? today}
                           onChange={({ startDate }) => {
                             setFieldValue("fromDate", startDate);
                             if (
@@ -247,7 +247,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
-                          startDate={values.toDate ?? today}
+                          startDate={new Date(values.toDate) ?? today}
                           onChange={({ startDate: toDate }) =>
                             setFieldValue("toDate", toDate)
                           }

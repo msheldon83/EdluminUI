@@ -1,13 +1,9 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { ReportDefinitionInput, FilterField } from "./types";
+import { Direction, FilterField, DataExpression, OrderByField } from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
-import {
-  reportReducer,
-  convertReportDefinitionInputToRdl,
-  convertReportDefinitionInputToRdlForChart,
-} from "./state";
+import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
 import { makeStyles } from "@material-ui/core";
 import { useOrganizationId } from "core/org-context";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -22,9 +18,10 @@ import { TextButton } from "../text-button";
 
 type Props = {
   title: string;
-  input: ReportDefinitionInput;
+  rdl: string;
   exportFilename?: string;
-  filterFieldsOverride?: string[];
+  allowedFilterFieldsOverride?: string[];
+  baseFilterFieldNames?: string[];
   showGroupLabels?: boolean;
 };
 
@@ -35,22 +32,18 @@ export const Report: React.FC<Props> = props => {
   const organizationId = useOrganizationId();
   const {
     title,
-    input,
-    filterFieldsOverride,
+    rdl,
+    allowedFilterFieldsOverride,
+    baseFilterFieldNames,
     exportFilename = t("Report"),
     showGroupLabels = true,
   } = props;
 
   const [chartVisible, setChartVisible] = React.useState(true);
   const [state, dispatch] = React.useReducer(reportReducer, {
-    reportDefinitionInput: input,
-    rdlString: convertReportDefinitionInputToRdl(input),
-    rdlChartString: convertReportDefinitionInputToRdlForChart(input),
-    filters: {
-      optional: [],
-      required: [],
-    },
+    rdlString: rdl,
     filterableFields: [],
+    baseFilterFieldNames,
   });
 
   // Load the report data
@@ -69,13 +62,13 @@ export const Report: React.FC<Props> = props => {
   React.useEffect(() => {
     if (reportDataResponse.state === "DONE") {
       dispatch({
-        action: "setReportDefinition",
+        action: "processReportDefinition",
         reportDefinition: reportDataResponse.data.report,
-        filterFieldsOverride,
+        allowedFilterFieldsOverride,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reportDataResponse.state]);
+  }, [reportDataResponse.state, state.report]);
 
   // Load the report chart
   const reportChartResponse = useQueryBundle(GetReportChartQuery, {
@@ -85,7 +78,7 @@ export const Report: React.FC<Props> = props => {
         queryText: state.rdlChartString,
       },
     },
-    skip: !input.chart,
+    skip: !state.rdlChartString,
     onError: error => {
       ShowNetworkErrors(error, openSnackbar);
     },
@@ -110,23 +103,16 @@ export const Report: React.FC<Props> = props => {
 
   const setFilters = React.useCallback(
     (
-      filterFields: FilterField[],
-      areOptional: boolean,
+      filters: FilterField[],
+      areRequiredFilters: boolean,
       refreshReport?: boolean
     ) => {
-      if (areOptional) {
-        dispatch({
-          action: "setOptionalFilters",
-          filters: filterFields,
-          refreshReport,
-        });
-      } else {
-        dispatch({
-          action: "setRequiredFilters",
-          filters: filterFields,
-          refreshReport,
-        });
-      }
+      dispatch({
+        action: "setFilters",
+        filters: filters,
+        areRequiredFilters,
+        refreshReport,
+      });
     },
     []
   );
@@ -135,11 +121,22 @@ export const Report: React.FC<Props> = props => {
     dispatch({ action: "refreshReport" });
   }, []);
 
+  const setOrderBy = React.useCallback((orderBy: OrderByField[]) => {
+    dispatch({ action: "setOrderBy", orderBy });
+  }, []);
+
+  const setFirstLevelOrderBy = React.useCallback(
+    (expression: DataExpression, direction: Direction) => {
+      dispatch({ action: "setFirstLevelOrderBy", expression, direction });
+    },
+    []
+  );
+
   return (
     <AppConfig contentWidth="100%">
       <div className={classes.header}>
         <PageTitle title={title} />
-        {input.chart && (
+        {state.rdlChartString && (
           <TextButton
             startIcon={<InsertChart />}
             onClick={() => setChartVisible(!chartVisible)}
@@ -149,7 +146,7 @@ export const Report: React.FC<Props> = props => {
           </TextButton>
         )}
       </div>
-      {input.chart && chartVisible && (
+      {state.rdlChartString && chartVisible && (
         <ReportChart
           reportChartDefinition={state.reportChartDefinition}
           isLoading={
@@ -159,24 +156,22 @@ export const Report: React.FC<Props> = props => {
         />
       )}
       <ReportData
-        reportDefinition={state.reportDefinition}
-        inputSelects={state.reportDefinitionInput.select}
+        report={state.report}
+        reportData={state.reportDefinition?.data}
         isLoading={
           reportDataResponse.state === "LOADING" ||
           reportDataResponse.state === "UPDATING"
         }
-        currentFilters={[...state.filters.required, ...state.filters.optional]}
         filterableFields={state.filterableFields}
         setFilters={setFilters}
+        setOrderBy={setOrderBy}
+        setFirstLevelOrderBy={setFirstLevelOrderBy}
         refreshReport={refreshReport}
         exportReport={async () => {
           await downloadCsvFile({
             input: {
               orgIds: [organizationId],
-              queryText: convertReportDefinitionInputToRdl(
-                state.reportDefinitionInput,
-                true
-              ),
+              queryText: convertReportDefinitionInputToRdl(state.report!, true),
             },
             filename: exportFilename,
           });

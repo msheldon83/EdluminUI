@@ -3,20 +3,23 @@ import {
   Typography,
   FormControlLabel,
   Checkbox,
-  Chip,
   makeStyles,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PositionType, PermissionEnum } from "graphql/server-types.gen";
 import { useRouteParams } from "ui/routes/definition";
+import { useLocation } from "react-router-dom";
 import { AbsenceReasonViewEditRoute } from "ui/routes/absence-reason";
 import { usePositionTypeOptions } from "reference-data/position-types";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { PositionTypeLink } from "ui/components/links/position-types";
 
 type Props = {
+  absenceReasonId: string;
+  absenceReasonName: string;
   positionTypes: Pick<PositionType, "id" | "name">[];
   allPositionTypes: boolean;
   updatePositionTypes: (values: {
@@ -29,7 +32,7 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(AbsenceReasonViewEditRoute);
   const [editing, setEditing] = React.useState(false);
-  const classes = useStyles();
+  const location = useLocation();
 
   const positionTypeOptions = usePositionTypeOptions(params.organizationId);
 
@@ -93,13 +96,22 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
                 !props.allPositionTypes &&
                 props.positionTypes.length > 0 && (
                   <>
-                    {props.positionTypes.map((pt, i) => (
-                      <Chip
-                        key={i}
-                        label={pt.name}
-                        className={classes.positionTypeChip}
-                      />
-                    ))}
+                    {props.positionTypes
+                      .slice()
+                      .sort((pt1, pt2) => pt1.name.localeCompare(pt2.name))
+                      .map((pt, i) => (
+                        <Typography key={pt.id}>
+                          <PositionTypeLink
+                            positionTypeId={pt.id}
+                            state={{
+                              comingFrom: `${props.absenceReasonName} settings`,
+                              returnLocation: location,
+                            }}
+                          >
+                            {pt.name}
+                          </PositionTypeLink>
+                        </Typography>
+                      ))}
                   </>
                 )}
               {editing && (
@@ -142,11 +154,3 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  positionTypeChip: {
-    background: theme.customColors.blue,
-    color: theme.customColors.white,
-    marginRight: theme.spacing(1),
-  },
-}));

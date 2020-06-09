@@ -10,6 +10,7 @@ mutation UpdateLocation($location: LocationUpdateInput!) {
       stateName
       state
       postalCode
+      notes
       phoneNumber
       formattedPhone
       rowVersion

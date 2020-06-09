@@ -9,11 +9,7 @@ import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule
 import { useState, useMemo, useCallback } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
-import {
-  usePagedQueryBundle,
-  useMutationBundle,
-  useQueryBundle,
-} from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Column } from "material-table";
 import {
   CalendarDayType,
@@ -39,8 +35,7 @@ import { Can } from "ui/components/auth/can";
 import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { useContracts } from "reference-data/contracts";
-import { ContractScheduleWarning } from "./components/contract-schedule-warning";
-import { GetContractsWithoutSchedules } from "./graphql/get-contracts-without-schedules.gen";
+import { ContractScheduleWarning } from "ui/components/contract-schedule/contract-schedule-warning";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { CalendarChangeEventDialog } from "./components/calendar-change-event-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -475,13 +470,7 @@ export const Calendars: React.FC<Props> = props => {
             </Grid>
           </Can>
         </Grid>
-        <ContractScheduleWarning
-          showWarning={contractsWithoutSchedules.length > 0}
-          schoolYearName={schoolYearName}
-          schoolYear={schoolYear}
-          contracts={contractsWithoutSchedules}
-          orgId={params.organizationId}
-        />
+        <ContractScheduleWarning orgId={params.organizationId} />
 
         <div className={props.view === "calendar" ? classes.sticky : ""}>
           {props.view === "calendar" && (

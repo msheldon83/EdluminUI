@@ -25,7 +25,6 @@ import { ApproverGroupsUI } from "./components/approver-groups";
 import { DeleteLocation } from "./graphql/delete-location.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
 import { GetLocationsDocument } from "reference-data/get-locations.gen";
-import { GetAllPermissionSetsWithinOrgDocument } from "../security-permission-sets/graphql/get-all-permission-sets.gen";
 
 const editableSections = {
   name: "edit-name",

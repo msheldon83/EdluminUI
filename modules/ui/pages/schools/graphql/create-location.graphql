@@ -11,6 +11,7 @@ mutation CreateLocation($location: LocationCreateInput!) {
       state
       postalCode
       phoneNumber
+      notes
       formattedPhone
       rowVersion
       substitutePreferences {
