@@ -22,10 +22,15 @@ query GetVacancyById($id: ID!) {
             firstName
             lastName
           }
-          approvalDecisionId
-          approvalDecision {
+        }
+        decisions {
+          id
+          createdLocal
+          approvalActionId
+          actingOrgUser {
             id
-            approvalActionId
+            firstName
+            lastName
           }
         }
       }

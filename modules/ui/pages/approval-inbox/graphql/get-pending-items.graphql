@@ -19,7 +19,6 @@ query GetPendingApprovalItems($orgId: ID!) {
         }
       }
       absence {
-        id
         employee {
           id
           firstName

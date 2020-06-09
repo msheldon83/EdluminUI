@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Grid, makeStyles, Divider } from "@material-ui/core";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { InboxItem } from "./components/inbox-item";
@@ -10,6 +10,7 @@ import { ApprovalInboxRoute } from "ui/routes/approval-inbox";
 import { compact } from "lodash-es";
 import { GetPendingApprovalItems } from "./graphql/get-pending-items.gen";
 import { GetPreviousApprovalDecisions } from "./graphql/get-previous-decisions.gen";
+import { SelectedDetail } from "./components/selected-detail";
 
 export const ApprovalInbox: React.FC<{}> = () => {
   const classes = useStyles();
@@ -28,9 +29,9 @@ export const ApprovalInbox: React.FC<{}> = () => {
   ) => {
     if (!selected) return false;
     if (isNormalVacancy) {
-      return absenceId === selected?.id;
-    } else {
       return vacancyId === selected?.id;
+    } else {
+      return absenceId === selected?.id;
     }
   };
 
@@ -46,6 +47,16 @@ export const ApprovalInbox: React.FC<{}> = () => {
     },
   });
 
+  const onApprove = async () => {
+    await getPendingApprovalItems.refetch();
+    await getPreviousDecisions.refetch();
+  };
+
+  const onDeny = async () => {
+    await getPendingApprovalItems.refetch();
+    await getPreviousDecisions.refetch();
+  };
+
   const previousDecisions =
     getPreviousDecisions.state === "DONE"
       ? compact(
@@ -57,6 +68,17 @@ export const ApprovalInbox: React.FC<{}> = () => {
     getPendingApprovalItems.state === "DONE"
       ? compact(getPendingApprovalItems.data?.vacancy?.vacanciesNeedingApproval)
       : [];
+
+  useEffect(() => {
+    if (pendingVacancies.length > 0) {
+      setSelected({
+        id: pendingVacancies[0].isNormalVacancy
+          ? pendingVacancies[0].id
+          : pendingVacancies[0].absenceId ?? "",
+        isNormalVacancy: pendingVacancies[0].isNormalVacancy,
+      });
+    }
+  }, [pendingVacancies]);
 
   return (
     <>
@@ -107,7 +129,14 @@ export const ApprovalInbox: React.FC<{}> = () => {
               })}
             </Grid>
           </Grid>
-          <Grid item container xs={6}></Grid>
+          <Grid item container xs={6}>
+            <SelectedDetail
+              orgId={params.organizationId}
+              selectedItem={selected}
+              onApprove={onApprove}
+              onDeny={onDeny}
+            />
+          </Grid>
         </Grid>
       </Section>
     </>

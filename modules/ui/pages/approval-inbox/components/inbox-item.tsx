@@ -67,6 +67,13 @@ export const InboxItem: React.FC<Props> = props => {
         )
       ).join(", ");
 
+  const handleClick = () => {
+    props.setSelected({
+      id: vacancy.isNormalVacancy ? vacancy.id : vacancy.absenceId ?? "",
+      isNormalVacancy: vacancy.isNormalVacancy,
+    });
+  };
+
   return (
     <div
       className={clsx({
@@ -74,6 +81,7 @@ export const InboxItem: React.FC<Props> = props => {
         [classes.selectedBorder]: props.isSelected,
         [classes.notSelectedBorder]: !props.isSelected,
       })}
+      onClick={handleClick}
     >
       <div className={classes.typeText}>
         {vacancy.isNormalVacancy ? t("Vacancy") : t("Absence")}
@@ -100,6 +108,7 @@ const useStyles = makeStyles(theme => ({
   container: {
     width: "100%",
     padding: theme.spacing(2),
+    cursor: "pointer",
   },
   selectedBorder: {
     border: "1px solid #050039",

@@ -20,7 +20,6 @@ query GetPreviousApprovalDecisions($orgId: ID!) {
           }
         }
         absence {
-          id
           employee {
             id
             firstName

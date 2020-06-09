@@ -22,6 +22,10 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
   const vacancy =
     getVacancy.state === "DONE" ? getVacancy.data.vacancy?.byId : null;
 
+  const onApproveOrDeny = async () => {
+    await getVacancy.refetch();
+  };
+
   const onReturn = () => {
     history.push(VacancyViewRoute.generate(params));
   };
@@ -43,9 +47,13 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
       <ApprovalDetail
         orgId={params.organizationId}
         approvalStateId={approvalState.id}
+        approvalStatusId={approvalState.approvalStatusId}
+        onApprove={onApproveOrDeny}
+        onDeny={onApproveOrDeny}
         currentStepId={approvalState.currentStepId}
         approvalWorkflowId={approvalState.approvalWorkflowId}
         comments={approvalState.comments}
+        decisions={approvalState.decisions}
         isTrueVacancy={true}
         vacancy={vacancy}
       />

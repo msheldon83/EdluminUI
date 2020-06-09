@@ -25,6 +25,10 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
     },
   });
 
+  const onApproveOrDeny = async () => {
+    await getAbsence.refetch();
+  };
+
   const absence =
     getAbsence.state === "DONE" ? getAbsence.data.absence?.byId : null;
 
@@ -68,9 +72,13 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
         orgId={params.organizationId}
         actingAsEmployee={props.actingAsEmployee}
         approvalStateId={approvalState.id}
+        approvalStatusId={approvalState.approvalStatusId}
+        onApprove={onApproveOrDeny}
+        onDeny={onApproveOrDeny}
         currentStepId={approvalState.currentStepId}
         approvalWorkflowId={approvalState.approvalWorkflowId}
         comments={approvalState.comments}
+        decisions={approvalState.decisions}
         isTrueVacancy={false}
         absence={absence}
       />
