@@ -7,11 +7,8 @@ import {
   Popper,
   Fade,
   ClickAwayListener,
-  Typography,
 } from "@material-ui/core";
-import { compact } from "lodash-es";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { Input } from "ui/components/form/input";
+import { ColumnSelection } from "./column-selection";
 
 type Props = {
   columns: DataExpression[];
@@ -32,27 +29,11 @@ export const AddColumns: React.FC<Props> = props => {
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
-  const options = React.useMemo(() => {
-    const currentDataSourceFieldColumns = compact(
-      columns.map(c => c.dataSourceField?.dataSourceFieldName)
-    );
-
-    return allFields
-      .filter(
-        f => !currentDataSourceFieldColumns.includes(f.dataSourceFieldName)
-      )
-      .map(f => {
-        return {
-          label: f.friendlyName,
-          value: f.dataSourceFieldName,
-        };
-      });
-  }, [allFields, columns]);
-
   const applyChanges = async () => {
     const columnsToAdd = [...selectedColumns];
     addColumns(columnsToAdd);
     setSelectedColumns([]);
+    setExpression(undefined);
     setAddColumnsOpen(false);
     await refreshReport();
   };
@@ -62,7 +43,7 @@ export const AddColumns: React.FC<Props> = props => {
       <Button
         color="inherit"
         size={"large"}
-        onClick={() => {
+        onClick={async () => {
           setAddColumnsOpen(!addColumnsOpen);
         }}
         className={classes.actionButton}
@@ -86,64 +67,20 @@ export const AddColumns: React.FC<Props> = props => {
                 }}
               >
                 <div className={classes.container}>
-                  <div className={classes.columns}>
-                    <SelectNew
-                      value={selectedColumns.map(s => {
-                        return {
-                          label: s.friendlyName,
-                          value: s.dataSourceFieldName,
-                        };
-                      })}
-                      multiple={true}
-                      options={options}
-                      withResetValue={false}
-                      onChange={value => {
-                        const fieldNames = value.map(
-                          (v: OptionType) => v.value
-                        );
-                        const selectedFields = allFields.filter(f =>
-                          fieldNames.includes(f.dataSourceFieldName)
-                        );
-                        setSelectedColumns(selectedFields);
-                      }}
-                    />
-                  </div>
-                  <div className={classes.expression}>
-                    <div className={classes.expressionLabel}>
-                      {t("or Add Expression")}
-                    </div>
-                    <Input
-                      value={expression ?? ""}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
-                      ) => {
-                        setExpression(
-                          event.target.value ? event.target.value : undefined
-                        );
-                      }}
-                      placeholder={t("Type expression")}
-                    />
-                  </div>
-                  <div className={classes.actions}>
-                    <Button
-                      variant="outlined"
-                      onClick={async () => {
-                        setSelectedColumns([]);
-                        setAddColumnsOpen(false);
-                      }}
-                    >
-                      {t("Cancel")}
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={async () => {
-                        await applyChanges();
-                      }}
-                      className={classes.applyButton}
-                    >
-                      {t("Apply")}
-                    </Button>
-                  </div>
+                  <ColumnSelection
+                    columns={columns}
+                    allFields={allFields}
+                    selectedColumns={selectedColumns}
+                    setSelectedColumns={setSelectedColumns}
+                    expression={expression}
+                    setExpression={setExpression}
+                    onSubmit={applyChanges}
+                    onCancel={() => {
+                      setSelectedColumns([]);
+                      setExpression(undefined);
+                      setAddColumnsOpen(false);
+                    }}
+                  />
                 </div>
               </ClickAwayListener>
             </div>
@@ -175,25 +112,5 @@ const useStyles = makeStyles(theme => ({
     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
     borderRadius: "4px",
     padding: theme.spacing(2),
-  },
-  columns: {
-    width: theme.typography.pxToRem(300),
-  },
-  expression: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-  expressionLabel: {
-    fontWeight: "bold",
-    marginBottom: theme.spacing(),
-  },
-  actions: {
-    display: "flex",
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    marginTop: theme.spacing(2),
-  },
-  applyButton: {
-    marginLeft: theme.spacing(2),
   },
 }));
