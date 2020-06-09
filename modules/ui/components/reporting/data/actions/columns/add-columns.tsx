@@ -14,13 +14,12 @@ type Props = {
   columns: DataExpression[];
   allFields: DataSourceField[];
   addColumns: (fields: DataSourceField[]) => void;
-  refreshReport: () => Promise<void>;
 };
 
 export const AddColumns: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { columns, allFields, addColumns, refreshReport } = props;
+  const { columns, allFields, addColumns } = props;
   const [selectedColumns, setSelectedColumns] = React.useState<
     DataSourceField[]
   >([]);
@@ -29,13 +28,12 @@ export const AddColumns: React.FC<Props> = props => {
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
-  const applyChanges = async () => {
+  const applyChanges = () => {
     const columnsToAdd = [...selectedColumns];
     addColumns(columnsToAdd);
     setSelectedColumns([]);
     setExpression(undefined);
     setAddColumnsOpen(false);
-    await refreshReport();
   };
 
   return (
@@ -43,7 +41,7 @@ export const AddColumns: React.FC<Props> = props => {
       <Button
         color="inherit"
         size={"large"}
-        onClick={async () => {
+        onClick={() => {
           setAddColumnsOpen(!addColumnsOpen);
         }}
         className={classes.actionButton}
@@ -62,9 +60,7 @@ export const AddColumns: React.FC<Props> = props => {
             <div>
               <ClickAwayListener
                 mouseEvent="onClick"
-                onClickAway={async () => {
-                  await applyChanges();
-                }}
+                onClickAway={applyChanges}
               >
                 <div className={classes.container}>
                   <ColumnSelection

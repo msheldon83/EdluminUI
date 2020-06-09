@@ -13,7 +13,7 @@ type Props = {
   setSelectedColumns: React.Dispatch<React.SetStateAction<DataSourceField[]>>;
   expression: string | undefined;
   setExpression: React.Dispatch<React.SetStateAction<string | undefined>>;
-  onSubmit: () => Promise<void>;
+  onSubmit: () => void;
   onCancel: () => void;
 };
 
@@ -59,7 +59,8 @@ export const ColumnSelection: React.FC<Props> = props => {
             };
           })}
           placeholder={t("Select columns")}
-          multiple={true}
+          multiple
+          fixedListBox
           options={options}
           withResetValue={false}
           onChange={value => {

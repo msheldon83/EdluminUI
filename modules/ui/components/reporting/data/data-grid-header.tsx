@@ -40,7 +40,10 @@ export const DataGridHeader: React.FC<Props> = props => {
     expression: DataExpression;
     anchor: HTMLElement;
   }>(null);
-  const open = Boolean(menuInfo?.anchor);
+  const [addColumnsInfo, setAddColumnsInfo] = React.useState<null | {
+    index: number;
+    before: boolean;
+  }>(null);
   const {
     columns,
     onScroll,
@@ -50,6 +53,7 @@ export const DataGridHeader: React.FC<Props> = props => {
     columnWidth,
     orderedBy,
     setFirstLevelOrderBy,
+    allFields,
     removeColumn,
     numberOfLockedColumns = 0,
   } = props;
@@ -68,15 +72,17 @@ export const DataGridHeader: React.FC<Props> = props => {
       },
     },
     {
-      label: t("Add column before"),
+      label: t("Add columns before"),
       onClick: async (expression: DataExpression) => {
-        //setFirstLevelOrderBy(expression, Direction.Desc);
+        const columnIndex = columns.indexOf(expression);
+        setAddColumnsInfo({ index: columnIndex, before: true });
       },
     },
     {
-      label: t("Add column after"),
+      label: t("Add columns after"),
       onClick: async (expression: DataExpression) => {
-        //setFirstLevelOrderBy(expression, Direction.Desc);
+        const columnIndex = columns.indexOf(expression);
+        setAddColumnsInfo({ index: columnIndex, before: false });
       },
     },
     {
@@ -149,7 +155,7 @@ export const DataGridHeader: React.FC<Props> = props => {
           horizontal: "center",
         }}
         keepMounted
-        open={open}
+        open={Boolean(menuInfo?.anchor)}
         onClose={handleCloseMenu}
         PaperProps={{
           className: classes.headerMenu,
@@ -171,10 +177,16 @@ export const DataGridHeader: React.FC<Props> = props => {
         })}
       </Menu>
       <AddColumnsDialog
+        open={Boolean(addColumnsInfo?.index)}
+        onClose={() => setAddColumnsInfo(null)}
+        title={
+          addColumnsInfo?.before
+            ? t("Add columns before")
+            : t("Add columns after")
+        }
         columns={columns}
-        allFields={[]}
+        allFields={allFields}
         addColumns={() => {}}
-        refreshReport={() => {}}
       />
     </>
   );
