@@ -14,7 +14,10 @@ type Props = {
   title: string;
   columns: DataExpression[];
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[]) => void;
+  addColumns: (
+    fields: DataSourceField[] | undefined,
+    expression: string | undefined
+  ) => void;
 };
 
 export const AddColumnsDialog: React.FC<Props> = props => {
@@ -25,17 +28,17 @@ export const AddColumnsDialog: React.FC<Props> = props => {
   >([]);
   const [expression, setExpression] = React.useState<string | undefined>();
 
-  const clearSettingsAndClose = () => {
+  const clearSettingsAndClose = React.useCallback(() => {
     setSelectedColumns([]);
     setExpression(undefined);
     onClose();
-  };
+  }, [onClose]);
 
-  const applyChanges = () => {
+  const applyChanges = React.useCallback(() => {
     const columnsToAdd = [...selectedColumns];
-    addColumns(columnsToAdd);
+    addColumns(columnsToAdd, expression);
     clearSettingsAndClose();
-  };
+  }, [addColumns, clearSettingsAndClose, expression, selectedColumns]);
 
   return (
     <Dialog open={open} onClose={clearSettingsAndClose}>

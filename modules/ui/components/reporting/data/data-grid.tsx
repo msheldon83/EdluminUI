@@ -45,7 +45,12 @@ type Props = {
     direction: Direction
   ) => void;
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[]) => void;
+  addColumns: (
+    fields: DataSourceField[] | undefined,
+    expression: string | undefined,
+    index?: number,
+    addBeforeIndex?: boolean
+  ) => void;
   removeColumn: (index: number) => void;
   showGroupLabels?: boolean;
 };
@@ -130,6 +135,7 @@ export const DataGrid: React.FC<Props> = props => {
                   setFirstLevelOrderBy={setFirstLevelOrderBy}
                   orderedBy={orderedBy}
                   allFields={allFields}
+                  addColumns={addColumns}
                   removeColumn={removeColumn}
                 />
                 {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (

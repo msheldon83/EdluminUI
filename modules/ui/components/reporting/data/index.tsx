@@ -21,7 +21,7 @@ type Props = {
   reportData: ReportDefinitionData | undefined;
   isLoading: boolean;
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[]) => void;
+  addColumns: (fields: DataSourceField[] | undefined, expression: string | undefined, index?: number, addBeforeIndex?: boolean) => void;
   removeColumn: (index: number) => void;
   filterableFields: DataSourceField[];
   setFilters: (

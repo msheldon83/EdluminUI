@@ -54,7 +54,10 @@ export type ReportActions =
     }
   | {
       action: "addColumns";
-      fields: DataSourceField[];
+      fields: DataSourceField[] | undefined;
+      expression: string | undefined;
+      index?: number;
+      addBeforeIndex?: boolean;
     }
   | {
       action: "removeColumn";
@@ -137,9 +140,16 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         };
       }
 
+      // Always update the Selects on the Report from the Report Definition
+      // since we allow Users to manually type expressions and the server
+      // will break that string apart for us and return the necessary pieces
       return {
         ...prev,
         reportDefinition: action.reportDefinition,
+        // report: {
+        //   ...prev.report,
+        //   //selects: action.reportDefinition.metadata.query.selects,
+        // },
       };
     }
     case "setReportChartDefinition": {
@@ -244,21 +254,47 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       return updatedState;
     }
     case "addColumns": {
+      const additionalFields: DataExpression[] = action.fields
+        ? action.fields.map(f => {
+            return {
+              displayName: f.friendlyName,
+              expressionAsQueryLanguage: f.dataSourceFieldName,
+              baseExpressionAsQueryLanguage: f.dataSourceFieldName,
+              dataSourceField: f,
+            };
+          })
+        : [];
+      if (action.expression) {
+        additionalFields.push({
+          displayName: action.expression,
+          expressionAsQueryLanguage: action.expression,
+          baseExpressionAsQueryLanguage: action.expression,
+          dataSourceField: undefined,
+        });
+      }
+
+      let updatedSelects = [...prev.report!.selects];
+      if (action.index) {
+        // If we're adding columns before or after another column
+        const beforeSelects = updatedSelects.slice(
+          0,
+          action.addBeforeIndex ? action.index : action.index + 1
+        );
+        const afterSelects = updatedSelects.slice(
+          action.addBeforeIndex ? action.index : action.index + 1
+        );
+        updatedSelects = [
+          ...beforeSelects,
+          ...additionalFields,
+          ...afterSelects,
+        ];
+      }
+
       const updatedState = {
         ...prev,
         report: {
           ...prev.report!,
-          selects: [
-            ...prev.report!.selects,
-            ...action.fields.map(f => {
-              return {
-                displayName: f.friendlyName,
-                expressionAsQueryLanguage: f.dataSourceFieldName,
-                baseExpressionAsQueryLanguage: f.dataSourceFieldName,
-                dataSourceField: f,
-              };
-            }),
-          ],
+          selects: updatedSelects,
         },
       };
 

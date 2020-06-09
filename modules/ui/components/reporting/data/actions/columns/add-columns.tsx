@@ -13,7 +13,7 @@ import { ColumnSelection } from "./column-selection";
 type Props = {
   columns: DataExpression[];
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[]) => void;
+  addColumns: (fields: DataSourceField[] | undefined, expression: string | undefined) => void;
 };
 
 export const AddColumns: React.FC<Props> = props => {
@@ -30,7 +30,7 @@ export const AddColumns: React.FC<Props> = props => {
 
   const applyChanges = () => {
     const columnsToAdd = [...selectedColumns];
-    addColumns(columnsToAdd);
+    addColumns(columnsToAdd, expression);
     setSelectedColumns([]);
     setExpression(undefined);
     setAddColumnsOpen(false);

@@ -21,6 +21,12 @@ type Props = {
     direction: Direction
   ) => void;
   orderedBy: OrderByField[];
+  addColumns: (
+    fields: DataSourceField[] | undefined,
+    expression: string | undefined,
+    index?: number,
+    addBeforeIndex?: boolean
+  ) => void;
   removeColumn: (index: number) => void;
   columnWidth: MultiGridProps["columnWidth"];
   numberOfLockedColumns?: number;
@@ -54,45 +60,49 @@ export const DataGridHeader: React.FC<Props> = props => {
     orderedBy,
     setFirstLevelOrderBy,
     allFields,
+    addColumns,
     removeColumn,
     numberOfLockedColumns = 0,
   } = props;
 
-  const menuItems: HeaderMenuItem[] = [
-    {
-      label: t("Sort A > Z"),
-      onClick: async (expression: DataExpression) => {
-        setFirstLevelOrderBy(expression, Direction.Asc);
+  const menuItems: HeaderMenuItem[] = React.useMemo(
+    () => [
+      {
+        label: t("Sort A > Z"),
+        onClick: async (expression: DataExpression) => {
+          setFirstLevelOrderBy(expression, Direction.Asc);
+        },
       },
-    },
-    {
-      label: t("Sort Z > A"),
-      onClick: async (expression: DataExpression) => {
-        setFirstLevelOrderBy(expression, Direction.Desc);
+      {
+        label: t("Sort Z > A"),
+        onClick: async (expression: DataExpression) => {
+          setFirstLevelOrderBy(expression, Direction.Desc);
+        },
       },
-    },
-    {
-      label: t("Add columns before"),
-      onClick: async (expression: DataExpression) => {
-        const columnIndex = columns.indexOf(expression);
-        setAddColumnsInfo({ index: columnIndex, before: true });
+      {
+        label: t("Add columns before"),
+        onClick: async (expression: DataExpression) => {
+          const columnIndex = columns.indexOf(expression);
+          setAddColumnsInfo({ index: columnIndex, before: true });
+        },
       },
-    },
-    {
-      label: t("Add columns after"),
-      onClick: async (expression: DataExpression) => {
-        const columnIndex = columns.indexOf(expression);
-        setAddColumnsInfo({ index: columnIndex, before: false });
+      {
+        label: t("Add columns after"),
+        onClick: async (expression: DataExpression) => {
+          const columnIndex = columns.indexOf(expression);
+          setAddColumnsInfo({ index: columnIndex, before: false });
+        },
       },
-    },
-    {
-      label: t("Delete column"),
-      onClick: async (expression: DataExpression) => {
-        const columnIndex = columns.indexOf(expression);
-        removeColumn(columnIndex);
+      {
+        label: t("Delete column"),
+        onClick: async (expression: DataExpression) => {
+          const columnIndex = columns.indexOf(expression);
+          removeColumn(columnIndex);
+        },
       },
-    },
-  ];
+    ],
+    [columns, removeColumn, setFirstLevelOrderBy, t]
+  );
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -186,7 +196,17 @@ export const DataGridHeader: React.FC<Props> = props => {
         }
         columns={columns}
         allFields={allFields}
-        addColumns={() => {}}
+        addColumns={(
+          fields: DataSourceField[] | undefined,
+          expression: string | undefined
+        ) => 
+          addColumns(
+            fields,
+            expression,
+            addColumnsInfo?.index,
+            addColumnsInfo?.before
+          )
+        }
       />
     </>
   );

@@ -24,7 +24,7 @@ type Props = {
   setOrderBy: (orderBy: OrderByField[]) => void;
   columns: DataExpression[];
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[]) => void;
+  addColumns: (fields: DataSourceField[] | undefined, expression: string | undefined) => void;
   refreshReport: () => Promise<void>;
 };
 
@@ -73,7 +73,6 @@ export const ActionBar: React.FC<Props> = props => {
           columns={columns}
           allFields={allFields}
           addColumns={addColumns}
-          refreshReport={refreshReport}
         />
       </div>
     </div>
