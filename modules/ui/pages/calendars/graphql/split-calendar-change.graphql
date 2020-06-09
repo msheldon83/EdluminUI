@@ -1,0 +1,5 @@
+mutation SplitCalendarChange($splitDetails: SplitCalendarChangeInput!) {
+  calendarChange {
+    splitCalendarChange(splitDetails: $splitDetails)
+  }
+}

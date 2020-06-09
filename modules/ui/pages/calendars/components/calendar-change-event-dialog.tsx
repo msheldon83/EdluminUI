@@ -9,6 +9,7 @@ import {
   FormControlLabel,
   Checkbox,
   Button,
+  Tooltip,
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -32,14 +33,21 @@ import {
 } from "graphql/server-types.gen";
 import { CalendarEvent } from "../types";
 import { parseISO, format } from "date-fns";
+import { isSameDay } from "date-fns/esm";
+import InfoIcon from "@material-ui/icons/Info";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onAdd: (calendarChange: CalendarChangeCreateInput) => Promise<boolean>;
   onUpdate: (calendarChange: CalendarChangeUpdateInput) => Promise<boolean>;
+  onSplit: (
+    originalCalendarChangeId: string,
+    calendarChange: CalendarEvent
+  ) => Promise<boolean>;
   calendarChange: CalendarEvent;
   errorMessage?: string;
+  specificDate?: Date;
 };
 
 export const CalendarChangeEventDialog: React.FC<Props> = props => {
@@ -57,9 +65,19 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   );
   const [submittingData, setSubmittingData] = React.useState(false);
 
-  const updating = !!props.calendarChange.id;
+  const updating = props.calendarChange ? !!props.calendarChange.id : false;
 
-  if (!orgId) {
+  const isRange =
+    props.calendarChange &&
+    props.calendarChange.startDate &&
+    props.calendarChange.endDate
+      ? !isSameDay(
+          parseISO(props.calendarChange.startDate),
+          parseISO(props.calendarChange.endDate)
+        )
+      : false;
+
+  if (!orgId || !props.calendarChange) {
     return <></>;
   }
 
@@ -84,7 +102,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
             "MMMM d, yyyy"
           ),
           notes: props.calendarChange.description,
-          contracts: props.calendarChange.contractIds,
+          contracts: props.calendarChange.changedContracts?.map(c => c?.id),
           applyToAll: props.calendarChange.affectsAllContracts,
         }}
         onReset={(values, formProps) => {
@@ -101,20 +119,37 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           let resultSucceeded = false;
           setSubmittingData(true);
           if (updating) {
-            const calendarChange: CalendarChangeUpdateInput = {
-              id: props.calendarChange.id!,
-              rowVersion: props.calendarChange.rowVersion!,
-              description: data.notes,
-              startDate: data.fromDate,
-              endDate: data.toDate,
-              calendarChangeReasonId: data.changeReason
-                ? data.changeReason
-                : changeReasonOptions[0]?.value,
-              contractIds: data.contracts ?? [],
-              affectsAllContracts: data.applyToAll,
-            };
+            if (isRange && !!props.specificDate) {
+              const calendarChange: CalendarEvent = {
+                description: data.notes,
+                startDate: format(props.specificDate, "MMMM d, yyyy"),
+                endDate: format(props.specificDate, "MMMM d, yyyy"),
+                calendarChangeReasonId: data.changeReason
+                  ? data.changeReason
+                  : changeReasonOptions[0]?.value,
+                contractIds: data.contracts ?? [],
+                affectsAllContracts: data.applyToAll,
+              };
+              resultSucceeded = await props.onSplit(
+                props.calendarChange.id ?? "0",
+                calendarChange
+              );
+            } else {
+              const calendarChange: CalendarChangeUpdateInput = {
+                id: props.calendarChange.id!,
+                rowVersion: props.calendarChange.rowVersion!,
+                description: data.notes,
+                startDate: data.fromDate,
+                endDate: data.toDate,
+                calendarChangeReasonId: data.changeReason
+                  ? data.changeReason
+                  : changeReasonOptions[0]?.value,
+                contractIds: data.contracts ?? [],
+                affectsAllContracts: data.applyToAll,
+              };
 
-            resultSucceeded = await props.onUpdate(calendarChange);
+              resultSucceeded = await props.onUpdate(calendarChange);
+            }
           } else {
             const calendarChange: CalendarChangeCreateInput = {
               orgId: orgId,
@@ -162,30 +197,63 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     className={classes.dateReasonContainer}
                   >
                     <Grid item xs={6}>
-                      <DatePicker
-                        variant={"single-hidden"}
-                        startDate={values.fromDate ?? today}
-                        onChange={({ startDate }) => {
-                          setFieldValue("fromDate", startDate);
-                          if (
-                            values.fromDate &&
-                            isAfterDate(startDate, values.fromDate)
-                          ) {
-                            setFieldValue("toDate", startDate);
-                          }
-                        }}
-                        startLabel={t("From")}
-                      />
+                      {(!isRange || (isRange && !props.specificDate)) && (
+                        <DatePicker
+                          variant={"single-hidden"}
+                          startDate={values.fromDate ?? today}
+                          onChange={({ startDate }) => {
+                            setFieldValue("fromDate", startDate);
+                            if (
+                              values.fromDate &&
+                              isAfterDate(startDate, values.fromDate)
+                            ) {
+                              setFieldValue("toDate", startDate);
+                            }
+                          }}
+                          startLabel={t("From")}
+                        />
+                      )}
+                      {isRange &&
+                        props.calendarChange.id &&
+                        props.specificDate && (
+                          <>
+                            <Typography variant="h4" display="inline">
+                              {format(props.specificDate, "MMM d")}
+                            </Typography>
+                            <Tooltip
+                              title={
+                                <div className={classes.tooltip}>
+                                  <Typography variant="body1">
+                                    {t(
+                                      "You are currently editing a single date that is associated with an event that spans multiple days.  To edit the event's to and from dates, edit the event instead."
+                                    )}
+                                  </Typography>
+                                </div>
+                              }
+                              placement="right-start"
+                            >
+                              <InfoIcon
+                                color="primary"
+                                style={{
+                                  fontSize: "16px",
+                                  marginLeft: "8px",
+                                }}
+                              />
+                            </Tooltip>
+                          </>
+                        )}
                     </Grid>
                     <Grid item xs={6}>
-                      <DatePicker
-                        variant={"single-hidden"}
-                        startDate={values.toDate ?? today}
-                        onChange={({ startDate: toDate }) =>
-                          setFieldValue("toDate", toDate)
-                        }
-                        startLabel={t("To")}
-                      />
+                      {(!isRange || (isRange && !props.specificDate)) && (
+                        <DatePicker
+                          variant={"single-hidden"}
+                          startDate={values.toDate ?? today}
+                          onChange={({ startDate: toDate }) =>
+                            setFieldValue("toDate", toDate)
+                          }
+                          startLabel={t("To")}
+                        />
+                      )}
                     </Grid>
 
                     <Grid item xs={6}>
@@ -324,5 +392,8 @@ const useStyles = makeStyles(theme => ({
   },
   contractSelector: {
     marginLeft: theme.spacing(2),
+  },
+  tooltip: {
+    padding: theme.spacing(2),
   },
 }));

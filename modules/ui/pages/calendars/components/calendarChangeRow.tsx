@@ -7,11 +7,14 @@ import { useContracts } from "reference-data/contracts";
 import { useTranslation } from "react-i18next";
 import { Can } from "ui/components/auth/can";
 import { CalendarEvent } from "../types";
+import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 
 type Props = {
   calendarChange: CalendarEvent;
   orgId: string;
-  onDelete: (calendarChangeId: string) => void;
+  onDelete: (calendarChange: CalendarEvent, date?: Date) => void;
+  onAdd: (date: string) => void;
+  onEdit: (calendarChange: CalendarEvent, date?: Date) => void;
   date: Date;
 };
 
@@ -20,7 +23,10 @@ export const CalendarChangeRow: React.FC<Props> = props => {
   const contracts = useContracts(props.orgId);
   const { t } = useTranslation();
 
-  if (props.calendarChange == undefined) {
+  if (
+    props.calendarChange == undefined ||
+    !props.calendarChange.calendarChangeReason
+  ) {
     return (
       <>
         <div className={classes.container}>
@@ -37,11 +43,34 @@ export const CalendarChangeRow: React.FC<Props> = props => {
               {t("No Events")}
             </Typography>
           </div>
+          <div className={classes.contracts}></div>
+          <Can do={[PermissionEnum.CalendarChangeSave]}>
+            <div className={classes.add}>
+              <Button
+                variant="outlined"
+                onClick={e => {
+                  e.stopPropagation();
+                  props.onAdd(props.date.toISOString());
+                }}
+              >
+                {t("ADD EVENT")}
+              </Button>
+            </div>
+          </Can>
         </div>
       </>
     );
   }
-
+  const formatDateRange = (startDate: string, endDate: string) => {
+    const sd = parseISO(startDate);
+    const ed = parseISO(endDate);
+    const sameMonth = format(sd, "MMM") === format(ed, "MMM");
+    if (sameMonth) {
+      return `${format(sd, "MMM d")} - ${format(ed, "d")}`;
+    } else {
+      return `${format(sd, "MMM d")} - ${format(ed, "MMM d")}`;
+    }
+  };
   const dateLabel =
     props.calendarChange.startDate == props.calendarChange.endDate
       ? format(parseISO(props.calendarChange.startDate!), "MMM d")
@@ -57,6 +86,13 @@ export const CalendarChangeRow: React.FC<Props> = props => {
           parseISO(props.calendarChange.endDate!),
           "EEE"
         )}`;
+  const descriptionLabel =
+    props.calendarChange.startDate !== props.calendarChange.endDate
+      ? `${props.calendarChange.description} (${formatDateRange(
+          props.calendarChange.startDate!,
+          props.calendarChange.endDate!
+        )})`
+      : props.calendarChange.description;
 
   const contractLabel =
     props.calendarChange.changedContracts?.length === 0
@@ -70,13 +106,15 @@ export const CalendarChangeRow: React.FC<Props> = props => {
   return (
     <div className={classes.container}>
       <div className={classes.dateContainer}>
-        <Typography className={classes.mainText}>{dateLabel}</Typography>
-        <Typography className={classes.subText}>{dayLabel}</Typography>
+        <Typography className={classes.mainText}>
+          {format(props.date, "MMM d")}
+        </Typography>
+        <Typography className={classes.subText}>
+          {format(props.date, "EEE")}
+        </Typography>
       </div>
       <div className={classes.notes}>
-        <Typography className={classes.mainText}>
-          {props.calendarChange.description}
-        </Typography>
+        <Typography className={classes.mainText}>{descriptionLabel}</Typography>
         <Typography className={classes.subText}>
           {props.calendarChange.calendarChangeReason?.name}
         </Typography>
@@ -84,6 +122,20 @@ export const CalendarChangeRow: React.FC<Props> = props => {
       <div className={classes.contracts}>
         <Typography className={classes.mainText}>{contractLabel}</Typography>
       </div>
+      <Can do={[PermissionEnum.CalendarChangeSave]}>
+        <div className={classes.edit}>
+          <Button
+            variant="outlined"
+            className={classes.edit}
+            onClick={e => {
+              e.stopPropagation();
+              props.onEdit(props.calendarChange, props.date);
+            }}
+          >
+            {t("EDIT")}
+          </Button>
+        </div>
+      </Can>
       <Can do={[PermissionEnum.CalendarChangeDelete]}>
         <div className={classes.delete}>
           <Button
@@ -91,7 +143,7 @@ export const CalendarChangeRow: React.FC<Props> = props => {
             className={classes.delete}
             onClick={e => {
               e.stopPropagation();
-              props.onDelete(props.calendarChange.id!);
+              props.onDelete(props.calendarChange);
             }}
           >
             {t("Delete")}
@@ -136,5 +188,12 @@ const useStyles = makeStyles(theme => ({
   delete: {
     flex: 3,
     color: theme.customColors.darkRed,
+  },
+  add: {
+    flex: 3,
+  },
+  edit: {
+    flex: 2,
+    marginRight: theme.spacing(1),
   },
 }));

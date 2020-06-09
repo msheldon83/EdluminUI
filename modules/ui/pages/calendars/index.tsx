@@ -48,6 +48,7 @@ import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
 import { ConvertApolloErrors } from "ui/components/error-helpers";
 import { Table } from "ui/components/table";
 import { CalendarEvent } from "./types";
+import { SplitCalendarChange } from "./graphql/split-calendar-change.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -89,6 +90,8 @@ export const Calendars: React.FC<Props> = props => {
   ] = useState(initialCalendarChange);
 
   const [selectedDate, setSelectedDate] = useState(today);
+
+  const [editSpecificDate, setEditSpecificDate] = useState(false);
 
   const getContractsWithoutSchedules = useQueryBundle(
     GetContractsWithoutSchedules,
@@ -163,6 +166,45 @@ export const Calendars: React.FC<Props> = props => {
         },
       });
       if (result && result.data) {
+        setEditSpecificDate(false);
+        await refectchCalendarChanges();
+        return true;
+      } else {
+        return false;
+      }
+    },
+    /* eslint-disable-line react-hooks/exhaustive-deps */ [
+      updateCalendarChangeMutation,
+    ]
+  );
+
+  const onSplitCalendarChange = useCallback(
+    async (
+      originalCalendarChangeId: string,
+      calendarChange: CalendarEvent,
+      forDelete?: boolean
+    ) => {
+      const createCalendar: CalendarChangeCreateInput = {
+        startDate: calendarChange.startDate,
+        endDate: calendarChange.endDate,
+        orgId: params.organizationId,
+        description: calendarChange.description,
+        calendarChangeReasonId: calendarChange.calendarChangeReasonId,
+        contractIds: calendarChange.contractIds as string[],
+        affectsAllContracts: calendarChange.affectsAllContracts ?? false,
+      };
+
+      const result = await splitCalendarChange({
+        variables: {
+          splitDetails: {
+            originalCalendarChangeId,
+            splitCalendarChange: createCalendar,
+            forDelete: forDelete ?? false,
+          },
+        },
+      });
+      if (result && result.data) {
+        setEditSpecificDate(false);
         await refectchCalendarChanges();
         return true;
       } else {
@@ -178,15 +220,35 @@ export const Calendars: React.FC<Props> = props => {
     DeleteCalendarChange
   );
 
-  const deleteCalendarChange = (calendarChangeId: string) => {
-    return deleteCalendarChangeMutation({
-      variables: {
-        calendarChangeId: calendarChangeId,
-      },
-    });
+  const deleteCalendarChange = async (
+    calendarChangeId: string,
+    date?: Date
+  ) => {
+    if (date) {
+      const changeToDelete: CalendarEvent = {
+        startDate: format(date, "MMM d, yyyy"),
+        endDate: format(date, "MMM d, yyyy"),
+        affectsAllContracts: true,
+      };
+      const result = await onSplitCalendarChange(
+        calendarChangeId,
+        changeToDelete,
+        true
+      );
+      return result;
+    } else {
+      return deleteCalendarChangeMutation({
+        variables: {
+          calendarChangeId: calendarChangeId,
+        },
+      });
+    }
   };
 
-  const onDeleteCalendarChange = async (calendarChangeId: string) => {
+  const onDeleteCalendarChange = async (
+    calendarChangeId: string,
+    date?: Date
+  ) => {
     await Promise.resolve(deleteCalendarChange(calendarChangeId));
     await refectchCalendarChanges();
   };
@@ -211,6 +273,12 @@ export const Calendars: React.FC<Props> = props => {
   };
 
   const [createCalendarChange] = useMutationBundle(CreateCalendarChange, {
+    onError: error => {
+      setErrorMessage(ConvertApolloErrors(error));
+    },
+  });
+
+  const [splitCalendarChange] = useMutationBundle(SplitCalendarChange, {
     onError: error => {
       setErrorMessage(ConvertApolloErrors(error));
     },
@@ -274,6 +342,7 @@ export const Calendars: React.FC<Props> = props => {
       },
     });
     if (result?.data?.calendarChange?.create !== undefined) {
+      setEditSpecificDate(false);
       await refectchCalendarChanges();
       return true;
     } else {
@@ -352,6 +421,24 @@ export const Calendars: React.FC<Props> = props => {
     schoolYear?.startDate
   ).getFullYear()} - ${parseISO(schoolYear?.endDate).getFullYear()}`;
 
+  const handleAddFromCalendar = (date: string) => {
+    setSelectedDateCalendarChanges({
+      startDate: date,
+      endDate: date,
+      affectsAllContracts: true,
+    });
+    setOpenEventDialog(true);
+  };
+
+  const handleEditFromCalendar = (
+    calendarChange: CalendarEvent,
+    date?: Date
+  ) => {
+    setEditSpecificDate(!!date);
+    setSelectedDateCalendarChanges(calendarChange);
+    setOpenEventDialog(true);
+  };
+
   return (
     <>
       <CalendarChangeEventDialog
@@ -362,8 +449,10 @@ export const Calendars: React.FC<Props> = props => {
           setOpenEventDialog(false);
           setErrorMessage("");
         }}
+        onSplit={onSplitCalendarChange}
         calendarChange={selectedDateCalendarChanges}
         errorMessage={errorMessage}
+        specificDate={editSpecificDate ? selectedDate : undefined}
       />
       <div>
         <Grid container alignItems="center" justify="space-between" spacing={2}>
@@ -402,6 +491,8 @@ export const Calendars: React.FC<Props> = props => {
                 calendarChange={selectedDateCalendarChanges}
                 onDelete={onDeleteCalendarChange}
                 date={selectedDate}
+                onAdd={handleAddFromCalendar}
+                onEdit={handleEditFromCalendar}
               />
             </Section>
           )}
@@ -579,7 +670,7 @@ const useStyles = makeStyles(theme => ({
   sticky: {
     position: "sticky",
     top: 0,
-    zIndex: 400,
+    zIndex: 1001,
     backgroundColor: theme.customColors.appBackgroundGray,
 
     boxShadow: `0 ${theme.typography.pxToRem(32)} ${theme.typography.pxToRem(

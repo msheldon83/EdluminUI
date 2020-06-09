@@ -11,6 +11,7 @@ import { parseISO, eachDayOfInterval, format } from "date-fns";
 import { groupBy, range } from "lodash-es";
 import { useState } from "react";
 import { CalendarEvent } from "../types";
+import { EditSignleDayDialog } from "./edit-single-day-dialog";
 
 type Props = {
   calandarChangeDates: any[];
