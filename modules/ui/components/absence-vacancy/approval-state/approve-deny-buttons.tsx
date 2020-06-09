@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 import { Button, makeStyles } from "@material-ui/core";
 import { useMutationBundle } from "graphql/hooks";
 import { Approve } from "ui/components/absence-vacancy/approval-state/graphql/approve.gen";
@@ -23,10 +24,11 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
+  const approvalStatus = props.approvalStatus;
+  const currentApproverGroupHeaderId = props.currentApproverGroupHeaderId;
+
   const userAccess = useMyUserAccess();
   const myApproverGroupHeaders = useMyApproverGroupHeaders();
-
-  console.log(props.currentApproverGroupHeaderId);
 
   const [approve] = useMutationBundle(Approve, {
     onError: error => {
@@ -66,26 +68,25 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
     }
   };
 
-  // Sys Admins are unable to approve or deny unless impersonating
-  if (userAccess?.isSysAdmin) {
-    return <></>;
-  }
+  const showButtons = useMemo(() => {
+    // Sys Admins are unable to approve or deny unless impersonating
+    if (userAccess?.isSysAdmin) return false;
 
-  // If the state is not pending, it has already been approved or denied
-  if (props.approvalStatus !== ApprovalStatus.Pending) {
-    return <></>;
-  }
+    // If the state is not pending, it has already been approved or denied
+    if (approvalStatus !== ApprovalStatus.Pending) return false;
 
-  // If I'm not a member of the current group that needs to approve, don't show these buttons
-  if (
-    !myApproverGroupHeaders.find(
-      x => x.id === props.currentApproverGroupHeaderId
-    )
-  ) {
-    return <></>;
-  }
+    // If I'm a member of the current group that needs to approve, show the buttons
+    if (myApproverGroupHeaders.find(x => x.id === currentApproverGroupHeaderId))
+      return true;
+    return false;
+  }, [
+    approvalStatus,
+    myApproverGroupHeaders,
+    currentApproverGroupHeaderId,
+    userAccess,
+  ]);
 
-  return (
+  return showButtons ? (
     <div className={classes.container}>
       <Button
         className={classes.denyButton}
@@ -102,6 +103,8 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
         {t("Approve")}
       </Button>
     </div>
+  ) : (
+    <></>
   );
 };
 

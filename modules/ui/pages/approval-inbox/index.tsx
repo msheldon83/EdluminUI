@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Grid, makeStyles, Divider } from "@material-ui/core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { InboxItem } from "./components/inbox-item";
@@ -11,11 +11,14 @@ import { compact } from "lodash-es";
 import { GetPendingApprovalItems } from "./graphql/get-pending-items.gen";
 import { GetPreviousApprovalDecisions } from "./graphql/get-previous-decisions.gen";
 import { SelectedDetail } from "./components/selected-detail";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 export const ApprovalInbox: React.FC<{}> = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const params = useRouteParams(ApprovalInboxRoute);
+
+  const userAccess = useMyUserAccess();
 
   const [selected, setSelected] = useState<{
     id: string;
@@ -48,11 +51,13 @@ export const ApprovalInbox: React.FC<{}> = () => {
   });
 
   const onApprove = async () => {
+    setSelected(null);
     await getPendingApprovalItems.refetch();
     await getPreviousDecisions.refetch();
   };
 
   const onDeny = async () => {
+    setSelected(null);
     await getPendingApprovalItems.refetch();
     await getPreviousDecisions.refetch();
   };
@@ -70,7 +75,7 @@ export const ApprovalInbox: React.FC<{}> = () => {
       : [];
 
   useEffect(() => {
-    if (pendingVacancies.length > 0) {
+    if (pendingVacancies.length > 0 && !selected) {
       setSelected({
         id: pendingVacancies[0].isNormalVacancy
           ? pendingVacancies[0].id
@@ -78,66 +83,108 @@ export const ApprovalInbox: React.FC<{}> = () => {
         isNormalVacancy: pendingVacancies[0].isNormalVacancy,
       });
     }
-  }, [pendingVacancies]);
+  }, [pendingVacancies, selected]);
 
   return (
     <>
       <div className={classes.header}>{t("Approvals")}</div>
       <Section>
-        <Grid container spacing={2}>
-          <Grid item container xs={6} spacing={2}>
-            <Grid item xs={12}>
-              <div className={classes.subTitle}>{t("Inbox")}</div>
+        {userAccess?.isSysAdmin ? (
+          <div className={classes.subTitle}>
+            {t(
+              "Please impersonate a district admin to approve absences and vacancies."
+            )}
+          </div>
+        ) : (
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <div className={classes.subTitle}>{t("Inbox")}</div>
+                </Grid>
+                {getPendingApprovalItems.state === "LOADING" ? (
+                  <Grid item xs={12}>
+                    {t("Loading")}
+                  </Grid>
+                ) : (
+                  <Grid item xs={12}>
+                    {pendingVacancies.map((v, i) => {
+                      return (
+                        <InboxItem
+                          key={i}
+                          orgId={params.organizationId}
+                          isSelected={checkIfSelected(
+                            v.isNormalVacancy,
+                            v.id,
+                            v.absenceId ?? undefined
+                          )}
+                          setSelected={setSelected}
+                          vacancy={v}
+                          approvalState={
+                            v.isNormalVacancy
+                              ? v.approvalState
+                              : v.absence?.approvalState
+                          }
+                        />
+                      );
+                    })}
+                  </Grid>
+                )}
+
+                <Grid item xs={12}>
+                  <Divider />
+                </Grid>
+                <Grid item xs={12}>
+                  <div className={classes.subTitle}>
+                    {t("Previous decisions")}
+                  </div>
+                </Grid>
+                {getPreviousDecisions.state === "LOADING" ? (
+                  <Grid item xs={12}>
+                    {t("Loading")}
+                  </Grid>
+                ) : (
+                  <Grid item xs={12}>
+                    {previousDecisions.map((v, i) => {
+                      return (
+                        <InboxItem
+                          key={i}
+                          orgId={params.organizationId}
+                          isSelected={checkIfSelected(
+                            v.isNormalVacancy,
+                            v.id,
+                            v.absenceId ?? undefined
+                          )}
+                          setSelected={setSelected}
+                          vacancy={v}
+                          approvalState={
+                            v.isNormalVacancy
+                              ? v.approvalState
+                              : v.absence?.approvalState
+                          }
+                          isPrevious={true}
+                          decisions={
+                            v.isNormalVacancy
+                              ? v.approvalState?.decisions
+                              : v.absence?.approvalState?.decisions
+                          }
+                        />
+                      );
+                    })}
+                  </Grid>
+                )}
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              {pendingVacancies.map((v, i) => {
-                return (
-                  <InboxItem
-                    key={i}
-                    isSelected={checkIfSelected(
-                      v.isNormalVacancy,
-                      v.id,
-                      v.absenceId ?? undefined
-                    )}
-                    setSelected={setSelected}
-                    vacancy={v}
-                  />
-                );
-              })}
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12}>
-              <div className={classes.subTitle}>{t("Previous decisions")}</div>
-            </Grid>
-            <Grid item xs={12}>
-              {previousDecisions.map((v, i) => {
-                return (
-                  <InboxItem
-                    key={i}
-                    isSelected={checkIfSelected(
-                      v.isNormalVacancy,
-                      v.id,
-                      v.absenceId ?? undefined
-                    )}
-                    setSelected={setSelected}
-                    vacancy={v}
-                    isPrevious={true}
-                  />
-                );
-              })}
+            <Grid item xs={6}>
+              <SelectedDetail
+                orgId={params.organizationId}
+                selectedItem={selected}
+                onApprove={onApprove}
+                onDeny={onDeny}
+              />
             </Grid>
           </Grid>
-          <Grid item container xs={6}>
-            <SelectedDetail
-              orgId={params.organizationId}
-              selectedItem={selected}
-              onApprove={onApprove}
-              onDeny={onDeny}
-            />
-          </Grid>
-        </Grid>
+        )}
       </Section>
     </>
   );

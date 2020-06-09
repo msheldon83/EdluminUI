@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles, Divider } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
@@ -9,7 +9,7 @@ import { useApproverGroups } from "ui/components/domain-selects/approver-group-s
 import { GetApprovalWorkflowById } from "ui/components/absence-vacancy/approval-state/graphql/get-approval-workflow-steps-by-id.gen";
 import { VacancyDetails } from "ui/components/absence-vacancy/approval-state/vacancy-details";
 import { AbsenceDetails } from "ui/components/absence-vacancy/approval-state/absence-details";
-import { compact, groupBy, flatMap } from "lodash-es";
+import { compact, groupBy, flatMap, round } from "lodash-es";
 import { Context } from "ui/components/absence-vacancy/approval-state/context";
 import { GetVacancyById } from "ui/pages/vacancy/graphql/get-vacancy-byid.gen";
 import { GetAbsence } from "ui/pages/edit-absence/graphql/get-absence.gen";
@@ -66,15 +66,13 @@ export const SelectedDetail: React.FC<Props> = props => {
       ? getApprovalWorkflow.data.approvalWorkflow?.byId
       : null;
 
-  const currentApproverGroupHeaderId = useMemo(() => {
-    console.log("update memod headerId");
-    return approvalWorkflow?.steps.find(
-      x => x.stepId == approvalState?.currentStepId
-    )?.approverGroupHeaderId;
-  }, [approvalWorkflow, approvalState]);
-
-  console.log(approvalState?.currentStepId);
-  console.log(currentApproverGroupHeaderId);
+  const currentApproverGroupHeaderId = useMemo(
+    () =>
+      approvalWorkflow?.steps.find(
+        x => x.stepId == approvalState?.currentStepId
+      )?.approverGroupHeaderId,
+    [approvalWorkflow, approvalState]
+  );
 
   const approverGroups = useApproverGroups(props.orgId);
 
@@ -92,14 +90,17 @@ export const SelectedDetail: React.FC<Props> = props => {
             absenceReasonId: absenceReasonId,
             absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
             absenceReasonName: usages[0].absenceReason?.name,
-            totalAmount: usages.reduce((m, v) => m + v.amount, 0),
+            totalAmount: round(
+              usages.reduce((m, v) => m + v.amount, 0),
+              2
+            ),
           }))
         : [],
     [absence]
   );
 
   return props.selectedItem ? (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} className={classes.backgroundContainer}>
       <Grid item container alignItems="center" justify="flex-end" xs={12}>
         <ApproveDenyButtons
           approvalStateId={approvalState?.id ?? ""}
@@ -124,6 +125,9 @@ export const SelectedDetail: React.FC<Props> = props => {
         </Grid>
       )}
       <Grid item xs={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={12}>
         <WorkflowSummary
           approverGroups={approverGroups}
           currentStepId={approvalState?.currentStepId ?? ""}
@@ -137,6 +141,9 @@ export const SelectedDetail: React.FC<Props> = props => {
           comments={approvalState?.comments ?? []}
           decisions={approvalState?.decisions ?? []}
         />
+      </Grid>
+      <Grid item xs={12}>
+        <Divider />
       </Grid>
       {!props.selectedItem?.isNormalVacancy && absence && (
         <Grid item xs={12}>
@@ -179,5 +186,9 @@ const useStyles = makeStyles(theme => ({
   denyButton: {
     background: "#FF5555",
     marginRight: theme.spacing(1),
+  },
+  backgroundContainer: {
+    background: "#F8F8F8",
+    borderRadius: "4px",
   },
 }));

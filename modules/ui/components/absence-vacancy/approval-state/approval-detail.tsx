@@ -17,7 +17,7 @@ import { useApproverGroups } from "ui/components/domain-selects/approver-group-s
 import { GetApprovalWorkflowById } from "./graphql/get-approval-workflow-steps-by-id.gen";
 import { VacancyDetails } from "./vacancy-details";
 import { AbsenceDetails } from "./absence-details";
-import { compact, groupBy, flatMap } from "lodash-es";
+import { compact, groupBy, flatMap, round } from "lodash-es";
 import { Context } from "./context";
 import { ApproveDenyButtons } from "./approve-deny-buttons";
 
@@ -133,7 +133,10 @@ export const ApprovalDetail: React.FC<Props> = props => {
             absenceReasonId: absenceReasonId,
             absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
             absenceReasonName: usages[0].absenceReason?.name,
-            totalAmount: usages.reduce((m, v) => m + v.amount, 0),
+            totalAmount: round(
+              usages.reduce((m, v) => m + v.amount, 0),
+              2
+            ),
           }))
         : [],
     [absence]

@@ -15,7 +15,7 @@ import {
 import { useAllSchoolYears } from "reference-data/school-years";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { compact } from "lodash-es";
+import { compact, round } from "lodash-es";
 
 type Props = {
   orgId: string;
@@ -112,7 +112,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
       x => x.absenceReasonId === absenceReasonId
     );
     return balance
-      ? `${balance?.unusedBalance} ${getUnitText(
+      ? `${round(balance?.unusedBalance, 2)} ${getUnitText(
           balance?.absenceReasonTrackingTypeId ??
             AbsenceReasonTrackingTypeId.Invalid,
           balance?.unusedBalance

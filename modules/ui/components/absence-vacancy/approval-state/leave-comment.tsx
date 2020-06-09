@@ -61,6 +61,7 @@ export const LeaveComment: React.FC<Props> = props => {
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           setComment(e.target.value);
         }}
+        className={classes.commentBox}
       />
       <div className={classes.buttonContainer}>
         {!props.actingAsEmployee && (
@@ -102,5 +103,8 @@ const useStyles = makeStyles(theme => ({
     top: 0,
     right: 0,
     position: "absolute",
+  },
+  commentBox: {
+    background: theme.customColors.white,
   },
 }));

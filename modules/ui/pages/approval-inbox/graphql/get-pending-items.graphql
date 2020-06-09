@@ -18,7 +18,21 @@ query GetPendingApprovalItems($orgId: ID!) {
           name
         }
       }
+      approvalState {
+        id
+        changedLocal
+        comments {
+          id
+        }
+      }
       absence {
+        approvalState {
+          id
+          changedLocal
+          comments {
+            id
+          }
+        }
         employee {
           id
           firstName

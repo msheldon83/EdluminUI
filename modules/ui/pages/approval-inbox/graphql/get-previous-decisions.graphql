@@ -19,7 +19,31 @@ query GetPreviousApprovalDecisions($orgId: ID!) {
             name
           }
         }
+        approvalState {
+          id
+          changedLocal
+          comments {
+            id
+          }
+          decisions {
+            id
+            createdUtc
+            actingOrgUserId
+          }
+        }
         absence {
+          approvalState {
+            id
+            changedLocal
+            comments {
+              id
+            }
+            decisions {
+              id
+              createdUtc
+              actingOrgUserId
+            }
+          }
           employee {
             id
             firstName

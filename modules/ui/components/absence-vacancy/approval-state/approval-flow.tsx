@@ -137,7 +137,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
     <div className={classes.container}>
       {approvedSteps.length > 0 && renderApprovedSteps()}
       {pendingStep && renderPendingStep()}
-      {nextSteps.length > 0 && renderNextSteps()}
+      {nextSteps.length > 1 && renderNextSteps()}
     </div>
   );
 };
