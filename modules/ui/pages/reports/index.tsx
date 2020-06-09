@@ -11,6 +11,7 @@ import {
   AnalyticsReportsSubHistoryRoute,
   AnalyticsReportsEmployeeRosterRoute,
   AnalyticsReportsSubstituteRosterRoute,
+  AnalyticsReportsPayrollRoute,
 } from "ui/routes/analytics-reports";
 import { BaseLink, pickUrl } from "ui/components/links/base";
 import { CanDo } from "ui/components/auth/types";
@@ -59,6 +60,11 @@ export const ReportsPage: React.FC<Props> = props => {
         {
           name: t("Substitute History"),
           url: () => AnalyticsReportsSubHistoryRoute.generate(params),
+          permission: PermissionEnum.ReportsAbsVacSchema,
+        },
+        {
+          name: t("Payroll"),
+          url: () => AnalyticsReportsPayrollRoute.generate(params),
           permission: PermissionEnum.ReportsAbsVacSchema,
         },
       ],
