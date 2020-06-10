@@ -128,7 +128,7 @@ export const Calendars: React.FC<Props> = props => {
       : true;
 
   const calendarChanges = useMemo(() => {
-    return getCalendarChanges.state === "LOADING"
+    return !getCalendarChanges || getCalendarChanges.state === "LOADING"
       ? []
       : compact(getCalendarChanges?.data?.calendarChange?.paged?.results ?? []);
     // eslint-disable-next-line react-hooks/exhaustive-deps

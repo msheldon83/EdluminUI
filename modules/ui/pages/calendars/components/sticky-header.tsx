@@ -50,14 +50,18 @@ export const StickyHeader: React.FC<Props> = props => {
           props.onEdit(props.calendarChange);
         }}
         onDeleteDay={async () => {
-          await props.onDelete(props.calendarChange?.id!, props.date);
-          setDialogForDelete(false);
-          setEditDialogOpen(false);
+          if (props.calendarChange?.id) {
+            await props.onDelete(props.calendarChange?.id, props.date);
+            setDialogForDelete(false);
+            setEditDialogOpen(false);
+          }
         }}
         onDeleteEvent={async () => {
-          await props.onDelete(props.calendarChange?.id!);
-          setDialogForDelete(false);
-          setEditDialogOpen(false);
+          if (props.calendarChange?.id) {
+            await props.onDelete(props.calendarChange?.id);
+            setDialogForDelete(false);
+            setEditDialogOpen(false);
+          }
         }}
         date={props.date}
         forDelete={dialogForDelete}
