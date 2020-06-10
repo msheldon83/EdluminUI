@@ -131,7 +131,6 @@ export const CalendarChangeRow: React.FC<Props> = props => {
                 variant="outlined"
                 className={classes.delete}
                 onClick={async e => {
-                  console.log("here");
                   e.stopPropagation();
                   setIsDeleting(true);
                   await props.onDelete(props.calendarChange);
