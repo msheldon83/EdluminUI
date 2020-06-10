@@ -138,11 +138,7 @@ export const VacancyView: React.FC<Props> = props => {
                 onClick: () => {
                   history.push(VacancyActivityLogRoute.generate(params));
                 },
-                permissions: (
-                  permissions: OrgUserPermissions[],
-                  isSysAdmin: boolean,
-                  orgId?: string
-                ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+                permissions: [PermissionEnum.AbsVacView],
               },
               {
                 name: t("Notification Log"),
