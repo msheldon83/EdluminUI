@@ -401,6 +401,8 @@ const useStyles = makeStyles(theme => ({
     textOverflow: "ellipsis",
     overflow: "hidden",
     whiteSpace: "nowrap",
+    position: "relative",
+    zIndex: 201,
   },
   arrowDownIcon: {
     color: theme.customColors.edluminSubText,

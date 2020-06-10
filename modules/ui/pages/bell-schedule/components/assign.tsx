@@ -4,17 +4,17 @@ import {
   LocationGroup,
   PermissionEnum,
 } from "graphql/server-types.gen";
-import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationGroups } from "reference-data/location-groups";
 import { useLocations } from "reference-data/locations";
 import { ActionButtons } from "ui/components/action-buttons";
-import { ChipInputAutoSuggest } from "ui/components/chip-input-autosuggest";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Can } from "ui/components/auth/can";
 import { useMemo } from "react";
+import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { LocationSelect } from "ui/components/reference-selects/location-select";
 
 type Props = {
   locationsAssigned: Pick<Location, "id" | "name">[];
@@ -31,14 +31,15 @@ type Props = {
 export const Assign: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const isMobile = useIsMobile();
+
   const [locationIds, setLocationIds] = React.useState<string[]>(
     props.locationsAssigned.map(l => l.id)
   );
   const [locationGroupIds, setLocationGroupIds] = React.useState<string[]>(
     props.locationGroupsAssigned.map(l => l.id)
   );
-  const locations = useLocations(props.organizationId);
+
+  const locations = useLocations(props.organizationId) ?? [];
   const locationGroups = useLocationGroups(props.organizationId);
 
   const defaultLocationSelections = useMemo(() => {
@@ -46,24 +47,31 @@ export const Assign: React.FC<Props> = props => {
       return { text: l.name, value: l.id };
     });
   }, [props.locationsAssigned]);
-  const locationDataSource = useMemo(() => {
-    const data = locations.map((l: Pick<Location, "id" | "name">) => {
-      return { text: l.name, value: l.id };
-    });
-    return data;
-  }, [locations]);
 
   const defaultLocationGroupSelections = useMemo(() => {
     return props.locationGroupsAssigned.map(l => {
       return { text: l.name, value: l.id };
     });
   }, [props.locationGroupsAssigned]);
-  const locationGroupDataSource = useMemo(() => {
-    const data = locationGroups.map((l: Pick<LocationGroup, "id" | "name">) => {
-      return { text: l.name, value: l.id };
-    });
-    return data;
-  }, [locationGroups]);
+
+  const groupsOptions: OptionType[] = React.useMemo(
+    () =>
+      locationGroups.map(l => ({
+        label: l.name,
+        value: l.id,
+      })),
+    [locationGroups]
+  );
+
+  const groupsValue = React.useMemo(
+    () =>
+      locationGroupIds.reduce((values: OptionType[], id: string | number) => {
+        const value = groupsOptions.find(l => l.value === id);
+
+        return value ? values.concat(value) : values;
+      }, []),
+    [groupsOptions, locationGroupIds]
+  );
 
   if (
     !locations ||
@@ -80,14 +88,14 @@ export const Assign: React.FC<Props> = props => {
       <Grid container spacing={2} className={classes.assignSection}>
         <Can do={[PermissionEnum.ScheduleSettingsSave]}>
           <Grid item xs={5}>
-            <ChipInputAutoSuggest
+            <LocationSelect
               label={t("Schools")}
-              defaultSelections={defaultLocationSelections}
-              dataSource={locationDataSource}
-              onChange={selections => {
-                setLocationIds(selections.map(s => s.value));
-              }}
-              fullWidth
+              orgId={props.organizationId}
+              selectedLocationIds={locationIds}
+              setSelectedLocationIds={ids =>
+                ids ? setLocationIds(ids) : setLocationIds([])
+              }
+              includeAllOption={false}
             />
           </Grid>
         </Can>
@@ -101,14 +109,14 @@ export const Assign: React.FC<Props> = props => {
         </Can>
         <Can do={[PermissionEnum.ScheduleSettingsSave]}>
           <Grid item xs={5}>
-            <ChipInputAutoSuggest
+            <Select
               label={t("Groups")}
-              defaultSelections={defaultLocationGroupSelections}
-              dataSource={locationGroupDataSource}
+              options={groupsOptions}
+              multiple
+              value={groupsValue}
               onChange={selections => {
-                setLocationGroupIds(selections.map(s => s.value));
+                setLocationGroupIds(selections.map(s => s.value as string));
               }}
-              fullWidth
             />
           </Grid>
         </Can>

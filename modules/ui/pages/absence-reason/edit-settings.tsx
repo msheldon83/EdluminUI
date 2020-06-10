@@ -59,7 +59,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
     if (getAbsenceReason.state !== "DONE") {
       return;
     }
-    const reason = getAbsenceReason.data.orgRef_AbsenceReason?.byId!;
+    const reason = getAbsenceReason.data.orgRef_AbsenceReason!.byId!;
     const {
       allowNegativeBalance,
       description,
@@ -96,7 +96,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
   ) {
     return <></>;
   }
-  const absenceReason = getAbsenceReason.data.orgRef_AbsenceReason?.byId!;
+  const absenceReason = getAbsenceReason.data.orgRef_AbsenceReason!.byId!;
 
   return (
     <>

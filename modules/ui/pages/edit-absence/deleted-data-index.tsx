@@ -43,8 +43,8 @@ export const DeletedDataIndex: React.FC<Props> = props => {
   const message = t(
     `This absence, originally scheduled for ${formattedDate} has been declined`
   );
-  const subHeader = deletedAbsence?.firstName + " " + deletedAbsence?.lastName;
-  const header = t("Absence #") + deletedAbsence?.id;
+  const subHeader = `${deletedAbsence?.firstName} ${deletedAbsence?.lastName}`;
+  const header = `${t("Absence #")}${deletedAbsence?.id}`;
 
   return (
     <DeletedData message={message} header={header} subHeader={subHeader} />

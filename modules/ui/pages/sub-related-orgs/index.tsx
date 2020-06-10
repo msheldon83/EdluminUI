@@ -96,10 +96,10 @@ export const SubRelatedOrgsEditPage: React.FC<{}> = props => {
       o =>
         `${
           o?.endorsement.validUntil < new Date("6/6/2079")
-            ? o?.endorsement.name +
-              t(" (Expires ") +
-              format(parseISO(o?.endorsement.validUntil), "MMM, d, yyyy") +
-              t(")")
+            ? `${o?.endorsement.name} (${t("Expires")} ${format(
+                parseISO(o?.endorsement.validUntil),
+                "MMM, d, yyyy"
+              )})`
             : o?.endorsement.name
             ? o.endorsement.name
             : t("Substitute has no Attributes")

@@ -30,7 +30,7 @@ export const SubPool: React.FC<Props> = props => {
     return <></>;
   }
   const substitute = getSubstituteById?.data?.orgUser?.byId?.substitute;
-  const fullName = substitute?.firstName + " " + substitute?.lastName;
+  const fullName = `${substitute?.firstName} ${substitute?.lastName}`;
 
   //Query for Favorites & Blocked
   const favorites = substitute?.substitutePoolMembership?.favoriteForEmployees;

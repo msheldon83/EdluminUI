@@ -57,7 +57,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const absenceReason = result.data.orgRef_AbsenceReason?.byId!;
+  const absenceReason = result.data.orgRef_AbsenceReason!.byId!;
 
   const updateAbsenceReason = async (values: {
     name?: string | null;

@@ -63,7 +63,7 @@ export const AbsenceReasonCategoryViewEditPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const absenceReasonCategory = result.data.orgRef_AbsenceReasonCategory?.byId!;
+  const absenceReasonCategory = result.data.orgRef_AbsenceReasonCategory!.byId!;
 
   const updateAbsenceReason = (values: {
     name?: string | null;

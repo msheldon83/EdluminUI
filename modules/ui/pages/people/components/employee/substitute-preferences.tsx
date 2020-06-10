@@ -49,7 +49,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
                 <div>{t("Not defined")}</div>
               ) : (
                 favoriteEmployees?.map((n, i) => (
-                  <div key={i}>{n?.firstName + " " + n?.lastName}</div>
+                  <div key={i}>{`${n?.firstName} ${n?.lastName}`}</div>
                 ))
               )}
             </Grid>
@@ -61,7 +61,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
                 <div>{t("Not defined")}</div>
               ) : (
                 blockedEmployees?.map((n, i) => (
-                  <div key={i}>{n?.firstName + " " + n?.lastName}</div>
+                  <div key={i}>{`${n?.firstName} ${n?.lastName}`}</div>
                 ))
               )}
             </Grid>

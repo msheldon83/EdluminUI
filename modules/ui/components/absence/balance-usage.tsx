@@ -85,7 +85,7 @@ export const BalanceUsage: React.FC<Props> = props => {
     const trackingType = usages[0].absenceReasonTrackingTypeId;
     const amount = usages.reduce((m, v) => m + v.amount, 0);
     const negativeWarning =
-      balance.usedBalance + amount > balance.initialBalance &&
+      (balance.usedBalance as number) + amount > balance.initialBalance &&
       !balance.absenceReason?.allowNegativeBalance;
     const remainingBalance = balance.netBalance - amount;
     return { name, trackingType, amount, negativeWarning, remainingBalance };
@@ -108,7 +108,8 @@ export const BalanceUsage: React.FC<Props> = props => {
     const trackingType = usages[0].absenceReasonTrackingTypeId;
     const amount = usages.reduce((m, v) => m + v.amount, 0);
     const negativeWarning =
-      categoryBalance.usedBalance + amount > categoryBalance.initialBalance &&
+      (categoryBalance.usedBalance as number) + amount >
+        categoryBalance.initialBalance &&
       !categoryBalance.absenceReasonCategory?.allowNegativeBalance;
     const remainingBalance = categoryBalance.netBalance - amount;
     return { name, trackingType, amount, negativeWarning, remainingBalance };
