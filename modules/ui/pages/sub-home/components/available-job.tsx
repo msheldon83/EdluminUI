@@ -240,7 +240,7 @@ export const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
     flex: props.viewingAsAdmin ? 5 : 3,
-    flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
+    flexDirection: props.isMobile ? ("column" as const) : ("row" as const),
   }),
 
   actionContainer: (props: StyleProps) => ({
@@ -249,8 +249,8 @@ export const useStyles = makeStyles(theme => ({
     alignItems: "center",
     flex: 1,
     flexDirection: props.isMobile
-      ? ("column-reverse" as "column-reverse")
-      : ("row" as "row"),
+      ? ("column-reverse" as const)
+      : ("row" as const),
   }),
   rowContainer: {
     display: "flex",
