@@ -958,6 +958,7 @@ type ApproverGroupQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApproverGroupHeader
   groupById(approverGroupId: ID!): ApproverGroup
   groupsByLocationId(locationId: ID!): [ApproverGroup]
+  myApproverGroupHeaders: [ApproverGroupHeader]
 }
 
 input ApproverGroupRemoveMemberInput {
@@ -2439,6 +2440,7 @@ enum EventType {
   EMPLOYEES_REMOVED_FROM_REPLACEMENT_POOL
   REPLACEMENT_POOL_MEMBER_ADDED
   REPLACEMENT_POOL_MEMBER_REMOVED
+  REPLACEMENT_POOL_MEMBER_UPDATED
   REPLACEMENT_CRITERIA_CONFIG_CREATED
   REPLACEMENT_CRITERIA_CONFIG_UPDATED
   REPLACEMENT_CRITERIA_CONFIG_DELETED
@@ -3025,6 +3027,7 @@ enum ObjectType {
   REPLACEMENT_POOL
   REPLACEMENT_CRITERIA_CONFIG
   REPLACEMENT_CRITERIA
+  REPLACEMENT_POOL_MEMBER
   EMPLOYEE
   ASSIGNMENT
   ABSENCE
@@ -5350,7 +5353,15 @@ type ReplacementPoolMember implements ModelObjectInterface & OrgObjectInterface 
   deletedLocal: DateTime
   replacementPoolId: ID!
   employeeId: ID!
+  adminNote: String
   employee: BasicEmployee
+}
+
+input ReplacementPoolMemberUpdateInput {
+  id: ID!
+  employeeId: ID
+  replacementPoolId: ID
+  adminNote: String
 }
 
 type ReplacementPoolMutations {
@@ -5358,6 +5369,7 @@ type ReplacementPoolMutations {
   update(replacementPool: ReplacementPoolUpdateInput!): ReplacementPool
   delete(replacementPoolId: ID!): Boolean
   addMembers(replacementPoolMember: ReplacementPoolAddEmployeesInput!): ReplacementPool
+  updateMember(replacementPoolMember: ReplacementPoolMemberUpdateInput!): ReplacementPoolMember
   removeMembers(replacementPoolMember: ReplacementPoolRemoveEmployeesInput!): ReplacementPool
 }
 
