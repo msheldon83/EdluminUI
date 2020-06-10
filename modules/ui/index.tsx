@@ -716,7 +716,8 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={AbsenceActivityLogLoader}
                                       path={AbsenceActivityLogRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       component={CreateAbsenceLoader}
@@ -733,7 +734,8 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={VacancyActivityLogLoader}
                                       path={VacancyActivityLogRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}
