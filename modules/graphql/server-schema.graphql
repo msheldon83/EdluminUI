@@ -5359,8 +5359,8 @@ type ReplacementPoolMember implements ModelObjectInterface & OrgObjectInterface 
 
 input ReplacementPoolMemberUpdateInput {
   id: ID!
-  employeeId: ID
-  replacementPoolId: ID
+  employeeId: ID!
+  replacementPoolId: ID!
   adminNote: String
 }
 
