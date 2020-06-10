@@ -38,7 +38,7 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
             const { innerRef } = provided;
 
             return (
-              <div {...provided.droppableProps} ref={innerRef} >
+              <div {...provided.droppableProps} ref={innerRef}>
                 {props.periods.map((p, i) => {
                   const periodClasses = [props.scheduleClasses.period];
                   if (i % 2 === 1) {
@@ -61,11 +61,17 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
                         className={classes.startOfAfternoonChip}
                         label={t("Start of afternoon")}
                       />
+                      {provided.placeholder}
                     </div>
                   );
 
                   return (
-                    <div key={i} className={periodClasses.join(" ")}>
+                    <div
+                      key={i}
+                      className={`${periodClasses.join(" ")} ${
+                        classes.chipWrapper
+                      }`}
+                    >
                       {!p.skipped && (
                         <>
                           <Can do={[PermissionEnum.ScheduleSettingsSave]}>
@@ -117,14 +123,21 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   startOfAfternoon: {
-    flexGrow: 2,
     textAlign: "right",
-    paddingRight: theme.spacing(),
+    width: "auto",
+    display: "block",
   },
   startOfAfternoonChip: {
     background: "#ECF9F3",
     color: "#00C853",
     cursor: "grab",
+
+    "&:active": {
+      cursor: "grabbing",
+    },
+  },
+  chipWrapper: {
+    justifyContent: "flex-end !important",
   },
 }));
 
