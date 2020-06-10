@@ -30,7 +30,7 @@ export const EmployeeList: React.FC<Props> = props => {
             ) : (
               props.peopleList?.map((n, i) => (
                 <div key={i}>
-                  <b>{n?.firstName + " " + n?.lastName}</b>
+                  <b>{`${n?.firstName} ${n?.lastName}`}</b>
                 </div>
               ))
             )}

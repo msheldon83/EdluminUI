@@ -88,7 +88,7 @@ export const OtherContext: React.FC<Props> = props => {
                       <Grid item xs={5}>
                         {v?.isNormalVacancy
                           ? v?.details[0]?.vacancyReason?.name
-                          : v?.absence?.details![0]!.reasonUsages![0]!
+                          : v.absence!.details![0]!.reasonUsages![0]!
                               .absenceReason?.name}
                       </Grid>
                     </Grid>

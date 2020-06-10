@@ -132,11 +132,11 @@ type StyleProps = {
 const useStyles = makeStyles(theme => ({
   selectContainer: (props: StyleProps) => ({
     display: "flex",
-    flexDirection: props.isMobile ? ("column" as "column") : ("row" as "row"),
+    flexDirection: props.isMobile ? ("column" as const) : ("row" as const),
   }),
   select: (props: StyleProps) => ({
     display: "flex",
-    flexDirection: "column" as "column",
+    flexDirection: "column" as const,
     minWidth: theme.typography.pxToRem(props.isMobile ? 125 : 225),
   }),
   fromSelect: {

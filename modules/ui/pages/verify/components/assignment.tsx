@@ -391,10 +391,13 @@ export const Assignment: React.FC<Props> = props => {
                 <Link
                   className={classes.boldText}
                   onClick={() =>
-                    props.goToEdit(vacancyDetail.vacancy!.id,
-                                   vacancyDetail.vacancy!.absence?.id)
+                    props.goToEdit(
+                      vacancyDetail.vacancy!.id,
+                      vacancyDetail.vacancy!.absence?.id
+                    )
                   }
-                >{`
+                >
+                  {`
                  #C${vacancyDetail.assignment!.id}`}
                 </Link>
               </Grid>

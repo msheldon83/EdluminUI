@@ -57,8 +57,8 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
     if (getAbsenceReasonCategory.state !== "DONE") {
       return;
     }
-    const reason = getAbsenceReasonCategory.data.orgRef_AbsenceReasonCategory
-      ?.byId!;
+    const reason = getAbsenceReasonCategory.data.orgRef_AbsenceReasonCategory!
+      .byId!;
     const {
       allowNegativeBalance,
       description,
@@ -89,7 +89,7 @@ export const AbsenceReasonCategoryEditSettingsPage: React.FC<Props> = () => {
     return <></>;
   }
   const absenceReasonCategory = getAbsenceReasonCategory.data
-    .orgRef_AbsenceReasonCategory?.byId!;
+    .orgRef_AbsenceReasonCategory!.byId!;
 
   return (
     <>

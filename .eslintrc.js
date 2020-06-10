@@ -54,6 +54,11 @@ module.exports = {
             message: "Use FunctionComponent instead",
             fixWith: "React.FunctionComponent",
           },
+          // These might be things we should remove,
+          // but it'd be a lot of work, so I'm disabling them for now
+          "{}": false,
+          Function: false,
+          object: false,
         },
       },
     ],
@@ -90,6 +95,10 @@ module.exports = {
     "@typescript-eslint/no-empty-interface": "warn",
     "@typescript-eslint/no-floating-promises": "warn",
     "@typescript-eslint/no-inferrable-types": "warn",
+    "@typescript-eslint/no-unsafe-member-access": "warn",
+    "@typescript-eslint/no-unsafe-return": "warn",
+    "@typescript-eslint/no-unsafe-assignment": "warn",
+    "@typescript-eslint/no-unsafe-call": "warn",
     "no-async-promise-executor": "warn",
     "no-case-declarations": "warn",
     "no-empty": "warn",
@@ -107,6 +116,8 @@ module.exports = {
     "@typescript-eslint/interface-name-prefix": 0,
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/no-non-null-assertion": 0,
+    // the translation function t returns string | undefined, so this one causes a lot of problems
+    "@typescript-eslint/restrict-template-expressions": 0,
     "@typescript-eslint/no-object-literal-type-assertion": 0, // e.g. `{...} as Foo`, which we use for branding and permissions
     // "@typescript-eslint/no-parameter-properties": 0,
     // "jest/no-alias-methods": 0,

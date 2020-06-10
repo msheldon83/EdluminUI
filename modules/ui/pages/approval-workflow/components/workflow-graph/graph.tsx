@@ -146,7 +146,7 @@ export const StepsGraph: React.FC<Props> = props => {
       onApproval: [{ goto: selectedEdge?.target, args, criteria }],
       yPosition: sourceStep.yPosition,
       xPosition:
-        sourceStep.xPosition +
+        (sourceStep.xPosition as number) +
         (targetStep.xPosition - sourceStep.xPosition) / 2,
     });
     handleClosePopper();

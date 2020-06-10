@@ -25,10 +25,12 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
   const { onAddOrg, onRemoveOrg, orgUserRelationships } = props;
 
   const sortedOrgUserRelationships = orgUserRelationships?.sort((a, b) =>
-    a?.otherOrganization?.name!.toLowerCase() >
-    b?.otherOrganization?.name!.toLowerCase()
-      ? 1
-      : -1
+    a?.otherOrganization?.name && b?.otherOrganization?.name
+      ? a.otherOrganization.name.toLowerCase() >
+        b.otherOrganization.name.toLowerCase()
+        ? 1
+        : -1
+      : 0
   );
 
   const getDistricts = useQueryBundle(GetDelegatesToOrganizations, {
