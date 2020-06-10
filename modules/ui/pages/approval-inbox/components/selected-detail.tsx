@@ -14,6 +14,7 @@ import { Context } from "ui/components/absence-vacancy/approval-state/context";
 import { GetVacancyById } from "ui/pages/vacancy/graphql/get-vacancy-byid.gen";
 import { GetAbsence } from "ui/pages/edit-absence/graphql/get-absence.gen";
 import { ApproveDenyButtons } from "ui/components/absence-vacancy/approval-state/approve-deny-buttons";
+import { SummaryDetails } from "ui/components/absence-vacancy/approval-state/summary-details";
 
 type Props = {
   orgId: string;
@@ -101,28 +102,70 @@ export const SelectedDetail: React.FC<Props> = props => {
 
   return props.selectedItem ? (
     <Grid container spacing={2} className={classes.backgroundContainer}>
-      <Grid item container alignItems="center" justify="flex-end" xs={12}>
-        <ApproveDenyButtons
-          approvalStateId={approvalState?.id ?? ""}
-          approvalStatus={approvalState?.approvalStatusId}
-          currentApproverGroupHeaderId={currentApproverGroupHeaderId}
-          onApprove={props.onApprove}
-          onDeny={props.onDeny}
-        />
-      </Grid>
       {!props.selectedItem?.isNormalVacancy && absence && (
-        <Grid item xs={12}>
+        <div className={classes.container}>
+          <div className={classes.summaryContainer}>
+            <SummaryDetails
+              orgId={props.orgId}
+              absenceDetails={absence.details}
+              createdLocal={absence.createdLocal}
+              approvalChangedLocal={absence.approvalState?.changedLocal}
+              positionTitle={absence.employee?.primaryPosition?.title}
+              employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
+              startDate={absence.startDate}
+              endDate={absence.endDate}
+              isNormalVacancy={false}
+              simpleSummary={false}
+              locationIds={absence.locationIds}
+            />
+            <div className={classes.buttonContainer}>
+              <ApproveDenyButtons
+                approvalStateId={approvalState?.id ?? ""}
+                approvalStatus={approvalState?.approvalStatusId}
+                currentApproverGroupHeaderId={currentApproverGroupHeaderId}
+                onApprove={props.onApprove}
+                onDeny={props.onDeny}
+              />
+            </div>
+          </div>
           <AbsenceDetails
             orgId={props.orgId}
             absence={absence}
             absenceReasons={absenceReasons}
+            showSimpleDetail={false}
           />
-        </Grid>
+        </div>
       )}
       {props.selectedItem?.isNormalVacancy && vacancy && (
-        <Grid item xs={12}>
-          <VacancyDetails orgId={props.orgId} vacancy={vacancy} />
-        </Grid>
+        <div className={classes.container}>
+          <div className={classes.summaryContainer}>
+            <SummaryDetails
+              orgId={props.orgId}
+              createdLocal={vacancy.createdLocal}
+              approvalChangedLocal={vacancy.approvalState?.changedLocal}
+              positionTitle={vacancy.position?.title}
+              startDate={vacancy.startDate}
+              endDate={vacancy.endDate}
+              isNormalVacancy={true}
+              simpleSummary={false}
+              locationIds={compact(vacancy.details.map(x => x.locationId))}
+            />
+            <div className={classes.buttonContainer}>
+              <ApproveDenyButtons
+                approvalStateId={approvalState?.id ?? ""}
+                approvalStatus={approvalState?.approvalStatusId}
+                currentApproverGroupHeaderId={currentApproverGroupHeaderId}
+                onApprove={props.onApprove}
+                onDeny={props.onDeny}
+              />
+            </div>
+          </div>
+          <VacancyDetails
+            orgId={props.orgId}
+            vacancy={vacancy}
+            showSimpleDetail={false}
+          />
+        </div>
       )}
       <Grid item xs={12}>
         <Divider />
@@ -190,5 +233,17 @@ const useStyles = makeStyles(theme => ({
   backgroundContainer: {
     background: "#F8F8F8",
     borderRadius: "4px",
+  },
+  summaryContainer: {
+    display: "flex",
+    position: "relative",
+  },
+  buttonContainer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+  },
+  container: {
+    width: "100%",
   },
 }));

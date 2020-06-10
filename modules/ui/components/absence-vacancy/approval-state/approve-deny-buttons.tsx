@@ -80,10 +80,10 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
       return true;
     return false;
   }, [
+    userAccess?.isSysAdmin,
     approvalStatus,
     myApproverGroupHeaders,
     currentApproverGroupHeaderId,
-    userAccess,
   ]);
 
   return showButtons ? (
@@ -111,6 +111,7 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
+    padding: theme.spacing(1),
   },
   approveButton: {
     background: "#4CC17C",

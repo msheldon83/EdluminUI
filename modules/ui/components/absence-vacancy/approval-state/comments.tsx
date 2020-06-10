@@ -95,7 +95,7 @@ export const ApprovalComments: React.FC<Props> = props => {
             <Grid key={i} item xs={12}>
               <div className={classes.commentContainer}>
                 {c.comment && (
-                  <div>
+                  <div className={classes.commentIcon}>
                     {c.commentIsPublic ? (
                       <img src={require("ui/icons/comment.svg")} />
                     ) : (
@@ -174,5 +174,8 @@ const useStyles = makeStyles(theme => ({
   decisionText: {
     fontSize: theme.typography.pxToRem(16),
     fontWeight: 600,
+  },
+  commentIcon: {
+    paddingRight: theme.spacing(1),
   },
 }));

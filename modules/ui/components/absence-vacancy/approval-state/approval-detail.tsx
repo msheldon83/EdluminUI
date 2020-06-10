@@ -152,6 +152,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
               absence={props.absence}
               absenceReasons={absenceReasons}
               actingAsEmployee={props.actingAsEmployee}
+              showSimpleDetail={true}
             />
             <Context
               orgId={props.orgId}
@@ -168,7 +169,11 @@ export const ApprovalDetail: React.FC<Props> = props => {
         )}
         {props.isTrueVacancy && props.vacancy && (
           <Grid item xs={6}>
-            <VacancyDetails orgId={props.orgId} vacancy={props.vacancy} />
+            <VacancyDetails
+              orgId={props.orgId}
+              vacancy={props.vacancy}
+              showSimpleDetail={true}
+            />
             <Context
               orgId={props.orgId}
               vacancyId={props.vacancy?.id ?? ""}

@@ -666,18 +666,12 @@ export const App = hot(function() {
                                       path={AdminAbsenceApprovalViewRoute.path}
                                       role={"admin"}
                                       devFeatureOnly={true}
-                                      permissions={[
-                                        PermissionEnum.AbsVacApprovalsView,
-                                      ]}
                                     />
                                     <ProtectedRoute
                                       component={VacancyApprovalViewLoader}
                                       path={VacancyApprovalViewRoute.path}
                                       role={"admin"}
                                       devFeatureOnly={true}
-                                      permissions={[
-                                        PermissionEnum.AbsVacApprovalsView,
-                                      ]}
                                     />
                                     <ProtectedRoute
                                       component={ApprovalInboxLoader}
