@@ -92,7 +92,7 @@ export const SelectedDetail: React.FC<Props> = props => {
             absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
             absenceReasonName: usages[0].absenceReason?.name,
             totalAmount: round(
-              usages.reduce((m, v) => m + v.amount, 0),
+              usages.reduce((m, v) => m + +v.amount, 0),
               2
             ),
           }))
