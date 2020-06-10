@@ -60,6 +60,10 @@ export type ReportActions =
       addBeforeIndex?: boolean;
     }
   | {
+      action: "setColumns";
+      columns: DataExpression[];
+    }
+  | {
       action: "removeColumn";
       index: number;
     }
@@ -295,6 +299,20 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         report: {
           ...prev.report!,
           selects: updatedSelects,
+        },
+      };
+
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.report
+      );
+      return updatedState;
+    }
+    case "setColumns": {
+      const updatedState = {
+        ...prev,
+        report: {
+          ...prev.report!,
+          selects: action.columns,
         },
       };
 

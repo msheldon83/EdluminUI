@@ -21,7 +21,13 @@ type Props = {
   reportData: ReportDefinitionData | undefined;
   isLoading: boolean;
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[] | undefined, expression: string | undefined, index?: number, addBeforeIndex?: boolean) => void;
+  addColumns: (
+    fields: DataSourceField[] | undefined,
+    expression: string | undefined,
+    index?: number,
+    addBeforeIndex?: boolean
+  ) => void;
+  setColumns: (columns: DataExpression[]) => void;
   removeColumn: (index: number) => void;
   filterableFields: DataSourceField[];
   setFilters: (
@@ -52,6 +58,7 @@ export const ReportData: React.FC<Props> = props => {
     setFirstLevelOrderBy,
     allFields,
     addColumns,
+    setColumns,
     removeColumn,
     refreshReport,
     exportReport,
@@ -110,6 +117,7 @@ export const ReportData: React.FC<Props> = props => {
             orderedBy={report.orderBy ?? []}
             allFields={allFields}
             addColumns={addColumns}
+            setColumns={setColumns}
             removeColumn={removeColumn}
           />
         )}

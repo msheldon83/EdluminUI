@@ -142,6 +142,13 @@ export const Report: React.FC<Props> = props => {
     dispatch({ action: "addColumns", fields, expression, index, addBeforeIndex });
   }, []);
 
+  const setColumns = React.useCallback(
+    (columns: DataExpression[]) => {
+      dispatch({ action: "setColumns", columns });
+    },
+    []
+  );
+
   const removeColumn = React.useCallback((index: number) => {
     dispatch({ action: "removeColumn", index });
   }, []);
@@ -181,6 +188,7 @@ export const Report: React.FC<Props> = props => {
           state.reportDefinition?.metadata?.query?.schema?.allFields ?? []
         }
         addColumns={addColumns}
+        setColumns={setColumns}
         removeColumn={removeColumn}
         setFilters={setFilters}
         setOrderBy={setOrderBy}
