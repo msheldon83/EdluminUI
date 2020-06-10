@@ -134,7 +134,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
     compact(
       approverGroup?.approverGroupMembers?.map(x => {
         return {
-          label: x?.orgUser?.firstName + " " + x?.orgUser?.lastName ?? "",
+          label: `${x?.orgUser?.firstName} ${x?.orgUser?.lastName ?? ""}`,
           value: x?.orgUser?.id ?? "",
         };
       })

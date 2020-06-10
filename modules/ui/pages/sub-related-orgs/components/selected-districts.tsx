@@ -30,10 +30,12 @@ export const SelectedDistricts: React.FC<Props> = props => {
   const { orgUserRelationships, onRemoveOrg, orgEndorsements, onSave } = props;
 
   const sortedOrgUserRelationships = orgUserRelationships?.sort((a, b) =>
-    a?.otherOrganization?.name!.toLowerCase() >
-    b?.otherOrganization?.name!.toLowerCase()
-      ? 1
-      : -1
+    a?.otherOrganization?.name && b?.otherOrganization?.name
+      ? a.otherOrganization.name.toLowerCase() >
+        b.otherOrganization.name.toLowerCase()
+        ? 1
+        : -1
+      : 0
   );
 
   const sortedOrgEndorsements = orgEndorsements?.sort((a, b) =>

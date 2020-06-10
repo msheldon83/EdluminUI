@@ -57,7 +57,7 @@ export const OrganizationContactCard: React.FC<Props> = props => {
             <div>{props.employeeContact?.name}</div>
             <div>{props.employeeContact?.phone}</div>
             <div>
-              <a href={"mailto:" + props.employeeContact?.email}>
+              <a href={`mailto:${props.employeeContact?.email}`}>
                 {props.employeeContact?.email}
               </a>
             </div>
@@ -79,7 +79,7 @@ export const OrganizationContactCard: React.FC<Props> = props => {
                 <div>{props.employeeContact?.name}</div>
                 <div>{props.employeeContact?.phone}</div>
                 <div>
-                  <a href={"mailto:" + props.employeeContact?.email}>
+                  <a href={`mailto:${props.employeeContact?.email}`}>
                     {props.employeeContact?.email}
                   </a>
                 </div>
@@ -95,7 +95,7 @@ export const OrganizationContactCard: React.FC<Props> = props => {
                 <div>{props.subContact?.name}</div>
                 <div>{props.subContact?.phone}</div>
                 <div>
-                  <a href={"mailto:" + props.subContact?.email}>
+                  <a href={`mailto:${props.subContact?.email}`}>
                     {props.subContact?.email}
                   </a>
                 </div>

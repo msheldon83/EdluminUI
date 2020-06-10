@@ -610,7 +610,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                 item
                 container
                 xs={12}
-                key={"vacancy-day-" + i}
+                key={`vacancy-day-${i}`}
                 className={classes.additionalDays}
               >
                 <VacancyIndividualDay

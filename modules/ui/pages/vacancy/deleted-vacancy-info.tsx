@@ -44,7 +44,7 @@ export const DeletedVacancyInfo: React.FC<Props> = props => {
     `This vacancy, originally scheduled for ${formattedDate} at ${deletedVacancy?.locationName} has been deleted`
   );
   const subHeader = deletedVacancy?.positionTitle ?? "";
-  const header = t("Vacancy #") + deletedVacancy?.id;
+  const header = `${t("Vacancy #")}${deletedVacancy?.id}`;
 
   return (
     <DeletedData message={message} header={header} subHeader={subHeader} />

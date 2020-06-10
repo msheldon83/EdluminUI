@@ -22,7 +22,11 @@ export const OrganizationList: React.FC<Props> = props => {
   const params = useRouteParams(PersonViewRoute);
 
   const orgs = props?.orgs?.sort((a, b) =>
-    a?.name!.toLowerCase() > b?.name!.toLowerCase() ? 1 : -1
+    a?.name && b?.name
+      ? a.name.toLowerCase() > b.name.toLowerCase()
+        ? 1
+        : -1
+      : 0
   );
 
   return (
@@ -50,7 +54,7 @@ export const OrganizationList: React.FC<Props> = props => {
               {orgs?.length === 0 ? (
                 <div>{t("No related districts")}</div>
               ) : (
-                orgs?.map((n: any, i: any) => <div key={i}>{n?.name}</div>)
+                orgs?.map((n, i) => <div key={i}>{n?.name}</div>)
               )}
             </Grid>
           </Grid>
