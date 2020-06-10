@@ -6,8 +6,9 @@ import {
   getDayPartCountLabels,
 } from "ui/components/employee/helpers";
 import { parseISO, differenceInHours, format } from "date-fns";
-import { DayPart, Maybe } from "graphql/server-types.gen";
+import { DayPart, Maybe, ApprovalAction } from "graphql/server-types.gen";
 import { useLocations } from "reference-data/locations";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 type Props = {
   orgId: string;
@@ -28,18 +29,46 @@ type Props = {
   isNormalVacancy: boolean;
   simpleSummary: boolean;
   locationIds?: string[];
+  decisions?: {
+    approvalActionId: ApprovalAction;
+    createdLocal?: string | null;
+    actingOrgUserId: string;
+  }[];
 };
 
 export const SummaryDetails: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
+  const userAccess = useMyUserAccess();
+  const currentOrgUserId = userAccess?.me?.user?.orgUsers?.find(
+    x => x?.orgId === props.orgId
+  )?.id;
+  const myDecision = props.decisions?.find(
+    x => x.actingOrgUserId === currentOrgUserId
+  );
+
+  const getDecisionText = (approvalActionId: ApprovalAction) => {
+    switch (approvalActionId) {
+      case ApprovalAction.Approve:
+        return t("Approved");
+      case ApprovalAction.Deny:
+        return t("Denied");
+      case ApprovalAction.Skip:
+        return t("Skipped");
+      default:
+        return "";
+    }
+  };
+
   const absenceDetails = props.absenceDetails;
   const startDate = parseISO(props.startDate ?? "");
   const endDate = parseISO(props.endDate ?? "");
 
   const createdDate = parseISO(props.createdLocal ?? "");
-  const approvalChangedDate = parseISO(props.approvalChangedLocal ?? "");
+  const approvalChangedDate = myDecision
+    ? parseISO(myDecision.createdLocal ?? "")
+    : parseISO(props.approvalChangedLocal ?? "");
 
   const locations = useLocations(props.orgId);
   const locationNames = props.locationIds
@@ -100,9 +129,11 @@ export const SummaryDetails: React.FC<Props> = props => {
         createdDate,
         "MMM d"
       )} @ ${format(createdDate, "h:mm a")}`}</div>
-      <div className={classes.updatedText}>{`${t(
-        "Awaiting approval since"
-      )} ${format(approvalChangedDate, "MMM d")} @ ${format(
+      <div className={classes.updatedText}>{`${
+        myDecision
+          ? getDecisionText(myDecision.approvalActionId)
+          : t("Awaiting approval since")
+      } ${format(approvalChangedDate, "MMM d")} @ ${format(
         approvalChangedDate,
         "h:mm a"
       )}`}</div>

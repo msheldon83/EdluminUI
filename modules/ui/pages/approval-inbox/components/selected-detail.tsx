@@ -11,8 +11,8 @@ import { VacancyDetails } from "ui/components/absence-vacancy/approval-state/vac
 import { AbsenceDetails } from "ui/components/absence-vacancy/approval-state/absence-details";
 import { compact, groupBy, flatMap, round } from "lodash-es";
 import { Context } from "ui/components/absence-vacancy/approval-state/context";
-import { GetVacancyById } from "ui/pages/vacancy/graphql/get-vacancy-byid.gen";
-import { GetAbsence } from "ui/pages/edit-absence/graphql/get-absence.gen";
+import { GetVacancyById } from "../graphql/get-vacancy-by-id.gen";
+import { GetAbsence } from "../graphql/get-absence-by-id.gen";
 import { ApproveDenyButtons } from "ui/components/absence-vacancy/approval-state/approve-deny-buttons";
 import { SummaryDetails } from "ui/components/absence-vacancy/approval-state/summary-details";
 
@@ -117,6 +117,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               isNormalVacancy={false}
               simpleSummary={false}
               locationIds={absence.locationIds}
+              decisions={absence.approvalState?.decisions}
             />
             <div className={classes.buttonContainer}>
               <ApproveDenyButtons
@@ -149,6 +150,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               isNormalVacancy={true}
               simpleSummary={false}
               locationIds={compact(vacancy.details.map(x => x.locationId))}
+              decisions={vacancy.approvalState?.decisions}
             />
             <div className={classes.buttonContainer}>
               <ApproveDenyButtons

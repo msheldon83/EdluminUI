@@ -10,7 +10,7 @@ import {
 } from "ui/routes/edit-absence";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
-import { GetAbsence } from "./graphql/get-absence.gen";
+import { GetAbsence } from "ui/pages/approval-inbox/graphql/get-absence-by-id.gen";
 import { ApprovalDetail } from "ui/components/absence-vacancy/approval-state/approval-detail";
 
 type Props = { actingAsEmployee?: boolean };

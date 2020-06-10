@@ -4,33 +4,13 @@ query GetAbsence($id: ID!) {
       id
       isClosed
       rowVersion
-      createdLocal
       approvalState {
         id
         approvalStatusId
         approvalWorkflowId
         currentStepId
-        changedLocal
         comments {
           id
-          comment
-          commentIsPublic
-          createdLocal
-          actingOrgUser {
-            id
-            firstName
-            lastName
-          }
-        }
-        decisions {
-          id
-          createdLocal
-          approvalActionId
-          actingOrgUser {
-            id
-            firstName
-            lastName
-          }
         }
       }
       closedDetails {

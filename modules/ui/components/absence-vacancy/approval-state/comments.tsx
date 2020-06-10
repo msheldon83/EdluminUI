@@ -85,7 +85,7 @@ export const ApprovalComments: React.FC<Props> = props => {
 
   return (
     <Grid item container xs={12} spacing={2}>
-      {props.comments.length === 0 ? (
+      {allCommentsAndDecisions.length === 0 ? (
         <Grid item xs={12}>
           {t("No Comments")}
         </Grid>
