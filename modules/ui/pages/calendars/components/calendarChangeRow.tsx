@@ -7,12 +7,11 @@ import { useContracts } from "reference-data/contracts";
 import { useTranslation } from "react-i18next";
 import { Can } from "ui/components/auth/can";
 import { CalendarEvent } from "../types";
-import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 
 type Props = {
   calendarChange: CalendarEvent;
   orgId: string;
-  onDelete: (calendarChange: CalendarEvent, date?: Date) => void;
+  onDelete: (calendarChange: CalendarEvent, date?: Date) => Promise<void>;
   onAdd: (date: string) => void;
   onEdit: (calendarChange: CalendarEvent, date?: Date) => void;
   date: Date;
@@ -23,9 +22,11 @@ export const CalendarChangeRow: React.FC<Props> = props => {
   const contracts = useContracts(props.orgId);
   const { t } = useTranslation();
 
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
   if (
     props.calendarChange == undefined ||
-    !props.calendarChange.calendarChangeReason
+    !props.calendarChange.calendarChangeReasonId
   ) {
     return (
       <>
@@ -71,21 +72,7 @@ export const CalendarChangeRow: React.FC<Props> = props => {
       return `${format(sd, "MMM d")} - ${format(ed, "MMM d")}`;
     }
   };
-  const dateLabel =
-    props.calendarChange.startDate == props.calendarChange.endDate
-      ? format(parseISO(props.calendarChange.startDate!), "MMM d")
-      : `${format(
-          parseISO(props.calendarChange.startDate!),
-          "MMM d"
-        )} - ${format(parseISO(props.calendarChange.endDate!), "MMM d")}`;
 
-  const dayLabel =
-    props.calendarChange.startDate == props.calendarChange.endDate
-      ? format(parseISO(props.calendarChange.startDate!), "EEE")
-      : `${format(parseISO(props.calendarChange.startDate!), "EEE")} - ${format(
-          parseISO(props.calendarChange.endDate!),
-          "EEE"
-        )}`;
   const descriptionLabel =
     props.calendarChange.startDate !== props.calendarChange.endDate
       ? `${props.calendarChange.description} (${formatDateRange(
@@ -122,34 +109,46 @@ export const CalendarChangeRow: React.FC<Props> = props => {
       <div className={classes.contracts}>
         <Typography className={classes.mainText}>{contractLabel}</Typography>
       </div>
-      <Can do={[PermissionEnum.CalendarChangeSave]}>
-        <div className={classes.edit}>
-          <Button
-            variant="outlined"
-            className={classes.edit}
-            onClick={e => {
-              e.stopPropagation();
-              props.onEdit(props.calendarChange, props.date);
-            }}
-          >
-            {t("EDIT")}
-          </Button>
-        </div>
-      </Can>
-      <Can do={[PermissionEnum.CalendarChangeDelete]}>
-        <div className={classes.delete}>
-          <Button
-            variant="outlined"
-            className={classes.delete}
-            onClick={e => {
-              e.stopPropagation();
-              props.onDelete(props.calendarChange);
-            }}
-          >
-            {t("Delete")}
-          </Button>
-        </div>
-      </Can>
+      {!isDeleting && (
+        <>
+          <Can do={[PermissionEnum.CalendarChangeSave]}>
+            <div className={classes.edit}>
+              <Button
+                variant="outlined"
+                className={classes.edit}
+                onClick={e => {
+                  e.stopPropagation();
+                  props.onEdit(props.calendarChange, props.date);
+                }}
+              >
+                {t("EDIT")}
+              </Button>
+            </div>
+          </Can>
+          <Can do={[PermissionEnum.CalendarChangeDelete]}>
+            <div className={classes.delete}>
+              <Button
+                variant="outlined"
+                className={classes.delete}
+                onClick={async e => {
+                  console.log("here");
+                  e.stopPropagation();
+                  setIsDeleting(true);
+                  await props.onDelete(props.calendarChange);
+                  setIsDeleting(false);
+                }}
+              >
+                {t("Delete")}
+              </Button>
+            </div>
+          </Can>
+        </>
+      )}
+      {isDeleting && (
+        <Typography className={classes.mainText}>
+          {t("Deleting ...")}
+        </Typography>
+      )}
     </div>
   );
 };

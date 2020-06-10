@@ -9,7 +9,6 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { format } from "date-fns";
@@ -19,8 +18,8 @@ type Props = {
   onClose: () => void;
   onEditDay: () => void;
   onEditEvent: () => void;
-  onDeleteDay: () => void;
-  onDeleteEvent: () => void;
+  onDeleteDay: () => Promise<void>;
+  onDeleteEvent: () => Promise<void>;
   date: Date;
   forDelete?: boolean;
 };
@@ -28,6 +27,8 @@ type Props = {
 export const EditSignleDayDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   return (
     <Dialog open={props.open} onClose={props.onClose}>
@@ -52,18 +53,39 @@ export const EditSignleDayDialog: React.FC<Props> = props => {
 
       <Divider className={classes.divider} />
       <DialogActions className={classes.actionButtons}>
-        <TextButton onClick={props.onClose} className={classes.buttonSpacing}>
-          {t("Cancel")}
-        </TextButton>
-        {props.forDelete && (
+        {!isDeleting && (
+          <TextButton onClick={props.onClose} className={classes.buttonSpacing}>
+            {t("Cancel")}
+          </TextButton>
+        )}
+        {props.forDelete && !isDeleting && (
           <>
-            <Button variant="outlined" onClick={props.onDeleteEvent}>
+            <Button
+              variant="outlined"
+              onClick={async () => {
+                setIsDeleting(true);
+                await props.onDeleteEvent();
+                setIsDeleting(false);
+              }}
+            >
               {t("Delete event")}
             </Button>
-            <Button variant="contained" onClick={props.onDeleteDay}>
+            <Button
+              variant="contained"
+              onClick={async () => {
+                setIsDeleting(true);
+                await props.onDeleteDay();
+                setIsDeleting(false);
+              }}
+            >
               {t("Delete just this day")}
             </Button>
           </>
+        )}
+        {props.forDelete && isDeleting && (
+          <Typography className={classes.deletingText}>
+            {t("Deleting...")}
+          </Typography>
         )}
         {!props.forDelete && (
           <>
@@ -92,5 +114,8 @@ const useStyles = makeStyles(theme => ({
   actionButtons: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+  },
+  deletingText: {
+    marginRight: theme.spacing(2),
   },
 }));

@@ -22,6 +22,7 @@ query getCalendarChanges(
         description
         rowVersion
         affectsAllContracts
+        calendarChangeReasonId
         calendarChangeReason {
           id
           name

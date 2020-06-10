@@ -13,13 +13,11 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-reasons";
 import { useOrganizationId } from "core/org-context";
 import { useContracts } from "reference-data/contracts";
-import { useAllSchoolYears } from "reference-data/school-years";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { DatePicker } from "ui/components/form/date-picker";
@@ -56,7 +54,6 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
 
   const orgId = useOrganizationId();
   const today = React.useMemo(() => new Date(), []);
-  const schoolYears = useAllSchoolYears(orgId ?? "0");
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
   const contracts = useContracts(orgId ?? "0");
   const contractOptions = React.useMemo(
@@ -113,7 +110,6 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           formProps.setFieldValue("changeReason", changeReasonOptions[0].value);
           formProps.setFieldValue("notes", "");
           props.onClose();
-          // setPanelOpened(false);
         }}
         onSubmit={async (data: any, formProps) => {
           let resultSucceeded = false;

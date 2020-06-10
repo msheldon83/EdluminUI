@@ -2,8 +2,20 @@ mutation UpdateCalendarChange($calendarChange: CalendarChangeUpdateInput!) {
   calendarChange {
     update(calendarChange: $calendarChange) {
       id
-      rowVersion
       description
+      startDate
+      endDate
+      rowVersion
+      calendarChangeReasonId
+      affectsAllContracts
+      changedContracts {
+        id
+        name
+      }
+      calendarChangeReason {
+        id
+        name
+      }
     }
   }
 }
