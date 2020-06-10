@@ -113,6 +113,13 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
   );
 };
 
+/*
+  Note: the droppable item jumps when dropped because of a bug in react-beautiful-dnd
+  not correctly handling flex items with `align-items: center` set.
+
+  https://github.com/atlassian/react-beautiful-dnd/issues/1851
+*/
+
 const useStyles = makeStyles(theme => ({
   endOfMorningChip: {
     background: "#FCE7E7",

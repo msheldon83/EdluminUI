@@ -121,6 +121,13 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
   );
 };
 
+/*
+  Note: the droppable item jumps when dropped because of a bug in react-beautiful-dnd
+  not correctly handling flex items with `align-items: center` set.
+
+  https://github.com/atlassian/react-beautiful-dnd/issues/1851
+*/
+
 const useStyles = makeStyles(theme => ({
   startOfAfternoon: {
     textAlign: "right",
@@ -137,6 +144,13 @@ const useStyles = makeStyles(theme => ({
     },
   },
   chipWrapper: {
+    /*
+      This overrides some parent style that is impossible to override without the !important
+
+      The style can be found here:
+
+      https://github.com/RedRoverK12/EdluminUI/blob/d177675a74415338dcda20f7f166fb9e575730f1/modules/ui/pages/bell-schedule/components/schedule.tsx#L340
+    */
     justifyContent: "flex-end !important",
   },
 }));
