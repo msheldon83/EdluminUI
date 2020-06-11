@@ -130,3 +130,25 @@ export const convertToDataExpression = (
   }
   return dataExpressions;
 };
+
+// TODO: Remove these when we're no longer persisting report changes
+// to Local Storage and have Saved Views fully implemented
+export const saveRdlToLocalStorage = (key: string, rdl: string) => {
+  try {
+    localStorage.setItem(key, rdl);
+  } catch (e) {
+    // This shouldn't happen, but also no reason to
+    // affect the User if there is some sort of issue
+  }
+};
+
+export const getRdlFromLocalStorage = (key: string): string | undefined => {
+  let rdl = undefined;
+  try {
+    rdl = localStorage.getItem(key) ?? undefined;
+  } catch (e) {
+    // This shouldn't happen, but also no reason to
+    // affect the User if there is some sort of issue
+  }
+  return rdl;
+};

@@ -29,6 +29,7 @@ type Props = {
   allowedFilterFieldsOverride?: string[];
   baseFilterFieldNames?: string[];
   showGroupLabels?: boolean;
+  saveRdl?: (rdl: string) => void;
 };
 
 export const Report: React.FC<Props> = props => {
@@ -41,6 +42,7 @@ export const Report: React.FC<Props> = props => {
     rdl,
     allowedFilterFieldsOverride,
     baseFilterFieldNames,
+    saveRdl,
     exportFilename = t("Report"),
     showGroupLabels = true,
   } = props;
@@ -51,6 +53,16 @@ export const Report: React.FC<Props> = props => {
     filterableFields: [],
     baseFilterFieldNames,
   });
+
+  // TODO: When we introduce Saved Views, we're not going to be just saving
+  // everytime a change is made to the RDL string, but the step towards that
+  // is to save a User's changes to a specific canned report into Local Storage
+  // so in that case we do want to save the RDL behind the scenes
+  React.useEffect(() => {
+    if (saveRdl) {
+      saveRdl(state.rdlString)
+    }
+  }, [state.rdlString]);
 
   // Load the report data
   const reportDataResponse = useQueryBundle(GetReportDataQuery, {
