@@ -39,6 +39,7 @@ type Props = {
       lastName: string;
     };
   }[];
+  onCommentSave?: () => void;
 };
 
 export const ApprovalComments: React.FC<Props> = props => {
@@ -139,6 +140,7 @@ export const ApprovalComments: React.FC<Props> = props => {
         <LeaveComment
           approvalStateId={props.approvalStateId}
           actingAsEmployee={props.actingAsEmployee}
+          onSave={props.onCommentSave}
         />
       </Grid>
     </Grid>

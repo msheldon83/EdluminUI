@@ -96,6 +96,7 @@ type Props = {
         }>[]
       | null;
   };
+  onSaveComment?: () => void;
 };
 
 export const ApprovalDetail: React.FC<Props> = props => {
@@ -210,6 +211,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
               actingAsEmployee={props.actingAsEmployee}
               comments={props.comments}
               decisions={props.decisions}
+              onCommentSave={props.onSaveComment}
             />
           </Grid>
         </Grid>
