@@ -42,6 +42,7 @@ type Props = {
   numberOfLockedColumns?: number;
   onScroll?: MultiGridProps["onScroll"];
   scrollLeft?: MultiGridProps["scrollLeft"];
+  gridRef?: React.RefObject<MultiGrid>;
 };
 
 type HeaderMenuItem = {
@@ -89,6 +90,7 @@ export const DataGridHeader: React.FC<Props> = props => {
     addColumns,
     setColumns,
     removeColumn,
+    gridRef,
     numberOfLockedColumns = 0,
   } = props;
 
@@ -273,6 +275,7 @@ export const DataGridHeader: React.FC<Props> = props => {
                   style={{ width: width }}
                 >
                   <MultiGrid
+                    ref={gridRef}
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
                     width={width}

@@ -19,15 +19,15 @@ export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
 export const calculateColumnWidth = (
   { index }: Index,
   isGrouped: boolean,
-  dataColumnIndexMap: Record<string, DataExpression>
+  columns: DataExpression[]
 ) => {
-  if (isGrouped && index === 0 && !dataColumnIndexMap[index]?.columnWidthPx) {
+  if (isGrouped && index === 0 && !columns[index]?.columnWidthPx) {
     return 300;
   }
 
   return (
-    dataColumnIndexMap[index]?.columnWidthPx ??
-    dataColumnIndexMap[index]?.dataSourceField?.defaultColumnWidthInPixels ??
+    columns[index]?.columnWidthPx ??
+    columns[index]?.dataSourceField?.defaultColumnWidthInPixels ??
     200
   );
 };

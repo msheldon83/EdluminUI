@@ -108,6 +108,18 @@ export const DataGrid: React.FC<Props> = props => {
   const dataGridHeight = 75;
   const summaryGridHeight = 40;
 
+  // Because we are supporting drag and drop reordering
+  // of columns we also need to force a recalculation of
+  // the grid sizes when changes to the columns occur
+  const headerGridRef = React.useRef<MultiGrid>(null);
+  const summaryGridRef = React.useRef<MultiGrid>(null);
+  const dataGridRef = React.useRef<MultiGrid>(null);
+  React.useEffect(() => {
+    headerGridRef.current?.recomputeGridSize();
+    summaryGridRef.current?.recomputeGridSize();
+    dataGridRef.current?.recomputeGridSize();
+  }, [report.selects]);
+
   return (
     <>
       {isLoading && (
@@ -128,11 +140,7 @@ export const DataGrid: React.FC<Props> = props => {
                   height={dataGridHeight}
                   width={width}
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(
-                      params,
-                      isGrouped,
-                      reportData.dataColumnIndexMap
-                    )
+                    calculateColumnWidth(params, isGrouped, report.selects)
                   }
                   setFirstLevelOrderBy={setFirstLevelOrderBy}
                   orderedBy={orderedBy}
@@ -140,6 +148,7 @@ export const DataGrid: React.FC<Props> = props => {
                   addColumns={addColumns}
                   setColumns={setColumns}
                   removeColumn={removeColumn}
+                  gridRef={headerGridRef}
                 />
                 {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (
                   <MultiGrid
@@ -157,11 +166,7 @@ export const DataGrid: React.FC<Props> = props => {
                       )
                     }
                     columnWidth={(params: Index) =>
-                      calculateColumnWidth(
-                        params,
-                        isGrouped,
-                        reportData.dataColumnIndexMap
-                      )
+                      calculateColumnWidth(params, isGrouped, report.selects)
                     }
                     estimatedColumnSize={120}
                     columnCount={report.selects.length}
@@ -172,6 +177,7 @@ export const DataGrid: React.FC<Props> = props => {
                     classNameTopLeftGrid={classes.dataGridLockedColumns}
                     classNameTopRightGrid={classes.dataGrid}
                     style={isLoading ? { opacity: 0.5 } : undefined}
+                    ref={summaryGridRef}
                   />
                 )}
                 <MultiGrid
@@ -189,11 +195,7 @@ export const DataGrid: React.FC<Props> = props => {
                     )
                   }
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(
-                      params,
-                      isGrouped,
-                      reportData.dataColumnIndexMap
-                    )
+                    calculateColumnWidth(params, isGrouped, report.selects)
                   }
                   estimatedColumnSize={120}
                   columnCount={report.selects.length}
@@ -218,6 +220,7 @@ export const DataGrid: React.FC<Props> = props => {
                       </Typography>
                     </div>
                   )}
+                  ref={dataGridRef}
                 />
               </div>
             )}
