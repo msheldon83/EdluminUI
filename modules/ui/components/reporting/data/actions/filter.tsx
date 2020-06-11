@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
+import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 
 type Props = {
   filterField: FilterField;
@@ -129,6 +130,25 @@ export const Filter: React.FC<Props> = props => {
                     ? filterField.field.filterTypeDefinition?.friendlyName
                     : undefined
                 }
+              />
+            );
+          case "SchoolYear":
+            return (
+              <SchoolYearSelect
+                orgId={organizationId ?? ""}
+                setSelectedSchoolYearId={schoolYearId => {
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: schoolYearId,
+                  });
+                }}
+                selectedSchoolYearId={filterField.value}
+                key={filterField.expressionFunction}
+                showLabel={showLabel}
+                label={filterField.field.filterTypeDefinition?.friendlyName}
               />
             );
           case "PositionType":
