@@ -1,0 +1,54 @@
+query GetPendingApprovalItems($orgId: ID!) {
+  vacancy {
+    vacanciesNeedingApproval(orgId: $orgId) {
+      id
+      isNormalVacancy
+      absenceId
+      startDate
+      endDate
+      createdLocal
+      position {
+        id
+        title
+      }
+      details {
+        id
+        vacancyReason {
+          id
+          name
+        }
+      }
+      approvalState {
+        id
+        changedLocal
+        comments {
+          id
+        }
+      }
+      absence {
+        approvalState {
+          id
+          changedLocal
+          comments {
+            id
+          }
+        }
+        employee {
+          id
+          firstName
+          lastName
+        }
+        details {
+          id
+          reasonUsages {
+            id
+            absenceReason {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}

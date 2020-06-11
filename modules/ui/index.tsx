@@ -51,6 +51,10 @@ import {
   VacancyApprovalWorkflowAddLoader,
 } from "./routes/approval-workflow";
 import {
+  ApprovalInboxRoute,
+  ApprovalInboxLoader,
+} from "./routes/approval-inbox";
+import {
   AdminRootChromeRoute,
   AppChromeRoute,
   EmployeeChromeRoute,
@@ -662,18 +666,18 @@ export const App = hot(function() {
                                       path={AdminAbsenceApprovalViewRoute.path}
                                       role={"admin"}
                                       devFeatureOnly={true}
-                                      permissions={[
-                                        PermissionEnum.AbsVacApprovalsView,
-                                      ]}
                                     />
                                     <ProtectedRoute
                                       component={VacancyApprovalViewLoader}
                                       path={VacancyApprovalViewRoute.path}
                                       role={"admin"}
                                       devFeatureOnly={true}
-                                      permissions={[
-                                        PermissionEnum.AbsVacApprovalsView,
-                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApprovalInboxLoader}
+                                      path={ApprovalInboxRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}
@@ -716,7 +720,8 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={AbsenceActivityLogLoader}
                                       path={AbsenceActivityLogRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       component={CreateAbsenceLoader}
@@ -733,7 +738,8 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={VacancyActivityLogLoader}
                                       path={VacancyActivityLogRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}
