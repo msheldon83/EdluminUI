@@ -2,15 +2,23 @@ import * as React from "react";
 import { LinearProgress, makeStyles } from "@material-ui/core";
 
 type Props = {
+  thick?: boolean;
   verifiedAssignments: number;
   totalAssignments: number;
 };
 
 export const ProgressBar: React.FC<Props> = ({
+  thick,
   verifiedAssignments,
   totalAssignments,
 }) => {
-  const classes = useStyles();
+  const {
+    root,
+    thickRoot,
+    barColorPrimary,
+    colorPrimary,
+    barColorSecondary,
+  } = useStyles();
 
   return (
     <LinearProgress
@@ -21,7 +29,12 @@ export const ProgressBar: React.FC<Props> = ({
           ? 100
           : (100 * verifiedAssignments) / totalAssignments
       }
-      classes={classes}
+      classes={{
+        root: thick ? thickRoot : root,
+        barColorPrimary,
+        colorPrimary,
+        barColorSecondary,
+      }}
     />
   );
 };
@@ -30,6 +43,10 @@ const useStyles = makeStyles(theme => ({
   // Applied to the root element
   root: {
     height: "10px",
+    borderRadius: "10px",
+  },
+  thickRoot: {
+    height: "14px",
     borderRadius: "10px",
   },
   // Controls the color of the verified part of an in-progress bar
