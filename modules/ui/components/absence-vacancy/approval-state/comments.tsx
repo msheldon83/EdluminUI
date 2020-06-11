@@ -13,6 +13,12 @@ type CommentDecision = {
   commentIsPublic: boolean;
   createdLocal?: string | null;
   actingOrgUser: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  actualOrgUser: {
+    id: string;
     firstName: string;
     lastName: string;
   };
@@ -27,6 +33,12 @@ type Props = {
     commentIsPublic: boolean;
     createdLocal?: string | null;
     actingOrgUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualOrgUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -35,6 +47,12 @@ type Props = {
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
     actingOrgUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualOrgUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -56,6 +74,7 @@ export const ApprovalComments: React.FC<Props> = props => {
       list.push({
         comment: c.comment,
         actingOrgUser: c.actingOrgUser,
+        actualOrgUser: c.actualOrgUser,
         commentIsPublic: c.commentIsPublic,
         createdLocal: c.createdLocal,
       });
@@ -64,6 +83,7 @@ export const ApprovalComments: React.FC<Props> = props => {
       list.push({
         approvalActionId: d.approvalActionId,
         actingOrgUser: d.actingOrgUser,
+        actualOrgUser: d.actualOrgUser,
         commentIsPublic: true,
         createdLocal: d.createdLocal,
       });
@@ -82,6 +102,17 @@ export const ApprovalComments: React.FC<Props> = props => {
     if (approvalAction == ApprovalAction.Approve) return t("Approved by ");
     if (approvalAction == ApprovalAction.Deny) return t("Denied by ");
     return null;
+  };
+
+  const getApproverName = (comment: CommentDecision) => {
+    if (comment.actingOrgUser.id === comment.actualOrgUser.id) {
+      return `${comment.actingOrgUser.firstName} ${comment.actingOrgUser.lastName}`;
+    }
+    return `${comment.actualOrgUser.firstName} ${
+      comment.actualOrgUser.lastName
+    } ${t("on behalf of")} ${comment.actingOrgUser.firstName} ${
+      comment.actingOrgUser.lastName
+    }`;
   };
 
   return (
@@ -114,9 +145,8 @@ export const ApprovalComments: React.FC<Props> = props => {
                           ? classes.decisionText
                           : classes.nameText
                       }
-                    >{`${getApprovalActionText(c.approvalActionId) ?? ""}${
-                      c.actingOrgUser.firstName
-                    } ${c.actingOrgUser.lastName}`}</span>
+                    >{`${getApprovalActionText(c.approvalActionId) ??
+                      ""}${getApproverName(c)}`}</span>
                     <span
                       className={
                         c.approvalActionId
