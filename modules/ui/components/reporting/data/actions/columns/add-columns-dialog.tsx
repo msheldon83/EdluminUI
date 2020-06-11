@@ -7,6 +7,7 @@ import {
   DialogTitle,
   makeStyles,
 } from "@material-ui/core";
+import { convertToDataExpression } from "ui/components/reporting/helpers";
 
 type Props = {
   open: boolean;
@@ -14,10 +15,7 @@ type Props = {
   title: string;
   columns: DataExpression[];
   allFields: DataSourceField[];
-  addColumns: (
-    fields: DataSourceField[] | undefined,
-    expression: string | undefined
-  ) => void;
+  addColumns: (columns: DataExpression[]) => void;
 };
 
 export const AddColumnsDialog: React.FC<Props> = props => {
@@ -26,19 +24,26 @@ export const AddColumnsDialog: React.FC<Props> = props => {
   const [selectedColumns, setSelectedColumns] = React.useState<
     DataSourceField[]
   >([]);
-  const [expression, setExpression] = React.useState<string | undefined>();
+  const [expressionInfo, setExpressionInfo] = React.useState<
+    | { expression?: string | undefined; displayName?: string | undefined }
+    | undefined
+  >();
 
   const clearSettingsAndClose = React.useCallback(() => {
     setSelectedColumns([]);
-    setExpression(undefined);
+    setExpressionInfo(undefined);
     onClose();
   }, [onClose]);
 
   const applyChanges = React.useCallback(() => {
-    const columnsToAdd = [...selectedColumns];
-    addColumns(columnsToAdd, expression);
+    const columnsToAdd = convertToDataExpression(
+      selectedColumns,
+      expressionInfo?.expression,
+      expressionInfo?.displayName
+    );
+    addColumns(columnsToAdd);
     clearSettingsAndClose();
-  }, [addColumns, clearSettingsAndClose, expression, selectedColumns]);
+  }, [addColumns, clearSettingsAndClose, expressionInfo, selectedColumns]);
 
   return (
     <Dialog open={open} onClose={clearSettingsAndClose}>
@@ -49,8 +54,8 @@ export const AddColumnsDialog: React.FC<Props> = props => {
           allFields={allFields}
           selectedColumns={selectedColumns}
           setSelectedColumns={setSelectedColumns}
-          expression={expression}
-          setExpression={setExpression}
+          expressionInfo={expressionInfo}
+          setExpressionInfo={setExpressionInfo}
           onSubmit={applyChanges}
           onCancel={clearSettingsAndClose}
         />

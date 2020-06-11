@@ -9,11 +9,12 @@ import {
   ClickAwayListener,
 } from "@material-ui/core";
 import { ColumnSelection } from "./column-selection";
+import { convertToDataExpression } from "ui/components/reporting/helpers";
 
 type Props = {
   columns: DataExpression[];
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[] | undefined, expression: string | undefined) => void;
+  addColumns: (columns: DataExpression[]) => void;
 };
 
 export const AddColumns: React.FC<Props> = props => {
@@ -23,16 +24,23 @@ export const AddColumns: React.FC<Props> = props => {
   const [selectedColumns, setSelectedColumns] = React.useState<
     DataSourceField[]
   >([]);
-  const [expression, setExpression] = React.useState<string | undefined>();
+  const [expressionInfo, setExpressionInfo] = React.useState<
+    | { expression?: string | undefined; displayName?: string | undefined }
+    | undefined
+  >();
   const [addColumnsOpen, setAddColumnsOpen] = React.useState(false);
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const applyChanges = () => {
-    const columnsToAdd = [...selectedColumns];
-    addColumns(columnsToAdd, expression);
+    const columnsToAdd = convertToDataExpression(
+      selectedColumns,
+      expressionInfo?.expression,
+      expressionInfo?.displayName
+    );
+    addColumns(columnsToAdd);
     setSelectedColumns([]);
-    setExpression(undefined);
+    setExpressionInfo(undefined);
     setAddColumnsOpen(false);
   };
 
@@ -68,12 +76,12 @@ export const AddColumns: React.FC<Props> = props => {
                     allFields={allFields}
                     selectedColumns={selectedColumns}
                     setSelectedColumns={setSelectedColumns}
-                    expression={expression}
-                    setExpression={setExpression}
+                    expressionInfo={expressionInfo}
+                    setExpressionInfo={setExpressionInfo}
                     onSubmit={applyChanges}
                     onCancel={() => {
                       setSelectedColumns([]);
-                      setExpression(undefined);
+                      setExpressionInfo(undefined);
                       setAddColumnsOpen(false);
                     }}
                   />

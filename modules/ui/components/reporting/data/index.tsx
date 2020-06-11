@@ -22,8 +22,7 @@ type Props = {
   isLoading: boolean;
   allFields: DataSourceField[];
   addColumns: (
-    fields: DataSourceField[] | undefined,
-    expression: string | undefined,
+    columns: DataExpression[],
     index?: number,
     addBeforeIndex?: boolean
   ) => void;

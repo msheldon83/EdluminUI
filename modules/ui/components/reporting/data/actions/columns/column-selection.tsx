@@ -5,14 +5,22 @@ import { compact } from "lodash-es";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Input } from "ui/components/form/input";
 import { Button, makeStyles } from "@material-ui/core";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 type Props = {
   columns: DataExpression[];
   allFields: DataSourceField[];
   selectedColumns: DataSourceField[];
   setSelectedColumns: React.Dispatch<React.SetStateAction<DataSourceField[]>>;
-  expression: string | undefined;
-  setExpression: React.Dispatch<React.SetStateAction<string | undefined>>;
+  expressionInfo:
+    | { expression?: string | undefined; displayName?: string | undefined }
+    | undefined;
+  setExpressionInfo: React.Dispatch<
+    React.SetStateAction<
+      | { expression?: string | undefined; displayName?: string | undefined }
+      | undefined
+    >
+  >;
   onSubmit: () => void;
   onCancel: () => void;
 };
@@ -25,11 +33,13 @@ export const ColumnSelection: React.FC<Props> = props => {
     allFields,
     selectedColumns,
     setSelectedColumns,
-    expression,
-    setExpression,
+    expressionInfo,
+    setExpressionInfo,
     onSubmit,
     onCancel,
   } = props;
+
+  const userAccess = useMyUserAccess();
 
   const options = React.useMemo(() => {
     const currentDataSourceFieldColumns = compact(
@@ -65,29 +75,63 @@ export const ColumnSelection: React.FC<Props> = props => {
           withResetValue={false}
           onChange={value => {
             const fieldNames = value.map((v: OptionType) => v.value);
-            const selectedFields = allFields.filter(f =>
-              fieldNames.includes(f.dataSourceFieldName)
-            );
-            if (selectedFields.length > 0 && expression) {
-              setExpression(undefined);
+            // Maintain the order of selections
+            const selectedFields: DataSourceField[] = [];
+            fieldNames.forEach(f => {
+              const match = allFields.find(a => a.dataSourceFieldName === f);
+              if (match) {
+                selectedFields.push(match);
+              }
+            });
+            if (selectedFields.length > 0 && expressionInfo) {
+              setExpressionInfo(undefined);
             }
             setSelectedColumns(selectedFields);
           }}
         />
       </div>
-      <div className={classes.expression}>
-        <div className={classes.expressionLabel}>{t("or Add Expression")}</div>
-        <Input
-          value={expression ?? ""}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            if (event.target.value && selectedColumns.length > 0) {
-              setSelectedColumns([]);
-            }
-            setExpression(event.target.value ? event.target.value : undefined);
-          }}
-          placeholder={t("Type expression")}
-        />
-      </div>
+      {userAccess?.isSysAdmin && (
+        <div className={classes.expression}>
+          <div className={classes.expressionLabel}>
+            {t("or add expression")}
+          </div>
+          <Input
+            value={expressionInfo?.expression ?? ""}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const value = event.target.value;
+              if (value && selectedColumns.length > 0) {
+                setSelectedColumns([]);
+              }
+              setExpressionInfo(current => {
+                return {
+                  ...(current ?? {}),
+                  expression: value ?? undefined,
+                };
+              });
+            }}
+            placeholder={t("Type expression")}
+          />
+          {expressionInfo?.expression && (
+            <>
+              <div className={classes.expressionLabel}>
+                {t("with column header")}
+              </div>
+              <Input
+                value={expressionInfo?.displayName ?? ""}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = event.target.value;
+                  setExpressionInfo(current => {
+                    return {
+                      ...(current ?? {}),
+                      displayName: value ?? undefined,
+                    };
+                  });
+                }}
+              />
+            </>
+          )}
+        </div>
+      )}
       <div className={classes.actions}>
         <Button variant="outlined" onClick={onCancel}>
           {t("Cancel")}
@@ -96,6 +140,10 @@ export const ColumnSelection: React.FC<Props> = props => {
           variant="contained"
           onClick={onSubmit}
           className={classes.applyButton}
+          disabled={
+            selectedColumns.length === 0 &&
+            (!expressionInfo?.expression || !expressionInfo?.displayName)
+          }
         >
           {t("Apply")}
         </Button>
@@ -109,11 +157,11 @@ const useStyles = makeStyles(theme => ({
     width: theme.typography.pxToRem(300),
   },
   expression: {
-    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
   expressionLabel: {
     fontWeight: "bold",
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(),
   },
   actions: {

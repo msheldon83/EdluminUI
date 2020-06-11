@@ -31,8 +31,7 @@ type Props = {
   ) => void;
   orderedBy: OrderByField[];
   addColumns: (
-    fields: DataSourceField[] | undefined,
-    expression: string | undefined,
+    columns: DataExpression[],
     index?: number,
     addBeforeIndex?: boolean
   ) => void;
@@ -339,16 +338,8 @@ export const DataGridHeader: React.FC<Props> = props => {
         }
         columns={columns}
         allFields={allFields}
-        addColumns={(
-          fields: DataSourceField[] | undefined,
-          expression: string | undefined
-        ) =>
-          addColumns(
-            fields,
-            expression,
-            addColumnsInfo?.index,
-            addColumnsInfo?.before
-          )
+        addColumns={(columns: DataExpression[]) =>
+          addColumns(columns, addColumnsInfo?.index, addColumnsInfo?.before)
         }
       />
     </>

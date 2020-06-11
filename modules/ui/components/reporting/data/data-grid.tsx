@@ -46,8 +46,7 @@ type Props = {
   ) => void;
   allFields: DataSourceField[];
   addColumns: (
-    fields: DataSourceField[] | undefined,
-    expression: string | undefined,
+    columns: DataExpression[],
     index?: number,
     addBeforeIndex?: boolean
   ) => void;

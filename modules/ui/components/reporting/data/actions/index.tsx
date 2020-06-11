@@ -24,7 +24,7 @@ type Props = {
   setOrderBy: (orderBy: OrderByField[]) => void;
   columns: DataExpression[];
   allFields: DataSourceField[];
-  addColumns: (fields: DataSourceField[] | undefined, expression: string | undefined) => void;
+  addColumns: (columns: DataExpression[]) => void;
   refreshReport: () => Promise<void>;
 };
 

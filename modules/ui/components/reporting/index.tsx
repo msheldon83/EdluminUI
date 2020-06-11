@@ -138,8 +138,8 @@ export const Report: React.FC<Props> = props => {
     []
   );
 
-  const addColumns = React.useCallback((fields: DataSourceField[] | undefined, expression: string | undefined, index?: number, addBeforeIndex?: boolean) => {
-    dispatch({ action: "addColumns", fields, expression, index, addBeforeIndex });
+  const addColumns = React.useCallback((columns: DataExpression[], index?: number, addBeforeIndex?: boolean) => {
+    dispatch({ action: "addColumns", columns, index, addBeforeIndex });
   }, []);
 
   const setColumns = React.useCallback(

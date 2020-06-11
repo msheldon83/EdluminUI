@@ -54,8 +54,7 @@ export type ReportActions =
     }
   | {
       action: "addColumns";
-      fields: DataSourceField[] | undefined;
-      expression: string | undefined;
+      columns: DataExpression[];
       index?: number;
       addBeforeIndex?: boolean;
     }
@@ -258,25 +257,6 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       return updatedState;
     }
     case "addColumns": {
-      const additionalFields: DataExpression[] = action.fields
-        ? action.fields.map(f => {
-            return {
-              displayName: f.friendlyName,
-              expressionAsQueryLanguage: f.dataSourceFieldName,
-              baseExpressionAsQueryLanguage: f.dataSourceFieldName,
-              dataSourceField: f,
-            };
-          })
-        : [];
-      if (action.expression) {
-        additionalFields.push({
-          displayName: action.expression,
-          expressionAsQueryLanguage: action.expression,
-          baseExpressionAsQueryLanguage: action.expression,
-          dataSourceField: undefined,
-        });
-      }
-
       let updatedSelects = [...prev.report!.selects];
       if (action.index) {
         // If we're adding columns before or after another column
@@ -287,11 +267,9 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         const afterSelects = updatedSelects.slice(
           action.addBeforeIndex ? action.index : action.index + 1
         );
-        updatedSelects = [
-          ...beforeSelects,
-          ...additionalFields,
-          ...afterSelects,
-        ];
+        updatedSelects = [...beforeSelects, ...action.columns, ...afterSelects];
+      } else {
+        updatedSelects = [...prev.report!.selects, ...action.columns];
       }
 
       const updatedState = {

@@ -4,7 +4,7 @@ import {
   DataExpression,
   GraphType,
   FilterField,
-  OrderByField,
+  DataSourceField,
 } from "./types";
 import { difference, differenceWith } from "lodash-es";
 
@@ -104,4 +104,29 @@ export const filtersAreEqual = (
   }
 
   return false;
+};
+
+export const convertToDataExpression = (
+  fields: DataSourceField[],
+  expression?: string,
+  expressionAlias?: string
+): DataExpression[] => {
+  const dataExpressions: DataExpression[] = [
+    ...fields.map(f => {
+      return {
+        displayName: f.friendlyName,
+        expressionAsQueryLanguage: f.dataSourceFieldName,
+        baseExpressionAsQueryLanguage: f.dataSourceFieldName,
+        dataSourceField: f,
+      };
+    }),
+  ];
+  if (expression && expressionAlias) {
+    dataExpressions.push({
+      displayName: expressionAlias,
+      expressionAsQueryLanguage: `${expression} AS ${expressionAlias}`,
+      baseExpressionAsQueryLanguage: expression,
+    });
+  }
+  return dataExpressions;
 };
