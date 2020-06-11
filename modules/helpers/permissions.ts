@@ -662,3 +662,22 @@ export const canViewRosterReports = (
   );
   return (viewPermissions?.length ?? 0) > 0;
 };
+
+export const canViewAbsVacActivityLog = (
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  isAdmin: boolean,
+  orgId?: string
+) => {
+  if (isSysAdmin) return true;
+
+  // Only admins can see the activity log, however the AbsVacView permission applies to Admins and Employees
+  if (!isAdmin) return false;
+  const userPerms = getUserPermissions(permissions, orgId, "admin");
+
+  if (!userPerms?.includes(PermissionEnum.AbsVacView)) {
+    return false;
+  }
+
+  return true;
+};
