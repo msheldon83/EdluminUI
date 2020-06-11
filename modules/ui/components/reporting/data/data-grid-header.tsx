@@ -243,10 +243,6 @@ export const DataGridHeader: React.FC<Props> = props => {
         }}
         onDragStart={(start: DragStart) => {
           const indexBeingDragged = start.source.index;
-          console.log({
-            sourceIndex: indexBeingDragged,
-            dragColumnWidth: getColumnWidth(indexBeingDragged),
-          });
           setDraggingDetails({
             sourceIndex: indexBeingDragged,
             dragColumnWidth: getColumnWidth(indexBeingDragged),
