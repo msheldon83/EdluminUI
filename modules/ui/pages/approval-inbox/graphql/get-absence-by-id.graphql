@@ -16,7 +16,12 @@ query GetAbsence($id: ID!) {
           comment
           commentIsPublic
           createdLocal
-          actingOrgUser {
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actualUser {
             id
             firstName
             lastName
@@ -27,7 +32,12 @@ query GetAbsence($id: ID!) {
           createdLocal
           approvalActionId
           actingOrgUserId
-          actingOrgUser {
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actualUser {
             id
             firstName
             lastName
