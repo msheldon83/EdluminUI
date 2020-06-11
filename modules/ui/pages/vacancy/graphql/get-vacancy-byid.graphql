@@ -14,19 +14,6 @@ query GetVacancyById($id: ID!) {
         currentStepId
         comments {
           id
-          comment
-          commentIsPublic
-          createdLocal
-          actingOrgUser {
-            id
-            firstName
-            lastName
-          }
-          approvalDecisionId
-          approvalDecision {
-            id
-            approvalActionId
-          }
         }
       }
       closedDetails {
