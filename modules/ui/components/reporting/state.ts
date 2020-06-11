@@ -143,16 +143,9 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
         };
       }
 
-      // Always update the Selects on the Report from the Report Definition
-      // since we allow Users to manually type expressions and the server
-      // will break that string apart for us and return the necessary pieces
       return {
         ...prev,
         reportDefinition: action.reportDefinition,
-        // report: {
-        //   ...prev.report,
-        //   //selects: action.reportDefinition.metadata.query.selects,
-        // },
       };
     }
     case "setReportChartDefinition": {
