@@ -24,7 +24,7 @@ type Props = SubNavItemType & {
   orgId?: string;
 };
 
-type SubNavItemType = {
+export type SubNavItemType = {
   title: string | JSX.Element;
   route: string;
   onClick?: () => void;

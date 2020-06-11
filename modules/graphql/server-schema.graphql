@@ -958,6 +958,7 @@ type ApproverGroupQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApproverGroupHeader
   groupById(approverGroupId: ID!): ApproverGroup
   groupsByLocationId(locationId: ID!): [ApproverGroup]
+  myApproverGroupHeaders: [ApproverGroupHeader]
 }
 
 input ApproverGroupRemoveMemberInput {
