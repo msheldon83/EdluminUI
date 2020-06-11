@@ -55,7 +55,7 @@ export const AddColumns: React.FC<Props> = props => {
         className={classes.actionButton}
         ref={buttonRef}
       >
-        {t("ADD COLUMNS")}
+        {t("Add columns")}
       </Button>
       <Popper
         transition
