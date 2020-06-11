@@ -89,7 +89,10 @@ export const AccessControl: React.FC<Props> = props => {
     OrgUserRole.Administrator,
   ]);
   const permissionSetOptions: OptionType[] = useMemo(
-    () => permissionSets.map(p => ({ label: p.name, value: p.id })),
+    () =>
+      permissionSets
+        .filter(p => !p.isShadowRecord)
+        .map(p => ({ label: p.name, value: p.id })),
     [permissionSets]
   );
 
