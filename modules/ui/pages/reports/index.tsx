@@ -11,6 +11,7 @@ import {
   AnalyticsReportsSubHistoryRoute,
   AnalyticsReportsEmployeeRosterRoute,
   AnalyticsReportsSubstituteRosterRoute,
+  AnalyticsReportsEmployeeBalancesRoute,
 } from "ui/routes/analytics-reports";
 import { BaseLink, pickUrl } from "ui/components/links/base";
 import { CanDo } from "ui/components/auth/types";
@@ -77,6 +78,18 @@ export const ReportsPage: React.FC<Props> = props => {
           name: t("Substitute Roster"),
           url: () => AnalyticsReportsSubstituteRosterRoute.generate(params),
           permission: PermissionEnum.ReportsSubSchema,
+        },
+      ],
+      permissionCheck: canViewRosterReports,
+      ref: React.useRef<HTMLDivElement>(null),
+    },
+    {
+      title: t("Balances"),
+      reports: [
+        {
+          name: t("Employee Balances"),
+          url: () => AnalyticsReportsEmployeeBalancesRoute.generate(params),
+          permission: PermissionEnum.ReportsEmpSchema,
         },
       ],
       permissionCheck: canViewRosterReports,

@@ -128,6 +128,8 @@ import {
   AnalyticsReportsEmployeeRosterLoader,
   AnalyticsReportsSubstituteRosterRoute,
   AnalyticsReportsSubstituteRosterLoader,
+  AnalyticsReportsEmployeeBalancesRoute,
+  AnalyticsReportsEmployeeBalancesLoader,
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -1473,6 +1475,18 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ReportsSubSchema,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AnalyticsReportsEmployeeBalancesLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsEmployeeBalancesRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ReportsEmpSchema,
                                       ]}
                                     />
                                     <ProtectedRoute
