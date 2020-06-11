@@ -34,7 +34,13 @@ type Props = {
     comment?: string | null;
     commentIsPublic: boolean;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -42,7 +48,13 @@ type Props = {
   decisions: {
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -96,6 +108,7 @@ type Props = {
         }>[]
       | null;
   };
+  onSaveComment?: () => void;
 };
 
 export const ApprovalDetail: React.FC<Props> = props => {
@@ -210,6 +223,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
               actingAsEmployee={props.actingAsEmployee}
               comments={props.comments}
               decisions={props.decisions}
+              onCommentSave={props.onSaveComment}
             />
           </Grid>
         </Grid>

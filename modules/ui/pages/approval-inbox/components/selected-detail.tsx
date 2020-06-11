@@ -100,6 +100,14 @@ export const SelectedDetail: React.FC<Props> = props => {
     [absence]
   );
 
+  const handleSaveComment = async () => {
+    if (props.selectedItem?.isNormalVacancy) {
+      await getVacancy.refetch();
+    } else {
+      await getAbsence.refetch();
+    }
+  };
+
   return props.selectedItem ? (
     <Grid container spacing={2} className={classes.backgroundContainer}>
       {!props.selectedItem?.isNormalVacancy && absence && (
@@ -185,6 +193,7 @@ export const SelectedDetail: React.FC<Props> = props => {
           approvalStateId={approvalState?.id ?? ""}
           comments={approvalState?.comments ?? []}
           decisions={approvalState?.decisions ?? []}
+          onCommentSave={handleSaveComment}
         />
       </Grid>
       <Grid item xs={12}>
