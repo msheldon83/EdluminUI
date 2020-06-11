@@ -16,7 +16,7 @@ import { FilterQueryParams } from "./components/filters/filter-params";
 import { VacancyDetailVerifyInput } from "graphql/server-types.gen";
 import { VerifyVacancyDetail } from "./graphql/verify-vacancy-detail.gen";
 import { VerifyDailyUI } from "./daily-ui";
-import { AssignmentRow } from "./types";
+import { AssignmentDetail } from "./types";
 
 export const VerifyDailyPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -29,7 +29,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {
     variables: {
       orgId: params.organizationId,
-      includeVerified: filters.showVerified,
+      includeVerified: true,
       locationIds: filters.locationIds,
       fromDate: filters.date,
       toDate: filters.date,
@@ -45,37 +45,11 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     lastName: string;
   }) => `${firstName} ${lastName}`;
 
-  const assignments: "LOADING" | AssignmentRow[] =
-    getVacancyDetails.state == "LOADING"
+  const assignments: "LOADING" | AssignmentDetail[] =
+    getVacancyDetails.state === "LOADING"
       ? "LOADING"
-      : compact(
-          getVacancyDetails.data?.vacancy?.getAssignmentsForVerify ?? []
-        ).map(d => ({
-          id: d.assignment!.id,
-          subName: fullName(d.assignment!.employee!),
-          subFor: d.vacancy!.absence
-            ? fullName(d.vacancy!.absence.employee!)
-            : d.vacancy!.position!.title,
-          reason: d.vacancy!.absence?.details
-            ? d.vacancy!.absence?.details[0]!.id
-            : d.vacancyReason!.name,
-          startTime: d.startTimeLocal,
-          endTime: d.endTimeLocal,
-          payDuration: d.payInfo?.dayConversion?.name ?? undefined,
-          position: d.vacancy!.position!.title,
-          payCode: d.payCode ?? undefined,
-          school: d.location!.name,
-          accountingCode:
-            d.accountingCodeAllocations[0]?.accountingCode ?? undefined,
-          adminComments: "",
-          isVerified: d.verifiedAtLocal ? true : false,
-          ...(d.vacancy!.absence?.id
-            ? {
-                absenceId: d.vacancy!.absence.id,
-                notesToAdmin: d.vacancy?.absence.adminOnlyNotes ?? "",
-              }
-            : { vacancyId: d.vacancyId }),
-        }));
+      : ((getVacancyDetails.data?.vacancy?.getAssignmentsForVerify ??
+          []) as AssignmentDetail[]);
   const [verifyVacancyDetail] = useMutationBundle(VerifyVacancyDetail);
 
   const onVerify = async (verifyInput: VacancyDetailVerifyInput) => {
@@ -129,6 +103,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
           <Typography>{t("Loading...")}</Typography>
         ) : (
           <VerifyDailyUI
+            orgId={params.organizationId}
             assignments={assignments}
             showVerified={filters.showVerified}
             onVerify={onVerify}

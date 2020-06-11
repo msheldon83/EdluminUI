@@ -36,14 +36,6 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
   const location = useLocation();
   const { presetDateRanges, getPresetByDates } = usePresetDateRanges();
   // TODO: update getCountOfAssignmentsForVerify so we don't need to call it twice.
-  const getTotalAssignmentCounts = useQueryBundle(GetAssignmentCount, {
-    variables: {
-      orgId: params.organizationId,
-      locationIds: filters.locationIds,
-      fromDate: filters.dateRangeStart,
-      toDate: filters.dateRangeEnd,
-    },
-  });
   const getUnverifiedAssignmentCounts = useQueryBundle(GetAssignmentCount, {
     variables: {
       orgId: params.organizationId,
@@ -51,6 +43,15 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
       fromDate: filters.dateRangeStart,
       toDate: filters.dateRangeEnd,
       includeVerified: false,
+    },
+  });
+  const getTotalAssignmentCounts = useQueryBundle(GetAssignmentCount, {
+    variables: {
+      orgId: params.organizationId,
+      locationIds: filters.locationIds,
+      fromDate: filters.dateRangeStart,
+      toDate: filters.dateRangeEnd,
+      //includeVerified: true,
     },
   });
 

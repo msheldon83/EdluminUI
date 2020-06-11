@@ -5,158 +5,84 @@ import { Formik } from "formik";
 import clsx from "clsx";
 import * as yup from "yup";
 import { format, parseISO } from "date-fns";
-import { VacancyDetailVerifyInput } from "graphql/server-types.gen";
-import { AssignmentRow } from "./types";
+import {
+  AbsenceReasonTrackingTypeId,
+  PermissionEnum,
+  VacancyDetailVerifyInput,
+} from "graphql/server-types.gen";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory, useLocation } from "react-router";
+import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Can } from "ui/components/auth/can";
+import { getPayLabel } from "ui/components/helpers";
+import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
+import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { VacancyViewRoute } from "ui/routes/vacancy";
+import { usePayCodes } from "reference-data/pay-codes";
+import { AssignmentDetail } from "./types";
 import { ProgressBar } from "./components/progess-bar";
-
-type FormProps = {
-  startTime: string;
-  endTime: string;
-  position: string;
-  school: string;
-  initialAccountingCode?: { id: string; name: string };
-  initialPayCode?: { id: string; name: string };
-  initialPayDuration?: string;
-  isOpen: boolean;
-  onVerify: (verifyInput: VacancyDetailVerifyInput) => void;
-};
-const AssignmentForm: React.FC<FormProps> = ({
-  startTime,
-  endTime,
-  position,
-  school,
-  initialPayDuration,
-  initialPayCode,
-  initialAccountingCode,
-  isOpen,
-  onVerify,
-}) => {
-  const { t } = useTranslation();
-  const [payDuration, setPayDuration] = React.useState<string>(
-    initialPayDuration ?? ""
-  );
-  const [payCode, setPayCode] = React.useState<
-    { id: string; name: string } | undefined
-  >(initialPayCode);
-  const [accountingCode, setAccountingCode] = React.useState<
-    { id: string; name: string } | undefined
-  >(initialAccountingCode);
-
-  const staticSection = (
-    <>
-      <Grid item xs={4}>
-        <Typography>{`${format(parseISO(startTime), "h:mm aaa")} - ${format(
-          parseISO(endTime),
-          "h:mm aaa"
-        )}`}</Typography>
-      </Grid>
-      <Grid item xs={4}>
-        <Typography>{position}</Typography>
-      </Grid>
-      <Grid item xs={4}>
-        <Typography>{school}</Typography>
-      </Grid>
-    </>
-  );
-
-  const VerifyButton = (
-    <Button
-      variant="outlined"
-      type="submit"
-      onClick={event => {
-        event.stopPropagation();
-        //onVerify(id);
-      }}
-    >
-      {t("Verify")}
-    </Button>
-  );
-
-  return (
-    <Formik initialValues={{}} onSubmit={() => {}}>
-      {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
-        <form onSubmit={handleSubmit}>
-          <Grid item xs={10}>
-            {staticSection}
-          </Grid>
-          <Grid item xs={2}>
-            {VerifyButton}
-          </Grid>
-        </form>
-      )}
-    </Formik>
-  );
-};
-
-const AssignmentRowUI: React.FC<AssignmentRow & {
-  onVerify: (verifyInput: VacancyDetailVerifyInput) => void;
-}> = ({
-  id,
-  subName,
-  subFor,
-  reason,
-  onVerify,
-  payDuration,
-  payCode,
-  accountingCode,
-  ...props
-}) => {
-  const classes = useRowStyles();
-  const { t } = useTranslation();
-
-  return (
-    <Grid item container>
-      <Grid item xs={2} className={clsx(classes.cell, classes.idCell)}>
-        <Typography variant="h6">{`C#${id}`}</Typography>
-      </Grid>
-      <Grid item xs={3} className={classes.cell}>
-        <Typography>{subName}</Typography>
-        <Typography className={classes.detailSubText}>
-          {`for ${subFor}`}
-        </Typography>
-        <Typography className={classes.detailSubText}>{reason}</Typography>
-      </Grid>
-      <Grid item container xs={7} className={classes.cell}>
-        <AssignmentForm
-          {...props}
-          initialPayDuration={payDuration}
-          initialPayCode={payCode}
-          initialAccountingCode={accountingCode}
-          onVerify={onVerify}
-          isOpen={false}
-        />
-      </Grid>
-    </Grid>
-  );
-};
-
-const useRowStyles = makeStyles(theme => ({
-  cell: {
-    padding: theme.spacing(1),
-    textAlign: "left",
-  },
-  idCell: {
-    textAlign: "center",
-  },
-  detailSubText: {
-    color: theme.customColors.edluminSubText,
-  },
-}));
+import { Assignment } from "./components/assignment";
 
 type Props = {
-  assignments: AssignmentRow[];
+  assignments: AssignmentDetail[];
+  onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
+  orgId: string;
   showVerified: boolean;
-  onVerify: (verifyInput: VacancyDetailVerifyInput) => void;
 };
 
 export const VerifyDailyUI: React.FC<Props> = ({
   assignments,
-  showVerified,
   onVerify,
+  orgId,
+  showVerified,
 }) => {
   const { t } = useTranslation();
-
-  const unverified = assignments.filter(a => !a.isVerified);
+  const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
+  const vacancyEditParams = useRouteParams(VacancyViewRoute);
+  const [selectedAssignment, setSelectedAssignment] = React.useState<
+    string | undefined
+  >();
+  const [nextSelectedAssignment, setNextSelectedAssignment] = React.useState<
+    string | undefined
+  >();
+  // When we select a detail record figure out what the next record we should have selected once we verify
+  const onSelectDetail = (vacancyDetailId: string) => {
+    setSelectedAssignment(vacancyDetailId);
+    const index = assignments.findIndex(x => x.id === vacancyDetailId);
+    const nextId = assignments[index + 1]?.id;
+    const previousId = assignments[index - 1]?.id;
+    if (nextId) {
+      setNextSelectedAssignment(nextId);
+    } else if (previousId) {
+      setNextSelectedAssignment(previousId);
+    } else {
+      setNextSelectedAssignment(undefined);
+    }
+  };
+  const payCodes = usePayCodes(orgId);
+  const payCodeOptions = React.useMemo(
+    () => payCodes.map(c => ({ label: c.name, value: c.id })),
+    [payCodes]
+  );
+  const vacancyDayConversions = useOrgVacancyDayConversions(orgId);
+  const history = useHistory();
+  const goToEdit = (vacancyId: string, absenceId?: string | null) => {
+    if (absenceId) {
+      const url = AdminEditAbsenceRoute.generate({
+        ...absenceEditParams,
+        absenceId,
+      });
+      history.push(url);
+    } else {
+      const url = VacancyViewRoute.generate({
+        ...vacancyEditParams,
+        vacancyId,
+      });
+      history.push(url);
+    }
+  };
+  const unverified = assignments.filter(a => !a.verifiedAtLocal);
+  console.log(unverified);
 
   return (
     <>
@@ -177,8 +103,18 @@ export const VerifyDailyUI: React.FC<Props> = ({
         totalAssignments={assignments.length}
       />
       <Grid container direction="column">
-        {(showVerified ? assignments : unverified).map(a => (
-          <AssignmentRowUI onVerify={onVerify} {...a} />
+        {(showVerified ? assignments : unverified).map((a, i) => (
+          <Assignment
+            key={a.id}
+            vacancyDetail={a}
+            shadeRow={i % 2 != 0}
+            onVerify={onVerify}
+            selectedVacancyDetail={selectedAssignment}
+            onSelectDetail={onSelectDetail}
+            payCodeOptions={payCodeOptions}
+            vacancyDayConversions={vacancyDayConversions}
+            goToEdit={goToEdit}
+          />
         ))}
       </Grid>
     </>
