@@ -34,7 +34,13 @@ type Props = {
     comment?: string | null;
     commentIsPublic: boolean;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -42,7 +48,13 @@ type Props = {
   decisions: {
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };

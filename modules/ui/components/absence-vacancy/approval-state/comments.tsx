@@ -12,12 +12,12 @@ type CommentDecision = {
   approvalActionId?: ApprovalAction;
   commentIsPublic: boolean;
   createdLocal?: string | null;
-  actingOrgUser: {
+  actingUser: {
     id: string;
     firstName: string;
     lastName: string;
   };
-  actualOrgUser: {
+  actualUser: {
     id: string;
     firstName: string;
     lastName: string;
@@ -32,12 +32,12 @@ type Props = {
     comment?: string | null;
     commentIsPublic: boolean;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
       id: string;
       firstName: string;
       lastName: string;
     };
-    actualOrgUser: {
+    actualUser: {
       id: string;
       firstName: string;
       lastName: string;
@@ -46,12 +46,12 @@ type Props = {
   decisions: {
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
       id: string;
       firstName: string;
       lastName: string;
     };
-    actualOrgUser: {
+    actualUser: {
       id: string;
       firstName: string;
       lastName: string;
@@ -73,8 +73,8 @@ export const ApprovalComments: React.FC<Props> = props => {
     comments.forEach(c => {
       list.push({
         comment: c.comment,
-        actingOrgUser: c.actingOrgUser,
-        actualOrgUser: c.actualOrgUser,
+        actingUser: c.actingUser,
+        actualUser: c.actualUser,
         commentIsPublic: c.commentIsPublic,
         createdLocal: c.createdLocal,
       });
@@ -82,8 +82,8 @@ export const ApprovalComments: React.FC<Props> = props => {
     decisions.forEach(d => {
       list.push({
         approvalActionId: d.approvalActionId,
-        actingOrgUser: d.actingOrgUser,
-        actualOrgUser: d.actualOrgUser,
+        actingUser: d.actingUser,
+        actualUser: d.actualUser,
         commentIsPublic: true,
         createdLocal: d.createdLocal,
       });
@@ -105,14 +105,12 @@ export const ApprovalComments: React.FC<Props> = props => {
   };
 
   const getApproverName = (comment: CommentDecision) => {
-    if (comment.actingOrgUser.id === comment.actualOrgUser.id) {
-      return `${comment.actingOrgUser.firstName} ${comment.actingOrgUser.lastName}`;
+    if (comment.actingUser.id === comment.actualUser.id) {
+      return `${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
     }
-    return `${comment.actualOrgUser.firstName} ${
-      comment.actualOrgUser.lastName
-    } ${t("on behalf of")} ${comment.actingOrgUser.firstName} ${
-      comment.actingOrgUser.lastName
-    }`;
+    return `${comment.actualUser.firstName} ${comment.actualUser.lastName} ${t(
+      "on behalf of"
+    )} ${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
   };
 
   return (
