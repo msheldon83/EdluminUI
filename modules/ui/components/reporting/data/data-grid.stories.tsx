@@ -21,6 +21,10 @@ export const Basic = () => {
         orderedBy={[]}
         setFirstLevelOrderBy={() => {}}
         isLoading={false}
+        allFields={[]}
+        addColumns={() => {}}
+        setColumns={() => {}}
+        removeColumn={() => {}}
       />
     </div>
   );
@@ -41,6 +45,10 @@ export const BasicLoading = () => {
         orderedBy={[]}
         setFirstLevelOrderBy={() => {}}
         isLoading={true}
+        allFields={[]}
+        addColumns={() => {}}
+        setColumns={() => {}}
+        removeColumn={() => {}}
       />
     </div>
   );
@@ -70,6 +78,10 @@ export const SingleGrouping = () => {
         orderedBy={[]}
         setFirstLevelOrderBy={() => {}}
         isLoading={false}
+        allFields={[]}
+        addColumns={() => {}}
+        setColumns={() => {}}
+        removeColumn={() => {}}
       />
     </div>
   );
@@ -106,6 +118,10 @@ export const MultipleGroupings = () => {
         orderedBy={[]}
         setFirstLevelOrderBy={() => {}}
         isLoading={false}
+        allFields={[]}
+        addColumns={() => {}}
+        setColumns={() => {}}
+        removeColumn={() => {}}
       />
     </div>
   );
