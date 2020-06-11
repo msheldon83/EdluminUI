@@ -199,9 +199,10 @@ export const DataGridHeader: React.FC<Props> = props => {
           // This adjusts the offset of the column when dragging so the columns
           // not being dragged flow appropriately around the one that is
           left:
-            style.left &&
-            draggingDetails?.sourceIndex &&
-            columnIndex > draggingDetails?.sourceIndex
+            (style.left &&
+              draggingDetails?.sourceIndex &&
+              columnIndex > draggingDetails?.sourceIndex) ||
+            draggingDetails?.sourceIndex === 0
               ? Number(style.left) - (draggingDetails?.dragColumnWidth ?? 0)
               : style.left,
         }}
@@ -242,6 +243,10 @@ export const DataGridHeader: React.FC<Props> = props => {
         }}
         onDragStart={(start: DragStart) => {
           const indexBeingDragged = start.source.index;
+          console.log({
+            sourceIndex: indexBeingDragged,
+            dragColumnWidth: getColumnWidth(indexBeingDragged),
+          });
           setDraggingDetails({
             sourceIndex: indexBeingDragged,
             dragColumnWidth: getColumnWidth(indexBeingDragged),
