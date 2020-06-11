@@ -8,6 +8,7 @@ query GetAllVacancyReasonsWithinOrg($orgId: ID, $includeExpired: Boolean) {
       description
       code
       expired
+      requiresApproval
     }
   }
 }
