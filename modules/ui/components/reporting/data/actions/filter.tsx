@@ -47,8 +47,12 @@ export const Filter: React.FC<Props> = props => {
         );
       }
       case FilterType.Date: {
-        const start = filterField.value[0] ?? undefined;
-        const end = filterField.value[1] ?? undefined;
+        const start = filterField.value
+          ? filterField.value[0] ?? undefined
+          : undefined;
+        const end = filterField.value
+          ? filterField.value[1] ?? undefined
+          : undefined;
         return (
           <DateRangePickerPopover
             startDate={start}

@@ -116,3 +116,20 @@ export const AnalyticsReportsEmployeeBalancesLoader = asyncComponent({
   },
   name: "EmployeeBalancesReport",
 });
+
+
+// Payroll Report
+export const AnalyticsReportsPayrollRoute = defineSubRoute(
+  AnalyticsReportsRoute,
+  "/payroll",
+  []
+);
+
+export const AnalyticsReportsPayrollLoader = asyncComponent({
+  resolve: async () => {
+    const PayrollReport = (await import("ui/pages/reports/payroll"))
+      .PayrollReport;
+    return PayrollReport;
+  },
+  name: "PayrollReport",
+});
