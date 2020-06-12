@@ -51,6 +51,7 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
       locationIds: filters.locationIds,
       fromDate: filters.dateRangeStart,
       toDate: filters.dateRangeEnd,
+      //Works even less if uncommented, until backend fix is deployed to dev
       //includeVerified: true,
     },
   });

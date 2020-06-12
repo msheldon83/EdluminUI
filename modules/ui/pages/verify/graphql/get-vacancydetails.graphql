@@ -95,6 +95,7 @@ query GetVacancyDetails(
             }
           }
           adminOnlyNotes
+          notesToApprover
         }
         payInfoSummary {
           summaryLabel

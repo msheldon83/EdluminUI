@@ -9,6 +9,8 @@ import {
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
+import { useQueryBundle } from "graphql/hooks";
+import { GetVacancyNotes } from "../graphql/get-vacancy-notes.gen";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { parseISO, format } from "date-fns";
 import clsx from "clsx";
@@ -228,6 +230,21 @@ export const Assignment: React.FC<Props> = props => {
     travelingTeacher,
     t,
   ]);
+
+  const getVacancyNotes = useQueryBundle(GetVacancyNotes, {
+    variables: {
+      vacancyId: vacancyDetail.vacancy?.id,
+    },
+    skip: !!vacancyDetail.vacancy?.absence,
+  });
+
+  const notesToAdministrator = vacancyDetail.vacancy?.absence?.notesToApprover;
+
+  const adminOnlyNotes =
+    vacancyDetail.vacancy?.absence?.adminOnlyNotes ??
+    (getVacancyNotes.state != "LOADING"
+      ? getVacancyNotes.data.vacancy?.byId?.adminOnlyNotes ?? undefined
+      : undefined);
 
   const payCodeLabel = props.payCodeOptions.find(
     x => x.value === currentPayCodeId
@@ -451,7 +468,7 @@ export const Assignment: React.FC<Props> = props => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item container>
+                <Grid item container alignItems="flex-end">
                   <Grid item xs={4}>
                     {isActiveCard ? (
                       <>
@@ -639,49 +656,43 @@ export const Assignment: React.FC<Props> = props => {
                     )}
                   </Grid>
                 </Grid>
+                {notesToAdministrator && (
+                  <Grid item container direction="column">
+                    <Typography className={classes.boldText}>
+                      {t("Notes to Administrator:")}
+                    </Typography>
+                    <Typography>{notesToAdministrator}</Typography>
+                  </Grid>
+                )}
+                {adminOnlyNotes && (
+                  <Grid item container direction="column">
+                    <Typography className={classes.boldText}>
+                      {t("Administrator comments:")}
+                    </Typography>
+                    <Typography>{adminOnlyNotes}</Typography>
+                  </Grid>
+                )}
                 {isActiveCard && (
-                  <>
+                  <Can do={[PermissionEnum.AbsVacSave]}>
                     <Grid item container>
-                      <Can do={[PermissionEnum.AbsVacSave]}>
-                        <Typography className={classes.boldText}>
-                          {t("Notes to Administrator:")}
-                        </Typography>
-                        <Input
-                          value={values.verifyComments}
-                          InputComponent={FormTextField}
-                          classes={{ root: classes.root }}
-                          inputComponentProps={{
-                            name: "adminOnlyNotes",
-                            margin: "normal",
-                            fullWidth: true,
-                          }}
-                          onBlur={() =>
-                            handleCommentsOnBlur(values.verifyComments)
-                          }
-                        />
-                      </Can>
+                      <Typography className={classes.boldText}>
+                        {t("Verifier Comments:")}
+                      </Typography>
+                      <Input
+                        value={values.verifyComments}
+                        InputComponent={FormTextField}
+                        classes={{ root: classes.root }}
+                        inputComponentProps={{
+                          name: "verifyComments",
+                          margin: "normal",
+                          fullWidth: true,
+                        }}
+                        onBlur={() =>
+                          handleCommentsOnBlur(values.verifyComments)
+                        }
+                      />
                     </Grid>
-                    <Grid item container>
-                      <Can do={[PermissionEnum.AbsVacSave]}>
-                        <Typography className={classes.boldText}>
-                          {t("Comments:")}
-                        </Typography>
-                        <Input
-                          value={values.verifyComments}
-                          InputComponent={FormTextField}
-                          classes={{ root: classes.root }}
-                          inputComponentProps={{
-                            name: "verifyComments",
-                            margin: "normal",
-                            fullWidth: true,
-                          }}
-                          onBlur={() =>
-                            handleCommentsOnBlur(values.verifyComments)
-                          }
-                        />
-                      </Can>
-                    </Grid>
-                  </>
+                  </Can>
                 )}
               </Grid>
               <Grid item xs={1}>
@@ -733,6 +744,7 @@ export const useStyles = makeStyles(theme => ({
   container: { width: "100%" },
   root: {
     marginTop: "0px",
+    backgroundColor: theme.customColors.white,
   },
   displayFlex: {
     display: "flex",
