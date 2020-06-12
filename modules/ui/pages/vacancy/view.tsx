@@ -114,6 +114,10 @@ export const VacancyView: React.FC<Props> = props => {
 
   const vacancy: any = getVacancy?.data?.vacancy?.byId ?? undefined;
 
+  const refetchVacancy = async () => {
+    await getVacancy.refetch();
+  };
+
   if (!vacancy) {
     return <DeletedVacancyInfo vacancyId={params.vacancyId} />;
   }
@@ -163,6 +167,7 @@ export const VacancyView: React.FC<Props> = props => {
         updateVacancy={onUpdateVacancy}
         onDelete={onClickDelete}
         approvalStatus={vacancy.approvalState}
+        refetchVacancy={refetchVacancy}
       />
     </>
   );

@@ -29,6 +29,7 @@ type Props = {
   absenceId?: string;
   vacancyId?: string;
   isTrueVacancy: boolean;
+  onChange?: () => void;
 };
 
 export const ApprovalState: React.FC<Props> = props => {
@@ -145,12 +146,14 @@ export const ApprovalState: React.FC<Props> = props => {
             open={approveDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
+            onApproveDeny={props.onChange}
           />
           <CommentDialog
             open={commentDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
             actingAsEmployee={props.actingAsEmployee}
+            onSaveComment={props.onChange}
           />
           <div className={[classes.container, classes.pending].join(" ")}>
             <div className={classes.buttonContainer}>

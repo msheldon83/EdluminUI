@@ -661,6 +661,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               actingAsEmployee={props.actingAsEmployee}
               isTrueVacancy={false}
               absenceId={props.absenceId}
+              onChange={props.refetchAbsence}
             />
           )}
 
