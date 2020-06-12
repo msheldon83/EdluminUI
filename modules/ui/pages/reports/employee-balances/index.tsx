@@ -16,12 +16,13 @@ export const EmployeeBalancesReport: React.FC<{}> = () => {
   return (
     <Report
       title={t("Balances")}
-      rdl={`QUERY FROM EmployeeBalances WHERE (SchoolYearId = ${currentSchoolYear.id}) SELECT ReasonName, NetBalance, AbsenceReasonUsageUnit, SchoolYearName, InitialBalance, UsedBalance, UnusedBalance, Identifier AS 'Employee Identifier', Title, PositionTypeName, LocationNames ORDER BY Concat(LastName, ', ', FirstName) ASC WITH SUBTOTALS OrgUserId SHOW Concat(LastName, ', ', FirstName) AS Employee`}
+      rdl={`QUERY FROM EmployeeBalances WHERE (SchoolYearId = ${currentSchoolYear.id}) SELECT BalanceName, NetBalance, AbsenceReasonUsageUnit, SchoolYearName, AbsenceReasonName, AbsenceReasonCategoryName, InitialBalance, UsedBalance, UnusedBalance, Identifier AS 'Employee Identifier', Title, PositionTypeName, LocationNames ORDER BY Concat(LastName, ', ', FirstName) ASC WITH SUBTOTALS OrgUserId SHOW Concat(LastName, ', ', FirstName) AS Employee`}
       exportFilename={t("Balances")}
       allowedFilterFieldsOverride={[
         "SchoolYearId",
         "OrgUserId",
         "AbsenceReasonId",
+        "AbsenceReasonCategoryId",
         "PositionTypeId",
         "LocationId",
         "Active",

@@ -14,6 +14,7 @@ import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
+import { AbsenceReasonCategorySelect } from "ui/components/reference-selects/absence-reason-category-select";
 
 type Props = {
   filterField: FilterField;
@@ -225,6 +226,34 @@ export const Filter: React.FC<Props> = props => {
                   });
                 }}
                 selectedOrgUserIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "AbsenceReasonCategory":
+            return (
+              <AbsenceReasonCategorySelect
+                orgId={organizationId ?? ""}
+                setSelectedAbsenceReasonCategoryIds={absenceReasonCategoryIds => {
+                  const value = absenceReasonCategoryIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedAbsenceReasonCategoryIds={filterField.value ?? []}
                 multiple={
                   filterField.expressionFunction ===
                   ExpressionFunction.ContainedIn
