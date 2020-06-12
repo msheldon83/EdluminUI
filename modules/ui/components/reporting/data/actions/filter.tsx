@@ -136,6 +136,7 @@ export const Filter: React.FC<Props> = props => {
             return (
               <SchoolYearSelect
                 orgId={organizationId ?? ""}
+                defaultToCurrentSchoolYear={false}
                 setSelectedSchoolYearId={schoolYearId => {
                   updateFilter({
                     field: filterField.field,
@@ -147,7 +148,7 @@ export const Filter: React.FC<Props> = props => {
                 }}
                 selectedSchoolYearId={filterField.value}
                 key={filterField.expressionFunction}
-                showLabel={showLabel}
+                showLabel={showLabel ?? false}
                 label={filterField.field.filterTypeDefinition?.friendlyName}
               />
             );
