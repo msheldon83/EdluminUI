@@ -579,7 +579,7 @@ const sumRows = (
     ) {
       // If we have a defined field and it is not a number of some sort
       // skip over this column as there should be nothing to sum
-      row.push(null);
+      row.push(undefined);
       continue;
     }
 
@@ -593,7 +593,7 @@ const sumRows = (
     } else if (!isNaN(Number(item2))) {
       row.push(Number(item2));
     } else {
-      row.push(null);
+      row.push(undefined);
     }
   }
   return row;
