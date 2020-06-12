@@ -114,6 +114,10 @@ export const VacancyView: React.FC<Props> = props => {
 
   const vacancy: any = getVacancy?.data?.vacancy?.byId ?? undefined;
 
+  const refetchVacancy = async () => {
+    await getVacancy.refetch();
+  };
+
   if (!vacancy) {
     return <DeletedVacancyInfo vacancyId={params.vacancyId} />;
   }
@@ -138,11 +142,7 @@ export const VacancyView: React.FC<Props> = props => {
                 onClick: () => {
                   history.push(VacancyActivityLogRoute.generate(params));
                 },
-                permissions: (
-                  permissions: OrgUserPermissions[],
-                  isSysAdmin: boolean,
-                  orgId?: string
-                ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+                permissions: [PermissionEnum.AbsVacView],
               },
               {
                 name: t("Notification Log"),
@@ -167,6 +167,7 @@ export const VacancyView: React.FC<Props> = props => {
         updateVacancy={onUpdateVacancy}
         onDelete={onClickDelete}
         approvalStatus={vacancy.approvalState}
+        refetchVacancy={refetchVacancy}
       />
     </>
   );

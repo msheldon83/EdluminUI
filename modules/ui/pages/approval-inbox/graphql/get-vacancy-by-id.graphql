@@ -1,0 +1,68 @@
+query GetVacancyById($id: ID!) {
+  vacancy {
+    byId(id: $id) {
+      id
+      isNormalVacancy
+      adminOnlyNotes
+      createdLocal
+      approvalState {
+        id
+        approvalStatusId
+        approvalWorkflowId
+        currentStepId
+        changedLocal
+        comments {
+          id
+          comment
+          commentIsPublic
+          createdLocal
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actualUser {
+            id
+            firstName
+            lastName
+          }
+        }
+        decisions {
+          id
+          createdLocal
+          approvalActionId
+          actingOrgUserId
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actualUser {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+      details {
+        id
+        locationId
+        location {
+          id
+          name
+        }
+        vacancyReasonId
+        vacancyReason {
+          id
+          name
+        }
+      }
+      startDate
+      endDate
+      position {
+        id
+        title
+      }
+    }
+  }
+}

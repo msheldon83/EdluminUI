@@ -60,6 +60,7 @@ type Props = {
     id: string;
     comments: { id: string }[];
   } | null;
+  refetchVacancy?: () => Promise<unknown>;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -556,6 +557,7 @@ export const VacancyUI: React.FC<Props> = props => {
           countOfComments={props.approvalStatus.comments.length}
           isTrueVacancy={true}
           vacancyId={vacancy.id}
+          onChange={props.refetchVacancy}
         />
       )}
       {vacancy.closedDetails.length > 0 && (

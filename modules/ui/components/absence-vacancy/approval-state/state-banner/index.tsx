@@ -8,7 +8,6 @@ import { useQueryBundle } from "graphql/hooks";
 import { GetApprovalWorkflowById } from "../graphql/get-approval-workflow-steps-by-id.gen";
 import { GetApproverGroupHeaderById } from "../graphql/get-approver-group-by-id.gen";
 import { compact } from "lodash-es";
-import { Chat } from "@material-ui/icons";
 import { VacancyApprovalViewRoute } from "ui/routes/vacancy";
 import {
   AdminAbsenceApprovalViewRoute,
@@ -16,6 +15,8 @@ import {
 } from "ui/routes/edit-absence";
 import { ApproveDenyDialog } from "./approve-dialog";
 import { CommentDialog } from "./comment-dialog";
+import { useMyApproverGroupHeaders } from "reference-data/my-approver-group-headers";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 type Props = {
   orgId: string;
@@ -28,11 +29,15 @@ type Props = {
   absenceId?: string;
   vacancyId?: string;
   isTrueVacancy: boolean;
+  onChange?: () => void;
 };
 
 export const ApprovalState: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const userAccess = useMyUserAccess();
+  const myApproverGroupHeaders = useMyApproverGroupHeaders();
 
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
@@ -141,12 +146,14 @@ export const ApprovalState: React.FC<Props> = props => {
             open={approveDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
+            onApproveDeny={props.onChange}
           />
           <CommentDialog
             open={commentDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
             actingAsEmployee={props.actingAsEmployee}
+            onSaveComment={props.onChange}
           />
           <div className={[classes.container, classes.pending].join(" ")}>
             <div className={classes.buttonContainer}>
@@ -170,10 +177,14 @@ export const ApprovalState: React.FC<Props> = props => {
                     {t("Comment")}
                   </Button>
                 ) : (
-                  // TODO: Determine if the admin is able to approve this absence/vacancy and show the approve button otherwise show the comment button
-                  <Button variant="outlined" onClick={onOpenApproveDialog}>
-                    {t("Approve/Deny")}
-                  </Button>
+                  !userAccess?.isSysAdmin &&
+                  myApproverGroupHeaders.find(
+                    x => x.id === approverGroupId
+                  ) && (
+                    <Button variant="outlined" onClick={onOpenApproveDialog}>
+                      {t("Approve/Deny")}
+                    </Button>
+                  )
                 )}
               </div>
             </div>

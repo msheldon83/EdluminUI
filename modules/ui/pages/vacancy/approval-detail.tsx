@@ -5,7 +5,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { VacancyViewRoute, VacancyApprovalViewRoute } from "ui/routes/vacancy";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
-import { GetVacancyById } from "./graphql/get-vacancy-byid.gen";
+import { GetVacancyById } from "ui/pages/approval-inbox/graphql/get-vacancy-by-id.gen";
 import { ApprovalDetail } from "ui/components/absence-vacancy/approval-state/approval-detail";
 
 export const VacancyApprovalDetail: React.FC<{}> = () => {
@@ -21,6 +21,10 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
 
   const vacancy =
     getVacancy.state === "DONE" ? getVacancy.data.vacancy?.byId : null;
+
+  const onApproveOrDeny = async () => {
+    await getVacancy.refetch();
+  };
 
   const onReturn = () => {
     history.push(VacancyViewRoute.generate(params));
@@ -43,9 +47,14 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
       <ApprovalDetail
         orgId={params.organizationId}
         approvalStateId={approvalState.id}
+        approvalStatusId={approvalState.approvalStatusId}
+        onApprove={onApproveOrDeny}
+        onDeny={onApproveOrDeny}
+        onSaveComment={onApproveOrDeny}
         currentStepId={approvalState.currentStepId}
         approvalWorkflowId={approvalState.approvalWorkflowId}
         comments={approvalState.comments}
+        decisions={approvalState.decisions}
         isTrueVacancy={true}
         vacancy={vacancy}
       />

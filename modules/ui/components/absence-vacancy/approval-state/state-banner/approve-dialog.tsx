@@ -20,6 +20,7 @@ type Props = {
   approvalStateId: string;
   open: boolean;
   onClose: () => void;
+  onApproveDeny?: () => void;
 };
 
 export const ApproveDenyDialog: React.FC<Props> = props => {
@@ -53,6 +54,9 @@ export const ApproveDenyDialog: React.FC<Props> = props => {
       },
     });
     if (result.data) {
+      if (props.onApproveDeny) {
+        props.onApproveDeny();
+      }
       props.onClose();
     }
   };
@@ -68,6 +72,9 @@ export const ApproveDenyDialog: React.FC<Props> = props => {
       },
     });
     if (result.data) {
+      if (props.onApproveDeny) {
+        props.onApproveDeny();
+      }
       props.onClose();
     }
   };

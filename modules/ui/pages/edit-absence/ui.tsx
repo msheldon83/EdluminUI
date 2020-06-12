@@ -55,7 +55,7 @@ import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
 import { OrgUserPermissions } from "ui/components/auth/types";
-import { canViewAsSysAdmin } from "helpers/permissions";
+import { canViewAbsVacActivityLog } from "helpers/permissions";
 import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
@@ -559,7 +559,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
           orgId?: string
-        ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+        ) =>
+          canViewAbsVacActivityLog(
+            permissions,
+            isSysAdmin,
+            !props.actingAsEmployee,
+            orgId
+          ),
       },
     ];
     if (props.initialVacancies[0]) {
@@ -655,6 +661,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               actingAsEmployee={props.actingAsEmployee}
               isTrueVacancy={false}
               absenceId={props.absenceId}
+              onChange={props.refetchAbsence}
             />
           )}
 
