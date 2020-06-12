@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { compact } from "lodash-es";
 import { useQueryBundle } from "graphql/hooks";
 import { useLocation, useHistory } from "react-router";
@@ -26,6 +26,7 @@ import {
   FilterParams,
 } from "./components/filters/filter-params";
 import { addDays } from "date-fns";
+import { PartyPopper } from "./components/party-popper";
 
 export const VerifyOverviewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -51,8 +52,7 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
       locationIds: filters.locationIds,
       fromDate: filters.dateRangeStart,
       toDate: filters.dateRangeEnd,
-      //Works even less if uncommented, until backend fix is deployed to dev
-      //includeVerified: true,
+      includeVerified: true,
     },
   });
 
@@ -61,7 +61,7 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
     unverified: { date: string; count: number }[]
   ) =>
     total.map(t => ({
-      date: new Date(t.date),
+      date: parseISO(t.date),
       verifiedAssignments:
         t.count - (unverified.find(u => t.date == u.date)?.count ?? 0),
       totalAssignments: t.count,
@@ -83,6 +83,17 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           ).filter((u): u is { date: string; count: number } => !!u.date)
         );
 
+  const allVerified = React.useMemo(
+    () =>
+      dates == "LOADING"
+        ? false
+        : dates.every(
+            ({ verifiedAssignments, totalAssignments }) =>
+              verifiedAssignments == totalAssignments
+          ),
+    [dates]
+  );
+
   const getDateTitle = (startDate: Date, endDate: Date) =>
     getPresetByDates(startDate, endDate)?.label ??
     `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
@@ -99,6 +110,9 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           filters={filters}
           setFilters={updateFilters}
         />
+        {allVerified && (
+          <PartyPopper>{t("Hooray! Your job is done here!")}</PartyPopper>
+        )}
         {dates == "LOADING" ? (
           <Typography>{t("Loading...")}</Typography>
         ) : (
@@ -115,13 +129,6 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           />
         )}
       </Section>
-      {false && (
-        <VerifyUI
-          showVerified={showVerified}
-          locationsFilter={filters.locationIds}
-          subSourceFilter={filters.subSource}
-        />
-      )}
     </>
   );
 };
