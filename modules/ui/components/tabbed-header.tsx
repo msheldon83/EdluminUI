@@ -82,7 +82,8 @@ export const TabbedHeader: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   tabs: {
-    borderRadius: theme.typography.pxToRem(5),
+    borderTopLeftRadius: theme.typography.pxToRem(5),
+    borderTopRightRadius: theme.typography.pxToRem(5),
     borderWidth: theme.typography.pxToRem(1),
     borderColor: theme.customColors.sectionBorder,
     borderStyle: "solid",
