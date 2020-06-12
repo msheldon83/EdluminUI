@@ -103,6 +103,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
           <Typography>{t("Loading...")}</Typography>
         ) : (
           <VerifyDailyUI
+            date={filters.date}
             orgId={params.organizationId}
             assignments={assignments}
             showVerified={filters.showVerified}

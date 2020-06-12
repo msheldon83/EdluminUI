@@ -1,5 +1,5 @@
 import { Isomorphism } from "@atomic-object/lenses";
-import { format, subDays } from "date-fns";
+import { format, parse, subDays } from "date-fns";
 
 const today = new Date();
 
@@ -83,9 +83,9 @@ const boolToString = (b: boolean): "true" | "false" | "" => {
 
 const to = (o: VerifyFilters): VerifyQueryFilters => {
   return {
-    dateRangeStart: new Date(o.dateRangeStart),
-    dateRangeEnd: new Date(o.dateRangeEnd),
-    date: new Date(o.date),
+    dateRangeStart: parse(o.dateRangeStart, "MM/dd/yyyy", 0),
+    dateRangeEnd: parse(o.dateRangeEnd, "MM/dd/yyyy", 0),
+    date: parse(o.date, "MM/dd/yyyy", 0),
     showVerified: stringToBool(o.showVerified, true),
     subSource: o.subSource,
     locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),

@@ -17,7 +17,7 @@ export const PartyPopper: React.FC<Props> = ({ children }) => {
 
   return (
     <Grid container direction="column" alignItems="center">
-      <Grid item className={classes.cell}>
+      <Grid item className={classes.popper}>
         {x && y && w && h && (
           <RedRoverConfetti
             confettiSource={{
@@ -33,7 +33,7 @@ export const PartyPopper: React.FC<Props> = ({ children }) => {
           <PartyPopperIcon />
         </div>
       </Grid>
-      <Grid item className={classes.cell}>
+      <Grid item className={classes.children}>
         {typeof children === "string" ? (
           <Typography variant="h3">{children}</Typography>
         ) : (
@@ -45,7 +45,10 @@ export const PartyPopper: React.FC<Props> = ({ children }) => {
 };
 
 const useStyles = makeStyles(theme => ({
-  cell: {
-    paddingBottom: theme.spacing(3),
+  children: {
+    width: "100%",
+  },
+  popper: {
+    padding: theme.spacing(3),
   },
 }));

@@ -4,7 +4,7 @@ import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import { Formik } from "formik";
 import clsx from "clsx";
 import * as yup from "yup";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import {
   AbsenceReasonTrackingTypeId,
   PermissionEnum,
@@ -22,8 +22,11 @@ import { usePayCodes } from "reference-data/pay-codes";
 import { AssignmentDetail } from "./types";
 import { ProgressBar } from "./components/progess-bar";
 import { Assignment } from "./components/assignment";
+import { PartyPopper } from "./components/party-popper";
+import { VerifiedDailyFooter } from "./components/verified-daily-footer";
 
 type Props = {
+  date: Date;
   assignments: AssignmentDetail[];
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
   orgId: string;
@@ -31,6 +34,7 @@ type Props = {
 };
 
 export const VerifyDailyUI: React.FC<Props> = ({
+  date,
   assignments,
   onVerify,
   orgId,
@@ -82,7 +86,6 @@ export const VerifyDailyUI: React.FC<Props> = ({
     }
   };
   const unverified = assignments.filter(a => !a.verifiedAtLocal);
-  console.log(unverified);
 
   return (
     <>
@@ -102,6 +105,11 @@ export const VerifyDailyUI: React.FC<Props> = ({
         verifiedAssignments={assignments.length - unverified.length}
         totalAssignments={assignments.length}
       />
+      {unverified.length == 0 && (
+        <PartyPopper>
+          <VerifiedDailyFooter orgId={orgId} />
+        </PartyPopper>
+      )}
       <Grid container direction="column">
         {(showVerified ? assignments : unverified).map((a, i) => (
           <Assignment
