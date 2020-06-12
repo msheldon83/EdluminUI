@@ -135,6 +135,7 @@ type AbsenceDr {
   changedUtc: DateTime
   changedLocal: DateTime
   rowVersion: String!
+  approvalStatus: ApprovalStatus
   startDate: Date
   endDate: Date
   numDays: Int!
@@ -198,7 +199,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   prioritySequence: Int
   requireNotesToAdmin: Boolean
   code: String
-  requiresApproval: Boolean
+  requiresApproval: Boolean!
   allPositionTypes: Boolean
   positionTypeIds: [ID!]!
   positionTypes: [PositionType!]!
@@ -687,8 +688,12 @@ type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
   commentIsPublic: Boolean!
   actingOrgUserId: ID!
   actingOrgUser: OrgUser!
-  actualOrgUserId: ID!
-  actualOrgUser: OrgUser!
+  actualOrgUserId: ID
+  actualOrgUser: OrgUser
+  actingUserId: ID!
+  actingUser: User!
+  actualUserId: ID!
+  actualUser: User!
   approvalDecisionId: ID
   approvalDecision: ApprovalDecision
 }
@@ -710,8 +715,12 @@ type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
   approvalActionId: ApprovalAction!
   actingOrgUserId: ID!
   actingOrgUser: OrgUser!
-  actualOrgUserId: ID!
-  actualOrgUser: OrgUser!
+  actualOrgUserId: ID
+  actualOrgUser: OrgUser
+  actingUserId: ID!
+  actingUser: User!
+  actualUserId: ID!
+  actualUser: User!
   approverGroupId: ID
   approverGroup: ApproverGroup
 }
@@ -2926,6 +2935,11 @@ type Mutation {
   orgRef_WorkDayScheduleVariantType: OrgRef_WorkDayScheduleVariantTypeMutations
 }
 
+input NameValuePairInput {
+  name: String!
+  value: String
+}
+
 enum NeedsReplacement {
   NO
   YES
@@ -3027,7 +3041,6 @@ enum ObjectType {
   REPLACEMENT_POOL
   REPLACEMENT_CRITERIA_CONFIG
   REPLACEMENT_CRITERIA
-  REPLACEMENT_POOL_MEMBER
   EMPLOYEE
   ASSIGNMENT
   ABSENCE
@@ -5835,6 +5848,8 @@ type SubstitutePreferences {
   favoriteSubstitutes: [Employee!]!
   blockedSubstitutes: [Employee!]!
   autoAssignedSubstitutes: [Employee!]!
+  favoriteSubstituteMembers: [ReplacementPoolMember!]!
+  blockedSubstituteMembers: [ReplacementPoolMember!]!
 }
 
 input SubstitutePreferencesInput {
@@ -6022,7 +6037,7 @@ type UserMutations {
   saveUnavailableTime(unavailableTime: UserUnavailableTimeInput!): UserUnavailableTime
   deleteUnavailableTime(id: ID!): Boolean
   verifyPhoneNumber(phoneNumber: String!): User
-  sendMobileMessage(id: ID!, title: String!, message: String!): Boolean
+  sendMobileMessage(id: ID!, title: String!, message: String!, nameValuePairs: [NameValuePairInput]): Boolean
   registerUserDevice(userDevice: RegisterUserDeviceInput!): UserDevice
   deleteUserDevice(userDevice: DeleteUserDeviceInput!): Boolean
 }
@@ -6295,6 +6310,7 @@ type VacancyDr {
   changedUtc: DateTime
   changedLocal: DateTime
   rowVersion: String!
+  approvalStatus: ApprovalStatus
   startDate: Date
   endDate: Date
   numDays: Int!
@@ -6435,7 +6451,7 @@ type VacancyReason implements ModelObjectInterface & OrgObjectInterface & Domain
   validUntil: Date
   expired: Boolean!
   code: String
-  requiresApproval: Boolean
+  requiresApproval: Boolean!
 }
 
 input VacancyReasonCreateInput {

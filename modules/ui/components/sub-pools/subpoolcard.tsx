@@ -7,6 +7,7 @@ import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
+import clsx from "clsx";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
@@ -20,6 +21,9 @@ type Props = {
 export const SubPoolCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+
+  //Use to toggle notes
+  let showNotes = false;
 
   return (
     <>
@@ -37,24 +41,38 @@ export const SubPoolCard: React.FC<Props> = props => {
             </Grid>
           ) : (
             props.orgUsers?.map((user, i) => {
-              const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
-              const className = [
-                classes.detail,
-                i % 2 == 1 ? classes.shadedRow : undefined,
-              ].join(" ");
               return (
-                <Grid item className={className} xs={12} key={i}>
+                <Grid
+                  item
+                  className={clsx({
+                    [classes.detail]: true,
+                    [classes.shadedRow]: i % 2 == 1,
+                  })}
+                  xs={12}
+                  key={i}
+                >
                   <Typography className={classes.userName}>
                     <SubstituteLink orgUserId={user.id} color="black">
-                      {name}
+                      {user.firstName ?? ""} {user.lastName ?? ""}
                     </SubstituteLink>
                   </Typography>
+
                   <Can do={props.removePermission}>
                     <TextButton
-                      className={classes.actionLink}
+                      className={clsx({
+                        [classes.removeLink]: true,
+                        [classes.floatRight]: true,
+                      })}
                       onClick={() => props.onRemove(user)}
                     >
                       {t("Remove")}
+                    </TextButton>
+
+                    <TextButton
+                      className={classes.floatRight}
+                      onClick={() => props.onRemove(user)}
+                    >
+                      {t("Add Note")}
                     </TextButton>
                   </Can>
                 </Grid>
@@ -74,7 +92,7 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
   detail: {
-    paddingLeft: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
@@ -89,11 +107,13 @@ const useStyles = makeStyles(theme => ({
       paddingBottom: 0,
     },
   },
-  actionLink: {
-    float: "right",
+  removeLink: {
     color: theme.customColors.darkRed,
   },
   userName: {
     float: "left",
+  },
+  floatRight: {
+    float: "right",
   },
 }));
