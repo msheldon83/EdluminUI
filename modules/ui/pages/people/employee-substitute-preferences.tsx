@@ -5,7 +5,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { useRouteParams } from "ui/routes/definition";
 import { EmployeeSubstitutePreferenceRoute } from "ui/routes/people";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetEmployeeById } from "./graphql/employee/get-employee-by-id.gen";
+import { GetEmployeeSubPreferencesById } from "./graphql/employee/get-employee-sub-preferences.gen";
 import { SaveEmployee } from "./graphql/employee/save-employee.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
 import { PermissionEnum } from "graphql/server-types.gen";
@@ -16,7 +16,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 
-  const getEmployee = useQueryBundle(GetEmployeeById, {
+  const getEmployee = useQueryBundle(GetEmployeeSubPreferencesById, {
     variables: { id: params.orgUserId },
     fetchPolicy: "cache-first",
   });
@@ -114,7 +114,9 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
         favoriteEmployees={employee.substitutePreferences?.favoriteSubstitutes}
-        blockedEmployees={employee.substitutePreferences?.blockedSubstitutes}
+        blockedEmployees={
+          employee.substitutePreferences?.blockedSubstituteMembers
+        }
         headerComponent={headerComponent}
         orgId={params.organizationId}
         useAutoAssign={false}

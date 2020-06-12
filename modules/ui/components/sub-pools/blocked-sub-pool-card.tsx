@@ -13,12 +13,12 @@ import { SubstituteLink } from "ui/components/links/people";
 type Props = {
   title: string;
   orgUsers?: OrgUser[] | null;
-  blocked: boolean;
   onRemove: (orgUser: OrgUser) => void;
+  onAddNote?: (orgUserId: string, note: string) => void;
   removePermission: PermissionEnum[];
 };
 
-export const SubPoolCard: React.FC<Props> = props => {
+export const BlockedSubPoolCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 

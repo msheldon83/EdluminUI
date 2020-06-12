@@ -1,9 +1,14 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
-import { SubPoolCard } from "ui/components/sub-pools/subpoolcard";
+import { SubPoolCard } from "ui/components/sub-pools/sub-pool-card";
+import { BlockedSubPoolCard } from "ui/components/sub-pools/blocked-sub-pool-card";
 import { SubstitutePicker } from "ui/components/sub-pools/substitute-picker";
 import { makeStyles } from "@material-ui/styles";
-import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  OrgUser,
+  ReplacementPoolMember,
+} from "graphql/server-types.gen";
 
 type Props = {
   favoriteHeading: string;
@@ -11,7 +16,7 @@ type Props = {
   autoAssignHeading?: string;
   searchHeading: string;
   favoriteEmployees: OrgUser[];
-  blockedEmployees: OrgUser[];
+  blockedEmployees: ReplacementPoolMember[];
   autoAssignEmployees?: OrgUser[];
   orgId: string;
   onRemoveFavoriteEmployee: (orgUser: OrgUser) => void;
@@ -62,30 +67,27 @@ export const SubstitutePreferences: React.FC<Props> = props => {
           <Grid item xs={12}>
             <SubPoolCard
               title={props.favoriteHeading}
-              blocked={false}
               orgUsers={props.favoriteEmployees}
               onRemove={props.onRemoveFavoriteEmployee}
               removePermission={props.removeFavoritePermission}
-            ></SubPoolCard>
+            />
           </Grid>
           <Grid item xs={12}>
-            <SubPoolCard
+            <BlockedSubPoolCard
               title={props.blockedHeading}
-              blocked={true}
               orgUsers={props.blockedEmployees}
               onRemove={props.onRemoveBlockedEmployee}
               removePermission={props.removeBlockedPermission}
-            ></SubPoolCard>
+            />
           </Grid>
           {props.useAutoAssign && props.onRemoveAutoAssignedEmployee && (
             <Grid item xs={12}>
               <SubPoolCard
                 title={props.autoAssignHeading ?? ""} // Auto Assign List?
-                blocked={false}
                 orgUsers={props.autoAssignEmployees}
                 onRemove={props.onRemoveAutoAssignedEmployee}
                 removePermission={props.removeBlockedPermission}
-              ></SubPoolCard>
+              />
             </Grid>
           )}
         </Grid>
