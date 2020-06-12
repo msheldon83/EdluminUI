@@ -327,7 +327,7 @@ const summaryHeaderRenderer = (
 
   return (
     <div key={key} style={style} className={cellClasses}>
-      {subtotals[columnIndex]
+      {subtotals[columnIndex] === 0 || subtotals[columnIndex]
         ? round(Number(subtotals[columnIndex]), 2)
         : undefined}
     </div>
@@ -431,7 +431,7 @@ const groupHeaderCellRenderer = (
   return (
     <div key={key} style={style}>
       <div className={dataClasses}>
-        {group.subtotals[columnIndex]
+        {group.subtotals[columnIndex] === 0 || group.subtotals[columnIndex]
           ? round(Number(group.subtotals[columnIndex]), 2)
           : undefined}
       </div>
