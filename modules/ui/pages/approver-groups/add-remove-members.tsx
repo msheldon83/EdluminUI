@@ -27,11 +27,6 @@ import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
 import { WorkflowViewCard } from "./components/workflow-view-card";
 import { NameHeader } from "./components/name-header";
 
-type OptionType = {
-  label: string;
-  value?: string;
-}[];
-
 export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -65,7 +60,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
         },
       },
     });
-    setSearchText(searchText);
+    setSearchText(undefined);
   };
 
   const onRemoveMember = async (orgUserId: string) => {
