@@ -11,6 +11,7 @@ query GetEmployeeByIdForPreferences($id: ID!) {
             adminNote
             employeeId
             employee {
+              id
               firstName
               lastName
             }
@@ -20,6 +21,7 @@ query GetEmployeeByIdForPreferences($id: ID!) {
             adminNote
             employeeId
             employee {
+              id
               firstName
               lastName
             }

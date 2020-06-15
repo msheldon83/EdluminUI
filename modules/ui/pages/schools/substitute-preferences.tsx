@@ -12,6 +12,7 @@ import {
   PermissionEnum,
   OrgUser,
   ReplacementPoolMember,
+  OrgUserMutations,
 } from "graphql/server-types.gen";
 import { LocationLinkHeader } from "ui/components/link-headers/location";
 
@@ -26,77 +27,75 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     },
   });
 
-  const onRemoveFavoriteSubstitute = async (
-    substitute: ReplacementPoolMember
-  ) => {
-    const filteredFavorites = location.substitutePreferences?.favoriteSubstitutes.filter(
-      (u: OrgUser) => {
-        return u.id !== substitute.employeeId;
+  const onRemoveFavoriteSubstitute = async (sub: ReplacementPoolMember) => {
+    const filteredFavorites = location.substitutePreferences?.favoriteSubstituteMembers.filter(
+      (u: any) => {
+        return u.employeeId !== sub.employeeId;
       }
     );
     return updatePreferences(
       filteredFavorites,
-      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.blockedSubstituteMembers,
       location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onRemoveBlockedSubstitute = async (
-    substitute: ReplacementPoolMember
-  ) => {
-    const filteredBlocked = location.substitutePreferences?.blockedSubstitutes.filter(
-      (u: OrgUser) => {
-        return u.id !== substitute.employeeId;
+  const onRemoveBlockedSubstitute = async (sub: ReplacementPoolMember) => {
+    const filteredBlocked = location.substitutePreferences?.blockedSubstituteMembers.filter(
+      (u: any) => {
+        return u.employeeId !== sub.employeeId;
       }
     );
     return updatePreferences(
-      location.substitutePreferences?.favoriteSubstitutes,
+      location.substitutePreferences?.favoriteSubstituteMembers,
       filteredBlocked,
       location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onRemoveAutoAssignedSubstitute = async (
-    substitute: ReplacementPoolMember
-  ) => {
+  const onRemoveAutoAssignedSubstitute = async (sub: ReplacementPoolMember) => {
     const filteredAutoAssigned = location.substitutePreferences?.autoAssignedSubstitutes.filter(
-      (u: OrgUser) => {
-        return u.id !== substitute.employeeId;
+      (u: any) => {
+        return u.id !== sub.employeeId;
       }
     );
     return updatePreferences(
-      location.substitutePreferences?.favoriteSubstitutes,
-      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.favoriteSubstituteMembers,
+      location.substitutePreferences?.blockedSubstituteMembers,
       filteredAutoAssigned
     );
   };
 
-  const onAddSubstitute = async (substitute: ReplacementPoolMember) => {
-    location.substitutePreferences?.favoriteSubstitutes.push(substitute);
+  const onAddSubstitute = async (sub: ReplacementPoolMember) => {
+    location.substitutePreferences?.favoriteSubstituteMembers.push(sub);
 
     return updatePreferences(
-      location.substitutePreferences?.favoriteSubstitutes,
-      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.favoriteSubstituteMembers,
+      location.substitutePreferences?.blockedSubstituteMembers,
       location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onBlockSubstitute = async (substitute: ReplacementPoolMember) => {
-    location.substitutePreferences?.blockedSubstitutes.push(substitute);
+  const onBlockSubstitute = async (sub: ReplacementPoolMember) => {
+    location.substitutePreferences?.blockedSubstituteMembers.push(sub);
 
     return updatePreferences(
-      location.substitutePreferences?.favoriteSubstitutes,
-      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.favoriteSubstituteMembers,
+      location.substitutePreferences?.blockedSubstituteMembers,
       location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onAutoAssignSubstitute = async (substitute: ReplacementPoolMember) => {
-    location.substitutePreferences?.autoAssignedSubstitutes.push(substitute);
+  const onAutoAssignSubstitute = async (sub: ReplacementPoolMember) => {
+    location.substitutePreferences?.autoAssignedSubstitutes.push({
+      id: sub.employeeId,
+      firstName: sub.employee?.firstName,
+      lastName: sub.employee?.lastName,
+    } as OrgUser);
 
     return updatePreferences(
-      location.substitutePreferences?.favoriteSubstitutes,
-      location.substitutePreferences?.blockedSubstitutes,
+      location.substitutePreferences?.favoriteSubstituteMembers,
+      location.substitutePreferences?.blockedSubstituteMembers,
       location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
@@ -133,6 +132,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
       },
     });
     if (!result?.data) return false;
+    await getLocation.refetch();
     return true;
   };
 
@@ -155,6 +155,15 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     />
   );
 
+  const autoAssignedMembers =
+    location.substitutePreferences.autoAssignedSubstitutes.map(
+      (e: any) =>
+        ({
+          employeeId: e.id,
+          employee: { id: e.id, firstName: e.firstName, lastName: e.lastName },
+        } as ReplacementPoolMember)
+    ) ?? [];
+
   return (
     <>
       <SubstitutePreferences
@@ -168,9 +177,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         blockedMembers={
           location.substitutePreferences.blockedSubstituteMembers ?? []
         }
-        autoAssignMembers={
-          location.substitutePreferences.autoAssignedSubstitutes ?? []
-        }
+        autoAssignMembers={autoAssignedMembers}
         headerComponent={headerComponent}
         useAutoAssign={true}
         orgId={params.organizationId}

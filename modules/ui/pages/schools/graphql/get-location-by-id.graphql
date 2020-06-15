@@ -28,7 +28,9 @@ query GetLocationById($locationId: ID!) {
         blockedSubstituteMembers {
           id
           adminNote
+          employeeId
           employee {
+            id
             firstName
             lastName
           }
@@ -36,7 +38,9 @@ query GetLocationById($locationId: ID!) {
         favoriteSubstituteMembers {
           id
           adminNote
+          employeeId
           employee {
+            id
             firstName
             lastName
           }

@@ -25,59 +25,57 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
     fetchPolicy: "cache-first",
   });
 
-  const onRemoveFavoriteSubstitute = async (
-    substitute: ReplacementPoolMember
-  ) => {
-    const filteredFavorites = locationGroup.substitutePreferences?.favoriteSubstitutes.filter(
+  const onRemoveFavoriteSubstitute = async (sub: ReplacementPoolMember) => {
+    const filteredFavorites = locationGroup.substitutePreferences?.favoriteSubstituteMembers.filter(
       (u: any) => {
-        return u.id !== substitute.employeeId;
+        return u.employeeId !== sub.employeeId;
       }
     );
     return updatePreferences(
       filteredFavorites,
-      locationGroup.substitutePreferences?.blockedSubstitutes
+      locationGroup.substitutePreferences?.blockedSubstituteMembers
     );
   };
 
-  const onRemoveBlockedSubstitute = async (
-    substitute: ReplacementPoolMember
-  ) => {
-    const filteredBlocked = locationGroup.substitutePreferences?.blockedSubstitutes.filter(
+  const onRemoveBlockedSubstitute = async (sub: ReplacementPoolMember) => {
+    const filteredBlocked = locationGroup.substitutePreferences?.blockedSubstituteMembers.filter(
       (u: any) => {
-        return u.id !== substitute.employeeId;
+        return u.employeeId !== sub.employeeId;
       }
     );
     return updatePreferences(
-      locationGroup.substitutePreferences?.favoriteSubstitutes,
+      locationGroup.substitutePreferences?.favoriteSubstituteMembers,
       filteredBlocked
     );
   };
 
-  const onAddSubstitute = async (substitute: ReplacementPoolMember) => {
-    locationGroup.substitutePreferences?.favoriteSubstitutes.push(substitute);
+  const onAddSubstitute = async (sub: ReplacementPoolMember) => {
+    locationGroup.substitutePreferences?.favoriteSubstituteMembers.push(sub);
 
     return updatePreferences(
-      locationGroup.substitutePreferences?.favoriteSubstitutes,
-      locationGroup.substitutePreferences?.blockedSubstitutes
+      locationGroup.substitutePreferences?.favoriteSubstituteMembers,
+      locationGroup.substitutePreferences?.blockedSubstituteMembers
     );
   };
 
   const onBlockSubstitute = async (substitute: ReplacementPoolMember) => {
-    locationGroup.substitutePreferences?.blockedSubstitutes.push(substitute);
+    locationGroup.substitutePreferences?.blockedSubstituteMembers.push(
+      substitute
+    );
 
     return updatePreferences(
-      locationGroup.substitutePreferences?.favoriteSubstitutes,
-      locationGroup.substitutePreferences?.blockedSubstitutes
+      locationGroup.substitutePreferences?.favoriteSubstituteMembers,
+      locationGroup.substitutePreferences?.blockedSubstituteMembers
     );
   };
 
   const updatePreferences = async (favorites: any[], blocked: any[]) => {
     const neweFavs = favorites.map((s: any) => {
-      return { id: s.id };
+      return { id: s.employeeId };
     });
 
     const neweBlocked = blocked.map((s: any) => {
-      return { id: s.id };
+      return { id: s.employeeId };
     });
     const updatedLocationGroup: any = {
       id: locationGroup.id,

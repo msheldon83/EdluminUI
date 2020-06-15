@@ -11,7 +11,6 @@ query GetLocationGroupById($locationGroupId: ID!) {
         name
       }
       substitutePreferences {
-        substitutePreferences {
         blockedSubstituteMembers {
           id
           adminNote

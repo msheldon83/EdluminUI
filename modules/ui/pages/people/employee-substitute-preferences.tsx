@@ -27,7 +27,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const onRemoveFavoriteSubstitute = async (sub: ReplacementPoolMember) => {
     const filteredFavorites = employee.substitutePreferences?.favoriteSubstituteMembers.filter(
       (u: any) => {
-        return u.id !== sub.employeeId;
+        return u.employeeId !== sub.employeeId;
       }
     );
     return updatePreferences(
@@ -39,7 +39,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const onRemoveBlockedSubstitute = async (sub: ReplacementPoolMember) => {
     const filteredBlocked = employee.substitutePreferences?.blockedSubstituteMembers.filter(
       (u: any) => {
-        return u.id !== sub.employeeId;
+        return u.employeeId !== sub.employeeId;
       }
     );
     return updatePreferences(
@@ -83,7 +83,6 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
       },
     };
 
-    console.log(updatedEmployee);
     const result = await updateEmployee({
       variables: {
         employee: updatedEmployee,

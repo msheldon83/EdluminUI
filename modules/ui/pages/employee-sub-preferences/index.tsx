@@ -28,13 +28,17 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   };
 
   const onAddSubstitute = async (sub: any) => {
-    orgUser?.employee?.substitutePreferences?.favoriteSubstitutes.push(sub);
+    orgUser?.employee?.substitutePreferences?.favoriteSubstituteMembers.push(
+      sub
+    );
 
     await addSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
   const onBlockSubstitute = async (sub: any) => {
-    orgUser?.employee?.substitutePreferences?.blockedSubstitutes.push(sub);
+    orgUser?.employee?.substitutePreferences?.blockedSubstituteMembers.push(
+      sub
+    );
 
     await addSub(sub.employeeId, ReplacementPoolType.Blocked);
   };

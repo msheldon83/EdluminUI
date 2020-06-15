@@ -55,8 +55,6 @@ export const SubstitutePreferences: React.FC<Props> = props => {
           )
         );
 
-  console.log(props.favoriteMembers);
-
   const header =
     "headerComponent" in props ? (
       props.headerComponent
