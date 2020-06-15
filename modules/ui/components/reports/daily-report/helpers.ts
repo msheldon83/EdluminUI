@@ -9,6 +9,7 @@ import {
   VacancyDr,
   Maybe,
   AbsenceDr,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import { flatMap, groupBy, identity, keyBy, some, every } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
@@ -80,6 +81,7 @@ export type Detail = {
     id?: string;
     name: string;
   };
+  approvalStatus?: ApprovalStatus;
 };
 
 export const filterDetailGroups = (
@@ -208,6 +210,7 @@ export const MapDailyReportDetails = (
               name: location.name,
             }
           : undefined,
+        approvalStatus: a.approvalStatus ?? undefined,
       } as Detail;
     });
   });
@@ -276,6 +279,7 @@ export const MapDailyReportDetails = (
               name: vacancyDetail.location.name,
             }
           : undefined,
+        approvalStatus: v.approvalStatus ?? undefined,
       } as Detail;
     });
   });
@@ -353,6 +357,7 @@ export const MapDailyReportDetails = (
               name: location.name,
             }
           : undefined,
+        approvalStatus: a.approvalStatus ?? undefined,
       } as Detail;
     });
   });
@@ -408,6 +413,7 @@ export const MapDailyReportDetails = (
               name: vacancyDetail.location.name,
             }
           : undefined,
+        approvalStatus: v.approvalStatus ?? undefined,
       } as Detail;
     });
   });
@@ -481,6 +487,7 @@ export const MapDailyReportDetails = (
         positionType: positionType,
         location: location,
         subTimes: [],
+        approvalStatus: a.approvalStatus ?? undefined,
       } as Detail;
     });
   });
@@ -554,6 +561,7 @@ export const MapDailyReportDetails = (
           positionType: positionType,
           location: location,
           subTimes: [],
+          approvalStatus: a.approvalStatus ?? undefined,
         } as Detail;
       });
     } else {
@@ -605,6 +613,7 @@ export const MapDailyReportDetails = (
                 name: vacancyDetail.location.name,
               }
             : undefined,
+          approvalStatus: a.approvalStatus ?? undefined,
         } as Detail;
       });
     }
