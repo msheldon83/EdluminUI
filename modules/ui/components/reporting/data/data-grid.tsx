@@ -44,6 +44,7 @@ type Props = {
     direction: Direction
   ) => void;
   showGroupLabels?: boolean;
+  sumRowData?: boolean;
 };
 
 export const DataGrid: React.FC<Props> = props => {
@@ -57,6 +58,7 @@ export const DataGrid: React.FC<Props> = props => {
     orderedBy,
     setFirstLevelOrderBy,
     showGroupLabels = true,
+    sumRowData = true,
   } = props;
 
   // Convert report data into a grouped structure.
@@ -69,10 +71,11 @@ export const DataGrid: React.FC<Props> = props => {
     const groupedDataResult = groupData(
       reportData.rawData ?? [],
       reportData.dataColumnIndexMap,
-      report.subtotalBy ?? []
+      report.subtotalBy ?? [],
+      sumRowData
     );
     setGroupedData(groupedDataResult);
-  }, [report, reportData]);
+  }, [report, reportData, sumRowData]);
 
   // We're maintaining a data structure around groups, but in order
   // to benefit from the windowing React Virtualized gives us, we
@@ -489,7 +492,8 @@ const nestDivs = (
 const groupData = (
   data: any[][],
   dataColumnIndexMap: Record<string, DataExpression>,
-  subtotalBy: SubtotalField[]
+  subtotalBy: SubtotalField[],
+  sumRowData: boolean
 ): GroupedData[] => {
   const groupByFields = Array.from(subtotalBy ?? []);
   const groupBy = groupByFields[0];
@@ -498,10 +502,12 @@ const groupData = (
     return [
       {
         data: localData,
-        subtotals: localData.reduce((subtotals: any[], row: any[]) => {
-          const subtotalRow = sumRows(row, subtotals, dataColumnIndexMap);
-          return subtotalRow;
-        }, []),
+        subtotals: sumRowData
+          ? localData.reduce((subtotals: any[], row: any[]) => {
+              const subtotalRow = sumRows(row, subtotals, dataColumnIndexMap);
+              return subtotalRow;
+            }, [])
+          : [],
       },
     ];
   }
@@ -529,11 +535,9 @@ const groupData = (
     // Add to existing or create a new group
     if (matchingGroup) {
       matchingGroup.data.push(row);
-      matchingGroup.subtotals = sumRows(
-        matchingGroup.subtotals,
-        row,
-        dataColumnIndexMap
-      );
+      matchingGroup.subtotals = sumRowData
+        ? sumRows(matchingGroup.subtotals, row, dataColumnIndexMap)
+        : [];
     } else {
       groups.push({
         info: {
@@ -544,7 +548,7 @@ const groupData = (
           groupByValue: groupByValue,
         },
         data: [row],
-        subtotals: sumRows(row, [], dataColumnIndexMap),
+        subtotals: sumRowData ? sumRows(row, [], dataColumnIndexMap) : [],
       });
     }
 
@@ -556,7 +560,8 @@ const groupData = (
       g.children = groupData(
         g.data,
         dataColumnIndexMap,
-        groupByFields.slice(1)
+        groupByFields.slice(1),
+        sumRowData
       );
     });
   }

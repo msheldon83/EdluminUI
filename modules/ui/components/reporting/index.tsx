@@ -23,6 +23,7 @@ type Props = {
   allowedFilterFieldsOverride?: string[];
   baseFilterFieldNames?: string[];
   showGroupLabels?: boolean;
+  sumRowData?: boolean;
 };
 
 export const Report: React.FC<Props> = props => {
@@ -37,6 +38,7 @@ export const Report: React.FC<Props> = props => {
     baseFilterFieldNames,
     exportFilename = t("Report"),
     showGroupLabels = true,
+    sumRowData = true,
   } = props;
 
   const [chartVisible, setChartVisible] = React.useState(true);
@@ -177,6 +179,7 @@ export const Report: React.FC<Props> = props => {
           });
         }}
         showGroupLabels={showGroupLabels}
+        sumRowData={sumRowData}
       />
     </AppConfig>
   );

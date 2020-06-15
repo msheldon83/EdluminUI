@@ -34,6 +34,7 @@ export const EmployeeBalancesReport: React.FC<{}> = () => {
         "Active",
       ]}
       showGroupLabels={false}
+      sumRowData={false}
     />
   );
 };
