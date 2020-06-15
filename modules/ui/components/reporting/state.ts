@@ -344,6 +344,22 @@ const buildFormula = (
       }
       return `(${fieldName} BETWEEN ${betweenValues[0]} AND ${betweenValues[1]})`;
     }
+    case ExpressionFunction.LessThan: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} < '${equalValue}')`;
+    }
+    case ExpressionFunction.LessThanOrEqual: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} <= '${equalValue}')`;
+    }
+    case ExpressionFunction.GreaterThan: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} > '${equalValue}')`;
+    }
+    case ExpressionFunction.GreaterThanOrEqual: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} >= '${equalValue}')`;
+    }
   }
   return null;
 };
