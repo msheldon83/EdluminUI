@@ -223,6 +223,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    paddingLeft: theme.spacing(1),
   },
   link: {
     color: theme.customColors.blue,

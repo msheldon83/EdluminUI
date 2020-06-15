@@ -14,6 +14,7 @@ query GetAllApproverGroupsWithinOrg($orgId: ID) {
       approverGroups {
         id
         name
+        rowVersion
       }
     }
   }

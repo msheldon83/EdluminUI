@@ -12,6 +12,7 @@ mutation CreateApproverGroupHeader(
         id
         name
         externalId
+        rowVersion
       }
     }
   }
