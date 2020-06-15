@@ -21,12 +21,13 @@ export const PartyPopper: React.FC<Props> = ({ children }) => {
         {x && y && w && h && (
           <RedRoverConfetti
             confettiSource={{
-              x: x + w / 2 ?? 0,
-              y: y - h / 2 ?? 0,
-              w: 0,
-              h: 0,
+              x: x + 0.23628 * w ?? 0,
+              y: y - (1 - 0.31873) * h ?? 0,
+              side1: { x: 0, y: 0 },
+              side2: { x: (0.6521 - 0.23628) * w, y: (0.75669 - 0.31873) * h },
             }}
-            wind={0.1}
+            initialVelocityX={{ min: 1, max: 10 }}
+            style={{ zIndex: 202 }}
           />
         )}
         <div ref={ref}>
