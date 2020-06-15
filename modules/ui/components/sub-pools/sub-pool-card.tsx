@@ -5,15 +5,19 @@ import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  OrgUser,
+  ReplacementPoolMember,
+} from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 import clsx from "clsx";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
-  orgUsers?: OrgUser[] | null;
-  onRemove: (orgUser: OrgUser) => void;
+  replacementPoolMembers?: ReplacementPoolMember[] | null;
+  onRemove: (orgUserId: string) => void;
   removePermission: PermissionEnum[];
 };
 
@@ -31,12 +35,12 @@ export const SubPoolCard: React.FC<Props> = props => {
           alignItems="center"
           direction="row"
         >
-          {props.orgUsers?.length === 0 ? (
+          {props.replacementPoolMembers?.length === 0 ? (
             <Grid item xs={12}>
               <Typography>{t("Not Defined")}</Typography>
             </Grid>
           ) : (
-            props.orgUsers?.map((user, i) => {
+            props.replacementPoolMembers?.map((member, i) => {
               return (
                 <Grid
                   item
@@ -48,14 +52,15 @@ export const SubPoolCard: React.FC<Props> = props => {
                   key={i}
                 >
                   <Typography className={classes.userName}>
-                    <SubstituteLink orgUserId={user.id} color="black">
-                      {user.firstName ?? ""} {user.lastName ?? ""}
+                    <SubstituteLink orgUserId={member.id} color="black">
+                      {member?.employee?.firstName ?? ""}{" "}
+                      {member?.employee?.lastName ?? ""}
                     </SubstituteLink>
                   </Typography>
                   <Can do={props.removePermission}>
                     <TextButton
                       className={classes.actionLink}
-                      onClick={() => props.onRemove(user)}
+                      onClick={() => props.onRemove(member.employeeId)}
                     >
                       {t("Remove")}
                     </TextButton>

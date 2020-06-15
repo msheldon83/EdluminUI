@@ -15,16 +15,16 @@ type Props = {
   blockedHeading: string;
   autoAssignHeading?: string;
   searchHeading: string;
-  favoriteEmployees: OrgUser[];
-  blockedEmployees: ReplacementPoolMember[];
-  autoAssignEmployees?: OrgUser[];
+  favoriteMembers: ReplacementPoolMember[];
+  blockedMembers: ReplacementPoolMember[];
+  autoAssignMembers?: ReplacementPoolMember[];
   orgId: string;
-  onRemoveFavoriteEmployee: (orgUser: OrgUser) => void;
-  onRemoveBlockedEmployee: (orgUser: OrgUser) => void;
-  onRemoveAutoAssignedEmployee?: (orgUser: OrgUser) => void;
-  onAddFavoriteEmployee: (orgUser: OrgUser) => void;
-  onBlockEmployee: (orgUser: OrgUser) => void;
-  onAutoAssignEmployee?: (orgUser: OrgUser) => void;
+  onRemoveFavoriteEmployee: (id: string) => void;
+  onRemoveBlockedEmployee: (id: string) => void;
+  onRemoveAutoAssignedEmployee?: (id: string) => void;
+  onAddFavoriteEmployee: (id: string) => void;
+  onBlockEmployee: (id: string) => void;
+  onAutoAssignEmployee?: (id: string) => void;
   removeBlockedPermission: PermissionEnum[];
   removeFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
@@ -39,12 +39,17 @@ export const SubstitutePreferences: React.FC<Props> = props => {
   const classes = useStyles();
 
   const takenSubs = () => {
-    if (props.autoAssignEmployees === undefined) {
-      return props.favoriteEmployees.concat(props.blockedEmployees);
+    if (props.autoAssignMembers === undefined) {
+      return props.favoriteMembers.concat(props.blockedMembers);
     }
-    return props.favoriteEmployees
-      .concat(props.blockedEmployees)
-      .concat(props.autoAssignEmployees);
+    return props.favoriteMembers.concat(props.blockedMembers).concat(
+      props.autoAssignMembers.map(
+        x =>
+          ({
+            employeeId: x.id,
+          } as ReplacementPoolMember)
+      )
+    );
   };
 
   const header =
@@ -67,7 +72,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
           <Grid item xs={12}>
             <SubPoolCard
               title={props.favoriteHeading}
-              orgUsers={props.favoriteEmployees}
+              replacementPoolMembers={props.favoriteMembers}
               onRemove={props.onRemoveFavoriteEmployee}
               removePermission={props.removeFavoritePermission}
             />
@@ -75,7 +80,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
           <Grid item xs={12}>
             <BlockedSubPoolCard
               title={props.blockedHeading}
-              orgUsers={props.blockedEmployees}
+              replacementPoolMembers={props.blockedMembers}
               onRemove={props.onRemoveBlockedEmployee}
               removePermission={props.removeBlockedPermission}
             />
@@ -84,7 +89,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
             <Grid item xs={12}>
               <SubPoolCard
                 title={props.autoAssignHeading ?? ""} // Auto Assign List?
-                orgUsers={props.autoAssignEmployees}
+                replacementPoolMembers={props.autoAssignMembers}
                 onRemove={props.onRemoveAutoAssignedEmployee}
                 removePermission={props.removeBlockedPermission}
               />

@@ -16,10 +16,13 @@ query GetEmployeeSubPreferencesById($id: ID!) {
               lastName
             }
           }
-          favoriteSubstitutes {
+          favoriteSubstituteMembers {
             id
-            firstName
-            lastName
+            adminNote
+            employee {
+              firstName
+              lastName
+            }
           }
         }
       }

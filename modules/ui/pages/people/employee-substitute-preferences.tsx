@@ -113,9 +113,9 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteEmployees={employee.substitutePreferences?.favoriteSubstitutes}
-        blockedEmployees={
-          employee.substitutePreferences?.blockedSubstituteMembers
+        favoriteMembers={employee.substitutePreferences?.favoriteSubstitutes}
+        blockedMembers={
+          employee.substitutePreferences?.favoriteSubstituteMembers
         }
         headerComponent={headerComponent}
         orgId={params.organizationId}
