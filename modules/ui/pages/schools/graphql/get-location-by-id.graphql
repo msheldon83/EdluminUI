@@ -25,17 +25,21 @@ query GetLocationById($locationId: ID!) {
         }
       }
       substitutePreferences {
-        blockedSubstitutes {
+        blockedSubstituteMembers {
           id
-          firstName
-          middleName
-          lastName
+          adminNote
+          employee {
+            firstName
+            lastName
+          }
         }
-        favoriteSubstitutes {
+        favoriteSubstituteMembers {
           id
-          firstName
-          middleName
-          lastName
+          adminNote
+          employee {
+            firstName
+            lastName
+          }
         }
         autoAssignedSubstitutes {
           id

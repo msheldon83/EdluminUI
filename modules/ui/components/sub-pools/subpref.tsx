@@ -19,12 +19,12 @@ type Props = {
   blockedMembers: ReplacementPoolMember[];
   autoAssignMembers?: ReplacementPoolMember[];
   orgId: string;
-  onRemoveFavoriteEmployee: (id: string) => void;
-  onRemoveBlockedEmployee: (id: string) => void;
-  onRemoveAutoAssignedEmployee?: (id: string) => void;
-  onAddFavoriteEmployee: (id: string) => void;
-  onBlockEmployee: (id: string) => void;
-  onAutoAssignEmployee?: (id: string) => void;
+  onRemoveFavoriteEmployee: (member: ReplacementPoolMember) => void;
+  onRemoveBlockedEmployee: (member: ReplacementPoolMember) => void;
+  onRemoveAutoAssignedEmployee?: (member: ReplacementPoolMember) => void;
+  onAddFavoriteEmployee: (member: ReplacementPoolMember) => void;
+  onBlockEmployee: (member: ReplacementPoolMember) => void;
+  onAutoAssignEmployee?: (member: ReplacementPoolMember) => void;
   removeBlockedPermission: PermissionEnum[];
   removeFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
@@ -38,19 +38,24 @@ type Props = {
 export const SubstitutePreferences: React.FC<Props> = props => {
   const classes = useStyles();
 
-  const takenSubs = () => {
-    if (props.autoAssignMembers === undefined) {
-      return props.favoriteMembers.concat(props.blockedMembers);
-    }
-    return props.favoriteMembers.concat(props.blockedMembers).concat(
-      props.autoAssignMembers.map(
-        x =>
-          ({
-            employeeId: x.id,
-          } as ReplacementPoolMember)
-      )
-    );
-  };
+  const takenSubs =
+    props.autoAssignMembers === undefined
+      ? props.favoriteMembers.concat(props.blockedMembers)
+      : props.favoriteMembers.concat(props.blockedMembers).concat(
+          props.autoAssignMembers.map(
+            x =>
+              ({
+                employeeId: x.employeeId,
+                employee: {
+                  firstName: x.employee?.firstName,
+                  lastName: x.employee?.lastName,
+                  id: x.employeeId,
+                },
+              } as ReplacementPoolMember)
+          )
+        );
+
+  console.log(props.favoriteMembers);
 
   const header =
     "headerComponent" in props ? (
@@ -104,7 +109,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
             onAdd={props.onAddFavoriteEmployee}
             onBlock={props.onBlockEmployee}
             onAutoAssign={props.onAutoAssignEmployee}
-            takenSubstitutes={takenSubs()}
+            takenSubstitutes={takenSubs}
             addToBlockedPermission={props.addToBlockedPermission}
             addToFavoritePermission={props.addToFavoritePermission}
           ></SubstitutePicker>

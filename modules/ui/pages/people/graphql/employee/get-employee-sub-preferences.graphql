@@ -11,7 +11,9 @@ query GetEmployeeSubPreferencesById($id: ID!) {
           blockedSubstituteMembers {
             id
             adminNote
+            employeeId
             employee {
+              id
               firstName
               lastName
             }
@@ -19,7 +21,9 @@ query GetEmployeeSubPreferencesById($id: ID!) {
           favoriteSubstituteMembers {
             id
             adminNote
+            employeeId
             employee {
+              id
               firstName
               lastName
             }

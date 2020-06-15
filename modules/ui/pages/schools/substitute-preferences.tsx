@@ -8,7 +8,11 @@ import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
-import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  OrgUser,
+  ReplacementPoolMember,
+} from "graphql/server-types.gen";
 import { LocationLinkHeader } from "ui/components/link-headers/location";
 
 export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
@@ -22,10 +26,12 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     },
   });
 
-  const onRemoveFavoriteSubstitute = async (substitute: OrgUser) => {
+  const onRemoveFavoriteSubstitute = async (
+    substitute: ReplacementPoolMember
+  ) => {
     const filteredFavorites = location.substitutePreferences?.favoriteSubstitutes.filter(
       (u: OrgUser) => {
-        return u.id !== substitute.id;
+        return u.id !== substitute.employeeId;
       }
     );
     return updatePreferences(
@@ -35,10 +41,12 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onRemoveBlockedSubstitute = async (substitute: OrgUser) => {
+  const onRemoveBlockedSubstitute = async (
+    substitute: ReplacementPoolMember
+  ) => {
     const filteredBlocked = location.substitutePreferences?.blockedSubstitutes.filter(
       (u: OrgUser) => {
-        return u.id !== substitute.id;
+        return u.id !== substitute.employeeId;
       }
     );
     return updatePreferences(
@@ -48,10 +56,12 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onRemoveAutoAssignedSubstitute = async (substitute: OrgUser) => {
+  const onRemoveAutoAssignedSubstitute = async (
+    substitute: ReplacementPoolMember
+  ) => {
     const filteredAutoAssigned = location.substitutePreferences?.autoAssignedSubstitutes.filter(
       (u: OrgUser) => {
-        return u.id !== substitute.id;
+        return u.id !== substitute.employeeId;
       }
     );
     return updatePreferences(
@@ -61,7 +71,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onAddSubstitute = async (substitute: OrgUser) => {
+  const onAddSubstitute = async (substitute: ReplacementPoolMember) => {
     location.substitutePreferences?.favoriteSubstitutes.push(substitute);
 
     return updatePreferences(
@@ -71,7 +81,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onBlockSubstitute = async (substitute: OrgUser) => {
+  const onBlockSubstitute = async (substitute: ReplacementPoolMember) => {
     location.substitutePreferences?.blockedSubstitutes.push(substitute);
 
     return updatePreferences(
@@ -81,7 +91,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onAutoAssignSubstitute = async (substitute: OrgUser) => {
+  const onAutoAssignSubstitute = async (substitute: ReplacementPoolMember) => {
     location.substitutePreferences?.autoAssignedSubstitutes.push(substitute);
 
     return updatePreferences(
@@ -92,16 +102,16 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
   };
 
   const updatePreferences = async (
-    favorites: OrgUser[],
-    blocked: OrgUser[],
+    favorites: ReplacementPoolMember[],
+    blocked: ReplacementPoolMember[],
     autoAssigned: OrgUser[]
   ) => {
-    const neweFavs = favorites.map((s: OrgUser) => {
-      return { id: s.id };
+    const neweFavs = favorites.map((s: ReplacementPoolMember) => {
+      return { id: s.employeeId };
     });
 
-    const neweBlocked = blocked.map((s: OrgUser) => {
-      return { id: s.id };
+    const neweBlocked = blocked.map((s: ReplacementPoolMember) => {
+      return { id: s.employeeId };
     });
 
     const neweAutoAssigned = autoAssigned.map((s: OrgUser) => {
@@ -152,10 +162,14 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         blockedHeading={t("Blocked Substitutes")}
         autoAssignHeading={t("Auto Assign")}
         searchHeading={"All Substitutes"}
-        favoriteEmployees={location.substitutePreferences.favoriteSubstitutes}
-        blockedEmployees={location.substitutePreferences.blockedSubstitutes}
-        autoAssignEmployees={
-          location.substitutePreferences.autoAssignedSubstitutes
+        favoriteMembers={
+          location.substitutePreferences.favoriteSubstituteMembers ?? []
+        }
+        blockedMembers={
+          location.substitutePreferences.blockedSubstituteMembers ?? []
+        }
+        autoAssignMembers={
+          location.substitutePreferences.autoAssignedSubstitutes ?? []
         }
         headerComponent={headerComponent}
         useAutoAssign={true}

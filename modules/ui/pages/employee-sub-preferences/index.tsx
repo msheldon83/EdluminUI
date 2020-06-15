@@ -20,23 +20,23 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   });
 
   const onRemoveFavoriteSubstitute = async (sub: any) => {
-    await removeSub(sub.id, ReplacementPoolType.Favorite);
+    await removeSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
   const onRemoveBlockedSubstitute = async (sub: any) => {
-    await removeSub(sub.id, ReplacementPoolType.Blocked);
+    await removeSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
   const onAddSubstitute = async (sub: any) => {
     orgUser?.employee?.substitutePreferences?.favoriteSubstitutes.push(sub);
 
-    await addSub(sub.id, ReplacementPoolType.Favorite);
+    await addSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
   const onBlockSubstitute = async (sub: any) => {
     orgUser?.employee?.substitutePreferences?.blockedSubstitutes.push(sub);
 
-    await addSub(sub.id, ReplacementPoolType.Blocked);
+    await addSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
   const [addSubPreference] = useMutationBundle(AddSubPreference, {
@@ -99,8 +99,12 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteEmployees={employee?.substitutePreferences?.favoriteSubstitutes}
-        blockedEmployees={employee?.substitutePreferences?.blockedSubstitutes}
+        favoriteMembers={
+          employee?.substitutePreferences?.favoriteSubstituteMembers ?? []
+        }
+        blockedMembers={
+          employee?.substitutePreferences?.blockedSubstituteMembers ?? []
+        }
         heading={t("Substitute Preferences")}
         orgId={orgUser?.orgId ?? ""}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}

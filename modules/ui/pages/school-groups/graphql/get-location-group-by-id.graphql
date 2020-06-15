@@ -11,17 +11,24 @@ query GetLocationGroupById($locationGroupId: ID!) {
         name
       }
       substitutePreferences {
-        blockedSubstitutes {
+        substitutePreferences {
+        blockedSubstituteMembers {
           id
-          firstName
-          middleName
-          lastName
+          adminNote
+          employeeId
+          employee {
+            firstName
+            lastName
+          }
         }
-        favoriteSubstitutes {
+        favoriteSubstituteMembers {
           id
-          firstName
-          middleName
-          lastName
+          adminNote
+          employeeId
+          employee {
+            firstName
+            lastName
+          }
         }
       }
     }

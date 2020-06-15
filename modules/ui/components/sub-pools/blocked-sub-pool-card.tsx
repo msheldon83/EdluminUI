@@ -17,7 +17,7 @@ import { SubstituteLink } from "ui/components/links/people";
 type Props = {
   title: string;
   replacementPoolMembers: ReplacementPoolMember[] | null;
-  onRemove: (id: string) => void;
+  onRemove: (member: ReplacementPoolMember) => void;
   onAddNote?: (orgUserId: string, note: string) => void;
   removePermission: PermissionEnum[];
 };
@@ -68,7 +68,7 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
                         [classes.removeLink]: true,
                         [classes.floatRight]: true,
                       })}
-                      onClick={() => props.onRemove(member.employeeId)}
+                      onClick={() => props.onRemove(member)}
                     >
                       {t("Remove")}
                     </TextButton>

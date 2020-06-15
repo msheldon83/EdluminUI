@@ -8,7 +8,10 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetEmployeeSubPreferencesById } from "./graphql/employee/get-employee-sub-preferences.gen";
 import { SaveEmployee } from "./graphql/employee/save-employee.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
-import { PermissionEnum } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  ReplacementPoolMember,
+} from "graphql/server-types.gen";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
 
 export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
@@ -21,56 +24,57 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     fetchPolicy: "cache-first",
   });
 
-  const onRemoveFavoriteSubstitute = async (sub: any) => {
-    const filteredFavorites = employee.substitutePreferences?.favoriteSubstitutes.filter(
+  const onRemoveFavoriteSubstitute = async (sub: ReplacementPoolMember) => {
+    const filteredFavorites = employee.substitutePreferences?.favoriteSubstituteMembers.filter(
       (u: any) => {
-        return u.id !== sub.id;
+        return u.id !== sub.employeeId;
       }
     );
     return updatePreferences(
       filteredFavorites,
-      employee.substitutePreferences?.blockedSubstitutes
+      employee.substitutePreferences?.blockedSubstituteMembers
     );
   };
 
-  const onRemoveBlockedSubstitute = async (sub: any) => {
-    const filteredBlocked = employee.substitutePreferences?.blockedSubstitutes.filter(
+  const onRemoveBlockedSubstitute = async (sub: ReplacementPoolMember) => {
+    const filteredBlocked = employee.substitutePreferences?.blockedSubstituteMembers.filter(
       (u: any) => {
-        return u.id !== sub.id;
+        return u.id !== sub.employeeId;
       }
     );
     return updatePreferences(
-      employee.substitutePreferences?.favoriteSubstitutes,
+      employee.substitutePreferences?.favoriteSubstituteMembers,
       filteredBlocked
     );
   };
 
-  const onAddSubstitute = async (sub: any) => {
-    employee.substitutePreferences?.favoriteSubstitutes.push(sub);
+  const onAddSubstitute = async (sub: ReplacementPoolMember) => {
+    employee.substitutePreferences?.favoriteSubstituteMembers.push(sub);
 
     return updatePreferences(
-      employee.substitutePreferences?.favoriteSubstitutes,
-      employee.substitutePreferences?.blockedSubstitutes
+      employee.substitutePreferences?.favoriteSubstituteMembers,
+      employee.substitutePreferences?.blockedSubstituteMembers
     );
   };
 
-  const onBlockSubstitute = async (sub: any) => {
-    employee.substitutePreferences?.blockedSubstitutes.push(sub);
+  const onBlockSubstitute = async (sub: ReplacementPoolMember) => {
+    employee.substitutePreferences?.blockedSubstituteMembers.push(sub);
 
     return updatePreferences(
-      employee.substitutePreferences?.favoriteSubstitutes,
-      employee.substitutePreferences?.blockedSubstitutes
+      employee.substitutePreferences?.favoriteSubstituteMembers,
+      employee.substitutePreferences?.blockedSubstituteMembers
     );
   };
 
   const updatePreferences = async (favorites: any[], blocked: any[]) => {
-    const newFavs = favorites.map((s: any) => {
-      return { id: s.id };
+    const newFavs = favorites.map((s: ReplacementPoolMember) => {
+      return { id: s.employeeId };
     });
 
-    const newBlocked = blocked.map((s: any) => {
-      return { id: s.id };
+    const newBlocked = blocked.map((s: ReplacementPoolMember) => {
+      return { id: s.employeeId };
     });
+
     const updatedEmployee: any = {
       id: employee.id,
       substitutePreferences: {
@@ -78,6 +82,8 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         blockedSubstitutes: newBlocked,
       },
     };
+
+    console.log(updatedEmployee);
     const result = await updateEmployee({
       variables: {
         employee: updatedEmployee,
@@ -113,9 +119,11 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteMembers={employee.substitutePreferences?.favoriteSubstitutes}
+        favoriteMembers={
+          employee.substitutePreferences?.favoriteSubstituteMembers ?? []
+        }
         blockedMembers={
-          employee.substitutePreferences?.favoriteSubstituteMembers
+          employee.substitutePreferences?.blockedSubstituteMembers ?? []
         }
         headerComponent={headerComponent}
         orgId={params.organizationId}
