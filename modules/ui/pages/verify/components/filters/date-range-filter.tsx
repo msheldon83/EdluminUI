@@ -25,6 +25,7 @@ export const DateRangeFilter: React.FC<Props> = ({
         endDate={end}
         placeholder={t("Select dates")}
         onDateRangeSelected={setDateRange}
+        useStandardWidth
       />
     </Grid>
   );
