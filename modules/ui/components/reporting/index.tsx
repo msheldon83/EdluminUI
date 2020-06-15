@@ -1,6 +1,13 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { Direction, FilterField, DataExpression, OrderByField } from "./types";
+import {
+  Direction,
+  FilterField,
+  DataExpression,
+  OrderByField,
+  CustomRenderer,
+  DataSourceField,
+} from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
 import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
@@ -23,6 +30,8 @@ type Props = {
   allowedFilterFieldsOverride?: string[];
   baseFilterFieldNames?: string[];
   showGroupLabels?: boolean;
+  customRender?: CustomRenderer;
+  chartVisiableAtStart?: boolean;
 };
 
 export const Report: React.FC<Props> = props => {
@@ -37,9 +46,11 @@ export const Report: React.FC<Props> = props => {
     baseFilterFieldNames,
     exportFilename = t("Report"),
     showGroupLabels = true,
+    customRender,
+    chartVisiableAtStart = true,
   } = props;
 
-  const [chartVisible, setChartVisible] = React.useState(true);
+  const [chartVisible, setChartVisible] = React.useState(chartVisiableAtStart);
   const [state, dispatch] = React.useReducer(reportReducer, {
     rdlString: rdl,
     filterableFields: [],
@@ -117,6 +128,8 @@ export const Report: React.FC<Props> = props => {
     []
   );
 
+  const [filterFlag, setFilterFlag] = React.useState(false);
+
   const refreshReport = React.useCallback(async () => {
     dispatch({ action: "refreshReport" });
   }, []);
@@ -177,6 +190,7 @@ export const Report: React.FC<Props> = props => {
           });
         }}
         showGroupLabels={showGroupLabels}
+        customRender={customRender}
       />
     </AppConfig>
   );

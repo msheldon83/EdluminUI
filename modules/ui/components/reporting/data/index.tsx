@@ -7,6 +7,7 @@ import {
   ReportDefinitionData,
   DataExpression,
   OrderByField,
+  CustomRenderer,
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
@@ -34,6 +35,7 @@ type Props = {
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
   showGroupLabels?: boolean;
+  customRender?: CustomRenderer;
 };
 
 export const ReportData: React.FC<Props> = props => {
@@ -50,6 +52,7 @@ export const ReportData: React.FC<Props> = props => {
     refreshReport,
     exportReport,
     showGroupLabels = true,
+    customRender,
   } = props;
 
   const possibleOrderByFields = React.useMemo(() => {
@@ -99,6 +102,7 @@ export const ReportData: React.FC<Props> = props => {
             showGroupLabels={showGroupLabels}
             setFirstLevelOrderBy={setFirstLevelOrderBy}
             orderedBy={report.orderBy ?? []}
+            customRender={customRender}
           />
         )}
       </div>

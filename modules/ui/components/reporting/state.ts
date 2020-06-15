@@ -171,7 +171,7 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
 
       // Determine if the filters have actually changed and warrant an update
       const filtersHaveChanged = filtersAreDifferent(
-        prev.report!.filters ?? [],
+        prev.report?.filters ?? [],
         updatedFilters
       );
       if (!filtersHaveChanged) {

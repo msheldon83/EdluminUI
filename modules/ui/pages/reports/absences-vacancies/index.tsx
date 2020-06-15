@@ -2,6 +2,7 @@ import * as React from "react";
 import { Report } from "ui/components/reporting";
 import { useTranslation } from "react-i18next";
 import { addDays, format } from "date-fns";
+import { AbsVacLink } from "ui/components/links/abs-vac";
 
 export const AbsencesVacanciesReport: React.FC<{}> = () => {
   const { t } = useTranslation();
@@ -29,6 +30,27 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         "IsAbsence",
         "IsVacancy",
       ]}
+      customRender={index =>
+        index == 0
+          ? (classes, value) => {
+              if (value.startsWith("#V")) {
+                return (
+                  <div className={classes}>
+                    <AbsVacLink
+                      absVacId={value.slice(2)}
+                      absVacType="vacancy"
+                    />
+                  </div>
+                );
+              }
+              return (
+                <div className={classes}>
+                  <AbsVacLink absVacId={value.slice(1)} absVacType="absence" />
+                </div>
+              );
+            }
+          : undefined
+      }
     />
   );
 };

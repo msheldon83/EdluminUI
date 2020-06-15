@@ -13,6 +13,7 @@ import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
+import { EmployeeBalanceReportLink } from "ui/components/links/reports";
 import { DatePicker } from "ui/components/form/date-picker";
 import { parseISO, isBefore, isAfter } from "date-fns";
 import { round } from "lodash-es";
@@ -276,7 +277,13 @@ export const BalanceRow: React.FC<Props> = props => {
                   inputStatus={errors.absenceReasonId ? "error" : "default"}
                 />
               ) : absenceReasonId ? (
-                absenceReasonBalance?.absenceReason?.name
+                <EmployeeBalanceReportLink
+                  orgId={props.orgId}
+                  employeeId={absenceReasonBalance?.employeeId}
+                  reasonId={absenceReasonId}
+                >
+                  {absenceReasonBalance?.absenceReason?.name}
+                </EmployeeBalanceReportLink>
               ) : (
                 `Category: ${absenceReasonBalance?.absenceReasonCategory?.name}`
               )}

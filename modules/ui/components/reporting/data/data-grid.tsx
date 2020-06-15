@@ -9,6 +9,7 @@ import {
   Report,
   ReportDefinitionData,
   OrderByField,
+  CustomRenderer,
 } from "../types";
 import {
   GridCellProps,
@@ -44,6 +45,7 @@ type Props = {
     direction: Direction
   ) => void;
   showGroupLabels?: boolean;
+  customRender?: CustomRenderer;
 };
 
 export const DataGrid: React.FC<Props> = props => {
@@ -57,6 +59,7 @@ export const DataGrid: React.FC<Props> = props => {
     orderedBy,
     setFirstLevelOrderBy,
     showGroupLabels = true,
+    customRender = () => undefined,
   } = props;
 
   // Convert report data into a grouped structure.
@@ -167,7 +170,8 @@ export const DataGrid: React.FC<Props> = props => {
                       props,
                       classes,
                       t,
-                      showGroupLabels
+                      showGroupLabels,
+                      customRender
                     )
                   }
                   columnWidth={(params: Index) =>
@@ -340,7 +344,8 @@ const dataCellRenderer = (
   level: number,
   dataRowIndex: number,
   { columnIndex, key, style }: GridCellProps,
-  classes: any
+  classes: any,
+  customRender: CustomRenderer
 ) => {
   const originalValue = data[columnIndex];
   const displayValue =
@@ -366,13 +371,17 @@ const dataCellRenderer = (
     [classes.truncate]: isLongText,
   });
 
-  const cellDisplay = isLongText ? (
-    <Tooltip title={displayValue} placement="top-start">
-      <div className={dataClasses}>{displayValue}</div>
-    </Tooltip>
-  ) : (
-    <div className={dataClasses}>{displayValue}</div>
-  );
+  const renderer =
+    customRender(columnIndex) ??
+    ((classes, value) =>
+      isLongText ? (
+        <Tooltip title={value} placement="top-start">
+          <div className={classes}>{value}</div>
+        </Tooltip>
+      ) : (
+        <div className={classes}>{value}</div>
+      ));
+  const cellDisplay = renderer(dataClasses, displayValue, data);
 
   if (columnIndex === 0) {
     return (
@@ -445,7 +454,8 @@ const cellRenderer = (
   gridProps: GridCellProps,
   classes: any,
   t: TFunction,
-  showGroupLabels: boolean
+  showGroupLabels: boolean,
+  customRender: CustomRenderer
 ) => {
   const row = rows[gridProps.rowIndex];
   if (Array.isArray(row.item)) {
@@ -455,7 +465,8 @@ const cellRenderer = (
       row.level,
       row.dataRowIndex ?? 0,
       gridProps,
-      classes
+      classes,
+      customRender
     );
   } else {
     return groupHeaderCellRenderer(
