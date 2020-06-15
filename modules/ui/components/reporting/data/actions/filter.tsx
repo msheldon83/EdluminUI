@@ -15,6 +15,8 @@ import { EndorsementSelect } from "ui/components/reference-selects/endorsement-s
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { AbsenceReasonCategorySelect } from "ui/components/reference-selects/absence-reason-category-select";
+import { DecimalInput } from "ui/components/form/decimal-input";
+import { NumberInput } from "ui/components/form/number-input";
 
 type Props = {
   filterField: FilterField;
@@ -46,6 +48,34 @@ export const Filter: React.FC<Props> = props => {
           />
         );
       }
+      case FilterType.Number:
+        return (
+          <NumberInput
+            value={filterField.value ?? ""}
+            onChange={value => {
+              updateFilter({
+                field: filterField.field,
+                expressionFunction:
+                  filterField.expressionFunction ?? ExpressionFunction.Equal,
+                value: value ?? undefined,
+              });
+            }}
+          />
+        );
+      case FilterType.Decimal:
+        return (
+          <DecimalInput
+            value={filterField.value ?? ""}
+            onChange={value => {
+              updateFilter({
+                field: filterField.field,
+                expressionFunction:
+                  filterField.expressionFunction ?? ExpressionFunction.Equal,
+                value: value ?? undefined,
+              });
+            }}
+          />
+        );
       case FilterType.Date: {
         const start = filterField.value
           ? filterField.value[0] ?? undefined
