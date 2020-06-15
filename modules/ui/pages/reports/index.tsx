@@ -55,7 +55,8 @@ export const ReportsPage: React.FC<Props> = props => {
         },
         {
           name: t("Absences & Vacancies - Detail"),
-          url: () => AnalyticsReportsAbsencesVacanciesDetailRoute.generate(params),
+          url: () =>
+            AnalyticsReportsAbsencesVacanciesDetailRoute.generate(params),
           permission: PermissionEnum.ReportsAbsVacSchema,
         },
         {
@@ -86,7 +87,7 @@ export const ReportsPage: React.FC<Props> = props => {
           permission: PermissionEnum.ReportsSubSchema,
         },
         {
-          name: t("Employee Balances"),
+          name: t("Absence Reason Balances"),
           url: () => AnalyticsReportsEmployeeBalancesRoute.generate(params),
           permission: PermissionEnum.ReportsEmpSchema,
         },
