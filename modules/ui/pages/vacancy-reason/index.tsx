@@ -1,5 +1,5 @@
 import { useTheme } from "@material-ui/styles";
-import { Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles, Checkbox } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -24,6 +24,7 @@ import { DeleteVacancyReason } from "./graphql/delete-vacancy-reason.gen";
 import { Column } from "material-table";
 import { compact } from "lodash-es";
 import { GetVacancyReasonsDocument } from "reference-data/get-vacancy-reasons.gen";
+import { boolean } from "@storybook/addon-knobs";
 
 type Props = {};
 
@@ -90,6 +91,23 @@ export const VacancyReason: React.FC<Props> = props => {
       editable: "always",
     },
     {
+      title: t("Requires Approval"),
+      field: "requiresApproval",
+      hidden: isMobile,
+      type: "boolean",
+      editable: "always",
+      editComponent: props => {
+        return (
+          <Checkbox
+            color="primary"
+            checked={props.value}
+            value={props.value}
+            onChange={e => props.onChange(e.target.checked)}
+          />
+        );
+      },
+    },
+    {
       title: t("Description"),
       field: "description",
       hidden: isMobile,
@@ -132,6 +150,7 @@ export const VacancyReason: React.FC<Props> = props => {
           externalId: vacancyReason.externalId,
           description: vacancyReason.description,
           code: vacancyReason.code,
+          requiresApproval: vacancyReason.requiresApproval,
         },
       },
     });
@@ -152,6 +171,7 @@ export const VacancyReason: React.FC<Props> = props => {
           externalId: vacancyReason.externalId,
           description: vacancyReason.description,
           code: vacancyReason.code,
+          requiresApproval: vacancyReason.requiresApproval,
         },
       },
     });
@@ -193,6 +213,7 @@ export const VacancyReason: React.FC<Props> = props => {
               externalId: newData.externalId,
               description: newData.description,
               code: newData.code,
+              requiresApproval: newData.requiresApproval,
             };
             const result = await addVacancyReason(newVacancyReason);
             if (!result) throw Error("Preserve Row on error");
@@ -209,6 +230,7 @@ export const VacancyReason: React.FC<Props> = props => {
               externalId: newData.externalId,
               description: newData.description,
               code: newData.code,
+              requiresApproval: newData.requiresApproval,
             };
             const result = await editVacancyReason(updateVacancyReason);
             if (!result) throw Error("Preserve Row on error");
