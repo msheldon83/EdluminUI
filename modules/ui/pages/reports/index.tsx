@@ -12,7 +12,7 @@ import {
   AnalyticsReportsEmployeeRosterRoute,
   AnalyticsReportsSubstituteRosterRoute,
   AnalyticsReportsEmployeeBalancesRoute,
-  AnalyticsReportsPayrollRoute,
+  AnalyticsReportsAbsencesVacanciesDetailRoute,
 } from "ui/routes/analytics-reports";
 import { BaseLink, pickUrl } from "ui/components/links/base";
 import { CanDo } from "ui/components/auth/types";
@@ -20,7 +20,7 @@ import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 import {
   canViewAbsenceAndVacancyReports,
-  canViewRosterReports,
+  canViewPeopleReports,
 } from "helpers/permissions";
 
 type Props = {};
@@ -54,6 +54,11 @@ export const ReportsPage: React.FC<Props> = props => {
           permission: PermissionEnum.ReportsAbsVacSchema,
         },
         {
+          name: t("Absences & Vacancies - Detail"),
+          url: () => AnalyticsReportsAbsencesVacanciesDetailRoute.generate(params),
+          permission: PermissionEnum.ReportsAbsVacSchema,
+        },
+        {
           name: t("Daily Report"),
           url: () => AnalyticsReportsDailyReportRoute.generate(params),
           permission: PermissionEnum.AbsVacView,
@@ -63,17 +68,12 @@ export const ReportsPage: React.FC<Props> = props => {
           url: () => AnalyticsReportsSubHistoryRoute.generate(params),
           permission: PermissionEnum.ReportsAbsVacSchema,
         },
-        {
-          name: t("Payroll"),
-          url: () => AnalyticsReportsPayrollRoute.generate(params),
-          permission: PermissionEnum.ReportsAbsVacSchema,
-        },
       ],
       permissionCheck: canViewAbsenceAndVacancyReports,
       ref: React.useRef<HTMLDivElement>(null),
     },
     {
-      title: t("Roster"),
+      title: t("People"),
       reports: [
         {
           name: t("Employee Roster"),
@@ -85,20 +85,13 @@ export const ReportsPage: React.FC<Props> = props => {
           url: () => AnalyticsReportsSubstituteRosterRoute.generate(params),
           permission: PermissionEnum.ReportsSubSchema,
         },
-      ],
-      permissionCheck: canViewRosterReports,
-      ref: React.useRef<HTMLDivElement>(null),
-    },
-    {
-      title: t("Balances"),
-      reports: [
         {
           name: t("Employee Balances"),
           url: () => AnalyticsReportsEmployeeBalancesRoute.generate(params),
           permission: PermissionEnum.ReportsEmpSchema,
         },
       ],
-      permissionCheck: canViewRosterReports,
+      permissionCheck: canViewPeopleReports,
       ref: React.useRef<HTMLDivElement>(null),
     },
   ];

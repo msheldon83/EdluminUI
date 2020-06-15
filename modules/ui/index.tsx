@@ -130,8 +130,8 @@ import {
   AnalyticsReportsSubstituteRosterLoader,
   AnalyticsReportsEmployeeBalancesRoute,
   AnalyticsReportsEmployeeBalancesLoader,
-  AnalyticsReportsPayrollRoute,
-  AnalyticsReportsPayrollLoader
+  AnalyticsReportsAbsencesVacanciesDetailRoute,
+  AnalyticsReportsAbsencesVacanciesDetailLoader
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -1445,10 +1445,10 @@ export const App = hot(function() {
                                     />
                                     <ProtectedRoute
                                       component={
-                                        AnalyticsReportsPayrollLoader
+                                        AnalyticsReportsAbsencesVacanciesDetailLoader
                                       }
                                       path={
-                                        AnalyticsReportsPayrollRoute.path
+                                        AnalyticsReportsAbsencesVacanciesDetailRoute.path
                                       }
                                       role={"admin"}
                                       permissions={[
