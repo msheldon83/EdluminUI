@@ -17,6 +17,8 @@ import { SchoolYearSelect } from "ui/components/reference-selects/school-year-se
 import { AbsenceReasonCategorySelect } from "ui/components/reference-selects/absence-reason-category-select";
 import { DecimalInput } from "ui/components/form/decimal-input";
 import { NumberInput } from "ui/components/form/number-input";
+import { PayCodeSelect } from "ui/components/reference-selects/pay-code-select";
+import { AccountingCodeSelect } from "ui/components/reference-selects/accounting-code-select";
 
 type Props = {
   filterField: FilterField;
@@ -372,6 +374,62 @@ export const Filter: React.FC<Props> = props => {
                   });
                 }}
                 selectedEndorsementIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "PayCode":
+            return (
+              <PayCodeSelect
+                orgId={organizationId ?? undefined}
+                setSelectedPayCodeIds={payCodeIds => {
+                  const value = payCodeIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedPayCodeIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "AccountingCode":
+            return (
+              <AccountingCodeSelect
+                orgId={organizationId ?? undefined}
+                setSelectedAccountingCodeIds={accountingCodeIds => {
+                  const value = accountingCodeIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedAccountingCodeIds={filterField.value ?? []}
                 multiple={
                   filterField.expressionFunction ===
                   ExpressionFunction.ContainedIn
