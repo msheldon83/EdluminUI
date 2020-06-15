@@ -466,6 +466,53 @@ export const Filter: React.FC<Props> = props => {
                 key={filterField.expressionFunction}
               />
             );
+          case "AbsenceReasonTrackingType": {
+            const absenceReasonTrackingTypeOptions = [
+              {
+                label: t("Daily"),
+                value: 2,
+              },
+              {
+                label: t("Hourly"),
+                value: 1,
+              },
+            ];
+            const value = absenceReasonTrackingTypeOptions.filter(o =>
+              (filterField.value ?? []).includes(o.value)
+            );
+            return (
+              <SelectNew
+                label={showLabel ? filterField.field.friendlyName : undefined}
+                value={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                    ? value
+                    : value[0] ?? { value: "", label: "" }
+                }
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                options={absenceReasonTrackingTypeOptions}
+                withResetValue={false}
+                onChange={value => {
+                  const filterValues = value
+                    ? Array.isArray(value)
+                      ? value.map((v: OptionType) => v.value)
+                      : [value.value]
+                    : [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: filterValues.length > 0 ? filterValues : undefined,
+                  });
+                }}
+                key={filterField.expressionFunction}
+              />
+            );
+          }
         }
         break;
     }
