@@ -62,12 +62,12 @@ export const DataGrid: React.FC<Props> = props => {
   // Convert report data into a grouped structure.
   // A Report with no explicit groupings will result in a single group with all data.
   React.useEffect(() => {
-    if (!reportData) {
+    if (!reportData?.rawData) {
       return;
     }
 
     const groupedDataResult = groupData(
-      reportData.rawData,
+      reportData.rawData ?? [],
       reportData.dataColumnIndexMap,
       report.subtotalBy ?? []
     );
