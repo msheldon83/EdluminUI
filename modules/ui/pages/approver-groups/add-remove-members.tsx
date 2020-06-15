@@ -25,6 +25,7 @@ import { AddMember } from "./graphql/add-member.gen";
 import { GetAdminsByName } from "./graphql/get-admins-by-name.gen";
 import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
 import { WorkflowViewCard } from "./components/workflow-view-card";
+import { NameHeader } from "./components/name-header";
 
 type OptionType = {
   label: string;
@@ -176,7 +177,14 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
           </Link>
         </div>
       </div>
-      <PageTitle title={approverGroup?.name ?? t("Approver Group")} />
+      {approverGroup && (
+        <NameHeader
+          approverGroupHeaderId={approverGroup.approverGroupHeaderId}
+          name={approverGroup.name}
+          identifier={approverGroup.externalId}
+          rowVersion={approverGroup.rowVersion}
+        />
+      )}
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>

@@ -25,6 +25,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { GetApproverGroupHeaderById } from "./graphql/get-approver-group-header-by-id.gen";
 import { AddApproverGroupForLocation } from "./graphql/add-location.gen";
 import { GetAllLocations } from "./graphql/get-all-locations.gen";
+import { NameHeader } from "./components/name-header";
 
 export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -145,7 +146,14 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
           </Link>
         </div>
       </div>
-      <PageTitle title={approverGroupHeader!.name} />
+      {approverGroupHeader && (
+        <NameHeader
+          approverGroupHeaderId={approverGroupHeader.id}
+          name={approverGroupHeader.name}
+          identifier={approverGroupHeader.externalId}
+          rowVersion={approverGroupHeader.rowVersion}
+        />
+      )}
       <Grid container className={classes.content}>
         <Grid item xs={6}>
           <Section>
