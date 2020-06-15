@@ -14,7 +14,7 @@ export const AbsencesVacanciesDetailReport: React.FC<{}> = () => {
   return (
     <Report
       title={t("Absences & Vacancies - Detail")}
-      rdl={`QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN '${startDate}' AND '${endDate}') SELECT ConfirmationNumber WIDTH(150), Date, LocationName, Concat(AbsentEmployeeLastName, ', ', AbsentEmployeeFirstName) AS Employee WIDTH(300), AbsentEmployeeExternalId, AbsStartTime, AbsEndTime, ReasonName, Concat(SubLastName, ', ', SubFirstName) AS Substitute, SubExternalId, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, PayCodeName, PayCodeDescription, AccountingCodeName, AccountingCodeDescription, PositionTypeName, Title, PositionTypeName, RequiresSub WIDTH(150), IsFilled, NotesToAdmin, AdminOnlyNotes, NotesToReplacement, IsVerified, VerifiedAtLocal WIDTH(200), VerifyComments ORDER BY Date DESC`}
+      rdl={`QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN '${startDate}' AND '${endDate}') SELECT ConfirmationNumber WIDTH(150), Date, LocationName, If(IsVacancy = 1, AbsentEmployeeLastName, Concat(AbsentEmployeeLastName, ', ', AbsentEmployeeFirstName)) AS Employee WIDTH(300), AbsentEmployeeExternalId, AbsStartTime, AbsEndTime, ReasonName, Concat(SubLastName, ', ', SubFirstName) AS Substitute, SubExternalId, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, PayCodeName, PayCodeDescription, AccountingCodeName, AccountingCodeDescription, PositionTypeName, Title, PositionTypeName, RequiresSub WIDTH(150), IsFilled, NotesToAdmin, AdminOnlyNotes, NotesToReplacement, IsVerified, VerifiedAtLocal WIDTH(200), VerifyComments ORDER BY Date DESC`}
       exportFilename={t("AbsencesAndVacanciesDetailReport")}
       allowedFilterFieldsOverride={[
         "Date",
