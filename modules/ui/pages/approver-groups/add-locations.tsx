@@ -133,7 +133,7 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   return (
     <>
       <div className={classes.headerLink}>
-        <Typography variant="h5">{approverGroupHeader?.name}</Typography>
+        <Typography variant="h5">{t("Approver Group")}</Typography>
         <div className={classes.linkPadding}>
           <Link
             to={ApproverGroupsRoute.generate({

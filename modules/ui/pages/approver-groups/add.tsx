@@ -80,7 +80,7 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
     <>
       <div className={classes.header}>
         <PageTitle title={t("New Approver Group")} />
-        <Typography variant="h1">
+        <Typography variant="h5">
           {name || (
             <span className={classes.placeholder}>{namePlaceholder}</span>
           )}

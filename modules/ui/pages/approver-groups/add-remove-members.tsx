@@ -168,7 +168,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
     <>
       <div className={classes.headerLink}>
         <Typography variant="h5">
-          {approverGroup?.location?.name ?? approverGroup?.name}
+          {approverGroup?.location?.name ?? t("Approver Group")}
         </Typography>
         <div className={classes.linkPadding}>
           <Link to={to} className={classes.link}>
@@ -176,7 +176,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
           </Link>
         </div>
       </div>
-      <PageTitle title={t("Building Approvers")} />
+      <PageTitle title={approverGroup?.name ?? t("Approver Group")} />
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>
