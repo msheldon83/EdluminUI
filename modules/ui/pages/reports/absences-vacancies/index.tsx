@@ -20,7 +20,7 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
   // we need to come into here and modify the canned report RDL prior to
   // implementing Saved Views and want to make sure all Users default back
   // to the RDL that we define the next time they visit this report.
-  const localStorageKey = "AbsencesAndVacanciesReport_20200611";
+  const localStorageKey = "AbsencesAndVacanciesReport_20200616";
   const rdl = React.useMemo(() => {
     const localStorageRdl = getRdlFromLocalStorage(localStorageKey);
     if (localStorageRdl) {
@@ -28,7 +28,7 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
     }
 
     return `QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN '${startDate}' AND '${endDate}') SELECT ConfirmationNumber WIDTH(150), Date WIDTH(150), LocationName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee WIDTH(300), AbsentEmployeeExternalId, AbsStartTime, AbsEndTime, ReasonName, Concat(SubFirstName,' ',SubLastName) AS Substitute, SubExternalId, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, Title, PositionTypeName, RequiresSub WIDTH(150), IsFilled, NotesToAdmin, AdminOnlyNotes, NotesToReplacement ORDER BY Date DESC CHART STACKEDBAR [CountIf(FillStatus = 'Filled', If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS 'Filled' COLOR('#3d4ed7'), CountIf(FillStatus = 'Unfilled', If(IsAbsence=1,AbsenceDetailId,VacancyDetailId)) AS 'Unfilled' COLOR('#FF5555'), CountIf(Equal(FillStatus, 'NoSubRequired'), If(Equal(IsAbsence, 1), AbsenceDetailId, VacancyDetailId)) AS 'No Sub Required' COLOR('#ffcc01')] AGAINST Date`;
-  }, []);
+  }, [endDate, startDate]);
 
   return (
     <Report
@@ -48,7 +48,7 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         "IsAbsence",
         "IsVacancy",
       ]}
-      saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
+      //saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
     />
   );
 };
