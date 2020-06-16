@@ -4,7 +4,7 @@ import {
   FilterField,
   ExpressionFunction,
   FilterType,
-} from "../../types";
+} from "../../../types";
 import {
   Button,
   Popper,
