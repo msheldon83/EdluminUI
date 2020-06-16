@@ -11,6 +11,7 @@ type Props = {
   setSelectedSchoolYearId: (schoolYearId?: string) => void;
   defaultToCurrentSchoolYear?: boolean;
   showLabel?: boolean;
+  label?: string;
 };
 
 export const SchoolYearSelect: React.FC<Props> = props => {
@@ -21,6 +22,7 @@ export const SchoolYearSelect: React.FC<Props> = props => {
     selectedSchoolYearId,
     defaultToCurrentSchoolYear = true,
     showLabel = true,
+    label = t("School Year"),
   } = props;
 
   const schoolYearOptions = useAllSchoolYearOptions(orgId);
@@ -38,7 +40,7 @@ export const SchoolYearSelect: React.FC<Props> = props => {
 
   return (
     <SelectNew
-      label={showLabel ? t("School Year") : undefined}
+      label={showLabel ? label : undefined}
       value={selectedSchoolYear}
       multiple={false}
       options={schoolYearOptions}

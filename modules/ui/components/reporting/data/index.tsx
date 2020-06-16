@@ -42,6 +42,7 @@ type Props = {
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
   showGroupLabels?: boolean;
+  sumRowData?: boolean;
 };
 
 export const ReportData: React.FC<Props> = props => {
@@ -62,6 +63,7 @@ export const ReportData: React.FC<Props> = props => {
     refreshReport,
     exportReport,
     showGroupLabels = true,
+    sumRowData = true,
   } = props;
 
   const possibleOrderByFields = React.useMemo(() => {
@@ -80,7 +82,7 @@ export const ReportData: React.FC<Props> = props => {
       })
     );
     return [...subtotalDisplayFields, ...fields];
-  }, [report]);
+  }, [report?.selects, report?.subtotalBy]);
 
   return !report ? (
     <div className={classes.gridWrapper}>
@@ -114,6 +116,7 @@ export const ReportData: React.FC<Props> = props => {
             showGroupLabels={showGroupLabels}
             setFirstLevelOrderBy={setFirstLevelOrderBy}
             orderedBy={report.orderBy ?? []}
+            sumRowData={sumRowData}
             allFields={allFields}
             addColumns={addColumns}
             setColumns={setColumns}

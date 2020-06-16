@@ -3,10 +3,14 @@ import { compact } from "lodash-es";
 import { GetAccountingCodes } from "./get-accounting-codes.gen";
 import { useMemo } from "react";
 
-export function useAccountingCodes(orgId: string, locationIds?: string[]) {
+export function useAccountingCodes(
+  orgId: string | undefined,
+  locationIds?: string[]
+) {
   const accountingCodes = useQueryBundle(GetAccountingCodes, {
     fetchPolicy: "cache-first",
-    variables: { orgId, locationIds },
+    variables: { orgId: orgId ?? "", locationIds },
+    skip: orgId === undefined,
   });
 
   return useMemo(() => {
@@ -18,4 +22,17 @@ export function useAccountingCodes(orgId: string, locationIds?: string[]) {
     }
     return [];
   }, [accountingCodes]);
+}
+
+export function useAccountingCodeOptions(orgId: string | undefined) {
+  const accountingCodes = useAccountingCodes(orgId);
+
+  return useMemo(
+    () =>
+      accountingCodes.map(l => ({
+        label: l.name,
+        value: l.id,
+      })),
+    [accountingCodes]
+  );
 }
