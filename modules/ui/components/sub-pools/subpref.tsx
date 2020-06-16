@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
 import { SubPoolCard } from "ui/components/sub-pools/sub-pool-card";
-import { BlockedSubPoolCard } from "ui/components/sub-pools/blocked-sub-pool-card";
+import { BlockedSubPool } from "ui/components/sub-pools/blocked-sub-pool";
 import { SubstitutePicker } from "ui/components/sub-pools/substitute-picker";
 import { makeStyles } from "@material-ui/styles";
 import {
@@ -82,7 +82,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
             />
           </Grid>
           <Grid item xs={12}>
-            <BlockedSubPoolCard
+            <BlockedSubPool
               title={props.blockedHeading}
               replacementPoolMembers={props.blockedMembers}
               onAddNote={props.onAddNote}

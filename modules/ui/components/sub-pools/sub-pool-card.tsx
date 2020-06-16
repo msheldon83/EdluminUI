@@ -7,7 +7,6 @@ import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import {
   PermissionEnum,
-  OrgUser,
   ReplacementPoolMember,
 } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
@@ -53,7 +52,7 @@ export const SubPoolCard: React.FC<Props> = props => {
                 >
                   <Typography className={classes.userName}>
                     <SubstituteLink orgUserId={member.id} color="black">
-                      {member?.employee?.firstName ?? ""}{" "}
+                      {member?.employee?.firstName ?? ""}
                       {member?.employee?.lastName ?? ""}
                     </SubstituteLink>
                   </Typography>

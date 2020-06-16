@@ -1,10 +1,10 @@
 import * as React from "react";
-import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
-import { Grid, Typography } from "@material-ui/core";
+import { Grid, Typography, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
-import { TextButton } from "ui/components/text-button";
+import CheckIcon from "@material-ui/icons/Check";
+import EditIcon from "@material-ui/icons/Edit";
 import { useTranslation } from "react-i18next";
+import { TextButton } from "ui/components/text-button";
 import {
   PermissionEnum,
   ReplacementPoolMember,
@@ -15,78 +15,122 @@ import clsx from "clsx";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
-  title: string;
-  replacementPoolMembers: ReplacementPoolMember[] | null;
+  replacementPoolMember: ReplacementPoolMember;
   onRemove: (member: ReplacementPoolMember) => void;
   onAddNote: (replacementPoolMember: ReplacementPoolMemberUpdateInput) => void;
   removePermission: PermissionEnum[];
+  shaded: number;
 };
 
 export const BlockedSubPoolCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  //Use to toggle notes
-  //let showNotes = false;
+  const {
+    replacementPoolMember,
+    onRemove,
+    onAddNote,
+    removePermission,
+    shaded,
+  } = props;
+
+  const [showFullNote, setShowFullNote] = React.useState<boolean>(false);
+
+  const [note, setNote] = React.useState<string | undefined>(
+    replacementPoolMember.adminNote ?? ""
+  );
 
   return (
-    <>
-      <Section>
-        <SectionHeader title={props.title} />
-        <Grid
-          container
-          justify="space-between"
-          alignItems="center"
-          direction="row"
-        >
-          {props.replacementPoolMembers?.length === 0 ? (
-            <Grid item xs={12}>
-              <Typography>{t("Not Defined")}</Typography>
-            </Grid>
+    <Grid
+      item
+      className={clsx({
+        [classes.detail]: true,
+        [classes.shadedRow]: shaded % 2 == 1,
+      })}
+      container
+    >
+      <Grid item xs={12}>
+        <Typography className={classes.userName}>
+          <SubstituteLink
+            orgUserId={replacementPoolMember.employeeId}
+            color="black"
+          >
+            {replacementPoolMember?.employee?.firstName ?? ""}{" "}
+            {replacementPoolMember?.employee?.lastName ?? ""}
+          </SubstituteLink>
+        </Typography>
+        <Can do={removePermission}>
+          <TextButton
+            className={clsx({
+              [classes.removeLink]: true,
+              [classes.floatRight]: true,
+            })}
+            onClick={() => onRemove(replacementPoolMember)}
+          >
+            {t("Remove")}
+          </TextButton>
+          {!replacementPoolMember.adminNote ? (
+            <TextButton
+              className={classes.floatRight}
+              onClick={() => setShowFullNote(!showFullNote)}
+            >
+              {t("Add Note")}
+            </TextButton>
           ) : (
-            props.replacementPoolMembers?.map((member, i) => {
-              return (
-                <Grid
-                  item
-                  className={clsx({
-                    [classes.detail]: true,
-                    [classes.shadedRow]: i % 2 == 1,
-                  })}
-                  xs={12}
-                  key={i}
-                >
-                  <Typography className={classes.userName}>
-                    <SubstituteLink orgUserId={member.employeeId} color="black">
-                      {member?.employee?.firstName ?? ""}{" "}
-                      {member?.employee?.lastName ?? ""}
-                    </SubstituteLink>
-                  </Typography>
-
-                  <Can do={props.removePermission}>
-                    <TextButton
-                      className={clsx({
-                        [classes.removeLink]: true,
-                        [classes.floatRight]: true,
-                      })}
-                      onClick={() => props.onRemove(member)}
-                    >
-                      {t("Remove")}
-                    </TextButton>
-
-                    <TextButton
-                      className={classes.floatRight}
-                      // onClick={() => props.onRemove(user)} // Add Note
-                    >
-                      {t("Add Note")}
-                    </TextButton>
-                  </Can>
-                </Grid>
-              );
-            })
+            <>
+              <div
+                className={classes.floatRight}
+                onClick={() => setShowFullNote(!showFullNote)}
+              >
+                <EditIcon className={classes.center} />
+              </div>
+            </>
           )}
-        </Grid>
-      </Section>
-    </>
+        </Can>
+      </Grid>
+      <Grid item xs={12}>
+        {!showFullNote ? (
+          <div className={classes.truncate}>{note}</div>
+        ) : (
+          <>
+            <div
+              className={clsx({
+                [classes.inline]: true,
+                [classes.textWidth]: true,
+              })}
+            >
+              <TextField
+                //multiline={true}
+                rows="1"
+                value={note}
+                fullWidth={true}
+                variant="outlined"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setNote(e.target.value);
+                }}
+              />
+            </div>
+            <div
+              className={clsx({
+                [classes.inline]: true,
+                [classes.iconWidth]: true,
+              })}
+              onClick={() => {
+                const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
+                  employeeId: replacementPoolMember.employeeId,
+                  id: replacementPoolMember.id,
+                  replacementPoolId: replacementPoolMember.replacementPoolId,
+                  adminNote: note === "" ? undefined : note,
+                };
+                onAddNote(replacementPoolMemberInput);
+              }}
+            >
+              <CheckIcon className={classes.center} />
+            </div>
+          </>
+        )}
+      </Grid>
+    </Grid>
   );
 };
 
@@ -111,6 +155,28 @@ const useStyles = makeStyles(theme => ({
       paddingRight: 0,
       paddingBottom: 0,
     },
+  },
+  inline: {
+    display: "inline-block",
+  },
+  truncate: {
+    paddingTop: theme.spacing(1),
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  textWidth: {
+    width: "90%",
+  },
+  iconWidth: {
+    width: "10%",
+    height: "50px",
+    position: "relative",
+  },
+  center: {
+    top: "15px",
+    width: "100%",
+    position: "relative",
   },
   removeLink: {
     color: theme.customColors.darkRed,
