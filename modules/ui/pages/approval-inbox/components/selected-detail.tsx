@@ -7,7 +7,7 @@ import { ApprovalComments } from "ui/components/absence-vacancy/approval-state/c
 import { WorkflowSummary } from "ui/components/absence-vacancy/approval-state/approval-flow";
 import { VacancyDetails } from "ui/components/absence-vacancy/approval-state/vacancy-details";
 import { AbsenceDetails } from "ui/components/absence-vacancy/approval-state/absence-details";
-import { compact, groupBy, flatMap, round } from "lodash-es";
+import { compact } from "lodash-es";
 import { Context } from "ui/components/absence-vacancy/approval-state/context";
 import { GetVacancyById } from "../graphql/get-vacancy-by-id.gen";
 import { GetAbsence } from "../graphql/get-absence-by-id.gen";
@@ -63,29 +63,6 @@ export const SelectedDetail: React.FC<Props> = props => {
     [approvalWorkflowSteps, approvalState]
   );
 
-  const absenceReasons = useMemo(
-    () =>
-      absence
-        ? Object.entries(
-            groupBy(
-              flatMap(
-                compact(absence.details).map(x => compact(x.reasonUsages))
-              ),
-              r => r?.absenceReasonId
-            )
-          ).map(([absenceReasonId, usages]) => ({
-            absenceReasonId: absenceReasonId,
-            absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
-            absenceReasonName: usages[0].absenceReason?.name,
-            totalAmount: round(
-              usages.reduce((m, v) => m + +v.amount, 0),
-              2
-            ),
-          }))
-        : [],
-    [absence]
-  );
-
   const handleSaveComment = async () => {
     if (props.selectedItem?.isNormalVacancy) {
       await getVacancy.refetch();
@@ -126,7 +103,6 @@ export const SelectedDetail: React.FC<Props> = props => {
           <AbsenceDetails
             orgId={props.orgId}
             absence={absence}
-            absenceReasons={absenceReasons}
             showSimpleDetail={false}
           />
         </div>

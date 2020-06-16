@@ -1,9 +1,7 @@
 import * as React from "react";
 import { Section } from "ui/components/section";
 import { Grid, makeStyles } from "@material-ui/core";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useQueryBundle } from "graphql/hooks";
 import {
   ApprovalAction,
   Maybe,
@@ -15,7 +13,7 @@ import { ApprovalComments } from "./comments";
 import { WorkflowSummary } from "./approval-flow";
 import { VacancyDetails } from "./vacancy-details";
 import { AbsenceDetails } from "./absence-details";
-import { compact, groupBy, flatMap, round } from "lodash-es";
+import { compact } from "lodash-es";
 import { Context } from "./context";
 import { ApproveDenyButtons } from "./approve-deny-buttons";
 import { ApprovalWorkflowSteps } from "./types";
@@ -118,30 +116,6 @@ export const ApprovalDetail: React.FC<Props> = props => {
     x => x.stepId == props.currentStepId
   )?.approverGroupHeaderId;
 
-  const absence = props.absence;
-  const absenceReasons = useMemo(
-    () =>
-      absence
-        ? Object.entries(
-            groupBy(
-              flatMap(
-                compact(absence.details).map(x => compact(x.reasonUsages))
-              ),
-              r => r?.absenceReasonId
-            )
-          ).map(([absenceReasonId, usages]) => ({
-            absenceReasonId: absenceReasonId,
-            absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
-            absenceReasonName: usages[0].absenceReason?.name,
-            totalAmount: round(
-              usages.reduce((m, v) => m + v.amount, 0),
-              2
-            ),
-          }))
-        : [],
-    [absence]
-  );
-
   return (
     <Section>
       <Grid container spacing={2}>
@@ -150,7 +124,6 @@ export const ApprovalDetail: React.FC<Props> = props => {
             <AbsenceDetails
               orgId={props.orgId}
               absence={props.absence}
-              absenceReasons={absenceReasons}
               actingAsEmployee={props.actingAsEmployee}
               showSimpleDetail={true}
             />
