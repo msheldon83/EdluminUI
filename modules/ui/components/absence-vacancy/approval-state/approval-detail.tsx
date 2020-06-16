@@ -14,12 +14,12 @@ import {
 import { ApprovalComments } from "./comments";
 import { WorkflowSummary } from "./approval-flow";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
-import { GetApprovalWorkflowById } from "./graphql/get-approval-workflow-steps-by-id.gen";
 import { VacancyDetails } from "./vacancy-details";
 import { AbsenceDetails } from "./absence-details";
 import { compact, groupBy, flatMap, round } from "lodash-es";
 import { Context } from "./context";
 import { ApproveDenyButtons } from "./approve-deny-buttons";
+import { ApprovalWorkflowSteps } from "./types";
 
 type Props = {
   orgId: string;
@@ -29,12 +29,18 @@ type Props = {
   approvalStateId: string;
   approvalStatusId: ApprovalStatus;
   currentStepId: string;
-  approvalWorkflowId: string;
+  approvalWorkflowSteps: ApprovalWorkflowSteps[];
   comments: {
     comment?: string | null;
     commentIsPublic: boolean;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -42,7 +48,13 @@ type Props = {
   decisions: {
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -96,25 +108,16 @@ type Props = {
         }>[]
       | null;
   };
+  onSaveComment?: () => void;
 };
 
 export const ApprovalDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const getApprovalWorkflow = useQueryBundle(GetApprovalWorkflowById, {
-    variables: {
-      id: props.approvalWorkflowId,
-    },
-  });
-  const approvalWorkflow =
-    getApprovalWorkflow.state === "DONE"
-      ? getApprovalWorkflow.data.approvalWorkflow?.byId
-      : null;
-
   const approverGroups = useApproverGroups(props.orgId);
 
-  const currentApproverGroupHeaderId = approvalWorkflow?.steps.find(
+  const currentApproverGroupHeaderId = props.approvalWorkflowSteps.find(
     x => x.stepId == props.currentStepId
   )?.approverGroupHeaderId;
 
@@ -200,7 +203,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
             <WorkflowSummary
               approverGroups={approverGroups}
               currentStepId={props.currentStepId}
-              steps={approvalWorkflow?.steps ?? []}
+              steps={props.approvalWorkflowSteps}
             />
           </Grid>
           <Grid item xs={12}>
@@ -210,6 +213,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
               actingAsEmployee={props.actingAsEmployee}
               comments={props.comments}
               decisions={props.decisions}
+              onCommentSave={props.onSaveComment}
             />
           </Grid>
         </Grid>

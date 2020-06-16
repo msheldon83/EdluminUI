@@ -26,12 +26,14 @@ type Props = {
   allowNegativeBalance: boolean;
   isRestricted: boolean;
   requireNotesToAdmin: boolean;
+  requiresApproval: boolean;
   onSubmit: (updatedValues: {
     allowNegativeBalance: boolean;
     isRestricted: boolean;
     description?: string;
     code?: string;
     requireNotesToAdmin: boolean;
+    requiresApproval: boolean;
   }) => Promise<void>;
   onCancel: () => void;
   className?: string;
@@ -51,6 +53,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
     "isRestricted",
     "requireNotesToAdmin",
     "absenceReasonCategoryId",
+    "requiresApproval",
   ]);
 
   const absenceReasonCategoryOptions = useAbsenceReasonCategoryOptions(
@@ -159,6 +162,32 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
               }}
               row={!isMobile}
             >
+              <FormControlLabel
+                value={false}
+                control={<Radio color="primary" />}
+                label={t("No")}
+                labelPlacement="end"
+              />
+              <FormControlLabel
+                value={true}
+                control={<Radio color="primary" />}
+                label={t("Yes")}
+                labelPlacement="end"
+              />
+            </RadioGroup>
+            <Typography variant="h6" className={classes.label}>
+              {t("Requires approval?")}
+            </Typography>
+            <RadioGroup
+              aria-label="requiresApproval"
+              name="requiresApproval"
+              value={values.requiresApproval}
+              onChange={e => {
+                setFieldValue("requiresApproval", e.target.value === "true");
+              }}
+              row={!isMobile}
+            >
+              {" "}
               <FormControlLabel
                 value={false}
                 control={<Radio color="primary" />}

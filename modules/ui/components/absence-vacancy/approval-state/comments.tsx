@@ -12,7 +12,13 @@ type CommentDecision = {
   approvalActionId?: ApprovalAction;
   commentIsPublic: boolean;
   createdLocal?: string | null;
-  actingOrgUser: {
+  actingUser: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  actualUser: {
+    id: string;
     firstName: string;
     lastName: string;
   };
@@ -26,7 +32,13 @@ type Props = {
     comment?: string | null;
     commentIsPublic: boolean;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
@@ -34,11 +46,18 @@ type Props = {
   decisions: {
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
-    actingOrgUser: {
+    actingUser: {
+      id: string;
+      firstName: string;
+      lastName: string;
+    };
+    actualUser: {
+      id: string;
       firstName: string;
       lastName: string;
     };
   }[];
+  onCommentSave?: () => void;
 };
 
 export const ApprovalComments: React.FC<Props> = props => {
@@ -54,7 +73,8 @@ export const ApprovalComments: React.FC<Props> = props => {
     comments.forEach(c => {
       list.push({
         comment: c.comment,
-        actingOrgUser: c.actingOrgUser,
+        actingUser: c.actingUser,
+        actualUser: c.actualUser,
         commentIsPublic: c.commentIsPublic,
         createdLocal: c.createdLocal,
       });
@@ -62,7 +82,8 @@ export const ApprovalComments: React.FC<Props> = props => {
     decisions.forEach(d => {
       list.push({
         approvalActionId: d.approvalActionId,
-        actingOrgUser: d.actingOrgUser,
+        actingUser: d.actingUser,
+        actualUser: d.actualUser,
         commentIsPublic: true,
         createdLocal: d.createdLocal,
       });
@@ -81,6 +102,15 @@ export const ApprovalComments: React.FC<Props> = props => {
     if (approvalAction == ApprovalAction.Approve) return t("Approved by ");
     if (approvalAction == ApprovalAction.Deny) return t("Denied by ");
     return null;
+  };
+
+  const getApproverName = (comment: CommentDecision) => {
+    if (comment.actingUser.id === comment.actualUser.id) {
+      return `${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
+    }
+    return `${comment.actualUser.firstName} ${comment.actualUser.lastName} ${t(
+      "on behalf of"
+    )} ${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
   };
 
   return (
@@ -113,9 +143,8 @@ export const ApprovalComments: React.FC<Props> = props => {
                           ? classes.decisionText
                           : classes.nameText
                       }
-                    >{`${getApprovalActionText(c.approvalActionId) ?? ""}${
-                      c.actingOrgUser.firstName
-                    } ${c.actingOrgUser.lastName}`}</span>
+                    >{`${getApprovalActionText(c.approvalActionId) ??
+                      ""}${getApproverName(c)}`}</span>
                     <span
                       className={
                         c.approvalActionId
@@ -139,6 +168,7 @@ export const ApprovalComments: React.FC<Props> = props => {
         <LeaveComment
           approvalStateId={props.approvalStateId}
           actingAsEmployee={props.actingAsEmployee}
+          onSave={props.onCommentSave}
         />
       </Grid>
     </Grid>

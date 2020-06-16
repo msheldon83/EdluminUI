@@ -15,7 +15,7 @@ export const ApprovedStory = () => {
         countOfComments={3}
         orgId={"1000"}
         approvalStatusId={ApprovalStatus.Approved}
-        approvalWorkflowId={"1000"}
+        approvalWorkflowSteps={approvalWorkflowSteps}
         currentStepId={"2"}
         isTrueVacancy={false}
         absenceId={"1000"}
@@ -32,7 +32,7 @@ export const DeniedStory = () => {
         countOfComments={3}
         orgId={"1000"}
         approvalStatusId={ApprovalStatus.Denied}
-        approvalWorkflowId={"1000"}
+        approvalWorkflowSteps={approvalWorkflowSteps}
         currentStepId={"3"}
         isTrueVacancy={false}
         absenceId={"1000"}
@@ -49,7 +49,7 @@ export const PendingStory = () => {
         countOfComments={3}
         orgId={"1000"}
         approvalStatusId={ApprovalStatus.Pending}
-        approvalWorkflowId={"1000"}
+        approvalWorkflowSteps={approvalWorkflowSteps}
         currentStepId={"3"}
         isTrueVacancy={true}
         vacancyId={"1000"}
@@ -98,3 +98,30 @@ const Provider = mockProvider({
     }),
   },
 });
+
+const approvalWorkflowSteps = [
+  {
+    stepId: "1",
+    isFirstStep: true,
+    isLastStep: false,
+    deleted: false,
+    approverGroupHeaderId: null,
+    onApproval: [{ goto: "3", criteria: null }],
+  },
+  {
+    stepId: "2",
+    isFirstStep: false,
+    isLastStep: true,
+    deleted: false,
+    approverGroupHeaderId: null,
+    onApproval: [{ goto: null, criteria: null }],
+  },
+  {
+    stepId: "3",
+    isFirstStep: false,
+    isLastStep: false,
+    deleted: false,
+    approverGroupHeaderId: "1000",
+    onApproval: [{ goto: "2", criteria: null }],
+  },
+];

@@ -30,6 +30,7 @@ type Props = {
   rowVersion: string;
   isRestricted?: boolean;
   requireNotesToAdmin?: boolean;
+  requiresApproval?: boolean;
   description?: string;
   allowNegativeBalance: boolean;
   category?: { id: string; name: string };
@@ -169,7 +170,7 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               </Typography>
             </Grid>
           )}
-          {props.requireNotesToAdmin && (
+          {props.requireNotesToAdmin != null && (
             <Grid item xs={12} sm={6}>
               <Typography variant="h6">
                 {t("Require notes to administrators")}
@@ -185,6 +186,14 @@ export const AbsenceReasonViewEditUI: React.FC<Props> = props => {
               <Typography variant="h6">{t("Category")}</Typography>
               <Typography variant="body1">
                 {!props.category ? t("None") : props.category?.name}
+              </Typography>
+            </Grid>
+          )}
+          {!props.isCategory && (
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">{t("Requires Approval")}</Typography>
+              <Typography variant="body1">
+                {displayBool(props.requiresApproval)}
               </Typography>
             </Grid>
           )}

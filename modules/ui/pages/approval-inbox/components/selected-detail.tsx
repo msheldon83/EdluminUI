@@ -6,7 +6,6 @@ import { useQueryBundle } from "graphql/hooks";
 import { ApprovalComments } from "ui/components/absence-vacancy/approval-state/comments";
 import { WorkflowSummary } from "ui/components/absence-vacancy/approval-state/approval-flow";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
-import { GetApprovalWorkflowById } from "ui/components/absence-vacancy/approval-state/graphql/get-approval-workflow-steps-by-id.gen";
 import { VacancyDetails } from "ui/components/absence-vacancy/approval-state/vacancy-details";
 import { AbsenceDetails } from "ui/components/absence-vacancy/approval-state/absence-details";
 import { compact, groupBy, flatMap, round } from "lodash-es";
@@ -56,23 +55,13 @@ export const SelectedDetail: React.FC<Props> = props => {
       : absence?.approvalState
     : null;
 
-  const getApprovalWorkflow = useQueryBundle(GetApprovalWorkflowById, {
-    variables: {
-      id: approvalState?.approvalWorkflowId ?? "",
-    },
-    skip: !approvalState?.approvalWorkflowId,
-  });
-  const approvalWorkflow =
-    getApprovalWorkflow.state === "DONE"
-      ? getApprovalWorkflow.data.approvalWorkflow?.byId
-      : null;
+  const approvalWorkflowSteps = approvalState?.approvalWorkflow.steps ?? [];
 
   const currentApproverGroupHeaderId = useMemo(
     () =>
-      approvalWorkflow?.steps.find(
-        x => x.stepId == approvalState?.currentStepId
-      )?.approverGroupHeaderId,
-    [approvalWorkflow, approvalState]
+      approvalWorkflowSteps.find(x => x.stepId == approvalState?.currentStepId)
+        ?.approverGroupHeaderId,
+    [approvalWorkflowSteps, approvalState]
   );
 
   const approverGroups = useApproverGroups(props.orgId);
@@ -99,6 +88,14 @@ export const SelectedDetail: React.FC<Props> = props => {
         : [],
     [absence]
   );
+
+  const handleSaveComment = async () => {
+    if (props.selectedItem?.isNormalVacancy) {
+      await getVacancy.refetch();
+    } else {
+      await getAbsence.refetch();
+    }
+  };
 
   return props.selectedItem ? (
     <Grid container spacing={2} className={classes.backgroundContainer}>
@@ -176,7 +173,7 @@ export const SelectedDetail: React.FC<Props> = props => {
         <WorkflowSummary
           approverGroups={approverGroups}
           currentStepId={approvalState?.currentStepId ?? ""}
-          steps={approvalWorkflow?.steps ?? []}
+          steps={approvalWorkflowSteps}
         />
       </Grid>
       <Grid item xs={12}>
@@ -185,6 +182,7 @@ export const SelectedDetail: React.FC<Props> = props => {
           approvalStateId={approvalState?.id ?? ""}
           comments={approvalState?.comments ?? []}
           decisions={approvalState?.decisions ?? []}
+          onCommentSave={handleSaveComment}
         />
       </Grid>
       <Grid item xs={12}>

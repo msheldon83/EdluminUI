@@ -55,6 +55,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       code?: string;
       isRestricted: boolean;
       requireNotesToAdmin: boolean;
+      requiresApproval: boolean;
     }) => {
       if (!basicInfo) {
         return;
@@ -65,6 +66,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         code,
         isRestricted,
         requireNotesToAdmin,
+        requiresApproval,
       } = updatedValues;
 
       const result = await createAbsenceReason({
@@ -79,6 +81,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             description,
             code,
             requireNotesToAdmin: requireNotesToAdmin,
+            requiresApproval,
           },
         },
       });
@@ -132,6 +135,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
           <AbsenceReasonSettings
             allowNegativeBalance={false}
             requireNotesToAdmin={false}
+            requiresApproval={false}
             description={""}
             code={""}
             isRestricted={false}
