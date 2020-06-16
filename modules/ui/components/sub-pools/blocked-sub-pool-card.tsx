@@ -40,6 +40,10 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
     replacementPoolMember.adminNote ?? ""
   );
 
+  const [showEdit, setShowEdit] = React.useState<boolean>(
+    replacementPoolMember.adminNote ? true : false
+  );
+
   return (
     <Grid
       item
@@ -55,7 +59,7 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
             orgUserId={replacementPoolMember.employeeId}
             color="black"
           >
-            {replacementPoolMember?.employee?.firstName ?? ""}{" "}
+            {replacementPoolMember?.employee?.firstName ?? ""}
             {replacementPoolMember?.employee?.lastName ?? ""}
           </SubstituteLink>
         </Typography>
@@ -69,28 +73,44 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
           >
             {t("Remove")}
           </TextButton>
-          {!replacementPoolMember.adminNote ? (
+          {!replacementPoolMember.adminNote && (
             <TextButton
               className={classes.floatRight}
               onClick={() => setShowFullNote(!showFullNote)}
             >
               {t("Add Note")}
             </TextButton>
-          ) : (
-            <>
-              <div
-                className={classes.floatRight}
-                onClick={() => setShowFullNote(!showFullNote)}
-              >
-                <EditIcon className={classes.center} />
-              </div>
-            </>
           )}
         </Can>
       </Grid>
       <Grid item xs={12}>
-        {!showFullNote ? (
-          <div className={classes.truncate}>{note}</div>
+        {!showFullNote && showEdit && replacementPoolMember.adminNote ? (
+          <>
+            <div
+              className={clsx({
+                [classes.inline]: true,
+                [classes.truncate]: true,
+                [classes.textWidth]: true,
+              })}
+            >
+              {note}
+            </div>
+
+            <div
+              className={clsx({
+                [classes.inline]: true,
+                [classes.iconWidth]: true,
+              })}
+              onClick={() => {
+                setShowFullNote(!showFullNote);
+                setShowEdit(!showEdit);
+              }}
+            >
+              <EditIcon className={classes.editIcon} />
+            </div>
+          </>
+        ) : !showFullNote ? (
+          <></>
         ) : (
           <>
             <div
@@ -100,9 +120,9 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
               })}
             >
               <TextField
-                //multiline={true}
                 rows="1"
                 value={note}
+                multiline={true}
                 fullWidth={true}
                 variant="outlined"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,12 +140,15 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
                   employeeId: replacementPoolMember.employeeId,
                   id: replacementPoolMember.id,
                   replacementPoolId: replacementPoolMember.replacementPoolId,
-                  adminNote: note === "" ? undefined : note,
+                  adminNote: note === "" ? null : note,
                 };
+
                 onAddNote(replacementPoolMemberInput);
+                setShowFullNote(!showFullNote);
+                setShowEdit(!showEdit);
               }}
             >
-              <CheckIcon className={classes.center} />
+              <CheckIcon className={classes.saveIcon} />
             </div>
           </>
         )}
@@ -161,22 +184,29 @@ const useStyles = makeStyles(theme => ({
   },
   truncate: {
     paddingTop: theme.spacing(1),
+    width: "90%",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    opacity: "0.7",
   },
   textWidth: {
     width: "90%",
   },
   iconWidth: {
     width: "10%",
-    height: "50px",
     position: "relative",
+    "&:hover": { cursor: "pointer" },
   },
-  center: {
+  saveIcon: {
     top: "15px",
     width: "100%",
     position: "relative",
+  },
+  editIcon: {
+    width: "100%",
+    position: "relative",
+    height: "20px",
   },
   removeLink: {
     color: theme.customColors.darkRed,
