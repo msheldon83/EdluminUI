@@ -23,6 +23,7 @@ query GetUserById($id: ID!) {
         }
       }
       mobileDevices {
+        id
         deviceId
         mobileDeviceTypeId
         operatingSystemVersion
