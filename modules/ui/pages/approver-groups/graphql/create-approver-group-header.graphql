@@ -7,10 +7,12 @@ mutation CreateApproverGroupHeader(
       name
       externalId
       variesByLocation
+      rowVersion
       approverGroups {
         id
         name
         externalId
+        rowVersion
       }
     }
   }

@@ -4,7 +4,7 @@ import {
   DataExpression,
   GraphType,
   FilterField,
-  OrderByField,
+  DataSourceField,
 } from "./types";
 import { difference, differenceWith } from "lodash-es";
 
@@ -19,15 +19,15 @@ export const calculateRowHeight = ({ index }: Index, rows: Row[]) => {
 export const calculateColumnWidth = (
   { index }: Index,
   isGrouped: boolean,
-  dataColumnIndexMap: Record<string, DataExpression>
+  columns: DataExpression[]
 ) => {
-  if (isGrouped && index === 0 && !dataColumnIndexMap[index]?.columnWidthPx) {
+  if (isGrouped && index === 0 && !columns[index]?.columnWidthPx) {
     return 300;
   }
 
   return (
-    dataColumnIndexMap[index]?.columnWidthPx ??
-    dataColumnIndexMap[index]?.dataSourceField?.defaultColumnWidthInPixels ??
+    columns[index]?.columnWidthPx ??
+    columns[index]?.dataSourceField?.defaultColumnWidthInPixels ??
     200
   );
 };
@@ -104,4 +104,51 @@ export const filtersAreEqual = (
   }
 
   return false;
+};
+
+export const convertToDataExpression = (
+  fields: DataSourceField[],
+  expression?: string,
+  expressionAlias?: string
+): DataExpression[] => {
+  const dataExpressions: DataExpression[] = [
+    ...fields.map(f => {
+      return {
+        displayName: f.friendlyName,
+        expressionAsQueryLanguage: f.dataSourceFieldName,
+        baseExpressionAsQueryLanguage: f.dataSourceFieldName,
+        dataSourceField: f,
+      };
+    }),
+  ];
+  if (expression && expressionAlias) {
+    dataExpressions.push({
+      displayName: expressionAlias,
+      expressionAsQueryLanguage: `${expression} AS ${expressionAlias}`,
+      baseExpressionAsQueryLanguage: expression,
+    });
+  }
+  return dataExpressions;
+};
+
+// TODO: Remove these when we're no longer persisting report changes
+// to Local Storage and have Saved Views fully implemented
+export const saveRdlToLocalStorage = (key: string, rdl: string) => {
+  try {
+    localStorage.setItem(key, rdl);
+  } catch (e) {
+    // This shouldn't happen, but also no reason to
+    // affect the User if there is some sort of issue
+  }
+};
+
+export const getRdlFromLocalStorage = (key: string): string | undefined => {
+  let rdl = undefined;
+  try {
+    rdl = localStorage.getItem(key) ?? undefined;
+  } catch (e) {
+    // This shouldn't happen, but also no reason to
+    // affect the User if there is some sort of issue
+  }
+  return rdl;
 };

@@ -99,3 +99,37 @@ export const AnalyticsReportsSubstituteRosterLoader = asyncComponent({
   },
   name: "SubstituteRosterReport",
 });
+
+// Employee Balances Report
+export const AnalyticsReportsEmployeeBalancesRoute = defineSubRoute(
+  AnalyticsReportsRoute,
+  "/employee-balances",
+  []
+);
+
+export const AnalyticsReportsEmployeeBalancesLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeeBalancesReport = (
+      await import("ui/pages/reports/employee-balances")
+    ).EmployeeBalancesReport;
+    return EmployeeBalancesReport;
+  },
+  name: "EmployeeBalancesReport",
+});
+
+// Absences & Vacancies Detail Report
+export const AnalyticsReportsAbsencesVacanciesDetailRoute = defineSubRoute(
+  AnalyticsReportsRoute,
+  "/absence-vacancies-detail",
+  []
+);
+
+export const AnalyticsReportsAbsencesVacanciesDetailLoader = asyncComponent({
+  resolve: async () => {
+    const AbsencesVacanciesDetailReport = (
+      await import("ui/pages/reports/absences-vacancies-detail")
+    ).AbsencesVacanciesDetailReport;
+    return AbsencesVacanciesDetailReport;
+  },
+  name: "AbsencesVacanciesDetailReport",
+});

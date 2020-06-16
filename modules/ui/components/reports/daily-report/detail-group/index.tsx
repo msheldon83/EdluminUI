@@ -77,6 +77,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
           <div className={classes.date}>{t("Created")}</div>
           <div className={classes.substituteSection}>{t("Substitute")}</div>
           <div className={classes.confirmationNumber}>{t("Conf#")}</div>
+          <div className={classes.approvalChip}></div>
           <div className={classes.actionColumn}></div>
         </div>
       </DesktopOnly>
@@ -119,6 +120,9 @@ const useStyles = makeStyles(theme => ({
   },
   date: {
     flex: 4,
+  },
+  approvalChip: {
+    flex: 2,
   },
   confirmationNumber: {
     width: "120px",

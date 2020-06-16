@@ -1,6 +1,12 @@
 import * as React from "react";
 import { AppConfig } from "hooks/app-config";
-import { Direction, FilterField, DataExpression, OrderByField } from "./types";
+import {
+  Direction,
+  FilterField,
+  DataExpression,
+  OrderByField,
+  DataSourceField,
+} from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
 import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
@@ -23,6 +29,8 @@ type Props = {
   allowedFilterFieldsOverride?: string[];
   baseFilterFieldNames?: string[];
   showGroupLabels?: boolean;
+  sumRowData?: boolean;
+  saveRdl?: (rdl: string) => void;
 };
 
 export const Report: React.FC<Props> = props => {
@@ -35,8 +43,10 @@ export const Report: React.FC<Props> = props => {
     rdl,
     allowedFilterFieldsOverride,
     baseFilterFieldNames,
+    saveRdl,
     exportFilename = t("Report"),
     showGroupLabels = true,
+    sumRowData = true,
   } = props;
 
   const [chartVisible, setChartVisible] = React.useState(true);
@@ -45,6 +55,16 @@ export const Report: React.FC<Props> = props => {
     filterableFields: [],
     baseFilterFieldNames,
   });
+
+  // TODO: When we introduce Saved Views, we're not going to be just saving
+  // everytime a change is made to the RDL string, but the step towards that
+  // is to save a User's changes to a specific canned report into Local Storage
+  // so in that case we do want to save the RDL behind the scenes
+  React.useEffect(() => {
+    if (saveRdl) {
+      saveRdl(state.rdlString)
+    }
+  }, [state.rdlString]);
 
   // Load the report data
   const reportDataResponse = useQueryBundle(GetReportDataQuery, {
@@ -132,6 +152,21 @@ export const Report: React.FC<Props> = props => {
     []
   );
 
+  const addColumns = React.useCallback((columns: DataExpression[], index?: number, addBeforeIndex?: boolean) => {
+    dispatch({ action: "addColumns", columns, index, addBeforeIndex });
+  }, []);
+
+  const setColumns = React.useCallback(
+    (columns: DataExpression[]) => {
+      dispatch({ action: "setColumns", columns });
+    },
+    []
+  );
+
+  const removeColumn = React.useCallback((index: number) => {
+    dispatch({ action: "removeColumn", index });
+  }, []);
+
   return (
     <AppConfig contentWidth="100%">
       <div className={classes.header}>
@@ -163,6 +198,12 @@ export const Report: React.FC<Props> = props => {
           reportDataResponse.state === "UPDATING"
         }
         filterableFields={state.filterableFields}
+        allFields={
+          state.reportDefinition?.metadata?.query?.schema?.allFields ?? []
+        }
+        addColumns={addColumns}
+        setColumns={setColumns}
+        removeColumn={removeColumn}
         setFilters={setFilters}
         setOrderBy={setOrderBy}
         setFirstLevelOrderBy={setFirstLevelOrderBy}
@@ -177,6 +218,7 @@ export const Report: React.FC<Props> = props => {
           });
         }}
         showGroupLabels={showGroupLabels}
+        sumRowData={sumRowData}
       />
     </AppConfig>
   );

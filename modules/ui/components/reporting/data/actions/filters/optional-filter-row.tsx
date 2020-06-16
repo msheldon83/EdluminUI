@@ -4,7 +4,7 @@ import {
   FilterType,
   FilterField,
   ExpressionFunction,
-} from "../../types";
+} from "../../../types";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { SelectNew } from "ui/components/form/select-new";
@@ -100,6 +100,7 @@ export const OptionalFilterRow: React.FC<Props> = props => {
               updateFilter({
                 field: filterField.field,
                 expressionFunction: v.value as ExpressionFunction,
+                value: filterField.value ?? undefined,
               })
             }
             multiple={false}
@@ -164,6 +165,22 @@ const getExpressionOptions = (t: TFunction, field?: DataSourceField) => {
       label: t("is any of"),
       value: ExpressionFunction.ContainedIn,
     },
+    {
+      label: "<",
+      value: ExpressionFunction.LessThan,
+    },
+    {
+      label: "<=",
+      value: ExpressionFunction.LessThanOrEqual,
+    },
+    {
+      label: ">",
+      value: ExpressionFunction.GreaterThan,
+    },
+    {
+      label: ">=",
+      value: ExpressionFunction.GreaterThanOrEqual,
+    },
   ];
 
   if (!field) {
@@ -178,6 +195,17 @@ const getExpressionOptions = (t: TFunction, field?: DataSourceField) => {
         o =>
           o.value === ExpressionFunction.Equal ||
           o.value === ExpressionFunction.ContainedIn
+      );
+    case FilterType.Number:
+    case FilterType.Decimal:
+      return possibleOptions.filter(
+        o =>
+          o.value === ExpressionFunction.Equal ||
+          o.value === ExpressionFunction.NotEqual ||
+          o.value === ExpressionFunction.LessThan ||
+          o.value === ExpressionFunction.LessThanOrEqual ||
+          o.value === ExpressionFunction.GreaterThan ||
+          o.value === ExpressionFunction.GreaterThanOrEqual
       );
     case FilterType.Custom:
       return possibleOptions.filter(o =>

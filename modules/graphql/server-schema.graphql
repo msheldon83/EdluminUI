@@ -805,8 +805,20 @@ type ApprovalWorkflowMutations {
 
 type ApprovalWorkflowQueries {
   byId(id: ID!): ApprovalWorkflow
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): [ApprovalWorkflow]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): PagedApprovalWorkflow
+  all(
+    orgId: ID
+    orgIds: [ID]
+    sortBy: [SortDetailsInput]
+    workFlowType: ApprovalWorkflowType
+  ): [ApprovalWorkflow]
+  paged(
+    orgId: ID
+    orgIds: [ID]
+    limit: Int
+    offset: Int
+    sortBy: [SortDetailsInput]
+    workFlowType: ApprovalWorkflowType
+  ): PagedApprovalWorkflow
   myApprovalWorkflows(orgId: ID): [ApprovalWorkflow]
 }
 
