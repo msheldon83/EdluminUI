@@ -6,10 +6,6 @@ import { useTranslation } from "react-i18next";
 import { ApprovalWorkflowSteps } from "./types";
 
 type Props = {
-  approverGroups: {
-    id: string;
-    name: string;
-  }[];
   steps: ApprovalWorkflowSteps[];
   currentStepId: string;
 };
@@ -24,7 +20,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
   const orderedSteps = useMemo(() => {
     const ordered: {
       stepId: string | null | undefined;
-      approverGroupHeaderId: string | null | undefined;
+      approverGroupHeaderName: string | null | undefined;
     }[] = [];
     let step = steps.find(s => s.isFirstStep);
     do {
@@ -33,7 +29,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
       );
       ordered.push({
         stepId: step?.stepId,
-        approverGroupHeaderId: step?.approverGroupHeaderId,
+        approverGroupHeaderName: step?.approverGroupHeader?.name,
       });
     } while (step && !step?.isLastStep);
 
@@ -67,11 +63,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
             return (
               <div key={i} className={classes.approvedBox}>
                 <span className={classes.groupNameText}>
-                  {
-                    props.approverGroups.find(
-                      x => x.id === s.approverGroupHeaderId
-                    )?.name
-                  }
+                  {s.approverGroupHeaderName}
                 </span>
               </div>
             );
@@ -82,16 +74,12 @@ export const WorkflowSummary: React.FC<Props> = props => {
   };
 
   const renderPendingStep = () => {
-    return pendingStep.approverGroupHeaderId ? (
+    return pendingStep.approverGroupHeaderName ? (
       <div>
         <div className={classes.titleText}>{t("Pending:")}</div>
         <div className={classes.pendingBox}>
           <span className={classes.groupNameText}>
-            {
-              props.approverGroups.find(
-                x => x.id === pendingStep.approverGroupHeaderId
-              )?.name
-            }
+            {pendingStep.approverGroupHeaderName}
           </span>
         </div>
       </div>
@@ -106,15 +94,11 @@ export const WorkflowSummary: React.FC<Props> = props => {
         <div className={classes.titleText}>{t("Next:")}</div>
         <div className={classes.container}>
           {nextSteps.map((s, i) => {
-            if (s.approverGroupHeaderId) {
+            if (s.approverGroupHeaderName) {
               return (
                 <div key={i} className={classes.nextBox}>
                   <span className={classes.nextText}>
-                    {
-                      props.approverGroups.find(
-                        x => x.id === s.approverGroupHeaderId
-                      )?.name
-                    }
+                    {pendingStep.approverGroupHeaderName}
                   </span>
                 </div>
               );

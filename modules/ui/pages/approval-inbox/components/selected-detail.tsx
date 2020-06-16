@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
 import { ApprovalComments } from "ui/components/absence-vacancy/approval-state/comments";
 import { WorkflowSummary } from "ui/components/absence-vacancy/approval-state/approval-flow";
-import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { VacancyDetails } from "ui/components/absence-vacancy/approval-state/vacancy-details";
 import { AbsenceDetails } from "ui/components/absence-vacancy/approval-state/absence-details";
 import { compact, groupBy, flatMap, round } from "lodash-es";
@@ -63,8 +62,6 @@ export const SelectedDetail: React.FC<Props> = props => {
         ?.approverGroupHeaderId,
     [approvalWorkflowSteps, approvalState]
   );
-
-  const approverGroups = useApproverGroups(props.orgId);
 
   const absenceReasons = useMemo(
     () =>
@@ -171,7 +168,6 @@ export const SelectedDetail: React.FC<Props> = props => {
       </Grid>
       <Grid item xs={12}>
         <WorkflowSummary
-          approverGroups={approverGroups}
           currentStepId={approvalState?.currentStepId ?? ""}
           steps={approvalWorkflowSteps}
         />

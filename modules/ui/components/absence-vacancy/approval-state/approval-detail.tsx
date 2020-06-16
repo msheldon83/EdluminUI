@@ -13,7 +13,6 @@ import {
 } from "graphql/server-types.gen";
 import { ApprovalComments } from "./comments";
 import { WorkflowSummary } from "./approval-flow";
-import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { VacancyDetails } from "./vacancy-details";
 import { AbsenceDetails } from "./absence-details";
 import { compact, groupBy, flatMap, round } from "lodash-es";
@@ -115,8 +114,6 @@ export const ApprovalDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const approverGroups = useApproverGroups(props.orgId);
-
   const currentApproverGroupHeaderId = props.approvalWorkflowSteps.find(
     x => x.stepId == props.currentStepId
   )?.approverGroupHeaderId;
@@ -201,7 +198,6 @@ export const ApprovalDetail: React.FC<Props> = props => {
           </Grid>
           <Grid item xs={12}>
             <WorkflowSummary
-              approverGroups={approverGroups}
               currentStepId={props.currentStepId}
               steps={props.approvalWorkflowSteps}
             />

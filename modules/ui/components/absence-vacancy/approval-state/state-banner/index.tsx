@@ -15,7 +15,6 @@ import { CommentDialog } from "./comment-dialog";
 import { useMyApproverGroupHeaders } from "reference-data/my-approver-group-headers";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { ApprovalWorkflowSteps } from "../types";
-import { useApproverGroups } from "reference-data/approver-groups";
 
 type Props = {
   orgId: string;
@@ -59,9 +58,6 @@ export const ApprovalState: React.FC<Props> = props => {
   const currentStep = approvalWorkflowSteps.find(
     x => x.stepId === props.currentStepId
   );
-  const approverGroupId = currentStep?.approverGroupHeaderId;
-
-  const approverGroups = useApproverGroups(props.orgId);
 
   const orderSteps = useMemo(() => {
     const orderedSteps: { stepId: string | null | undefined }[] = [];
@@ -135,9 +131,7 @@ export const ApprovalState: React.FC<Props> = props => {
               <div className={classes.progressContainer}>
                 <div className={classes.statusText}>{`${t(
                   "Pending approval from"
-                )} ${
-                  approverGroups.find(x => x.id === approverGroupId)?.name
-                }`}</div>
+                )} ${currentStep?.approverGroupHeader?.name}`}</div>
                 <LinearProgress
                   className={classes.progress}
                   variant="determinate"
@@ -156,7 +150,7 @@ export const ApprovalState: React.FC<Props> = props => {
                 ) : (
                   !userAccess?.isSysAdmin &&
                   myApproverGroupHeaders.find(
-                    x => x.id === approverGroupId
+                    x => x.id === currentStep?.approverGroupHeaderId
                   ) && (
                     <Button variant="outlined" onClick={onOpenApproveDialog}>
                       {t("Approve/Deny")}
