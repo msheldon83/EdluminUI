@@ -372,7 +372,7 @@ const dataCellRenderer = (
   });
 
   const renderer =
-    customRender(columnIndex) ??
+    customRender(dataColumnIndexMap, columnIndex) ??
     ((classes, value) =>
       isLongText ? (
         <Tooltip title={value} placement="top-start">

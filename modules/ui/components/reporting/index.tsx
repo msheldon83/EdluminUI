@@ -31,7 +31,6 @@ type Props = {
   baseFilterFieldNames?: string[];
   showGroupLabels?: boolean;
   customRender?: CustomRenderer;
-  chartVisiableAtStart?: boolean;
 };
 
 export const Report: React.FC<Props> = props => {
@@ -47,10 +46,9 @@ export const Report: React.FC<Props> = props => {
     exportFilename = t("Report"),
     showGroupLabels = true,
     customRender,
-    chartVisiableAtStart = true,
   } = props;
 
-  const [chartVisible, setChartVisible] = React.useState(chartVisiableAtStart);
+  const [chartVisible, setChartVisible] = React.useState(true);
   const [state, dispatch] = React.useReducer(reportReducer, {
     rdlString: rdl,
     filterableFields: [],
@@ -127,8 +125,6 @@ export const Report: React.FC<Props> = props => {
     },
     []
   );
-
-  const [filterFlag, setFilterFlag] = React.useState(false);
 
   const refreshReport = React.useCallback(async () => {
     dispatch({ action: "refreshReport" });

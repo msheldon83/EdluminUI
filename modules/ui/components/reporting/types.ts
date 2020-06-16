@@ -229,6 +229,7 @@ export type Row = {
 };
 
 export type CustomRenderer = (
+  dataColumnIndexMap: Record<string, DataExpression>,
   index: number
 ) =>
   | ((dataClasses: string, displayValue: string, dataRow: any[]) => JSX.Element)
