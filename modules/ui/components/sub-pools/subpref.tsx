@@ -6,7 +6,7 @@ import { SubstitutePicker } from "ui/components/sub-pools/substitute-picker";
 import { makeStyles } from "@material-ui/styles";
 import {
   PermissionEnum,
-  OrgUser,
+  ReplacementPoolMemberUpdateInput,
   ReplacementPoolMember,
 } from "graphql/server-types.gen";
 
@@ -25,6 +25,7 @@ type Props = {
   onAddFavoriteEmployee: (member: ReplacementPoolMember) => void;
   onBlockEmployee: (member: ReplacementPoolMember) => void;
   onAutoAssignEmployee?: (member: ReplacementPoolMember) => void;
+  onAddNote: (replacementPoolMember: ReplacementPoolMemberUpdateInput) => void;
   removeBlockedPermission: PermissionEnum[];
   removeFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
@@ -84,6 +85,7 @@ export const SubstitutePreferences: React.FC<Props> = props => {
             <BlockedSubPoolCard
               title={props.blockedHeading}
               replacementPoolMembers={props.blockedMembers}
+              onAddNote={props.onAddNote}
               onRemove={props.onRemoveBlockedEmployee}
               removePermission={props.removeBlockedPermission}
             />

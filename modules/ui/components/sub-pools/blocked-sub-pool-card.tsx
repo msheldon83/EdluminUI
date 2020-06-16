@@ -7,8 +7,8 @@ import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import {
   PermissionEnum,
-  OrgUser,
   ReplacementPoolMember,
+  ReplacementPoolMemberUpdateInput,
 } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 import clsx from "clsx";
@@ -18,7 +18,7 @@ type Props = {
   title: string;
   replacementPoolMembers: ReplacementPoolMember[] | null;
   onRemove: (member: ReplacementPoolMember) => void;
-  onAddNote?: (orgUserId: string, note: string) => void;
+  onAddNote: (replacementPoolMember: ReplacementPoolMemberUpdateInput) => void;
   removePermission: PermissionEnum[];
 };
 

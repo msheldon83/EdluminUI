@@ -2,6 +2,7 @@ import * as React from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetLocationGroupById } from "./graphql/get-location-group-by-id.gen";
 import { UpdateLocationGroup } from "./graphql/update-location-group.gen";
+import { SaveReplacementPoolMember } from "./graphql/save-replacement-pool-member.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationGroupSubPrefRoute } from "ui/routes/location-groups";
 import { useTranslation } from "react-i18next";
@@ -11,6 +12,7 @@ import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
 import {
   PermissionEnum,
   ReplacementPoolMember,
+  ReplacementPoolMemberUpdateInput,
 } from "graphql/server-types.gen";
 
 export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
@@ -69,6 +71,28 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
+  const onAddNote = async (
+    replacementPoolMember: ReplacementPoolMemberUpdateInput
+  ) => {
+    const result = await updateReplacementPoolMember({
+      variables: {
+        replacementPoolMember: replacementPoolMember,
+      },
+    });
+    if (!result?.data) return false;
+    await getLocationGroup.refetch();
+    return true;
+  };
+
+  const [updateReplacementPoolMember] = useMutationBundle(
+    SaveReplacementPoolMember,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
+
   const updatePreferences = async (favorites: any[], blocked: any[]) => {
     const neweFavs = favorites.map((s: any) => {
       return { id: s.employeeId };
@@ -121,6 +145,7 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
         heading={t("Substitute Preferences")}
         subHeading={locationGroup.name}
         orgId={params.organizationId}
+        onAddNote={onAddNote}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}

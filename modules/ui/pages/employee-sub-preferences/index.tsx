@@ -6,8 +6,13 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetEmployeeByIdForPreferences } from "./graphql/get-employee-by-id.gen";
 import { AddSubPreference } from "./graphql/add-sub-preference.gen";
 import { RemoveSubPreference } from "./graphql/remove-sub-preference.gen";
+import { SaveReplacementPoolMember } from "./graphql/save-replacement-pool-member.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
-import { PermissionEnum, ReplacementPoolType } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  ReplacementPoolType,
+  ReplacementPoolMemberUpdateInput,
+} from "graphql/server-types.gen";
 import { useGetEmployee } from "reference-data/employee";
 
 export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
@@ -42,6 +47,28 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
 
     await addSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
+
+  const onAddNote = async (
+    replacementPoolMember: ReplacementPoolMemberUpdateInput
+  ) => {
+    const result = await updateReplacementPoolMember({
+      variables: {
+        replacementPoolMember: replacementPoolMember,
+      },
+    });
+    if (!result?.data) return false;
+    await getEmployee.refetch();
+    return true;
+  };
+
+  const [updateReplacementPoolMember] = useMutationBundle(
+    SaveReplacementPoolMember,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
 
   const [addSubPreference] = useMutationBundle(AddSubPreference, {
     onError: error => {
@@ -111,6 +138,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         }
         heading={t("Substitute Preferences")}
         orgId={orgUser?.orgId ?? ""}
+        onAddNote={onAddNote}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}

@@ -12,6 +12,7 @@ query GetEmployeeSubPreferencesById($id: ID!) {
             id
             adminNote
             employeeId
+            replacementPoolId
             employee {
               id
               firstName
@@ -22,6 +23,7 @@ query GetEmployeeSubPreferencesById($id: ID!) {
             id
             adminNote
             employeeId
+            replacementPoolId
             employee {
               id
               firstName

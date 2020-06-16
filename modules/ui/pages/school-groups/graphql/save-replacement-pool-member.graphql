@@ -1,0 +1,16 @@
+mutation SaveReplacementPoolMember(
+  $replacementPoolMember: ReplacementPoolMemberUpdateInput!
+) {
+  replacementPool {
+    updateMember(replacementPoolMember: $replacementPoolMember) {
+      id
+      adminNote
+      employeeId
+      employee {
+        id
+        firstName
+        lastName
+      }
+    }
+  }
+}

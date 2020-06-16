@@ -2,6 +2,7 @@ import * as React from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetLocationById } from "./graphql/get-location-by-id.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
+import { SaveReplacementPoolMember } from "./graphql/save-replacement-pool-member.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationSubPrefRoute } from "ui/routes/locations";
 import { useTranslation } from "react-i18next";
@@ -12,7 +13,7 @@ import {
   PermissionEnum,
   OrgUser,
   ReplacementPoolMember,
-  OrgUserMutations,
+  ReplacementPoolMemberUpdateInput,
 } from "graphql/server-types.gen";
 import { LocationLinkHeader } from "ui/components/link-headers/location";
 
@@ -100,6 +101,28 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
+  const onAddNote = async (
+    replacementPoolMember: ReplacementPoolMemberUpdateInput
+  ) => {
+    const result = await updateReplacementPoolMember({
+      variables: {
+        replacementPoolMember: replacementPoolMember,
+      },
+    });
+    if (!result?.data) return false;
+    await getLocation.refetch();
+    return true;
+  };
+
+  const [updateReplacementPoolMember] = useMutationBundle(
+    SaveReplacementPoolMember,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
+
   const updatePreferences = async (
     favorites: ReplacementPoolMember[],
     blocked: ReplacementPoolMember[],
@@ -180,6 +203,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         autoAssignMembers={autoAssignedMembers}
         headerComponent={headerComponent}
         useAutoAssign={true}
+        onAddNote={onAddNote}
         orgId={params.organizationId}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}

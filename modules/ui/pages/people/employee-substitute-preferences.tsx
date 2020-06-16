@@ -7,10 +7,12 @@ import { EmployeeSubstitutePreferenceRoute } from "ui/routes/people";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetEmployeeSubPreferencesById } from "./graphql/employee/get-employee-sub-preferences.gen";
 import { SaveEmployee } from "./graphql/employee/save-employee.gen";
+import { SaveReplacementPoolMember } from "./graphql/employee/save-replacement-pool-member.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
 import {
   PermissionEnum,
   ReplacementPoolMember,
+  ReplacementPoolMemberUpdateInput,
 } from "graphql/server-types.gen";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
 
@@ -66,6 +68,19 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
+  const onAddNote = async (
+    replacementPoolMember: ReplacementPoolMemberUpdateInput
+  ) => {
+    const result = await updateReplacementPoolMember({
+      variables: {
+        replacementPoolMember: replacementPoolMember,
+      },
+    });
+    if (!result?.data) return false;
+    await getEmployee.refetch();
+    return true;
+  };
+
   const updatePreferences = async (favorites: any[], blocked: any[]) => {
     const newFavs = favorites.map((s: ReplacementPoolMember) => {
       return { id: s.employeeId };
@@ -99,6 +114,15 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     },
   });
 
+  const [updateReplacementPoolMember] = useMutationBundle(
+    SaveReplacementPoolMember,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
+
   if (getEmployee.state === "LOADING") {
     return <></>;
   }
@@ -124,6 +148,7 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         blockedMembers={
           employee.substitutePreferences?.blockedSubstituteMembers ?? []
         }
+        onAddNote={onAddNote}
         headerComponent={headerComponent}
         orgId={params.organizationId}
         useAutoAssign={false}
