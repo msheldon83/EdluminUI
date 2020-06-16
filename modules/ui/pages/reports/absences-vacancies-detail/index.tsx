@@ -20,7 +20,7 @@ export const AbsencesVacanciesDetailReport: React.FC<{}> = () => {
   // we need to come into here and modify the canned report RDL prior to
   // implementing Saved Views and want to make sure all Users default back
   // to the RDL that we define the next time they visit this report.
-  const localStorageKey = "AbsencesAndVacanciesDetailReport_20200618";
+  const localStorageKey = "AbsencesAndVacanciesDetailReport_20200616";
   const rdl = React.useMemo(() => {
     const localStorageRdl = getRdlFromLocalStorage(localStorageKey);
     if (localStorageRdl) {
@@ -52,7 +52,7 @@ export const AbsencesVacanciesDetailReport: React.FC<{}> = () => {
         "HasAdminOnlyNotes",
         "HasNotesToReplacement",
       ]}
-      saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
+      //saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
     />
   );
 };
