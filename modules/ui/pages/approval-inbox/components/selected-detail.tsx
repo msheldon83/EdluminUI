@@ -13,6 +13,7 @@ import { GetVacancyById } from "../graphql/get-vacancy-by-id.gen";
 import { GetAbsence } from "../graphql/get-absence-by-id.gen";
 import { ApproveDenyButtons } from "ui/components/absence-vacancy/approval-state/approve-deny-buttons";
 import { SummaryDetails } from "ui/components/absence-vacancy/approval-state/summary-details";
+import { useIsMobile } from "hooks";
 
 type Props = {
   orgId: string;
@@ -26,7 +27,8 @@ type Props = {
 
 export const SelectedDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
+  const isMobile = useIsMobile();
+  const classes = useStyles({ isMobile });
 
   const getVacancy = useQueryBundle(GetVacancyById, {
     variables: {
@@ -72,7 +74,7 @@ export const SelectedDetail: React.FC<Props> = props => {
   };
 
   return props.selectedItem ? (
-    <Grid container spacing={2} className={classes.backgroundContainer}>
+    <div className={classes.backgroundContainer}>
       {!props.selectedItem?.isNormalVacancy && absence && (
         <div className={classes.container}>
           <div className={classes.summaryContainer}>
@@ -90,7 +92,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               locationIds={absence.locationIds}
               decisions={absence.approvalState?.decisions}
             />
-            <div className={classes.buttonContainer}>
+            <div className={!isMobile ? classes.buttonContainer : undefined}>
               <ApproveDenyButtons
                 approvalStateId={approvalState?.id ?? ""}
                 approvalStatus={approvalState?.approvalStatusId}
@@ -122,7 +124,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               locationIds={compact(vacancy.details.map(x => x.locationId))}
               decisions={vacancy.approvalState?.decisions}
             />
-            <div className={classes.buttonContainer}>
+            <div className={!isMobile ? classes.buttonContainer : undefined}>
               <ApproveDenyButtons
                 approvalStateId={approvalState?.id ?? ""}
                 approvalStatus={approvalState?.approvalStatusId}
@@ -188,10 +190,14 @@ export const SelectedDetail: React.FC<Props> = props => {
           />
         </Grid>
       )}
-    </Grid>
+    </div>
   ) : (
     <></>
   );
+};
+
+type StyleProps = {
+  isMobile: boolean;
 };
 
 const useStyles = makeStyles(theme => ({
@@ -205,11 +211,14 @@ const useStyles = makeStyles(theme => ({
   backgroundContainer: {
     background: "#F8F8F8",
     borderRadius: "4px",
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
   },
-  summaryContainer: {
-    display: "flex",
+  summaryContainer: (props: StyleProps) => ({
+    display: props.isMobile ? "initial" : "flex",
     position: "relative",
-  },
+  }),
   buttonContainer: {
     position: "absolute",
     top: 0,

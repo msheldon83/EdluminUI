@@ -12,9 +12,11 @@ import { GetPendingApprovalItems } from "./graphql/get-pending-items.gen";
 import { GetPreviousApprovalDecisions } from "./graphql/get-previous-decisions.gen";
 import { SelectedDetail } from "./components/selected-detail";
 import { useMyUserAccess } from "reference-data/my-user-access";
+import { useIsMobile } from "hooks";
 
 export const ApprovalInbox: React.FC<{}> = () => {
-  const classes = useStyles();
+  const isMobile = useIsMobile();
+  const classes = useStyles({ isMobile });
   const { t } = useTranslation();
   const params = useRouteParams(ApprovalInboxRoute);
 
@@ -96,98 +98,111 @@ export const ApprovalInbox: React.FC<{}> = () => {
             )}
           </div>
         ) : (
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <div className={classes.subTitle}>{t("Inbox")}</div>
-                </Grid>
-                {getPendingApprovalItems.state === "LOADING" ? (
-                  <Grid item xs={12}>
-                    {t("Loading")}
-                  </Grid>
-                ) : (
-                  <Grid item xs={12}>
-                    {pendingVacancies.map((v, i) => {
-                      return (
-                        <InboxItem
-                          key={i}
-                          orgId={params.organizationId}
-                          isSelected={checkIfSelected(
-                            v.isNormalVacancy,
-                            v.id,
-                            v.absenceId ?? undefined
-                          )}
-                          setSelected={setSelected}
-                          vacancy={v}
-                          approvalState={
-                            v.isNormalVacancy
-                              ? v.approvalState
-                              : v.absence?.approvalState
-                          }
-                        />
-                      );
-                    })}
-                  </Grid>
-                )}
+          <div className={!isMobile ? classes.desktopContainer : undefined}>
+            <div className={classes.inboxContainer}>
+              <div className={classes.subTitle}>{t("Inbox")}</div>
+              {getPendingApprovalItems.state === "LOADING" ? (
+                <div>{t("Loading")}</div>
+              ) : (
+                <div>
+                  {pendingVacancies.map((v, i) => {
+                    const isSelected = checkIfSelected(
+                      v.isNormalVacancy,
+                      v.id,
+                      v.absenceId ?? undefined
+                    );
 
-                <Grid item xs={12}>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12}>
-                  <div className={classes.subTitle}>
-                    {t("Previous decisions")}
-                  </div>
-                </Grid>
-                {getPreviousDecisions.state === "LOADING" ? (
-                  <Grid item xs={12}>
-                    {t("Loading")}
-                  </Grid>
-                ) : (
-                  <Grid item xs={12}>
-                    {previousDecisions.map((v, i) => {
-                      return (
-                        <InboxItem
-                          key={i}
+                    return isMobile && isSelected ? (
+                      <div className={classes.selectedItemContainer}>
+                        <SelectedDetail
                           orgId={params.organizationId}
-                          isSelected={checkIfSelected(
-                            v.isNormalVacancy,
-                            v.id,
-                            v.absenceId ?? undefined
-                          )}
-                          setSelected={setSelected}
-                          vacancy={v}
-                          approvalState={
-                            v.isNormalVacancy
-                              ? v.approvalState
-                              : v.absence?.approvalState
-                          }
-                          isPrevious={true}
-                          decisions={
-                            v.isNormalVacancy
-                              ? v.approvalState?.decisions
-                              : v.absence?.approvalState?.decisions
-                          }
+                          selectedItem={selected}
+                          onApprove={onApprove}
+                          onDeny={onDeny}
                         />
-                      );
-                    })}
-                  </Grid>
-                )}
-              </Grid>
-            </Grid>
-            <Grid item xs={6}>
-              <SelectedDetail
-                orgId={params.organizationId}
-                selectedItem={selected}
-                onApprove={onApprove}
-                onDeny={onDeny}
-              />
-            </Grid>
-          </Grid>
+                      </div>
+                    ) : (
+                      <InboxItem
+                        key={i}
+                        orgId={params.organizationId}
+                        isSelected={isSelected}
+                        setSelected={setSelected}
+                        vacancy={v}
+                        approvalState={
+                          v.isNormalVacancy
+                            ? v.approvalState
+                            : v.absence?.approvalState
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              )}
+              <Divider className={classes.divider} />
+              <div className={classes.subTitle}>{t("Previous decisions")}</div>
+              {getPreviousDecisions.state === "LOADING" ? (
+                <div>{t("Loading")}</div>
+              ) : (
+                <div>
+                  {previousDecisions.map((v, i) => {
+                    const isSelected = checkIfSelected(
+                      v.isNormalVacancy,
+                      v.id,
+                      v.absenceId ?? undefined
+                    );
+
+                    return isMobile && isSelected ? (
+                      <div className={classes.selectedItemContainer}>
+                        <SelectedDetail
+                          orgId={params.organizationId}
+                          selectedItem={selected}
+                          onApprove={onApprove}
+                          onDeny={onDeny}
+                        />
+                      </div>
+                    ) : (
+                      <InboxItem
+                        key={i}
+                        orgId={params.organizationId}
+                        isSelected={isSelected}
+                        setSelected={setSelected}
+                        vacancy={v}
+                        approvalState={
+                          v.isNormalVacancy
+                            ? v.approvalState
+                            : v.absence?.approvalState
+                        }
+                        isPrevious={true}
+                        decisions={
+                          v.isNormalVacancy
+                            ? v.approvalState?.decisions
+                            : v.absence?.approvalState?.decisions
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            {!isMobile && (
+              <div className={classes.selectedItemContainer}>
+                <SelectedDetail
+                  orgId={params.organizationId}
+                  selectedItem={selected}
+                  onApprove={onApprove}
+                  onDeny={onDeny}
+                />
+              </div>
+            )}
+          </div>
         )}
       </Section>
     </>
   );
+};
+
+type StyleProps = {
+  isMobile: boolean;
 };
 
 const useStyles = makeStyles(theme => ({
@@ -198,5 +213,23 @@ const useStyles = makeStyles(theme => ({
   },
   subTitle: {
     fontSize: theme.typography.pxToRem(24),
+  },
+  desktopContainer: {
+    display: "flex",
+  },
+  inboxContainer: (props: StyleProps) => ({
+    width: props.isMobile ? "100%" : "50%",
+    paddingRight: props.isMobile ? theme.spacing(0) : theme.spacing(1),
+  }),
+  selectedItemContainer: (props: StyleProps) => ({
+    width: props.isMobile ? "100%" : "50%",
+    paddingLeft: props.isMobile ? theme.spacing(0) : theme.spacing(1),
+    marginTop: props.isMobile ? theme.spacing(1) : theme.spacing(0),
+    marginBottom: props.isMobile ? theme.spacing(1) : theme.spacing(0),
+  }),
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
 }));

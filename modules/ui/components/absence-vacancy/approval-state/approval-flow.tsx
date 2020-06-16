@@ -58,7 +58,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
     return (
       <div>
         <div className={classes.titleText}>{t("Approved by:")}</div>
-        <div className={classes.container}>
+        <div className={classes.stepsContainer}>
           {approvedSteps.map((s, i) => {
             return (
               <div key={i} className={classes.approvedBox}>
@@ -92,7 +92,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
     return (
       <div>
         <div className={classes.titleText}>{t("Next:")}</div>
-        <div className={classes.container}>
+        <div className={classes.stepsContainer}>
           {nextSteps.map((s, i) => {
             if (s.approverGroupHeaderName) {
               return (
@@ -120,6 +120,11 @@ export const WorkflowSummary: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   container: {
+    display: "flex",
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+  stepsContainer: {
     display: "flex",
   },
   titleText: {

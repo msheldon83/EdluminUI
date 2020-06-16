@@ -213,14 +213,12 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     display: "flex",
     width: "95%",
-    marginLeft: theme.spacing(1),
   },
   reasonRowContainer: {
     borderBottom: "1px solid #E5E5E5",
     padding: theme.spacing(1),
     display: "flex",
     width: "95%",
-    marginLeft: theme.spacing(1),
   },
   reason: {
     width: "50%",
@@ -233,6 +231,5 @@ const useStyles = makeStyles(theme => ({
   },
   notesContainer: {
     paddingTop: theme.spacing(2),
-    marginLeft: theme.spacing(1),
   },
 }));
