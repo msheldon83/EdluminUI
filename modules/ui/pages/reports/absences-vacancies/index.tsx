@@ -50,7 +50,8 @@ export const AbsencesVacanciesReport: React.FC<{}> = () => {
         "IsVacancy",
       ]}
       customRender={(dataColumnIndexMap, index) =>
-        dataColumnIndexMap[index]?.displayName == "Confirmation Number"
+        dataColumnIndexMap[index]?.dataSourceField?.dataSourceFieldName ==
+        "ConfirmationNumber"
           ? (classes, value) => {
               if (value.startsWith("#V")) {
                 return (
