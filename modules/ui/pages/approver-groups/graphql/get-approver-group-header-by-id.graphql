@@ -6,6 +6,8 @@ query GetApproverGroupHeaderById($approverGroupHeaderId: ID!) {
       name
       memberCount
       variesByLocation
+      rowVersion
+      externalId
       approvalWorkflows {
         id
         name
@@ -13,6 +15,8 @@ query GetApproverGroupHeaderById($approverGroupHeaderId: ID!) {
       approverGroups {
         id
         name
+        rowVersion
+        externalId
         location {
           id
           name
