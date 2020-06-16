@@ -6,13 +6,15 @@ query GetAllApproverGroupsWithinOrg($orgId: ID) {
       memberCount
       variesByLocation
       allLocationsHaveGroup
+      rowVersion
+      approvalWorkflows {
+        id
+        name
+      }
       approverGroups {
         id
         name
-        approvalWorkflows {
-          id
-          name
-        }
+        rowVersion
       }
     }
   }

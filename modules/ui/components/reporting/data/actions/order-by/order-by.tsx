@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DataExpression, OrderByField, Direction } from "../../types";
+import { DataExpression, OrderByField, Direction } from "../../../types";
 import { useTranslation } from "react-i18next";
 import {
   makeStyles,

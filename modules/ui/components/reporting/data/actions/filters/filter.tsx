@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Checkbox } from "@material-ui/core";
-import { FilterField, FilterType, ExpressionFunction } from "../../types";
+import { FilterField, FilterType, ExpressionFunction } from "../../../types";
 import { PositionTypeSelect } from "ui/components/reference-selects/position-type-select";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 import { useOrganizationId } from "core/org-context";
@@ -13,6 +13,12 @@ import { useTranslation } from "react-i18next";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
+import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
+import { AbsenceReasonCategorySelect } from "ui/components/reference-selects/absence-reason-category-select";
+import { DecimalInput } from "ui/components/form/decimal-input";
+import { NumberInput } from "ui/components/form/number-input";
+import { PayCodeSelect } from "ui/components/reference-selects/pay-code-select";
+import { AccountingCodeSelect } from "ui/components/reference-selects/accounting-code-select";
 
 type Props = {
   filterField: FilterField;
@@ -44,9 +50,41 @@ export const Filter: React.FC<Props> = props => {
           />
         );
       }
+      case FilterType.Number:
+        return (
+          <NumberInput
+            value={filterField.value ?? ""}
+            onChange={value => {
+              updateFilter({
+                field: filterField.field,
+                expressionFunction:
+                  filterField.expressionFunction ?? ExpressionFunction.Equal,
+                value: value ?? undefined,
+              });
+            }}
+          />
+        );
+      case FilterType.Decimal:
+        return (
+          <DecimalInput
+            value={filterField.value ?? ""}
+            onChange={value => {
+              updateFilter({
+                field: filterField.field,
+                expressionFunction:
+                  filterField.expressionFunction ?? ExpressionFunction.Equal,
+                value: value ?? undefined,
+              });
+            }}
+          />
+        );
       case FilterType.Date: {
-        const start = filterField.value[0] ?? undefined;
-        const end = filterField.value[1] ?? undefined;
+        const start = filterField.value
+          ? filterField.value[0] ?? undefined
+          : undefined;
+        const end = filterField.value
+          ? filterField.value[1] ?? undefined
+          : undefined;
         return (
           <DateRangePickerPopover
             startDate={start}
@@ -131,6 +169,26 @@ export const Filter: React.FC<Props> = props => {
                 }
               />
             );
+          case "SchoolYear":
+            return (
+              <SchoolYearSelect
+                orgId={organizationId ?? ""}
+                defaultToCurrentSchoolYear={false}
+                setSelectedSchoolYearId={schoolYearId => {
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: schoolYearId,
+                  });
+                }}
+                selectedSchoolYearId={filterField.value}
+                key={filterField.expressionFunction}
+                showLabel={showLabel ?? false}
+                label={filterField.field.filterTypeDefinition?.friendlyName}
+              />
+            );
           case "PositionType":
             return (
               <PositionTypeSelect
@@ -204,6 +262,34 @@ export const Filter: React.FC<Props> = props => {
                   });
                 }}
                 selectedOrgUserIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "AbsenceReasonCategory":
+            return (
+              <AbsenceReasonCategorySelect
+                orgId={organizationId ?? ""}
+                setSelectedAbsenceReasonCategoryIds={absenceReasonCategoryIds => {
+                  const value = absenceReasonCategoryIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedAbsenceReasonCategoryIds={filterField.value ?? []}
                 multiple={
                   filterField.expressionFunction ===
                   ExpressionFunction.ContainedIn
@@ -301,6 +387,62 @@ export const Filter: React.FC<Props> = props => {
                 }
               />
             );
+          case "PayCode":
+            return (
+              <PayCodeSelect
+                orgId={organizationId ?? undefined}
+                setSelectedPayCodeIds={payCodeIds => {
+                  const value = payCodeIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedPayCodeIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
+          case "AccountingCode":
+            return (
+              <AccountingCodeSelect
+                orgId={organizationId ?? undefined}
+                setSelectedAccountingCodeIds={accountingCodeIds => {
+                  const value = accountingCodeIds ?? [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: value.length > 0 ? value : undefined,
+                  });
+                }}
+                selectedAccountingCodeIds={filterField.value ?? []}
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                includeAllOption={false}
+                key={filterField.expressionFunction}
+                label={
+                  showLabel
+                    ? filterField.field.filterTypeDefinition?.friendlyName
+                    : undefined
+                }
+              />
+            );
           case "SourceOrganization":
             return (
               <OrgRelationshipSelect
@@ -324,6 +466,53 @@ export const Filter: React.FC<Props> = props => {
                 key={filterField.expressionFunction}
               />
             );
+          case "AbsenceReasonTrackingType": {
+            const absenceReasonTrackingTypeOptions = [
+              {
+                label: t("Daily"),
+                value: 2,
+              },
+              {
+                label: t("Hourly"),
+                value: 1,
+              },
+            ];
+            const value = absenceReasonTrackingTypeOptions.filter(o =>
+              (filterField.value ?? []).includes(o.value)
+            );
+            return (
+              <SelectNew
+                label={showLabel ? filterField.field.friendlyName : undefined}
+                value={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                    ? value
+                    : value[0] ?? { value: "", label: "" }
+                }
+                multiple={
+                  filterField.expressionFunction ===
+                  ExpressionFunction.ContainedIn
+                }
+                options={absenceReasonTrackingTypeOptions}
+                withResetValue={false}
+                onChange={value => {
+                  const filterValues = value
+                    ? Array.isArray(value)
+                      ? value.map((v: OptionType) => v.value)
+                      : [value.value]
+                    : [];
+                  updateFilter({
+                    field: filterField.field,
+                    expressionFunction:
+                      filterField.expressionFunction ??
+                      ExpressionFunction.Equal,
+                    value: filterValues.length > 0 ? filterValues : undefined,
+                  });
+                }}
+                key={filterField.expressionFunction}
+              />
+            );
+          }
         }
         break;
     }

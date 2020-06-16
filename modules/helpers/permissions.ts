@@ -124,7 +124,7 @@ export const canViewAnalyticsReportsNavLink = (
 ) => {
   return (
     canViewAbsenceAndVacancyReports(permissions, isSysAdmin, orgId, forRole) ||
-    canViewRosterReports(permissions, isSysAdmin, orgId, forRole)
+    canViewPeopleReports(permissions, isSysAdmin, orgId, forRole)
   );
 };
 export const canViewSchoolsNavLink = (
@@ -647,7 +647,7 @@ export const canViewAbsenceAndVacancyReports = (
   return (viewPermissions?.length ?? 0) > 0;
 };
 
-export const canViewRosterReports = (
+export const canViewPeopleReports = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,

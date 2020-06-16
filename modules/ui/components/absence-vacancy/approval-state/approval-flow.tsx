@@ -3,22 +3,14 @@ import { useMemo } from "react";
 import { makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
+import { ApprovalWorkflowSteps } from "./types";
 
 type Props = {
   approverGroups: {
     id: string;
     name: string;
   }[];
-  steps: {
-    stepId: string;
-    approverGroupHeaderId?: string | null;
-    isFirstStep: boolean;
-    isLastStep: boolean;
-    onApproval: {
-      goto?: string | null;
-      criteria?: string | null;
-    }[];
-  }[];
+  steps: ApprovalWorkflowSteps[];
   currentStepId: string;
 };
 

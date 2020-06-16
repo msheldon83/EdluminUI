@@ -128,6 +128,10 @@ import {
   AnalyticsReportsEmployeeRosterLoader,
   AnalyticsReportsSubstituteRosterRoute,
   AnalyticsReportsSubstituteRosterLoader,
+  AnalyticsReportsEmployeeBalancesRoute,
+  AnalyticsReportsEmployeeBalancesLoader,
+  AnalyticsReportsAbsencesVacanciesDetailRoute,
+  AnalyticsReportsAbsencesVacanciesDetailLoader
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -1451,6 +1455,18 @@ export const App = hot(function() {
                                     />
                                     <ProtectedRoute
                                       component={
+                                        AnalyticsReportsAbsencesVacanciesDetailLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsAbsencesVacanciesDetailRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ReportsAbsVacSchema,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
                                         AnalyticsReportsSubHistoryLoader
                                       }
                                       path={
@@ -1483,6 +1499,18 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ReportsSubSchema,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AnalyticsReportsEmployeeBalancesLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsEmployeeBalancesRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ReportsEmpSchema,
                                       ]}
                                     />
                                     <ProtectedRoute
