@@ -28,7 +28,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
     }
 
     return `QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN '${startDate}' AND '${endDate}') AND (IsFilled = '1') SELECT ConfirmationNumber, SubExternalId, Date WIDTH(150), LocationName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee WIDTH(300), AbsStartTime WIDTH(150), AbsEndTime WIDTH(150), ReasonName, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, Title, PositionTypeName, RequiresSub WIDTH(150), NotesToAdmin, AdminOnlyNotes, NotesToReplacement ORDER BY Concat(SubFirstName,' ',SubLastName) ASC, Date DESC WITH SUBTOTALS SubEmployeeId SHOW Concat(SubFirstName,' ',SubLastName) AS Substitute`;
-  }, []);
+  }, [endDate, startDate]);
 
   return (
     <Report
