@@ -7,23 +7,23 @@ query GetAbsence($id: ID!) {
       approvalState {
         id
         approvalStatusId
-        approvalWorkflowId
+        approvalWorkflow {
+          id
+          steps {
+            stepId
+            deleted
+            isFirstStep
+            isLastStep
+            approverGroupHeaderId
+            onApproval {
+              goto
+              criteria
+            }
+          }
+        }
         currentStepId
         comments {
           id
-          comment
-          commentIsPublic
-          createdLocal
-          actingOrgUser {
-            id
-            firstName
-            lastName
-          }
-          approvalDecisionId
-          approvalDecision {
-            id
-            approvalActionId
-          }
         }
       }
       closedDetails {

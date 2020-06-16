@@ -43,6 +43,7 @@ import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/typ
 import { VacancyDetailsFormData, VacancyFormValues } from "../helpers/types";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
+import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -55,11 +56,12 @@ type Props = {
   onDelete?: () => void;
   approvalStatus?: {
     approvalStatusId: ApprovalStatus;
-    approvalWorkflowId: string;
+    approvalWorkflow: { steps: ApprovalWorkflowSteps[] };
     currentStepId: string;
     id: string;
     comments: { id: string }[];
   } | null;
+  refetchVacancy?: () => Promise<unknown>;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -551,11 +553,14 @@ export const VacancyUI: React.FC<Props> = props => {
           orgId={params.organizationId}
           approvalStateId={props.approvalStatus?.id}
           approvalStatusId={props.approvalStatus?.approvalStatusId}
-          approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
+          approvalWorkflowSteps={
+            props.approvalStatus?.approvalWorkflow?.steps ?? []
+          }
           currentStepId={props.approvalStatus?.currentStepId}
           countOfComments={props.approvalStatus.comments.length}
           isTrueVacancy={true}
           vacancyId={vacancy.id}
+          onChange={props.refetchVacancy}
         />
       )}
       {vacancy.closedDetails.length > 0 && (

@@ -3,22 +3,14 @@ import { useMemo } from "react";
 import { makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
+import { ApprovalWorkflowSteps } from "./types";
 
 type Props = {
   approverGroups: {
     id: string;
     name: string;
   }[];
-  steps: {
-    stepId: string;
-    approverGroupHeaderId?: string | null;
-    isFirstStep: boolean;
-    isLastStep: boolean;
-    onApproval: {
-      goto?: string | null;
-      criteria?: string | null;
-    }[];
-  }[];
+  steps: ApprovalWorkflowSteps[];
   currentStepId: string;
 };
 
@@ -27,6 +19,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
   const classes = useStyles();
 
   const steps = props.steps;
+  const currentStepId = props.currentStepId;
 
   const orderedSteps = useMemo(() => {
     const ordered: {
@@ -38,24 +31,31 @@ export const WorkflowSummary: React.FC<Props> = props => {
       step = steps.find(
         s => s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto
       );
-      if (!step?.isLastStep)
-        ordered.push({
-          stepId: step?.stepId,
-          approverGroupHeaderId: step?.approverGroupHeaderId,
-        });
+      ordered.push({
+        stepId: step?.stepId,
+        approverGroupHeaderId: step?.approverGroupHeaderId,
+      });
     } while (step && !step?.isLastStep);
 
     return compact(ordered);
   }, [steps]);
 
-  const currentStepIndex = orderedSteps.findIndex(
-    x => x.stepId === props.currentStepId
+  const currentStepIndex = useMemo(
+    () => orderedSteps.findIndex(x => x.stepId === currentStepId),
+    [orderedSteps, currentStepId]
   );
-  const approvedSteps = orderedSteps.slice(0, currentStepIndex);
-  const pendingStep = orderedSteps[currentStepIndex];
-  const nextSteps = orderedSteps.slice(
-    currentStepIndex + 1,
-    orderedSteps.length
+
+  const approvedSteps = useMemo(() => orderedSteps.slice(0, currentStepIndex), [
+    orderedSteps,
+    currentStepIndex,
+  ]);
+  const pendingStep = useMemo(() => orderedSteps[currentStepIndex], [
+    orderedSteps,
+    currentStepIndex,
+  ]);
+  const nextSteps = useMemo(
+    () => orderedSteps.slice(currentStepIndex + 1, orderedSteps.length),
+    [orderedSteps, currentStepIndex]
   );
 
   const renderApprovedSteps = () => {
@@ -82,7 +82,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
   };
 
   const renderPendingStep = () => {
-    return (
+    return pendingStep.approverGroupHeaderId ? (
       <div>
         <div className={classes.titleText}>{t("Pending:")}</div>
         <div className={classes.pendingBox}>
@@ -95,6 +95,8 @@ export const WorkflowSummary: React.FC<Props> = props => {
           </span>
         </div>
       </div>
+    ) : (
+      <></>
     );
   };
 
@@ -104,17 +106,19 @@ export const WorkflowSummary: React.FC<Props> = props => {
         <div className={classes.titleText}>{t("Next:")}</div>
         <div className={classes.container}>
           {nextSteps.map((s, i) => {
-            return (
-              <div key={i} className={classes.nextBox}>
-                <span className={classes.nextText}>
-                  {
-                    props.approverGroups.find(
-                      x => x.id === s.approverGroupHeaderId
-                    )?.name
-                  }
-                </span>
-              </div>
-            );
+            if (s.approverGroupHeaderId) {
+              return (
+                <div key={i} className={classes.nextBox}>
+                  <span className={classes.nextText}>
+                    {
+                      props.approverGroups.find(
+                        x => x.id === s.approverGroupHeaderId
+                      )?.name
+                    }
+                  </span>
+                </div>
+              );
+            }
           })}
         </div>
       </div>
@@ -125,7 +129,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
     <div className={classes.container}>
       {approvedSteps.length > 0 && renderApprovedSteps()}
       {pendingStep && renderPendingStep()}
-      {nextSteps.length > 0 && renderNextSteps()}
+      {nextSteps.length > 1 && renderNextSteps()}
     </div>
   );
 };

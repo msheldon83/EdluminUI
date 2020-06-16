@@ -51,6 +51,10 @@ import {
   VacancyApprovalWorkflowAddLoader,
 } from "./routes/approval-workflow";
 import {
+  ApprovalInboxRoute,
+  ApprovalInboxLoader,
+} from "./routes/approval-inbox";
+import {
   AdminRootChromeRoute,
   AppChromeRoute,
   EmployeeChromeRoute,
@@ -124,6 +128,10 @@ import {
   AnalyticsReportsEmployeeRosterLoader,
   AnalyticsReportsSubstituteRosterRoute,
   AnalyticsReportsSubstituteRosterLoader,
+  AnalyticsReportsEmployeeBalancesRoute,
+  AnalyticsReportsEmployeeBalancesLoader,
+  AnalyticsReportsAbsencesVacanciesDetailRoute,
+  AnalyticsReportsAbsencesVacanciesDetailLoader
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -662,18 +670,18 @@ export const App = hot(function() {
                                       path={AdminAbsenceApprovalViewRoute.path}
                                       role={"admin"}
                                       devFeatureOnly={true}
-                                      permissions={[
-                                        PermissionEnum.AbsVacApprovalsView,
-                                      ]}
                                     />
                                     <ProtectedRoute
                                       component={VacancyApprovalViewLoader}
                                       path={VacancyApprovalViewRoute.path}
                                       role={"admin"}
                                       devFeatureOnly={true}
-                                      permissions={[
-                                        PermissionEnum.AbsVacApprovalsView,
-                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={ApprovalInboxLoader}
+                                      path={ApprovalInboxRoute.path}
+                                      role={"admin"}
+                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}
@@ -716,7 +724,8 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={AbsenceActivityLogLoader}
                                       path={AbsenceActivityLogRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       component={CreateAbsenceLoader}
@@ -733,7 +742,8 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={VacancyActivityLogLoader}
                                       path={VacancyActivityLogRoute.path}
-                                      role={"sysAdmin"}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}
@@ -1435,6 +1445,18 @@ export const App = hot(function() {
                                     />
                                     <ProtectedRoute
                                       component={
+                                        AnalyticsReportsAbsencesVacanciesDetailLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsAbsencesVacanciesDetailRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ReportsAbsVacSchema,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
                                         AnalyticsReportsSubHistoryLoader
                                       }
                                       path={
@@ -1467,6 +1489,18 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ReportsSubSchema,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AnalyticsReportsEmployeeBalancesLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsEmployeeBalancesRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ReportsEmpSchema,
                                       ]}
                                     />
                                     <ProtectedRoute

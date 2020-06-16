@@ -4,11 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Button, makeStyles, LinearProgress } from "@material-ui/core";
 import { ApprovalStatus } from "graphql/server-types.gen";
-import { useQueryBundle } from "graphql/hooks";
-import { GetApprovalWorkflowById } from "../graphql/get-approval-workflow-steps-by-id.gen";
-import { GetApproverGroupHeaderById } from "../graphql/get-approver-group-by-id.gen";
 import { compact } from "lodash-es";
-import { Chat } from "@material-ui/icons";
 import { VacancyApprovalViewRoute } from "ui/routes/vacancy";
 import {
   AdminAbsenceApprovalViewRoute,
@@ -16,23 +12,33 @@ import {
 } from "ui/routes/edit-absence";
 import { ApproveDenyDialog } from "./approve-dialog";
 import { CommentDialog } from "./comment-dialog";
+import { useMyApproverGroupHeaders } from "reference-data/my-approver-group-headers";
+import { useMyUserAccess } from "reference-data/my-user-access";
+import { ApprovalWorkflowSteps } from "../types";
+import { useApproverGroups } from "reference-data/approver-groups";
 
 type Props = {
   orgId: string;
   approvalStateId: string;
   approvalStatusId: ApprovalStatus;
-  approvalWorkflowId: string;
+  approvalWorkflowSteps: ApprovalWorkflowSteps[];
   currentStepId: string;
   countOfComments: number;
   actingAsEmployee?: boolean;
   absenceId?: string;
   vacancyId?: string;
   isTrueVacancy: boolean;
+  onChange?: () => void;
 };
 
 export const ApprovalState: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const approvalWorkflowSteps = props.approvalWorkflowSteps;
+
+  const userAccess = useMyUserAccess();
+  const myApproverGroupHeaders = useMyApproverGroupHeaders();
 
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
@@ -50,57 +56,31 @@ export const ApprovalState: React.FC<Props> = props => {
     setCommentDialogOpen(true);
   };
 
-  const getApprovalWorkflow = useQueryBundle(GetApprovalWorkflowById, {
-    variables: {
-      id: props.approvalWorkflowId,
-    },
-    skip:
-      props.approvalStatusId !== ApprovalStatus.Denied &&
-      props.approvalStatusId !== ApprovalStatus.Pending,
-  });
-
-  const approvalWorkflow =
-    getApprovalWorkflow.state === "DONE"
-      ? getApprovalWorkflow.data.approvalWorkflow?.byId
-      : null;
-  const currentStep = approvalWorkflow?.steps.find(
+  const currentStep = approvalWorkflowSteps.find(
     x => x.stepId === props.currentStepId
   );
   const approverGroupId = currentStep?.approverGroupHeaderId;
 
-  const getApproverGroup = useQueryBundle(GetApproverGroupHeaderById, {
-    variables: {
-      approverGroupHeaderId: approverGroupId ?? "",
-    },
-    skip: !approverGroupId,
-  });
-  const approverGroup =
-    getApproverGroup.state === "DONE"
-      ? getApproverGroup.data.approverGroup?.byId
-      : null;
+  const approverGroups = useApproverGroups(props.orgId);
 
   const orderSteps = useMemo(() => {
-    if (approvalWorkflow) {
-      const orderedSteps: { stepId: string | null | undefined }[] = [];
-      let step = approvalWorkflow?.steps.find(s => s.isFirstStep);
+    const orderedSteps: { stepId: string | null | undefined }[] = [];
+    let step = approvalWorkflowSteps.find(s => s.isFirstStep);
+    orderedSteps.push({ stepId: step?.stepId });
+    do {
+      step = approvalWorkflowSteps.find(
+        s => s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto
+      );
       orderedSteps.push({ stepId: step?.stepId });
-      do {
-        step = approvalWorkflow?.steps.find(
-          s =>
-            s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto
-        );
-        orderedSteps.push({ stepId: step?.stepId });
-      } while (step && !step?.isLastStep);
+    } while (step && !step?.isLastStep);
 
-      return compact(orderedSteps);
-    } else {
-      return [];
-    }
-  }, [approvalWorkflow]);
+    return compact(orderedSteps);
+  }, [approvalWorkflowSteps]);
 
   const barPercentage =
     (orderSteps.findIndex(x => x.stepId === props.currentStepId) /
-      orderSteps.length) *
+      orderSteps.length -
+      2) *
     100;
 
   switch (props.approvalStatusId) {
@@ -135,25 +115,29 @@ export const ApprovalState: React.FC<Props> = props => {
         </div>
       );
     case ApprovalStatus.Pending:
-      return approvalWorkflow ? (
+      return (
         <>
           <ApproveDenyDialog
             open={approveDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
+            onApproveDeny={props.onChange}
           />
           <CommentDialog
             open={commentDialogOpen}
             onClose={onCloseDialog}
             approvalStateId={props.approvalStateId}
             actingAsEmployee={props.actingAsEmployee}
+            onSaveComment={props.onChange}
           />
           <div className={[classes.container, classes.pending].join(" ")}>
             <div className={classes.buttonContainer}>
               <div className={classes.progressContainer}>
                 <div className={classes.statusText}>{`${t(
                   "Pending approval from"
-                )} ${approverGroup?.name}`}</div>
+                )} ${
+                  approverGroups.find(x => x.id === approverGroupId)?.name
+                }`}</div>
                 <LinearProgress
                   className={classes.progress}
                   variant="determinate"
@@ -170,10 +154,14 @@ export const ApprovalState: React.FC<Props> = props => {
                     {t("Comment")}
                   </Button>
                 ) : (
-                  // TODO: Determine if the admin is able to approve this absence/vacancy and show the approve button otherwise show the comment button
-                  <Button variant="outlined" onClick={onOpenApproveDialog}>
-                    {t("Approve/Deny")}
-                  </Button>
+                  !userAccess?.isSysAdmin &&
+                  myApproverGroupHeaders.find(
+                    x => x.id === approverGroupId
+                  ) && (
+                    <Button variant="outlined" onClick={onOpenApproveDialog}>
+                      {t("Approve/Deny")}
+                    </Button>
+                  )
                 )}
               </div>
             </div>
@@ -206,8 +194,6 @@ export const ApprovalState: React.FC<Props> = props => {
             </div>
           </div>
         </>
-      ) : (
-        <></>
       );
     default:
       return <></>;

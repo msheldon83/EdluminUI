@@ -55,6 +55,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
     isRestricted: boolean;
     requireNotesToAdmin: boolean;
     absenceReasonCategoryId?: string;
+    requiresApproval: boolean;
   }) => {
     if (getAbsenceReason.state !== "DONE") {
       return;
@@ -67,6 +68,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
       isRestricted,
       requireNotesToAdmin,
       absenceReasonCategoryId,
+      requiresApproval,
     } = updatedValues;
 
     const result = await mutation({
@@ -82,6 +84,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
           absenceReasonCategoryId: absenceReasonCategoryId
             ? absenceReasonCategoryId
             : null,
+          requiresApproval,
         },
       },
     });
@@ -109,6 +112,7 @@ export const AbsenceReasonEditSettingsPage: React.FC<Props> = () => {
         allowNegativeBalance={absenceReason.allowNegativeBalance}
         isRestricted={absenceReason.isRestricted}
         requireNotesToAdmin={absenceReason.requireNotesToAdmin ?? false}
+        requiresApproval={absenceReason.requiresApproval ?? false}
         absenceReasonCategoryId={
           absenceReason.absenceReasonCategoryId || undefined
         }

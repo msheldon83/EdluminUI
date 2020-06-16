@@ -9,6 +9,7 @@ import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
 import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
 import InfoIcon from "@material-ui/icons/Info";
+import { ApprovalStatus } from "graphql/server-types.gen";
 
 type Props = {
   detail: Detail;
@@ -207,6 +208,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           )}
         </div>
       </div>
+      <div className={classes.approvalChip}>
+        {props.detail.approvalStatus === ApprovalStatus.Pending && (
+          <Chip label={t("Pending")} className={classes.pendingApprovalChip} />
+        )}
+      </div>
       {!inSwapMode && (
         <div className={classes.actionCell}>
           <ActionMenu options={props.rowActions} />
@@ -299,6 +305,9 @@ const useStyles = makeStyles(theme => ({
   date: {
     flex: 4,
   },
+  approvalChip: {
+    flex: 2,
+  },
   closedText: {
     fontStyle: "italic",
     color: "#9E9E99",
@@ -341,5 +350,9 @@ const useStyles = makeStyles(theme => ({
   },
   tooltip: {
     padding: theme.spacing(2),
+  },
+  pendingApprovalChip: {
+    backgroundColor: theme.customColors.yellow4,
+    color: theme.palette.text.primary,
   },
 }));

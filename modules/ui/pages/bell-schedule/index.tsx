@@ -21,6 +21,7 @@ import { GetAllWorkDaySchedulesWithinOrg } from "./graphql/workday-schedules.gen
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum, DataImportType } from "graphql/server-types.gen";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
+import { Section } from "ui/components/section";
 
 export const BellSchedulePage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -130,35 +131,39 @@ export const BellSchedulePage: React.FC<{}> = props => {
           </Grid>
         </Can>
       </Grid>
-      <Table
-        title={`${workDaySchedulesCount} ${
-          workDaySchedulesCount == 1 ? t("Bell Schedule") : t("Bell Schedules")
-        }`}
-        columns={columns}
-        data={workDaySchedules}
-        selection={false}
-        onRowClick={(event, workDaySchedule) => {
-          if (!workDaySchedule) return;
-          const newParams = {
-            ...params,
-            workDayScheduleId: workDaySchedule.id,
-          };
-          history.push(BellScheduleViewRoute.generate(newParams));
-        }}
-        options={{
-          search: false,
-          sorting: true,
-        }}
-        showIncludeExpired={true}
-        onIncludeExpiredChange={checked => {
-          pagination.resetPage();
-          setIncludeExpired(checked);
-        }}
-        expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) =>
-          rowData.expired ?? false
-        }
-        pagination={pagination}
-      />
+      <Section>
+        <Table
+          title={`${workDaySchedulesCount} ${
+            workDaySchedulesCount == 1
+              ? t("Bell Schedule")
+              : t("Bell Schedules")
+          }`}
+          columns={columns}
+          data={workDaySchedules}
+          selection={false}
+          onRowClick={(event, workDaySchedule) => {
+            if (!workDaySchedule) return;
+            const newParams = {
+              ...params,
+              workDayScheduleId: workDaySchedule.id,
+            };
+            history.push(BellScheduleViewRoute.generate(newParams));
+          }}
+          options={{
+            search: false,
+            sorting: true,
+          }}
+          showIncludeExpired={true}
+          onIncludeExpiredChange={checked => {
+            pagination.resetPage();
+            setIncludeExpired(checked);
+          }}
+          expiredRowCheck={(rowData: GetAllWorkDaySchedulesWithinOrg.Results) =>
+            rowData.expired ?? false
+          }
+          pagination={pagination}
+        />
+      </Section>
     </>
   );
 };

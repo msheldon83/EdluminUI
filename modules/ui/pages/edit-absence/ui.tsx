@@ -55,7 +55,7 @@ import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
 import { OrgUserPermissions } from "ui/components/auth/types";
-import { canViewAsSysAdmin } from "helpers/permissions";
+import { canViewAbsVacActivityLog } from "helpers/permissions";
 import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
@@ -64,6 +64,7 @@ import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
+import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 
 type Props = {
   firstName: string;
@@ -114,7 +115,7 @@ type Props = {
   approvalStatus?: {
     id: string;
     approvalStatusId: ApprovalStatus;
-    approvalWorkflowId: string;
+    approvalWorkflow: { steps: ApprovalWorkflowSteps[] };
     currentStepId: string;
     comments: { id: string }[];
   } | null;
@@ -559,7 +560,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
           orgId?: string
-        ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+        ) =>
+          canViewAbsVacActivityLog(
+            permissions,
+            isSysAdmin,
+            !props.actingAsEmployee,
+            orgId
+          ),
       },
     ];
     if (props.initialVacancies[0]) {
@@ -649,12 +656,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               orgId={props.organizationId}
               approvalStateId={props.approvalStatus?.id}
               approvalStatusId={props.approvalStatus?.approvalStatusId}
-              approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
+              approvalWorkflowSteps={
+                props.approvalStatus?.approvalWorkflow?.steps ?? []
+              }
               currentStepId={props.approvalStatus?.currentStepId}
               countOfComments={props.approvalStatus?.comments.length}
               actingAsEmployee={props.actingAsEmployee}
               isTrueVacancy={false}
               absenceId={props.absenceId}
+              onChange={props.refetchAbsence}
             />
           )}
 

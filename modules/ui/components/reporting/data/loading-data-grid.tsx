@@ -40,6 +40,10 @@ export const LoadingDataGrid: React.FC<Props> = props => {
                 columnWidth={columnWidth}
                 setFirstLevelOrderBy={async () => {}}
                 orderedBy={[]}
+                allFields={[]}
+                addColumns={() => {}}
+                setColumns={() => {}}
+                removeColumn={() => {}}
               />
             </div>
             <div>

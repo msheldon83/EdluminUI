@@ -6,16 +6,13 @@ import {
   Maybe,
   AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
-import { parseISO, differenceInHours, isAfter, isBefore } from "date-fns";
+import { parseISO, isAfter, isBefore } from "date-fns";
 import { makeStyles, Grid } from "@material-ui/core";
-import {
-  getDateRangeDisplay,
-  getDayPartCountLabels,
-} from "ui/components/employee/helpers";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { compact } from "lodash-es";
+import { compact, round } from "lodash-es";
+import { SummaryDetails } from "./summary-details";
 
 type Props = {
   orgId: string;
@@ -41,6 +38,7 @@ type Props = {
     totalAmount: number;
   }[];
   actingAsEmployee?: boolean;
+  showSimpleDetail: boolean;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -49,7 +47,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   const absence = props.absence;
   const startDate = parseISO(absence.startDate ?? "");
-  const endDate = parseISO(absence.endDate ?? "");
 
   const allSchoolYears = useAllSchoolYears(props.orgId);
   const schoolYearId = allSchoolYears.find(
@@ -95,24 +92,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
     return unitText[Number(amount !== 1)];
   };
 
-  const allDayParts =
-    absence.details && absence.details.length > 0
-      ? absence.details.map(d => ({
-          dayPart: d!.dayPartId!,
-          dayPortion: d!.dayPortion,
-          hourDuration: differenceInHours(
-            parseISO(d!.endTimeLocal!),
-            parseISO(d!.startTimeLocal!)
-          ),
-        }))
-      : [];
-
   const getRemainingBalanceText = (absenceReasonId: string) => {
     const balance = employeeBalances.find(
       x => x.absenceReasonId === absenceReasonId
     );
     return balance
-      ? `${balance?.unusedBalance} ${getUnitText(
+      ? `${round(balance?.unusedBalance, 2)} ${getUnitText(
           balance?.absenceReasonTrackingTypeId ??
             AbsenceReasonTrackingTypeId.Invalid,
           balance?.unusedBalance
@@ -121,81 +106,69 @@ export const AbsenceDetails: React.FC<Props> = props => {
   };
 
   return (
-    <Grid container item xs={12} spacing={2}>
-      <Grid item xs={12}>
-        <div className={classes.title}>
-          {`${getDateRangeDisplay(startDate, endDate)} (${getDayPartCountLabels(
-            allDayParts,
-            t
-          ).join(", ")})`}
+    <div className={classes.detailsContainer}>
+      {props.showSimpleDetail && (
+        <SummaryDetails
+          orgId={props.orgId}
+          absenceDetails={absence.details}
+          startDate={absence.startDate}
+          endDate={absence.endDate}
+          isNormalVacancy={false}
+          simpleSummary={true}
+        />
+      )}
+      <div className={classes.reasonHeaderContainer}>
+        <div className={[classes.subTitle, classes.reason].join(" ")}>
+          {t("Reason")}
         </div>
-      </Grid>
-      <Grid container item xs={12}>
-        <Grid
-          item
-          container
-          xs={12}
-          className={classes.reasonHeaderContainer}
-          alignItems="center"
-        >
-          <Grid item xs={6}>
-            <div className={classes.subTitle}>{t("Reason")}</div>
-          </Grid>
-          <Grid item xs={3}>
-            <div className={classes.subTitle}>{t("Used")}</div>
-          </Grid>
-          <Grid item xs={3}>
-            <div className={classes.subTitle}>{t("Remaining")}</div>
-          </Grid>
-        </Grid>
-        {props.absenceReasons.map((g, i) => {
-          return (
-            <Grid
-              item
-              container
-              xs={12}
-              alignItems="center"
-              key={i}
-              className={classes.reasonRowContainer}
-            >
-              <Grid item xs={6}>
-                <div className={classes.text}>{g.absenceReasonName}</div>
-              </Grid>
-              <Grid item xs={3}>
-                <div className={classes.text}>{`${g.totalAmount} ${getUnitText(
-                  g.absenceReasonTrackingTypeId ??
-                    AbsenceReasonTrackingTypeId.Invalid,
-                  g.totalAmount
-                )}`}</div>
-              </Grid>
-              <Grid item xs={3}>
-                <div className={classes.text}>
-                  {getRemainingBalanceText(g.absenceReasonId)}
-                </div>
-              </Grid>
-            </Grid>
-          );
-        })}
-      </Grid>
-      <Grid item xs={12}>
+        <div className={[classes.subTitle, classes.used].join(" ")}>
+          {t("Used")}
+        </div>
+        <div className={[classes.subTitle, classes.remaining].join(" ")}>
+          {t("Remaining")}
+        </div>
+      </div>
+      {props.absenceReasons.map((g, i) => {
+        return (
+          <div key={i} className={classes.reasonRowContainer}>
+            <div className={[classes.text, classes.reason].join(" ")}>
+              {g.absenceReasonName}
+            </div>
+            <div className={[classes.text, classes.used].join(" ")}>{`${
+              g.totalAmount
+            } ${getUnitText(
+              g.absenceReasonTrackingTypeId ??
+                AbsenceReasonTrackingTypeId.Invalid,
+              g.totalAmount
+            )}`}</div>
+            <div className={[classes.text, classes.remaining].join(" ")}>
+              {getRemainingBalanceText(g.absenceReasonId)}
+            </div>
+          </div>
+        );
+      })}
+      <div className={classes.notesContainer}>
         <div className={classes.subTitle}>{t("Notes to administrator")}</div>
         <div className={classes.text}>
           {absence.notesToApprover ? absence.notesToApprover : t("No notes")}
         </div>
-      </Grid>
+      </div>
       {!props.actingAsEmployee && (
-        <Grid item xs={12}>
+        <div className={classes.notesContainer}>
           <div className={classes.subTitle}>{t("Administrator comments")}</div>
           <div className={classes.text}>
             {absence.adminOnlyNotes ? absence.adminOnlyNotes : t("No comments")}
           </div>
-        </Grid>
+        </div>
       )}
-    </Grid>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  detailsContainer: {
+    width: "100%",
+  },
   subTitle: {
     fontWeight: "bold",
     fontSize: theme.typography.pxToRem(14),
@@ -211,9 +184,28 @@ const useStyles = makeStyles(theme => ({
     background: "#F0F0F0",
     border: "1px solid #E5E5E5",
     padding: theme.spacing(1),
+    display: "flex",
+    width: "95%",
+    marginLeft: theme.spacing(1),
   },
   reasonRowContainer: {
     borderBottom: "1px solid #E5E5E5",
     padding: theme.spacing(1),
+    display: "flex",
+    width: "95%",
+    marginLeft: theme.spacing(1),
+  },
+  reason: {
+    width: "50%",
+  },
+  used: {
+    width: "25%",
+  },
+  remaining: {
+    width: "25%",
+  },
+  notesContainer: {
+    paddingTop: theme.spacing(2),
+    marginLeft: theme.spacing(1),
   },
 }));

@@ -35,6 +35,7 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
       <Droppable droppableId="endOfMorningDroppable">
         {(provided, snapshot) => {
           const { innerRef } = provided;
+
           return (
             <div ref={innerRef} {...provided.droppableProps}>
               {props.periods.map((p, i) => {
@@ -57,6 +58,7 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
                       className={classes.endOfMorningChip}
                       label={t("End of morning")}
                     />
+                    {provided.placeholder}
                   </div>
                 );
 
@@ -73,6 +75,7 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
                           >
                             {(provided, snapshot) => {
                               const { innerRef } = provided;
+
                               return (
                                 <div
                                   ref={innerRef}
@@ -110,16 +113,25 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
   );
 };
 
+/*
+  Note: the droppable item jumps when dropped because of a bug in react-beautiful-dnd
+  not correctly handling flex items with `align-items: center` set.
+
+  https://github.com/atlassian/react-beautiful-dnd/issues/1851
+*/
+
 const useStyles = makeStyles(theme => ({
   endOfMorningChip: {
     background: "#FCE7E7",
     color: "#E53935",
     cursor: "grab",
+
+    "&:active": {
+      cursor: "grabbing",
+    },
   },
   endOfMorning: {
-    flexGrow: 2,
     textAlign: "left",
-    paddingLeft: theme.spacing(),
   },
 }));
 

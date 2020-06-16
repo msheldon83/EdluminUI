@@ -10,7 +10,7 @@ import {
 } from "ui/routes/edit-absence";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
-import { GetAbsence } from "./graphql/get-absence.gen";
+import { GetAbsence } from "ui/pages/approval-inbox/graphql/get-absence-by-id.gen";
 import { ApprovalDetail } from "ui/components/absence-vacancy/approval-state/approval-detail";
 
 type Props = { actingAsEmployee?: boolean };
@@ -24,6 +24,10 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
       id: params.absenceId,
     },
   });
+
+  const onApproveOrDeny = async () => {
+    await getAbsence.refetch();
+  };
 
   const absence =
     getAbsence.state === "DONE" ? getAbsence.data.absence?.byId : null;
@@ -65,12 +69,17 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
         onCancel={onReturn}
       />
       <ApprovalDetail
-        orgId={params.organizationId}
+        orgId={absence.orgId}
         actingAsEmployee={props.actingAsEmployee}
         approvalStateId={approvalState.id}
+        approvalStatusId={approvalState.approvalStatusId}
+        onApprove={onApproveOrDeny}
+        onDeny={onApproveOrDeny}
+        onSaveComment={onApproveOrDeny}
         currentStepId={approvalState.currentStepId}
-        approvalWorkflowId={approvalState.approvalWorkflowId}
+        approvalWorkflowSteps={approvalState.approvalWorkflow?.steps}
         comments={approvalState.comments}
+        decisions={approvalState.decisions}
         isTrueVacancy={false}
         absence={absence}
       />

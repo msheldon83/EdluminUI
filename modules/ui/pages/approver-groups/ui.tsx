@@ -7,7 +7,7 @@ import { Column } from "material-table";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
 import ErrorIcon from "@material-ui/icons/Error";
-import { compact } from "lodash-es";
+import { compact, flatMap } from "lodash-es";
 import {
   ApproverGroupsRoute,
   ApproverGroupAddLocationsRoute,
@@ -89,15 +89,13 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
       searchable: false,
       hidden: isMobile,
       render: data => {
-        const approvalWorkflows = compact(
-          data.approverGroups.map((e: any) => e.approvalWorkflows)
-        );
-        return approvalWorkflows.length === 1 ? (
+        if (!data.approvalWorkflows) return t("Not used");
+        return data.approvalWorkflows.length === 1 ? (
           <>
-            <div>{approvalWorkflows[0]?.name}</div>
+            <div>{data.approvalWorkflows[0]?.name}</div>
           </>
         ) : (
-          <div>{`${approvalWorkflows.length} ${t(" Workflows")}`}</div>
+          <div>{`${data.approvalWorkflows.length} ${t(" Workflows")}`}</div>
         );
       },
     },

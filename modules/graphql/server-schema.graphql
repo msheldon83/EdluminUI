@@ -135,6 +135,7 @@ type AbsenceDr {
   changedUtc: DateTime
   changedLocal: DateTime
   rowVersion: String!
+  approvalStatus: ApprovalStatus
   startDate: Date
   endDate: Date
   numDays: Int!
@@ -234,7 +235,7 @@ type AbsenceReason implements ModelObjectInterface & OrgObjectInterface & Domain
   prioritySequence: Int
   requireNotesToAdmin: Boolean
   code: String
-  requiresApproval: Boolean
+  requiresApproval: Boolean!
   allPositionTypes: Boolean
   positionTypeIds: [ID!]!
   positionTypes: [PositionType!]!
@@ -727,8 +728,12 @@ type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
   commentIsPublic: Boolean!
   actingOrgUserId: ID!
   actingOrgUser: OrgUser!
-  actualOrgUserId: ID!
-  actualOrgUser: OrgUser!
+  actualOrgUserId: ID
+  actualOrgUser: OrgUser
+  actingUserId: ID!
+  actingUser: User!
+  actualUserId: ID!
+  actualUser: User!
   approvalDecisionId: ID
   approvalDecision: ApprovalDecision
 }
@@ -750,8 +755,12 @@ type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
   approvalActionId: ApprovalAction!
   actingOrgUserId: ID!
   actingOrgUser: OrgUser!
-  actualOrgUserId: ID!
-  actualOrgUser: OrgUser!
+  actualOrgUserId: ID
+  actualOrgUser: OrgUser
+  actingUserId: ID!
+  actingUser: User!
+  actualUserId: ID!
+  actualUser: User!
   approverGroupId: ID
   approverGroup: ApproverGroup
 }
@@ -775,6 +784,7 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   approvalWorkflowId: ID!
+  approvalWorkflow: ApprovalWorkflow!
   currentStepId: String!
   approvalStatusId: ApprovalStatus!
   approvalWorkflowTypeId: ApprovalWorkflowType!
@@ -849,6 +859,7 @@ type ApprovalWorkflowQueries {
     sortBy: [SortDetailsInput]
     workFlowType: ApprovalWorkflowType
   ): PagedApprovalWorkflow
+  myApprovalWorkflows(orgId: ID): [ApprovalWorkflow]
 }
 
 type ApprovalWorkflowStep {
@@ -918,6 +929,7 @@ type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   approverGroupHeaderId: ID!
+  rowVersion: String!
   name: String!
   description: String
   externalId: String
@@ -973,7 +985,8 @@ input ApproverGroupHeaderCreateInput {
 }
 
 input ApproverGroupHeaderUpdateInput {
-  rowVersion: Int!
+  id: ID!
+  rowVersion: String!
   name: String
   description: String
   externalId: String
@@ -1032,6 +1045,7 @@ type ApproverGroupQueries {
   ): PagedApproverGroupHeader
   groupById(approverGroupId: ID!): ApproverGroup
   groupsByLocationId(locationId: ID!): [ApproverGroup]
+  myApproverGroupHeaders: [ApproverGroupHeader]
 }
 
 input ApproverGroupRemoveMemberInput {
@@ -2660,6 +2674,7 @@ enum EventType {
   EMPLOYEES_REMOVED_FROM_REPLACEMENT_POOL
   REPLACEMENT_POOL_MEMBER_ADDED
   REPLACEMENT_POOL_MEMBER_REMOVED
+  REPLACEMENT_POOL_MEMBER_UPDATED
   REPLACEMENT_CRITERIA_CONFIG_CREATED
   REPLACEMENT_CRITERIA_CONFIG_UPDATED
   REPLACEMENT_CRITERIA_CONFIG_DELETED
@@ -3172,6 +3187,11 @@ type Mutation {
   orgRef_WorkDayScheduleVariantType: OrgRef_WorkDayScheduleVariantTypeMutations
 }
 
+input NameValuePairInput {
+  name: String!
+  value: String
+}
+
 enum NeedsReplacement {
   NO
   YES
@@ -3233,6 +3253,9 @@ enum NotificationReason {
   EMP_SUB_REMOVED_BY_ANY
   ADMIN_SUB_ASSIGNED_BY_ANY
   ADMIN_SUB_REMOVED_BY_ANY
+  EMP_ABSENCE_APPROVED
+  EMP_ABSENCE_DENIED
+  ADMIN_WORKFLOW_WAITING
 }
 
 type ObjectReplacementCriteria {
@@ -5902,7 +5925,15 @@ type ReplacementPoolMember implements ModelObjectInterface & OrgObjectInterface 
   deletedLocal: DateTime
   replacementPoolId: ID!
   employeeId: ID!
+  adminNote: String
   employee: BasicEmployee
+}
+
+input ReplacementPoolMemberUpdateInput {
+  id: ID!
+  employeeId: ID!
+  replacementPoolId: ID!
+  adminNote: String
 }
 
 type ReplacementPoolMutations {
@@ -5912,6 +5943,9 @@ type ReplacementPoolMutations {
   addMembers(
     replacementPoolMember: ReplacementPoolAddEmployeesInput!
   ): ReplacementPool
+  updateMember(
+    replacementPoolMember: ReplacementPoolMemberUpdateInput!
+  ): ReplacementPoolMember
   removeMembers(
     replacementPoolMember: ReplacementPoolRemoveEmployeesInput!
   ): ReplacementPool
@@ -6417,6 +6451,8 @@ type SubstitutePreferences {
   favoriteSubstitutes: [Employee!]!
   blockedSubstitutes: [Employee!]!
   autoAssignedSubstitutes: [Employee!]!
+  favoriteSubstituteMembers: [ReplacementPoolMember!]!
+  blockedSubstituteMembers: [ReplacementPoolMember!]!
 }
 
 input SubstitutePreferencesInput {
@@ -6606,7 +6642,12 @@ type UserMutations {
   ): UserUnavailableTime
   deleteUnavailableTime(id: ID!): Boolean
   verifyPhoneNumber(phoneNumber: String!): User
-  sendMobileMessage(id: ID!, title: String!, message: String!): Boolean
+  sendMobileMessage(
+    id: ID!
+    title: String!
+    message: String!
+    nameValuePairs: [NameValuePairInput]
+  ): Boolean
   registerUserDevice(userDevice: RegisterUserDeviceInput!): UserDevice
   deleteUserDevice(userDevice: DeleteUserDeviceInput!): Boolean
 }
@@ -6891,6 +6932,7 @@ type VacancyDr {
   changedUtc: DateTime
   changedLocal: DateTime
   rowVersion: String!
+  approvalStatus: ApprovalStatus
   startDate: Date
   endDate: Date
   numDays: Int!
@@ -7101,7 +7143,7 @@ type VacancyReason implements ModelObjectInterface & OrgObjectInterface & Domain
   validUntil: Date
   expired: Boolean!
   code: String
-  requiresApproval: Boolean
+  requiresApproval: Boolean!
 }
 
 input VacancyReasonCreateInput {

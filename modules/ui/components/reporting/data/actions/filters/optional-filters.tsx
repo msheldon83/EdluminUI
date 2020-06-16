@@ -4,7 +4,7 @@ import {
   FilterField,
   ExpressionFunction,
   FilterType,
-} from "../../types";
+} from "../../../types";
 import {
   Button,
   Popper,
@@ -70,21 +70,29 @@ export const OptionalFilters: React.FC<Props> = props => {
     [localFilters, setLocalFilters]
   );
 
+  const possibleFilters = React.useMemo(() => {
+    const remainingFilters = getPossibleFilters(
+      [...filters, ...localFilters],
+      filterableFields
+    );
+    return remainingFilters;
+  }, [filters, localFilters, filterableFields]);
+
   const addFilter = React.useCallback(() => {
     setLocalFilters(current => {
       return [
         ...current,
         {
-          field: filterableFields[0],
+          field: possibleFilters[0],
           expressionFunction: ExpressionFunction.Equal,
           value:
-            filterableFields[0].filterType === FilterType.Boolean
+            possibleFilters[0].filterType === FilterType.Boolean
               ? false
               : undefined,
         },
       ];
     });
-  }, [setLocalFilters, filterableFields]);
+  }, [setLocalFilters, possibleFilters]);
 
   const removeFilter = React.useCallback(
     (filterIndex: number) => {
@@ -144,7 +152,11 @@ export const OptionalFilters: React.FC<Props> = props => {
                       return (
                         <OptionalFilterRow
                           filterField={f}
-                          filterableFields={filterableFields}
+                          filterableFields={getPossibleFilters(
+                            [...filters, ...localFilters],
+                            filterableFields,
+                            f
+                          )}
                           updateFilter={(filterField: FilterField) =>
                             updateFilter(filterField, i)
                           }
@@ -164,6 +176,7 @@ export const OptionalFilters: React.FC<Props> = props => {
                       onClick={addFilter}
                       variant="text"
                       className={classes.addFilter}
+                      disabled={possibleFilters.length === 0}
                     >
                       {t("Add filter")}
                     </Button>
@@ -224,3 +237,20 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
   },
 }));
+
+const getPossibleFilters = (
+  currentFilters: FilterField[],
+  allFilterableFields: DataSourceField[],
+  includeFilter?: FilterField
+) => {
+  const currentFiltersFieldNames = currentFilters.map(
+    c => c.field.dataSourceFieldName
+  );
+  const possibleFilters = allFilterableFields.filter(
+    f =>
+      !currentFiltersFieldNames.includes(f.dataSourceFieldName) ||
+      (includeFilter &&
+        includeFilter.field.dataSourceFieldName === f.dataSourceFieldName)
+  );
+  return possibleFilters;
+};

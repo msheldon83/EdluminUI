@@ -38,7 +38,7 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
             const { innerRef } = provided;
 
             return (
-              <div {...provided.droppableProps} ref={innerRef} >
+              <div {...provided.droppableProps} ref={innerRef}>
                 {props.periods.map((p, i) => {
                   const periodClasses = [props.scheduleClasses.period];
                   if (i % 2 === 1) {
@@ -61,11 +61,17 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
                         className={classes.startOfAfternoonChip}
                         label={t("Start of afternoon")}
                       />
+                      {provided.placeholder}
                     </div>
                   );
 
                   return (
-                    <div key={i} className={periodClasses.join(" ")}>
+                    <div
+                      key={i}
+                      className={`${periodClasses.join(" ")} ${
+                        classes.chipWrapper
+                      }`}
+                    >
                       {!p.skipped && (
                         <>
                           <Can do={[PermissionEnum.ScheduleSettingsSave]}>
@@ -115,16 +121,37 @@ export const ScheduleAfternoonColumn: React.FC<Props> = props => {
   );
 };
 
+/*
+  Note: the droppable item jumps when dropped because of a bug in react-beautiful-dnd
+  not correctly handling flex items with `align-items: center` set.
+
+  https://github.com/atlassian/react-beautiful-dnd/issues/1851
+*/
+
 const useStyles = makeStyles(theme => ({
   startOfAfternoon: {
-    flexGrow: 2,
     textAlign: "right",
-    paddingRight: theme.spacing(),
+    width: "auto",
+    display: "block",
   },
   startOfAfternoonChip: {
     background: "#ECF9F3",
     color: "#00C853",
     cursor: "grab",
+
+    "&:active": {
+      cursor: "grabbing",
+    },
+  },
+  chipWrapper: {
+    /*
+      This overrides some parent style that is impossible to override without the !important
+
+      The style can be found here:
+
+      https://github.com/RedRoverK12/EdluminUI/blob/d177675a74415338dcda20f7f166fb9e575730f1/modules/ui/pages/bell-schedule/components/schedule.tsx#L340
+    */
+    justifyContent: "flex-end !important",
   },
 }));
 

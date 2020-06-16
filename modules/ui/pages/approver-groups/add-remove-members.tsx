@@ -25,11 +25,7 @@ import { AddMember } from "./graphql/add-member.gen";
 import { GetAdminsByName } from "./graphql/get-admins-by-name.gen";
 import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
 import { WorkflowViewCard } from "./components/workflow-view-card";
-
-type OptionType = {
-  label: string;
-  value?: string;
-}[];
+import { NameHeader } from "./components/name-header";
 
 export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -64,7 +60,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
         },
       },
     });
-    setSearchText(searchText);
+    setSearchText(undefined);
   };
 
   const onRemoveMember = async (orgUserId: string) => {
@@ -168,7 +164,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
     <>
       <div className={classes.headerLink}>
         <Typography variant="h5">
-          {approverGroup?.location?.name ?? approverGroup?.name}
+          {approverGroup?.location?.name ?? t("Approver Group")}
         </Typography>
         <div className={classes.linkPadding}>
           <Link to={to} className={classes.link}>
@@ -176,7 +172,14 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
           </Link>
         </div>
       </div>
-      <PageTitle title={t("Building Approvers")} />
+      {approverGroup && (
+        <NameHeader
+          approverGroupHeaderId={approverGroup.approverGroupHeaderId}
+          name={approverGroup.name}
+          identifier={approverGroup.externalId}
+          rowVersion={approverGroup.rowVersion}
+        />
+      )}
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>
@@ -215,6 +218,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    paddingLeft: theme.spacing(1),
   },
   link: {
     color: theme.customColors.blue,
