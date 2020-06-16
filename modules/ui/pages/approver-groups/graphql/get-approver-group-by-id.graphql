@@ -3,7 +3,9 @@ query GetApproverGroupById($approverGroupId: ID!) {
     groupById(approverGroupId: $approverGroupId) {
       id
       name
+      externalId
       approverGroupHeaderId
+      rowVersion
       approvalWorkflows {
         id
         name

@@ -1,8 +1,8 @@
-mutation CreateApproverGroupHeader(
-  $approverGroupHeader: ApproverGroupHeaderCreateInput!
+mutation UpdateApproverGroupHeader(
+  $approverGroupHeader: ApproverGroupHeaderUpdateInput!
 ) {
   approverGroup {
-    create(approverGroupHeader: $approverGroupHeader) {
+    update(approverGroupHeader: $approverGroupHeader) {
       id
       name
       externalId

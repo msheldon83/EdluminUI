@@ -2,6 +2,7 @@ query GetAbsence($id: ID!) {
   absence {
     byId(id: $id) {
       id
+      orgId
       isClosed
       rowVersion
       createdLocal
@@ -9,6 +10,20 @@ query GetAbsence($id: ID!) {
         id
         approvalStatusId
         approvalWorkflowId
+        approvalWorkflow {
+          id
+          steps {
+            stepId
+            deleted
+            isFirstStep
+            isLastStep
+            approverGroupHeaderId
+            onApproval {
+              goto
+              criteria
+            }
+          }
+        }
         currentStepId
         changedLocal
         comments {
