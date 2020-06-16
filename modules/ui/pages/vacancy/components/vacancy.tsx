@@ -56,7 +56,7 @@ type Props = {
   onDelete?: () => void;
   approvalStatus?: {
     approvalStatusId: ApprovalStatus;
-    approvalWorkflow: { steps: ApprovalWorkflowSteps[] };
+    approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
     currentStepId: string;
     id: string;
     comments: { id: string }[];
@@ -552,6 +552,7 @@ export const VacancyUI: React.FC<Props> = props => {
         <ApprovalState
           orgId={params.organizationId}
           approvalStateId={props.approvalStatus?.id}
+          approvalWorkflowId={props.approvalStatus?.approvalWorkflow.id ?? ""}
           approvalStatusId={props.approvalStatus?.approvalStatusId}
           approvalWorkflowSteps={
             props.approvalStatus?.approvalWorkflow?.steps ?? []
@@ -561,6 +562,7 @@ export const VacancyUI: React.FC<Props> = props => {
           isTrueVacancy={true}
           vacancyId={vacancy.id}
           onChange={props.refetchVacancy}
+          locationIds={vacancy.details.map(x => x.locationId)}
         />
       )}
       {vacancy.closedDetails.length > 0 && (

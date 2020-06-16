@@ -157,6 +157,7 @@ export const SelectedDetail: React.FC<Props> = props => {
           comments={approvalState?.comments ?? []}
           decisions={approvalState?.decisions ?? []}
           onCommentSave={handleSaveComment}
+          approvalWorkflowId={approvalState?.approvalWorkflowId ?? ""}
         />
       </Grid>
       <Grid item xs={12}>

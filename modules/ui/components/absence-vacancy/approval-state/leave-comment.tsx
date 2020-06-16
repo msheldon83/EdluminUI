@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   makeStyles,
   FormControlLabel,
@@ -12,17 +12,22 @@ import { useMutationBundle } from "graphql/hooks";
 import { Comment } from "./graphql/comment.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
+import { useMyApprovalWorkflows } from "reference-data/my-approval-workflows";
 
 type Props = {
   approvalStateId: string;
   onSave?: () => void;
   actingAsEmployee?: boolean;
+  approvalWorkflowId: string;
 };
 
 export const LeaveComment: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
+
+  const myApprovalWorkflows = useMyApprovalWorkflows();
+  const { approvalWorkflowId, actingAsEmployee } = props;
 
   const [doComment] = useMutationBundle(Comment, {
     onError: error => {
@@ -49,7 +54,15 @@ export const LeaveComment: React.FC<Props> = props => {
     }
   };
 
-  return (
+  const allowComments = useMemo(() => {
+    if (actingAsEmployee) return true;
+
+    // If I'm a member of the current group that needs to approve, show the buttons
+    if (myApprovalWorkflows.find(x => x.id === approvalWorkflowId)) return true;
+    return false;
+  }, [actingAsEmployee, myApprovalWorkflows, approvalWorkflowId]);
+
+  return allowComments ? (
     <div className={classes.container}>
       <div className={classes.label}>{t("Comment")}</div>
       <TextField
@@ -64,7 +77,7 @@ export const LeaveComment: React.FC<Props> = props => {
         className={classes.commentBox}
       />
       <div className={classes.buttonContainer}>
-        {!props.actingAsEmployee && (
+        {!actingAsEmployee && (
           <FormControlLabel
             checked={commentIsPublic}
             control={
@@ -85,6 +98,8 @@ export const LeaveComment: React.FC<Props> = props => {
         </div>
       </div>
     </div>
+  ) : (
+    <></>
   );
 };
 

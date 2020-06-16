@@ -115,7 +115,7 @@ type Props = {
   approvalStatus?: {
     id: string;
     approvalStatusId: ApprovalStatus;
-    approvalWorkflow: { steps: ApprovalWorkflowSteps[] };
+    approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
     currentStepId: string;
     comments: { id: string }[];
   } | null;
@@ -656,6 +656,9 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               orgId={props.organizationId}
               approvalStateId={props.approvalStatus?.id}
               approvalStatusId={props.approvalStatus?.approvalStatusId}
+              approvalWorkflowId={
+                props.approvalStatus?.approvalWorkflow.id ?? ""
+              }
               approvalWorkflowSteps={
                 props.approvalStatus?.approvalWorkflow?.steps ?? []
               }
@@ -665,6 +668,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               isTrueVacancy={false}
               absenceId={props.absenceId}
               onChange={props.refetchAbsence}
+              locationIds={props.locationIds ?? []}
             />
           )}
 

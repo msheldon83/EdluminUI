@@ -8,6 +8,7 @@ type Props = {
   onClose: () => void;
   onSaveComment?: () => void;
   actingAsEmployee?: boolean;
+  approvalWorkflowId: string;
 };
 
 export const CommentDialog: React.FC<Props> = props => {
@@ -30,6 +31,7 @@ export const CommentDialog: React.FC<Props> = props => {
           approvalStateId={props.approvalStateId}
           actingAsEmployee={props.actingAsEmployee}
           onSave={onSave}
+          approvalWorkflowId={props.approvalWorkflowId}
         />
       </DialogContent>
     </Dialog>

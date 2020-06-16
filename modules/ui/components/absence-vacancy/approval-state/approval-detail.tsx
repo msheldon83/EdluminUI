@@ -25,6 +25,7 @@ type Props = {
   onDeny?: () => void;
   actingAsEmployee?: boolean;
   approvalStateId: string;
+  approvalWorkflowId: string;
   approvalStatusId: ApprovalStatus;
   currentStepId: string;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
@@ -190,6 +191,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
             comments={props.comments}
             decisions={props.decisions}
             onCommentSave={props.onSaveComment}
+            approvalWorkflowId={props.approvalWorkflowId}
           />
         </div>
         {isMobile && renderAbsVacDetail()}
