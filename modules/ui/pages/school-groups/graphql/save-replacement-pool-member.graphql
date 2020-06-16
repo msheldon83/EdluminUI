@@ -6,11 +6,6 @@ mutation SaveReplacementPoolMember(
       id
       adminNote
       employeeId
-      employee {
-        id
-        firstName
-        lastName
-      }
     }
   }
 }

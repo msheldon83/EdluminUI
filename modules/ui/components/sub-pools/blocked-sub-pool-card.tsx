@@ -123,6 +123,7 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
                 rows="1"
                 value={note}
                 multiline={true}
+                placeholder={t("Notes")}
                 fullWidth={true}
                 variant="outlined"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
