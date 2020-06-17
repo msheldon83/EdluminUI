@@ -173,6 +173,8 @@ import {
   PeopleSubPositionsAttributesEditLoader,
   EmployeeSubstitutePreferenceRoute,
   EmployeeSubstitutePreferenceLoader,
+  EmployeeBalanceReportRoute,
+  EmployeeBalanceReportLoader,
   PeopleEmployeeBalancesEditRoute,
   PeopleEmployeeBalancesEditLoader,
   SubstituteAvailableAssignmentsRoute,
@@ -770,7 +772,15 @@ export const App = hot(function() {
                                     >
                                       <EmployeeSubstitutePreferenceLoader />
                                     </ProtectedRoute>
-
+                                    <ProtectedRoute
+                                      path={EmployeeBalanceReportRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.EmployeeViewBalances,
+                                      ]}
+                                    >
+                                      <EmployeeBalanceReportLoader />
+                                    </ProtectedRoute>
                                     <ProtectedRoute
                                       component={
                                         SelectEmployeeForCreateAbsenceLoader

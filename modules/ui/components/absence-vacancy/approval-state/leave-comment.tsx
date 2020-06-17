@@ -50,7 +50,7 @@ export const LeaveComment: React.FC<Props> = props => {
   };
 
   return (
-    <>
+    <div className={classes.container}>
       <div className={classes.label}>{t("Comment")}</div>
       <TextField
         multiline={true}
@@ -84,11 +84,14 @@ export const LeaveComment: React.FC<Props> = props => {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    paddingRight: theme.spacing(1),
+  },
   buttonContainer: {
     display: "flex",
     marginTop: theme.spacing(1),
