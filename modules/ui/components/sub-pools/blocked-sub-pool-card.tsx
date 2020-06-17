@@ -4,6 +4,7 @@ import { makeStyles } from "@material-ui/styles";
 import CheckIcon from "@material-ui/icons/Check";
 import EditIcon from "@material-ui/icons/Edit";
 import { useTranslation } from "react-i18next";
+import ClearIcon from "@material-ui/icons/Clear";
 import { TextButton } from "ui/components/text-button";
 import {
   PermissionEnum,
@@ -34,15 +35,11 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
     shaded,
   } = props;
 
-  const [showFullNote, setShowFullNote] = React.useState<boolean>(false);
-
   const [note, setNote] = React.useState<string | undefined>(
     replacementPoolMember.adminNote ?? ""
   );
 
-  const [showEdit, setShowEdit] = React.useState<boolean>(
-    replacementPoolMember.adminNote ? true : false
-  );
+  const [showEdit, setShowEdit] = React.useState<boolean>(false);
 
   return (
     <Grid
@@ -73,69 +70,39 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
           >
             {t("Remove")}
           </TextButton>
-          {!replacementPoolMember.adminNote && (
+          {!replacementPoolMember.adminNote && !showEdit && (
             <TextButton
               className={classes.floatRight}
-              onClick={() => setShowFullNote(!showFullNote)}
+              onClick={() => setShowEdit(!showEdit)}
             >
               {t("Add Note")}
             </TextButton>
           )}
         </Can>
       </Grid>
-      <Grid item xs={12}>
-        {!showFullNote && showEdit && replacementPoolMember.adminNote ? (
-          <>
-            <div
-              className={clsx({
-                [classes.inline]: true,
-                [classes.truncate]: true,
-                [classes.textWidth]: true,
-              })}
-            >
-              {note}
-            </div>
-
-            <div
-              className={clsx({
-                [classes.inline]: true,
-                [classes.iconWidth]: true,
-              })}
-              onClick={() => {
-                setShowFullNote(!showFullNote);
-                setShowEdit(!showEdit);
+      {showEdit ? (
+        <Grid item xs={12} className={classes.position}>
+          <div
+            className={clsx({
+              [classes.inline]: true,
+              [classes.inputWidth]: true,
+            })}
+          >
+            <TextField
+              rows="1"
+              value={note}
+              multiline={true}
+              placeholder={t("Notes")}
+              fullWidth={true}
+              variant="outlined"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setNote(e.target.value);
               }}
-            >
-              <EditIcon className={classes.editIcon} />
-            </div>
-          </>
-        ) : !showFullNote ? (
-          <></>
-        ) : (
-          <>
+            />
+          </div>
+          <div className={classes.inline}>
             <div
-              className={clsx({
-                [classes.inline]: true,
-                [classes.textWidth]: true,
-              })}
-            >
-              <TextField
-                rows="1"
-                value={note}
-                multiline={true}
-                placeholder={t("Notes")}
-                fullWidth={true}
-                variant="outlined"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setNote(e.target.value);
-                }}
-              />
-            </div>
-            <div
-              className={clsx({
-                [classes.inline]: true,
-                [classes.iconWidth]: true,
-              })}
+              className={classes.iconHover}
               onClick={() => {
                 const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
                   employeeId: replacementPoolMember.employeeId,
@@ -143,17 +110,50 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
                   replacementPoolId: replacementPoolMember.replacementPoolId,
                   adminNote: note === "" ? null : note,
                 };
-
                 onAddNote(replacementPoolMemberInput);
-                setShowFullNote(!showFullNote);
                 setShowEdit(!showEdit);
               }}
             >
               <CheckIcon className={classes.saveIcon} />
             </div>
-          </>
-        )}
-      </Grid>
+            <div
+              className={clsx({
+                [classes.clearIcon]: true,
+                [classes.iconHover]: true,
+              })}
+              onClick={() => {
+                setShowEdit(!showEdit);
+              }}
+            >
+              <ClearIcon className={classes.editIcon} />
+            </div>
+          </div>
+        </Grid>
+      ) : replacementPoolMember.adminNote ? (
+        <Grid item xs={12} className={classes.position}>
+          <div
+            className={clsx({
+              [classes.truncate]: true,
+              [classes.textWidth]: true,
+            })}
+          >
+            {note}
+          </div>
+          <div
+            className={clsx({
+              [classes.inline]: true,
+              [classes.iconHover]: true,
+            })}
+            onClick={() => {
+              setShowEdit(!showEdit);
+            }}
+          >
+            <EditIcon className={classes.editIcon} />
+          </div>
+        </Grid>
+      ) : (
+        <></>
+      )}
     </Grid>
   );
 };
@@ -182,6 +182,7 @@ const useStyles = makeStyles(theme => ({
   },
   inline: {
     display: "inline-block",
+    width: "10%",
   },
   truncate: {
     paddingTop: theme.spacing(1),
@@ -189,15 +190,26 @@ const useStyles = makeStyles(theme => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    display: "inline-block",
     opacity: "0.7",
   },
   textWidth: {
     width: "90%",
-  },
-  iconWidth: {
-    width: "10%",
+    display: "inline-block",
     position: "relative",
+  },
+  inputWidth: {
+    width: "90%",
+    top: "-30px",
+    display: "inline-block",
+    position: "relative",
+  },
+  iconHover: {
     "&:hover": { cursor: "pointer" },
+  },
+  position: {
+    position: "relative",
+    maxHeight: "110px",
   },
   saveIcon: {
     top: "15px",
@@ -209,6 +221,9 @@ const useStyles = makeStyles(theme => ({
     position: "relative",
     height: "20px",
   },
+  clearIcon: {
+    paddingTop: theme.spacing(2),
+  },
   removeLink: {
     color: theme.customColors.darkRed,
   },
@@ -217,5 +232,6 @@ const useStyles = makeStyles(theme => ({
   },
   floatRight: {
     float: "right",
+    paddingRight: theme.spacing(1),
   },
 }));
