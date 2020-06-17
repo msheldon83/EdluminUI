@@ -65,9 +65,9 @@ export const Report: React.FC<Props> = props => {
   // so in that case we do want to save the RDL behind the scenes
   React.useEffect(() => {
     if (saveRdl) {
-      saveRdl(state.rdlString)
+      saveRdl(state.rdlString);
     }
-  }, [state.rdlString]);
+  }, [saveRdl, state.rdlString]);
 
   // Load the report data
   const reportDataResponse = useQueryBundle(GetReportDataQuery, {
@@ -155,16 +155,16 @@ export const Report: React.FC<Props> = props => {
     []
   );
 
-  const addColumns = React.useCallback((columns: DataExpression[], index?: number, addBeforeIndex?: boolean) => {
-    dispatch({ action: "addColumns", columns, index, addBeforeIndex });
-  }, []);
-
-  const setColumns = React.useCallback(
-    (columns: DataExpression[]) => {
-      dispatch({ action: "setColumns", columns });
+  const addColumns = React.useCallback(
+    (columns: DataExpression[], index?: number, addBeforeIndex?: boolean) => {
+      dispatch({ action: "addColumns", columns, index, addBeforeIndex });
     },
     []
   );
+
+  const setColumns = React.useCallback((columns: DataExpression[]) => {
+    dispatch({ action: "setColumns", columns });
+  }, []);
 
   const removeColumn = React.useCallback((index: number) => {
     dispatch({ action: "removeColumn", index });

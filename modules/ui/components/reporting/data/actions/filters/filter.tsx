@@ -19,6 +19,10 @@ import { DecimalInput } from "ui/components/form/decimal-input";
 import { NumberInput } from "ui/components/form/number-input";
 import { PayCodeSelect } from "ui/components/reference-selects/pay-code-select";
 import { AccountingCodeSelect } from "ui/components/reference-selects/accounting-code-select";
+import {
+  getDateRangeFromRelativeDates,
+  getRelativeDatesFromDateRange,
+} from "ui/components/reporting/helpers";
 
 type Props = {
   filterField: FilterField;
@@ -79,12 +83,22 @@ export const Filter: React.FC<Props> = props => {
           />
         );
       case FilterType.Date: {
-        const start = filterField.value
+        let start = filterField.value
           ? filterField.value[0] ?? undefined
           : undefined;
-        const end = filterField.value
+        let end = filterField.value
           ? filterField.value[1] ?? undefined
           : undefined;
+
+        if (!(start instanceof Date) && !(end instanceof Date)) {
+          // Might be relative date strings. Find matching dates
+          const dateRange = getDateRangeFromRelativeDates(start, end);
+          if (dateRange) {
+            start = dateRange[0] ?? start;
+            end = dateRange[1] ?? end;
+          }
+        }
+
         return (
           <DateRangePickerPopover
             startDate={start}
@@ -92,10 +106,17 @@ export const Filter: React.FC<Props> = props => {
             placeholder={t("Select dates")}
             label={showLabel ? filterField.field.friendlyName : undefined}
             onDateRangeSelected={(start, end) => {
+              // Check for potential relative date match
+              const relativeDates = getRelativeDatesFromDateRange(start, end);
+              const relativeStart = relativeDates
+                ? relativeDates[0]
+                : undefined;
+              const relativeEnd = relativeDates ? relativeDates[1] : undefined;
+
               updateFilter({
                 field: filterField.field,
                 expressionFunction: ExpressionFunction.Between,
-                value: [start, end],
+                value: [relativeStart ?? start, relativeEnd ?? end],
               });
             }}
           />
