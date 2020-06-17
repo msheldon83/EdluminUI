@@ -80,83 +80,64 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
           )}
         </Can>
       </Grid>
-      {showEdit ? (
+      {showEdit && (
         <>
           <Grid item xs={11} className={classes.position}>
-            <div
-              className={clsx({
-                [classes.inline]: true,
-                [classes.inputWidth]: true,
-              })}
-            >
-              <TextField
-                rows="1"
-                value={note}
-                multiline={true}
-                placeholder={t("Notes")}
-                fullWidth={true}
-                variant="outlined"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setNote(e.target.value);
-                }}
-              />
-            </div>
+            <TextField
+              rows="1"
+              value={note}
+              multiline={true}
+              placeholder={t("Notes")}
+              fullWidth={true}
+              variant="outlined"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setNote(e.target.value);
+              }}
+            />
           </Grid>
           <Grid item xs={1} className={classes.position}>
-            <div className={classes.inline}>
-              <div
-                className={classes.iconHover}
-                onClick={() => {
-                  const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
-                    employeeId: replacementPoolMember.employeeId,
-                    id: replacementPoolMember.id,
-                    replacementPoolId: replacementPoolMember.replacementPoolId,
-                    adminNote: note === "" ? null : note,
-                  };
-                  onAddNote(replacementPoolMemberInput);
-                  setShowEdit(!showEdit);
-                }}
-              >
-                <CheckIcon className={classes.saveIcon} />
-              </div>
-              <div
-                className={clsx({
-                  [classes.clearIcon]: true,
-                  [classes.iconHover]: true,
-                })}
-                onClick={() => {
-                  setShowEdit(!showEdit);
-                }}
-              >
-                <ClearIcon className={classes.editIcon} />
-              </div>
+            <div
+              className={classes.iconHover}
+              onClick={() => {
+                const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
+                  employeeId: replacementPoolMember.employeeId,
+                  id: replacementPoolMember.id,
+                  replacementPoolId: replacementPoolMember.replacementPoolId,
+                  adminNote: note === "" ? null : note,
+                };
+                onAddNote(replacementPoolMemberInput);
+                setShowEdit(!showEdit);
+              }}
+            >
+              <CheckIcon className={classes.saveIcon} />
+            </div>
+            <div
+              className={classes.iconHover}
+              onClick={() => {
+                setShowEdit(!showEdit);
+              }}
+            >
+              <ClearIcon className={classes.editIcon} />
             </div>
           </Grid>
         </>
-      ) : replacementPoolMember.adminNote ? (
-        <Grid item xs={12} className={classes.position}>
-          <div
-            className={clsx({
-              [classes.truncate]: true,
-              [classes.textWidth]: true,
-            })}
-          >
-            {note}
-          </div>
-          <div
-            className={clsx({
-              [classes.inline]: true,
-              [classes.iconHover]: true,
-            })}
-            onClick={() => {
-              setShowEdit(!showEdit);
-            }}
-          >
-            <EditIcon className={classes.editIcon} />
-          </div>
-        </Grid>
-      ) : (
-        <></>
+      )}
+      {!showEdit && replacementPoolMember.adminNote && (
+        <>
+          <Grid item xs={11} className={classes.position}>
+            <div className={classes.truncate}>{note}</div>
+          </Grid>
+          <Grid item xs={1} className={classes.position}>
+            <div
+              className={classes.iconHover}
+              onClick={() => {
+                setShowEdit(!showEdit);
+              }}
+            >
+              <EditIcon className={classes.editIcon} />
+            </div>
+          </Grid>
+        </>
       )}
     </Grid>
   );
@@ -184,49 +165,29 @@ const useStyles = makeStyles(theme => ({
       paddingBottom: 0,
     },
   },
-  inline: {
-    //display: "inline-block",
-    //width: "10%",
-  },
   truncate: {
     paddingTop: theme.spacing(1),
-    //width: "90%",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
     display: "inline-block",
     opacity: "0.7",
   },
-  textWidth: {
-    //width: "90%",
-    //display: "inline-block",
-    //position: "relative",
-  },
-  inputWidth: {
-    //width: "90%",
-    //top: "-30px",
-    //display: "inline-block",
-    //position: "relative",
-  },
   iconHover: {
     "&:hover": { cursor: "pointer" },
   },
   position: {
-    //position: "relative",
     maxHeight: "110px",
+    marginTop: theme.spacing(1),
   },
   saveIcon: {
     top: "15px",
     width: "100%",
-    //position: "relative",
   },
   editIcon: {
     width: "100%",
-    //position: "relative",
+    marginTop: theme.spacing(1),
     height: "20px",
-  },
-  clearIcon: {
-    paddingTop: theme.spacing(2),
   },
   removeLink: {
     color: theme.customColors.darkRed,
