@@ -2,6 +2,7 @@ import * as React from "react";
 import { Report } from "ui/components/reporting";
 import { useTranslation } from "react-i18next";
 import { addDays, format } from "date-fns";
+import { AbsVacLink } from "ui/components/links/abs-vac";
 import {
   getRdlFromLocalStorage,
   saveRdlToLocalStorage,
@@ -52,6 +53,28 @@ export const AbsencesVacanciesDetailReport: React.FC<{}> = () => {
         "HasAdminOnlyNotes",
         "HasNotesToReplacement",
       ]}
+      customRender={(dataColumnIndexMap, index) =>
+        dataColumnIndexMap[index]?.dataSourceField?.dataSourceFieldName ==
+        "ConfirmationNumber"
+          ? (classes, value) => {
+              if (value.startsWith("#V")) {
+                return (
+                  <div className={classes}>
+                    <AbsVacLink
+                      absVacId={value.slice(2)}
+                      absVacType="vacancy"
+                    />
+                  </div>
+                );
+              }
+              return (
+                <div className={classes}>
+                  <AbsVacLink absVacId={value.slice(1)} absVacType="absence" />
+                </div>
+              );
+            }
+          : undefined
+      }
       //saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
     />
   );

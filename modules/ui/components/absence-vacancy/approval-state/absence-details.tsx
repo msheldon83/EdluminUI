@@ -7,11 +7,11 @@ import {
   AbsenceReasonTrackingTypeId,
 } from "graphql/server-types.gen";
 import { parseISO, isAfter, isBefore } from "date-fns";
-import { makeStyles, Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { compact, round } from "lodash-es";
+import { compact, groupBy, flatMap, round } from "lodash-es";
 import { SummaryDetails } from "./summary-details";
 
 type Props = {
@@ -28,15 +28,19 @@ type Props = {
           dayPortion: number;
           endTimeLocal?: string | null;
           startTimeLocal?: string | null;
+          reasonUsages?:
+            | Maybe<{
+                amount: number;
+                absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+                absenceReasonId: string;
+                absenceReason?: {
+                  name: string;
+                } | null;
+              }>[]
+            | null;
         }>[]
       | null;
   };
-  absenceReasons: {
-    absenceReasonId: string;
-    absenceReasonName?: string | null;
-    absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
-    totalAmount: number;
-  }[];
   actingAsEmployee?: boolean;
   showSimpleDetail: boolean;
 };
@@ -105,6 +109,29 @@ export const AbsenceDetails: React.FC<Props> = props => {
       : t("Not tracked");
   };
 
+  const absenceReasons = useMemo(
+    () =>
+      absence
+        ? Object.entries(
+            groupBy(
+              flatMap(
+                compact(absence.details).map(x => compact(x.reasonUsages))
+              ),
+              r => r?.absenceReasonId
+            )
+          ).map(([absenceReasonId, usages]) => ({
+            absenceReasonId: absenceReasonId,
+            absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
+            absenceReasonName: usages[0].absenceReason?.name,
+            totalAmount: round(
+              usages.reduce((m, v) => m + +v.amount, 0),
+              2
+            ),
+          }))
+        : [],
+    [absence]
+  );
+
   return (
     <div className={classes.detailsContainer}>
       {props.showSimpleDetail && (
@@ -128,7 +155,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           {t("Remaining")}
         </div>
       </div>
-      {props.absenceReasons.map((g, i) => {
+      {absenceReasons.map((g, i) => {
         return (
           <div key={i} className={classes.reasonRowContainer}>
             <div className={[classes.text, classes.reason].join(" ")}>
@@ -186,14 +213,12 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     display: "flex",
     width: "95%",
-    marginLeft: theme.spacing(1),
   },
   reasonRowContainer: {
     borderBottom: "1px solid #E5E5E5",
     padding: theme.spacing(1),
     display: "flex",
     width: "95%",
-    marginLeft: theme.spacing(1),
   },
   reason: {
     width: "50%",
@@ -206,6 +231,5 @@ const useStyles = makeStyles(theme => ({
   },
   notesContainer: {
     paddingTop: theme.spacing(2),
-    marginLeft: theme.spacing(1),
   },
 }));

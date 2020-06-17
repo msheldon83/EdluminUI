@@ -18,6 +18,10 @@ query GetAbsence($id: ID!) {
             isFirstStep
             isLastStep
             approverGroupHeaderId
+            approverGroupHeader {
+              id
+              name
+            }
             onApproval {
               goto
               criteria

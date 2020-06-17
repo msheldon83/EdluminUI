@@ -5,6 +5,7 @@ import {
   FilterField,
   DataExpression,
   OrderByField,
+  CustomRenderer,
   DataSourceField,
 } from "./types";
 import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
@@ -29,6 +30,7 @@ type Props = {
   allowedFilterFieldsOverride?: string[];
   baseFilterFieldNames?: string[];
   showGroupLabels?: boolean;
+  customRender?: CustomRenderer;
   sumRowData?: boolean;
   saveRdl?: (rdl: string) => void;
 };
@@ -46,6 +48,7 @@ export const Report: React.FC<Props> = props => {
     saveRdl,
     exportFilename = t("Report"),
     showGroupLabels = true,
+    customRender,
     sumRowData = true,
   } = props;
 
@@ -218,6 +221,7 @@ export const Report: React.FC<Props> = props => {
           });
         }}
         showGroupLabels={showGroupLabels}
+        customRender={customRender}
         sumRowData={sumRowData}
       />
     </AppConfig>
