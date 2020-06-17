@@ -549,21 +549,23 @@ export const VacancyUI: React.FC<Props> = props => {
         {subHeader()}
       </Typography>
       {Config.isDevFeatureOnly && props.approvalStatus && (
-        <ApprovalState
-          orgId={params.organizationId}
-          approvalStateId={props.approvalStatus?.id}
-          approvalWorkflowId={props.approvalStatus?.approvalWorkflow.id ?? ""}
-          approvalStatusId={props.approvalStatus?.approvalStatusId}
-          approvalWorkflowSteps={
-            props.approvalStatus?.approvalWorkflow?.steps ?? []
-          }
-          currentStepId={props.approvalStatus?.currentStepId}
-          countOfComments={props.approvalStatus.comments.length}
-          isTrueVacancy={true}
-          vacancyId={vacancy.id}
-          onChange={props.refetchVacancy}
-          locationIds={vacancy.details.map(x => x.locationId)}
-        />
+        <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+          <ApprovalState
+            orgId={params.organizationId}
+            approvalStateId={props.approvalStatus?.id}
+            approvalWorkflowId={props.approvalStatus?.approvalWorkflow.id ?? ""}
+            approvalStatusId={props.approvalStatus?.approvalStatusId}
+            approvalWorkflowSteps={
+              props.approvalStatus?.approvalWorkflow?.steps ?? []
+            }
+            currentStepId={props.approvalStatus?.currentStepId}
+            countOfComments={props.approvalStatus.comments.length}
+            isTrueVacancy={true}
+            vacancyId={vacancy.id}
+            onChange={props.refetchVacancy}
+            locationIds={vacancy.details.map(x => x.locationId)}
+          />
+        </Can>
       )}
       {vacancy.closedDetails.length > 0 && (
         <Grid className={classes.closedDayBanner} item xs={12}>
