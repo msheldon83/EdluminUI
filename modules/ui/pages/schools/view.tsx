@@ -87,8 +87,6 @@ export const LocationViewPage: React.FC<{}> = props => {
   const location: any | undefined =
     getLocation?.data?.location?.byId ?? undefined;
 
-  console.log(location);
-
   const updateName = async (name: string) => {
     await updateLocation({
       variables: {
