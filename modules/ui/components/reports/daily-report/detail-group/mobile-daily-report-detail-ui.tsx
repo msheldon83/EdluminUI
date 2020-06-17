@@ -265,7 +265,9 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               )}
             </div>
           </div>
-          {props.detail.approvalStatus === ApprovalStatus.Pending && (
+          {(props.detail.approvalStatus === ApprovalStatus.ApprovalRequired ||
+            props.detail.approvalStatus ===
+              ApprovalStatus.PartiallyApproved) && (
             <Chip
               label={t("Pending")}
               className={classes.pendingApprovalChip}

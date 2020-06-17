@@ -4,6 +4,9 @@ export type ApprovalWorkflowSteps = {
   isFirstStep: boolean;
   isLastStep: boolean;
   approverGroupHeaderId?: string | null;
+  approverGroupHeader?: {
+    name: string;
+  } | null;
   onApproval: {
     goto?: string | null;
     criteria?: string | null;

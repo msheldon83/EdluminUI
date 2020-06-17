@@ -6,43 +6,12 @@ export default {
 };
 
 export const SingleStep = () => {
-  return (
-    <WorkflowSummary
-      approverGroups={approverGroups}
-      steps={singleStep}
-      currentStepId={"3"}
-    />
-  );
+  return <WorkflowSummary steps={singleStep} currentStepId={"3"} />;
 };
 
 export const FourStep = () => {
-  return (
-    <WorkflowSummary
-      approverGroups={approverGroups}
-      steps={fourSteps}
-      currentStepId={"4"}
-    />
-  );
+  return <WorkflowSummary steps={fourSteps} currentStepId={"4"} />;
 };
-
-const approverGroups = [
-  {
-    id: "1000",
-    name: "Building approvers with a long name",
-  },
-  {
-    id: "1001",
-    name: "Larry Foxx",
-  },
-  {
-    id: "1002",
-    name: "HR Office",
-  },
-  {
-    id: "1003",
-    name: "Superintendent",
-  },
-];
 
 const singleStep = [
   {
@@ -67,6 +36,9 @@ const singleStep = [
     isLastStep: false,
     deleted: false,
     approverGroupHeaderId: "1000",
+    approverGroupHeader: {
+      name: "Building approvers with a long name",
+    },
     onApproval: [{ goto: "2", criteria: null }],
   },
 ];
@@ -94,6 +66,9 @@ const fourSteps = [
     isLastStep: false,
     deleted: false,
     approverGroupHeaderId: "1000",
+    approverGroupHeader: {
+      name: "Building approvers with a long name",
+    },
     onApproval: [{ goto: "4", criteria: null }],
   },
   {
@@ -102,6 +77,9 @@ const fourSteps = [
     isLastStep: false,
     deleted: false,
     approverGroupHeaderId: "1001",
+    approverGroupHeader: {
+      name: "Larry Foxx",
+    },
     onApproval: [{ goto: "5", criteria: null }],
   },
   {
@@ -110,6 +88,9 @@ const fourSteps = [
     isLastStep: false,
     deleted: false,
     approverGroupHeaderId: "1002",
+    approverGroupHeader: {
+      name: "HR Office",
+    },
     onApproval: [{ goto: "6", criteria: null }],
   },
   {
@@ -118,6 +99,9 @@ const fourSteps = [
     isLastStep: false,
     deleted: false,
     approverGroupHeaderId: "1003",
+    approverGroupHeader: {
+      name: "Superintendent",
+    },
     onApproval: [{ goto: "2", criteria: null }],
   },
 ];
