@@ -759,11 +759,17 @@ input ApprovalStateUpdateInput {
 }
 
 enum ApprovalStatus {
-  INVALID
-  PENDING
+  UNKNOWN
+  OLD_PENDING
+  OLD_APPROVED
+  OLD_DENIED
+  OLD_NO_APPROVAL_REQUIRED
+  OLD_CANCELLED
+  NO_APPROVAL_REQUIRED
+  APPROVAL_REQUIRED
+  PARTIALLY_APPROVED
   APPROVED
   DENIED
-  NO_APPROVAL_REQUIRED
   CANCELLED
 }
 
@@ -805,20 +811,8 @@ type ApprovalWorkflowMutations {
 
 type ApprovalWorkflowQueries {
   byId(id: ID!): ApprovalWorkflow
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    workFlowType: ApprovalWorkflowType
-  ): [ApprovalWorkflow]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    workFlowType: ApprovalWorkflowType
-  ): PagedApprovalWorkflow
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): [ApprovalWorkflow]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): PagedApprovalWorkflow
   myApprovalWorkflows(orgId: ID): [ApprovalWorkflow]
 }
 
@@ -826,6 +820,7 @@ type ApprovalWorkflowStep {
   stepId: String!
   deleted: Boolean!
   approverGroupHeaderId: ID
+  approverGroupHeader: ApproverGroupHeader
   onApproval: [ApprovalWorkflowTransition!]!
   isFirstStep: Boolean!
   isLastStep: Boolean!
@@ -1243,6 +1238,7 @@ type CalendarChangeMutations {
   create(calendarChange: CalendarChangeCreateInput!): CalendarChange
   update(calendarChange: CalendarChangeUpdateInput!): CalendarChange
   delete(calendarChangeId: ID!): Boolean
+  splitCalendarChange(splitDetails: SplitCalendarChangeInput!): Boolean
 }
 
 type CalendarChangeQueries {
@@ -5672,6 +5668,12 @@ type SmsMessageLog {
 input SortDetailsInput {
   sortByPropertyName: String
   sortAscending: Boolean
+}
+
+input SplitCalendarChangeInput {
+  originalCalendarChangeId: ID!
+  splitCalendarChange: CalendarChangeCreateInput!
+  forDelete: Boolean!
 }
 
 enum StateCode {
