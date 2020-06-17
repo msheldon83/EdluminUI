@@ -19,6 +19,7 @@ import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
 import { phoneRegExp } from "helpers/regexp";
 import * as yup from "yup";
+import { RegisteredDevices } from "./components/registered-devices";
 
 export const ProfilePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
@@ -137,6 +138,7 @@ export const ProfilePage: React.FC<{}> = props => {
     return phoneNumber.replace(/\D/g, "");
   };
 
+  const mobileDevices = compact(myUser?.mobileDevices) ?? [];
   return (
     <>
       <Formik
@@ -198,6 +200,9 @@ export const ProfilePage: React.FC<{}> = props => {
                 setFieldValue={setFieldValue}
                 submitForm={submitForm}
               />
+            )}
+            {mobileDevices.length > 0 && (
+              <RegisteredDevices mobileDevices={mobileDevices} />
             )}
           </form>
         )}

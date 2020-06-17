@@ -143,7 +143,7 @@ export const SummaryDetails: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   container: {
-    padding: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
   subTitle: {
     fontWeight: 600,

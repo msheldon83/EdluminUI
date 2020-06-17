@@ -799,11 +799,17 @@ input ApprovalStateUpdateInput {
 }
 
 enum ApprovalStatus {
-  INVALID
-  PENDING
+  UNKNOWN
+  OLD_PENDING
+  OLD_APPROVED
+  OLD_DENIED
+  OLD_NO_APPROVAL_REQUIRED
+  OLD_CANCELLED
+  NO_APPROVAL_REQUIRED
+  APPROVAL_REQUIRED
+  PARTIALLY_APPROVED
   APPROVED
   DENIED
-  NO_APPROVAL_REQUIRED
   CANCELLED
 }
 
@@ -866,6 +872,7 @@ type ApprovalWorkflowStep {
   stepId: String!
   deleted: Boolean!
   approverGroupHeaderId: ID
+  approverGroupHeader: ApproverGroupHeader
   onApproval: [ApprovalWorkflowTransition!]!
   isFirstStep: Boolean!
   isLastStep: Boolean!
@@ -6253,9 +6260,9 @@ input SortDetailsInput {
 }
 
 input SplitCalendarChangeInput {
-  originalCalendarChangeId: ID
-  splitCalendarChange: CalendarChangeCreateInput
-  forDelete: Boolean
+  originalCalendarChangeId: ID!
+  splitCalendarChange: CalendarChangeCreateInput!
+  forDelete: Boolean!
 }
 
 enum StateCode {

@@ -270,3 +270,20 @@ export const EmployeeSubstitutePreferenceLoader = asyncComponent({
   },
   name: "EmployeeSubstitutePreferencePage",
 });
+
+/***** employee balance report *****/
+
+export const EmployeeBalanceReportRoute = defineSubRoute(
+  PersonViewRoute,
+  "/employee-balance-report"
+);
+
+export const EmployeeBalanceReportLoader = asyncComponent({
+  resolve: async () => {
+    const EmployeeBalanceReportPage = (
+      await import("ui/pages/reports/employee-balance")
+    ).EmployeeBalanceReport;
+    return EmployeeBalanceReportPage;
+  },
+  name: "EmployeeBalanceReportPage",
+});

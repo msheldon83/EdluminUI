@@ -185,7 +185,7 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
 
       // Determine if the filters have actually changed and warrant an update
       const filtersHaveChanged = filtersAreDifferent(
-        prev.report!.filters ?? [],
+        prev.report?.filters ?? [],
         updatedFilters
       );
       if (!filtersHaveChanged) {
@@ -366,9 +366,17 @@ const buildFilters = (condition: LogicalTerm | Formula): FilterField[] => {
     value:
       args.length === 1
         ? isDateFilter
-          ? parseISO(args[0].value)
+          ? args[0].value
+            ? parseISO(args[0].value)
+            : args[0].baseExpressionAsQueryLanguage
           : args[0].value
-        : args.map(a => (isDateFilter ? parseISO(a.value) : a.value)),
+        : args.map(a =>
+            isDateFilter
+              ? a.value
+                ? parseISO(a.value)
+                : a.baseExpressionAsQueryLanguage
+              : a.value
+          ),
   });
   return filters;
 };
@@ -416,20 +424,7 @@ const buildFormula = (
       }))`;
     }
     case ExpressionFunction.Between: {
-      let betweenValues: any[] = [];
-      if (
-        Array.isArray(value) &&
-        value[0] instanceof Date &&
-        value[1] instanceof Date
-      ) {
-        // Handle date range between
-        betweenValues = [
-          `'${format(value[0], "MM/dd/yyyy")}'`,
-          `'${format(value[1], "MM/dd/yyyy")}'`,
-        ];
-      } else {
-        betweenValues = processFilterValue(value);
-      }
+      const betweenValues = processFilterValue(value);
       return `(${fieldName} BETWEEN ${betweenValues[0]} AND ${betweenValues[1]})`;
     }
     case ExpressionFunction.LessThan: {
