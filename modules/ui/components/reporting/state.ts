@@ -416,20 +416,7 @@ const buildFormula = (
       }))`;
     }
     case ExpressionFunction.Between: {
-      let betweenValues: any[] = [];
-      if (
-        Array.isArray(value) &&
-        value[0] instanceof Date &&
-        value[1] instanceof Date
-      ) {
-        // Handle date range between
-        betweenValues = [
-          `'${format(value[0], "MM/dd/yyyy")}'`,
-          `'${format(value[1], "MM/dd/yyyy")}'`,
-        ];
-      } else {
-        betweenValues = processFilterValue(value);
-      }
+      const betweenValues = processFilterValue(value);
       return `(${fieldName} BETWEEN ${betweenValues[0]} AND ${betweenValues[1]})`;
     }
     case ExpressionFunction.LessThan: {
