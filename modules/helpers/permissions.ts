@@ -480,7 +480,7 @@ export const canEditOrgUser = (
     isReplacementEmployee &&
     !!userPerms?.includes(PermissionEnum.SubstituteSave);
 
-  return canEditAdmin || canEditEmployee || canEditSubstitute;
+  return canEditAdmin && canEditEmployee && canEditSubstitute;
 };
 
 export const canDeleteOrgUser = (
@@ -510,7 +510,7 @@ export const canDeleteOrgUser = (
     isReplacementEmployee &&
     !!userPerms?.includes(PermissionEnum.SubstituteDelete);
 
-  return canDeleteAdmin || canDeleteEmployee || canDeleteSubstitute;
+  return canDeleteAdmin && canDeleteEmployee && canDeleteSubstitute;
 };
 
 export const canCreateAdmin = (
