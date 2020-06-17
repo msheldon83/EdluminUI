@@ -2,6 +2,7 @@ query GetSubPreferenceByLocationId($locationId: ID!) {
   location {
     byId(id: $locationId) {
       id
+      rowVersion
       name
       substitutePreferences {
         blockedSubstituteMembers {
