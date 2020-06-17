@@ -115,6 +115,7 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
               className={classes.iconHover}
               onClick={() => {
                 setShowEdit(!showEdit);
+                setNote(replacementPoolMember.adminNote ?? "");
               }}
             >
               <ClearIcon className={classes.editIcon} />

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { GetLocationById } from "./graphql/get-location-by-id.gen";
+import { GetSubPreferenceByLocationId } from "./graphql/get-sub-preference-members.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
 import { SaveReplacementPoolMember } from "./graphql/save-replacement-pool-member.gen";
 import { useRouteParams } from "ui/routes/definition";
@@ -22,7 +22,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 
-  const getLocation = useQueryBundle(GetLocationById, {
+  const getLocation = useQueryBundle(GetSubPreferenceByLocationId, {
     variables: {
       locationId: params.locationId,
     },

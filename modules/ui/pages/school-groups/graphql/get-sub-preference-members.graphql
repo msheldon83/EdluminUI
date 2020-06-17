@@ -1,0 +1,32 @@
+query GetSubPreferenceByLocationGroupId($locationGroupId: ID!) {
+  locationGroup {
+    byId(id: $locationGroupId) {
+      id
+      name
+      substitutePreferences {
+        blockedSubstituteMembers {
+          id
+          adminNote
+          employeeId
+          replacementPoolId
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
+        favoriteSubstituteMembers {
+          id
+          adminNote
+          employeeId
+          replacementPoolId
+          employee {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+    }
+  }
+}

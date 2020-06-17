@@ -122,6 +122,8 @@ export const AdminTab: React.FC<Props> = props => {
         onSubmit={onUpdateAdmin}
         onCancel={onCancelAdmin}
       />
+      {/* 
+      Approver Group */}
       {showRelatedOrgs && (
         <OrganizationList
           editing={props.editing}
