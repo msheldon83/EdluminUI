@@ -57,13 +57,9 @@ export const SelectedDetail: React.FC<Props> = props => {
     : null;
 
   const approvalWorkflowSteps = approvalState?.approvalWorkflow.steps ?? [];
-
-  const currentApproverGroupHeaderId = useMemo(
-    () =>
-      approvalWorkflowSteps.find(x => x.stepId == approvalState?.currentStepId)
-        ?.approverGroupHeaderId,
-    [approvalWorkflowSteps, approvalState]
-  );
+  const currentApproverGroupHeaderId = approvalWorkflowSteps.find(
+    x => x.stepId == approvalState?.currentStepId
+  )?.approverGroupHeaderId;
 
   const handleSaveComment = async () => {
     if (props.selectedItem?.isNormalVacancy) {

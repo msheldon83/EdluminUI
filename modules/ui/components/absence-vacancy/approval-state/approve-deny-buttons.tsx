@@ -90,6 +90,10 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
     currentApproverGroupHeaderId,
   ]);
 
+  console.log(approvalStatus);
+  console.log(myApproverGroupHeaders);
+  console.log(currentApproverGroupHeaderId);
+
   return showButtons ? (
     <div className={classes.container}>
       <Button

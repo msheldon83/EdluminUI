@@ -27,7 +27,7 @@ type Props = {
   approvalStateId: string;
   approvalWorkflowId: string;
   approvalStatusId: ApprovalStatus;
-  currentStepId: string;
+  currentStepId?: string | null;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
   comments: {
     comment?: string | null;

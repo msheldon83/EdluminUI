@@ -23,7 +23,7 @@ type Props = {
   approvalWorkflowId: string;
   approvalStatusId: ApprovalStatus;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
-  currentStepId: string;
+  currentStepId?: string | null;
   countOfComments: number;
   actingAsEmployee?: boolean;
   absenceId?: string;
@@ -101,7 +101,11 @@ export const ApprovalState: React.FC<Props> = props => {
     if (userAccess?.isSysAdmin) return false;
 
     // If the state is not pending, it has already been approved or denied
-    if (approvalStatusId !== ApprovalStatus.Pending) return false;
+    if (
+      approvalStatusId !== ApprovalStatus.ApprovalRequired &&
+      approvalStatusId !== ApprovalStatus.PartiallyApproved
+    )
+      return false;
 
     // If I'm a member of the current group that needs to approve, show the buttons
     const approverGroupHeader = currentStep?.approverGroupHeaderId
@@ -144,7 +148,7 @@ export const ApprovalState: React.FC<Props> = props => {
           <LinearProgress
             className={classes.progress}
             variant="determinate"
-            value={barPercentage}
+            value={100}
             classes={{
               barColorPrimary: classes.deniedBar,
               colorPrimary: classes.unfilledBar,

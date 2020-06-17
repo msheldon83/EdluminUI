@@ -113,11 +113,11 @@ type Props = {
     | null;
   isClosed: boolean;
   positionTypeId?: string;
-  approvalStatus?: {
+  approvalState?: {
     id: string;
     approvalStatusId: ApprovalStatus;
     approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
-    currentStepId: string;
+    currentStepId?: string | null;
     comments: { id: string }[];
   } | null;
 };
@@ -652,20 +652,20 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             </div>
           </div>
 
-          {Config.isDevFeatureOnly && props.approvalStatus && (
+          {Config.isDevFeatureOnly && props.approvalState && (
             <Can do={[PermissionEnum.AbsVacApprovalsView]}>
               <ApprovalState
                 orgId={props.organizationId}
-                approvalStateId={props.approvalStatus?.id}
-                approvalStatusId={props.approvalStatus?.approvalStatusId}
+                approvalStateId={props.approvalState?.id}
+                approvalStatusId={props.approvalState?.approvalStatusId}
                 approvalWorkflowId={
-                  props.approvalStatus?.approvalWorkflow.id ?? ""
+                  props.approvalState?.approvalWorkflow.id ?? ""
                 }
                 approvalWorkflowSteps={
-                  props.approvalStatus?.approvalWorkflow?.steps ?? []
+                  props.approvalState?.approvalWorkflow?.steps ?? []
                 }
-                currentStepId={props.approvalStatus?.currentStepId}
-                countOfComments={props.approvalStatus?.comments.length}
+                currentStepId={props.approvalState?.currentStepId}
+                countOfComments={props.approvalState?.comments.length}
                 actingAsEmployee={props.actingAsEmployee}
                 isTrueVacancy={false}
                 absenceId={props.absenceId}
@@ -733,6 +733,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setRequireAdminNotes={setRequireAdminNotes}
               requireAdminNotes={requireAdminNotes}
               positionTypeId={props.positionTypeId}
+              approvalStatus={props.approvalState?.approvalStatusId}
             />
           </Section>
         </form>
