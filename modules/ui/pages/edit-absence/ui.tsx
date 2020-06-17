@@ -65,6 +65,7 @@ import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   firstName: string;
@@ -652,24 +653,26 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           </div>
 
           {Config.isDevFeatureOnly && props.approvalStatus && (
-            <ApprovalState
-              orgId={props.organizationId}
-              approvalStateId={props.approvalStatus?.id}
-              approvalStatusId={props.approvalStatus?.approvalStatusId}
-              approvalWorkflowId={
-                props.approvalStatus?.approvalWorkflow.id ?? ""
-              }
-              approvalWorkflowSteps={
-                props.approvalStatus?.approvalWorkflow?.steps ?? []
-              }
-              currentStepId={props.approvalStatus?.currentStepId}
-              countOfComments={props.approvalStatus?.comments.length}
-              actingAsEmployee={props.actingAsEmployee}
-              isTrueVacancy={false}
-              absenceId={props.absenceId}
-              onChange={props.refetchAbsence}
-              locationIds={props.locationIds ?? []}
-            />
+            <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+              <ApprovalState
+                orgId={props.organizationId}
+                approvalStateId={props.approvalStatus?.id}
+                approvalStatusId={props.approvalStatus?.approvalStatusId}
+                approvalWorkflowId={
+                  props.approvalStatus?.approvalWorkflow.id ?? ""
+                }
+                approvalWorkflowSteps={
+                  props.approvalStatus?.approvalWorkflow?.steps ?? []
+                }
+                currentStepId={props.approvalStatus?.currentStepId}
+                countOfComments={props.approvalStatus?.comments.length}
+                actingAsEmployee={props.actingAsEmployee}
+                isTrueVacancy={false}
+                absenceId={props.absenceId}
+                onChange={props.refetchAbsence}
+                locationIds={props.locationIds ?? []}
+              />
+            </Can>
           )}
 
           <Section className={classes.absenceDetails}>

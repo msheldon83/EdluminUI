@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Dialog, DialogContent } from "@material-ui/core";
+import { Dialog, DialogContent, makeStyles } from "@material-ui/core";
 import { LeaveComment } from "../leave-comment";
 
 type Props = {
@@ -12,6 +12,8 @@ type Props = {
 };
 
 export const CommentDialog: React.FC<Props> = props => {
+  const classes = useStyles();
+
   const onSave = () => {
     if (props.onSaveComment) {
       props.onSaveComment();
@@ -23,10 +25,10 @@ export const CommentDialog: React.FC<Props> = props => {
     <Dialog
       open={props.open}
       onClose={props.onClose}
-      fullWidth={false}
+      fullWidth={true}
       maxWidth={"sm"}
     >
-      <DialogContent>
+      <DialogContent className={classes.dialog}>
         <LeaveComment
           approvalStateId={props.approvalStateId}
           actingAsEmployee={props.actingAsEmployee}
@@ -37,3 +39,10 @@ export const CommentDialog: React.FC<Props> = props => {
     </Dialog>
   );
 };
+
+export const useStyles = makeStyles(theme => ({
+  dialog: {
+    height: 200,
+    padding: theme.spacing(2),
+  },
+}));
