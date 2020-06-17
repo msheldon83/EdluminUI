@@ -59,7 +59,7 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
             orgUserId={replacementPoolMember.employeeId}
             color="black"
           >
-            {replacementPoolMember?.employee?.firstName ?? ""}
+            {replacementPoolMember?.employee?.firstName ?? ""}{" "}
             {replacementPoolMember?.employee?.lastName ?? ""}
           </SubstituteLink>
         </Typography>

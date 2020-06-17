@@ -52,7 +52,7 @@ export const SubPoolCard: React.FC<Props> = props => {
                 >
                   <Typography className={classes.userName}>
                     <SubstituteLink orgUserId={member.id} color="black">
-                      {member?.employee?.firstName ?? ""}
+                      {member?.employee?.firstName ?? ""}{" "}
                       {member?.employee?.lastName ?? ""}
                     </SubstituteLink>
                   </Typography>
