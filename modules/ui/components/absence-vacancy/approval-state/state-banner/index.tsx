@@ -110,7 +110,8 @@ export const ApprovalState: React.FC<Props> = props => {
           />
         </div>
       );
-    case ApprovalStatus.Pending:
+    case ApprovalStatus.PartiallyApproved:
+    case ApprovalStatus.ApprovalRequired:
       return (
         <>
           <ApproveDenyDialog

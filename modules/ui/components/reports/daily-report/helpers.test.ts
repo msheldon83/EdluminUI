@@ -110,7 +110,8 @@ const arbitraryDetailFields: Required<DetailSkeleton> = {
   ),
   approvalStatus: optional(
     fc.constantFrom(
-      ApprovalStatus.Pending,
+      ApprovalStatus.PartiallyApproved,
+      ApprovalStatus.ApprovalRequired,
       ApprovalStatus.Approved,
       ApprovalStatus.Denied
     )

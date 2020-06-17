@@ -48,7 +48,7 @@ export const PendingStory = () => {
         approvalStateId={"1000"}
         countOfComments={3}
         orgId={"1000"}
-        approvalStatusId={ApprovalStatus.Pending}
+        approvalStatusId={ApprovalStatus.PartiallyApproved}
         approvalWorkflowSteps={approvalWorkflowSteps}
         currentStepId={"3"}
         isTrueVacancy={true}
