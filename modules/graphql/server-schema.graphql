@@ -866,6 +866,7 @@ type ApprovalWorkflowStep {
   stepId: String!
   deleted: Boolean!
   approverGroupHeaderId: ID
+  approverGroupHeader: ApproverGroupHeader
   onApproval: [ApprovalWorkflowTransition!]!
   isFirstStep: Boolean!
   isLastStep: Boolean!
