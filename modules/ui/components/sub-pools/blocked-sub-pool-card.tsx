@@ -81,54 +81,58 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
         </Can>
       </Grid>
       {showEdit ? (
-        <Grid item xs={12} className={classes.position}>
-          <div
-            className={clsx({
-              [classes.inline]: true,
-              [classes.inputWidth]: true,
-            })}
-          >
-            <TextField
-              rows="1"
-              value={note}
-              multiline={true}
-              placeholder={t("Notes")}
-              fullWidth={true}
-              variant="outlined"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setNote(e.target.value);
-              }}
-            />
-          </div>
-          <div className={classes.inline}>
-            <div
-              className={classes.iconHover}
-              onClick={() => {
-                const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
-                  employeeId: replacementPoolMember.employeeId,
-                  id: replacementPoolMember.id,
-                  replacementPoolId: replacementPoolMember.replacementPoolId,
-                  adminNote: note === "" ? null : note,
-                };
-                onAddNote(replacementPoolMemberInput);
-                setShowEdit(!showEdit);
-              }}
-            >
-              <CheckIcon className={classes.saveIcon} />
-            </div>
+        <>
+          <Grid item xs={11} className={classes.position}>
             <div
               className={clsx({
-                [classes.clearIcon]: true,
-                [classes.iconHover]: true,
+                [classes.inline]: true,
+                [classes.inputWidth]: true,
               })}
-              onClick={() => {
-                setShowEdit(!showEdit);
-              }}
             >
-              <ClearIcon className={classes.editIcon} />
+              <TextField
+                rows="1"
+                value={note}
+                multiline={true}
+                placeholder={t("Notes")}
+                fullWidth={true}
+                variant="outlined"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setNote(e.target.value);
+                }}
+              />
             </div>
-          </div>
-        </Grid>
+          </Grid>
+          <Grid item xs={1} className={classes.position}>
+            <div className={classes.inline}>
+              <div
+                className={classes.iconHover}
+                onClick={() => {
+                  const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
+                    employeeId: replacementPoolMember.employeeId,
+                    id: replacementPoolMember.id,
+                    replacementPoolId: replacementPoolMember.replacementPoolId,
+                    adminNote: note === "" ? null : note,
+                  };
+                  onAddNote(replacementPoolMemberInput);
+                  setShowEdit(!showEdit);
+                }}
+              >
+                <CheckIcon className={classes.saveIcon} />
+              </div>
+              <div
+                className={clsx({
+                  [classes.clearIcon]: true,
+                  [classes.iconHover]: true,
+                })}
+                onClick={() => {
+                  setShowEdit(!showEdit);
+                }}
+              >
+                <ClearIcon className={classes.editIcon} />
+              </div>
+            </div>
+          </Grid>
+        </>
       ) : replacementPoolMember.adminNote ? (
         <Grid item xs={12} className={classes.position}>
           <div
@@ -181,12 +185,12 @@ const useStyles = makeStyles(theme => ({
     },
   },
   inline: {
-    display: "inline-block",
-    width: "10%",
+    //display: "inline-block",
+    //width: "10%",
   },
   truncate: {
     paddingTop: theme.spacing(1),
-    width: "90%",
+    //width: "90%",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -194,31 +198,31 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.7",
   },
   textWidth: {
-    width: "90%",
-    display: "inline-block",
-    position: "relative",
+    //width: "90%",
+    //display: "inline-block",
+    //position: "relative",
   },
   inputWidth: {
-    width: "90%",
-    top: "-30px",
-    display: "inline-block",
-    position: "relative",
+    //width: "90%",
+    //top: "-30px",
+    //display: "inline-block",
+    //position: "relative",
   },
   iconHover: {
     "&:hover": { cursor: "pointer" },
   },
   position: {
-    position: "relative",
+    //position: "relative",
     maxHeight: "110px",
   },
   saveIcon: {
     top: "15px",
     width: "100%",
-    position: "relative",
+    //position: "relative",
   },
   editIcon: {
     width: "100%",
-    position: "relative",
+    //position: "relative",
     height: "20px",
   },
   clearIcon: {
