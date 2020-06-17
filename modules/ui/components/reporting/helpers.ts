@@ -229,6 +229,16 @@ const dateRangeToRelativeDateMap: {
     dateRange: [today, addDays(today, 6)],
     relativeDates: ["%0d", "%6d"],
   },
+  {
+    // Tomorrow
+    dateRange: [addDays(today, 1), addDays(today, 1)],
+    relativeDates: ["%1d", "%1d"],
+  },
+  {
+    // Yesterday
+    dateRange: [addDays(today, -1), addDays(today, -1)],
+    relativeDates: ["%-1d", "%-1d"],
+  },
 ];
 
 export const getDateRangeFromRelativeDates = (

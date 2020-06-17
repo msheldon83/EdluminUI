@@ -366,9 +366,17 @@ const buildFilters = (condition: LogicalTerm | Formula): FilterField[] => {
     value:
       args.length === 1
         ? isDateFilter
-          ? parseISO(args[0].value)
+          ? args[0].value
+            ? parseISO(args[0].value)
+            : args[0].baseExpressionAsQueryLanguage
           : args[0].value
-        : args.map(a => (isDateFilter ? parseISO(a.value) : a.value)),
+        : args.map(a =>
+            isDateFilter
+              ? a.value
+                ? parseISO(a.value)
+                : a.baseExpressionAsQueryLanguage
+              : a.value
+          ),
   });
   return filters;
 };
