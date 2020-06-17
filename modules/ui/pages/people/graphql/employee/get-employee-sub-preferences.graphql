@@ -1,8 +1,10 @@
-query GetEmployeeByIdForPreferences($id: ID!) {
+query GetEmployeeSubPreferencesById($id: ID!) {
   orgUser {
     byId(id: $id) {
       id
       orgId
+      firstName
+      lastName
       employee {
         id
         substitutePreferences {

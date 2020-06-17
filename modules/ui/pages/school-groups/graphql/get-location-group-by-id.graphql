@@ -13,14 +13,14 @@ query GetLocationGroupById($locationGroupId: ID!) {
       substitutePreferences {
         blockedSubstitutes {
           id
+
           firstName
-          middleName
           lastName
         }
         favoriteSubstitutes {
           id
+
           firstName
-          middleName
           lastName
         }
       }
