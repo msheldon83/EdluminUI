@@ -73,7 +73,11 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
     if (userAccess?.isSysAdmin) return false;
 
     // If the state is not pending, it has already been approved or denied
-    if (approvalStatus !== ApprovalStatus.Pending) return false;
+    if (
+      approvalStatus !== ApprovalStatus.ApprovalRequired &&
+      approvalStatus !== ApprovalStatus.PartiallyApproved
+    )
+      return false;
 
     // If I'm a member of the current group that needs to approve, show the buttons
     if (myApproverGroupHeaders.find(x => x.id === currentApproverGroupHeaderId))
