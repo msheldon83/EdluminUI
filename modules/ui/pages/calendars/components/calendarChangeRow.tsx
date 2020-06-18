@@ -75,7 +75,7 @@ export const CalendarChangeRow: React.FC<Props> = props => {
 
   const descriptionLabel =
     props.calendarChange.startDate !== props.calendarChange.endDate
-      ? `${props.calendarChange.description} (${formatDateRange(
+      ? `${props.calendarChange.description ?? ""} (${formatDateRange(
           props.calendarChange.startDate!,
           props.calendarChange.endDate!
         )})`
