@@ -2,7 +2,10 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Grid, Typography, Tooltip } from "@material-ui/core";
-import { ApproverGroupCreateInput } from "graphql/server-types.gen";
+import {
+  ApproverGroupCreateInput,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { WorkflowViewCard } from "./components/workflow-view-card";
 import { useIsMobile } from "hooks";
 import { useRouteParams } from "ui/routes/definition";
@@ -10,7 +13,7 @@ import ErrorIcon from "@material-ui/icons/Error";
 import { Table } from "ui/components/table";
 import { Section } from "ui/components/section";
 import { Link } from "react-router-dom";
-import { PageTitle } from "ui/components/page-title";
+import { useCanDo } from "ui/components/auth/can";
 import { Column } from "material-table";
 import { compact } from "lodash-es";
 import { useHistory } from "react-router";
@@ -29,6 +32,7 @@ import { NameHeader } from "./components/name-header";
 
 export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   const classes = useStyles();
+  const canDoFn = useCanDo();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const history = useHistory();
@@ -131,6 +135,8 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
     })
   );
 
+  const canAddLocationGroup = canDoFn([PermissionEnum.ApprovalSettingsSave]);
+
   return (
     <>
       <div className={classes.headerLink}>
@@ -166,7 +172,7 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
                   ? location?.approverGroupByHeaderId?.id
                   : undefined;
 
-                if (!approverGroupId) {
+                if (!approverGroupId && canAddLocationGroup) {
                   const newApproverGroup: ApproverGroupCreateInput = {
                     orgId: params.organizationId,
                     locationId: location!.id,

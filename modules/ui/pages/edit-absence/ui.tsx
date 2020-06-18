@@ -65,6 +65,7 @@ import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   firstName: string;
@@ -112,11 +113,11 @@ type Props = {
     | null;
   isClosed: boolean;
   positionTypeId?: string;
-  approvalStatus?: {
+  approvalState?: {
     id: string;
     approvalStatusId: ApprovalStatus;
-    approvalWorkflow: { steps: ApprovalWorkflowSteps[] };
-    currentStepId: string;
+    approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
+    currentStepId?: string | null;
     comments: { id: string }[];
   } | null;
 };
@@ -651,21 +652,27 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             </div>
           </div>
 
-          {Config.isDevFeatureOnly && props.approvalStatus && (
-            <ApprovalState
-              orgId={props.organizationId}
-              approvalStateId={props.approvalStatus?.id}
-              approvalStatusId={props.approvalStatus?.approvalStatusId}
-              approvalWorkflowSteps={
-                props.approvalStatus?.approvalWorkflow?.steps ?? []
-              }
-              currentStepId={props.approvalStatus?.currentStepId}
-              countOfComments={props.approvalStatus?.comments.length}
-              actingAsEmployee={props.actingAsEmployee}
-              isTrueVacancy={false}
-              absenceId={props.absenceId}
-              onChange={props.refetchAbsence}
-            />
+          {Config.isDevFeatureOnly && props.approvalState && (
+            <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+              <ApprovalState
+                orgId={props.organizationId}
+                approvalStateId={props.approvalState?.id}
+                approvalStatusId={props.approvalState?.approvalStatusId}
+                approvalWorkflowId={
+                  props.approvalState?.approvalWorkflow.id ?? ""
+                }
+                approvalWorkflowSteps={
+                  props.approvalState?.approvalWorkflow?.steps ?? []
+                }
+                currentStepId={props.approvalState?.currentStepId}
+                countOfComments={props.approvalState?.comments.length}
+                actingAsEmployee={props.actingAsEmployee}
+                isTrueVacancy={false}
+                absenceId={props.absenceId}
+                onChange={props.refetchAbsence}
+                locationIds={props.locationIds ?? []}
+              />
+            </Can>
           )}
 
           <Section className={classes.absenceDetails}>
@@ -726,6 +733,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setRequireAdminNotes={setRequireAdminNotes}
               requireAdminNotes={requireAdminNotes}
               positionTypeId={props.positionTypeId}
+              approvalStatus={props.approvalState?.approvalStatusId}
             />
           </Section>
         </form>

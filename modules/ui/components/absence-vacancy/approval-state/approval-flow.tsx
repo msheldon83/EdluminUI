@@ -7,7 +7,7 @@ import { ApprovalWorkflowSteps } from "./types";
 
 type Props = {
   steps: ApprovalWorkflowSteps[];
-  currentStepId: string;
+  currentStepId?: string | null;
 };
 
 export const WorkflowSummary: React.FC<Props> = props => {
@@ -98,7 +98,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
               return (
                 <div key={i} className={classes.nextBox}>
                   <span className={classes.nextText}>
-                    {pendingStep.approverGroupHeaderName}
+                    {s.approverGroupHeaderName}
                   </span>
                 </div>
               );

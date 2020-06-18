@@ -745,7 +745,7 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   deletedLocal: DateTime
   approvalWorkflowId: ID!
   approvalWorkflow: ApprovalWorkflow!
-  currentStepId: String!
+  currentStepId: String
   approvalStatusId: ApprovalStatus!
   approvalWorkflowTypeId: ApprovalWorkflowType!
   comments: [ApprovalComment!]!

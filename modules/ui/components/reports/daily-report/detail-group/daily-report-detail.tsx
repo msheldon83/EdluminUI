@@ -7,11 +7,7 @@ import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
 import { Detail } from "../helpers";
 import { DailyReportDetailUI } from "./daily-report-detail-ui";
 import { MobileDailyReportDetailUI } from "./mobile-daily-report-detail-ui";
-import {
-  canRemoveSub,
-  canAssignSub,
-  canEditAbsence,
-} from "helpers/permissions";
+import { canRemoveSub, canAssignSub, canEditAbsVac } from "helpers/permissions";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 
@@ -82,12 +78,13 @@ export const DailyReportDetail: React.FC<Props> = props => {
         orgId?: string,
         forRole?: Role | null | undefined
       ) =>
-        canEditAbsence(
+        canEditAbsVac(
           props.detail.date,
           permissions,
           isSysAdmin,
           orgId,
-          forRole
+          forRole,
+          props.detail.approvalStatus
         ),
     },
   ];
