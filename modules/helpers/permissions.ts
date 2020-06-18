@@ -504,16 +504,22 @@ export const canEditOrgUser = (
   } else {
     userPerms = getUserPermissions(permissions, orgId, forRole);
   }
-
-  const canEditAdmin =
-    isAdmin && !!userPerms?.includes(PermissionEnum.AdminSave);
-  const canEditEmployee =
-    isEmployee && !!userPerms?.includes(PermissionEnum.EmployeeSave);
-  const canEditSubstitute =
-    isReplacementEmployee &&
-    !!userPerms?.includes(PermissionEnum.SubstituteSave);
-
-  return canEditAdmin || canEditEmployee || canEditSubstitute;
+  if (isAdmin) {
+    if (!userPerms?.includes(PermissionEnum.AdminSave)) {
+      return false;
+    }
+  }
+  if (isEmployee) {
+    if (!userPerms?.includes(PermissionEnum.EmployeeSave)) {
+      return false;
+    }
+  }
+  if (isReplacementEmployee) {
+    if (!userPerms?.includes(PermissionEnum.SubstituteSave)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 export const canDeleteOrgUser = (
@@ -535,15 +541,22 @@ export const canDeleteOrgUser = (
   }
 
   const userPerms = getUserPermissions(permissions, orgId, forRole);
-  const canDeleteAdmin =
-    isAdmin && !!userPerms?.includes(PermissionEnum.AdminDelete);
-  const canDeleteEmployee =
-    isEmployee && !!userPerms?.includes(PermissionEnum.EmployeeDelete);
-  const canDeleteSubstitute =
-    isReplacementEmployee &&
-    !!userPerms?.includes(PermissionEnum.SubstituteDelete);
-
-  return canDeleteAdmin || canDeleteEmployee || canDeleteSubstitute;
+  if (isAdmin) {
+    if (!userPerms?.includes(PermissionEnum.AdminDelete)) {
+      return false;
+    }
+  }
+  if (isEmployee) {
+    if (!userPerms?.includes(PermissionEnum.EmployeeDelete)) {
+      return false;
+    }
+  }
+  if (isReplacementEmployee) {
+    if (!userPerms?.includes(PermissionEnum.SubstituteDelete)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 export const canCreateAdmin = (
