@@ -3,6 +3,11 @@ query GetMyApproverGroupHeaders {
     myApproverGroupHeaders {
       id
       name
+      variesByLocation
+      approverGroups {
+        id
+        locationId
+      }
     }
   }
 }

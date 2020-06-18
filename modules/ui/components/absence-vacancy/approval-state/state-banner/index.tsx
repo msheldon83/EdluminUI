@@ -13,31 +13,40 @@ import {
 import { ApproveDenyDialog } from "./approve-dialog";
 import { CommentDialog } from "./comment-dialog";
 import { useMyApproverGroupHeaders } from "reference-data/my-approver-group-headers";
+import { useMyApprovalWorkflows } from "reference-data/my-approval-workflows";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { ApprovalWorkflowSteps } from "../types";
 
 type Props = {
   orgId: string;
   approvalStateId: string;
+  approvalWorkflowId: string;
   approvalStatusId: ApprovalStatus;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
-  currentStepId: string;
+  currentStepId?: string | null;
   countOfComments: number;
   actingAsEmployee?: boolean;
   absenceId?: string;
   vacancyId?: string;
   isTrueVacancy: boolean;
   onChange?: () => void;
+  locationIds: string[];
 };
 
 export const ApprovalState: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const approvalWorkflowSteps = props.approvalWorkflowSteps;
+  const {
+    approvalWorkflowSteps,
+    approvalWorkflowId,
+    actingAsEmployee,
+    approvalStatusId,
+  } = props;
 
   const userAccess = useMyUserAccess();
   const myApproverGroupHeaders = useMyApproverGroupHeaders();
+  const myApprovalWorkflows = useMyApprovalWorkflows();
 
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
@@ -79,6 +88,43 @@ export const ApprovalState: React.FC<Props> = props => {
       2) *
     100;
 
+  const allowComments = useMemo(() => {
+    if (actingAsEmployee) return true;
+
+    // If I'm a member of the current group that needs to approve, show the buttons
+    if (myApprovalWorkflows.find(x => x.id === approvalWorkflowId)) return true;
+    return false;
+  }, [actingAsEmployee, myApprovalWorkflows, approvalWorkflowId]);
+
+  const showApproveDenyButtons = useMemo(() => {
+    // Sys Admins are unable to approve or deny unless impersonating
+    if (userAccess?.isSysAdmin) return false;
+
+    // If the state is not pending, it has already been approved or denied
+    if (
+      approvalStatusId !== ApprovalStatus.ApprovalRequired &&
+      approvalStatusId !== ApprovalStatus.PartiallyApproved
+    )
+      return false;
+
+    // If I'm a member of the current group that needs to approve, show the buttons
+    const approverGroupHeader = currentStep?.approverGroupHeaderId
+      ? myApproverGroupHeaders.find(
+          x => x.id === currentStep.approverGroupHeaderId
+        )
+      : null;
+    if (approverGroupHeader && !approverGroupHeader.variesByLocation)
+      return true;
+
+    // TODO: handle location based groups
+    return false;
+  }, [
+    userAccess?.isSysAdmin,
+    approvalStatusId,
+    currentStep?.approverGroupHeaderId,
+    myApproverGroupHeaders,
+  ]);
+
   switch (props.approvalStatusId) {
     case ApprovalStatus.Approved:
       return (
@@ -102,7 +148,7 @@ export const ApprovalState: React.FC<Props> = props => {
           <LinearProgress
             className={classes.progress}
             variant="determinate"
-            value={barPercentage}
+            value={100}
             classes={{
               barColorPrimary: classes.deniedBar,
               colorPrimary: classes.unfilledBar,
@@ -126,6 +172,7 @@ export const ApprovalState: React.FC<Props> = props => {
             approvalStateId={props.approvalStateId}
             actingAsEmployee={props.actingAsEmployee}
             onSaveComment={props.onChange}
+            approvalWorkflowId={props.approvalWorkflowId}
           />
           <div className={[classes.container, classes.pending].join(" ")}>
             <div className={classes.buttonContainer}>
@@ -144,17 +191,14 @@ export const ApprovalState: React.FC<Props> = props => {
                 />
               </div>
               <div className={classes.button}>
-                {props.actingAsEmployee ? (
-                  <Button variant="outlined" onClick={onOpenCommentDialog}>
-                    {t("Comment")}
+                {showApproveDenyButtons ? (
+                  <Button variant="outlined" onClick={onOpenApproveDialog}>
+                    {t("Approve/Deny")}
                   </Button>
                 ) : (
-                  !userAccess?.isSysAdmin &&
-                  myApproverGroupHeaders.find(
-                    x => x.id === currentStep?.approverGroupHeaderId
-                  ) && (
-                    <Button variant="outlined" onClick={onOpenApproveDialog}>
-                      {t("Approve/Deny")}
+                  allowComments && (
+                    <Button variant="outlined" onClick={onOpenCommentDialog}>
+                      {t("Comment")}
                     </Button>
                   )
                 )}

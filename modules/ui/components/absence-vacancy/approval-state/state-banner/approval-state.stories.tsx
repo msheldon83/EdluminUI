@@ -19,6 +19,8 @@ export const ApprovedStory = () => {
         currentStepId={"2"}
         isTrueVacancy={false}
         absenceId={"1000"}
+        approvalWorkflowId={"1000"}
+        locationIds={["1000"]}
       />
     </Provider>
   );
@@ -36,6 +38,8 @@ export const DeniedStory = () => {
         currentStepId={"3"}
         isTrueVacancy={false}
         absenceId={"1000"}
+        approvalWorkflowId={"1000"}
+        locationIds={["1000"]}
       />
     </Provider>
   );
@@ -53,6 +57,8 @@ export const PendingStory = () => {
         currentStepId={"3"}
         isTrueVacancy={true}
         vacancyId={"1000"}
+        approvalWorkflowId={"1000"}
+        locationIds={["1000"]}
       />
     </Provider>
   );

@@ -28,6 +28,7 @@ type Props = {
   orgId: string;
   actingAsEmployee?: boolean;
   approvalStateId: string;
+  approvalWorkflowId: string;
   comments: {
     comment?: string | null;
     commentIsPublic: boolean;
@@ -163,6 +164,7 @@ export const ApprovalComments: React.FC<Props> = props => {
         approvalStateId={props.approvalStateId}
         actingAsEmployee={props.actingAsEmployee}
         onSave={props.onCommentSave}
+        approvalWorkflowId={props.approvalWorkflowId}
       />
     </>
   );

@@ -13,6 +13,7 @@ import {
   PermissionEnum,
   Vacancy,
   AbsenceDetail,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import * as React from "react";
 import { useMemo, useState } from "react";
@@ -25,6 +26,7 @@ import {
 import { AssignedSub } from "ui/components/absence/assigned-sub";
 import { VacancyDetail, AssignmentOnDate } from "ui/components/absence/types";
 import { Can } from "ui/components/auth/can";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { SelectNew } from "ui/components/form/select-new";
 import { CreateAbsenceCalendar } from "../create-absence-calendar";
 import { DayPartField, DayPartValue } from "../day-part-field";
@@ -38,6 +40,7 @@ import {
 } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
 import { format } from "date-fns/esm";
+import { canEditAbsVac } from "helpers/permissions";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
@@ -114,6 +117,7 @@ type Props = {
   setRequireAdminNotes: React.Dispatch<React.SetStateAction<boolean>>;
   requireAdminNotes: boolean;
   positionTypeId?: string;
+  approvalStatus?: ApprovalStatus | null;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -460,7 +464,23 @@ export const AbsenceDetails: React.FC<Props> = props => {
                 {t("Discard Changes")}
               </Button>
             )}
-            <Can do={[PermissionEnum.AbsVacSave]}>
+            <Can
+              do={(
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string,
+                forRole?: Role | null | undefined
+              ) =>
+                canEditAbsVac(
+                  startDate,
+                  permissions,
+                  isSysAdmin,
+                  orgId,
+                  props.actingAsEmployee ? "employee" : "admin",
+                  props.approvalStatus
+                )
+              }
+            >
               <Button
                 form="absence-form"
                 type="submit"

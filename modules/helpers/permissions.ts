@@ -1,4 +1,4 @@
-import { PermissionEnum } from "graphql/server-types.gen";
+import { PermissionEnum, ApprovalStatus } from "graphql/server-types.gen";
 import { isToday, isFuture } from "date-fns";
 import { OrgUserPermissions, CanDo, Role } from "ui/components/auth/types";
 import { flatMap, uniq } from "lodash-es";
@@ -382,15 +382,19 @@ export const canReassignSub = (
   return true;
 };
 
-export const canEditAbsence = (
+export const canEditAbsVac = (
   absDate: Date,
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  forRole?: Role | null | undefined
+  forRole?: Role | null | undefined,
+  approvalStatus?: ApprovalStatus | null
 ) => {
   if (isSysAdmin) return true;
   const userPerms = getUserPermissions(permissions, orgId, forRole);
+
+  if (!canEditApprovedAbsVac(userPerms, forRole, approvalStatus)) return false;
+
   if (
     !isToday(absDate) &&
     !isFuture(absDate) &&
@@ -402,6 +406,35 @@ export const canEditAbsence = (
     !userPerms?.includes(PermissionEnum.AbsVacSave)
   ) {
     return false;
+  }
+
+  return true;
+};
+
+const canEditApprovedAbsVac = (
+  userPerms: PermissionEnum[],
+  forRole?: Role | null | undefined,
+  approvalStatus?: ApprovalStatus | null
+) => {
+  // Employees cannot edit absences that have been approved
+  if (forRole === "employee") {
+    if (
+      approvalStatus === ApprovalStatus.PartiallyApproved ||
+      approvalStatus === ApprovalStatus.Approved
+    )
+      return false;
+  } else {
+    if (
+      approvalStatus === ApprovalStatus.PartiallyApproved &&
+      !userPerms.includes(PermissionEnum.AbsVacEditPartiallyApproved)
+    )
+      return false;
+
+    if (
+      approvalStatus === ApprovalStatus.Approved &&
+      !userPerms.includes(PermissionEnum.AbsVacEditApproved)
+    )
+      return false;
   }
 
   return true;

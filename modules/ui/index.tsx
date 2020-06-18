@@ -131,7 +131,7 @@ import {
   AnalyticsReportsEmployeeBalancesRoute,
   AnalyticsReportsEmployeeBalancesLoader,
   AnalyticsReportsAbsencesVacanciesDetailRoute,
-  AnalyticsReportsAbsencesVacanciesDetailLoader
+  AnalyticsReportsAbsencesVacanciesDetailLoader,
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -1310,7 +1310,7 @@ export const App = hot(function() {
                                       devFeatureOnly={true}
                                       role={"admin"}
                                       permissions={[
-                                        PermissionEnum.ApprovalSettingsSave,
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute

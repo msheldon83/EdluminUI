@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
-import { PermissionEnum, OrgUserRole } from "graphql/server-types.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { MemberViewCard } from "./components/member-view-card";
 import { AdminPicker } from "./components/admin-picker";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -10,7 +10,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Link } from "react-router-dom";
-import { PageTitle } from "ui/components/page-title";
+import { Can } from "ui/components/auth/can";
 import { GetSuggestedAdmins } from "./graphql/get-suggested-admins.gen";
 import { GetApproverGroupById } from "./graphql/get-approver-group-by-id.gen";
 import { compact } from "lodash-es";
@@ -197,14 +197,16 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
             />
           </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <AdminPicker
-            onAdd={onAddMember}
-            admins={admins}
-            setSearchText={setSearchText}
-            savePermissions={[PermissionEnum.ApprovalSettingsSave]}
-          />
-        </Grid>
+        <Can do={[PermissionEnum.ApprovalSettingsSave]}>
+          <Grid item xs={6}>
+            <AdminPicker
+              onAdd={onAddMember}
+              admins={admins}
+              setSearchText={setSearchText}
+              savePermissions={[PermissionEnum.ApprovalSettingsSave]}
+            />
+          </Grid>
+        </Can>
       </Grid>
     </>
   );
