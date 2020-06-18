@@ -84,7 +84,7 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                               - Period 2 (index is 1): 2 * 1 + 1 = 3 --- 2 * 1 + 2 = 4
                               - Period 3 (index is 2): 2 * 2 + 1 = 5 --- 2 * 2 + 2 = 6
                         */
-                        tabindex: props.periods.length + (2 * i + 1),
+                        tabIndex: props.periods.length + (2 * i + 1),
                       }}
                     />
                   </div>
@@ -98,7 +98,7 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       validationMessage={endTimeError}
                       highlightOnFocus
                       inputProps={{
-                        tabindex: props.periods.length + (2 * i + 2),
+                        tabIndex: props.periods.length + (2 * i + 2),
                       }}
                     />
                   </div>
