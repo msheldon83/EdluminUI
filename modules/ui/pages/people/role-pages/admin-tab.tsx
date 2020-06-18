@@ -8,14 +8,16 @@ import {
   OrganizationRelationshipType,
   AdministratorInput,
   PermissionEnum,
+  ApproverGroupAddMemberInput,
 } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
-import { useHistory } from "react-router";
+import { SaveApproverGroupMember } from "../graphql/admin/save-approver-group-membership.gen";
 import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 import { OrganizationList } from "../components/admin/org-list";
 import { PersonViewRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { AccessControl } from "../components/admin/access-control";
+import { ApproverGroupMembership } from "../components/admin/approver-group-membership";
 import { Information } from "../components/information";
 import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
 import { canEditAdmin } from "helpers/permissions";
@@ -31,7 +33,6 @@ type Props = {
 export const AdminTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const canDoFn = useCanDo();
-  const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
 
   const [updateAdmin] = useMutationBundle(SaveAdmin, {
@@ -39,6 +40,15 @@ export const AdminTab: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const [updateApproverGroupMembership] = useMutationBundle(
+    SaveApproverGroupMember,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
 
   const getAdmin = useQueryBundle(GetAdminById, {
     variables: { id: props.orgUserId },
@@ -73,6 +83,18 @@ export const AdminTab: React.FC<Props> = props => {
           ...admin,
           id: props.orgUserId,
         },
+      },
+    });
+    props.setEditing(null);
+    await getAdmin.refetch();
+  };
+
+  const onUpdateApproverGroupMembership = async (
+    member: ApproverGroupAddMemberInput
+  ) => {
+    await updateApproverGroupMembership({
+      variables: {
+        member: member,
       },
     });
     props.setEditing(null);
@@ -122,8 +144,14 @@ export const AdminTab: React.FC<Props> = props => {
         onSubmit={onUpdateAdmin}
         onCancel={onCancelAdmin}
       />
-      {/* 
-      Approver Group */}
+      <ApproverGroupMembership
+        editing={props.editing}
+        editable={canEditThisAdmin}
+        setEditing={props.setEditing}
+        orgId={orgUser.orgId.toString()}
+        onSubmit={onUpdateApproverGroupMembership}
+        onCancel={onCancelAdmin}
+      />
       {showRelatedOrgs && (
         <OrganizationList
           editing={props.editing}
