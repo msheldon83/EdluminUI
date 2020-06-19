@@ -21,7 +21,6 @@ export const CalendarChangeRow: React.FC<Props> = props => {
   const classes = useStyles();
   const contracts = useContracts(props.orgId);
   const { t } = useTranslation();
-
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   if (

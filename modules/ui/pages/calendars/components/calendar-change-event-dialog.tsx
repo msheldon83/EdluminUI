@@ -98,7 +98,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
             parseISO(props.calendarChange.startDate!),
             "MMMM d, yyyy"
           ),
-          notes: props.calendarChange.description,
+          notes: props.calendarChange.description ?? "",
           contracts: props.calendarChange.changedContracts?.map(c => c?.id),
           applyToAll: props.calendarChange.affectsAllContracts,
         }}
@@ -117,7 +117,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           if (updating) {
             if (isRange && !!props.specificDate) {
               const calendarChange: CalendarEvent = {
-                description: data.notes,
+                description: data.notes === "" ? null : data.notes,
                 startDate: format(props.specificDate, "MMMM d, yyyy"),
                 endDate: format(props.specificDate, "MMMM d, yyyy"),
                 calendarChangeReasonId: data.changeReason

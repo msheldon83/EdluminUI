@@ -195,6 +195,12 @@ export const Calendars: React.FC<Props> = props => {
     [updateCalendarChangeMutation]
   );
 
+  const [splitCalendarChange] = useMutationBundle(SplitCalendarChange, {
+    onError: error => {
+      setErrorMessage(ConvertApolloErrors(error));
+    },
+  });
+
   const onSplitCalendarChange = useCallback(
     async (
       originalCalendarChangeId: string,
@@ -230,7 +236,7 @@ export const Calendars: React.FC<Props> = props => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [updateCalendarChangeMutation]
+    [splitCalendarChange]
   );
 
   const [deleteCalendarChangeMutation] = useMutationBundle(
@@ -291,12 +297,6 @@ export const Calendars: React.FC<Props> = props => {
   };
 
   const [createCalendarChange] = useMutationBundle(CreateCalendarChange, {
-    onError: error => {
-      setErrorMessage(ConvertApolloErrors(error));
-    },
-  });
-
-  const [splitCalendarChange] = useMutationBundle(SplitCalendarChange, {
     onError: error => {
       setErrorMessage(ConvertApolloErrors(error));
     },
@@ -451,7 +451,6 @@ export const Calendars: React.FC<Props> = props => {
     setSelectedDateCalendarChanges(calendarChange);
     setOpenEventDialog(true);
   };
-
   return (
     <>
       <CalendarChangeEventDialog
