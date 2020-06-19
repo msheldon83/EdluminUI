@@ -9,6 +9,24 @@ query GetVacancyById($id: ID!) {
         id
         approvalStatusId
         approvalWorkflowId
+        approvalWorkflow {
+          id
+          steps {
+            stepId
+            deleted
+            isFirstStep
+            isLastStep
+            approverGroupHeaderId
+            approverGroupHeader {
+              id
+              name
+            }
+            onApproval {
+              goto
+              criteria
+            }
+          }
+        }
         currentStepId
         changedLocal
         comments {

@@ -7,11 +7,12 @@ import {
   ReportDefinitionData,
   DataExpression,
   OrderByField,
+  CustomRenderer,
 } from "../types";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
 import { LoadingDataGrid } from "./loading-data-grid";
-import { ActionBar } from "./actions/action-bar";
+import { ActionBar } from "./actions";
 import { TextButton } from "ui/components/text-button";
 import { DataGrid } from "./data-grid";
 import { compact } from "lodash-es";
@@ -20,6 +21,14 @@ type Props = {
   report: Report | undefined;
   reportData: ReportDefinitionData | undefined;
   isLoading: boolean;
+  allFields: DataSourceField[];
+  addColumns: (
+    columns: DataExpression[],
+    index?: number,
+    addBeforeIndex?: boolean
+  ) => void;
+  setColumns: (columns: DataExpression[]) => void;
+  removeColumn: (index: number) => void;
   filterableFields: DataSourceField[];
   setFilters: (
     filters: FilterField[],
@@ -34,6 +43,8 @@ type Props = {
   refreshReport: () => Promise<void>;
   exportReport?: () => Promise<void>;
   showGroupLabels?: boolean;
+  customRender?: CustomRenderer;
+  sumRowData?: boolean;
 };
 
 export const ReportData: React.FC<Props> = props => {
@@ -47,9 +58,15 @@ export const ReportData: React.FC<Props> = props => {
     setFilters,
     setOrderBy,
     setFirstLevelOrderBy,
+    allFields,
+    addColumns,
+    setColumns,
+    removeColumn,
     refreshReport,
     exportReport,
     showGroupLabels = true,
+    customRender,
+    sumRowData = true,
   } = props;
 
   const possibleOrderByFields = React.useMemo(() => {
@@ -68,7 +85,7 @@ export const ReportData: React.FC<Props> = props => {
       })
     );
     return [...subtotalDisplayFields, ...fields];
-  }, [report]);
+  }, [report?.selects, report?.subtotalBy]);
 
   return !report ? (
     <div className={classes.gridWrapper}>
@@ -85,6 +102,9 @@ export const ReportData: React.FC<Props> = props => {
           setOrderBy={setOrderBy}
           orderedBy={report.orderBy ?? []}
           possibleOrderByFields={possibleOrderByFields}
+          columns={report.selects}
+          allFields={allFields}
+          addColumns={addColumns}
         />
         {exportReport && (
           <TextButton onClick={exportReport}>{t("Export Report")}</TextButton>
@@ -99,6 +119,12 @@ export const ReportData: React.FC<Props> = props => {
             showGroupLabels={showGroupLabels}
             setFirstLevelOrderBy={setFirstLevelOrderBy}
             orderedBy={report.orderBy ?? []}
+            customRender={customRender}
+            sumRowData={sumRowData}
+            allFields={allFields}
+            addColumns={addColumns}
+            setColumns={setColumns}
+            removeColumn={removeColumn}
           />
         )}
       </div>

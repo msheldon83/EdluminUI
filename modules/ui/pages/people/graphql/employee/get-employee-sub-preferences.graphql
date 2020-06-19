@@ -1,0 +1,37 @@
+query GetEmployeeSubPreferencesById($id: ID!) {
+  orgUser {
+    byId(id: $id) {
+      id
+      orgId
+      firstName
+      lastName
+      employee {
+        id
+        substitutePreferences {
+          blockedSubstituteMembers {
+            id
+            adminNote
+            employeeId
+            replacementPoolId
+            employee {
+              id
+              firstName
+              lastName
+            }
+          }
+          favoriteSubstituteMembers {
+            id
+            adminNote
+            employeeId
+            replacementPoolId
+            employee {
+              id
+              firstName
+              lastName
+            }
+          }
+        }
+      }
+    }
+  }
+}

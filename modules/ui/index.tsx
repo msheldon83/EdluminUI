@@ -135,6 +135,10 @@ import {
   AnalyticsReportsEmployeeRosterLoader,
   AnalyticsReportsSubstituteRosterRoute,
   AnalyticsReportsSubstituteRosterLoader,
+  AnalyticsReportsEmployeeBalancesRoute,
+  AnalyticsReportsEmployeeBalancesLoader,
+  AnalyticsReportsAbsencesVacanciesDetailRoute,
+  AnalyticsReportsAbsencesVacanciesDetailLoader,
 } from "./routes/analytics-reports";
 import {
   OrganizationsLoader,
@@ -176,6 +180,8 @@ import {
   PeopleSubPositionsAttributesEditLoader,
   EmployeeSubstitutePreferenceRoute,
   EmployeeSubstitutePreferenceLoader,
+  EmployeeBalanceReportRoute,
+  EmployeeBalanceReportLoader,
   PeopleEmployeeBalancesEditRoute,
   PeopleEmployeeBalancesEditLoader,
   SubstituteAvailableAssignmentsRoute,
@@ -773,7 +779,15 @@ export const App = hot(function() {
                                     >
                                       <EmployeeSubstitutePreferenceLoader />
                                     </ProtectedRoute>
-
+                                    <ProtectedRoute
+                                      path={EmployeeBalanceReportRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.EmployeeViewBalances,
+                                      ]}
+                                    >
+                                      <EmployeeBalanceReportLoader />
+                                    </ProtectedRoute>
                                     <ProtectedRoute
                                       component={
                                         SelectEmployeeForCreateAbsenceLoader
@@ -1319,7 +1333,7 @@ export const App = hot(function() {
                                       devFeatureOnly={true}
                                       role={"admin"}
                                       permissions={[
-                                        PermissionEnum.ApprovalSettingsSave,
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
@@ -1464,6 +1478,18 @@ export const App = hot(function() {
                                     />
                                     <ProtectedRoute
                                       component={
+                                        AnalyticsReportsAbsencesVacanciesDetailLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsAbsencesVacanciesDetailRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ReportsAbsVacSchema,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
                                         AnalyticsReportsSubHistoryLoader
                                       }
                                       path={
@@ -1496,6 +1522,18 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ReportsSubSchema,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        AnalyticsReportsEmployeeBalancesLoader
+                                      }
+                                      path={
+                                        AnalyticsReportsEmployeeBalancesRoute.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.ReportsEmpSchema,
                                       ]}
                                     />
                                     <ProtectedRoute

@@ -24,10 +24,8 @@ export const Context: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   return (
-    <Grid item container xs={12} spacing={1}>
-      <Grid item xs={12}>
-        <div className={classes.title}>{t("Context")}</div>
-      </Grid>
+    <div className={classes.container}>
+      <div className={classes.title}>{t("Context")}</div>
       {!props.actingAsEmployee && (
         <OtherContext
           orgId={props.orgId}
@@ -50,11 +48,14 @@ export const Context: React.FC<Props> = props => {
           actingAsEmployee={props.actingAsEmployee}
         />
       )}
-    </Grid>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    paddingTop: theme.spacing(2),
+  },
   subTitle: {
     fontWeight: "bold",
     fontSize: theme.typography.pxToRem(14),

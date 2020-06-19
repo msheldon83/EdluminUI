@@ -5,15 +5,18 @@ import { Grid, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { PermissionEnum, OrgUser } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  ReplacementPoolMember,
+} from "graphql/server-types.gen";
 import { Can } from "../auth/can";
+import clsx from "clsx";
 import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
-  orgUsers?: OrgUser[] | null;
-  blocked: boolean;
-  onRemove: (orgUser: OrgUser) => void;
+  replacementPoolMembers?: ReplacementPoolMember[] | null;
+  onRemove: (member: ReplacementPoolMember) => void;
   removePermission: PermissionEnum[];
 };
 
@@ -31,28 +34,32 @@ export const SubPoolCard: React.FC<Props> = props => {
           alignItems="center"
           direction="row"
         >
-          {props.orgUsers?.length === 0 ? (
+          {props.replacementPoolMembers?.length === 0 ? (
             <Grid item xs={12}>
               <Typography>{t("Not Defined")}</Typography>
             </Grid>
           ) : (
-            props.orgUsers?.map((user, i) => {
-              const name = `${user.firstName ?? ""} ${user.lastName ?? ""}`;
-              const className = [
-                classes.detail,
-                i % 2 == 1 ? classes.shadedRow : undefined,
-              ].join(" ");
+            props.replacementPoolMembers?.map((member, i) => {
               return (
-                <Grid item className={className} xs={12} key={i}>
+                <Grid
+                  item
+                  className={clsx({
+                    [classes.detail]: true,
+                    [classes.shadedRow]: i % 2 == 1,
+                  })}
+                  xs={12}
+                  key={i}
+                >
                   <Typography className={classes.userName}>
-                    <SubstituteLink orgUserId={user.id} color="black">
-                      {name}
+                    <SubstituteLink orgUserId={member.id} color="black">
+                      {member?.employee?.firstName ?? ""}{" "}
+                      {member?.employee?.lastName ?? ""}
                     </SubstituteLink>
                   </Typography>
                   <Can do={props.removePermission}>
                     <TextButton
                       className={classes.actionLink}
-                      onClick={() => props.onRemove(user)}
+                      onClick={() => props.onRemove(member)}
                     >
                       {t("Remove")}
                     </TextButton>
@@ -74,7 +81,7 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
   detail: {
-    paddingLeft: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),

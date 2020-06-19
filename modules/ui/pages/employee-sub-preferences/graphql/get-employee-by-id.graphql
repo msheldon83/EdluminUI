@@ -6,15 +6,27 @@ query GetEmployeeByIdForPreferences($id: ID!) {
       employee {
         id
         substitutePreferences {
-          blockedSubstitutes {
+          blockedSubstituteMembers {
             id
-            firstName
-            lastName
+            adminNote
+            employeeId
+            replacementPoolId
+            employee {
+              id
+              firstName
+              lastName
+            }
           }
-          favoriteSubstitutes {
+          favoriteSubstituteMembers {
             id
-            firstName
-            lastName
+            adminNote
+            employeeId
+            replacementPoolId
+            employee {
+              id
+              firstName
+              lastName
+            }
           }
         }
       }

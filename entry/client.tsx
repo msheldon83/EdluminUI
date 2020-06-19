@@ -2,6 +2,8 @@ import { createBrowserHistory } from "history";
 import * as React from "react";
 import * as ReactDom from "react-dom";
 import { Router, BrowserRouter } from "react-router-dom";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import { App } from "ui";
 import { buildGraphqlClient } from "graphql/client";
 import { Auth0Provider } from "auth/auth0";
@@ -29,7 +31,9 @@ const bootstrapClient = () => {
             RedRoverPrompt(message, callback)
           }
         >
-          <App />
+          <DndProvider backend={HTML5Backend}>
+            <App />
+          </DndProvider>
         </BrowserRouter>
       </AuthenticatedApolloProvider>
     </Auth0Provider>

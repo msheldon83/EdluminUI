@@ -5,16 +5,15 @@ import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
 import { ApprovalComments } from "ui/components/absence-vacancy/approval-state/comments";
 import { WorkflowSummary } from "ui/components/absence-vacancy/approval-state/approval-flow";
-import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
-import { GetApprovalWorkflowById } from "ui/components/absence-vacancy/approval-state/graphql/get-approval-workflow-steps-by-id.gen";
 import { VacancyDetails } from "ui/components/absence-vacancy/approval-state/vacancy-details";
 import { AbsenceDetails } from "ui/components/absence-vacancy/approval-state/absence-details";
-import { compact, groupBy, flatMap, round } from "lodash-es";
+import { compact } from "lodash-es";
 import { Context } from "ui/components/absence-vacancy/approval-state/context";
 import { GetVacancyById } from "../graphql/get-vacancy-by-id.gen";
 import { GetAbsence } from "../graphql/get-absence-by-id.gen";
 import { ApproveDenyButtons } from "ui/components/absence-vacancy/approval-state/approve-deny-buttons";
 import { SummaryDetails } from "ui/components/absence-vacancy/approval-state/summary-details";
+import { useIsMobile } from "hooks";
 
 type Props = {
   orgId: string;
@@ -28,7 +27,8 @@ type Props = {
 
 export const SelectedDetail: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
+  const isMobile = useIsMobile();
+  const classes = useStyles({ isMobile });
 
   const getVacancy = useQueryBundle(GetVacancyById, {
     variables: {
@@ -56,49 +56,10 @@ export const SelectedDetail: React.FC<Props> = props => {
       : absence?.approvalState
     : null;
 
-  const getApprovalWorkflow = useQueryBundle(GetApprovalWorkflowById, {
-    variables: {
-      id: approvalState?.approvalWorkflowId ?? "",
-    },
-    skip: !approvalState?.approvalWorkflowId,
-  });
-  const approvalWorkflow =
-    getApprovalWorkflow.state === "DONE"
-      ? getApprovalWorkflow.data.approvalWorkflow?.byId
-      : null;
-
-  const currentApproverGroupHeaderId = useMemo(
-    () =>
-      approvalWorkflow?.steps.find(
-        x => x.stepId == approvalState?.currentStepId
-      )?.approverGroupHeaderId,
-    [approvalWorkflow, approvalState]
-  );
-
-  const approverGroups = useApproverGroups(props.orgId);
-
-  const absenceReasons = useMemo(
-    () =>
-      absence
-        ? Object.entries(
-            groupBy(
-              flatMap(
-                compact(absence.details).map(x => compact(x.reasonUsages))
-              ),
-              r => r?.absenceReasonId
-            )
-          ).map(([absenceReasonId, usages]) => ({
-            absenceReasonId: absenceReasonId,
-            absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
-            absenceReasonName: usages[0].absenceReason?.name,
-            totalAmount: round(
-              usages.reduce((m, v) => m + +v.amount, 0),
-              2
-            ),
-          }))
-        : [],
-    [absence]
-  );
+  const approvalWorkflowSteps = approvalState?.approvalWorkflow.steps ?? [];
+  const currentApproverGroupHeaderId = approvalWorkflowSteps.find(
+    x => x.stepId == approvalState?.currentStepId
+  )?.approverGroupHeaderId;
 
   const handleSaveComment = async () => {
     if (props.selectedItem?.isNormalVacancy) {
@@ -109,7 +70,7 @@ export const SelectedDetail: React.FC<Props> = props => {
   };
 
   return props.selectedItem ? (
-    <Grid container spacing={2} className={classes.backgroundContainer}>
+    <div className={classes.backgroundContainer}>
       {!props.selectedItem?.isNormalVacancy && absence && (
         <div className={classes.container}>
           <div className={classes.summaryContainer}>
@@ -127,7 +88,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               locationIds={absence.locationIds}
               decisions={absence.approvalState?.decisions}
             />
-            <div className={classes.buttonContainer}>
+            <div className={!isMobile ? classes.buttonContainer : undefined}>
               <ApproveDenyButtons
                 approvalStateId={approvalState?.id ?? ""}
                 approvalStatus={approvalState?.approvalStatusId}
@@ -140,7 +101,6 @@ export const SelectedDetail: React.FC<Props> = props => {
           <AbsenceDetails
             orgId={props.orgId}
             absence={absence}
-            absenceReasons={absenceReasons}
             showSimpleDetail={false}
           />
         </div>
@@ -160,7 +120,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               locationIds={compact(vacancy.details.map(x => x.locationId))}
               decisions={vacancy.approvalState?.decisions}
             />
-            <div className={classes.buttonContainer}>
+            <div className={!isMobile ? classes.buttonContainer : undefined}>
               <ApproveDenyButtons
                 approvalStateId={approvalState?.id ?? ""}
                 approvalStatus={approvalState?.approvalStatusId}
@@ -182,9 +142,8 @@ export const SelectedDetail: React.FC<Props> = props => {
       </Grid>
       <Grid item xs={12}>
         <WorkflowSummary
-          approverGroups={approverGroups}
           currentStepId={approvalState?.currentStepId ?? ""}
-          steps={approvalWorkflow?.steps ?? []}
+          steps={approvalWorkflowSteps}
         />
       </Grid>
       <Grid item xs={12}>
@@ -194,6 +153,7 @@ export const SelectedDetail: React.FC<Props> = props => {
           comments={approvalState?.comments ?? []}
           decisions={approvalState?.decisions ?? []}
           onCommentSave={handleSaveComment}
+          approvalWorkflowId={approvalState?.approvalWorkflowId ?? ""}
         />
       </Grid>
       <Grid item xs={12}>
@@ -227,10 +187,14 @@ export const SelectedDetail: React.FC<Props> = props => {
           />
         </Grid>
       )}
-    </Grid>
+    </div>
   ) : (
     <></>
   );
+};
+
+type StyleProps = {
+  isMobile: boolean;
 };
 
 const useStyles = makeStyles(theme => ({
@@ -244,11 +208,14 @@ const useStyles = makeStyles(theme => ({
   backgroundContainer: {
     background: "#F8F8F8",
     borderRadius: "4px",
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
   },
-  summaryContainer: {
-    display: "flex",
+  summaryContainer: (props: StyleProps) => ({
+    display: props.isMobile ? "initial" : "flex",
     position: "relative",
-  },
+  }),
   buttonContainer: {
     position: "absolute",
     top: 0,

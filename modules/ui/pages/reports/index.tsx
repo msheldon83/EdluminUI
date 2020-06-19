@@ -11,6 +11,8 @@ import {
   AnalyticsReportsSubHistoryRoute,
   AnalyticsReportsEmployeeRosterRoute,
   AnalyticsReportsSubstituteRosterRoute,
+  AnalyticsReportsEmployeeBalancesRoute,
+  AnalyticsReportsAbsencesVacanciesDetailRoute,
 } from "ui/routes/analytics-reports";
 import { BaseLink, pickUrl } from "ui/components/links/base";
 import { CanDo } from "ui/components/auth/types";
@@ -18,7 +20,7 @@ import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
 import {
   canViewAbsenceAndVacancyReports,
-  canViewRosterReports,
+  canViewPeopleReports,
 } from "helpers/permissions";
 
 type Props = {};
@@ -52,6 +54,12 @@ export const ReportsPage: React.FC<Props> = props => {
           permission: PermissionEnum.ReportsAbsVacSchema,
         },
         {
+          name: t("Absences & Vacancies - Detail"),
+          url: () =>
+            AnalyticsReportsAbsencesVacanciesDetailRoute.generate(params),
+          permission: PermissionEnum.ReportsAbsVacSchema,
+        },
+        {
           name: t("Daily Report"),
           url: () => AnalyticsReportsDailyReportRoute.generate(params),
           permission: PermissionEnum.AbsVacView,
@@ -66,7 +74,7 @@ export const ReportsPage: React.FC<Props> = props => {
       ref: React.useRef<HTMLDivElement>(null),
     },
     {
-      title: t("Roster"),
+      title: t("People"),
       reports: [
         {
           name: t("Employee Roster"),
@@ -78,8 +86,13 @@ export const ReportsPage: React.FC<Props> = props => {
           url: () => AnalyticsReportsSubstituteRosterRoute.generate(params),
           permission: PermissionEnum.ReportsSubSchema,
         },
+        {
+          name: t("Absence Reason Balances"),
+          url: () => AnalyticsReportsEmployeeBalancesRoute.generate(params),
+          permission: PermissionEnum.ReportsEmpSchema,
+        },
       ],
-      permissionCheck: canViewRosterReports,
+      permissionCheck: canViewPeopleReports,
       ref: React.useRef<HTMLDivElement>(null),
     },
   ];

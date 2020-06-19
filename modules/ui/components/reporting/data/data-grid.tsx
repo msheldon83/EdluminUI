@@ -9,6 +9,8 @@ import {
   Report,
   ReportDefinitionData,
   OrderByField,
+  CustomRenderer,
+  DataSourceField,
 } from "../types";
 import {
   GridCellProps,
@@ -24,7 +26,7 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import clsx from "clsx";
-import { isNumber, round } from "lodash-es";
+import { round } from "lodash-es";
 import { DataGridHeader } from "./data-grid-header";
 import {
   calculateColumnWidth,
@@ -43,7 +45,17 @@ type Props = {
     expression: DataExpression,
     direction: Direction
   ) => void;
+  allFields: DataSourceField[];
+  addColumns: (
+    columns: DataExpression[],
+    index?: number,
+    addBeforeIndex?: boolean
+  ) => void;
+  setColumns: (columns: DataExpression[]) => void;
+  removeColumn: (index: number) => void;
   showGroupLabels?: boolean;
+  customRender?: CustomRenderer;
+  sumRowData?: boolean;
 };
 
 export const DataGrid: React.FC<Props> = props => {
@@ -56,23 +68,30 @@ export const DataGrid: React.FC<Props> = props => {
     reportData,
     orderedBy,
     setFirstLevelOrderBy,
+    allFields,
+    addColumns,
+    setColumns,
+    removeColumn,
     showGroupLabels = true,
+    customRender = () => undefined,
+    sumRowData = true,
   } = props;
 
   // Convert report data into a grouped structure.
   // A Report with no explicit groupings will result in a single group with all data.
   React.useEffect(() => {
-    if (!reportData) {
+    if (!reportData?.rawData) {
       return;
     }
 
     const groupedDataResult = groupData(
-      reportData.rawData,
+      reportData.rawData ?? [],
       reportData.dataColumnIndexMap,
-      report.subtotalBy ?? []
+      report.subtotalBy ?? [],
+      sumRowData
     );
     setGroupedData(groupedDataResult);
-  }, [report, reportData]);
+  }, [report, reportData, sumRowData]);
 
   // We're maintaining a data structure around groups, but in order
   // to benefit from the windowing React Virtualized gives us, we
@@ -94,6 +113,18 @@ export const DataGrid: React.FC<Props> = props => {
   const dataGridHeight = 75;
   const summaryGridHeight = 40;
 
+  // Because we are supporting drag and drop reordering
+  // of columns we also need to force a recalculation of
+  // the grid sizes when changes to the columns occur
+  const headerGridRef = React.useRef<MultiGrid>(null);
+  const summaryGridRef = React.useRef<MultiGrid>(null);
+  const dataGridRef = React.useRef<MultiGrid>(null);
+  React.useEffect(() => {
+    headerGridRef.current?.recomputeGridSize();
+    summaryGridRef.current?.recomputeGridSize();
+    dataGridRef.current?.recomputeGridSize();
+  }, [report.selects]);
+
   return (
     <>
       {isLoading && (
@@ -114,14 +145,15 @@ export const DataGrid: React.FC<Props> = props => {
                   height={dataGridHeight}
                   width={width}
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(
-                      params,
-                      isGrouped,
-                      reportData.dataColumnIndexMap
-                    )
+                    calculateColumnWidth(params, isGrouped, report.selects)
                   }
                   setFirstLevelOrderBy={setFirstLevelOrderBy}
                   orderedBy={orderedBy}
+                  allFields={allFields}
+                  addColumns={addColumns}
+                  setColumns={setColumns}
+                  removeColumn={removeColumn}
+                  gridRef={headerGridRef}
                 />
                 {!isGrouped && groupedData[0]?.subtotals && rows.length > 0 && (
                   <MultiGrid
@@ -139,11 +171,7 @@ export const DataGrid: React.FC<Props> = props => {
                       )
                     }
                     columnWidth={(params: Index) =>
-                      calculateColumnWidth(
-                        params,
-                        isGrouped,
-                        reportData.dataColumnIndexMap
-                      )
+                      calculateColumnWidth(params, isGrouped, report.selects)
                     }
                     estimatedColumnSize={120}
                     columnCount={report.selects.length}
@@ -154,6 +182,7 @@ export const DataGrid: React.FC<Props> = props => {
                     classNameTopLeftGrid={classes.dataGridLockedColumns}
                     classNameTopRightGrid={classes.dataGrid}
                     style={isLoading ? { opacity: 0.5 } : undefined}
+                    ref={summaryGridRef}
                   />
                 )}
                 <MultiGrid
@@ -167,15 +196,12 @@ export const DataGrid: React.FC<Props> = props => {
                       props,
                       classes,
                       t,
-                      showGroupLabels
+                      showGroupLabels,
+                      customRender
                     )
                   }
                   columnWidth={(params: Index) =>
-                    calculateColumnWidth(
-                      params,
-                      isGrouped,
-                      reportData.dataColumnIndexMap
-                    )
+                    calculateColumnWidth(params, isGrouped, report.selects)
                   }
                   estimatedColumnSize={120}
                   columnCount={report.selects.length}
@@ -200,6 +226,7 @@ export const DataGrid: React.FC<Props> = props => {
                       </Typography>
                     </div>
                   )}
+                  ref={dataGridRef}
                 />
               </div>
             )}
@@ -327,7 +354,7 @@ const summaryHeaderRenderer = (
 
   return (
     <div key={key} style={style} className={cellClasses}>
-      {subtotals[columnIndex]
+      {subtotals[columnIndex] === 0 || subtotals[columnIndex]
         ? round(Number(subtotals[columnIndex]), 2)
         : undefined}
     </div>
@@ -340,7 +367,8 @@ const dataCellRenderer = (
   level: number,
   dataRowIndex: number,
   { columnIndex, key, style }: GridCellProps,
-  classes: any
+  classes: any,
+  customRender: CustomRenderer
 ) => {
   const originalValue = data[columnIndex];
   const displayValue =
@@ -366,13 +394,17 @@ const dataCellRenderer = (
     [classes.truncate]: isLongText,
   });
 
-  const cellDisplay = isLongText ? (
-    <Tooltip title={displayValue} placement="top-start">
-      <div className={dataClasses}>{displayValue}</div>
-    </Tooltip>
-  ) : (
-    <div className={dataClasses}>{displayValue}</div>
-  );
+  const renderer =
+    customRender(dataColumnIndexMap, columnIndex) ??
+    ((classes, value) =>
+      isLongText ? (
+        <Tooltip title={value} placement="top-start">
+          <div className={classes}>{value}</div>
+        </Tooltip>
+      ) : (
+        <div className={classes}>{value}</div>
+      ));
+  const cellDisplay = renderer(dataClasses, displayValue, data);
 
   if (columnIndex === 0) {
     return (
@@ -431,7 +463,7 @@ const groupHeaderCellRenderer = (
   return (
     <div key={key} style={style}>
       <div className={dataClasses}>
-        {group.subtotals[columnIndex]
+        {group.subtotals[columnIndex] === 0 || group.subtotals[columnIndex]
           ? round(Number(group.subtotals[columnIndex]), 2)
           : undefined}
       </div>
@@ -445,7 +477,8 @@ const cellRenderer = (
   gridProps: GridCellProps,
   classes: any,
   t: TFunction,
-  showGroupLabels: boolean
+  showGroupLabels: boolean,
+  customRender: CustomRenderer
 ) => {
   const row = rows[gridProps.rowIndex];
   if (Array.isArray(row.item)) {
@@ -455,7 +488,8 @@ const cellRenderer = (
       row.level,
       row.dataRowIndex ?? 0,
       gridProps,
-      classes
+      classes,
+      customRender
     );
   } else {
     return groupHeaderCellRenderer(
@@ -489,7 +523,8 @@ const nestDivs = (
 const groupData = (
   data: any[][],
   dataColumnIndexMap: Record<string, DataExpression>,
-  subtotalBy: SubtotalField[]
+  subtotalBy: SubtotalField[],
+  sumRowData: boolean
 ): GroupedData[] => {
   const groupByFields = Array.from(subtotalBy ?? []);
   const groupBy = groupByFields[0];
@@ -498,10 +533,12 @@ const groupData = (
     return [
       {
         data: localData,
-        subtotals: localData.reduce((subtotals: any[], row: any[]) => {
-          const subtotalRow = sumRows(row, subtotals);
-          return subtotalRow;
-        }, []),
+        subtotals: sumRowData
+          ? localData.reduce((subtotals: any[], row: any[]) => {
+              const subtotalRow = sumRows(row, subtotals, dataColumnIndexMap);
+              return subtotalRow;
+            }, [])
+          : [],
       },
     ];
   }
@@ -529,7 +566,9 @@ const groupData = (
     // Add to existing or create a new group
     if (matchingGroup) {
       matchingGroup.data.push(row);
-      matchingGroup.subtotals = sumRows(matchingGroup.subtotals, row);
+      matchingGroup.subtotals = sumRowData
+        ? sumRows(matchingGroup.subtotals, row, dataColumnIndexMap)
+        : [];
     } else {
       groups.push({
         info: {
@@ -540,7 +579,7 @@ const groupData = (
           groupByValue: groupByValue,
         },
         data: [row],
-        subtotals: sumRows(row, []),
+        subtotals: sumRowData ? sumRows(row, [], dataColumnIndexMap) : [],
       });
     }
 
@@ -552,7 +591,8 @@ const groupData = (
       g.children = groupData(
         g.data,
         dataColumnIndexMap,
-        groupByFields.slice(1)
+        groupByFields.slice(1),
+        sumRowData
       );
     });
   }
@@ -560,20 +600,36 @@ const groupData = (
   return groups;
 };
 
-const sumRows = (row1: any[], row2: any[]) => {
+const sumRows = (
+  row1: any[],
+  row2: any[],
+  dataColumnIndexMap: Record<string, DataExpression>
+) => {
   const row: any[] = [];
   for (let index = 0; index < row1.length; index++) {
+    const column = dataColumnIndexMap[index];
+    if (
+      column.dataSourceField &&
+      column.dataSourceField.dataType !== DataType.Decimal &&
+      column.dataSourceField.dataType !== DataType.Number
+    ) {
+      // If we have a defined field and it is not a number of some sort
+      // skip over this column as there should be nothing to sum
+      row.push(undefined);
+      continue;
+    }
+
     const item1 = row1[index];
     const item2 = row2[index];
 
-    if (isNumber(item1) && isNumber(item2)) {
-      row.push(item1 + item2);
-    } else if (isNumber(item1)) {
-      row.push(item1);
-    } else if (isNumber(item2)) {
-      row.push(item2);
+    if (!isNaN(Number(item1)) && !isNaN(Number(item2))) {
+      row.push(Number(item1) + Number(item2));
+    } else if (!isNaN(Number(item1))) {
+      row.push(Number(item1));
+    } else if (!isNaN(Number(item2))) {
+      row.push(Number(item2));
     } else {
-      row.push(null);
+      row.push(undefined);
     }
   }
   return row;

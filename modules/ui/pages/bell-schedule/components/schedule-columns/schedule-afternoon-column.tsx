@@ -1,15 +1,12 @@
 import * as React from "react";
+import clsx from "clsx";
 import { Period } from "../../helpers";
 import { makeStyles, Chip } from "@material-ui/core";
+import { useTheme } from "@material-ui/core/styles";
 import { useTranslation } from "react-i18next";
-import {
-  DragDropContext,
-  DropResult,
-  Droppable,
-  Draggable,
-} from "react-beautiful-dnd";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
+import { useDrag, useDrop } from "react-dnd";
 
 type Props = {
   periods: Period[];
@@ -17,116 +14,138 @@ type Props = {
   scheduleClasses: any;
 };
 
-const startOfAfternoonDragPrefix = "startOfAfternoonDrag-";
+const AfternoonDraggbleType = Symbol("afternoon-chip-draggable");
 
-export const ScheduleAfternoonColumn: React.FC<Props> = props => {
+type AfternoonChipProps = {
+  period: Period;
+  hidden?: string;
+  draggable?: boolean;
+  asPlaceholder?: boolean;
+};
+const AfternoonChip = (props: AfternoonChipProps) => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const theme = useTheme();
+
+  const {
+    period,
+    hidden = "",
+    draggable = false,
+    asPlaceholder = false,
+  } = props;
+
+  const [_, dragRef] = useDrag({
+    item: { type: AfternoonDraggbleType },
+  });
+
+  const extraStyles = asPlaceholder
+    ? {
+        backgroundColor: theme.background.dropZone,
+        color: theme.background.dropZone,
+      }
+    : {};
+
+  const classNames = `${!period.isHalfDayAfternoonStart ? hidden : ""} ${
+    asPlaceholder ? classes.chipPlaceholder : ""
+  }`;
 
   return (
-    <>
-      <DragDropContext
-        onDragEnd={(result: DropResult) => {
-          const updatedPeriods = onDragEnd(result, props.periods);
-          if (updatedPeriods) {
-            props.setPeriods(updatedPeriods);
-          }
-        }}
-      >
-        <Droppable droppableId="startOfAfternoonDroppable">
-          {(provided, snapshot) => {
-            const { innerRef } = provided;
-
-            return (
-              <div {...provided.droppableProps} ref={innerRef}>
-                {props.periods.map((p, i) => {
-                  const periodClasses = [props.scheduleClasses.period];
-                  if (i % 2 === 1) {
-                    periodClasses.push(props.scheduleClasses.alternatingItem);
-                  }
-                  if (p.skipped) {
-                    periodClasses.push(props.scheduleClasses.skippedPeriod);
-                  }
-
-                  const startOfAfternoonDiv = (
-                    <div
-                      className={
-                        !p.isHalfDayAfternoonStart
-                          ? props.scheduleClasses.hidden
-                          : ""
-                      }
-                    >
-                      <Chip
-                        tabIndex={-1}
-                        className={classes.startOfAfternoonChip}
-                        label={t("Start of afternoon")}
-                      />
-                      {provided.placeholder}
-                    </div>
-                  );
-
-                  return (
-                    <div
-                      key={i}
-                      className={`${periodClasses.join(" ")} ${
-                        classes.chipWrapper
-                      }`}
-                    >
-                      {!p.skipped && (
-                        <>
-                          <Can do={[PermissionEnum.ScheduleSettingsSave]}>
-                            <Draggable
-                              key={`${startOfAfternoonDragPrefix}${i}`}
-                              draggableId={`${startOfAfternoonDragPrefix}${i}`}
-                              index={i}
-                              isDragDisabled={!p.isHalfDayAfternoonStart}
-                            >
-                              {(provided, snapshot) => {
-                                const { innerRef } = provided;
-                                return (
-                                  <div
-                                    ref={innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className={classes.startOfAfternoon}
-                                    style={{
-                                      ...provided.draggableProps.style,
-                                      position: snapshot.isDragging
-                                        ? "static"
-                                        : undefined,
-                                    }}
-                                  >
-                                    {startOfAfternoonDiv}
-                                  </div>
-                                );
-                              }}
-                            </Draggable>
-                          </Can>
-                          <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
-                            <div className={classes.startOfAfternoon}>
-                              {startOfAfternoonDiv}
-                            </div>
-                          </Can>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          }}
-        </Droppable>
-      </DragDropContext>
-    </>
+    <div className={classNames}>
+      <Chip
+        ref={draggable ? dragRef : null}
+        tabIndex={-1}
+        className={classes.startOfAfternoonChip}
+        label={t("Start of afternoon")}
+        style={{ ...extraStyles }}
+      />
+    </div>
   );
 };
 
-/*
-  Note: the droppable item jumps when dropped because of a bug in react-beautiful-dnd
-  not correctly handling flex items with `align-items: center` set.
+type PeriodRowProps = {
+  period: Period;
+  hidden: any;
+  periodClassName: string;
+  onDrop: () => void;
+  isAfterMorningEnd: boolean;
+};
+const PeriodRow = (props: PeriodRowProps) => {
+  const { period, hidden, periodClassName, onDrop, isAfterMorningEnd } = props;
 
-  https://github.com/atlassian/react-beautiful-dnd/issues/1851
-*/
+  const classes = useStyles();
+
+  const [{ isOver, canDrop }, dropRef] = useDrop({
+    accept: AfternoonDraggbleType,
+    drop: () => {
+      onDrop();
+    },
+    collect: monitor => ({
+      isOver: !!monitor.isOver(),
+      canDrop: !!monitor.canDrop() && isAfterMorningEnd,
+    }),
+  });
+
+  const renderChip = () => {
+    if (isOver && canDrop) {
+      return <AfternoonChip period={period} asPlaceholder />;
+    }
+
+    if (!period.skipped) {
+      return (
+        <>
+          <Can do={[PermissionEnum.ScheduleSettingsSave]}>
+            <div className={classes.startOfAfternoon}>
+              <AfternoonChip period={period} hidden={hidden} draggable />
+            </div>
+          </Can>
+          <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
+            <div className={classes.startOfAfternoon}>
+              <AfternoonChip period={period} hidden={hidden} />
+            </div>
+          </Can>
+        </>
+      );
+    }
+
+    return undefined;
+  };
+
+  return (
+    <div className={`${periodClassName} ${classes.chipWrapper}`} ref={dropRef}>
+      {renderChip()}
+    </div>
+  );
+};
+
+export const ScheduleAfternoonColumn: React.FC<Props> = props => {
+  const endOfMorningIndex = props.periods.findIndex(p => p.isHalfDayMorningEnd);
+
+  return (
+    <div>
+      {props.periods.map((p, i) => {
+        const periodClasses = clsx({
+          [props.scheduleClasses.period]: true,
+          [props.scheduleClasses.alternatingItem]: i % 2 === 1,
+          [props.scheduleClasses.skippedPeriod]: p.skipped,
+        });
+
+        return (
+          <PeriodRow
+            period={p}
+            hidden={props.scheduleClasses.hidden}
+            periodClassName={periodClasses}
+            isAfterMorningEnd={i >= endOfMorningIndex}
+            key={p.periodId ?? i}
+            onDrop={() => {
+              const updatedPeriods = handleDrop(props.periods, i);
+              props.setPeriods(updatedPeriods);
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
 
 const useStyles = makeStyles(theme => ({
   startOfAfternoon: {
@@ -138,6 +157,7 @@ const useStyles = makeStyles(theme => ({
     background: "#ECF9F3",
     color: "#00C853",
     cursor: "grab",
+    transform: "translate(0, 0)",
 
     "&:active": {
       cursor: "grabbing",
@@ -153,45 +173,33 @@ const useStyles = makeStyles(theme => ({
     */
     justifyContent: "flex-end !important",
   },
+
+  "@keyframes fadeIn": {
+    from: { opacity: 0 },
+    to: { opacity: 0.8 },
+  },
+  chipPlaceholder: {
+    animation: "$fadeIn 400ms",
+  },
 }));
 
-const onDragEnd = (
-  result: DropResult,
-  periods: Array<Period>
-): Array<Period> | null => {
-  const { destination, source, draggableId } = result;
-
-  if (!destination) {
-    return null;
-  }
-  if (
-    destination.droppableId === source.droppableId &&
-    destination.index === source.index
-  ) {
-    return null;
-  }
-
-  if (periods[destination.index].skipped) {
+const handleDrop = (periods: Period[], dropIndex: number) => {
+  if (periods[dropIndex].skipped) {
     // Should not be able to assign anything to a Skipped period
-    return null;
-  }
-
-  if (!draggableId.startsWith(startOfAfternoonDragPrefix)) {
-    // Shouldn't occur, but just to be safe
-    return null;
+    return periods;
   }
 
   // Find index of End Of Morning. Start of Afternoon cannot be before End of Morning, but they can be the same.
   const endOfMorningIndex = periods.findIndex(p => p.isHalfDayMorningEnd);
-  const destinationIndex =
-    destination.index <= endOfMorningIndex
-      ? endOfMorningIndex
-      : destination.index;
-  periods[destinationIndex].isHalfDayAfternoonStart = true;
-  if (destinationIndex != source.index) {
-    // Clear out the old Start of Afternoon flag if we made a move
-    periods[source.index].isHalfDayAfternoonStart = false;
+
+  if (dropIndex < endOfMorningIndex) {
+    return periods;
   }
 
-  return periods;
+  return periods.map((period, index) => {
+    return {
+      ...period,
+      isHalfDayAfternoonStart: index === dropIndex,
+    };
+  });
 };

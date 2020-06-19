@@ -5,7 +5,10 @@ import { makeQueryIso, PaginationParams } from "hooks/query-params";
 import { PaginationControls } from "ui/components/pagination-controls";
 import { usePagedQueryBundle } from "graphql/hooks";
 import { GetSubstitutesForPreferences } from "./graphql/get-substitutes.gen";
-import { PermissionEnum } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  ReplacementPoolMember,
+} from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
@@ -23,7 +26,7 @@ type Props = {
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
   onAutoAssign?: (orgUser: any) => void;
-  takenSubstitutes: any[];
+  takenSubstitutes: ReplacementPoolMember[];
   addToFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
 };
@@ -84,7 +87,10 @@ export const SubstitutePicker: React.FC<Props> = props => {
     const qResults = compact(
       allSubstitutesQuery.data?.orgUser?.pagedSubsForPreferences?.results
     );
-    if (qResults) substitutes = qResults;
+    if (qResults)
+      substitutes = qResults.filter(
+        e => !props.takenSubstitutes.find(x => x.employeeId === e.id)
+      );
   }
 
   if (
@@ -140,7 +146,16 @@ export const SubstitutePicker: React.FC<Props> = props => {
                 <Can do={props.addToBlockedPermission}>
                   <TextButton
                     className={classes.blockActionLink}
-                    onClick={() => props.onBlock(user)}
+                    onClick={() =>
+                      props.onBlock({
+                        employeeId: user.id,
+                        employee: {
+                          firstName: user.firstName,
+                          lastName: user.lastName,
+                          id: user.id,
+                        },
+                      } as ReplacementPoolMember)
+                    }
                   >
                     {t("Block")}
                   </TextButton>
@@ -148,7 +163,16 @@ export const SubstitutePicker: React.FC<Props> = props => {
                 <Can do={props.addToFavoritePermission}>
                   <TextButton
                     className={classes.addActionLink}
-                    onClick={() => props.onAdd(user)}
+                    onClick={() =>
+                      props.onAdd({
+                        employeeId: user.id,
+                        employee: {
+                          firstName: user.firstName,
+                          lastName: user.lastName,
+                          id: user.id,
+                        },
+                      } as ReplacementPoolMember)
+                    }
                   >
                     {t("Add favorite")}
                   </TextButton>
@@ -157,7 +181,16 @@ export const SubstitutePicker: React.FC<Props> = props => {
                   <Can do={props.addToFavoritePermission}>
                     <TextButton
                       className={classes.addAutoAssignActionLink}
-                      onClick={() => props.onAutoAssign!(user)}
+                      onClick={() =>
+                        props.onAutoAssign!({
+                          employeeId: user.id,
+                          employee: {
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                            id: user.id,
+                          },
+                        } as ReplacementPoolMember)
+                      }
                     >
                       {t("Auto Assign")}
                     </TextButton>

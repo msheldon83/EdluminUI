@@ -22,6 +22,13 @@ query GetUserById($id: ID!) {
           receiveSmsNotifications
         }
       }
+      mobileDevices {
+        id
+        deviceId
+        mobileDeviceTypeId
+        operatingSystemVersion
+        softwareVersion
+      }
     }
   }
 }

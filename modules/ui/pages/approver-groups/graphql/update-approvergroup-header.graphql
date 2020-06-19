@@ -1,0 +1,19 @@
+mutation UpdateApproverGroupHeader(
+  $approverGroupHeader: ApproverGroupHeaderUpdateInput!
+) {
+  approverGroup {
+    update(approverGroupHeader: $approverGroupHeader) {
+      id
+      name
+      externalId
+      variesByLocation
+      rowVersion
+      approverGroups {
+        id
+        name
+        externalId
+        rowVersion
+      }
+    }
+  }
+}

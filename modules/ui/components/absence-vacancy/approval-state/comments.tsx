@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
-import { Grid, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ApprovalAction } from "graphql/server-types.gen";
@@ -28,6 +28,7 @@ type Props = {
   orgId: string;
   actingAsEmployee?: boolean;
   approvalStateId: string;
+  approvalWorkflowId: string;
   comments: {
     comment?: string | null;
     commentIsPublic: boolean;
@@ -114,70 +115,66 @@ export const ApprovalComments: React.FC<Props> = props => {
   };
 
   return (
-    <Grid item container xs={12} spacing={2}>
+    <>
       {allCommentsAndDecisions.length === 0 ? (
-        <Grid item xs={12}>
-          {t("No Comments")}
-        </Grid>
+        <div className={classes.commentContainer}>{t("No Comments")}</div>
       ) : (
         allCommentsAndDecisions.map((c, i) => {
           return (
-            <Grid key={i} item xs={12}>
-              <div className={classes.commentContainer}>
-                {c.comment && (
-                  <div className={classes.commentIcon}>
-                    {c.commentIsPublic ? (
-                      <img src={require("ui/icons/comment.svg")} />
-                    ) : (
-                      <img
-                        src={require("ui/icons/comment-visible-to-admin.svg")}
-                      />
-                    )}
-                  </div>
-                )}
-                <div>
-                  <div>
-                    <span
-                      className={
-                        c.approvalActionId
-                          ? classes.decisionText
-                          : classes.nameText
-                      }
-                    >{`${getApprovalActionText(c.approvalActionId) ??
-                      ""}${getApproverName(c)}`}</span>
-                    <span
-                      className={
-                        c.approvalActionId
-                          ? classes.decisionText
-                          : classes.dateText
-                      }
-                    >{` @ ${format(
-                      parseISO(c.createdLocal!),
-                      "MMM d h:mm a"
-                    )}`}</span>
-                  </div>
-                  {c.comment && <div>{c.comment}</div>}
+            <div key={i} className={classes.commentContainer}>
+              {c.comment && (
+                <div className={classes.commentIcon}>
+                  {c.commentIsPublic ? (
+                    <img src={require("ui/icons/comment.svg")} />
+                  ) : (
+                    <img
+                      src={require("ui/icons/comment-visible-to-admin.svg")}
+                    />
+                  )}
                 </div>
+              )}
+              <div>
+                <div>
+                  <span
+                    className={
+                      c.approvalActionId
+                        ? classes.decisionText
+                        : classes.nameText
+                    }
+                  >{`${getApprovalActionText(c.approvalActionId) ??
+                    ""}${getApproverName(c)}`}</span>
+                  <span
+                    className={
+                      c.approvalActionId
+                        ? classes.decisionText
+                        : classes.dateText
+                    }
+                  >{` @ ${format(
+                    parseISO(c.createdLocal!),
+                    "MMM d h:mm a"
+                  )}`}</span>
+                </div>
+                {c.comment && <div>{c.comment}</div>}
               </div>
-            </Grid>
+            </div>
           );
         })
       )}
-
-      <Grid item xs={12}>
-        <LeaveComment
-          approvalStateId={props.approvalStateId}
-          actingAsEmployee={props.actingAsEmployee}
-          onSave={props.onCommentSave}
-        />
-      </Grid>
-    </Grid>
+      <LeaveComment
+        approvalStateId={props.approvalStateId}
+        actingAsEmployee={props.actingAsEmployee}
+        onSave={props.onCommentSave}
+        approvalWorkflowId={props.approvalWorkflowId}
+      />
+    </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   commentContainer: {
     display: "flex",
+    paddingBottom: theme.spacing(1),
+    paddingTop: theme.spacing(1),
   },
   approveButton: {
     background: "#4CC17C",
