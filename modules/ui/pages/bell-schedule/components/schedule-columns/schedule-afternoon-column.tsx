@@ -5,8 +5,9 @@ import { makeStyles, Chip } from "@material-ui/core";
 import { useTheme } from "@material-ui/core/styles";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { Can } from "ui/components/auth/can";
-import { useDrag, useDrop } from "react-dnd";
+import { useCanDo } from "ui/components/auth/can";
+import { useDrop } from "react-dnd";
+import { DraggableScheduleChip } from "./DraggableScheduleChip";
 
 type Props = {
   periods: Period[];
@@ -14,53 +15,7 @@ type Props = {
   scheduleClasses: any;
 };
 
-const AfternoonDraggbleType = Symbol("afternoon-chip-draggable");
-
-type AfternoonChipProps = {
-  period: Period;
-  hidden?: string;
-  draggable?: boolean;
-  asPlaceholder?: boolean;
-};
-const AfternoonChip = (props: AfternoonChipProps) => {
-  const { t } = useTranslation();
-  const classes = useStyles();
-  const theme = useTheme();
-
-  const {
-    period,
-    hidden = "",
-    draggable = false,
-    asPlaceholder = false,
-  } = props;
-
-  const [_, dragRef] = useDrag({
-    item: { type: AfternoonDraggbleType },
-  });
-
-  const extraStyles = asPlaceholder
-    ? {
-        backgroundColor: theme.background.dropZone,
-        color: theme.background.dropZone,
-      }
-    : {};
-
-  const classNames = `${!period.isHalfDayAfternoonStart ? hidden : ""} ${
-    asPlaceholder ? classes.chipPlaceholder : ""
-  }`;
-
-  return (
-    <div className={classNames}>
-      <Chip
-        ref={draggable ? dragRef : null}
-        tabIndex={-1}
-        className={classes.startOfAfternoonChip}
-        label={t("Start of afternoon")}
-        style={{ ...extraStyles }}
-      />
-    </div>
-  );
-};
+const AfternoonDraggableType = Symbol("afternoon-chip-draggable");
 
 type PeriodRowProps = {
   period: Period;
@@ -72,10 +27,16 @@ type PeriodRowProps = {
 const PeriodRow = (props: PeriodRowProps) => {
   const { period, hidden, periodClassName, onDrop, isAfterMorningEnd } = props;
 
+  const { t } = useTranslation();
   const classes = useStyles();
 
+  const canDoFn = useCanDo();
+  const canScheduleSettingsSave = canDoFn([
+    PermissionEnum.ScheduleSettingsSave,
+  ]);
+
   const [{ isOver, canDrop }, dropRef] = useDrop({
-    accept: AfternoonDraggbleType,
+    accept: AfternoonDraggableType,
     drop: () => {
       onDrop();
     },
@@ -87,22 +48,32 @@ const PeriodRow = (props: PeriodRowProps) => {
 
   const renderChip = () => {
     if (isOver && canDrop) {
-      return <AfternoonChip period={period} asPlaceholder />;
+      return (
+        <DraggableScheduleChip
+          label={t("Start of afternoon")}
+          period={period}
+          asPlaceholder
+        />
+      );
     }
 
     if (!period.skipped) {
       return (
         <>
-          <Can do={[PermissionEnum.ScheduleSettingsSave]}>
-            <div className={classes.startOfAfternoon}>
-              <AfternoonChip period={period} hidden={hidden} draggable />
-            </div>
-          </Can>
-          <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
-            <div className={classes.startOfAfternoon}>
-              <AfternoonChip period={period} hidden={hidden} />
-            </div>
-          </Can>
+          <div className={classes.startOfAfternoon}>
+            <DraggableScheduleChip
+              period={period}
+              hidden={!period.isHalfDayAfternoonStart ? hidden : ""}
+              label={t("Start of afternoon")}
+              draggableId={
+                canScheduleSettingsSave ? AfternoonDraggableType : undefined
+              }
+              chipStyle={{
+                background: "#ECF9F3",
+                color: "#00C853",
+              }}
+            />
+          </div>
         </>
       );
     }
@@ -179,7 +150,7 @@ const useStyles = makeStyles(theme => ({
     to: { opacity: 0.8 },
   },
   chipPlaceholder: {
-    animation: "$fadeIn 400ms",
+    animation: "$fadeIn 120ms",
   },
 }));
 
