@@ -14,6 +14,7 @@ import { Section } from "ui/components/section";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
+import { ActionButtons } from "../../../../components/action-buttons";
 
 const editableSections = {
   approverGroupMembership: "edit-approver-group-membership",
@@ -68,7 +69,16 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                   execute: submitForm,
                 }}
               />
+              <ActionButtons
+                submit={{ text: t("Save"), execute: submitForm }}
+                cancel={{ text: t("Cancel"), execute: props.onCancel }}
+              />
             </Section>
+            <Grid container spacing={2}>
+              <Grid container item spacing={2} xs={8}>
+                {!editingThis ? <></> : <></>}
+              </Grid>
+            </Grid>
           </form>
         )}
       </Formik>
