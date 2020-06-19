@@ -720,7 +720,6 @@ type ApplicationPreset implements ModelObjectInterface {
 
 type ApplicationQueries {
   byId(id: ID!): Application
-  byId(id: ID!): Application
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Application]
 }
 

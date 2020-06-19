@@ -1,0 +1,22 @@
+query GetApproverGroupsByUser($orgId: ID!, $orgUserId: ID!) {
+  approverGroup {
+    approverGroupHeadersByOrgUserId(orgId: $orgId, orgUserId: $orgUserId) {
+      id
+      variesByLocation
+      name
+      allLocationsHaveGroup
+      approverGroups {
+        id
+        name
+        memberCount
+        location {
+          id
+          name
+        }
+      }
+      approvalWorkflows {
+        id
+      }
+    }
+  }
+}

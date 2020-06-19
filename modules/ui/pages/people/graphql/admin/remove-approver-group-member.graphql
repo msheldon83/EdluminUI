@@ -1,0 +1,7 @@
+mutation RemoveApproverGroupMember($member: ApproverGroupRemoveMemberInput!) {
+  approverGroup {
+    removeApproverGroupMember(member: $member) {
+      id
+    }
+  }
+}

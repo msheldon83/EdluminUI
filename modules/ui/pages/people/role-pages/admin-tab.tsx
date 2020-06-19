@@ -8,10 +8,12 @@ import {
   OrganizationRelationshipType,
   AdministratorInput,
   PermissionEnum,
+  ApproverGroupRemoveMemberInput,
   ApproverGroupAddMemberInput,
 } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
-import { SaveApproverGroupMember } from "../graphql/admin/save-approver-group-membership.gen";
+import { AddApproverGroupMember } from "../graphql/admin/add-approver-group-member.gen";
+import { RemoveApproverGroupMember } from "../graphql/admin/remove-approver-group-member.gen";
 import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 import { OrganizationList } from "../components/admin/org-list";
 import { PersonViewRoute } from "ui/routes/people";
@@ -20,6 +22,7 @@ import { AccessControl } from "../components/admin/access-control";
 import { ApproverGroupMembership } from "../components/admin/approver-group-membership";
 import { Information } from "../components/information";
 import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
+import { GetApproverGroupsByUser } from "../graphql/admin/get-approver-groups-by-user.gen";
 import { canEditAdmin } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
 
@@ -41,8 +44,14 @@ export const AdminTab: React.FC<Props> = props => {
     },
   });
 
-  const [updateApproverGroupMembership] = useMutationBundle(
-    SaveApproverGroupMember,
+  const [addApproverGroupMember] = useMutationBundle(AddApproverGroupMember, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [removeApproverGroupMember] = useMutationBundle(
+    RemoveApproverGroupMember,
     {
       onError: error => {
         ShowErrors(error, openSnackbar);
@@ -52,6 +61,10 @@ export const AdminTab: React.FC<Props> = props => {
 
   const getAdmin = useQueryBundle(GetAdminById, {
     variables: { id: props.orgUserId },
+  });
+
+  const getApproverGroupHeaders = useQueryBundle(GetApproverGroupsByUser, {
+    variables: { orgUserId: props.orgUserId, orgId: params.organizationId },
   });
 
   const getOrgRelationships = useQueryBundle(GetOrganizationRelationships, {
@@ -69,11 +82,17 @@ export const AdminTab: React.FC<Props> = props => {
   const orgUser =
     getAdmin.state === "LOADING" ? undefined : getAdmin?.data?.orgUser?.byId;
 
-  if (getAdmin.state === "LOADING" || !orgUser?.administrator) {
+  if (
+    getAdmin.state === "LOADING" ||
+    !orgUser?.administrator ||
+    getApproverGroupHeaders.state === "LOADING"
+  ) {
     return <></>;
   }
 
   const admin = orgUser.administrator;
+  const approverGroupHeaders =
+    getApproverGroupHeaders.data.approverGroup?.approverGroupHeadersByOrgUserId;
   const canEditThisAdmin = canDoFn(canEditAdmin, orgUser.orgId, orgUser);
 
   const onUpdateAdmin = async (admin: AdministratorInput) => {
@@ -89,16 +108,30 @@ export const AdminTab: React.FC<Props> = props => {
     await getAdmin.refetch();
   };
 
-  const onUpdateApproverGroupMembership = async (
+  //Iterate over list and add/remove values
+  const onSave = async (add: string[], remove: string[]) => {
+    props.setEditing(null);
+    await getAdmin.refetch();
+  };
+
+  const onAddApproverGroupMembership = async (
     member: ApproverGroupAddMemberInput
   ) => {
-    await updateApproverGroupMembership({
+    await addApproverGroupMember({
       variables: {
         member: member,
       },
     });
-    props.setEditing(null);
-    await getAdmin.refetch();
+  };
+
+  const onRemoveApproverGroupMembership = async (
+    member: ApproverGroupRemoveMemberInput
+  ) => {
+    await removeApproverGroupMember({
+      variables: {
+        member: member,
+      },
+    });
   };
 
   const onCancelAdmin = () => {
@@ -147,9 +180,10 @@ export const AdminTab: React.FC<Props> = props => {
       <ApproverGroupMembership
         editing={props.editing}
         editable={canEditThisAdmin}
+        approverGroupHeaders={approverGroupHeaders ?? []}
         setEditing={props.setEditing}
         orgId={orgUser.orgId.toString()}
-        onSubmit={onUpdateApproverGroupMembership}
+        onSubmit={onSave}
         onCancel={onCancelAdmin}
       />
       {showRelatedOrgs && (

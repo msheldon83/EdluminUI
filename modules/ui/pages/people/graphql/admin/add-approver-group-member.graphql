@@ -1,4 +1,4 @@
-mutation SaveApproverGroupMember($member: ApproverGroupAddMemberInput!) {
+mutation AddApproverGroupMember($member: ApproverGroupAddMemberInput!) {
   approverGroup {
     addApproverGroupMember(member: $member) {
       id
