@@ -65,6 +65,10 @@ const useStyles = makeStyles(theme => ({
     },
   },
 
+  "@keyframes fadeIn": {
+    from: { opacity: 0 },
+    to: { opacity: 0.8 },
+  },
   chipPlaceholder: {
     animation: "$fadeIn 120ms",
   },

@@ -1,8 +1,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import { Period } from "../../helpers";
-import { makeStyles, Chip } from "@material-ui/core";
-import { useTheme } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useCanDo } from "ui/components/auth/can";
@@ -23,17 +22,20 @@ type PeriodRowProps = {
   periodClassName: string;
   onDrop: () => void;
   isAfterMorningEnd: boolean;
+  canScheduleSettingsSave: boolean;
 };
 const PeriodRow = (props: PeriodRowProps) => {
-  const { period, hidden, periodClassName, onDrop, isAfterMorningEnd } = props;
+  const {
+    period,
+    hidden,
+    periodClassName,
+    onDrop,
+    isAfterMorningEnd,
+    canScheduleSettingsSave,
+  } = props;
 
   const { t } = useTranslation();
   const classes = useStyles();
-
-  const canDoFn = useCanDo();
-  const canScheduleSettingsSave = canDoFn([
-    PermissionEnum.ScheduleSettingsSave,
-  ]);
 
   const [{ isOver, canDrop }, dropRef] = useDrop({
     accept: AfternoonDraggableType,
@@ -46,14 +48,12 @@ const PeriodRow = (props: PeriodRowProps) => {
     }),
   });
 
+  const label = t("Start of afternoon");
+
   const renderChip = () => {
     if (isOver && canDrop) {
       return (
-        <DraggableScheduleChip
-          label={t("Start of afternoon")}
-          period={period}
-          asPlaceholder
-        />
+        <DraggableScheduleChip label={label} period={period} asPlaceholder />
       );
     }
 
@@ -64,7 +64,7 @@ const PeriodRow = (props: PeriodRowProps) => {
             <DraggableScheduleChip
               period={period}
               hidden={!period.isHalfDayAfternoonStart ? hidden : ""}
-              label={t("Start of afternoon")}
+              label={label}
               draggableId={
                 canScheduleSettingsSave ? AfternoonDraggableType : undefined
               }
@@ -89,24 +89,30 @@ const PeriodRow = (props: PeriodRowProps) => {
 };
 
 export const ScheduleAfternoonColumn: React.FC<Props> = props => {
+  const canDoFn = useCanDo();
+  const canScheduleSettingsSave = canDoFn([
+    PermissionEnum.ScheduleSettingsSave,
+  ]);
+
   const endOfMorningIndex = props.periods.findIndex(p => p.isHalfDayMorningEnd);
 
   return (
     <div>
-      {props.periods.map((p, i) => {
+      {props.periods.map((period, i) => {
         const periodClasses = clsx({
           [props.scheduleClasses.period]: true,
           [props.scheduleClasses.alternatingItem]: i % 2 === 1,
-          [props.scheduleClasses.skippedPeriod]: p.skipped,
+          [props.scheduleClasses.skippedPeriod]: period.skipped,
         });
 
         return (
           <PeriodRow
-            period={p}
+            period={period}
             hidden={props.scheduleClasses.hidden}
             periodClassName={periodClasses}
             isAfterMorningEnd={i >= endOfMorningIndex}
-            key={p.periodId ?? i}
+            canScheduleSettingsSave={canScheduleSettingsSave}
+            key={period.periodId ?? i}
             onDrop={() => {
               const updatedPeriods = handleDrop(props.periods, i);
               props.setPeriods(updatedPeriods);
@@ -124,16 +130,6 @@ const useStyles = makeStyles(theme => ({
     width: "auto",
     display: "block",
   },
-  startOfAfternoonChip: {
-    background: "#ECF9F3",
-    color: "#00C853",
-    cursor: "grab",
-    transform: "translate(0, 0)",
-
-    "&:active": {
-      cursor: "grabbing",
-    },
-  },
   chipWrapper: {
     /*
       This overrides some parent style that is impossible to override without the !important
@@ -143,14 +139,6 @@ const useStyles = makeStyles(theme => ({
       https://github.com/RedRoverK12/EdluminUI/blob/d177675a74415338dcda20f7f166fb9e575730f1/modules/ui/pages/bell-schedule/components/schedule.tsx#L340
     */
     justifyContent: "flex-end !important",
-  },
-
-  "@keyframes fadeIn": {
-    from: { opacity: 0 },
-    to: { opacity: 0.8 },
-  },
-  chipPlaceholder: {
-    animation: "$fadeIn 120ms",
   },
 }));
 

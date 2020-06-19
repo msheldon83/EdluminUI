@@ -1,11 +1,9 @@
 import * as React from "react";
 import clsx from "clsx";
-import { makeStyles, Chip } from "@material-ui/core";
-import { useTheme } from "@material-ui/core/styles";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useCanDo } from "ui/components/auth/can";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrop } from "react-dnd";
 import { Period } from "../../helpers";
 import { DraggableScheduleChip } from "./DraggableScheduleChip";
 
@@ -23,6 +21,7 @@ type PeriodRowProps = {
   periodClassName: string;
   onDrop: () => void;
   isBeforeAfternoonStart: boolean;
+  canScheduleSettingsSave: boolean;
 };
 const PeriodRow = (props: PeriodRowProps) => {
   const {
@@ -31,14 +30,11 @@ const PeriodRow = (props: PeriodRowProps) => {
     periodClassName,
     onDrop,
     isBeforeAfternoonStart,
+    canScheduleSettingsSave,
   } = props;
 
   const { t } = useTranslation();
 
-  const canDoFn = useCanDo();
-  const canScheduleSettingsSave = canDoFn([
-    PermissionEnum.ScheduleSettingsSave,
-  ]);
   const [{ isOver, canDrop }, dropRef] = useDrop({
     accept: MorningDraggableType,
     drop: () => {
@@ -50,14 +46,12 @@ const PeriodRow = (props: PeriodRowProps) => {
     }),
   });
 
+  const label = t("End of morning");
+
   const renderChip = () => {
     if (isOver && canDrop) {
       return (
-        <DraggableScheduleChip
-          label={t("End of morning")}
-          period={period}
-          asPlaceholder
-        />
+        <DraggableScheduleChip label={label} period={period} asPlaceholder />
       );
     }
 
@@ -67,7 +61,7 @@ const PeriodRow = (props: PeriodRowProps) => {
           <DraggableScheduleChip
             period={period}
             hidden={!period.isHalfDayMorningEnd ? hidden : ""}
-            label={t("End of morning")}
+            label={label}
             draggableId={
               canScheduleSettingsSave ? MorningDraggableType : undefined
             }
@@ -91,28 +85,33 @@ const PeriodRow = (props: PeriodRowProps) => {
 };
 
 export const ScheduleMorningColumn: React.FC<Props> = props => {
+  const canDoFn = useCanDo();
+  const canScheduleSettingsSave = canDoFn([
+    PermissionEnum.ScheduleSettingsSave,
+  ]);
+
   const startOfAfternoonIndex = props.periods.findIndex(
     p => p.isHalfDayAfternoonStart
   );
 
   return (
     <div>
-      {props.periods.map((p, i) => {
+      {props.periods.map((period, i) => {
         const periodClasses = clsx({
           [props.scheduleClasses.period]: true,
           [props.scheduleClasses.alternatingItem]: i % 2 === 1,
-          [props.scheduleClasses.skippedPeriod]: p.skipped,
+          [props.scheduleClasses.skippedPeriod]: period.skipped,
         });
 
         return (
           <PeriodRow
-            period={p}
+            period={period}
             hidden={props.scheduleClasses.hidden}
             periodClassName={periodClasses}
             isBeforeAfternoonStart={i <= startOfAfternoonIndex}
-            key={p.periodId ?? i}
+            key={period.periodId ?? i}
+            canScheduleSettingsSave={canScheduleSettingsSave}
             onDrop={() => {
-              console.log("dropped");
               const updatedPeriods = handleDrop(props.periods, i);
               props.setPeriods(updatedPeriods);
             }}
@@ -122,29 +121,6 @@ export const ScheduleMorningColumn: React.FC<Props> = props => {
     </div>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  endOfMorning: {
-    textAlign: "left",
-  },
-  endOfMorningChip: {
-    background: "#FCE7E7",
-    color: "#E53935",
-    cursor: "grab",
-    transform: "translate(0, 0)",
-
-    "&:active": {
-      cursor: "grabbing",
-    },
-  },
-  "@keyframes fadeIn": {
-    from: { opacity: 0 },
-    to: { opacity: 0.8 },
-  },
-  chipPlaceholder: {
-    animation: "$fadeIn 120ms",
-  },
-}));
 
 const handleDrop = (periods: Period[], dropIndex: number) => {
   if (periods[dropIndex].skipped) {
