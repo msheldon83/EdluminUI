@@ -42,7 +42,7 @@ const PeriodRow = (props: PeriodRowProps) => {
     },
     collect: monitor => ({
       isOver: !!monitor.isOver(),
-      canDrop: !!monitor.canDrop() && isBeforeAfternoonStart,
+      canDrop: !!monitor.canDrop() && isBeforeAfternoonStart && !period.skipped,
     }),
   });
 
