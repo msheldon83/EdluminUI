@@ -5,6 +5,17 @@ mutation CreateCalendarChange($calendarChange: CalendarChangeCreateInput!) {
       description
       startDate
       endDate
+      rowVersion
+      calendarChangeReasonId
+      affectsAllContracts
+      changedContracts {
+        id
+        name
+      }
+      calendarChangeReason {
+        id
+        name
+      }
     }
   }
 }
