@@ -63,7 +63,7 @@ export const AdminTab: React.FC<Props> = props => {
     variables: { id: props.orgUserId },
   });
 
-  const getApproverGroupHeaders = useQueryBundle(GetApproverGroupsByUser, {
+  const getUserApproverGroupHeaders = useQueryBundle(GetApproverGroupsByUser, {
     variables: { orgUserId: props.orgUserId, orgId: params.organizationId },
   });
 
@@ -85,14 +85,15 @@ export const AdminTab: React.FC<Props> = props => {
   if (
     getAdmin.state === "LOADING" ||
     !orgUser?.administrator ||
-    getApproverGroupHeaders.state === "LOADING"
+    getUserApproverGroupHeaders.state === "LOADING"
   ) {
     return <></>;
   }
 
   const admin = orgUser.administrator;
-  const approverGroupHeaders =
-    getApproverGroupHeaders.data.approverGroup?.approverGroupHeadersByOrgUserId;
+  const userApproverGroupHeaders =
+    getUserApproverGroupHeaders.data.approverGroup
+      ?.approverGroupHeadersByOrgUserId;
   const canEditThisAdmin = canDoFn(canEditAdmin, orgUser.orgId, orgUser);
 
   const onUpdateAdmin = async (admin: AdministratorInput) => {
@@ -108,10 +109,26 @@ export const AdminTab: React.FC<Props> = props => {
     await getAdmin.refetch();
   };
 
-  //Iterate over list and add/remove values
-  const onSave = async (add: string[], remove: string[]) => {
+  const onSave = async (add: any[] | undefined, remove: any[] | undefined) => {
+    if (add && add?.length !== 0) {
+      add?.map(e =>
+        onAddApproverGroupMembership({
+          approverGroupId: e,
+          orgUserId: props.orgUserId,
+          orgId: params.organizationId,
+        })
+      );
+    }
+    if (remove && remove.length > 0) {
+      remove.map(e =>
+        onRemoveApproverGroupMembership({
+          approverGroupId: e,
+          orgUserId: props.orgUserId,
+        })
+      );
+    }
+    await getUserApproverGroupHeaders.refetch();
     props.setEditing(null);
-    await getAdmin.refetch();
   };
 
   const onAddApproverGroupMembership = async (
@@ -180,7 +197,7 @@ export const AdminTab: React.FC<Props> = props => {
       <ApproverGroupMembership
         editing={props.editing}
         editable={canEditThisAdmin}
-        approverGroupHeaders={approverGroupHeaders ?? []}
+        userApproverGroupHeaders={userApproverGroupHeaders ?? []}
         setEditing={props.setEditing}
         orgId={orgUser.orgId.toString()}
         onSubmit={onSave}

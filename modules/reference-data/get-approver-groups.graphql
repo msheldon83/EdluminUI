@@ -2,7 +2,16 @@ query GetApproverGroups($orgId: ID!) {
   approverGroup {
     all(orgId: $orgId) {
       id
+      variesByLocation
       name
+      approverGroups {
+        id
+        name
+        location {
+          id
+          name
+        }
+      }
     }
   }
 }
