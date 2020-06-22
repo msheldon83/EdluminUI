@@ -10,15 +10,18 @@ import {
 
 export const EmployeeBalancesReport: React.FC<{}> = () => {
   const { t } = useTranslation();
-  const organizationId = useOrganizationId();
-  const currentSchoolYear = useCurrentSchoolYear(organizationId ?? undefined);
+  const orgId = useOrganizationId();
+  const currentSchoolYear = useCurrentSchoolYear(orgId ?? undefined);
 
   // TODO: Once we have Saved Views, the need for this localStorage piece
   // goes away. The localStorageKey has the Date in it on the off chance
   // we need to come into here and modify the canned report RDL prior to
   // implementing Saved Views and want to make sure all Users default back
   // to the RDL that we define the next time they visit this report.
-  const localStorageKey = "AbsenceReasonBalancesReport_20200616";
+  const localStorageKey = React.useMemo(
+    () => `AbsenceReasonBalancesReport_20200618_${orgId}`,
+    [orgId]
+  );
   const rdl = React.useMemo(() => {
     const localStorageRdl = getRdlFromLocalStorage(localStorageKey);
     if (localStorageRdl) {
@@ -26,7 +29,7 @@ export const EmployeeBalancesReport: React.FC<{}> = () => {
     }
 
     return `QUERY FROM EmployeeBalances WHERE (SchoolYearId = ${currentSchoolYear?.id}) SELECT BalanceName, NetBalance, AbsenceReasonUsageUnit, SchoolYearName, AbsenceReasonName, AbsenceReasonCategoryName, InitialBalance, UsedBalance, UnusedBalance, Identifier AS 'Employee Identifier', Title, PositionTypeName, LocationNames ORDER BY Concat(LastName, ', ', FirstName) ASC WITH SUBTOTALS OrgUserId SHOW Concat(LastName, ', ', FirstName) AS Employee`;
-  }, [currentSchoolYear?.id]);
+  }, [currentSchoolYear?.id, localStorageKey]);
 
   if (!currentSchoolYear) {
     return <></>;
