@@ -114,7 +114,10 @@ module.exports = {
   },
 
   plugins: [
-    new CopyPlugin([{ from: "scripts/new-relic.js" }]),
+    new CopyPlugin([
+      { from: "scripts/new-relic.js" },
+      { from: "static" },
+    ]),
 
     // Define global letiables in the client to instrument behavior.
     new webpack.DefinePlugin({
