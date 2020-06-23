@@ -95,7 +95,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       variables: {
         verifyAllInput: {
           orgId: params.organizationId,
-          doVerify: true,
           vacancyDetails: assignments.map(assignmentToVacancy),
         },
       },
@@ -110,8 +109,12 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     payCodeId: assignment.payCode?.id,
     payDurationOverride: assignment.payDurationOverride,
     dayPortion: assignment.dayPortion,
-    accountingCodeAllocations: assignment.accountingCodeAllocations,
+    accountingCodeAllocations: assignment.accountingCodeAllocations.map(a => ({
+      accountingCodeId: a.id,
+      allocation: a.allocation,
+    })),
     payTypeId: assignment.payInfo?.payTypeId,
+    doVerify: true,
   });
 
   return (

@@ -2,8 +2,8 @@ import { VacancyDetail } from "graphql/server-types.gen";
 
 export type DayRow = {
   date: Date;
-  verifiedAssignments: number;
-  totalAssignments: number;
+  unverifiedCount: number;
+  totalCount: number;
 };
 
 export type AssignmentDetail = Pick<
