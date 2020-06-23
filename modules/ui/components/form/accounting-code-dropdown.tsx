@@ -14,6 +14,7 @@ type AccountingCodeDropdownProps = {
   value?: AccountingCodeValue;
   options: OptionType[];
   onChange: (value: AccountingCodeValue) => void;
+  showLabel?: boolean;
 };
 
 export type AccountingCodeValue =
@@ -69,7 +70,7 @@ const newAllocation = (): Allocation => ({
 });
 
 export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
-  const { value, options, onChange } = props;
+  const { value, options, onChange, showLabel = true } = props;
 
   const classes = useStyles();
   const { t } = useTranslation();
@@ -195,7 +196,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     <div className={classes.container}>
       <Select
         value={value?.selection}
-        label={t("Accounting code")}
+        label={showLabel ? t("Accounting code") : undefined}
         placeholder={t("Select code")}
         options={mainDropdownOptions}
         readOnly={value?.type === "multiple-allocations"}
