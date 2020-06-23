@@ -147,6 +147,7 @@ export const SelectedDetail: React.FC<Props> = props => {
           currentStepId={approvalState?.currentStepId ?? ""}
           steps={approvalWorkflowSteps}
           workflowName={approvalState?.approvalWorkflow?.name ?? ""}
+          decisions={approvalState?.decisions}
         />
       </Grid>
       <Grid item xs={12}>

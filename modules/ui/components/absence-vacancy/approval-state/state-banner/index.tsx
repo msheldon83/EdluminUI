@@ -17,6 +17,7 @@ import { useMyApprovalWorkflows } from "reference-data/my-approval-workflows";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { ApprovalWorkflowSteps } from "../types";
 import clsx from "clsx";
+import { ApprovalAction } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
@@ -32,6 +33,10 @@ type Props = {
   isTrueVacancy: boolean;
   onChange?: () => void;
   locationIds: string[];
+  decisions?: {
+    stepId: string;
+    approvalActionId: ApprovalAction;
+  }[];
 };
 
 export const ApprovalState: React.FC<Props> = props => {
@@ -44,6 +49,7 @@ export const ApprovalState: React.FC<Props> = props => {
     actingAsEmployee,
     approvalStatusId,
     currentStepId,
+    decisions,
   } = props;
 
   const userAccess = useMyUserAccess();
@@ -67,7 +73,7 @@ export const ApprovalState: React.FC<Props> = props => {
   };
 
   const currentStep = approvalWorkflowSteps.find(
-    x => x.stepId === props.currentStepId
+    x => x.stepId === currentStepId
   );
 
   const orderedSteps = useMemo(() => {
@@ -86,30 +92,32 @@ export const ApprovalState: React.FC<Props> = props => {
     return compact(orderedSteps);
   }, [approvalWorkflowSteps]);
 
-  const currentStepIndex = useMemo(
-    () => orderedSteps.findIndex(x => x.stepId === currentStepId),
-    [orderedSteps, currentStepId]
-  );
-
-  const approvedSteps = useMemo(() => orderedSteps.slice(0, currentStepIndex), [
-    orderedSteps,
-    currentStepIndex,
-  ]);
-  console.log(approvedSteps);
-  const pendingStep = useMemo(() => orderedSteps[currentStepIndex], [
-    orderedSteps,
-    currentStepIndex,
-  ]);
-  const nextSteps = useMemo(
-    () => orderedSteps.slice(currentStepIndex + 1, orderedSteps.length),
-    [orderedSteps, currentStepIndex]
-  );
+  const deniedStepIds =
+    compact(
+      decisions?.map(x => {
+        if (x.approvalActionId === ApprovalAction.Deny) return x.stepId;
+      })
+    ) ?? [];
+  const approvedStepIds =
+    compact(
+      decisions?.map(x => {
+        if (x.approvalActionId === ApprovalAction.Approve) return x.stepId;
+      })
+    ) ?? [];
 
   const barPercentage = useMemo(() => {
     if (approvalStatusId === ApprovalStatus.Approved) return 100;
-
-    return (approvedSteps.length / orderedSteps.length) * 100;
-  }, [approvalStatusId, approvedSteps.length, orderedSteps.length]);
+    return (
+      ((approvedStepIds.length + deniedStepIds.length) /
+        (orderedSteps.length - 2)) *
+      100
+    );
+  }, [
+    approvalStatusId,
+    approvedStepIds.length,
+    deniedStepIds.length,
+    orderedSteps.length,
+  ]);
 
   const allowComments = useMemo(() => {
     if (actingAsEmployee) return true;

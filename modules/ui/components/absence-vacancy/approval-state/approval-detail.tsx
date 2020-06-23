@@ -46,6 +46,7 @@ type Props = {
     };
   }[];
   decisions: {
+    stepId: string;
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
     actingUser: {
@@ -185,6 +186,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
             currentStepId={props.currentStepId}
             steps={props.approvalWorkflowSteps}
             workflowName={props.approvalWorkflowName}
+            decisions={props.decisions}
           />
           <ApprovalComments
             orgId={props.orgId}
