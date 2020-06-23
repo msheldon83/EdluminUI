@@ -91,24 +91,34 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
   const approverGroupHeaderOptions: OptionType[] = useMemo(
     () =>
       approverGroupHeaders
-        // .filter(l => !userApproverGroupHeaders?.filter(e => e?.id === l.id))
+        .filter(
+          l =>
+            !userApproverGroupHeaders?.find(
+              e => e?.id === l.id && !e.variesByLocation
+            )
+        )
         .map(p => ({ label: p.name, value: p.id })),
     [approverGroupHeaders, userApproverGroupHeaders]
-  );
-
-  const locations = useLocations(props.orgId);
-  const locationOptions: OptionType[] = useMemo(
-    () =>
-      locations
-        .filter(l => selectedLocation !== l.locationGroupId)
-        .map(p => ({ label: p.name, value: p.id })),
-    [locations, selectedLocation]
   );
 
   const selectedApproverGroupHeader = useMemo(
     () =>
       approverGroupHeaders.find(e => e.id === approverGroupHeaderIdSelected),
     [approverGroupHeaders, approverGroupHeaderIdSelected]
+  );
+
+  const locations = useLocations(props.orgId);
+  const locationOptions: OptionType[] = useMemo(
+    () =>
+      locations
+        .filter(
+          l =>
+            !selectedApproverGroupHeader?.approverGroups.find(
+              c => c?.location?.id === l.id
+            )?.location
+        )
+        .map(p => ({ label: p.name, value: p.id })),
+    [locations, selectedApproverGroupHeader]
   );
 
   if (!userApproverGroupHeaders) {
@@ -153,24 +163,22 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
   const locationAction = async () => {
     let approverGroupIdToAdd = selectedApproverGroupHeader?.approverGroups.find(
       x => selectedLocation === x?.location?.id
-    );
+    )?.id;
 
-    console.log(approverGroupIdToAdd);
+    if (approverGroupIdToAdd === undefined && selectedLocation) {
+      approverGroupIdToAdd = await onAddApproverGroupLocation({
+        approverGroupHeaderId:
+          (selectedApproverGroupHeader && selectedApproverGroupHeader.id) ?? "",
+        locationId: selectedLocation,
+        orgId: props.orgId,
+      });
+    }
 
-    // if (approverGroupIdToAdd === undefined && selectedLocation) {
-    //   approverGroupIdToAdd = await onAddApproverGroupLocation({
-    //     approverGroupHeaderId:
-    //       (selectedApproverGroupHeader && selectedApproverGroupHeader.id) ?? "",
-    //     locationId: selectedLocation,
-    //     orgId: props.orgId,
-    //   });
-    // }
-
-    // const result = onAddApproverGroupMembership({
-    //   approverGroupId: approverGroupIdToAdd!,
-    //   orgId: props.orgId,
-    //   orgUserId: props.orgUserId,
-    // });
+    const result = await onAddApproverGroupMembership({
+      approverGroupId: approverGroupIdToAdd!,
+      orgId: props.orgId,
+      orgUserId: props.orgUserId,
+    });
   };
 
   return (
@@ -256,6 +264,7 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                       <TextButton
                         className={clsx(classes.addLink, classes.displayInline)}
                         onClick={async () => {
+                          setFieldValue("locationIds", "");
                           await locationAction();
                         }}
                       >
@@ -270,6 +279,7 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                             classes.displayInline
                           )}
                           onClick={async () => {
+                            setFieldValue("approverGroupHeaderId", "");
                             const result = await onAddApproverGroupMembership({
                               approverGroupId:
                                 (selectedApproverGroupHeader &&
@@ -303,7 +313,7 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                                   n?.approverGroups.map((x: any, j: number) => (
                                     <>
                                       <div
-                                        key={i + 1000}
+                                        key={j + 1000}
                                         className={clsx(
                                           classes.indent,
                                           classes.displayInline
@@ -385,7 +395,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.darkRed,
   },
   addLink: {
-    marginTop: "5px",
+    marginTop: "15px",
     color: theme.customColors.blue,
   },
   indent: {
