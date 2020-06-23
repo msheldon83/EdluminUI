@@ -1,0 +1,7 @@
+mutation AddApproverGroupLocation($approverGroup: ApproverGroupCreateInput!) {
+  approverGroup {
+    createApproverGroupForLocation(approverGroup: $approverGroup) {
+      id
+    }
+  }
+}
