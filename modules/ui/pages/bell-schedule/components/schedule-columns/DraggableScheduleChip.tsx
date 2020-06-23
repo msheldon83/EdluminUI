@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useTheme } from "@material-ui/core/styles";
 import { makeStyles, Chip } from "@material-ui/core";
 import { Period } from "../../helpers";
-import { useDrag } from "react-dnd";
+import { useDrag } from "hooks/drag-drop";
 
 type AfternoonChipProps = {
   period: Period;
@@ -19,7 +19,6 @@ export const DraggableScheduleChip = (props: AfternoonChipProps) => {
   const theme = useTheme();
 
   const {
-    period,
     hidden = "",
     asPlaceholder = false,
     draggableId,
@@ -27,8 +26,8 @@ export const DraggableScheduleChip = (props: AfternoonChipProps) => {
     chipStyle,
   } = props;
 
-  const [_, dragRef] = useDrag({
-    item: { type: draggableId ?? Symbol(Math.random()) },
+  const { dragRef } = useDrag({
+    dragId: draggableId ?? Symbol(Math.random()),
   });
 
   const extraStyles = asPlaceholder
