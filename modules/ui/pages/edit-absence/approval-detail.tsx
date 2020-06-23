@@ -73,6 +73,7 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
         actingAsEmployee={props.actingAsEmployee}
         approvalStateId={approvalState.id}
         approvalWorkflowId={approvalState.approvalWorkflowId}
+        approvalWorkflowName={approvalState.approvalWorkflow.name}
         approvalStatusId={approvalState.approvalStatusId}
         onApprove={onApproveOrDeny}
         onDeny={onApproveOrDeny}

@@ -87,6 +87,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               simpleSummary={false}
               locationIds={absence.locationIds}
               decisions={absence.approvalState?.decisions}
+              absVacId={absence.id}
             />
             <div className={!isMobile ? classes.buttonContainer : undefined}>
               <ApproveDenyButtons
@@ -119,6 +120,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               simpleSummary={false}
               locationIds={compact(vacancy.details.map(x => x.locationId))}
               decisions={vacancy.approvalState?.decisions}
+              absVacId={vacancy.id}
             />
             <div className={!isMobile ? classes.buttonContainer : undefined}>
               <ApproveDenyButtons
@@ -138,12 +140,13 @@ export const SelectedDetail: React.FC<Props> = props => {
         </div>
       )}
       <Grid item xs={12}>
-        <Divider />
+        <Divider className={classes.divider} />
       </Grid>
       <Grid item xs={12}>
         <WorkflowSummary
           currentStepId={approvalState?.currentStepId ?? ""}
           steps={approvalWorkflowSteps}
+          workflowName={approvalState?.approvalWorkflow?.name ?? ""}
         />
       </Grid>
       <Grid item xs={12}>
@@ -157,7 +160,7 @@ export const SelectedDetail: React.FC<Props> = props => {
         />
       </Grid>
       <Grid item xs={12}>
-        <Divider />
+        <Divider className={classes.divider} />
       </Grid>
       {!props.selectedItem?.isNormalVacancy && absence && (
         <Grid item xs={12}>
@@ -223,5 +226,10 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     width: "100%",
+  },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
 }));

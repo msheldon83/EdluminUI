@@ -7,6 +7,7 @@ import { ApprovalWorkflowSteps } from "./types";
 
 type Props = {
   steps: ApprovalWorkflowSteps[];
+  workflowName: string;
   currentStepId?: string | null;
 };
 
@@ -25,7 +26,9 @@ export const WorkflowSummary: React.FC<Props> = props => {
     let step = steps.find(s => s.isFirstStep);
     do {
       step = steps.find(
-        s => s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto
+        s =>
+          s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto &&
+          !s.deleted
       );
       ordered.push({
         stepId: step?.stepId,
@@ -111,16 +114,18 @@ export const WorkflowSummary: React.FC<Props> = props => {
 
   return (
     <div className={classes.container}>
-      {approvedSteps.length > 0 && renderApprovedSteps()}
-      {pendingStep && renderPendingStep()}
-      {nextSteps.length > 1 && renderNextSteps()}
+      <div className={classes.workflowTitle}>{props.workflowName}</div>
+      <div className={classes.stepsContainer}>
+        {approvedSteps.length > 0 && renderApprovedSteps()}
+        {pendingStep && renderPendingStep()}
+        {nextSteps.length > 1 && renderNextSteps()}
+      </div>
     </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   container: {
-    display: "flex",
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
   },
@@ -131,6 +136,10 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 600,
     fontSize: theme.typography.pxToRem(16),
     marginBottom: theme.spacing(0.5),
+  },
+  workflowTitle: {
+    fontWeight: 500,
+    fontSize: theme.typography.pxToRem(14),
   },
   groupNameText: {
     verticalAlign: "middle",

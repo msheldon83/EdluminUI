@@ -16,6 +16,7 @@ import { useMyApproverGroupHeaders } from "reference-data/my-approver-group-head
 import { useMyApprovalWorkflows } from "reference-data/my-approval-workflows";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { ApprovalWorkflowSteps } from "../types";
+import clsx from "clsx";
 
 type Props = {
   orgId: string;
@@ -42,6 +43,7 @@ export const ApprovalState: React.FC<Props> = props => {
     approvalWorkflowId,
     actingAsEmployee,
     approvalStatusId,
+    currentStepId,
   } = props;
 
   const userAccess = useMyUserAccess();
@@ -68,13 +70,15 @@ export const ApprovalState: React.FC<Props> = props => {
     x => x.stepId === props.currentStepId
   );
 
-  const orderSteps = useMemo(() => {
+  const orderedSteps = useMemo(() => {
     const orderedSteps: { stepId: string | null | undefined }[] = [];
     let step = approvalWorkflowSteps.find(s => s.isFirstStep);
     orderedSteps.push({ stepId: step?.stepId });
     do {
       step = approvalWorkflowSteps.find(
-        s => s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto
+        s =>
+          s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto &&
+          !s.deleted
       );
       orderedSteps.push({ stepId: step?.stepId });
     } while (step && !step?.isLastStep);
@@ -82,11 +86,30 @@ export const ApprovalState: React.FC<Props> = props => {
     return compact(orderedSteps);
   }, [approvalWorkflowSteps]);
 
-  const barPercentage =
-    (orderSteps.findIndex(x => x.stepId === props.currentStepId) /
-      orderSteps.length -
-      2) *
-    100;
+  const currentStepIndex = useMemo(
+    () => orderedSteps.findIndex(x => x.stepId === currentStepId),
+    [orderedSteps, currentStepId]
+  );
+
+  const approvedSteps = useMemo(() => orderedSteps.slice(0, currentStepIndex), [
+    orderedSteps,
+    currentStepIndex,
+  ]);
+  console.log(approvedSteps);
+  const pendingStep = useMemo(() => orderedSteps[currentStepIndex], [
+    orderedSteps,
+    currentStepIndex,
+  ]);
+  const nextSteps = useMemo(
+    () => orderedSteps.slice(currentStepIndex + 1, orderedSteps.length),
+    [orderedSteps, currentStepIndex]
+  );
+
+  const barPercentage = useMemo(() => {
+    if (approvalStatusId === ApprovalStatus.Approved) return 100;
+
+    return (approvedSteps.length / orderedSteps.length) * 100;
+  }, [approvalStatusId, approvedSteps.length, orderedSteps.length]);
 
   const allowComments = useMemo(() => {
     if (actingAsEmployee) return true;
@@ -125,118 +148,112 @@ export const ApprovalState: React.FC<Props> = props => {
     myApproverGroupHeaders,
   ]);
 
-  switch (props.approvalStatusId) {
-    case ApprovalStatus.Approved:
-      return (
-        <div className={[classes.container, classes.approved].join(" ")}>
-          <div className={classes.statusText}>{t("Approved")}</div>
-          <LinearProgress
-            className={classes.progress}
-            variant="determinate"
-            value={100}
-            classes={{
-              barColorPrimary: classes.approvedBar,
-              colorPrimary: classes.unfilledBar,
-            }}
-          />
-        </div>
-      );
-    case ApprovalStatus.Denied:
-      return (
-        <div className={[classes.container, classes.denied].join(" ")}>
-          <div className={classes.statusText}>{t("Denied")}</div>
-          <LinearProgress
-            className={classes.progress}
-            variant="determinate"
-            value={100}
-            classes={{
-              barColorPrimary: classes.deniedBar,
-              colorPrimary: classes.unfilledBar,
-            }}
-          />
-        </div>
-      );
-    case ApprovalStatus.PartiallyApproved:
-    case ApprovalStatus.ApprovalRequired:
-      return (
-        <>
-          <ApproveDenyDialog
-            open={approveDialogOpen}
-            onClose={onCloseDialog}
-            approvalStateId={props.approvalStateId}
-            onApproveDeny={props.onChange}
-          />
-          <CommentDialog
-            open={commentDialogOpen}
-            onClose={onCloseDialog}
-            approvalStateId={props.approvalStateId}
-            actingAsEmployee={props.actingAsEmployee}
-            onSaveComment={props.onChange}
-            approvalWorkflowId={props.approvalWorkflowId}
-          />
-          <div className={[classes.container, classes.pending].join(" ")}>
-            <div className={classes.buttonContainer}>
-              <div className={classes.progressContainer}>
-                <div className={classes.statusText}>{`${t(
-                  "Pending approval from"
-                )} ${currentStep?.approverGroupHeader?.name}`}</div>
-                <LinearProgress
-                  className={classes.progress}
-                  variant="determinate"
-                  value={barPercentage}
-                  classes={{
-                    barColorPrimary: classes.pendingBar,
-                    colorPrimary: classes.unfilledBar,
-                  }}
-                />
-              </div>
-              <div className={classes.button}>
-                {showApproveDenyButtons ? (
-                  <Button variant="outlined" onClick={onOpenApproveDialog}>
-                    {t("Approve/Deny")}
-                  </Button>
-                ) : (
-                  allowComments && (
-                    <Button variant="outlined" onClick={onOpenCommentDialog}>
-                      {t("Comment")}
-                    </Button>
-                  )
-                )}
-              </div>
-            </div>
-            <div className={classes.detailsContainer}>
-              <img
-                src={require("ui/icons/comment.svg")}
-                className={classes.commentIcon}
-              />
-              <div>{`${props.countOfComments} ${t("comments")}`}</div>
-              <Link
-                to={
-                  props.isTrueVacancy
-                    ? VacancyApprovalViewRoute.generate({
-                        organizationId: props.orgId,
-                        vacancyId: props.vacancyId!,
-                      })
-                    : props.actingAsEmployee
-                    ? EmployeeAbsenceApprovalViewRoute.generate({
-                        absenceId: props.absenceId!,
-                      })
-                    : AdminAbsenceApprovalViewRoute.generate({
-                        organizationId: props.orgId,
-                        absenceId: props.absenceId!,
-                      })
-                }
-                className={classes.link}
-              >
-                {t("View details")}
-              </Link>
-            </div>
-          </div>
-        </>
-      );
-    default:
-      return <></>;
+  if (
+    props.approvalStatusId !== ApprovalStatus.Approved &&
+    props.approvalStatusId !== ApprovalStatus.Denied &&
+    props.approvalStatusId !== ApprovalStatus.PartiallyApproved &&
+    props.approvalStatusId !== ApprovalStatus.ApprovalRequired
+  ) {
+    return <></>;
   }
+
+  return (
+    <>
+      <ApproveDenyDialog
+        open={approveDialogOpen}
+        onClose={onCloseDialog}
+        approvalStateId={props.approvalStateId}
+        onApproveDeny={props.onChange}
+      />
+      <CommentDialog
+        open={commentDialogOpen}
+        onClose={onCloseDialog}
+        approvalStateId={props.approvalStateId}
+        actingAsEmployee={props.actingAsEmployee}
+        onSaveComment={props.onChange}
+        approvalWorkflowId={props.approvalWorkflowId}
+      />
+
+      <div
+        className={clsx({
+          [classes.container]: true,
+          [classes.approved]: approvalStatusId === ApprovalStatus.Approved,
+          [classes.denied]: approvalStatusId === ApprovalStatus.Denied,
+          [classes.pending]:
+            approvalStatusId === ApprovalStatus.PartiallyApproved ||
+            approvalStatusId === ApprovalStatus.ApprovalRequired,
+        })}
+      >
+        <div className={classes.buttonContainer}>
+          <div className={classes.progressContainer}>
+            <div className={classes.statusText}>
+              {approvalStatusId == ApprovalStatus.Approved
+                ? t("Approved")
+                : approvalStatusId == ApprovalStatus.Denied
+                ? t("Denied")
+                : `${t("Pending approval from")} ${
+                    currentStep?.approverGroupHeader?.name
+                  }`}
+            </div>
+            <LinearProgress
+              className={classes.progress}
+              variant="determinate"
+              value={barPercentage}
+              classes={{
+                barColorPrimary:
+                  approvalStatusId == ApprovalStatus.Approved
+                    ? classes.approvedBar
+                    : approvalStatusId == ApprovalStatus.Denied
+                    ? classes.deniedBar
+                    : classes.pendingBar,
+                colorPrimary: classes.unfilledBar,
+              }}
+            />
+          </div>
+          <div className={classes.button}>
+            {showApproveDenyButtons ? (
+              <Button variant="outlined" onClick={onOpenApproveDialog}>
+                {t("Approve/Deny")}
+              </Button>
+            ) : (
+              allowComments && (
+                <Button variant="outlined" onClick={onOpenCommentDialog}>
+                  {t("Comment")}
+                </Button>
+              )
+            )}
+          </div>
+        </div>
+        <div className={classes.detailsContainer}>
+          <img
+            src={require("ui/icons/comment.svg")}
+            className={classes.commentIcon}
+          />
+          <div>{`${props.countOfComments} ${t("comments")}`}</div>
+          <Link
+            to={
+              props.isTrueVacancy
+                ? VacancyApprovalViewRoute.generate({
+                    organizationId: props.orgId,
+                    vacancyId: props.vacancyId!,
+                  })
+                : props.actingAsEmployee
+                ? EmployeeAbsenceApprovalViewRoute.generate({
+                    absenceId: props.absenceId!,
+                  })
+                : AdminAbsenceApprovalViewRoute.generate({
+                    organizationId: props.orgId,
+                    absenceId: props.absenceId!,
+                  })
+            }
+            className={classes.link}
+          >
+            {t("View details")}
+          </Link>
+        </div>
+      </div>
+    </>
+  );
 };
 
 const useStyles = makeStyles(theme => ({

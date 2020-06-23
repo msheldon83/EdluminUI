@@ -26,6 +26,7 @@ type Props = {
   actingAsEmployee?: boolean;
   approvalStateId: string;
   approvalWorkflowId: string;
+  approvalWorkflowName: string;
   approvalStatusId: ApprovalStatus;
   currentStepId?: string | null;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
@@ -183,6 +184,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
           <WorkflowSummary
             currentStepId={props.currentStepId}
             steps={props.approvalWorkflowSteps}
+            workflowName={props.approvalWorkflowName}
           />
           <ApprovalComments
             orgId={props.orgId}

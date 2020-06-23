@@ -17,6 +17,7 @@ import { SummaryDetails } from "./summary-details";
 type Props = {
   orgId: string;
   absence: {
+    id: string;
     employeeId: string;
     notesToApprover?: string | null;
     adminOnlyNotes?: string | null;
@@ -142,6 +143,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           endDate={absence.endDate}
           isNormalVacancy={false}
           simpleSummary={true}
+          absVacId={absence.id}
         />
       )}
       <div className={classes.reasonHeaderContainer}>
