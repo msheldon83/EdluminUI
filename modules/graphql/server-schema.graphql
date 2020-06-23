@@ -424,7 +424,7 @@ type AbsVacApprovalInbox {
   teacherFirstName: String
   teacherLastName: String
   positionTitle: String
-  hasComments: Boolean!
+  numComments: Int!
   startDate: Date!
   endDate: Date!
   reasons: [AbsVacReason!]!
@@ -740,7 +740,6 @@ type ApplicationPreset implements ModelObjectInterface {
 }
 
 type ApplicationQueries {
-  byId(id: ID!): Application
   byId(id: ID!): Application
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Application]
 }

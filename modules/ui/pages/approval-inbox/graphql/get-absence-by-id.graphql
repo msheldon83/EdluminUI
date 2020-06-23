@@ -49,6 +49,7 @@ query GetAbsence($id: ID!) {
         }
         decisions {
           id
+          stepId
           createdLocal
           approvalActionId
           actingOrgUserId
