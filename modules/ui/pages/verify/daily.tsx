@@ -15,6 +15,7 @@ import { DailyFilters as Filters } from "./components/filters/daily";
 import { FilterQueryParams } from "./components/filters/filter-params";
 import { VacancyDetailVerifyInput } from "graphql/server-types.gen";
 import { VerifyVacancyDetail } from "./graphql/verify-vacancy-detail.gen";
+import { VerifyAll } from "./graphql/verify-all.gen";
 import { VerifyDailyUI } from "./daily-ui";
 import { AssignmentDetail } from "./types";
 
@@ -88,6 +89,31 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     }
   };
 
+  const [verifyAllMutation] = useMutationBundle(VerifyAll);
+  const verifyAll = async (assignments: AssignmentDetail[]) => {
+    const result = await verifyAllMutation({
+      variables: {
+        verifyAllInput: {
+          orgId: params.organizationId,
+          doVerify: true,
+          vacancyDetails: assignments.map(assignmentToVacancy),
+        },
+      },
+    });
+    console.log(result);
+  };
+  const assignmentToVacancy = (
+    assignment: AssignmentDetail
+  ): VacancyDetailVerifyInput => ({
+    vacancyDetailId: assignment.id,
+    verifyComments: assignment.verifyComments,
+    payCodeId: assignment.payCode?.id,
+    payDurationOverride: assignment.payDurationOverride,
+    dayPortion: assignment.dayPortion,
+    accountingCodeAllocations: assignment.accountingCodeAllocations,
+    payTypeId: assignment.payInfo?.payTypeId,
+  });
+
   return (
     <>
       <Typography variant="h5">{t("Verify substitute assignments")}</Typography>
@@ -110,6 +136,15 @@ export const VerifyDailyPage: React.FC<{}> = props => {
             onVerify={onVerify}
           />
         )}
+        <Button
+          onClick={async () => {
+            if (assignments != "LOADING") {
+              await verifyAll(assignments);
+            }
+          }}
+        >
+          Verify All
+        </Button>
       </Section>
     </>
   );

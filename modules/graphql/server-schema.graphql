@@ -615,12 +615,48 @@ input AdminScopePositionTypeRulesInput {
 
 type Application {
   _info: [ReturnMessage]
-  id: Int!
+  id: ID!
+  orgId: ID
   name: String
   description: String
   url: String
+  helpUrl: String
+  logoUrlSmall: String
+  logoUrl: String
   contactEmail: String
   contactPhone: String
+  presets: [ApplicationPreset!]!
+}
+
+type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  applicationGrantId: Int!
+  applicationPresetId: Int
+  applicationPreset: ApplicationPreset!
+  cronSchedules: [String!]!
+  active: Boolean!
+  name: String!
+  definition: String!
+  path: String!
+  direction: ConnectionDirection!
+  lastScheduledRun: DateTime
+  nextScheduledRun: DateTime
+  connectionType: ApplicationConnectionType!
+}
+
+enum ApplicationConnectionType {
+  FTP
+  API
 }
 
 type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
@@ -635,9 +671,14 @@ type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  applicationId: Int!
   application: Application
   active: Boolean!
   apiKey: String!
+  ftpUserName: String
+  ftpPassword: String
+  ftpFolder: String
+  connections: [ApplicationConnection!]!
 }
 
 input ApplicationGrantCreateInput {
@@ -661,6 +702,25 @@ input ApplicationGrantUpdateInput {
   orgId: Int!
   applicationId: Int!
   active: Boolean!
+}
+
+type ApplicationPreset implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  name: String!
+  definition: String!
+  path: String!
+  direction: ConnectionDirection!
+  connectionType: ApplicationConnectionType!
+}
+
+type ApplicationQueries {
+  byId(id: ID!): Application
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Application]
 }
 
 enum ApprovalAction {
@@ -979,6 +1039,7 @@ type ApproverGroupQueries {
   groupById(approverGroupId: ID!): ApproverGroup
   groupsByLocationId(locationId: ID!): [ApproverGroup]
   myApproverGroupHeaders: [ApproverGroupHeader]
+  approverGroupHeadersByOrgUserId(orgUserId: ID!, orgId: ID!): [ApproverGroupHeader]
 }
 
 input ApproverGroupRemoveMemberInput {
@@ -1354,6 +1415,11 @@ type ConfirmationNumberQueryResultTypeDef {
   subMiddleName: String
   subLastName: String
   isNormalVacancy: Boolean!
+}
+
+enum ConnectionDirection {
+  INBOUND
+  OUTBOUND
 }
 
 type ContactQueries {
@@ -4792,6 +4858,7 @@ type Query {
   absence: AbsenceQueries
   absenceReasonBalance: AbsenceReasonBalanceQueries
   applicationGrant: ApplicationGrantQueries
+  application: ApplicationQueries
   approvalWorkflow: ApprovalWorkflowQueries
   approverGroup: ApproverGroupQueries
   assignment: AssignmentQueries
@@ -6311,6 +6378,18 @@ input VacancyDetailInput {
   prearrangedReplacementEmployeeId: ID
 }
 
+type VacancyDetailJointCount {
+  date: Date
+  unverifiedCount: Int!
+  totalCount: Int!
+}
+
+input VacancyDetailVerifyBatchInput {
+  orgId: ID!
+  vacancyDetails: [VacancyDetailVerifyInput]!
+  doVerify: Boolean
+}
+
 input VacancyDetailVerifyInput {
   vacancyDetailId: ID
   doVerify: Boolean
@@ -6399,6 +6478,7 @@ type VacancyMutations {
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
   swapVacancyAssignments(swapDetails: SwapVacancyAssignmentsInput!): Boolean
   verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
+  verifyVacancyDetailBatch(vacancyDetailBatch: VacancyDetailVerifyBatchInput!): VerifyVacancyDetailBatchResult
 }
 
 type VacancyNotificationLog {
@@ -6436,6 +6516,7 @@ type VacancyQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
   getAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, shadowFromOrgId: ID, includeVerified: Boolean): [VacancyDetail]
   getCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!, includeVerified: Boolean): [VacancyDetailCount]
+  getJointCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!): [VacancyDetailJointCount]
   getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: ID!): Int
   wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
@@ -6572,6 +6653,17 @@ type VacancyWasAssignedResult {
   employeeWasAssigned: Boolean!
   assignmentId: ID
   assignment: Assignment
+}
+
+type VerifyVacancyDetailBatchResult {
+  _info: [ReturnMessage]
+  results: [VerifyVacancyDetailBatchSingleResult]
+}
+
+type VerifyVacancyDetailBatchSingleResult {
+  _info: [ReturnMessage]
+  id: ID!
+  messages: [ReturnMessage]
 }
 
 enum VolumeUnit {
