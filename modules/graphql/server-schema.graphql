@@ -6259,7 +6259,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
-  canCancel: Boolean!!
+  canCancel: Boolean!
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
