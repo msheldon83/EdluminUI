@@ -20,6 +20,7 @@ import { useHistory } from "react-router";
 import { phoneRegExp } from "helpers/regexp";
 import * as yup from "yup";
 import { RegisteredDevices } from "./components/registered-devices";
+import { useIsSubstitute } from "reference-data/is-substitute";
 
 export const ProfilePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
@@ -126,16 +127,7 @@ export const ProfilePage: React.FC<{}> = props => {
 
   const isImpersonating = useIsImpersonating();
 
-  const isSubstitute = React.useMemo(() => {
-    const subUser = user?.orgUsers?.find(o => {
-      return o?.isReplacementEmployee;
-    });
-    if (subUser) {
-      return true;
-    } else {
-      return false;
-    }
-  }, [user]);
+  const isSubstitute = useIsSubstitute();
 
   if (isImpersonating && !actualUser?.isSystemAdministrator) {
     history.push("/");
