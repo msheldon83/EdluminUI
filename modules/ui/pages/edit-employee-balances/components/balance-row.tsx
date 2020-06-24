@@ -117,14 +117,15 @@ export const BalanceRow: React.FC<Props> = props => {
       creatingNew,
     ]
   );
-
+  console.log("on new row", absenceReasonBalance?.initialBalance);
   return (
     <Formik
       initialValues={{
         absenceReasonId: absenceReasonId,
         absenceReasonCategoryId: absenceReasonCategoryId,
         absenceReasonTrackingTypeId:
-          absenceReasonBalance?.absenceReasonTrackingTypeId ?? undefined,
+          absenceReasonBalance?.absenceReasonTrackingTypeId ??
+          AbsenceReasonTrackingTypeId.Hourly,
         balance: absenceReasonBalance?.initialBalance ?? 0,
         asOf: absenceReasonBalance?.balanceAsOf
           ? parseISO(absenceReasonBalance?.balanceAsOf)
