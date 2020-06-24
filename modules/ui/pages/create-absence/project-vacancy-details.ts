@@ -2,7 +2,8 @@ import { HookQueryResult } from "graphql/hooks";
 import { GetProjectedAbsenceUsageQueryVariables } from "./graphql/get-projected-absence-usage.gen";
 import { GetProjectedVacanciesQuery } from "./graphql/get-projected-vacancies.gen";
 import { VacancyDetail } from "../../components/absence/types";
-import { Vacancy, Maybe } from "graphql/server-types.gen";
+import { Vacancy } from "graphql/server-types.gen";
+import { mapVacancyDetailAccountingCodeToAccountingCodeValue } from "ui/components/absence/helpers";
 
 export const projectVacancyDetails = (
   getProjectedVacancies: HookQueryResult<
@@ -50,9 +51,9 @@ export const projectVacancyDetailsFromVacancies = (
         absenceStartTime: absenceDetail?.startTimeLocal,
         absenceEndTime: absenceDetail?.endTimeLocal,
         payCodeId: d?.payCodeId,
-        accountingCodeId:
-          d?.accountingCodeAllocations &&
-          d?.accountingCodeAllocations[0]?.accountingCodeId,
+        accountingCodeAllocations: mapVacancyDetailAccountingCodeToAccountingCodeValue(
+          d?.accountingCodeAllocations
+        ),
         assignmentId: d?.assignment?.id,
         assignmentRowVersion: d?.assignment?.rowVersion,
         assignmentStartDateTime: d?.startTimeLocal,

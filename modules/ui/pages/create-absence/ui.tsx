@@ -27,6 +27,7 @@ import {
   getCannotCreateAbsenceDates,
   vacancyDetailsHaveDifferentAccountingCodeSelections,
   vacancyDetailsHaveDifferentPayCodeSelections,
+  mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
 } from "ui/components/absence/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -47,6 +48,7 @@ import { Prompt, useRouteMatch } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { ShowErrors } from "ui/components/error-helpers";
+import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 type Props = {
   firstName: string;
@@ -66,7 +68,7 @@ type Props = {
   initialEndHour?: Date;
   initialNeedsReplacement?: boolean;
   payCodeId?: string | null;
-  accountingCodeId?: string | null;
+  accountingCodeAllocations?: AccountingCodeValue | null;
 };
 
 export const CreateAbsenceUI: React.FC<Props> = props => {
@@ -116,7 +118,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     hourlyStartTime: props.initialStartHour,
     hourlyEndTime: props.initialEndHour,
     payCode: props.payCodeId ?? undefined,
-    accountingCode: props.accountingCodeId ?? undefined,
+    accountingCodeAllocations: props.accountingCodeAllocations ?? undefined,
   };
 
   const {
@@ -195,7 +197,36 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         t("End time is required"),
     }
   );
-  register({ name: "accountingCode", type: "custom" });
+  register(
+    { name: "accountingCodeAllocations", type: "custom" },
+    {
+      validate: (value: AccountingCodeValue) => {
+        if (value.type !== "multiple-allocations") {
+          return true;
+        }
+
+        // Make sure all selections are filled out completely
+        const selectedAccountingCodes = compact(
+          value.allocations.filter(a => a.selection)
+        );
+        if (selectedAccountingCodes.length === 0) {
+          // Nothing selected yet
+          return true;
+        }
+
+        if (selectedAccountingCodes.filter(a => !a.percentage).length > 0) {
+          // Missing percentages
+          return `${t("Accounting codes missing allocation percentages")}`;
+        }
+
+        if (sum(selectedAccountingCodes.map(a => a.percentage)) !== 100) {
+          // Allocations need to add up to 100%
+          return `${t("Accounting code allocations do not total 100%")}`;
+        }
+
+        return true;
+      },
+  );
   register({ name: "payCode", type: "custom" });
 
   React.useEffect(() => {
@@ -531,7 +562,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
           employeeId={props.employeeId}
           setStep={setStep}
           disabledDates={disabledDates}
-          defaultAccountingCode={formValues.accountingCode}
+          defaultAccountingCodeAllocations={
+            formValues.accountingCodeAllocations
+          }
           defaultPayCode={formValues.payCode}
         />
       )}
@@ -577,7 +610,7 @@ export type CreateAbsenceFormData = {
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
   vacancies?: AbsenceVacancyInput[];
-  accountingCode?: string;
+  accountingCodeAllocations?: AccountingCodeValue;
   payCode?: string;
 };
 
@@ -630,7 +663,9 @@ export const buildAbsenceCreateInput = (
     vacancyDetails &&
     vacancyDetailsHaveDifferentAccountingCodeSelections(
       vacancyDetails,
-      formValues.accountingCode ? formValues.accountingCode : null
+      formValues.accountingCodeAllocations
+        ? formValues.accountingCodeAllocations
+        : null
     );
   const detailsHaveDifferentPayCodeSelections =
     hasEditedDetails &&
@@ -657,9 +692,9 @@ export const buildAbsenceCreateInput = (
         : null,
       accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
-        : v.accountingCodeId
-        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
-        : [],
+        : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+            v.accountingCodeAllocations
+          ),
     })) || undefined;
 
   // Populate the Vacancies on the Absence
@@ -678,13 +713,10 @@ export const buildAbsenceCreateInput = (
         details: vDetails,
         accountingCodeAllocations:
           !detailsHaveDifferentAccountingCodeSelections &&
-          formValues.accountingCode
-            ? [
-                {
-                  accountingCodeId: formValues.accountingCode,
-                  allocation: 1.0,
-                },
-              ]
+          formValues.accountingCodeAllocations
+            ? mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+                formValues.accountingCodeAllocations
+              )
             : undefined,
         payCodeId:
           !detailsHaveDifferentPayCodeSelections && formValues.payCode

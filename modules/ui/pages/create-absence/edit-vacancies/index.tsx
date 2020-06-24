@@ -29,6 +29,7 @@ import {
 } from "date-fns";
 import { getDateRangeDisplayTextWithDayOfWeek } from "ui/components/date-helpers";
 import { EmployeeLink } from "ui/components/links/people";
+import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 type Props = {
   details: VacancyDetail[];
@@ -42,7 +43,7 @@ type Props = {
   actingAsEmployee?: boolean;
   positionName?: string;
   disabledDates?: Date[];
-  defaultAccountingCode?: string;
+  defaultAccountingCodeAllocations?: AccountingCodeValue;
   defaultPayCode?: string;
   isEdit?: boolean;
 };
@@ -60,7 +61,8 @@ export const EditVacancies: React.FC<Props> = props => {
       ...d,
       startTime: parseISO(d.startTime).toISOString(),
       endTime: parseISO(d.endTime).toISOString(),
-      accountingCodeId: d.accountingCodeId ?? props.defaultAccountingCode,
+      accountingCodeAllocations:
+        d.accountingCodeAllocations ?? props.defaultAccountingCodeAllocations,
       payCodeId: d.payCodeId ?? props.defaultPayCode,
     })),
   };
@@ -255,7 +257,7 @@ export const EditVacancies: React.FC<Props> = props => {
                         orgId={props.orgId}
                         payCodeOptions={payCodeOptions}
                         keyPrefix={`details.${i}`}
-                        values={d}
+                        detail={d}
                         className={shaded ? classes.shadedRow : undefined}
                         onAddRow={() => arrayHelpers.insert(i + 1, d)}
                         onRemoveRow={() => arrayHelpers.remove(i)}
@@ -270,6 +272,13 @@ export const EditVacancies: React.FC<Props> = props => {
                         }
                         isFirstOnDay={isFirstOnDay}
                         isLastOnDay={isLastOnDay}
+                        multipleAccountingCodesInUse={
+                          values.details.filter(
+                            d =>
+                              d.accountingCodeAllocations?.type ===
+                              "multiple-allocations"
+                          ).length > 0
+                        }
                       />
                     </Grid>
                   );

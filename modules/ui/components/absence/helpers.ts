@@ -5,24 +5,17 @@ import {
   Maybe,
   AbsenceDetailCreateInput,
   Vacancy,
+  VacancyDetailAccountingCodeInput,
+  VacancyDetailAccountingCode,
 } from "graphql/server-types.gen";
-import {
-  groupBy,
-  differenceWith,
-  uniqWith,
-  compact,
-  map,
-  isEmpty,
-  flatMap,
-  uniq,
-} from "lodash-es";
+import { groupBy, differenceWith, uniqWith, isEmpty, isEqual } from "lodash-es";
 import {
   isAfter,
   isWithinInterval,
   format,
   isSameDay,
   parseISO,
-  isEqual,
+  isEqual as isDateEqual,
   isBefore,
 } from "date-fns";
 import { convertStringToDate } from "helpers/date";
@@ -31,6 +24,12 @@ import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { VacancyDetail, AssignmentOnDate } from "./types";
 import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
+import {
+  AccountingCodeValue,
+  noAllocation,
+  singleAllocation,
+  multipleAllocations,
+} from "../form/accounting-code-dropdown";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -304,7 +303,7 @@ export const getVacancyDetailsGrouping = (
     const startTimeAsDateA = parseISO(a.startTime);
     const startTimeAsDateB = parseISO(b.startTime);
 
-    if (isEqual(startTimeAsDateA, startTimeAsDateB)) {
+    if (isDateEqual(startTimeAsDateA, startTimeAsDateB)) {
       // Fairly unlikely to occur
       return 0;
     }
@@ -573,21 +572,97 @@ export const getGroupedVacancyDetails = (
 
 export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
   vacancyDetails: VacancyDetail[],
-  accountingCodeIdToCompare: string | null
+  accountingCodeAllocations: AccountingCodeValue | null
 ) => {
   if (!vacancyDetails || vacancyDetails.length === 0) {
     return false;
   }
 
+  const allocations = mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+    accountingCodeAllocations
+  );
+
   for (let i = 0; i < vacancyDetails.length; i++) {
-    const d = vacancyDetails[i];
-    const detailAccountingCodeId = d.accountingCodeId ?? null;
-    if (detailAccountingCodeId !== accountingCodeIdToCompare) {
+    const detailAllocations = mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+      vacancyDetails[i]?.accountingCodeAllocations
+    );
+
+    if (allocations.length !== detailAllocations.length) {
+      // Difference in the number of Accounting Codes
+      return true;
+    }
+
+    if (
+      !isEqual(
+        allocations.sort(
+          (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
+        ),
+        detailAllocations.sort(
+          (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
+        )
+      )
+    ) {
+      // Different accounting code lists
       return true;
     }
   }
 
   return false;
+};
+
+export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
+  accountingCodeAllocations: AccountingCodeValue | null | undefined
+): VacancyDetailAccountingCodeInput[] => {
+  if (!accountingCodeAllocations) {
+    return [];
+  }
+
+  switch (accountingCodeAllocations.type) {
+    case "no-allocation":
+      return [];
+    case "single-allocation":
+      return [
+        {
+          accountingCodeId: accountingCodeAllocations.selection?.value?.toString(),
+          allocation: 1,
+        },
+      ];
+    case "multiple-allocations":
+      return accountingCodeAllocations.allocations.filter(a => a.selection?.value && a.percentage).map(a => {
+        return {
+          accountingCodeId: a.selection?.value?.toString(),
+          allocation: (a.percentage ?? 0) / 100,
+        };
+      });
+  }
+};
+
+export const mapVacancyDetailAccountingCodeToAccountingCodeValue = (
+  accountingCodeAllocations: VacancyDetailAccountingCode[] | null | undefined
+): AccountingCodeValue => {
+  if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
+    return noAllocation();
+  }
+
+  if (accountingCodeAllocations.length === 1) {
+    return singleAllocation({
+      label: accountingCodeAllocations[0].accountingCode?.name ?? "",
+      value: accountingCodeAllocations[0].accountingCodeId,
+    });
+  }
+
+  return multipleAllocations(
+    accountingCodeAllocations.map(a => {
+      return {
+        id: Number(a.id),
+        selection: {
+          label: a.accountingCode?.name ?? "",
+          value: a.accountingCodeId,
+        },
+        percentage: a.allocation * 100,
+      };
+    })
+  );
 };
 
 export const vacancyDetailsHaveDifferentPayCodeSelections = (
