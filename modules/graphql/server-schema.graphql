@@ -158,9 +158,9 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
+  byId(id: ID!): Absence
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): [Vacancy]
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): Absence
@@ -998,7 +998,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   name: String!
   description: String
   variesByLocation: Boolean!
-  approverGroups: [ApproverGroup]!
+  approverGroups(orgUserId: ID): [ApproverGroup]!
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
@@ -1055,7 +1055,7 @@ type ApproverGroupQueries {
   groupById(approverGroupId: ID!): ApproverGroup
   groupsByLocationId(locationId: ID!): [ApproverGroup]
   myApproverGroupHeaders: [ApproverGroupHeader]
-  approverGroupsByOrgUserId(orgUserId: ID!, orgId: ID!): [ApproverGroup]
+  approverGroupHeadersByOrgUserId(orgUserId: ID!, orgId: ID!): [ApproverGroupHeader]
 }
 
 input ApproverGroupRemoveMemberInput {
@@ -6523,9 +6523,9 @@ enum VacancyQualification {
 }
 
 type VacancyQueries {
-  byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
+  byId(id: ID!): Vacancy
   getAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, shadowFromOrgId: ID, includeVerified: Boolean): [VacancyDetail]
   getCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!, includeVerified: Boolean): [VacancyDetailCount]
   getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: ID!): Int
