@@ -9,7 +9,7 @@ import {
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
-import { Can } from "../auth/can";
+import { Can } from "ui/components/auth/can";
 import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 import { OrganizationList } from "../components/admin/org-list";
 import { PersonViewRoute } from "ui/routes/people";
