@@ -53,7 +53,6 @@ export const OrganizationStatusBar: React.FC<Props> = props => {
   return (
     <>
       <GoLiveDialog
-        orgId={params.organizationId}
         orgName={currentOrgStatus.data.organization.byId.name}
         isOpen={liveDialogIsOpen}
         hasValidData={!!currentOrgStatus.data.organization?.byId}
@@ -90,7 +89,6 @@ export const OrganizationStatusBar: React.FC<Props> = props => {
             </div>
             <Button
               variant="contained"
-              className={classes.button}
               onClick={() => setLiveDialogIsOpen(true)}
             >
               Go Live
@@ -118,9 +116,6 @@ const useStyles = makeStyles(theme => ({
   orgName: {
     color: theme.customColors.darkBlueGray,
     fontWeight: 500,
-  },
-  button: {
-    //background: "#FFCC01",
   },
 }));
 

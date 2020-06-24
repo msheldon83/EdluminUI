@@ -2,21 +2,15 @@ import * as React from "react";
 import {
   Dialog,
   DialogActions,
-  DialogContent,
   DialogTitle,
   Typography,
   Divider,
-  Grid,
-  FormControlLabel,
-  Checkbox,
   Button,
-  Tooltip,
   makeStyles,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 
 type Props = {
-  orgId: string;
   orgName: string;
   isOpen: boolean;
   hasValidData: boolean;
@@ -25,7 +19,6 @@ type Props = {
 };
 
 export const GoLiveDialog: React.FC<Props> = ({
-  orgId,
   orgName,
   isOpen,
   hasValidData,
