@@ -1177,6 +1177,7 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   position: Position
   absence: Absence
   payInfoSummary: PayInfoSummary
+  canCancel: Boolean!
 }
 
 type Branding implements ModelObjectInterface {
@@ -2657,6 +2658,7 @@ enum FeatureFlag {
   QUARTER_DAY_ABSENCES
   HOURLY_ABSENCES
   VERIFY
+  SECONDARY_IDENTIFIER
 }
 
 enum FilePurpose {
@@ -3526,6 +3528,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   firstName: String!
   middleName: String
   lastName: String!
+  secondaryIdentifier: String
   userId: ID
   loginEmail: String
   temporaryPassword: String
@@ -3557,6 +3560,7 @@ input OrgUserCreateInput {
   email: String!
   active: Boolean
   externalId: String
+  secondaryIdentifier: String
   firstName: String!
   middleName: String
   lastName: String!
@@ -3649,6 +3653,7 @@ input OrgUserUpdateInput {
   email: String
   active: Boolean
   externalId: String
+  secondaryIdentifier: String
   firstName: String
   middleName: String
   lastName: String
@@ -6254,6 +6259,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
+  canCancel: Boolean!!
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -6341,6 +6347,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   isClosed: Boolean!
   totalDayPortion: Decimal
   payInfo: PayInfo
+  canCancel: Boolean!
 }
 
 type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInterface {
