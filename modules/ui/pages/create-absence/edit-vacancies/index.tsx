@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { FieldArray, Formik, FormikErrors } from "formik";
 import { useQueryBundle } from "graphql/hooks";
-import { compact, isArray } from "lodash-es";
+import { compact, isArray, sum } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -134,6 +134,54 @@ export const EditVacancies: React.FC<Props> = props => {
                       t("End Time before Start Time"),
                       null,
                       `${this.path}.endTime`
+                    );
+                  }
+
+                  return true;
+                },
+              })
+              .test({
+                name: "accountingCodeAllocationsCheck",
+                test: function test(value: VacancyDetail) {
+                  const accountingCodeAllocations =
+                    value.accountingCodeAllocations;
+                  if (
+                    accountingCodeAllocations?.type !== "multiple-allocations"
+                  ) {
+                    return true;
+                  }
+
+                  // Make sure all selections are filled out completely
+                  const selectedAccountingCodes = compact(
+                    accountingCodeAllocations.allocations.filter(
+                      a => a.selection
+                    )
+                  );
+                  if (selectedAccountingCodes.length === 0) {
+                    // Nothing selected yet
+                    return true;
+                  }
+
+                  if (
+                    selectedAccountingCodes.filter(a => !a.percentage).length >
+                    0
+                  ) {
+                    // Missing percentages
+                    return new yup.ValidationError(
+                      t("Accounting codes missing allocation percentages"),
+                      null,
+                      `${this.path}.accountingCodeAllocations`
+                    );
+                  }
+
+                  if (
+                    sum(selectedAccountingCodes.map(a => a.percentage)) !== 100
+                  ) {
+                    // Allocations need to add up to 100%
+                    return new yup.ValidationError(
+                      t("Accounting code allocations do not total 100%"),
+                      null,
+                      `${this.path}.accountingCodeAllocations`
                     );
                   }
 

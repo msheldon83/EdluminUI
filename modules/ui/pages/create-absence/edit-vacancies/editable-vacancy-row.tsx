@@ -222,6 +222,10 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                       )
                     }
                     showLabel={false}
+                    inputStatus={
+                      error?.accountingCodeAllocations ? "error" : undefined
+                    }
+                    validationMessage={error?.accountingCodeAllocations}
                   />
                 </Grid>
                 <Grid
