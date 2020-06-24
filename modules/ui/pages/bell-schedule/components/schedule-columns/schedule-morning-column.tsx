@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useCanDo } from "ui/components/auth/can";
-import { useDrop } from "react-dnd";
+import { useDrop, DropValidationData } from "hooks/drag-drop";
 import { Period } from "../../helpers";
 import { DraggableScheduleChip } from "./DraggableScheduleChip";
 
@@ -35,14 +35,14 @@ const PeriodRow = (props: PeriodRowProps) => {
 
   const { t } = useTranslation();
 
-  const [{ isOver, canDrop }, dropRef] = useDrop({
-    accept: MorningDraggableType,
-    drop: () => {
+  const { isOver, canDrop, dropRef } = useDrop({
+    dragId: MorningDraggableType,
+    onDrop() {
       onDrop();
     },
-    collect: monitor => ({
-      isOver: !!monitor.isOver(),
-      canDrop: !!monitor.canDrop() && isBeforeAfternoonStart && !period.skipped,
+    validateDrop: ({ isOver, canDrop }: DropValidationData) => ({
+      isOver: isOver(),
+      canDrop: canDrop() && isBeforeAfternoonStart && !period.skipped,
     }),
   });
 

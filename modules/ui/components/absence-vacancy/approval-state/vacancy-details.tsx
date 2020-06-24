@@ -45,6 +45,7 @@ export const VacancyDetails: React.FC<Props> = props => {
           endDate={vacancy.endDate}
           isNormalVacancy={true}
           simpleSummary={true}
+          absVacId={vacancy.id}
         />
       )}
       <div className={classes.reasonHeaderContainer}>
