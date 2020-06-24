@@ -108,6 +108,7 @@ export const BalanceRow: React.FC<Props> = props => {
         : absenceReasonId
         ? absenceReasonBalance?.absenceReason
         : absenceReasonBalance?.absenceReasonCategory,
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
     [
       absenceReasonBalance,
       absenceReasonId,
@@ -117,7 +118,7 @@ export const BalanceRow: React.FC<Props> = props => {
       creatingNew,
     ]
   );
-  console.log("on new row", absenceReasonBalance?.initialBalance);
+
   return (
     <Formik
       initialValues={{
