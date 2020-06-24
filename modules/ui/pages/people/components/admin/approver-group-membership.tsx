@@ -204,7 +204,7 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                   execute: () => {
                     props.setEditing!(editableSections.approverGroupMembership);
                   },
-                  permissions: [PermissionEnum.AdminSave],
+                  permissions: [PermissionEnum.ApprovalSettingsSave],
                 },
               ]}
               cancel={{

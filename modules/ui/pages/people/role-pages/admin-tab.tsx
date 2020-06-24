@@ -9,6 +9,7 @@ import {
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
+import { Can } from "../auth/can";
 import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 import { OrganizationList } from "../components/admin/org-list";
 import { PersonViewRoute } from "ui/routes/people";
@@ -120,14 +121,16 @@ export const AdminTab: React.FC<Props> = props => {
         onSubmit={onUpdateAdmin}
         onCancel={onCancelAdmin}
       />
-      <ApproverGroupMembership
-        editing={props.editing}
-        editable={canEditThisAdmin}
-        orgUserId={params.orgUserId}
-        setEditing={props.setEditing}
-        orgId={orgUser.orgId.toString()}
-        onCancel={onCancelAdmin}
-      />
+      <Can do={[PermissionEnum.ApprovalSettingsView]}>
+        <ApproverGroupMembership
+          editing={props.editing}
+          editable={canEditThisAdmin}
+          orgUserId={params.orgUserId}
+          setEditing={props.setEditing}
+          orgId={orgUser.orgId.toString()}
+          onCancel={onCancelAdmin}
+        />
+      </Can>
       {showRelatedOrgs && (
         <OrganizationList
           editing={props.editing}
