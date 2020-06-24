@@ -172,7 +172,7 @@ export const ApprovalState: React.FC<Props> = props => {
     // If the current group varies by location, am I in a group by location that applies to this absence/vacancy
     if (
       currentApproverGroupHeader &&
-      !currentApproverGroupHeader.variesByLocation
+      currentApproverGroupHeader.variesByLocation
     ) {
       const approverGroup = currentApproverGroupHeader.approverGroups.find(
         x => x?.locationId && locationIds.includes(x.locationId)
