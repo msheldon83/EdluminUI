@@ -342,37 +342,35 @@ export const SettingsPage: React.FC<{}> = props => {
           })}
         </Grid>
       </Can>
-      {Config.isDevFeatureOnly && (
-        <Can do={[PermissionEnum.ApprovalSettingsView]}>
-          <Typography className={classes.header} variant="h4">
-            {t("Approvals")}
-          </Typography>
-          <Grid
-            container
-            className={(classes.root, classes.padding)}
-            spacing={3}
-            item
-            xs={12}
-          >
-            {approverGroupsWorkflows.map((r, i) => {
-              return (
-                <Link
-                  key={i}
-                  to={r.route.generate(params)}
-                  className={classes.textDecoration}
-                >
-                  <Grid className={classes.paddingRight}>
-                    <Paper className={classes.paper}>
-                      {r.icon}
-                      <div className={classes.paperTextBlock}>{t(r.name)}</div>
-                    </Paper>
-                  </Grid>
-                </Link>
-              );
-            })}
-          </Grid>
-        </Can>
-      )}
+      <Can do={[PermissionEnum.ApprovalSettingsView]}>
+        <Typography className={classes.header} variant="h4">
+          {t("Approvals")}
+        </Typography>
+        <Grid
+          container
+          className={(classes.root, classes.padding)}
+          spacing={3}
+          item
+          xs={12}
+        >
+          {approverGroupsWorkflows.map((r, i) => {
+            return (
+              <Link
+                key={i}
+                to={r.route.generate(params)}
+                className={classes.textDecoration}
+              >
+                <Grid className={classes.paddingRight}>
+                  <Paper className={classes.paper}>
+                    {r.icon}
+                    <div className={classes.paperTextBlock}>{t(r.name)}</div>
+                  </Paper>
+                </Grid>
+              </Link>
+            );
+          })}
+        </Grid>
+      </Can>
     </>
   );
 };
