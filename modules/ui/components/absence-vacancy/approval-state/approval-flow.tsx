@@ -43,11 +43,6 @@ export const WorkflowSummary: React.FC<Props> = props => {
     return compact(ordered);
   }, [steps]);
 
-  const currentStepIndex = useMemo(
-    () => orderedSteps.findIndex(x => x.stepId === currentStepId),
-    [orderedSteps, currentStepId]
-  );
-
   const deniedStepIds =
     compact(
       decisions?.map(x => {
@@ -67,10 +62,14 @@ export const WorkflowSummary: React.FC<Props> = props => {
     [orderedSteps, approvedStepIds]
   );
 
-  const pendingStep = useMemo(() => orderedSteps[currentStepIndex], [
-    orderedSteps,
-    currentStepIndex,
-  ]);
+  // This checks the Steps array and not the current steps array in case the current step has been deleted
+  const pendingStep = useMemo(() => {
+    const step = steps.find(x => x.stepId === currentStepId);
+    return {
+      stepId: step?.stepId,
+      approverGroupHeaderName: step?.approverGroupHeader?.name,
+    };
+  }, [steps, currentStepId]);
 
   const nextSteps = useMemo(
     () =>
