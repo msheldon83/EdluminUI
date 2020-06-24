@@ -27,16 +27,22 @@ export const Context: React.FC<Props> = props => {
     <div className={classes.container}>
       <div className={classes.title}>{t("Context")}</div>
       {!props.actingAsEmployee && (
-        <OtherContext
-          orgId={props.orgId}
-          vacancyId={props.isNormalVacancy ? props.vacancyId ?? "" : undefined}
-          absenceId={!props.isNormalVacancy ? props.absenceId ?? "" : undefined}
-          startDate={props.startDate}
-          endDate={props.endDate}
-          locationIds={props.locationIds}
-          vacancyReasonIds={props.vacancyReasonIds}
-          absenceReasonIds={props.absenceReasonIds}
-        />
+        <div className={classes.otherContextContainer}>
+          <OtherContext
+            orgId={props.orgId}
+            vacancyId={
+              props.isNormalVacancy ? props.vacancyId ?? "" : undefined
+            }
+            absenceId={
+              !props.isNormalVacancy ? props.absenceId ?? "" : undefined
+            }
+            startDate={props.startDate}
+            endDate={props.endDate}
+            locationIds={props.locationIds}
+            vacancyReasonIds={props.vacancyReasonIds}
+            absenceReasonIds={props.absenceReasonIds}
+          />
+        </div>
       )}
       {!props.isNormalVacancy && (
         <EmployeeAbsences
@@ -67,5 +73,8 @@ const useStyles = makeStyles(theme => ({
   text: {
     fontWeight: "normal",
     fontSize: theme.typography.pxToRem(14),
+  },
+  otherContextContainer: {
+    paddingBottom: theme.spacing(1),
   },
 }));

@@ -1,0 +1,35 @@
+query GetApprovalInboxItems(
+  $orgId: ID!
+  $limit: Int
+  $offset: Int
+  $getPastDecisions: Boolean
+) {
+  vacancy {
+    approvalInbox(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      getPastDecisions: $getPastDecisions
+    ) {
+      limit
+      offset
+      hasMoreData
+      results {
+        id
+        objectTypeId
+        isNormalVacancy
+        teacherFirstName
+        teacherLastName
+        positionTitle
+        numComments
+        startDate
+        endDate
+        reasons {
+          id
+          name
+        }
+        changedUtc
+      }
+    }
+  }
+}

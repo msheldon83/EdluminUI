@@ -12,6 +12,7 @@ query GetAbsence($id: ID!) {
         approvalWorkflowId
         approvalWorkflow {
           id
+          name
           steps {
             stepId
             deleted
@@ -48,6 +49,7 @@ query GetAbsence($id: ID!) {
         }
         decisions {
           id
+          stepId
           createdLocal
           approvalActionId
           actingOrgUserId

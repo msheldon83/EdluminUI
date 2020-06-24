@@ -456,6 +456,27 @@ input AbsenceVacancyInput {
   payCodeId: ID
 }
 
+type AbsVacApprovalInbox {
+  _info: [ReturnMessage]
+  id: ID!
+  objectTypeId: ObjectType!
+  isNormalVacancy: Boolean!
+  teacherFirstName: String
+  teacherLastName: String
+  positionTitle: String
+  numComments: Int!
+  startDate: Date!
+  endDate: Date!
+  reasons: [AbsVacReason!]!
+  changedUtc: DateTime!
+}
+
+type AbsVacReason {
+  _info: [ReturnMessage]
+  id: ID!
+  name: String!
+}
+
 input AccessControInput {
   locations: [LocatorInput]
   locationGroups: [LocatorInput]
@@ -655,12 +676,48 @@ input AdminScopePositionTypeRulesInput {
 
 type Application {
   _info: [ReturnMessage]
-  id: Int!
+  id: ID!
+  orgId: ID
   name: String
   description: String
   url: String
+  helpUrl: String
+  logoUrlSmall: String
+  logoUrl: String
   contactEmail: String
   contactPhone: String
+  presets: [ApplicationPreset!]!
+}
+
+type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  applicationGrantId: Int!
+  applicationPresetId: Int
+  applicationPreset: ApplicationPreset!
+  cronSchedules: [String!]!
+  active: Boolean!
+  name: String!
+  definition: String!
+  path: String!
+  direction: ConnectionDirection!
+  lastScheduledRun: DateTime
+  nextScheduledRun: DateTime
+  connectionType: ApplicationConnectionType!
+}
+
+enum ApplicationConnectionType {
+  FTP
+  API
 }
 
 type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
@@ -675,9 +732,14 @@ type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  applicationId: Int!
   application: Application
   active: Boolean!
   apiKey: String!
+  ftpUserName: String
+  ftpPassword: String
+  ftpFolder: String
+  connections: [ApplicationConnection!]!
 }
 
 input ApplicationGrantCreateInput {
@@ -701,6 +763,25 @@ input ApplicationGrantUpdateInput {
   orgId: Int!
   applicationId: Int!
   active: Boolean!
+}
+
+type ApplicationPreset implements ModelObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  name: String!
+  definition: String!
+  path: String!
+  direction: ConnectionDirection!
+  connectionType: ApplicationConnectionType!
+}
+
+type ApplicationQueries {
+  byId(id: ID!): Application
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Application]
 }
 
 enum ApprovalAction {
@@ -800,11 +881,6 @@ input ApprovalStateUpdateInput {
 
 enum ApprovalStatus {
   UNKNOWN
-  OLD_PENDING
-  OLD_APPROVED
-  OLD_DENIED
-  OLD_NO_APPROVAL_REQUIRED
-  OLD_CANCELLED
   NO_APPROVAL_REQUIRED
   APPROVAL_REQUIRED
   PARTIALLY_APPROVED
@@ -1053,6 +1129,10 @@ type ApproverGroupQueries {
   groupById(approverGroupId: ID!): ApproverGroup
   groupsByLocationId(locationId: ID!): [ApproverGroup]
   myApproverGroupHeaders: [ApproverGroupHeader]
+  approverGroupHeadersByOrgUserId(
+    orgUserId: ID!
+    orgId: ID!
+  ): [ApproverGroupHeader]
 }
 
 input ApproverGroupRemoveMemberInput {
@@ -1449,6 +1529,11 @@ type ConfirmationNumberQueryResultTypeDef {
   subMiddleName: String
   subLastName: String
   isNormalVacancy: Boolean!
+}
+
+enum ConnectionDirection {
+  INBOUND
+  OUTBOUND
 }
 
 type ContactQueries {
@@ -4055,6 +4140,15 @@ type PagedAbsenceReasonCategory {
   totalCount: Int
 }
 
+type PagedAbsVacApprovalInboxQueryResult {
+  _info: [ReturnMessage]
+  results: [AbsVacApprovalInbox]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedAccountingCode {
   _info: [ReturnMessage]
   results: [AccountingCode]
@@ -5308,6 +5402,7 @@ type Query {
   absence: AbsenceQueries
   absenceReasonBalance: AbsenceReasonBalanceQueries
   applicationGrant: ApplicationGrantQueries
+  application: ApplicationQueries
   approvalWorkflow: ApprovalWorkflowQueries
   approverGroup: ApproverGroupQueries
   assignment: AssignmentQueries
@@ -7091,6 +7186,12 @@ type VacancyQueries {
     fromDate: Date
     toDate: Date
   ): [Vacancy]
+  approvalInbox(
+    orgId: ID!
+    limit: Int
+    offset: Int
+    getPastDecisions: Boolean
+  ): PagedAbsVacApprovalInboxQueryResult
   vacanciesNeedingApproval(orgId: ID!): [Vacancy]
   pastApprovalDecisions(orgId: ID!, limit: Int, offset: Int): PagedVacancy
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
