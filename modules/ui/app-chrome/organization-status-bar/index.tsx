@@ -17,6 +17,8 @@ import { useTranslation } from "react-i18next";
 import { GoLiveDialog } from "./components/go-live-dialog";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
+import { Can } from "ui/components/auth/can";
+import { canViewAsSysAdmin } from "helpers/permissions";
 
 type Props = {};
 
@@ -87,12 +89,11 @@ export const OrganizationStatusBar: React.FC<Props> = props => {
                 } ${t("mode")}`}</Typography>
               </Grid>
             </div>
-            <Button
-              variant="contained"
-              onClick={() => setLiveDialogIsOpen(true)}
-            >
-              {t("Go Live")}
-            </Button>
+            <Can do={canViewAsSysAdmin}>
+              <Button variant="text" onClick={() => setLiveDialogIsOpen(true)}>
+                {t("Go Live")}
+              </Button>
+            </Can>
           </Grid>
         </Toolbar>
       </AppBar>
