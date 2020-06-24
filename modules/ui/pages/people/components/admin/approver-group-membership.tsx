@@ -174,11 +174,13 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
       });
     }
 
-    const result = await onAddApproverGroupMembership({
-      approverGroupId: approverGroupIdToAdd!,
-      orgId: props.orgId,
-      orgUserId: props.orgUserId,
-    });
+    const result =
+      approverGroupIdToAdd &&
+      (await onAddApproverGroupMembership({
+        approverGroupId: approverGroupIdToAdd,
+        orgId: props.orgId,
+        orgUserId: props.orgUserId,
+      }));
   };
 
   return (
