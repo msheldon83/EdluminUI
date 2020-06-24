@@ -4,11 +4,10 @@ query GetApproverGroupsByUser($orgId: ID!, $orgUserId: ID!) {
       id
       variesByLocation
       name
-      allLocationsHaveGroup
       approverGroups(orgUserId: $orgUserId) {
         id
         name
-        memberCount
+        approverGroupHeaderId
         location {
           id
           name

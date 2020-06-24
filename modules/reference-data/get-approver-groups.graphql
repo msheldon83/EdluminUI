@@ -7,6 +7,7 @@ query GetApproverGroups($orgId: ID!) {
       approverGroups {
         id
         name
+        approverGroupHeaderId
         location {
           id
           name
