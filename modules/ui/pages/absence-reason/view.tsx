@@ -95,6 +95,7 @@ export const AbsenceReasonViewEditPage: React.FC<{}> = props => {
       onDelete={deleteAbsenceReasonCallback}
       positionTypes={absenceReason.positionTypes}
       allPositionTypes={absenceReason.allPositionTypes}
+      requiresApproval={absenceReason.requiresApproval ?? false}
     />
   );
 };

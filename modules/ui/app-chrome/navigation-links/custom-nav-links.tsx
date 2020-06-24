@@ -40,10 +40,11 @@ import { LocationsRoute } from "ui/routes/locations";
 import { SecurityManagedOrganizationsRoute } from "ui/routes/security/managed-organizations";
 import { SecurityPartnersRoute } from "ui/routes/security/partners";
 import { SecurityPermissionSetsRoute } from "ui/routes/security/permission-sets";
-import { NavLink } from "./nav-link";
+import { NavLink, SubNavItemType } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
 import { VacancyCreateRoute } from "ui/routes/vacancy";
 import { DataImportRoute } from "ui/routes/data-import";
+import { ApprovalInboxRoute } from "ui/routes/approval-inbox";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 
 type Props = {
@@ -93,7 +94,11 @@ export const AbsenceNavLink: React.FC<Props> = props => {
       route: DailyReportRoute.generate(paramsDailyReport),
       permissions: [PermissionEnum.AbsVacView],
     },
-  ];
+    {
+      title: t("Approve"),
+      route: ApprovalInboxRoute.generate(paramsVerify),
+    },
+  ] as SubNavItemType[];
   if (orgUsesVerify) {
     absenceSubNavItems.push({
       title: t("Verify"),

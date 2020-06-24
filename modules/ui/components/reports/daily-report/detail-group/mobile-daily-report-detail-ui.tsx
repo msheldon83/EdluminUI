@@ -7,6 +7,7 @@ import {
   IconButton,
   Button,
   useMediaQuery,
+  Chip,
 } from "@material-ui/core";
 import { Detail } from "../helpers";
 import clsx from "clsx";
@@ -19,6 +20,7 @@ import { CanDo, OrgUserPermissions, Role } from "ui/components/auth/types";
 import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
 import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
+import { ApprovalStatus } from "graphql/server-types.gen";
 
 type Props = {
   detail: Detail;
@@ -263,6 +265,14 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
               )}
             </div>
           </div>
+          {(props.detail.approvalStatus === ApprovalStatus.ApprovalRequired ||
+            props.detail.approvalStatus ===
+              ApprovalStatus.PartiallyApproved) && (
+            <Chip
+              label={t("Pending")}
+              className={classes.pendingApprovalChip}
+            />
+          )}
           {!props.highlighted && !inSwapMode ? actionButtons : <></>}
         </Collapse>
       )}
@@ -368,5 +378,9 @@ const useStyles = makeStyles(theme => ({
   },
   tooltip: {
     padding: theme.spacing(2),
+  },
+  pendingApprovalChip: {
+    backgroundColor: theme.customColors.yellow4,
+    color: theme.palette.text.primary,
   },
 }));

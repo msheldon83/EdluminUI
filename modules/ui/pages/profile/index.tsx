@@ -19,6 +19,8 @@ import { useIsImpersonating } from "reference-data/is-impersonating";
 import { useHistory } from "react-router";
 import { phoneRegExp } from "helpers/regexp";
 import * as yup from "yup";
+import { RegisteredDevices } from "./components/registered-devices";
+import { useIsSubstitute } from "reference-data/is-substitute";
 
 export const ProfilePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
@@ -125,6 +127,8 @@ export const ProfilePage: React.FC<{}> = props => {
 
   const isImpersonating = useIsImpersonating();
 
+  const isSubstitute = useIsSubstitute();
+
   if (isImpersonating && !actualUser?.isSystemAdministrator) {
     history.push("/");
   }
@@ -137,6 +141,7 @@ export const ProfilePage: React.FC<{}> = props => {
     return phoneNumber.replace(/\D/g, "");
   };
 
+  const mobileDevices = compact(myUser?.mobileDevices) ?? [];
   return (
     <>
       <Formik
@@ -177,7 +182,13 @@ export const ProfilePage: React.FC<{}> = props => {
           phone: yup
             .string()
             .nullable()
-            .required(t("Phone number is required")) // TODO: Only require this if the user has a replacmenet Employee role
+            .test({
+              name: "isSub",
+              message: t("Phone number is required"),
+              test: value => {
+                return isSubstitute ? false : true;
+              },
+            })
             .matches(phoneRegExp, t("Phone Number Is Not Valid")),
         })}
       >
@@ -198,6 +209,9 @@ export const ProfilePage: React.FC<{}> = props => {
                 setFieldValue={setFieldValue}
                 submitForm={submitForm}
               />
+            )}
+            {mobileDevices.length > 0 && (
+              <RegisteredDevices mobileDevices={mobileDevices} />
             )}
           </form>
         )}

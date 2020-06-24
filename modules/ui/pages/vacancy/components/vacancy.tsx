@@ -10,6 +10,7 @@ import {
   Assignment,
   CancelVacancyAssignmentInput,
   ApprovalStatus,
+  ApprovalAction,
 } from "graphql/server-types.gen";
 import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
 import { GetAllLocationsWithSchedulesWithinOrg } from "../graphql/get-locations-with-schedules.gen";
@@ -23,7 +24,9 @@ import { Formik } from "formik";
 import { VacancyDetailSection } from "./vacancy-details-section";
 import { ContentFooter } from "ui/components/content-footer";
 import { Can } from "ui/components/auth/can";
-import { parseISO, isSameDay, format } from "date-fns";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
+import { canEditAbsVac } from "helpers/permissions";
+import { parseISO, isSameDay, format, startOfDay, min } from "date-fns";
 import { AssignSub } from "ui/components/assign-sub";
 import { VacancyConfirmation } from "./vacancy-confirmation";
 import { compact, isEqual } from "lodash-es";
@@ -43,6 +46,7 @@ import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/typ
 import { VacancyDetailsFormData, VacancyFormValues } from "../helpers/types";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
+import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -53,13 +57,18 @@ type Props = {
     v: VacancyDetailsFormData
   ) => Promise<ExecutionResult<UpdateVacancyMutation>>;
   onDelete?: () => void;
-  approvalStatus?: {
+  approvalState?: {
     approvalStatusId: ApprovalStatus;
-    approvalWorkflowId: string;
+    approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
     currentStepId: string;
     id: string;
     comments: { id: string }[];
+    decisions?: {
+      stepId: string;
+      approvalActionId: ApprovalAction;
+    }[];
   } | null;
+  refetchVacancy?: () => Promise<unknown>;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -69,7 +78,13 @@ export const VacancyUI: React.FC<Props> = props => {
   const [step, setStep] = useQueryParamIso(VacancyStepParams);
   const { openSnackbar } = useSnackbar();
   const match = useRouteMatch();
-  const { initialVacancy, createVacancy, updateVacancy, onDelete } = props;
+  const {
+    initialVacancy,
+    createVacancy,
+    updateVacancy,
+    onDelete,
+    approvalState,
+  } = props;
   const [resetKey, setResetKey] = useState(0);
 
   const [state, dispatch] = useReducer(vacancyReducer, {
@@ -386,6 +401,8 @@ export const VacancyUI: React.FC<Props> = props => {
     [vacancy.id]
   );
 
+  const startDate = startOfDay(min(vacancy.details.map(x => x.date)));
+
   const footer = React.useCallback(
     (
       initialValues: VacancyFormValues,
@@ -444,7 +461,23 @@ export const VacancyUI: React.FC<Props> = props => {
                 />
               )}
 
-              <Can do={[PermissionEnum.AbsVacSave]}>
+              <Can
+                do={(
+                  permissions: OrgUserPermissions[],
+                  isSysAdmin: boolean,
+                  orgId?: string,
+                  forRole?: Role | null | undefined
+                ) =>
+                  canEditAbsVac(
+                    startDate,
+                    permissions,
+                    isSysAdmin,
+                    orgId,
+                    forRole,
+                    approvalState?.approvalStatusId
+                  )
+                }
+              >
                 <Button
                   form="vacancy-form"
                   type="submit"
@@ -485,6 +518,8 @@ export const VacancyUI: React.FC<Props> = props => {
       t,
       vacancy,
       vacancyExists,
+      startDate,
+      approvalState?.approvalStatusId,
     ]
   );
 
@@ -546,17 +581,23 @@ export const VacancyUI: React.FC<Props> = props => {
       <Typography className={classes.subHeader} variant="h4">
         {subHeader()}
       </Typography>
-      {Config.isDevFeatureOnly && props.approvalStatus && (
-        <ApprovalState
-          orgId={params.organizationId}
-          approvalStateId={props.approvalStatus?.id}
-          approvalStatusId={props.approvalStatus?.approvalStatusId}
-          approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
-          currentStepId={props.approvalStatus?.currentStepId}
-          countOfComments={props.approvalStatus.comments.length}
-          isTrueVacancy={true}
-          vacancyId={vacancy.id}
-        />
+      {approvalState && (
+        <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+          <ApprovalState
+            orgId={params.organizationId}
+            approvalStateId={approvalState?.id}
+            approvalWorkflowId={approvalState?.approvalWorkflow.id ?? ""}
+            approvalStatusId={approvalState?.approvalStatusId}
+            approvalWorkflowSteps={approvalState?.approvalWorkflow?.steps ?? []}
+            currentStepId={approvalState?.currentStepId}
+            countOfComments={approvalState.comments.length}
+            isTrueVacancy={true}
+            vacancyId={vacancy.id}
+            onChange={props.refetchVacancy}
+            locationIds={vacancy.details.map(x => x.locationId)}
+            decisions={approvalState?.decisions}
+          />
+        </Can>
       )}
       {vacancy.closedDetails.length > 0 && (
         <Grid className={classes.closedDayBanner} item xs={12}>

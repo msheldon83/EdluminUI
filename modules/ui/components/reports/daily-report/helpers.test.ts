@@ -7,6 +7,7 @@ import {
   labelledGroupBy,
   subGroupBy,
 } from "./helpers";
+import { ApprovalStatus } from "graphql/server-types.gen";
 
 // natString is a _revolutionary_ function that...
 const natString = fc
@@ -106,6 +107,14 @@ const arbitraryDetailFields: Required<DetailSkeleton> = {
           ["Undefined School", "undefined"].includes(n) ? "Whadda the odds?" : n
         ),
     })
+  ),
+  approvalStatus: optional(
+    fc.constantFrom(
+      ApprovalStatus.PartiallyApproved,
+      ApprovalStatus.ApprovalRequired,
+      ApprovalStatus.Approved,
+      ApprovalStatus.Denied
+    )
   ),
 };
 

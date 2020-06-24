@@ -1,0 +1,8 @@
+query GetMyApprovalWorkflows($orgId: ID) {
+  approvalWorkflow {
+    myApprovalWorkflows(orgId: $orgId) {
+      id
+      name
+    }
+  }
+}

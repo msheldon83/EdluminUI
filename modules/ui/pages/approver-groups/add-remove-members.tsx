@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Grid, Typography } from "@material-ui/core";
-import { PermissionEnum, OrgUserRole } from "graphql/server-types.gen";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { MemberViewCard } from "./components/member-view-card";
 import { AdminPicker } from "./components/admin-picker";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -10,7 +10,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Link } from "react-router-dom";
-import { PageTitle } from "ui/components/page-title";
+import { Can } from "ui/components/auth/can";
 import { GetSuggestedAdmins } from "./graphql/get-suggested-admins.gen";
 import { GetApproverGroupById } from "./graphql/get-approver-group-by-id.gen";
 import { compact } from "lodash-es";
@@ -25,11 +25,7 @@ import { AddMember } from "./graphql/add-member.gen";
 import { GetAdminsByName } from "./graphql/get-admins-by-name.gen";
 import { ApproverGroupAddRemoveMembersRoute } from "ui/routes/approver-groups";
 import { WorkflowViewCard } from "./components/workflow-view-card";
-
-type OptionType = {
-  label: string;
-  value?: string;
-}[];
+import { NameHeader } from "./components/name-header";
 
 export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
   const classes = useStyles();
@@ -64,7 +60,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
         },
       },
     });
-    setSearchText(searchText);
+    setSearchText(undefined);
   };
 
   const onRemoveMember = async (orgUserId: string) => {
@@ -168,7 +164,7 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
     <>
       <div className={classes.headerLink}>
         <Typography variant="h5">
-          {approverGroup?.location?.name ?? approverGroup?.name}
+          {approverGroup?.location?.name ?? t("Approver Group")}
         </Typography>
         <div className={classes.linkPadding}>
           <Link to={to} className={classes.link}>
@@ -176,7 +172,14 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
           </Link>
         </div>
       </div>
-      <PageTitle title={t("Building Approvers")} />
+      {approverGroup && (
+        <NameHeader
+          approverGroupHeaderId={approverGroup.approverGroupHeaderId}
+          name={approverGroup.name}
+          identifier={approverGroup.externalId}
+          rowVersion={approverGroup.rowVersion}
+        />
+      )}
       <Grid container spacing={2} className={classes.content}>
         <Grid item xs={6}>
           <Grid item xs={12}>
@@ -194,14 +197,16 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
             />
           </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <AdminPicker
-            onAdd={onAddMember}
-            admins={admins}
-            setSearchText={setSearchText}
-            savePermissions={[PermissionEnum.ApprovalSettingsSave]}
-          />
-        </Grid>
+        <Can do={[PermissionEnum.ApprovalSettingsSave]}>
+          <Grid item xs={6}>
+            <AdminPicker
+              onAdd={onAddMember}
+              admins={admins}
+              setSearchText={setSearchText}
+              savePermissions={[PermissionEnum.ApprovalSettingsSave]}
+            />
+          </Grid>
+        </Can>
       </Grid>
     </>
   );
@@ -215,6 +220,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    paddingLeft: theme.spacing(1),
   },
   link: {
     color: theme.customColors.blue,

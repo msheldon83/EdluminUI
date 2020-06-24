@@ -53,6 +53,20 @@ export type ReportActions =
       direction: Direction;
     }
   | {
+      action: "addColumns";
+      columns: DataExpression[];
+      index?: number;
+      addBeforeIndex?: boolean;
+    }
+  | {
+      action: "setColumns";
+      columns: DataExpression[];
+    }
+  | {
+      action: "removeColumn";
+      index: number;
+    }
+  | {
       action: "refreshReport";
     };
 
@@ -171,7 +185,7 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
 
       // Determine if the filters have actually changed and warrant an update
       const filtersHaveChanged = filtersAreDifferent(
-        prev.report!.filters ?? [],
+        prev.report?.filters ?? [],
         updatedFilters
       );
       if (!filtersHaveChanged) {
@@ -235,6 +249,80 @@ export const reportReducer: Reducer<ReportState, ReportActions> = (
       );
       return updatedState;
     }
+    case "addColumns": {
+      let updatedSelects = [...prev.report!.selects];
+      if (action.index) {
+        // If we're adding columns before or after another column
+        const beforeSelects = updatedSelects.slice(
+          0,
+          action.addBeforeIndex ? action.index : action.index + 1
+        );
+        const afterSelects = updatedSelects.slice(
+          action.addBeforeIndex ? action.index : action.index + 1
+        );
+        updatedSelects = [...beforeSelects, ...action.columns, ...afterSelects];
+      } else {
+        updatedSelects = [...prev.report!.selects, ...action.columns];
+      }
+
+      const updatedState = {
+        ...prev,
+        report: {
+          ...prev.report!,
+          selects: updatedSelects,
+        },
+      };
+
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.report
+      );
+      return updatedState;
+    }
+    case "setColumns": {
+      const updatedState = {
+        ...prev,
+        report: {
+          ...prev.report!,
+          selects: action.columns,
+        },
+      };
+
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.report
+      );
+      return updatedState;
+    }
+    case "removeColumn": {
+      const updatedSelects = [...prev.report!.selects];
+      const removedField = updatedSelects.splice(action.index, 1);
+
+      const updatedOrderBy = [...(prev.report!.orderBy ?? [])];
+      // Determine if we're removing a field that is currently being sorted on
+      // If so, then we need to remove that from the Order By list
+      const orderByMatch = updatedOrderBy.find(
+        o =>
+          o.expression.baseExpressionAsQueryLanguage ===
+          removedField[0]?.baseExpressionAsQueryLanguage
+      );
+      if (orderByMatch) {
+        const orderByIndexToRemove = updatedOrderBy.indexOf(orderByMatch);
+        updatedOrderBy.splice(orderByIndexToRemove, 1);
+      }
+
+      const updatedState = {
+        ...prev,
+        report: {
+          ...prev.report!,
+          selects: updatedSelects,
+          orderBy: updatedOrderBy,
+        },
+      };
+
+      updatedState.rdlString = convertReportDefinitionInputToRdl(
+        updatedState.report
+      );
+      return updatedState;
+    }
     case "refreshReport": {
       return {
         ...prev,
@@ -278,9 +366,17 @@ const buildFilters = (condition: LogicalTerm | Formula): FilterField[] => {
     value:
       args.length === 1
         ? isDateFilter
-          ? parseISO(args[0].value)
+          ? args[0].value
+            ? parseISO(args[0].value)
+            : args[0].baseExpressionAsQueryLanguage
           : args[0].value
-        : args.map(a => (isDateFilter ? parseISO(a.value) : a.value)),
+        : args.map(a =>
+            isDateFilter
+              ? a.value
+                ? parseISO(a.value)
+                : a.baseExpressionAsQueryLanguage
+              : a.value
+          ),
   });
   return filters;
 };
@@ -328,21 +424,24 @@ const buildFormula = (
       }))`;
     }
     case ExpressionFunction.Between: {
-      let betweenValues: any[] = [];
-      if (
-        Array.isArray(value) &&
-        value[0] instanceof Date &&
-        value[1] instanceof Date
-      ) {
-        // Handle date range between
-        betweenValues = [
-          `'${format(value[0], "MM/dd/yyyy")}'`,
-          `'${format(value[1], "MM/dd/yyyy")}'`,
-        ];
-      } else {
-        betweenValues = processFilterValue(value);
-      }
+      const betweenValues = processFilterValue(value);
       return `(${fieldName} BETWEEN ${betweenValues[0]} AND ${betweenValues[1]})`;
+    }
+    case ExpressionFunction.LessThan: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} < '${equalValue}')`;
+    }
+    case ExpressionFunction.LessThanOrEqual: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} <= '${equalValue}')`;
+    }
+    case ExpressionFunction.GreaterThan: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} > '${equalValue}')`;
+    }
+    case ExpressionFunction.GreaterThanOrEqual: {
+      const equalValue = processFilterValue(value);
+      return `(${fieldName} >= '${equalValue}')`;
     }
   }
   return null;

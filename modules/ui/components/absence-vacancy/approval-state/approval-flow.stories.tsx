@@ -8,9 +8,9 @@ export default {
 export const SingleStep = () => {
   return (
     <WorkflowSummary
-      approverGroups={approverGroups}
       steps={singleStep}
       currentStepId={"3"}
+      workflowName={"Test workflow"}
     />
   );
 };
@@ -18,37 +18,19 @@ export const SingleStep = () => {
 export const FourStep = () => {
   return (
     <WorkflowSummary
-      approverGroups={approverGroups}
       steps={fourSteps}
       currentStepId={"4"}
+      workflowName={"Test workflow"}
     />
   );
 };
-
-const approverGroups = [
-  {
-    id: "1000",
-    name: "Building approvers with a long name",
-  },
-  {
-    id: "1001",
-    name: "Larry Foxx",
-  },
-  {
-    id: "1002",
-    name: "HR Office",
-  },
-  {
-    id: "1003",
-    name: "Superintendent",
-  },
-];
 
 const singleStep = [
   {
     stepId: "1",
     isFirstStep: true,
     isLastStep: false,
+    deleted: false,
     approverGroupHeaderId: null,
     onApproval: [{ goto: "3", criteria: null }],
   },
@@ -56,6 +38,7 @@ const singleStep = [
     stepId: "2",
     isFirstStep: false,
     isLastStep: true,
+    deleted: false,
     approverGroupHeaderId: null,
     onApproval: [{ goto: null, criteria: null }],
   },
@@ -63,7 +46,11 @@ const singleStep = [
     stepId: "3",
     isFirstStep: false,
     isLastStep: false,
+    deleted: false,
     approverGroupHeaderId: "1000",
+    approverGroupHeader: {
+      name: "Building approvers with a long name",
+    },
     onApproval: [{ goto: "2", criteria: null }],
   },
 ];
@@ -73,6 +60,7 @@ const fourSteps = [
     stepId: "1",
     isFirstStep: true,
     isLastStep: false,
+    deleted: false,
     approverGroupHeaderId: null,
     onApproval: [{ goto: "3", criteria: null }],
   },
@@ -80,6 +68,7 @@ const fourSteps = [
     stepId: "2",
     isFirstStep: false,
     isLastStep: true,
+    deleted: false,
     approverGroupHeaderId: null,
     onApproval: [{ goto: null, criteria: null }],
   },
@@ -87,28 +76,44 @@ const fourSteps = [
     stepId: "3",
     isFirstStep: false,
     isLastStep: false,
+    deleted: false,
     approverGroupHeaderId: "1000",
+    approverGroupHeader: {
+      name: "Building approvers with a long name",
+    },
     onApproval: [{ goto: "4", criteria: null }],
   },
   {
     stepId: "4",
     isFirstStep: false,
     isLastStep: false,
+    deleted: false,
     approverGroupHeaderId: "1001",
+    approverGroupHeader: {
+      name: "Larry Foxx",
+    },
     onApproval: [{ goto: "5", criteria: null }],
   },
   {
     stepId: "5",
     isFirstStep: false,
     isLastStep: false,
+    deleted: false,
     approverGroupHeaderId: "1002",
+    approverGroupHeader: {
+      name: "HR Office",
+    },
     onApproval: [{ goto: "6", criteria: null }],
   },
   {
     stepId: "6",
     isFirstStep: false,
     isLastStep: false,
+    deleted: false,
     approverGroupHeaderId: "1003",
+    approverGroupHeader: {
+      name: "Superintendent",
+    },
     onApproval: [{ goto: "2", criteria: null }],
   },
 ];

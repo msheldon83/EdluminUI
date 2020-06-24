@@ -13,6 +13,7 @@ import {
   Vacancy,
   AbsenceDetail,
   ApprovalStatus,
+  ApprovalAction,
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
@@ -55,7 +56,7 @@ import { StepParams } from "./step-params";
 import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
 import { OrgUserPermissions } from "ui/components/auth/types";
-import { canViewAsSysAdmin } from "helpers/permissions";
+import { canViewAbsVacActivityLog } from "helpers/permissions";
 import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
@@ -64,6 +65,8 @@ import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
+import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
   firstName: string;
@@ -111,12 +114,16 @@ type Props = {
     | null;
   isClosed: boolean;
   positionTypeId?: string;
-  approvalStatus?: {
+  approvalState?: {
     id: string;
     approvalStatusId: ApprovalStatus;
-    approvalWorkflowId: string;
-    currentStepId: string;
+    approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
+    currentStepId?: string | null;
     comments: { id: string }[];
+    decisions?: {
+      stepId: string;
+      approvalActionId: ApprovalAction;
+    }[];
   } | null;
 };
 
@@ -559,7 +566,13 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           permissions: OrgUserPermissions[],
           isSysAdmin: boolean,
           orgId?: string
-        ) => canViewAsSysAdmin(permissions, isSysAdmin, orgId),
+        ) =>
+          canViewAbsVacActivityLog(
+            permissions,
+            isSysAdmin,
+            !props.actingAsEmployee,
+            orgId
+          ),
       },
     ];
     if (props.initialVacancies[0]) {
@@ -644,18 +657,28 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             </div>
           </div>
 
-          {Config.isDevFeatureOnly && props.approvalStatus && (
-            <ApprovalState
-              orgId={props.organizationId}
-              approvalStateId={props.approvalStatus?.id}
-              approvalStatusId={props.approvalStatus?.approvalStatusId}
-              approvalWorkflowId={props.approvalStatus?.approvalWorkflowId}
-              currentStepId={props.approvalStatus?.currentStepId}
-              countOfComments={props.approvalStatus?.comments.length}
-              actingAsEmployee={props.actingAsEmployee}
-              isTrueVacancy={false}
-              absenceId={props.absenceId}
-            />
+          {props.approvalState && (
+            <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+              <ApprovalState
+                orgId={props.organizationId}
+                approvalStateId={props.approvalState?.id}
+                approvalStatusId={props.approvalState?.approvalStatusId}
+                approvalWorkflowId={
+                  props.approvalState?.approvalWorkflow.id ?? ""
+                }
+                approvalWorkflowSteps={
+                  props.approvalState?.approvalWorkflow?.steps ?? []
+                }
+                currentStepId={props.approvalState?.currentStepId}
+                countOfComments={props.approvalState?.comments.length}
+                actingAsEmployee={props.actingAsEmployee}
+                isTrueVacancy={false}
+                absenceId={props.absenceId}
+                onChange={props.refetchAbsence}
+                locationIds={props.locationIds ?? []}
+                decisions={props.approvalState?.decisions}
+              />
+            </Can>
           )}
 
           <Section className={classes.absenceDetails}>
@@ -716,6 +739,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               setRequireAdminNotes={setRequireAdminNotes}
               requireAdminNotes={requireAdminNotes}
               positionTypeId={props.positionTypeId}
+              approvalStatus={props.approvalState?.approvalStatusId}
             />
           </Section>
         </form>

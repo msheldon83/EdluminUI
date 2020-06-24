@@ -1,5 +1,5 @@
 import * as React from "react";
-import { OrderByField, DataExpression, Direction } from "../../types";
+import { OrderByField, DataExpression, Direction } from "../../../types";
 import {
   makeStyles,
   RadioGroup,

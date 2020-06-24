@@ -295,6 +295,18 @@ const buildEnumMap = (t: i18next.TFunction) => {
       name: "dataImportRowStatus.IMPORTED",
       displayName: t("Imported"),
     },
+    {
+      name: "mobileDevice.IOS",
+      displayName: t("IOS"),
+    },
+    {
+      name: "mobileDevice.ANDROID",
+      displayName: t("Android"),
+    },
+    {
+      name: "mobileDevice.INVALID",
+      displayName: t("Invalid"),
+    },
   ];
   return enumMap;
 };

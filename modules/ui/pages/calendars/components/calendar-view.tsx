@@ -8,8 +8,7 @@ import {
 } from "ui/components/substitutes/grouping-helpers";
 import { startOfMonth } from "date-fns/esm";
 import { parseISO, eachDayOfInterval, format } from "date-fns";
-import { groupBy, range } from "lodash-es";
-import { useState } from "react";
+import { groupBy } from "lodash-es";
 import { CalendarEvent } from "../types";
 
 type Props = {
@@ -70,6 +69,18 @@ export const CalendarView: React.FC<Props> = props => {
       });
     }
   });
+
+  if (
+    !unConsolidatedCalandarChangeDates.find(
+      c => c.startDate === format(props.selectedDate, "yyyy-MM-dd")
+    )
+  ) {
+    unConsolidatedCalandarChangeDates.push({
+      startDate: format(props.selectedDate, "yyyy-MM-dd"),
+      endDate: format(props.selectedDate, "yyyy-MM-dd"),
+      affectsAllContracts: true,
+    });
+  }
 
   const groupedDates = mergeChangeDatesByMonth(
     empty,

@@ -2,7 +2,10 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Grid, Typography, Tooltip } from "@material-ui/core";
-import { ApproverGroupCreateInput } from "graphql/server-types.gen";
+import {
+  ApproverGroupCreateInput,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { WorkflowViewCard } from "./components/workflow-view-card";
 import { useIsMobile } from "hooks";
 import { useRouteParams } from "ui/routes/definition";
@@ -10,7 +13,7 @@ import ErrorIcon from "@material-ui/icons/Error";
 import { Table } from "ui/components/table";
 import { Section } from "ui/components/section";
 import { Link } from "react-router-dom";
-import { PageTitle } from "ui/components/page-title";
+import { useCanDo } from "ui/components/auth/can";
 import { Column } from "material-table";
 import { compact } from "lodash-es";
 import { useHistory } from "react-router";
@@ -25,9 +28,11 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { GetApproverGroupHeaderById } from "./graphql/get-approver-group-header-by-id.gen";
 import { AddApproverGroupForLocation } from "./graphql/add-location.gen";
 import { GetAllLocations } from "./graphql/get-all-locations.gen";
+import { NameHeader } from "./components/name-header";
 
 export const ApproverGroupLocationsPage: React.FC<{}> = props => {
   const classes = useStyles();
+  const canDoFn = useCanDo();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const history = useHistory();
@@ -130,10 +135,12 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
     })
   );
 
+  const canAddLocationGroup = canDoFn([PermissionEnum.ApprovalSettingsSave]);
+
   return (
     <>
       <div className={classes.headerLink}>
-        <Typography variant="h5">{approverGroupHeader?.name}</Typography>
+        <Typography variant="h5">{t("Approver Group")}</Typography>
         <div className={classes.linkPadding}>
           <Link
             to={ApproverGroupsRoute.generate({
@@ -145,7 +152,14 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
           </Link>
         </div>
       </div>
-      <PageTitle title={approverGroupHeader!.name} />
+      {approverGroupHeader && (
+        <NameHeader
+          approverGroupHeaderId={approverGroupHeader.id}
+          name={approverGroupHeader.name}
+          identifier={approverGroupHeader.externalId}
+          rowVersion={approverGroupHeader.rowVersion}
+        />
+      )}
       <Grid container className={classes.content}>
         <Grid item xs={6}>
           <Section>
@@ -158,7 +172,7 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
                   ? location?.approverGroupByHeaderId?.id
                   : undefined;
 
-                if (!approverGroupId) {
+                if (!approverGroupId && canAddLocationGroup) {
                   const newApproverGroup: ApproverGroupCreateInput = {
                     orgId: params.organizationId,
                     locationId: location!.id,
@@ -200,6 +214,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    paddingLeft: theme.spacing(1),
   },
   link: {
     color: theme.customColors.blue,

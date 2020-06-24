@@ -55,7 +55,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const periodOptions = buildPeriodOptions();
 
   return (
-    <Section>
+    <Section borderTopRadius={false}>
       <SectionHeader title={t("Basic info")} />
       <Formik
         initialValues={{

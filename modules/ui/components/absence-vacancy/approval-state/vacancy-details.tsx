@@ -1,21 +1,9 @@
 import * as React from "react";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  DayPart,
-  Maybe,
-  AbsenceReasonTrackingTypeId,
-} from "graphql/server-types.gen";
-import { parseISO, differenceInHours, isAfter, isBefore } from "date-fns";
+import { Maybe } from "graphql/server-types.gen";
 import { makeStyles, Grid } from "@material-ui/core";
-import {
-  getDateRangeDisplay,
-  getDayPartCountLabels,
-} from "ui/components/employee/helpers";
-import { useAllSchoolYears } from "reference-data/school-years";
-import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
-import { useQueryBundle } from "graphql/hooks";
 import { compact } from "lodash-es";
+import { SummaryDetails } from "./summary-details";
 
 type Props = {
   orgId: string;
@@ -36,6 +24,7 @@ type Props = {
         }>[]
       | null;
   };
+  showSimpleDetail: boolean;
 };
 
 export const VacancyDetails: React.FC<Props> = props => {
@@ -43,63 +32,50 @@ export const VacancyDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const vacancy = props.vacancy;
-  const startDate = parseISO(vacancy.startDate ?? "");
-  const endDate = parseISO(vacancy.endDate ?? "");
 
   const reasons = compact(vacancy.details?.map(x => x?.vacancyReason)) ?? [];
   const uniqueReasonIds = [...new Set(reasons.map(x => x.id))] ?? [];
 
   return (
-    <Grid container item xs={12} spacing={2}>
-      <Grid item xs={12}>
-        <div className={classes.title}>
-          {getDateRangeDisplay(startDate, endDate)}
+    <div className={classes.detailsContainer}>
+      {props.showSimpleDetail && (
+        <SummaryDetails
+          orgId={props.orgId}
+          startDate={vacancy.startDate}
+          endDate={vacancy.endDate}
+          isNormalVacancy={true}
+          simpleSummary={true}
+          absVacId={vacancy.id}
+        />
+      )}
+      <div className={classes.reasonHeaderContainer}>
+        <div className={[classes.subTitle, classes.reason].join(" ")}>
+          {uniqueReasonIds.length > 1 ? t("Reasons") : t("Reason")}
         </div>
-      </Grid>
-      <Grid container item xs={12}>
-        <Grid
-          item
-          container
-          xs={12}
-          className={classes.reasonHeaderContainer}
-          alignItems="center"
-        >
-          <Grid item xs={6}>
-            <div className={classes.subTitle}>
-              {uniqueReasonIds.length > 1 ? t("Reasons") : t("Reason")}
+      </div>
+      {uniqueReasonIds.map((r, i) => {
+        return (
+          <div key={i} className={classes.reasonRowContainer}>
+            <div className={[classes.text, classes.reason].join(" ")}>
+              {reasons.find(x => x.id === r)?.name}
             </div>
-          </Grid>
-        </Grid>
-        {uniqueReasonIds.map((r, i) => {
-          return (
-            <Grid
-              item
-              container
-              xs={12}
-              alignItems="center"
-              key={i}
-              className={classes.reasonRowContainer}
-            >
-              <Grid item xs={6}>
-                <div className={classes.text}>
-                  {reasons.find(x => x.id === r)?.name}
-                </div>
-              </Grid>
-            </Grid>
-          );
-        })}
-      </Grid>
-      <Grid item xs={12}>
+          </div>
+        );
+      })}
+      <div className={classes.notesContainer}>
         <div className={classes.subTitle}>{t("Administrator comments")}</div>
         <div className={classes.text}>
           {vacancy.adminOnlyNotes ? vacancy.adminOnlyNotes : t("No comments")}
         </div>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  detailsContainer: {
+    width: "100%",
+  },
   subTitle: {
     fontWeight: "bold",
     fontSize: theme.typography.pxToRem(14),
@@ -115,9 +91,19 @@ const useStyles = makeStyles(theme => ({
     background: "#F0F0F0",
     border: "1px solid #E5E5E5",
     padding: theme.spacing(1),
+    display: "flex",
+    width: "95%",
   },
   reasonRowContainer: {
     borderBottom: "1px solid #E5E5E5",
     padding: theme.spacing(1),
+    display: "flex",
+    width: "95%",
+  },
+  reason: {
+    width: "50%",
+  },
+  notesContainer: {
+    paddingTop: theme.spacing(2),
   },
 }));

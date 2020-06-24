@@ -212,7 +212,7 @@ export const LocationViewPage: React.FC<{}> = props => {
             editPermission={[PermissionEnum.LocationSave]}
           />
         )}
-        {location && Config.isDevFeatureOnly && (
+        {location && (
           <Can do={[PermissionEnum.ApprovalSettingsView]}>
             <ApproverGroupsUI approverGroups={approverGroups} />
           </Can>

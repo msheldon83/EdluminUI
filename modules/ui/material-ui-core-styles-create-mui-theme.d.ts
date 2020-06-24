@@ -95,6 +95,7 @@ type Background = {
   confirmed: string;
   information: string;
   hoverRow: string;
+  dropZone: string;
 };
 
 type Calendar = {

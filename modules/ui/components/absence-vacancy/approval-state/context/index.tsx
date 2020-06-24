@@ -24,21 +24,25 @@ export const Context: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   return (
-    <Grid item container xs={12} spacing={1}>
-      <Grid item xs={12}>
-        <div className={classes.title}>{t("Context")}</div>
-      </Grid>
+    <div className={classes.container}>
+      <div className={classes.title}>{t("Context")}</div>
       {!props.actingAsEmployee && (
-        <OtherContext
-          orgId={props.orgId}
-          vacancyId={props.isNormalVacancy ? props.vacancyId ?? "" : undefined}
-          absenceId={!props.isNormalVacancy ? props.absenceId ?? "" : undefined}
-          startDate={props.startDate}
-          endDate={props.endDate}
-          locationIds={props.locationIds}
-          vacancyReasonIds={props.vacancyReasonIds}
-          absenceReasonIds={props.absenceReasonIds}
-        />
+        <div className={classes.otherContextContainer}>
+          <OtherContext
+            orgId={props.orgId}
+            vacancyId={
+              props.isNormalVacancy ? props.vacancyId ?? "" : undefined
+            }
+            absenceId={
+              !props.isNormalVacancy ? props.absenceId ?? "" : undefined
+            }
+            startDate={props.startDate}
+            endDate={props.endDate}
+            locationIds={props.locationIds}
+            vacancyReasonIds={props.vacancyReasonIds}
+            absenceReasonIds={props.absenceReasonIds}
+          />
+        </div>
       )}
       {!props.isNormalVacancy && (
         <EmployeeAbsences
@@ -50,11 +54,14 @@ export const Context: React.FC<Props> = props => {
           actingAsEmployee={props.actingAsEmployee}
         />
       )}
-    </Grid>
+    </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    paddingTop: theme.spacing(2),
+  },
   subTitle: {
     fontWeight: "bold",
     fontSize: theme.typography.pxToRem(14),
@@ -66,5 +73,8 @@ const useStyles = makeStyles(theme => ({
   text: {
     fontWeight: "normal",
     fontSize: theme.typography.pxToRem(14),
+  },
+  otherContextContainer: {
+    paddingBottom: theme.spacing(1),
   },
 }));

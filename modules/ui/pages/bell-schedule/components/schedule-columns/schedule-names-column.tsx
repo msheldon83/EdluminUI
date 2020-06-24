@@ -79,7 +79,7 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                                   {props.isStandard && (
                                     <FormTextField
                                       inputProps={{
-                                        tabindex: i + 1,
+                                        tabIndex: i + 1,
                                       }}
                                       placeholder={p.placeholder}
                                       value={p.name || ""}

@@ -1,0 +1,117 @@
+query GetAbsence($id: ID!) {
+  absence {
+    byId(id: $id) {
+      id
+      orgId
+      isClosed
+      rowVersion
+      createdLocal
+      approvalState {
+        id
+        approvalStatusId
+        approvalWorkflowId
+        approvalWorkflow {
+          id
+          name
+          steps {
+            stepId
+            deleted
+            isFirstStep
+            isLastStep
+            approverGroupHeaderId
+            approverGroupHeader {
+              id
+              name
+            }
+            onApproval {
+              goto
+              criteria
+            }
+          }
+        }
+        currentStepId
+        changedLocal
+        comments {
+          id
+          comment
+          commentIsPublic
+          createdLocal
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actualUser {
+            id
+            firstName
+            lastName
+          }
+        }
+        decisions {
+          id
+          stepId
+          createdLocal
+          approvalActionId
+          actingOrgUserId
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actualUser {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+      details {
+        id
+        actualDuration
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        dayPartId
+        dayPortion
+        isClosed
+        reasonUsages {
+          id
+          amount
+          sequence
+          absenceReasonTrackingTypeId
+          absenceReasonId
+          absenceReason {
+            id
+            name
+            requireNotesToAdmin
+          }
+        }
+      }
+      locationIds
+      startDate
+      endDate
+      startTimeLocal
+      endTimeLocal
+      notesToApprover
+      adminOnlyNotes
+      numDays
+      totalDuration
+      totalDayPortion
+      employeeId
+      employee {
+        id
+        firstName
+        lastName
+        primaryPosition {
+          id
+          title
+        }
+        absenceReasonBalances {
+          id
+          absenceReasonId
+        }
+      }
+    }
+  }
+}

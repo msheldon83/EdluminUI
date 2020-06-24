@@ -24,6 +24,7 @@ query GetDailyReportV2(
         isMultiDay
         isClosed
         calendarDayTypeId
+        approvalStatus
         teacher {
           id
           firstName
@@ -147,6 +148,7 @@ query GetDailyReportV2(
         isMultiDay
         isClosed
         calendarDayTypeId
+        approvalStatus
         teacher {
           id
           firstName
@@ -270,6 +272,7 @@ query GetDailyReportV2(
         isMultiDay
         isClosed
         calendarDayTypeId
+        approvalStatus
         teacher {
           id
           firstName
@@ -394,6 +397,7 @@ query GetDailyReportV2(
         isMultiDay
         isClosed
         calendarDayTypeId
+        approvalStatus
         position {
           id
           name
@@ -463,6 +467,7 @@ query GetDailyReportV2(
         isMultiDay
         isClosed
         calendarDayTypeId
+        approvalStatus
         position {
           id
           name

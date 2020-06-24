@@ -85,7 +85,7 @@ export const Schedule: React.FC<Props> = props => {
   }, [endOfDayPeriod, props.periods]);
 
   return (
-    <Section>
+    <Section borderTopRadius={false}>
       <Formik
         initialValues={{
           periods: periodsMinusEndOfDay,
