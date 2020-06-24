@@ -32,6 +32,11 @@ query GetVacancyById($id: ID!) {
         comments {
           id
         }
+        decisions {
+          id
+          stepId
+          approvalActionId
+        }
       }
       closedDetails {
         id

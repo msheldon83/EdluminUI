@@ -5,9 +5,6 @@ import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import { getDateRangeDisplay } from "ui/components/employee/helpers";
 import { parseISO, format, isToday } from "date-fns";
-import { flatMap, uniq } from "lodash-es";
-import { Maybe } from "graphql/server-types.gen";
-import { useMyUserAccess } from "reference-data/my-user-access";
 
 type Props = {
   orgId: string;
@@ -19,48 +16,20 @@ type Props = {
     } | null>
   >;
   isPrevious?: boolean;
-  approvalState?: {
-    changedLocal?: string | null;
-    comments: {
-      id: string;
-    }[];
-  } | null;
-  decisions?: {
-    actingOrgUserId: string;
-    createdUtc: string;
-  }[];
-  vacancy: {
+  inboxItem: {
     id: string;
     isNormalVacancy: boolean;
-    absenceId?: string | null;
-    startDate?: string | null;
+    teacherFirstName?: string | null;
+    teacherLastName?: string | null;
+    positionTitle?: string | null;
+    numComments: number;
+    startDate: string;
     endDate: string;
-    createdLocal?: string | null;
-    position?: {
-      title: string;
-    } | null;
-    details: {
-      vacancyReason?: {
-        name: string;
-      } | null;
+    reasons: {
+      id: string;
+      name: string;
     }[];
-    absence?: {
-      employee?: {
-        firstName: string;
-        lastName: string;
-      } | null;
-      details?:
-        | Maybe<{
-            reasonUsages?:
-              | Maybe<{
-                  absenceReason?: {
-                    name: string;
-                  } | null;
-                }>[]
-              | null;
-          }>[]
-        | null;
-    } | null;
+    changedUtc: string;
   };
 };
 
@@ -68,59 +37,37 @@ export const InboxItem: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { vacancy, approvalState, decisions, isPrevious, orgId } = props;
+  const { inboxItem, isPrevious, isSelected } = props;
 
-  const userAccess = useMyUserAccess();
-  const currentOrgUserId = userAccess?.me?.user?.orgUsers?.find(
-    x => x?.orgId === orgId
-  )?.id;
-
-  const reasons = vacancy.isNormalVacancy
-    ? uniq(vacancy.details.map(d => d?.vacancyReason?.name)).join(", ")
-    : uniq(
-        flatMap(
-          vacancy.absence?.details?.map(d =>
-            d?.reasonUsages?.map(u => u?.absenceReason?.name)
-          )
-        )
-      ).join(", ");
+  const reasons = inboxItem.reasons.map(x => x.name).join(", ");
 
   const handleClick = () => {
     props.setSelected({
-      id: vacancy.isNormalVacancy ? vacancy.id : vacancy.absenceId ?? "",
-      isNormalVacancy: vacancy.isNormalVacancy,
+      id: inboxItem.id,
+      isNormalVacancy: inboxItem.isNormalVacancy,
     });
   };
 
   const formattedChangedTime = useMemo(() => {
-    const changedTime = isPrevious
-      ? decisions?.find(x => x.actingOrgUserId === currentOrgUserId)?.createdUtc
-      : approvalState?.changedLocal;
-    if (changedTime) {
-      const changedTimeDate = isPrevious
-        ? new Date(changedTime)
-        : parseISO(changedTime);
-      return isToday(changedTimeDate)
-        ? format(changedTimeDate, "h:mm a")
-        : format(changedTimeDate, "h:mm a, MMM d");
-    } else {
-      return "";
-    }
-  }, [approvalState, currentOrgUserId, decisions, isPrevious]);
+    const changedTime = new Date(inboxItem.changedUtc);
+    return isToday(changedTime)
+      ? format(changedTime, "h:mm a")
+      : format(changedTime, "h:mm a, MMM d");
+  }, [inboxItem.changedUtc]);
 
   return (
     <div
       className={clsx({
         [classes.container]: true,
-        [classes.selectedBorder]: props.isSelected,
-        [classes.notSelectedBorder]: !props.isSelected,
-        [classes.previous]: props.isPrevious,
+        [classes.selectedBorder]: isSelected,
+        [classes.notSelectedBorder]: !isSelected,
+        [classes.previous]: isPrevious,
       })}
       onClick={handleClick}
     >
       <div className={classes.textContainer}>
         <div className={classes.typeText}>
-          {vacancy.isNormalVacancy ? t("Vacancy") : t("Absence")}
+          {inboxItem.isNormalVacancy ? t("Vacancy") : t("Absence")}
         </div>
         <div className={[classes.typeText, classes.rightAlignedText].join(" ")}>
           {formattedChangedTime}
@@ -129,11 +76,11 @@ export const InboxItem: React.FC<Props> = props => {
 
       <div className={classes.textContainer}>
         <div className={classes.nameText}>
-          {vacancy.isNormalVacancy
-            ? vacancy.position?.title
-            : `${vacancy.absence?.employee?.firstName} ${vacancy.absence?.employee?.lastName}`}
+          {inboxItem.isNormalVacancy
+            ? inboxItem.positionTitle
+            : `${inboxItem.teacherFirstName} ${inboxItem.teacherLastName}`}
         </div>
-        {approvalState?.comments && approvalState.comments.length > 0 && (
+        {inboxItem.numComments > 0 && (
           <div className={classes.rightAlignedText}>
             <img src={require("ui/icons/comment-solid.svg")} />
           </div>
@@ -142,8 +89,8 @@ export const InboxItem: React.FC<Props> = props => {
       <div className={classes.dateReasonContainer}>
         <div className={classes.date}>
           {getDateRangeDisplay(
-            parseISO(vacancy.startDate!),
-            parseISO(vacancy.endDate)
+            parseISO(inboxItem.startDate),
+            parseISO(inboxItem.endDate)
           )}
         </div>
         <div>{reasons}</div>
