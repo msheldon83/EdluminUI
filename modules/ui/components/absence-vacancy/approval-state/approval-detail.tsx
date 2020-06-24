@@ -121,6 +121,13 @@ export const ApprovalDetail: React.FC<Props> = props => {
     x => x.stepId == props.currentStepId
   )?.approverGroupHeaderId;
 
+  const locationIds =
+    compact(
+      props.isTrueVacancy
+        ? props.vacancy?.details?.map(x => x?.locationId)
+        : props.absence?.locationIds
+    ) ?? [];
+
   const renderAbsVacDetail = () => {
     return (
       <div className={classes.absVacDetailsContainer}>
@@ -181,6 +188,8 @@ export const ApprovalDetail: React.FC<Props> = props => {
             currentApproverGroupHeaderId={currentApproverGroupHeaderId}
             onApprove={props.onApprove}
             onDeny={props.onDeny}
+            orgId={props.orgId}
+            locationIds={locationIds}
           />
           <WorkflowSummary
             currentStepId={props.currentStepId}
