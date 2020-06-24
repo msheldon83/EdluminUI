@@ -91,7 +91,7 @@ export const OrganizationStatusBar: React.FC<Props> = props => {
               variant="contained"
               onClick={() => setLiveDialogIsOpen(true)}
             >
-              Go Live
+              {t("Go Live")}
             </Button>
           </Grid>
         </Toolbar>

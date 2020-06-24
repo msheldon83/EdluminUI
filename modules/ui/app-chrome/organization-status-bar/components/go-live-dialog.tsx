@@ -38,10 +38,10 @@ export const GoLiveDialog: React.FC<Props> = ({
       <Divider className={classes.divider} />
       <DialogActions>
         <Button variant="contained" onClick={onCancel}>
-          No
+          {t("No")}
         </Button>
         <Button variant="contained" onClick={onConfirm}>
-          Yes
+          {t("Yes")}
         </Button>
       </DialogActions>
     </Dialog>
