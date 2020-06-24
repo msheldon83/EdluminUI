@@ -13,6 +13,7 @@ import {
   Vacancy,
   AbsenceDetail,
   ApprovalStatus,
+  ApprovalAction,
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
@@ -129,6 +130,10 @@ type Props = {
     approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
     currentStepId?: string | null;
     comments: { id: string }[];
+    decisions?: {
+      stepId: string;
+      approvalActionId: ApprovalAction;
+    }[];
   } | null;
 };
 
@@ -711,6 +716,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 absenceId={props.absenceId}
                 onChange={props.refetchAbsence}
                 locationIds={props.locationIds ?? []}
+                decisions={props.approvalState?.decisions}
               />
             </Can>
           )}

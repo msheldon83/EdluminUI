@@ -4,18 +4,23 @@ import { makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { ApprovalWorkflowSteps } from "./types";
+import { ApprovalAction } from "graphql/server-types.gen";
 
 type Props = {
   steps: ApprovalWorkflowSteps[];
+  workflowName: string;
   currentStepId?: string | null;
+  decisions?: {
+    stepId: string;
+    approvalActionId: ApprovalAction;
+  }[];
 };
 
 export const WorkflowSummary: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const steps = props.steps;
-  const currentStepId = props.currentStepId;
+  const { steps, decisions, currentStepId } = props;
 
   const orderedSteps = useMemo(() => {
     const ordered: {
@@ -25,7 +30,9 @@ export const WorkflowSummary: React.FC<Props> = props => {
     let step = steps.find(s => s.isFirstStep);
     do {
       step = steps.find(
-        s => s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto
+        s =>
+          s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto &&
+          !s.deleted
       );
       ordered.push({
         stepId: step?.stepId,
@@ -36,22 +43,50 @@ export const WorkflowSummary: React.FC<Props> = props => {
     return compact(ordered);
   }, [steps]);
 
-  const currentStepIndex = useMemo(
-    () => orderedSteps.findIndex(x => x.stepId === currentStepId),
-    [orderedSteps, currentStepId]
+  const deniedStepIds =
+    compact(
+      decisions?.map(x => {
+        if (x.approvalActionId === ApprovalAction.Deny) return x.stepId;
+      })
+    ) ?? [];
+  const approvedStepIds =
+    compact(
+      decisions?.map(x => {
+        if (x.approvalActionId === ApprovalAction.Approve) return x.stepId;
+      })
+    ) ?? [];
+
+  const approvedSteps = useMemo(
+    () =>
+      orderedSteps.filter(x => x.stepId && approvedStepIds.includes(x.stepId)),
+    [orderedSteps, approvedStepIds]
   );
 
-  const approvedSteps = useMemo(() => orderedSteps.slice(0, currentStepIndex), [
-    orderedSteps,
-    currentStepIndex,
-  ]);
-  const pendingStep = useMemo(() => orderedSteps[currentStepIndex], [
-    orderedSteps,
-    currentStepIndex,
-  ]);
+  // This checks the Steps array and not the current steps array in case the current step has been deleted
+  const pendingStep = useMemo(() => {
+    const step = steps.find(x => x.stepId === currentStepId);
+    return {
+      stepId: step?.stepId,
+      approverGroupHeaderName: step?.approverGroupHeader?.name,
+    };
+  }, [steps, currentStepId]);
+
   const nextSteps = useMemo(
-    () => orderedSteps.slice(currentStepIndex + 1, orderedSteps.length),
-    [orderedSteps, currentStepIndex]
+    () =>
+      orderedSteps.filter(
+        x =>
+          x.stepId &&
+          !approvedStepIds.includes(x.stepId) &&
+          deniedStepIds.includes(x.stepId) &&
+          x.stepId !== currentStepId
+      ),
+    [orderedSteps, approvedStepIds, deniedStepIds, currentStepId]
+  );
+
+  const deniedSteps = useMemo(
+    () =>
+      orderedSteps.filter(x => x.stepId && deniedStepIds.includes(x.stepId)),
+    [orderedSteps, deniedStepIds]
   );
 
   const renderApprovedSteps = () => {
@@ -62,6 +97,25 @@ export const WorkflowSummary: React.FC<Props> = props => {
           {approvedSteps.map((s, i) => {
             return (
               <div key={i} className={classes.approvedBox}>
+                <span className={classes.groupNameText}>
+                  {s.approverGroupHeaderName}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const renderDeniedSteps = () => {
+    return (
+      <div>
+        <div className={classes.titleText}>{t("Denied by:")}</div>
+        <div className={classes.stepsContainer}>
+          {deniedSteps.map((s, i) => {
+            return (
+              <div key={i} className={classes.deniedBox}>
                 <span className={classes.groupNameText}>
                   {s.approverGroupHeaderName}
                 </span>
@@ -111,16 +165,19 @@ export const WorkflowSummary: React.FC<Props> = props => {
 
   return (
     <div className={classes.container}>
-      {approvedSteps.length > 0 && renderApprovedSteps()}
-      {pendingStep && renderPendingStep()}
-      {nextSteps.length > 1 && renderNextSteps()}
+      <div className={classes.workflowTitle}>{props.workflowName}</div>
+      <div className={classes.stepsContainer}>
+        {approvedSteps.length > 0 && renderApprovedSteps()}
+        {deniedSteps.length > 0 && renderDeniedSteps()}
+        {deniedSteps.length === 0 && pendingStep && renderPendingStep()}
+        {deniedSteps.length === 0 && nextSteps.length > 1 && renderNextSteps()}
+      </div>
     </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   container: {
-    display: "flex",
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
   },
@@ -132,6 +189,10 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(16),
     marginBottom: theme.spacing(0.5),
   },
+  workflowTitle: {
+    fontWeight: 500,
+    fontSize: theme.typography.pxToRem(14),
+  },
   groupNameText: {
     verticalAlign: "middle",
     display: "inline-block",
@@ -140,6 +201,17 @@ const useStyles = makeStyles(theme => ({
   approvedBox: {
     border: "1px solid #4CC17C",
     background: "#E6F5ED",
+    boxSizing: "border-box",
+    width: "125px",
+    height: "70px",
+    lineHeight: "70px",
+    textAlign: "center",
+    wordWrap: "break-word",
+    marginRight: theme.spacing(1),
+  },
+  deniedBox: {
+    border: "1px solid #C62828",
+    background: "#FFDDDD",
     boxSizing: "border-box",
     width: "125px",
     height: "70px",
