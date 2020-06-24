@@ -158,7 +158,6 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(
     orgId: ID
@@ -167,6 +166,7 @@ type AbsenceQueries {
     offset: Int
     sortBy: [SortDetailsInput]
   ): PagedAbsence
+  byId(id: ID!): Absence
   projectedVacancies(
     absence: AbsenceCreateInput!
     ignoreAbsenceId: ID
@@ -1052,7 +1052,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   name: String!
   description: String
   variesByLocation: Boolean!
-  approverGroups: [ApproverGroup]!
+  approverGroups(orgUserId: ID): [ApproverGroup]!
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
@@ -7141,7 +7141,6 @@ enum VacancyQualification {
 }
 
 type VacancyQueries {
-  byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(
     orgId: ID
@@ -7150,6 +7149,7 @@ type VacancyQueries {
     offset: Int
     sortBy: [SortDetailsInput]
   ): PagedVacancy
+  byId(id: ID!): Vacancy
   getAssignmentsForVerify(
     locationIds: [ID]
     fromDate: Date
