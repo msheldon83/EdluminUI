@@ -581,7 +581,7 @@ export const VacancyUI: React.FC<Props> = props => {
       <Typography className={classes.subHeader} variant="h4">
         {subHeader()}
       </Typography>
-      {Config.isDevFeatureOnly && approvalState && (
+      {approvalState && (
         <Can do={[PermissionEnum.AbsVacApprovalsView]}>
           <ApprovalState
             orgId={params.organizationId}
