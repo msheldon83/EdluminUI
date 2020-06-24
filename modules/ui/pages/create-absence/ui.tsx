@@ -16,7 +16,7 @@ import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-
 import { convertStringToDate } from "helpers/date";
 import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useQueryParamIso } from "hooks/query-params";
-import { compact, flatMap, size, some } from "lodash-es";
+import { compact, flatMap, size, some, sum } from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -226,6 +226,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
 
         return true;
       },
+    }
   );
   register({ name: "payCode", type: "custom" });
 
