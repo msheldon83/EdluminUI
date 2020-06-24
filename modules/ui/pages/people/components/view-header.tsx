@@ -27,6 +27,7 @@ import { DeleteDialog } from "ui/pages/people/components/delete-dialog";
 const editableSections = {
   name: "edit-name",
   externalId: "edit-external-id",
+  secondaryIdentifier: "secondary-identifier",
 };
 
 type Props = {
@@ -41,6 +42,7 @@ type Props = {
     lastName: string;
     rowVersion: string;
     externalId?: string | null | undefined;
+    secondaryIdentifier?: string | null | undefined;
     inviteSent: boolean;
     isAccountSetup: boolean;
     isAdmin: boolean;
@@ -355,6 +357,31 @@ export const PersonViewHeader: React.FC<Props> = props => {
             rowVersion: orgUser.rowVersion,
             id: orgUser.id,
             externalId: value,
+          });
+        }}
+        onCancel={() => props.setEditing(null)}
+        isSubHeader={true}
+        showLabel={true}
+      >
+        <ShadowIndicator
+          orgName={orgUser.shadowFromOrgName}
+          isShadow={orgUser.isShadowRecord}
+        />
+      </PageHeader>
+      <PageHeader
+        text={orgUser.secondaryIdentifier}
+        label={t("Secondary Identifier")}
+        editable={editable}
+        onEdit={() => props.setEditing(editableSections.secondaryIdentifier)}
+        editPermissions={canEditThisOrgUser}
+        validationSchema={yup.object().shape({
+          value: yup.string().nullable(),
+        })}
+        onSubmit={async (value: Maybe<string>) => {
+          await props.onSaveOrgUser({
+            rowVersion: orgUser.rowVersion,
+            id: orgUser.id,
+            secondaryIdentifier: value,
           });
         }}
         onCancel={() => props.setEditing(null)}
