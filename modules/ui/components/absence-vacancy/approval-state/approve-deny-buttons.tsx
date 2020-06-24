@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useMemo } from "react";
 import { Button, makeStyles } from "@material-ui/core";
-import { useMutationBundle } from "graphql/hooks";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { Approve } from "ui/components/absence-vacancy/approval-state/graphql/approve.gen";
 import { Deny } from "ui/components/absence-vacancy/approval-state/graphql/deny.gen";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -9,14 +9,17 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useTranslation } from "react-i18next";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { ApprovalStatus } from "graphql/server-types.gen";
-import { useMyApproverGroupHeaders } from "reference-data/my-approver-group-headers";
+import { GetApproverGroupsForOrgUser } from "./graphql/get-approver-groups-for-orguser.gen";
+import { compact } from "lodash-es";
 
 type Props = {
+  orgId: string;
   approvalStateId: string;
   onApprove?: () => void;
   onDeny?: () => void;
   approvalStatus?: ApprovalStatus;
   currentApproverGroupHeaderId?: string | null;
+  locationIds: string[];
 };
 
 export const ApproveDenyButtons: React.FC<Props> = props => {
@@ -24,11 +27,26 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
-  const approvalStatus = props.approvalStatus;
-  const currentApproverGroupHeaderId = props.currentApproverGroupHeaderId;
+  const { locationIds, approvalStatus, currentApproverGroupHeaderId } = props;
 
   const userAccess = useMyUserAccess();
-  const myApproverGroupHeaders = useMyApproverGroupHeaders();
+  const orgUserId = userAccess?.me?.user?.orgUsers?.find(
+    x => x?.orgId === props.orgId && x.isAdmin
+  )?.id;
+  const getApproverGroups = useQueryBundle(GetApproverGroupsForOrgUser, {
+    variables: {
+      orgId: props.orgId,
+      orgUserId: orgUserId ?? "",
+    },
+    skip: !orgUserId,
+  });
+
+  const myApproverGroupHeaders =
+    getApproverGroups.state === "DONE"
+      ? compact(
+          getApproverGroups.data.approverGroup?.approverGroupHeadersByOrgUserId
+        )
+      : [];
 
   const [approve] = useMutationBundle(Approve, {
     onError: error => {
@@ -80,14 +98,33 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
       return false;
 
     // If I'm a member of the current group that needs to approve, show the buttons
-    if (myApproverGroupHeaders.find(x => x.id === currentApproverGroupHeaderId))
+    const currentApproverGroupHeader = myApproverGroupHeaders.find(
+      x => x.id === currentApproverGroupHeaderId
+    );
+    if (
+      currentApproverGroupHeader &&
+      !currentApproverGroupHeader.variesByLocation
+    )
       return true;
+
+    // If the current group varies by location, am I in a group by location that applies to this absence/vacancy
+    if (
+      currentApproverGroupHeader &&
+      !currentApproverGroupHeader.variesByLocation
+    ) {
+      const approverGroup = currentApproverGroupHeader.approverGroups.find(
+        x => x?.locationId && locationIds.includes(x.locationId)
+      );
+      if (approverGroup) return true;
+    }
+
     return false;
   }, [
     userAccess?.isSysAdmin,
     approvalStatus,
     myApproverGroupHeaders,
     currentApproverGroupHeaderId,
+    locationIds,
   ]);
 
   return showButtons ? (

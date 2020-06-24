@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Grid, makeStyles, Divider } from "@material-ui/core";
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
 import { ApprovalComments } from "ui/components/absence-vacancy/approval-state/comments";
@@ -69,6 +68,13 @@ export const SelectedDetail: React.FC<Props> = props => {
     }
   };
 
+  const locationIds =
+    compact(
+      props.selectedItem?.isNormalVacancy
+        ? vacancy?.details?.map(x => x.locationId)
+        : absence?.locationIds
+    ) ?? [];
+
   return props.selectedItem ? (
     <div className={classes.backgroundContainer}>
       {!props.selectedItem?.isNormalVacancy && absence && (
@@ -85,7 +91,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               endDate={absence.endDate}
               isNormalVacancy={false}
               simpleSummary={false}
-              locationIds={absence.locationIds}
+              locationIds={locationIds}
               decisions={absence.approvalState?.decisions}
               absVacId={absence.id}
             />
@@ -96,6 +102,8 @@ export const SelectedDetail: React.FC<Props> = props => {
                 currentApproverGroupHeaderId={currentApproverGroupHeaderId}
                 onApprove={props.onApprove}
                 onDeny={props.onDeny}
+                orgId={props.orgId}
+                locationIds={locationIds}
               />
             </div>
           </div>
@@ -118,7 +126,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               endDate={vacancy.endDate}
               isNormalVacancy={true}
               simpleSummary={false}
-              locationIds={compact(vacancy.details.map(x => x.locationId))}
+              locationIds={locationIds}
               decisions={vacancy.approvalState?.decisions}
               absVacId={vacancy.id}
             />
@@ -129,6 +137,8 @@ export const SelectedDetail: React.FC<Props> = props => {
                 currentApproverGroupHeaderId={currentApproverGroupHeaderId}
                 onApprove={props.onApprove}
                 onDeny={props.onDeny}
+                orgId={props.orgId}
+                locationIds={locationIds}
               />
             </div>
           </div>
