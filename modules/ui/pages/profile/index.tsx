@@ -126,6 +126,17 @@ export const ProfilePage: React.FC<{}> = props => {
 
   const isImpersonating = useIsImpersonating();
 
+  const isSubstitute = React.useMemo(() => {
+    const subUser = user?.orgUsers?.find(o => {
+      return o?.isReplacementEmployee;
+    });
+    if (subUser) {
+      return true;
+    } else {
+      return false;
+    }
+  }, [user]);
+
   if (isImpersonating && !actualUser?.isSystemAdministrator) {
     history.push("/");
   }
@@ -179,7 +190,13 @@ export const ProfilePage: React.FC<{}> = props => {
           phone: yup
             .string()
             .nullable()
-            .required(t("Phone number is required")) // TODO: Only require this if the user has a replacmenet Employee role
+            .test({
+              name: "isSub",
+              message: t("Phone number is required"),
+              test: value => {
+                return isSubstitute ? false : true;
+              },
+            })
             .matches(phoneRegExp, t("Phone Number Is Not Valid")),
         })}
       >
