@@ -108,6 +108,7 @@ export const BalanceRow: React.FC<Props> = props => {
         : absenceReasonId
         ? absenceReasonBalance?.absenceReason
         : absenceReasonBalance?.absenceReasonCategory,
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
     [
       absenceReasonBalance,
       absenceReasonId,
@@ -124,7 +125,8 @@ export const BalanceRow: React.FC<Props> = props => {
         absenceReasonId: absenceReasonId,
         absenceReasonCategoryId: absenceReasonCategoryId,
         absenceReasonTrackingTypeId:
-          absenceReasonBalance?.absenceReasonTrackingTypeId ?? undefined,
+          absenceReasonBalance?.absenceReasonTrackingTypeId ??
+          AbsenceReasonTrackingTypeId.Hourly,
         balance: absenceReasonBalance?.initialBalance ?? 0,
         asOf: absenceReasonBalance?.balanceAsOf
           ? parseISO(absenceReasonBalance?.balanceAsOf)
