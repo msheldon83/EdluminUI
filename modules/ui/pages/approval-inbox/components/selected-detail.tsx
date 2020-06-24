@@ -77,129 +77,143 @@ export const SelectedDetail: React.FC<Props> = props => {
 
   return props.selectedItem ? (
     <div className={classes.backgroundContainer}>
-      {!props.selectedItem?.isNormalVacancy && absence && (
-        <div className={classes.container}>
-          <div className={classes.summaryContainer}>
-            <SummaryDetails
-              orgId={props.orgId}
-              absenceDetails={absence.details}
-              createdLocal={absence.createdLocal}
-              approvalChangedLocal={absence.approvalState?.changedLocal}
-              positionTitle={absence.employee?.primaryPosition?.title}
-              employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
-              startDate={absence.startDate}
-              endDate={absence.endDate}
-              isNormalVacancy={false}
-              simpleSummary={false}
-              locationIds={locationIds}
-              decisions={absence.approvalState?.decisions}
-              absVacId={absence.id}
-            />
-            <div className={!isMobile ? classes.buttonContainer : undefined}>
-              <ApproveDenyButtons
-                approvalStateId={approvalState?.id ?? ""}
-                approvalStatus={approvalState?.approvalStatusId}
-                currentApproverGroupHeaderId={currentApproverGroupHeaderId}
-                onApprove={props.onApprove}
-                onDeny={props.onDeny}
+      {!absence && !vacancy ? (
+        <div className={classes.loadingText}>{`${t("Loading")} ${
+          props.selectedItem?.isNormalVacancy ? t("vacancy") : t("absence")
+        } ${props.selectedItem?.isNormalVacancy ? "#V" : "#"}${
+          props.selectedItem?.id
+        }`}</div>
+      ) : (
+        <>
+          {!props.selectedItem?.isNormalVacancy && absence && (
+            <div className={classes.container}>
+              <div className={classes.summaryContainer}>
+                <SummaryDetails
+                  orgId={props.orgId}
+                  absenceDetails={absence.details}
+                  createdLocal={absence.createdLocal}
+                  approvalChangedLocal={absence.approvalState?.changedLocal}
+                  positionTitle={absence.employee?.primaryPosition?.title}
+                  employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
+                  startDate={absence.startDate}
+                  endDate={absence.endDate}
+                  isNormalVacancy={false}
+                  simpleSummary={false}
+                  locationIds={locationIds}
+                  decisions={absence.approvalState?.decisions}
+                  absVacId={absence.id}
+                />
+                <div
+                  className={!isMobile ? classes.buttonContainer : undefined}
+                >
+                  <ApproveDenyButtons
+                    approvalStateId={approvalState?.id ?? ""}
+                    approvalStatus={approvalState?.approvalStatusId}
+                    currentApproverGroupHeaderId={currentApproverGroupHeaderId}
+                    onApprove={props.onApprove}
+                    onDeny={props.onDeny}
+                    orgId={props.orgId}
+                    locationIds={locationIds}
+                  />
+                </div>
+              </div>
+              <AbsenceDetails
                 orgId={props.orgId}
-                locationIds={locationIds}
+                absence={absence}
+                showSimpleDetail={false}
               />
             </div>
-          </div>
-          <AbsenceDetails
-            orgId={props.orgId}
-            absence={absence}
-            showSimpleDetail={false}
-          />
-        </div>
-      )}
-      {props.selectedItem?.isNormalVacancy && vacancy && (
-        <div className={classes.container}>
-          <div className={classes.summaryContainer}>
-            <SummaryDetails
-              orgId={props.orgId}
-              createdLocal={vacancy.createdLocal}
-              approvalChangedLocal={vacancy.approvalState?.changedLocal}
-              positionTitle={vacancy.position?.title}
-              startDate={vacancy.startDate}
-              endDate={vacancy.endDate}
-              isNormalVacancy={true}
-              simpleSummary={false}
-              locationIds={locationIds}
-              decisions={vacancy.approvalState?.decisions}
-              absVacId={vacancy.id}
-            />
-            <div className={!isMobile ? classes.buttonContainer : undefined}>
-              <ApproveDenyButtons
-                approvalStateId={approvalState?.id ?? ""}
-                approvalStatus={approvalState?.approvalStatusId}
-                currentApproverGroupHeaderId={currentApproverGroupHeaderId}
-                onApprove={props.onApprove}
-                onDeny={props.onDeny}
+          )}
+          {props.selectedItem?.isNormalVacancy && vacancy && (
+            <div className={classes.container}>
+              <div className={classes.summaryContainer}>
+                <SummaryDetails
+                  orgId={props.orgId}
+                  createdLocal={vacancy.createdLocal}
+                  approvalChangedLocal={vacancy.approvalState?.changedLocal}
+                  positionTitle={vacancy.position?.title}
+                  startDate={vacancy.startDate}
+                  endDate={vacancy.endDate}
+                  isNormalVacancy={true}
+                  simpleSummary={false}
+                  locationIds={locationIds}
+                  decisions={vacancy.approvalState?.decisions}
+                  absVacId={vacancy.id}
+                />
+                <div
+                  className={!isMobile ? classes.buttonContainer : undefined}
+                >
+                  <ApproveDenyButtons
+                    approvalStateId={approvalState?.id ?? ""}
+                    approvalStatus={approvalState?.approvalStatusId}
+                    currentApproverGroupHeaderId={currentApproverGroupHeaderId}
+                    onApprove={props.onApprove}
+                    onDeny={props.onDeny}
+                    orgId={props.orgId}
+                    locationIds={locationIds}
+                  />
+                </div>
+              </div>
+              <VacancyDetails
                 orgId={props.orgId}
-                locationIds={locationIds}
+                vacancy={vacancy}
+                showSimpleDetail={false}
               />
             </div>
-          </div>
-          <VacancyDetails
-            orgId={props.orgId}
-            vacancy={vacancy}
-            showSimpleDetail={false}
-          />
-        </div>
-      )}
-      <Grid item xs={12}>
-        <Divider className={classes.divider} />
-      </Grid>
-      <Grid item xs={12}>
-        <WorkflowSummary
-          currentStepId={approvalState?.currentStepId ?? ""}
-          steps={approvalWorkflowSteps}
-          workflowName={approvalState?.approvalWorkflow?.name ?? ""}
-          decisions={approvalState?.decisions}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <ApprovalComments
-          orgId={props.orgId}
-          approvalStateId={approvalState?.id ?? ""}
-          comments={approvalState?.comments ?? []}
-          decisions={approvalState?.decisions ?? []}
-          onCommentSave={handleSaveComment}
-          approvalWorkflowId={approvalState?.approvalWorkflowId ?? ""}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <Divider className={classes.divider} />
-      </Grid>
-      {!props.selectedItem?.isNormalVacancy && absence && (
-        <Grid item xs={12}>
-          <Context
-            orgId={props.orgId}
-            employeeId={absence.employeeId}
-            absenceId={absence.id}
-            employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
-            locationIds={absence.locationIds}
-            startDate={absence.startDate}
-            endDate={absence.endDate}
-            isNormalVacancy={false}
-          />
-        </Grid>
-      )}
-      {props.selectedItem?.isNormalVacancy && vacancy && (
-        <Grid item xs={12}>
-          <Context
-            orgId={props.orgId}
-            vacancyId={vacancy?.id ?? ""}
-            startDate={vacancy?.startDate}
-            endDate={vacancy?.endDate}
-            locationIds={
-              compact(vacancy?.details?.map(x => x?.locationId)) ?? []
-            }
-            isNormalVacancy={true}
-          />
-        </Grid>
+          )}
+          <Grid item xs={12}>
+            <Divider className={classes.divider} />
+          </Grid>
+          <Grid item xs={12}>
+            <WorkflowSummary
+              currentStepId={approvalState?.currentStepId ?? ""}
+              steps={approvalWorkflowSteps}
+              workflowName={approvalState?.approvalWorkflow?.name ?? ""}
+              decisions={approvalState?.decisions}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <ApprovalComments
+              orgId={props.orgId}
+              approvalStateId={approvalState?.id ?? ""}
+              comments={approvalState?.comments ?? []}
+              decisions={approvalState?.decisions ?? []}
+              onCommentSave={handleSaveComment}
+              approvalWorkflowId={approvalState?.approvalWorkflowId ?? ""}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Divider className={classes.divider} />
+          </Grid>
+          {!props.selectedItem?.isNormalVacancy && absence && (
+            <Grid item xs={12}>
+              <Context
+                orgId={props.orgId}
+                employeeId={absence.employeeId}
+                absenceId={absence.id}
+                employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
+                locationIds={absence.locationIds}
+                startDate={absence.startDate}
+                endDate={absence.endDate}
+                isNormalVacancy={false}
+              />
+            </Grid>
+          )}
+          {props.selectedItem?.isNormalVacancy && vacancy && (
+            <Grid item xs={12}>
+              <Context
+                orgId={props.orgId}
+                vacancyId={vacancy?.id ?? ""}
+                startDate={vacancy?.startDate}
+                endDate={vacancy?.endDate}
+                locationIds={
+                  compact(vacancy?.details?.map(x => x?.locationId)) ?? []
+                }
+                isNormalVacancy={true}
+              />
+            </Grid>
+          )}
+        </>
       )}
     </div>
   ) : (
@@ -242,5 +256,10 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.gray,
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
+  },
+  loadingText: {
+    fontWeight: 600,
+    fontSize: theme.typography.pxToRem(18),
+    padding: theme.spacing(4),
   },
 }));
