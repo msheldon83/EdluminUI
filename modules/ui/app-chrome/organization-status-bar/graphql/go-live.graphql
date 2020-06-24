@@ -1,0 +1,18 @@
+mutation GoLive($orgId: ID!, $rowVersion: String!) {
+  organization {
+    update(
+      organization: {
+        orgId: $orgId
+        rowVersion: $rowVersion
+        config: { organizationTypeId: STANDARD }
+      }
+    ) {
+      id
+      rowVersion
+      config {
+        id
+        organizationTypeId
+      }
+    }
+  }
+}
