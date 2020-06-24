@@ -22,7 +22,6 @@ import { AddApproverGroupLocation } from "../../graphql/admin/add-approver-group
 import { RemoveApproverGroupMember } from "../../graphql/admin/remove-approver-group-member.gen";
 import { useApproverGroups } from "reference-data/approver-groups";
 import { GetApproverGroupsByUser } from "../../graphql/admin/get-approver-groups-by-user.gen";
-import { flatMap } from "lodash-es";
 import { useTranslation } from "react-i18next";
 
 const editableSections = {
@@ -350,7 +349,9 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                               <div key={i} className={classes.displayInline}>
                                 {t(`${n?.name}`)}{" "}
                                 {n?.approvalWorkflows &&
-                                  `(${n?.approvalWorkflows.length} workflows)`}{" "}
+                                  t(
+                                    `(${n?.approvalWorkflows.length} workflows)`
+                                  )}{" "}
                                 {editingThis && (
                                   <TextButton
                                     className={clsx(
