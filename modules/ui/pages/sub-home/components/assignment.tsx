@@ -4,6 +4,7 @@ import {
   makeStyles,
   Popper,
   Fade,
+  Link,
 } from "@material-ui/core";
 import { Directions, LocalPhone, ReceiptOutlined } from "@material-ui/icons";
 import * as React from "react";
@@ -12,6 +13,9 @@ import { useTranslation } from "react-i18next";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { Section } from "ui/components/section";
 import { useIsMobile } from "hooks";
+import { useIsSubstitute } from "reference-data/is-substitute";
+import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
+import { useHistory } from "react-router";
 
 export type VacancyDetail = {
   id: string;
@@ -58,6 +62,9 @@ export const AssignmentCard: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const history = useHistory();
+
+  const userIsSubstitute = useIsSubstitute();
 
   const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
     null
@@ -85,23 +92,53 @@ export const AssignmentCard: React.FC<Props> = props => {
 
   const parsedDay = parseISO(vacancyDetail.startTimeLocal);
   const dayLabel = isToday(parsedDay)
-    ? t("Today")
+    ? t("Today,")
     : isTomorrow(parsedDay)
-    ? t("Tomorrow")
+    ? t("Tomorrow,")
     : isMobile
-    ? format(parsedDay, "EEE")
-    : format(parsedDay, "EEEE");
+    ? `${format(parsedDay, "EEE")},`
+    : `${format(parsedDay, "EEEE")},`;
 
   const mapUrl = encodeURI(
     `https://www.google.com/maps/search/?api=1&query=${vacancyDetail.location?.address1}, ${vacancyDetail.location?.city}, ${vacancyDetail.location?.stateName} ${vacancyDetail.location?.postalCode}`
   );
 
-  const assignmentId = `(#C${vacancyDetail.assignment?.id})`;
-  const dateHeader = `${dayLabel}, ${
-    isMobile
-      ? format(parsedDay, "MMM d")
-      : `${format(parsedDay, "MMMM d")} ${assignmentId}`
-  }`;
+  const goToAssignment = (assignmentId: string) => {
+    const url = SubSpecificAssignmentRoute.generate({
+      assignmentId,
+    });
+    history.push(url);
+  };
+
+  const assignmentId = userIsSubstitute ? (
+    <Link
+      className={classes.action}
+      onClick={() => goToAssignment(vacancyDetail.assignment?.id ?? "")}
+    >{`(#C${vacancyDetail.assignment?.id})`}</Link>
+  ) : (
+    `(#C${vacancyDetail.assignment?.id})`
+  );
+
+  const dateHeader = (
+    <>
+      <Typography variant="h6" className={classes.dateHeader}>
+        {dayLabel}
+      </Typography>
+      {isMobile && (
+        <Typography variant="h6" className={classes.dateHeader}>
+          {format(parsedDay, "MMM d")}
+        </Typography>
+      )}
+      {!isMobile && (
+        <>
+          <Typography variant="h6" className={classes.dateHeader}>
+            {format(parsedDay, "MMM d")}
+          </Typography>
+          {assignmentId}
+        </>
+      )}
+    </>
+  );
 
   const renderIcons = () => {
     return (
@@ -222,5 +259,12 @@ export const useStyles = makeStyles(theme => ({
   },
   shadedRow: {
     background: theme.customColors.lightGray,
+  },
+  action: {
+    cursor: "pointer",
+  },
+  dateHeader: {
+    display: "inline-block",
+    marginRight: theme.typography.pxToRem(5),
   },
 }));

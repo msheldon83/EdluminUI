@@ -13,6 +13,8 @@ import { canRemoveSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
 import { useHistory } from "react-router";
 import { VacancyViewRoute } from "ui/routes/vacancy";
+import { useIsSubstitute } from "reference-data/is-substitute";
+import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 
 type Props = {
   startDate: string;
@@ -53,6 +55,8 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const vacancyEditParams = useRouteParams(VacancyViewRoute);
   const history = useHistory();
 
+  const userIsSubstitute = useIsSubstitute();
+
   const goToAbsenceEdit = (absenceId: string) => {
     const url = AdminEditAbsenceRoute.generate({
       ...absenceEditParams,
@@ -67,6 +71,13 @@ export const AssignmentRowUI: React.FC<Props> = props => {
     const url = VacancyViewRoute.generate({
       ...vacancyEditParams,
       vacancyId,
+    });
+    history.push(url);
+  };
+
+  const goToAssignment = (assignmentId: string) => {
+    const url = SubSpecificAssignmentRoute.generate({
+      assignmentId,
     });
     history.push(url);
   };
@@ -103,9 +114,17 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               >{`#V${props.vacancyId}`}</Link>
             )}
 
-            <Typography className={classes.bold} noWrap>
-              #C{props.confirmationNumber}
-            </Typography>
+            {userIsSubstitute && (
+              <Link
+                className={classes.action}
+                onClick={() => goToAssignment(props.confirmationNumber)}
+              >{`#C${props.confirmationNumber}`}</Link>
+            )}
+            {!userIsSubstitute && (
+              <Typography className={classes.bold} noWrap>
+                #C{props.confirmationNumber}{" "}
+              </Typography>
+            )}
           </div>
           <Can
             do={(
