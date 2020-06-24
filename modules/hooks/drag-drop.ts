@@ -71,8 +71,10 @@ export type DropReturnData<T> = T & {
 
 export type DropConfiguration<T = Record<string, any> | undefined> = {
   dragId: symbol;
-  onDrop(dropData: DropData<T>): void;
+  onDrop?(dropData: DropData<T>): void;
   generateDropValues(validationData: DropValidationData): T;
+  canDrop?(): boolean;
+  onHover?(): void;
 };
 
 export const useDrop = <T>(
@@ -81,8 +83,10 @@ export const useDrop = <T>(
   const [validations, dropRef] = reactDndUseDrop({
     accept: configuration.dragId,
     drop: () => {
-      configuration.onDrop(validations);
+      configuration.onDrop?.(validations);
     },
+    canDrop: configuration.canDrop?.bind(configuration),
+    hover: configuration.onHover?.bind(configuration),
     collect: (monitor: DropTargetMonitor) => {
       return configuration.generateDropValues({
         isOver: monitor.isOver.bind(monitor),

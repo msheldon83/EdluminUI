@@ -7,7 +7,7 @@ import { DragHandle } from "@material-ui/icons";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
-import { useDrag } from "hooks/drag-drop";
+import { useDrag, useDrop } from "hooks/drag-drop";
 
 type Props = {
   periods: Period[];
@@ -47,8 +47,25 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
     },
   });
 
+  const { dropRef } = useDrop({
+    dragId: nameDraggableId,
+    canDrop: () => false,
+    // onDrop() {},
+    generateDropValues() {},
+    onHover() {
+      console.log("hover");
+      //   if (draggedId !== id) {
+      //     const { index: overIndex } = findCard(id);
+      //     moveCard(draggedId, overIndex);
+      //   }
+    },
+  });
+
   return (
-    <div className={classes.draggableSection} ref={dragPreviewRef}>
+    <div
+      className={classes.draggableSection}
+      ref={node => dropRef(dragPreviewRef(node))}
+    >
       <div className={classes.nameInput}>
         {isStandard && (
           <FormTextField
