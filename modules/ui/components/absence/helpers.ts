@@ -581,15 +581,30 @@ export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
   const allocations = mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
     accountingCodeAllocations
   );
+  const details = vacancyDetails.map(vd =>
+    mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+      vd.accountingCodeAllocations
+    )
+  );
+  return !accountingCodeAllocationsAreTheSame(allocations, details);
+};
 
-  for (let i = 0; i < vacancyDetails.length; i++) {
-    const detailAllocations = mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-      vacancyDetails[i]?.accountingCodeAllocations
-    );
+export const accountingCodeAllocationsAreTheSame = (
+  accountingCodeAllocationsToCompare: {
+    accountingCodeId?: string | null | undefined;
+    allocation: number;
+  }[],
+  allAccountingCodeAllocations: {
+    accountingCodeId?: string | null | undefined;
+    allocation: number;
+  }[][]
+) => {
+  for (let i = 0; i < allAccountingCodeAllocations.length; i++) {
+    const allocations = allAccountingCodeAllocations[i];
 
-    if (allocations.length !== detailAllocations.length) {
+    if (allocations.length !== accountingCodeAllocationsToCompare.length) {
       // Difference in the number of Accounting Codes
-      return true;
+      return false;
     }
 
     if (
@@ -597,17 +612,17 @@ export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
         allocations.sort(
           (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
         ),
-        detailAllocations.sort(
+        accountingCodeAllocationsToCompare.sort(
           (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
         )
       )
     ) {
       // Different accounting code lists
-      return true;
+      return false;
     }
   }
 
-  return false;
+  return true;
 };
 
 export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
@@ -628,12 +643,14 @@ export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
         },
       ];
     case "multiple-allocations":
-      return accountingCodeAllocations.allocations.filter(a => a.selection?.value && a.percentage).map(a => {
-        return {
-          accountingCodeId: a.selection?.value?.toString(),
-          allocation: (a.percentage ?? 0) / 100,
-        };
-      });
+      return accountingCodeAllocations.allocations
+        .filter(a => a.selection?.value && a.percentage)
+        .map(a => {
+          return {
+            accountingCodeId: a.selection?.value?.toString(),
+            allocation: (a.percentage ?? 0) / 100,
+          };
+        });
   }
 };
 
