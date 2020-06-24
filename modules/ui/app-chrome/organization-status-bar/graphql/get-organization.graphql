@@ -1,0 +1,13 @@
+query GetOrganization($id: ID!) {
+  organization {
+    byId(id: $id) {
+      id
+      name
+      rowVersion
+      config {
+        id
+        organizationTypeId
+      }
+    }
+  }
+}
