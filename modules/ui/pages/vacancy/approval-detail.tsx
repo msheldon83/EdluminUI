@@ -48,6 +48,7 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
         orgId={params.organizationId}
         approvalStateId={approvalState.id}
         approvalWorkflowId={approvalState.approvalWorkflowId}
+        approvalWorkflowName={approvalState.approvalWorkflow.name}
         approvalStatusId={approvalState.approvalStatusId}
         onApprove={onApproveOrDeny}
         onDeny={onApproveOrDeny}

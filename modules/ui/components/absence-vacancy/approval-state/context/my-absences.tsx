@@ -59,7 +59,7 @@ export const EmployeeAbsences: React.FC<Props> = props => {
   }
 
   return (
-    <Grid item container xs={12} spacing={1}>
+    <Grid item container xs={12}>
       <Grid item xs={12}>
         <div className={classes.subTitle}>{`${
           props.actingAsEmployee ? t("Your") : `${props.employeeName}'s`
@@ -69,27 +69,40 @@ export const EmployeeAbsences: React.FC<Props> = props => {
         {employeeAbsences.length === 0 ? (
           <div className={classes.text}>{t("No absences")}</div>
         ) : (
-          employeeAbsences.map((a, i) => {
-            return (
-              <Grid container key={i} spacing={0}>
-                <Grid item xs={4}>
-                  {a?.details && a.details[0]?.reasonUsages
-                    ? a?.details[0]?.reasonUsages[0]?.absenceReason?.name
-                    : ""}
-                </Grid>
-                <Grid item xs={4}>
-                  {getDateRangeDisplay(
-                    parseISO(a.startDate),
-                    parseISO(a.endDate)
-                  )}
-                </Grid>
-                <Grid item xs={4}>
-                  {a?.createdLocal &&
-                    format(parseISO(a?.createdLocal), "MMM d h:mm a")}
-                </Grid>
+          <>
+            <Grid container spacing={0}>
+              <Grid item xs={5}>
+                <div className={classes.headerText}>{t("Reason")}</div>
               </Grid>
-            );
-          })
+              <Grid item xs={3}>
+                <div className={classes.headerText}>{t("Dates")}</div>
+              </Grid>
+              <Grid item xs={4}>
+                <div className={classes.headerText}>{t("Created date")}</div>
+              </Grid>
+            </Grid>
+            {employeeAbsences.map((a, i) => {
+              return (
+                <Grid container key={i} spacing={0}>
+                  <Grid item xs={5}>
+                    {a?.details && a.details[0]?.reasonUsages
+                      ? a?.details[0]?.reasonUsages[0]?.absenceReason?.name
+                      : ""}
+                  </Grid>
+                  <Grid item xs={3}>
+                    {getDateRangeDisplay(
+                      parseISO(a.startDate),
+                      parseISO(a.endDate)
+                    )}
+                  </Grid>
+                  <Grid item xs={4}>
+                    {a?.createdLocal &&
+                      format(parseISO(a?.createdLocal), "MMM d h:mm a")}
+                  </Grid>
+                </Grid>
+              );
+            })}
+          </>
         )}
       </Grid>
     </Grid>
@@ -103,6 +116,10 @@ const useStyles = makeStyles(theme => ({
   },
   text: {
     fontWeight: "normal",
+    fontSize: theme.typography.pxToRem(14),
+  },
+  headerText: {
+    fontWeight: 500,
     fontSize: theme.typography.pxToRem(14),
   },
 }));
