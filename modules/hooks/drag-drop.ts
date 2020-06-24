@@ -2,7 +2,10 @@ import {
   useDrop as reactDndUseDrop,
   useDrag as reactDndUseDrag,
   DropTargetMonitor,
+  DragLayerMonitor,
   ConnectDropTarget,
+  ConnectDragSource,
+  ConnectDragPreview,
 } from "react-dnd";
 
 /*
@@ -13,16 +16,42 @@ import {
 
 //////// Drag
 
-export type DragConfiguration = {
-  dragId: symbol;
+export type DragValidationData = {
+  isDragging(): boolean;
 };
 
-export const useDrag = (configuration: DragConfiguration) => {
-  const [_, dragRef] = reactDndUseDrag({
+export type DragHandleRef = ConnectDragSource;
+export type DragPreviewRef = ConnectDragPreview;
+
+export type DragReturnData<T> = T & {
+  dragHandleRef: DragHandleRef;
+  dragPreviewRef: DragPreviewRef;
+};
+
+export type DragConfiguration<T = Record<string, any> | undefined> = {
+  dragId: symbol;
+  /*
+    TODO:
+
+    Need to figure out a way to make this function optional
+    The type errors are weird and hard to figure out
+  */
+  generateDragValues(validationData: DragValidationData): T;
+};
+
+export const useDrag = <T>(
+  configuration: DragConfiguration<T>
+): DragReturnData<T> => {
+  const [validations, dragHandleRef, dragPreviewRef] = reactDndUseDrag({
     item: { type: configuration.dragId },
+    collect: (monitor: DragLayerMonitor) => {
+      return configuration.generateDragValues({
+        isDragging: monitor.isDragging.bind(monitor),
+      });
+    },
   });
 
-  return { dragRef };
+  return { ...validations, dragHandleRef, dragPreviewRef };
 };
 
 //////// Drop
@@ -43,7 +72,7 @@ export type DropReturnData<T> = T & {
 export type DropConfiguration<T = Record<string, any> | undefined> = {
   dragId: symbol;
   onDrop(dropData: DropData<T>): void;
-  validateDrop(validationData: DropValidationData): T;
+  generateDropValues(validationData: DropValidationData): T;
 };
 
 export const useDrop = <T>(
@@ -55,7 +84,7 @@ export const useDrop = <T>(
       configuration.onDrop(validations);
     },
     collect: (monitor: DropTargetMonitor) => {
-      return configuration.validateDrop({
+      return configuration.generateDropValues({
         isOver: monitor.isOver.bind(monitor),
         canDrop: monitor.canDrop.bind(monitor),
       });

@@ -26,8 +26,9 @@ export const DraggableScheduleChip = (props: AfternoonChipProps) => {
     chipStyle,
   } = props;
 
-  const { dragRef } = useDrag({
+  const { dragHandleRef } = useDrag({
     dragId: draggableId ?? Symbol(Math.random()),
+    generateDragValues() {},
   });
 
   const extraStyles = asPlaceholder
@@ -44,7 +45,7 @@ export const DraggableScheduleChip = (props: AfternoonChipProps) => {
   return (
     <div className={`${classNames} ${hidden}`}>
       <Chip
-        ref={draggableId ? dragRef : null}
+        ref={draggableId ? dragHandleRef : null}
         tabIndex={-1}
         className={classes.chip}
         label={label}
