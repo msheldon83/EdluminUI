@@ -9,12 +9,15 @@ import { SelectNew as Select, OptionType } from "./select-new";
 import { Input } from "./input";
 import { NumberInput } from "./number-input";
 import { TextButton } from "ui/components/text-button";
+import { FormHelperText } from "@material-ui/core";
 
 type AccountingCodeDropdownProps = {
   value?: AccountingCodeValue;
   options: OptionType[];
   onChange: (value: AccountingCodeValue) => void;
   showLabel?: boolean;
+  inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
+  validationMessage?: string;
 };
 
 export type AccountingCodeValue =
@@ -70,10 +73,19 @@ const newAllocation = (): Allocation => ({
 });
 
 export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
-  const { value, options, onChange, showLabel = true } = props;
+  const {
+    value,
+    options,
+    onChange,
+    validationMessage,
+    showLabel = true,
+    inputStatus = "default",
+  } = props;
 
   const classes = useStyles();
   const { t } = useTranslation();
+
+  const isError = inputStatus === "error";
 
   const inputClasses = clsx({
     [classes.input]: true,
@@ -204,11 +216,20 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         multiple={false}
         onChange={handleSelectOnChange}
         inputClassName={inputClasses}
+        inputStatus={inputStatus}
+        validationMessage={
+          value?.type !== "multiple-allocations" ? validationMessage : undefined
+        }
       />
 
       {value?.type === "multiple-allocations" && (
         <>
-          <div className={classes.multiCodeInputContainer}>
+          <div
+            className={clsx({
+              [classes.multiCodeInputContainer]: true,
+              [classes.error]: isError,
+            })}
+          >
             <ul className={classes.multiCodeList}>
               {value?.allocations.map(allocation => {
                 return (
@@ -235,6 +256,9 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
               </TextButton>
             </div>
           </div>
+          {validationMessage && (
+            <FormHelperText error={isError}>{validationMessage}</FormHelperText>
+          )}
         </>
       )}
     </div>
@@ -299,5 +323,9 @@ const useStyles = makeStyles(theme => ({
   },
   removeSplit: {
     color: theme.status.error,
+  },
+  error: {
+    borderColor: theme.customColors.darkRed,
+    borderTopColor: theme.customColors.edluminSubText,
   },
 }));
