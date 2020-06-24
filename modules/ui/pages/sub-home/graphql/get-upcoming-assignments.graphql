@@ -21,6 +21,7 @@ query GetUpcomingAssignments(
       startTimeLocal
       endTimeLocal
       dayPortion
+      canCancel
       assignment {
         id
         rowVersion
@@ -45,6 +46,7 @@ query GetUpcomingAssignments(
       }
       vacancy {
         id
+        canCancel
         organization {
           id
           name

@@ -19,6 +19,7 @@ type Props = {
   className?: string;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
+  canCancel?: boolean;
 };
 
 export const AssignmentGroupDetailUI: React.FC<Props> = props => {
@@ -52,19 +53,18 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
           iconClassName={classes.smallDayIcon}
           className={classes.dayPortion}
         />
-        <Can do={[PermissionEnum.AbsVacRemoveSubDay]}>
-          {!props.forSpecificAssignment && (
-            <TextButton
-              className={classes.cancel}
-              onClick={event => {
-                event.stopPropagation();
-                props.onCancel();
-              }}
-            >
-              {t("Cancel")}
-            </TextButton>
-          )}
-        </Can>
+
+        {props.canCancel && !props.forSpecificAssignment && (
+          <TextButton
+            className={classes.cancel}
+            onClick={event => {
+              event.stopPropagation();
+              props.onCancel();
+            }}
+          >
+            {t("Cancel")}
+          </TextButton>
+        )}
       </DesktopOnly>
 
       <MobileOnly>
@@ -87,19 +87,17 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
 
         <div className={classes.locationAndCancelContainer}>
           <Typography className={classes.text}>{props.locationName}</Typography>
-          <Can do={[PermissionEnum.AbsVacRemoveSubDay]}>
-            {!props.forSpecificAssignment && (
-              <TextButton
-                className={classes.cancel}
-                onClick={event => {
-                  event.stopPropagation();
-                  props.onCancel();
-                }}
-              >
-                {t("Cancel")}
-              </TextButton>
-            )}
-          </Can>
+          {props.canCancel && !props.forSpecificAssignment && (
+            <TextButton
+              className={classes.cancel}
+              onClick={event => {
+                event.stopPropagation();
+                props.onCancel();
+              }}
+            >
+              {t("Cancel")}
+            </TextButton>
+          )}
         </div>
       </MobileOnly>
     </div>

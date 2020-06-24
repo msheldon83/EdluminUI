@@ -16,6 +16,7 @@ import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
   startDate: string;
+  canCancel?: boolean;
   endDate: string;
   startTime: string;
   locationName: string;
@@ -107,22 +108,8 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               #C{props.confirmationNumber}
             </Typography>
           </div>
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string,
-              forRole?: Role | null | undefined
-            ) =>
-              canRemoveSub(
-                parseISO(props.startTime),
-                permissions,
-                isSysAdmin,
-                orgId,
-                forRole
-              )
-            }
-          >
+
+          {props.canCancel && (
             <div className={classes.actionItem}>
               <Button
                 variant="outlined"
@@ -135,7 +122,7 @@ export const AssignmentRowUI: React.FC<Props> = props => {
                 {t("Cancel")}
               </Button>
             </div>
-          </Can>
+          )}
         </div>
       )}
     </div>
