@@ -697,7 +697,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             </div>
           </div>
 
-          {Config.isDevFeatureOnly && props.approvalState && (
+          {props.approvalState && (
             <Can do={[PermissionEnum.AbsVacApprovalsView]}>
               <ApprovalState
                 orgId={props.organizationId}

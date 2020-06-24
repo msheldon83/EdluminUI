@@ -94,18 +94,16 @@ export const AbsenceNavLink: React.FC<Props> = props => {
       route: DailyReportRoute.generate(paramsDailyReport),
       permissions: [PermissionEnum.AbsVacView],
     },
+    {
+      title: t("Approve"),
+      route: ApprovalInboxRoute.generate(paramsVerify),
+    },
   ] as SubNavItemType[];
   if (orgUsesVerify) {
     absenceSubNavItems.push({
       title: t("Verify"),
       route: VerifyRoute.generate(paramsVerify),
       permissions: [PermissionEnum.AbsVacVerify],
-    });
-  }
-  if (Config.isDevFeatureOnly) {
-    absenceSubNavItems.push({
-      title: t("Approve"),
-      route: ApprovalInboxRoute.generate(paramsVerify),
     });
   }
 
