@@ -40,15 +40,9 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
         const hasPriorPerionEndTime =
           priorPeriodEndTime && isValid(new Date(priorPeriodEndTime));
 
-        let earliestStartTime = undefined;
-        if (hasStartTime && hasPriorPerionEndTime) {
-          earliestStartTime = new Date(priorPeriodEndTime!).toISOString();
-        } else if (hasPriorPerionEndTime) {
-          earliestStartTime = addMinutes(
-            new Date(priorPeriodEndTime!),
-            1
-          ).toISOString();
-        }
+        const earliestStartTime = hasPriorPerionEndTime
+          ? new Date(priorPeriodEndTime!).toISOString()
+          : undefined;
 
         const startTimeError = GetError(props.errors, "startTime", i);
         const endTimeError = GetError(props.errors, "endTime", i);
