@@ -158,7 +158,6 @@ type AbsenceMutations {
 }
 
 type AbsenceQueries {
-  byId(id: ID!): Absence
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(
     orgId: ID
@@ -167,6 +166,7 @@ type AbsenceQueries {
     offset: Int
     sortBy: [SortDetailsInput]
   ): PagedAbsence
+  byId(id: ID!): Absence
   projectedVacancies(
     absence: AbsenceCreateInput!
     ignoreAbsenceId: ID
@@ -454,6 +454,27 @@ input AbsenceVacancyInput {
   dayPortionOverrides: [DayPortionOverride]
   accountingCodeAllocations: [VacancyDetailAccountingCodeInput]
   payCodeId: ID
+}
+
+type AbsVacApprovalInbox {
+  _info: [ReturnMessage]
+  id: ID!
+  objectTypeId: ObjectType!
+  isNormalVacancy: Boolean!
+  teacherFirstName: String
+  teacherLastName: String
+  positionTitle: String
+  numComments: Int!
+  startDate: Date!
+  endDate: Date!
+  reasons: [AbsVacReason!]!
+  changedUtc: DateTime!
+}
+
+type AbsVacReason {
+  _info: [ReturnMessage]
+  id: ID!
+  name: String!
 }
 
 input AccessControInput {
@@ -1031,7 +1052,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   name: String!
   description: String
   variesByLocation: Boolean!
-  approverGroups: [ApproverGroup]!
+  approverGroups(orgUserId: ID): [ApproverGroup]!
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
@@ -1239,6 +1260,7 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   position: Position
   absence: Absence
   payInfoSummary: PayInfoSummary
+  canCancel: Boolean!
 }
 
 type Branding implements ModelObjectInterface {
@@ -2859,6 +2881,7 @@ enum FeatureFlag {
   QUARTER_DAY_ABSENCES
   HOURLY_ABSENCES
   VERIFY
+  SECONDARY_IDENTIFIER
 }
 
 enum FilePurpose {
@@ -3913,6 +3936,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   firstName: String!
   middleName: String
   lastName: String!
+  secondaryIdentifier: String
   userId: ID
   loginEmail: String
   temporaryPassword: String
@@ -3944,6 +3968,7 @@ input OrgUserCreateInput {
   email: String!
   active: Boolean
   externalId: String
+  secondaryIdentifier: String
   firstName: String!
   middleName: String
   lastName: String!
@@ -4071,6 +4096,7 @@ input OrgUserUpdateInput {
   email: String
   active: Boolean
   externalId: String
+  secondaryIdentifier: String
   firstName: String
   middleName: String
   lastName: String
@@ -4112,6 +4138,15 @@ type PagedAbsenceReason {
 type PagedAbsenceReasonCategory {
   _info: [ReturnMessage]
   results: [AbsenceReasonCategory]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedAbsVacApprovalInboxQueryResult {
+  _info: [ReturnMessage]
+  results: [AbsVacApprovalInbox]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -6835,6 +6870,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalState: ApprovalState
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
+  canCancel: Boolean!
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -6922,6 +6958,7 @@ type VacancyDetail implements ModelObjectInterface & OrgObjectInterface {
   isClosed: Boolean!
   totalDayPortion: Decimal
   payInfo: PayInfo
+  canCancel: Boolean!
 }
 
 type VacancyDetailAccountingCode implements ModelObjectInterface & OrgObjectInterface {
@@ -7122,7 +7159,6 @@ enum VacancyQualification {
 }
 
 type VacancyQueries {
-  byId(id: ID!): Vacancy
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
   paged(
     orgId: ID
@@ -7131,6 +7167,7 @@ type VacancyQueries {
     offset: Int
     sortBy: [SortDetailsInput]
   ): PagedVacancy
+  byId(id: ID!): Vacancy
   getAssignmentsForVerify(
     locationIds: [ID]
     fromDate: Date
@@ -7173,8 +7210,13 @@ type VacancyQueries {
     fromDate: Date
     toDate: Date
   ): [Vacancy]
-  vacanciesNeedingApproval(orgId: ID!): [Vacancy]
-  pastApprovalDecisions(orgId: ID!, limit: Int, offset: Int): PagedVacancy
+  approvalInbox(
+    orgId: ID!
+    limit: Int
+    offset: Int
+    getPastDecisions: Boolean
+  ): PagedAbsVacApprovalInboxQueryResult
+  countOfAbsVacNeedingApproval(orgId: ID!): Int
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   subJobSearch(
     id: ID!
