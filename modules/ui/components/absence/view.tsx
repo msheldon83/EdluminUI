@@ -150,7 +150,8 @@ export const View: React.FC<Props> = props => {
   const accountingCodeAllocationsAreTheSame = accountingCodeAllocations
     ? allAccountingCodeSelectionsAreTheSame(accountingCodeAllocations, absence)
     : true;
-  const multipleAccountingCodeAllocations = (accountingCodeAllocations ?? []).length > 1;
+  const multipleAccountingCodeAllocations =
+    (accountingCodeAllocations ?? []).length > 1;
 
   return (
     <div>
@@ -295,13 +296,18 @@ export const View: React.FC<Props> = props => {
                                     {t("Accounting code")}
                                   </Typography>
                                   {accountingCodeAllocationsAreTheSame
-                                    ? accountingCodeAllocations.map(
-                                        (a, i) => {
-                                          return (
-                                            <div key={i}>{a.accountingCode?.name} {multipleAccountingCodeAllocations ? `(${Math.floor(a.allocation * 100)})` : ""}</div>
-                                          )
-                                        }
-                                      )
+                                    ? accountingCodeAllocations.map((a, i) => {
+                                        return (
+                                          <div key={i}>
+                                            {a.accountingCode?.name}{" "}
+                                            {multipleAccountingCodeAllocations
+                                              ? `(${Math.floor(
+                                                  a.allocation * 100
+                                                )}%)`
+                                              : ""}
+                                          </div>
+                                        );
+                                      })
                                     : t(
                                         "Details have different Accounting code selections. Click on Edit below to manage."
                                       )}
@@ -498,8 +504,8 @@ const allAccountingCodeSelectionsAreTheSame = (
     return true;
   }
 
-  const allDetailsAllocations = allDetails.map(
-    d => d.accountingCodeAllocations.map(a => {
+  const allDetailsAllocations = allDetails.map(d =>
+    d.accountingCodeAllocations.map(a => {
       return { accountingCodeId: a.accountingCodeId, allocation: a.allocation };
     })
   );
