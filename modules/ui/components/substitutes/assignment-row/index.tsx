@@ -77,6 +77,7 @@ export const AssignmentRow: React.FC<Props> = props => {
         vacancyId={vacancyId}
         isAdmin={props.isAdmin}
         forSpecificAssignment={props.forSpecificAssignment}
+        canCancel={a.canCancel}
       />
     </>
   );

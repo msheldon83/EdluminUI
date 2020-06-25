@@ -106,6 +106,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
         className={classes.container}
         onClick={() => setIsExpanded(!isExpanded)}
       >
+        {/* this is the top row of a group. */}
         <AssignmentRowUI
           confirmationNumber={confirmationNumber}
           {...times}
@@ -129,6 +130,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
           className={props.className}
           isAdmin={props.isAdmin}
           forSpecificAssignment={props.forSpecificAssignment}
+          canCancel={vacancy?.canCancel}
         />
         {isExpanded && (
           <div className={classes.container}>
@@ -150,6 +152,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
                 }
                 isAdmin={props.isAdmin}
                 forSpecificAssignment={props.forSpecificAssignment}
+                canCancel={a.canCancel}
               />
             ))}
           </div>
