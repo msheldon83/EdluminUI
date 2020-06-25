@@ -107,7 +107,7 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
     compact(
       userApproverGroupHeaders
         ?.find(x => x?.id === approverGroupHeaderIdSelected)
-        ?.approverGroups.map(p => p?.locationId)
+        ?.approverGroups?.map(p => p?.locationId)
     ) ?? [];
 
   const onAddApproverGroupMembership = async (
@@ -161,12 +161,12 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
       const result = await onAddApproverGroupMembership({
         orgId: props.orgId,
         orgUserId: props.orgUserId,
-        approverGroupId: approverGroupHeader.approverGroups[0]!.id,
+        approverGroupId: approverGroupHeader.approverGroups![0]!.id,
       });
       return result;
     }
 
-    let approverGroupIdToAdd = approverGroupHeader.approverGroups.find(
+    let approverGroupIdToAdd = approverGroupHeader.approverGroups?.find(
       x => x?.locationId === locationId
     )?.id;
     if (approverGroupIdToAdd === undefined && locationId) {
