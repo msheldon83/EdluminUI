@@ -16,6 +16,7 @@ type AccountingCodeDropdownProps = {
   options: OptionType[];
   onChange: (value: AccountingCodeValue) => void;
   showLabel?: boolean;
+  disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string;
 };
@@ -78,6 +79,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     options,
     onChange,
     validationMessage,
+    disabled = false,
     showLabel = true,
     inputStatus = "default",
   } = props;
@@ -177,6 +179,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
           options={options}
           placeholder={t("Select accounting code")}
           multiple={false}
+          disabled={disabled}
           readOnly
           withResetValue={false}
           onChange={selection => updateAllocation({ ...allocation, selection })}
@@ -189,6 +192,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
           }}
           value={allocation.percentage}
           maxLength={2}
+          disabled={disabled}
         />
         <span className={classes.multiCodeDeleteButton}>
           <IconButton
@@ -196,6 +200,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
             disableFocusRipple
             size="small"
             onClick={() => removeAllocation(allocation.id)}
+            disabled={disabled}
           >
             <DeleteIcon />
           </IconButton>
@@ -211,6 +216,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         label={showLabel ? t("Accounting code") : undefined}
         placeholder={t("Select code")}
         options={mainDropdownOptions}
+        disabled={disabled}
         readOnly={value?.type === "multiple-allocations"}
         doSort={false}
         multiple={false}
