@@ -42,7 +42,7 @@ import {
   vacancyDetailsHaveDifferentAccountingCodeSelections,
   vacancyDetailsHaveDifferentPayCodeSelections,
   mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
-  mapVacancyDetailAccountingCodeToAccountingCodeValue,
+  mapAccountingCodeAllocationsToAccountingCodeValue,
 } from "ui/components/absence/helpers";
 import { ActionMenu, Option } from "ui/components/action-menu";
 import { ShowIgnoreAndContinueOrError } from "ui/components/error-helpers";
@@ -202,8 +202,16 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     dayPart: props.dayPart,
     payCode:
       props.initialVacancies[0]?.details[0]?.payCodeId?.toString() ?? undefined,
-    accountingCodeAllocations: mapVacancyDetailAccountingCodeToAccountingCodeValue(
-      props.initialVacancies[0]?.details[0]?.accountingCodeAllocations
+    accountingCodeAllocations: mapAccountingCodeAllocationsToAccountingCodeValue(
+      props.initialVacancies[0]?.details[0]?.accountingCodeAllocations?.map(
+        a => {
+          return {
+            accountingCodeId: a.accountingCodeId,
+            accountingCodeName: a.accountingCode?.name,
+            allocation: a.allocation,
+          };
+        }
+      )
     ),
     hourlyStartTime:
       props.dayPart === DayPart.Hourly

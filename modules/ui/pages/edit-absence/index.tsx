@@ -27,7 +27,7 @@ import { DeleteAbsenceVacancyDialog } from "../../components/absence-vacancy/del
 import { ShowErrors } from "ui/components/error-helpers";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
-import { mapVacancyDetailAccountingCodeToAccountingCodeValue } from "ui/components/absence/helpers";
+import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence/helpers";
 
 type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
@@ -214,8 +214,14 @@ export const EditAbsence: React.FC<Props> = props => {
             endTime: d.endTimeLocal,
             locationId: d.locationId,
             payCodeId: d.payCodeId,
-            accountingCodeAllocations: mapVacancyDetailAccountingCodeToAccountingCodeValue(
-              d?.accountingCodeAllocations as VacancyDetailAccountingCode[]
+            accountingCodeAllocations: mapAccountingCodeAllocationsToAccountingCodeValue(
+              d?.accountingCodeAllocations?.map(a => {
+                return {
+                  accountingCodeId: a.accountingCodeId,
+                  accountingCodeName: a.accountingCode?.name,
+                  allocation: a.allocation,
+                };
+              })
             ),
             assignmentId: d.assignment?.id,
             absenceStartTime: absenceDetail?.startTimeLocal,

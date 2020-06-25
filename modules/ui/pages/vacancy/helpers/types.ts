@@ -33,11 +33,7 @@ export type VacancyDetailItem = {
   locationId: string;
   payCodeId?: string;
   payCodeName?: string;
-  accountingCodeAllocations?: {
-    accountingCodeId: string;
-    accountingCodeName: string;
-    allocation: number;
-  }[];
+  accountingCodeAllocations?: AccountingCodeAllocation[];
   vacancyReasonId: string;
   assignment?: {
     id?: string;
@@ -48,6 +44,12 @@ export type VacancyDetailItem = {
       lastName: string;
     };
   };
+};
+
+export type AccountingCodeAllocation = {
+  accountingCodeId: string;
+  accountingCodeName: string;
+  allocation: number;
 };
 
 export type VacancyFormValues = {

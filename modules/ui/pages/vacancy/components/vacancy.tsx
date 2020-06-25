@@ -29,7 +29,7 @@ import { canEditAbsVac } from "helpers/permissions";
 import { parseISO, isSameDay, format, startOfDay, min } from "date-fns";
 import { AssignSub } from "ui/components/assign-sub";
 import { VacancyConfirmation } from "./vacancy-confirmation";
-import { compact, isEqual } from "lodash-es";
+import { compact, isEqual, sum } from "lodash-es";
 import { ExecutionResult } from "graphql";
 import { Prompt, useRouteMatch } from "react-router";
 import { buildVacancyCreateInput } from "../helpers";
@@ -43,10 +43,15 @@ import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { VacancyDetailsFormData, VacancyFormValues } from "../helpers/types";
+import {
+  VacancyDetailsFormData,
+  VacancyFormValues,
+  VacancyDetailItem,
+} from "../helpers/types";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
+import * as yup from "yup";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -611,6 +616,36 @@ export const VacancyUI: React.FC<Props> = props => {
       )}
       <Formik
         initialValues={initialFormValues}
+        validationSchema={yup.object().shape({
+          details: yup.array().of(
+            yup.object().test({
+              name: "accountingCodeAllocationsCheck",
+              test: function test(value: VacancyDetailItem) {
+                const accountingCodeAllocations =
+                  value.accountingCodeAllocations;
+                if (
+                  !accountingCodeAllocations ||
+                  accountingCodeAllocations.length === 0
+                ) {
+                  return true;
+                }
+
+                if (
+                  sum(accountingCodeAllocations.map(a => a.allocation)) !== 1
+                ) {
+                  // Allocations need to add up to 100%
+                  return new yup.ValidationError(
+                    t("Accounting code allocations do not total 100%"),
+                    null,
+                    `${this.path}.accountingCodeAllocations`
+                  );
+                }
+
+                return true;
+              },
+            })
+          ),
+        })}
         onReset={(values, e) => {
           setResetKey(resetKey + 1);
           setVacancy({ ...initialVacancy });
@@ -709,6 +744,7 @@ export const VacancyUI: React.FC<Props> = props => {
           resetForm,
           touched,
           initialValues,
+          errors,
         }) => (
           <form id="vacancy-form" onSubmit={handleSubmit}>
             <Prompt

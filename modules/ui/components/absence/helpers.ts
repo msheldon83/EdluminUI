@@ -654,8 +654,15 @@ export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
   }
 };
 
-export const mapVacancyDetailAccountingCodeToAccountingCodeValue = (
-  accountingCodeAllocations: VacancyDetailAccountingCode[] | null | undefined
+export const mapAccountingCodeAllocationsToAccountingCodeValue = (
+  accountingCodeAllocations:
+    | {
+        accountingCodeId: string;
+        accountingCodeName: string | undefined;
+        allocation?: number;
+      }[]
+    | null
+    | undefined
 ): AccountingCodeValue => {
   if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
     return noAllocation();
@@ -663,7 +670,7 @@ export const mapVacancyDetailAccountingCodeToAccountingCodeValue = (
 
   if (accountingCodeAllocations.length === 1) {
     return singleAllocation({
-      label: accountingCodeAllocations[0].accountingCode?.name ?? "",
+      label: accountingCodeAllocations[0].accountingCodeName ?? "",
       value: accountingCodeAllocations[0].accountingCodeId,
     });
   }
@@ -671,12 +678,12 @@ export const mapVacancyDetailAccountingCodeToAccountingCodeValue = (
   return multipleAllocations(
     accountingCodeAllocations.map(a => {
       return {
-        id: Number(a.id),
+        id: Math.random(),
         selection: {
-          label: a.accountingCode?.name ?? "",
+          label: a.accountingCodeName ?? "",
           value: a.accountingCodeId,
         },
-        percentage: a.allocation * 100,
+        percentage: a.allocation ? a.allocation * 100 : undefined,
       };
     })
   );
