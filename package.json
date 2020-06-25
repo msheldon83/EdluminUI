@@ -154,9 +154,8 @@
     "build-storybook": "build-storybook",
     "codegen": "yarn run gql-gen -o",
     "codegen:watch": "nodemon  -e graphql -x \"yarn codegen\"",
-    "build": "yarn codegen && yarn build:client && yarn build:scripts",
+    "build": "yarn codegen && yarn build:client",
     "build:client": "yarn run webpack --config ./webpack/client.config.js",
-    "build:scripts": "yarn tsc -p tsconfig.script.json",
     "production-build": "cross-env NODE_ENV=production yarn build",
     "analyze": "cross-env NODE_ENV=production ANALYZE=true yarn build",
     "dev:server": "webpack-dev-server --config webpack/client.config.js",
@@ -164,6 +163,6 @@
     "dev": "yarn start",
     "cp-server-schema": "node cp-server-schema.js",
     "lint": "eslint \"./modules/**/*.{ts,tsx}\"",
-    "threaded-lint": "yarn node ./threaded-lint/dist/threaded-lint/run-threaded-lint.js modules"
+    "threaded-lint": "yarn tsc -p tsconfig.script.json && yarn node ./threaded-lint/dist/threaded-lint/run-threaded-lint.js modules"
   }
 }

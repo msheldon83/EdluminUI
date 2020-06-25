@@ -2881,6 +2881,7 @@ enum FeatureFlag {
   QUARTER_DAY_ABSENCES
   HOURLY_ABSENCES
   VERIFY
+  SECONDARY_IDENTIFIER
 }
 
 enum FilePurpose {
@@ -3935,6 +3936,7 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   firstName: String!
   middleName: String
   lastName: String!
+  secondaryIdentifier: String
   userId: ID
   loginEmail: String
   temporaryPassword: String
@@ -3966,6 +3968,7 @@ input OrgUserCreateInput {
   email: String!
   active: Boolean
   externalId: String
+  secondaryIdentifier: String
   firstName: String!
   middleName: String
   lastName: String!
@@ -4093,6 +4096,7 @@ input OrgUserUpdateInput {
   email: String
   active: Boolean
   externalId: String
+  secondaryIdentifier: String
   firstName: String
   middleName: String
   lastName: String
@@ -7192,8 +7196,7 @@ type VacancyQueries {
     offset: Int
     getPastDecisions: Boolean
   ): PagedAbsVacApprovalInboxQueryResult
-  vacanciesNeedingApproval(orgId: ID!): [Vacancy]
-  pastApprovalDecisions(orgId: ID!, limit: Int, offset: Int): PagedVacancy
+  countOfAbsVacNeedingApproval(orgId: ID!): Int
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   subJobSearch(
     id: ID!
