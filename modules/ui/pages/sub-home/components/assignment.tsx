@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { Section } from "ui/components/section";
 import { useIsMobile } from "hooks";
-import { useIsSubstitute } from "reference-data/is-substitute";
 import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 import { useHistory } from "react-router";
 
@@ -56,6 +55,7 @@ type Props = {
   vacancyDetail: VacancyDetail;
   shadeRow: boolean;
   className?: string;
+  actingAsSubstitute?: boolean;
 };
 
 export const AssignmentCard: React.FC<Props> = props => {
@@ -63,8 +63,6 @@ export const AssignmentCard: React.FC<Props> = props => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const history = useHistory();
-
-  const userIsSubstitute = useIsSubstitute();
 
   const [notesAnchor, setNotesAnchor] = React.useState<null | HTMLElement>(
     null
@@ -110,7 +108,7 @@ export const AssignmentCard: React.FC<Props> = props => {
     history.push(url);
   };
 
-  const assignmentId = userIsSubstitute ? (
+  const assignmentId = props.actingAsSubstitute ? (
     <Link
       className={classes.action}
       onClick={() => goToAssignment(vacancyDetail.assignment?.id ?? "")}
@@ -203,7 +201,7 @@ export const AssignmentCard: React.FC<Props> = props => {
   return (
     <Section className={`${classes.section} ${props.className}`} raised>
       <div className={classes.wrapper}>
-        <Typography variant="h6">{dateHeader}</Typography>
+        {dateHeader}
         {isMobile && <Typography variant="h6">{assignmentId}</Typography>}
         <Typography className={classes.text}>
           {vacancyDetail.location?.name}

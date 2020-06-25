@@ -13,7 +13,6 @@ import { canRemoveSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
 import { useHistory } from "react-router";
 import { VacancyViewRoute } from "ui/routes/vacancy";
-import { useIsSubstitute } from "reference-data/is-substitute";
 import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 
 type Props = {
@@ -54,8 +53,6 @@ export const AssignmentRowUI: React.FC<Props> = props => {
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
   const vacancyEditParams = useRouteParams(VacancyViewRoute);
   const history = useHistory();
-
-  const userIsSubstitute = useIsSubstitute();
 
   const goToAbsenceEdit = (absenceId: string) => {
     const url = AdminEditAbsenceRoute.generate({
@@ -114,13 +111,13 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               >{`#V${props.vacancyId}`}</Link>
             )}
 
-            {userIsSubstitute && (
+            {!props.isAdmin && (
               <Link
                 className={classes.action}
                 onClick={() => goToAssignment(props.confirmationNumber)}
               >{`#C${props.confirmationNumber}`}</Link>
             )}
-            {!userIsSubstitute && (
+            {props.isAdmin && (
               <Typography className={classes.bold} noWrap>
                 #C{props.confirmationNumber}{" "}
               </Typography>

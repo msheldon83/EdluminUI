@@ -44,7 +44,11 @@ export const SubHome: React.FC<{}> = () => {
   return (
     <>
       {getUpcomingAssignments.state !== "LOADING" && (
-        <UpcomingAssignments userId={userId} assignments={assignments} />
+        <UpcomingAssignments
+          userId={userId}
+          assignments={assignments}
+          actingAsSubstitute={true}
+        />
       )}
       <AvailableAssignments
         userId={userId}
