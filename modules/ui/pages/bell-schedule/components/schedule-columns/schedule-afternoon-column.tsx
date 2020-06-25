@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { useCanDo } from "ui/components/auth/can";
-import { useDrop } from "react-dnd";
+import { useDrop, DropValidationData } from "hooks/drag-drop";
 import { DraggableScheduleChip } from "./DraggableScheduleChip";
 
 type Props = {
@@ -37,14 +37,14 @@ const PeriodRow = (props: PeriodRowProps) => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const [{ isOver, canDrop }, dropRef] = useDrop({
-    accept: AfternoonDraggableType,
-    drop: () => {
+  const { isOver, canDrop, dropRef } = useDrop({
+    dragId: AfternoonDraggableType,
+    onDrop() {
       onDrop();
     },
-    collect: monitor => ({
-      isOver: !!monitor.isOver(),
-      canDrop: !!monitor.canDrop() && isAfterMorningEnd && !period.skipped,
+    validateDrop: ({ isOver, canDrop }: DropValidationData) => ({
+      isOver: isOver(),
+      canDrop: canDrop() && isAfterMorningEnd && !period.skipped,
     }),
   });
 

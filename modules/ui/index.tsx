@@ -457,7 +457,6 @@ export const App = hot(function() {
                               <ProtectedRoute
                                 path={EmployeeAbsenceApprovalViewRoute.path}
                                 role={"employee"}
-                                devFeatureOnly={true}
                                 permissions={[
                                   PermissionEnum.AbsVacApprovalsView,
                                 ]}
@@ -629,7 +628,6 @@ export const App = hot(function() {
                                         AbsenceApprovalWorkflowAddRoute.path
                                       }
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsSave,
                                       ]}
@@ -642,7 +640,6 @@ export const App = hot(function() {
                                         VacancyApprovalWorkflowAddRoute.path
                                       }
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsSave,
                                       ]}
@@ -651,7 +648,6 @@ export const App = hot(function() {
                                       component={ApprovalWorkflowEditLoader}
                                       path={ApprovalWorkflowEditRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
                                       ]}
@@ -660,7 +656,6 @@ export const App = hot(function() {
                                       component={AbsenceApprovalWorkflowLoader}
                                       path={AbsenceApprovalWorkflowRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
                                       ]}
@@ -669,7 +664,6 @@ export const App = hot(function() {
                                       component={VacancyApprovalWorkflowLoader}
                                       path={VacancyApprovalWorkflowRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
                                       ]}
@@ -678,19 +672,16 @@ export const App = hot(function() {
                                       component={AbsenceApprovalViewLoader}
                                       path={AdminAbsenceApprovalViewRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={VacancyApprovalViewLoader}
                                       path={VacancyApprovalViewRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={ApprovalInboxLoader}
                                       path={ApprovalInboxRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={VacancyNotificationLogLoader}
@@ -1330,7 +1321,6 @@ export const App = hot(function() {
                                       path={
                                         ApproverGroupAddRemoveMembersRoute.path
                                       }
-                                      devFeatureOnly={true}
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
@@ -1342,7 +1332,6 @@ export const App = hot(function() {
                                       }
                                       path={ApproverGroupAddLocationsRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
                                       ]}
@@ -1350,7 +1339,6 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={ApproverGroupAddLoader}
                                       path={ApproverGroupAddRoute.path}
-                                      devFeatureOnly={true}
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
@@ -1360,7 +1348,6 @@ export const App = hot(function() {
                                       component={ApproverGroupsLoader}
                                       path={ApproverGroupsRoute.path}
                                       role={"admin"}
-                                      devFeatureOnly={true}
                                       permissions={[
                                         PermissionEnum.ApprovalSettingsView,
                                       ]}

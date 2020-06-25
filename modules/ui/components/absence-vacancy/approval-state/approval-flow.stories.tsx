@@ -6,11 +6,23 @@ export default {
 };
 
 export const SingleStep = () => {
-  return <WorkflowSummary steps={singleStep} currentStepId={"3"} />;
+  return (
+    <WorkflowSummary
+      steps={singleStep}
+      currentStepId={"3"}
+      workflowName={"Test workflow"}
+    />
+  );
 };
 
 export const FourStep = () => {
-  return <WorkflowSummary steps={fourSteps} currentStepId={"4"} />;
+  return (
+    <WorkflowSummary
+      steps={fourSteps}
+      currentStepId={"4"}
+      workflowName={"Test workflow"}
+    />
+  );
 };
 
 const singleStep = [

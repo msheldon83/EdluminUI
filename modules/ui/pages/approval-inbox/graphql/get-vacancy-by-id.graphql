@@ -11,6 +11,7 @@ query GetVacancyById($id: ID!) {
         approvalWorkflowId
         approvalWorkflow {
           id
+          name
           steps {
             stepId
             deleted
@@ -47,6 +48,7 @@ query GetVacancyById($id: ID!) {
         }
         decisions {
           id
+          stepId
           createdLocal
           approvalActionId
           actingOrgUserId

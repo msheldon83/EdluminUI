@@ -9,6 +9,7 @@ import { parseISO, differenceInHours, format } from "date-fns";
 import { DayPart, Maybe, ApprovalAction } from "graphql/server-types.gen";
 import { useLocations } from "reference-data/locations";
 import { useMyUserAccess } from "reference-data/my-user-access";
+import { AbsVacLink } from "ui/components/links/abs-vac";
 
 type Props = {
   orgId: string;
@@ -34,6 +35,7 @@ type Props = {
     createdLocal?: string | null;
     actingOrgUserId: string;
   }[];
+  absVacId: string;
 };
 
 export const SummaryDetails: React.FC<Props> = props => {
@@ -109,6 +111,10 @@ export const SummaryDetails: React.FC<Props> = props => {
     <div className={classes.container}>{renderSimpleSummary()}</div>
   ) : (
     <div className={classes.container}>
+      <AbsVacLink
+        absVacId={props.absVacId}
+        absVacType={props.isNormalVacancy ? "vacancy" : "absence"}
+      />
       <div className={classes.title}>
         {props.isNormalVacancy ? props.positionTitle : props.employeeName}
       </div>

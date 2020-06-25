@@ -10,6 +10,7 @@ import {
   Assignment,
   CancelVacancyAssignmentInput,
   ApprovalStatus,
+  ApprovalAction,
 } from "graphql/server-types.gen";
 import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
 import { GetAllLocationsWithSchedulesWithinOrg } from "../graphql/get-locations-with-schedules.gen";
@@ -62,6 +63,10 @@ type Props = {
     currentStepId: string;
     id: string;
     comments: { id: string }[];
+    decisions?: {
+      stepId: string;
+      approvalActionId: ApprovalAction;
+    }[];
   } | null;
   refetchVacancy?: () => Promise<unknown>;
 };
@@ -576,7 +581,7 @@ export const VacancyUI: React.FC<Props> = props => {
       <Typography className={classes.subHeader} variant="h4">
         {subHeader()}
       </Typography>
-      {Config.isDevFeatureOnly && approvalState && (
+      {approvalState && (
         <Can do={[PermissionEnum.AbsVacApprovalsView]}>
           <ApprovalState
             orgId={params.organizationId}
@@ -590,6 +595,7 @@ export const VacancyUI: React.FC<Props> = props => {
             vacancyId={vacancy.id}
             onChange={props.refetchVacancy}
             locationIds={vacancy.details.map(x => x.locationId)}
+            decisions={approvalState?.decisions}
           />
         </Can>
       )}

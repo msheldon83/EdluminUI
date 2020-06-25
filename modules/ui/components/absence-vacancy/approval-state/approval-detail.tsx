@@ -26,6 +26,7 @@ type Props = {
   actingAsEmployee?: boolean;
   approvalStateId: string;
   approvalWorkflowId: string;
+  approvalWorkflowName: string;
   approvalStatusId: ApprovalStatus;
   currentStepId?: string | null;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
@@ -45,6 +46,7 @@ type Props = {
     };
   }[];
   decisions: {
+    stepId: string;
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
     actingUser: {
@@ -119,6 +121,13 @@ export const ApprovalDetail: React.FC<Props> = props => {
     x => x.stepId == props.currentStepId
   )?.approverGroupHeaderId;
 
+  const locationIds =
+    compact(
+      props.isTrueVacancy
+        ? props.vacancy?.details?.map(x => x?.locationId)
+        : props.absence?.locationIds
+    ) ?? [];
+
   const renderAbsVacDetail = () => {
     return (
       <div className={classes.absVacDetailsContainer}>
@@ -179,10 +188,14 @@ export const ApprovalDetail: React.FC<Props> = props => {
             currentApproverGroupHeaderId={currentApproverGroupHeaderId}
             onApprove={props.onApprove}
             onDeny={props.onDeny}
+            orgId={props.orgId}
+            locationIds={locationIds}
           />
           <WorkflowSummary
             currentStepId={props.currentStepId}
             steps={props.approvalWorkflowSteps}
+            workflowName={props.approvalWorkflowName}
+            decisions={props.decisions}
           />
           <ApprovalComments
             orgId={props.orgId}
