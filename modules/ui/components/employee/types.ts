@@ -1,4 +1,8 @@
-import { DayPart, CalendarDayType } from "graphql/server-types.gen";
+import {
+  DayPart,
+  CalendarDayType,
+  ApprovalStatus,
+} from "graphql/server-types.gen";
 
 export interface ScheduleDateGroupByMonth {
   month: string;
@@ -26,6 +30,7 @@ export type EmployeeAbsenceDetail = {
     dayPortion: number;
     hourDuration: number;
   }[];
+  approvalStatus: ApprovalStatus;
 };
 
 export type EmployeeAbsenceAssignment = {

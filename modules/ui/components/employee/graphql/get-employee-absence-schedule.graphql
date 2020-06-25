@@ -8,6 +8,7 @@ query GetEmployeeAbsenceSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
       endTimeLocal
       numDays
       totalDayPortion
+      approvalStatus
       details {
         id
         dayPartId

@@ -17,7 +17,7 @@ import {
   AdminEditAbsenceRoute,
 } from "ui/routes/edit-absence";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum, DayPart } from "graphql/server-types.gen";
+import { PermissionEnum, ApprovalStatus } from "graphql/server-types.gen";
 import { compact, uniq } from "lodash-es";
 import { getBasicDateRangeDisplayText } from "ui/components/date-helpers";
 import { useState } from "react";
@@ -40,6 +40,8 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
   const canCancel = props.actingAsEmployee
     ? isAfter(props.absence.startTimeLocal, new Date())
     : true;
+
+  console.log(canCancel);
 
   return (
     <>
@@ -144,19 +146,37 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
           {`#${props.absence.id}`}
         </Link>
       </Grid>
-      <Can do={[PermissionEnum.AbsVacDelete]}>
-        {props.cancelAbsence && canCancel && (
-          <Grid item xs={2} className={classes.cancelButtonContainer}>
-            <Button
-              variant="outlined"
-              onClick={props.cancelAbsence}
-              className={classes.cancelButton}
-            >
-              {t("Cancel")}
-            </Button>
-          </Grid>
-        )}
-      </Can>
+      {props.absence.approvalStatus === ApprovalStatus.Denied ? (
+        <Grid item xs={2}>
+          <Chip label={t("Denied")} className={classes.deniedApprovalChip} />
+        </Grid>
+      ) : (
+        <>
+          <Can do={[PermissionEnum.AbsVacDelete]}>
+            {props.cancelAbsence && canCancel && (
+              <Grid item xs={2} className={classes.cancelButtonContainer}>
+                <Button
+                  variant="outlined"
+                  onClick={props.cancelAbsence}
+                  className={classes.cancelButton}
+                >
+                  {t("Cancel")}
+                </Button>
+              </Grid>
+            )}
+          </Can>
+          {(props.absence.approvalStatus === ApprovalStatus.ApprovalRequired ||
+            props.absence.approvalStatus ===
+              ApprovalStatus.PartiallyApproved) && (
+            <Grid item xs={2}>
+              <Chip
+                label={t("Pending")}
+                className={classes.pendingApprovalChip}
+              />
+            </Grid>
+          )}
+        </>
+      )}
     </>
   );
 };
@@ -192,5 +212,13 @@ const useStyles = makeStyles(theme => ({
   },
   action: {
     cursor: "pointer",
+  },
+  pendingApprovalChip: {
+    backgroundColor: theme.customColors.yellow4,
+    color: theme.palette.text.primary,
+  },
+  deniedApprovalChip: {
+    backgroundColor: theme.customColors.darkRed,
+    color: theme.customColors.white,
   },
 }));
