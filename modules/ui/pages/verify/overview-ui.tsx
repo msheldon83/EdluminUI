@@ -47,7 +47,6 @@ const OverviewTableRow: React.FC<RowProps> = ({
   goToDate,
 }) => {
   const classes = useRowStyles();
-  console.log(date);
   return (
     <TableRow className={classes.tableRow} onClick={() => goToDate(date)}>
       <TableCell>{format(date, "EEE, MMM d")}</TableCell>

@@ -89,7 +89,10 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     }
   };
 
-  const [verifyAllMutation] = useMutationBundle(VerifyAll);
+  const [verifyAllMutation] = useMutationBundle(VerifyAll, {
+    refetchQueries: ["GetVacancyDetails"],
+  });
+
   const verifyAll = async (assignments: AssignmentDetail[]) => {
     const result = await verifyAllMutation({
       variables: {
@@ -146,7 +149,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
             }
           }}
         >
-          Verify All
+          {t("Verify All")}
         </Button>
       </Section>
     </>
