@@ -206,6 +206,29 @@ export const Schedule: React.FC<Props> = props => {
       >
         {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
           <form onSubmit={handleSubmit}>
+            <FormikValuesWatcher
+              onChange={(prev: { periods: Period[] }, next) => {
+                prev.periods.map((p, i) => {
+                  if (!next.periods[i]) return;
+                  const nextEnd = next.periods[i].endTime;
+                  const nextPeriod = next.periods[i + 1];
+                  if (
+                    nextEnd &&
+                    p.endTime !== nextEnd &&
+                    nextPeriod &&
+                    !nextPeriod.startTime
+                  ) {
+                    setFieldValue(
+                      `periods.${i + 1}.startTime` as any,
+                      addMinutes(
+                        new Date(nextEnd),
+                        travelDuration
+                      ).toISOString()
+                    );
+                  }
+                });
+              }}
+            />
             <Grid container justify="space-between" alignItems="center">
               <Grid item>
                 {props.name && <SectionHeader title={props.name} />}
