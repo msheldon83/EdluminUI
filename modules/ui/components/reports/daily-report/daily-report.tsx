@@ -35,8 +35,8 @@ import { DesktopOnly } from "ui/components/mobile-helpers";
 import { PrintPageButton } from "ui/components/print-page-button";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { VerifyUI } from "ui/pages/verify/ui";
-import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import { VerifyOverviewUI } from "ui/pages/verify/overview-ui";
+import { VerifyOverviewRoute } from "ui/routes/absence-vacancy/verify";
 import { useRouteParams } from "ui/routes/definition";
 import { DailyReportSection } from "./daily-report-section";
 import { FilterQueryParams } from "./filters/filter-params";
@@ -85,7 +85,7 @@ export const DailyReport: React.FC<Props> = props => {
     props.selectedCard
   );
   const [selectedRows, setSelectedRows] = useState<Detail[]>([]);
-  const verifyRouteParams = useRouteParams(VerifyRoute);
+  const verifyOverviewRouteParams = useRouteParams(VerifyOverviewRoute);
 
   // Keep date in filters in sync with date passed in from DateStepperHeader
   useEffect(() => {
@@ -401,7 +401,7 @@ export const DailyReport: React.FC<Props> = props => {
           props.date,
           props.setDate,
           () => {
-            const url = VerifyRoute.generate(verifyRouteParams);
+            const url = VerifyOverviewRoute.generate(verifyOverviewRouteParams);
             history.push(url, {
               selectedDateTab: "older",
             });
@@ -637,7 +637,7 @@ const displaySections = (
       </Grid>
       {selectedCard === "awaitingVerification" ? (
         <div className={classes.verifyContainer}>
-          <VerifyUI
+          <VerifyOverviewUI
             showVerified={false}
             locationsFilter={[]}
             showLinkToVerify={true}

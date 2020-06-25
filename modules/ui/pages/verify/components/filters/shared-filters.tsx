@@ -38,7 +38,7 @@ export const SharedFilters: React.FC<Props> = ({
             orgId={orgId}
             selectedOrgId={subSource}
             setSelectedOrgId={setSubSource}
-            label={t("Sub source")}
+            label={t("Substitute source")}
           />
         </Grid>
       )}

@@ -1052,7 +1052,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   name: String!
   description: String
   variesByLocation: Boolean!
-  approverGroups(orgUserId: ID): [ApproverGroup]!
+  approverGroups(orgUserId: ID): [ApproverGroup]
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
@@ -1256,7 +1256,9 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   positionId: ID!
   contractId: ID!
   absenceId: ID
+  isNormalVacancy: Boolean!
   notesToReplacement: String
+  adminOnlyNotes: String
   position: Position
   absence: Absence
   payInfoSummary: PayInfoSummary

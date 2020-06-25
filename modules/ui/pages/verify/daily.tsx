@@ -46,7 +46,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       locationIds: filters.locationIds,
       fromDate: filters.date,
       toDate: filters.date,
-      //shadowFromOrgId: filters.subSource,
+      shadowFromOrgId: filters.subSource,
     },
   });
 

@@ -238,13 +238,13 @@ export const Assignment: React.FC<Props> = props => {
     skip: !!vacancyDetail.vacancy?.absence,
   });
 
-  const notesToAdministrator = vacancyDetail.vacancy?.absence?.notesToApprover;
+  const notesToAdministrator = !vacancyDetail.vacancy?.isNormalVacancy
+    ? vacancyDetail.vacancy?.absence?.notesToApprover
+    : undefined;
 
-  const adminOnlyNotes =
-    vacancyDetail.vacancy?.absence?.adminOnlyNotes ??
-    (getVacancyNotes.state != "LOADING"
-      ? getVacancyNotes.data.vacancy?.byId?.adminOnlyNotes ?? undefined
-      : undefined);
+  const adminOnlyNotes = vacancyDetail.vacancy?.isNormalVacancy
+    ? vacancyDetail.vacancy?.adminOnlyNotes
+    : vacancyDetail.vacancy?.absence?.adminOnlyNotes;
 
   const payCodeLabel = props.payCodeOptions.find(
     x => x.value === currentPayCodeId
@@ -468,7 +468,7 @@ export const Assignment: React.FC<Props> = props => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item container alignItems="flex-end">
+                <Grid item container alignItems="flex-end" spacing={1}>
                   <Grid item xs={4}>
                     {isActiveCard ? (
                       <>

@@ -120,6 +120,9 @@ export const VerifyOverviewUI: React.FC<Props> = ({ dates, goToDate }) => {
 const useStyles = makeStyles(theme => ({
   table: {
     tableLayout: "fixed",
+    borderBottom: `1px solid ${theme.customColors.sectionBorder}`,
+    borderLeft: `1px solid ${theme.customColors.sectionBorder}`,
+    borderRight: `1px solid ${theme.customColors.sectionBorder}`,
   },
   date: {
     width: "15%",

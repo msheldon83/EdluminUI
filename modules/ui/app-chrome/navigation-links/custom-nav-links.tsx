@@ -29,7 +29,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Can } from "ui/components/auth/can";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
-import { VerifyRoute } from "ui/routes/absence-vacancy/verify";
+import { VerifyOverviewRoute } from "ui/routes/absence-vacancy/verify";
 import {
   AdminCreateAbsenceRoute,
   AdminSelectEmployeeForCreateAbsenceRoute,
@@ -71,7 +71,7 @@ export const HomeNavLink: React.FC<Props> = props => {
 export const AbsenceNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   const paramsDailyReport = useRouteParams(DailyReportRoute);
-  const paramsVerify = useRouteParams(VerifyRoute);
+  const paramsVerify = useRouteParams(VerifyOverviewRoute);
   const paramsCreate = useRouteParams(AdminCreateAbsenceRoute);
   const paramsVacancyCreate = useRouteParams(VacancyCreateRoute);
 
@@ -102,7 +102,7 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   if (orgUsesVerify) {
     absenceSubNavItems.push({
       title: t("Verify"),
-      route: VerifyRoute.generate(paramsVerify),
+      route: VerifyOverviewRoute.generate(paramsVerify),
       permissions: [PermissionEnum.AbsVacVerify],
     });
   }
