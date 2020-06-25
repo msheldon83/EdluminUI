@@ -114,7 +114,7 @@ export const ApproverGroupAddPage: React.FC<{}> = props => {
             //Member Page
             history.push(
               ApproverGroupAddRemoveMembersRoute.generate({
-                approverGroupId: result?.approverGroups[0]?.id ?? "",
+                approverGroupId: result?.approverGroups![0]?.id ?? "",
                 organizationId: params.organizationId,
               })
             );
