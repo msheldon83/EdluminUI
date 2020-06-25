@@ -15,6 +15,7 @@ import {
 } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 import { TextButton } from "ui/components/text-button";
+import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { AddApproverGroupMember } from "../../graphql/admin/add-approver-group-member.gen";
 import { AddApproverGroupLocation } from "../../graphql/admin/add-approver-group-location.gen";
 import { RemoveApproverGroupMember } from "../../graphql/admin/remove-approver-group-member.gen";
@@ -295,12 +296,14 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                   {values.approverGroupHeaderId &&
                     (!selectedApproverGroupHeader?.variesByLocation ||
                       values.locationId) && (
-                      <TextButton
-                        className={clsx(classes.addLink, classes.displayInline)}
+                      <ButtonDisableOnClick
+                        variant="outlined"
                         onClick={submitForm}
+                        className={clsx(classes.addLink, classes.displayInline)}
+                        //disabled={false}
                       >
                         {t("Add")}
-                      </TextButton>
+                      </ButtonDisableOnClick>
                     )}
                 </Grid>
               )}
@@ -397,8 +400,10 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.darkRed,
   },
   addLink: {
-    marginTop: "15px",
     color: theme.customColors.blue,
+    maxHeight: "41px",
+    marginTop: "32px",
+    marginLeft: theme.spacing(1),
   },
   indent: {
     marginLeft: theme.spacing(2),
