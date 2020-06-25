@@ -18,7 +18,7 @@ import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailItem, VacancyDayPart } from "../helpers/types";
 import { useVacancyReasonOptions } from "reference-data/vacancy-reasons";
-import { accountingCodeAllocationsAreTheSame } from "ui/components/absence/helpers";
+import { accountingCodeAllocationsAreTheSame } from "ui/components/absence-vacancy/helpers";
 
 type Props = {
   vacancyDays: VacancyDetailItem[];
@@ -136,7 +136,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
       const allocations = vacDetail.accountingCodeAllocations;
-      
+
       newVacancyDays.forEach((vd, i) => {
         newVacancyDays[i] = {
           //need this to mark form as dirty
@@ -337,8 +337,12 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setUseSamePayCode(useSPC);
 
       /* accounting code */
-      const firstDayAccountingCodeAllocations = vacancyDays[0].accountingCodeAllocations ?? [];
-      const useSAC = accountingCodeAllocationsAreTheSame(firstDayAccountingCodeAllocations, vacancyDays.map(d => d.accountingCodeAllocations ?? []));
+      const firstDayAccountingCodeAllocations =
+        vacancyDays[0].accountingCodeAllocations ?? [];
+      const useSAC = accountingCodeAllocationsAreTheSame(
+        firstDayAccountingCodeAllocations,
+        vacancyDays.map(d => d.accountingCodeAllocations ?? [])
+      );
       setUseSameAccountingCode(useSAC);
     } else {
       setUseSameReason(true);

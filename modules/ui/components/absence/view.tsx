@@ -28,12 +28,12 @@ import {
   getReplacementEmployeeForVacancy,
   ReplacementEmployeeForVacancy,
   getCannotCreateAbsenceDates,
-  accountingCodeAllocationsAreTheSame,
 } from "./helpers";
 import { VacancyDetails } from "./vacancy-details";
 import { ShowErrors } from "../error-helpers";
 import { AssignmentOnDate } from "./types";
 import { EmployeeLink } from "ui/components/links/people";
+import { accountingCodeAllocationsAreTheSame } from "../absence-vacancy/helpers";
 
 type Props = {
   orgId: string;

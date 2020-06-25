@@ -27,7 +27,6 @@ import {
   getCannotCreateAbsenceDates,
   vacancyDetailsHaveDifferentAccountingCodeSelections,
   vacancyDetailsHaveDifferentPayCodeSelections,
-  mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
 } from "ui/components/absence/helpers";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -49,6 +48,7 @@ import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
+import { mapAccountingCodeValueToVacancyDetailAccountingCodeInput } from "ui/components/absence-vacancy/helpers";
 
 type Props = {
   firstName: string;

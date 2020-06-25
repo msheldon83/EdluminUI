@@ -20,9 +20,9 @@ import {
   VacancyDetailsFormData,
 } from "../helpers/types";
 import { AccountingCodeDropdown } from "ui/components/form/accounting-code-dropdown";
-import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence/helpers";
 import { useFormikContext, FormikErrors } from "formik";
 import { isArray } from "lodash-es";
+import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence-vacancy/helpers";
 
 type Props = {
   vacancyDetail: VacancyDetailItem;
