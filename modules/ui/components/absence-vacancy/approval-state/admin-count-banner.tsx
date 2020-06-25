@@ -32,7 +32,7 @@ export const ApprovalCountBanner: React.FC<Props> = props => {
       <Grid container spacing={1} alignItems="center" justify="space-between">
         <Grid item>
           <div className={classes.text}>{`${t("You have")} ${count} ${t(
-            "items waiting for your approvals."
+            "items waiting for your approval."
           )}`}</div>
         </Grid>
         <Grid item>

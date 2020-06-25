@@ -174,7 +174,7 @@ export const ApprovalState: React.FC<Props> = props => {
       currentApproverGroupHeader &&
       currentApproverGroupHeader.variesByLocation
     ) {
-      const approverGroup = currentApproverGroupHeader.approverGroups.find(
+      const approverGroup = currentApproverGroupHeader.approverGroups?.find(
         x => x?.locationId && locationIds.includes(x.locationId)
       );
       if (approverGroup) return true;
