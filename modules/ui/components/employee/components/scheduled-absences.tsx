@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { SectionHeader } from "ui/components/section-header";
 import { AbsenceDetailRow } from "./absence-detail-row";
+import { ApprovalStatus } from "graphql/server-types.gen";
 
 type Props = {
   header?: string;
@@ -17,6 +18,10 @@ type Props = {
 export const ScheduledAbsences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+
+  const absences = props.actingAsEmployee
+    ? props.absences
+    : props.absences.filter(x => x.approvalStatus !== ApprovalStatus.Denied);
 
   const wrapper = (children: React.ReactFragment) => {
     return (
@@ -39,7 +44,7 @@ export const ScheduledAbsences: React.FC<Props> = props => {
 
   return wrapper(
     <Grid container>
-      {props.absences.map((a, i) => {
+      {absences.map((a, i) => {
         const className = [
           classes.detail,
           i % 2 == 1 ? classes.shadedRow : undefined,

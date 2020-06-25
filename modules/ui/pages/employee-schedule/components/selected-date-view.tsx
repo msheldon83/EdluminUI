@@ -38,6 +38,8 @@ export const SelectedDateView: React.FC<Props> = props => {
 
     props.scheduleDates.forEach(s => {
       switch (s.type) {
+        case "pendingAbsence":
+        case "deniedAbsence":
         case "absence":
           absenceDays.push(s);
           break;

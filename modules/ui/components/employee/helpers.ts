@@ -210,7 +210,17 @@ export const GroupEmployeeScheduleByMonth = (
   allDates.push(
     ...flatMap(absences, a => {
       return a.allDays.map(d => {
-        return { date: d, type: "absence", rawData: a } as ScheduleDate;
+        return {
+          date: d,
+          type:
+            a.approvalStatus === ApprovalStatus.Denied
+              ? "deniedAbsence"
+              : a.approvalStatus === ApprovalStatus.ApprovalRequired ||
+                a.approvalStatus === ApprovalStatus.PartiallyApproved
+              ? "pendingAbsence"
+              : "absence",
+          rawData: a,
+        } as ScheduleDate;
       });
     })
   );

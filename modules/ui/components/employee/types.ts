@@ -61,7 +61,7 @@ export type PositionScheduleDate = {
 
 export type AbsenceScheduleDate = {
   date: Date;
-  type: "absence";
+  type: "absence" | "pendingAbsence" | "deniedAbsence";
   description?: string;
   rawData: EmployeeAbsenceDetail;
 };
