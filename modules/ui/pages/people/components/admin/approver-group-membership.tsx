@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useMemo, useState } from "react";
-import { Grid, makeStyles, InputLabel } from "@material-ui/core";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Grid, makeStyles } from "@material-ui/core";
 import clsx from "clsx";
 import { Formik } from "formik";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -11,19 +10,20 @@ import { Section } from "ui/components/section";
 import {
   PermissionEnum,
   ApproverGroupRemoveMemberInput,
-  ApproverGroupHeader,
   ApproverGroupCreateInput,
   ApproverGroupAddMemberInput,
 } from "graphql/server-types.gen";
 import { SectionHeader } from "ui/components/section-header";
 import { TextButton } from "ui/components/text-button";
-import { useLocations } from "reference-data/locations";
 import { AddApproverGroupMember } from "../../graphql/admin/add-approver-group-member.gen";
 import { AddApproverGroupLocation } from "../../graphql/admin/add-approver-group-location.gen";
 import { RemoveApproverGroupMember } from "../../graphql/admin/remove-approver-group-member.gen";
 import { useApproverGroups } from "reference-data/approver-groups";
 import { GetApproverGroupsByUser } from "../../graphql/admin/get-approver-groups-by-user.gen";
 import { useTranslation } from "react-i18next";
+import { LocationSelect } from "ui/components/reference-selects/location-select";
+import { ApproverGroupSelect } from "ui/components/domain-selects/approver-group-select/approver-group-select";
+import { compact } from "lodash-es";
 
 const editableSections = {
   approverGroupMembership: "edit-approver-group-membership",
@@ -45,8 +45,6 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
 
   const editingThis =
     props.editing === editableSections.approverGroupMembership;
-
-  const [selectedLocation, setSelectedLocation] = useState<string>();
 
   const [
     approverGroupHeaderIdSelected,
@@ -88,44 +86,28 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
           ?.approverGroupHeadersByOrgUserId;
 
   const approverGroupHeaders = useApproverGroups(props.orgId);
-  const approverGroupHeaderOptions: OptionType[] = useMemo(
-    () =>
-      approverGroupHeaders
-        .filter(
-          l =>
-            !userApproverGroupHeaders?.find(
-              e => e?.id === l.id && !e.variesByLocation
-            )
-        )
-        .map(p => ({ label: p.name, value: p.id })),
-    [approverGroupHeaders, userApproverGroupHeaders]
-  );
+  const approverGroupHeaderIdsToRemoveFromSelect =
+    compact(
+      userApproverGroupHeaders?.map(x => {
+        if (!x?.variesByLocation) return x?.id;
+      })
+    ) ?? [];
 
-  const selectedApproverGroupHeader = useMemo(
-    () =>
-      approverGroupHeaders.find(e => e.id === approverGroupHeaderIdSelected),
-    [approverGroupHeaders, approverGroupHeaderIdSelected]
-  );
+  const selectedApproverGroupHeader = useMemo(() => {
+    if (approverGroupHeaderIdSelected) {
+      return approverGroupHeaders.find(
+        e => e.id === approverGroupHeaderIdSelected
+      );
+    }
+    return undefined;
+  }, [approverGroupHeaders, approverGroupHeaderIdSelected]);
 
-  const locations = useLocations(props.orgId);
-  const locationOptions: OptionType[] = useMemo(
-    () =>
-      locations
-        .filter(
-          l =>
-            !selectedApproverGroupHeader?.approverGroups.find(
-              c =>
-                c?.location?.id === l.id &&
-                c.approverGroupHeaderId === approverGroupHeaderIdSelected
-            )?.location
-        )
-        .map(p => ({ label: p.name, value: p.id })),
-    [locations, selectedApproverGroupHeader, approverGroupHeaderIdSelected]
-  );
-
-  if (!userApproverGroupHeaders) {
-    return <></>;
-  }
+  const locationIdsToRemoveFromSelect =
+    compact(
+      userApproverGroupHeaders
+        ?.find(x => x?.id === approverGroupHeaderIdSelected)
+        ?.approverGroups.map(p => p?.locationId)
+    ) ?? [];
 
   const onAddApproverGroupMembership = async (
     member: ApproverGroupAddMemberInput
@@ -135,19 +117,24 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
         member: member,
       },
     });
-    await getUserApproverGroupHeaders.refetch();
-    return result;
+    if (result.data) {
+      await getUserApproverGroupHeaders.refetch();
+      return true;
+    }
+    return false;
   };
 
   const onRemoveApproverGroupMembership = async (
     member: ApproverGroupRemoveMemberInput
   ) => {
-    await removeApproverGroupMember({
+    const result = await removeApproverGroupMember({
       variables: {
         member: member,
       },
     });
-    await getUserApproverGroupHeaders.refetch();
+    if (result.data) {
+      await getUserApproverGroupHeaders.refetch();
+    }
   };
 
   const onAddApproverGroupLocation = async (
@@ -163,41 +150,80 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
       ?.id as string;
   };
 
-  const locationAction = async () => {
-    let approverGroupIdToAdd = selectedApproverGroupHeader?.approverGroups.find(
-      x => selectedLocation === x?.location?.id
-    )?.id;
+  const doAdd = async (approverGroupHeaderId: string, locationId?: string) => {
+    const approverGroupHeader = approverGroupHeaders.find(
+      x => x.id === approverGroupHeaderId
+    );
+    if (!approverGroupHeader) return false;
 
-    if (approverGroupIdToAdd === undefined && selectedLocation) {
+    if (!approverGroupHeader.variesByLocation) {
+      const result = await onAddApproverGroupMembership({
+        orgId: props.orgId,
+        orgUserId: props.orgUserId,
+        approverGroupId: approverGroupHeader.approverGroups[0]!.id,
+      });
+      return result;
+    }
+
+    let approverGroupIdToAdd = approverGroupHeader.approverGroups.find(
+      x => x?.locationId === locationId
+    )?.id;
+    if (approverGroupIdToAdd === undefined && locationId) {
       approverGroupIdToAdd = await onAddApproverGroupLocation({
-        approverGroupHeaderId:
-          (selectedApproverGroupHeader && selectedApproverGroupHeader.id) ?? "",
-        locationId: selectedLocation,
+        approverGroupHeaderId: approverGroupHeaderId,
+        locationId: locationId,
         orgId: props.orgId,
       });
     }
 
-    return (
-      approverGroupIdToAdd &&
-      (await onAddApproverGroupMembership({
+    if (approverGroupIdToAdd) {
+      const result = await onAddApproverGroupMembership({
         approverGroupId: approverGroupIdToAdd,
         orgId: props.orgId,
         orgUserId: props.orgUserId,
-      }))
-    );
+      });
+      return result;
+    }
+    return false;
   };
 
   return (
     <Formik
       initialValues={{
         approverGroupHeaderId: undefined,
-        locationIds: selectedLocation ?? "",
+        locationId: undefined,
       }}
-      onSubmit={async (data, e) => {
+      onSubmit={async (data, formProps) => {
+        if (data.approverGroupHeaderId) {
+          const result = await doAdd(
+            data.approverGroupHeaderId ?? "",
+            data.locationId
+          );
+          if (result) {
+            if (data.locationId) {
+              formProps.setFieldValue("locationId", undefined);
+            } else {
+              setApproverGroupHeaderIdSelected(undefined);
+              formProps.setFieldValue("approverGroupHeaderId", undefined);
+            }
+          }
+        }
+      }}
+      onReset={(values, formProps) => {
+        setApproverGroupHeaderIdSelected(undefined);
+        formProps.setFieldValue("approverGroupHeaderId", undefined);
+        formProps.setFieldValue("locationId", undefined);
         props.onCancel();
       }}
     >
-      {({ values, handleSubmit, setFieldValue, errors }) => (
+      {({
+        values,
+        handleSubmit,
+        submitForm,
+        setFieldValue,
+        errors,
+        handleReset,
+      }) => (
         <form onSubmit={handleSubmit}>
           <Section>
             <SectionHeader
@@ -216,174 +242,141 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                 text: t("Done"),
                 visible: editingThis,
                 execute: () => {
-                  props.onCancel();
+                  handleReset();
                 },
               }}
             />
             <Grid container spacing={2}>
-              <Grid container item spacing={2} xs={12}>
-                {editingThis && (
-                  <>
+              {editingThis && (
+                <Grid container item spacing={2} xs={12}>
+                  <Grid item xs={4}>
+                    <ApproverGroupSelect
+                      orgId={props.orgId}
+                      selectedApproverGroupHeaderIds={
+                        values.approverGroupHeaderId && [
+                          values.approverGroupHeaderId,
+                        ]
+                      }
+                      multiple={false}
+                      label={t("Add approver groups")}
+                      setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
+                        if (ids) {
+                          setApproverGroupHeaderIdSelected(ids[0]);
+                          setFieldValue("approverGroupHeaderId", ids[0]);
+                        } else {
+                          setApproverGroupHeaderIdSelected(undefined);
+                          setFieldValue("approverGroupHeaderId", undefined);
+                        }
+                      }}
+                      idsToFilterOut={approverGroupHeaderIdsToRemoveFromSelect}
+                    />
+                  </Grid>
+                  {selectedApproverGroupHeader?.variesByLocation && (
                     <Grid item xs={4}>
-                      <InputLabel className={classes.fontBold}>
-                        {t("Add approver groups")}
-                      </InputLabel>
-                      <SelectNew
-                        onChange={e => {
-                          const id = e.value.toString();
-                          setFieldValue("approverGroupHeaderId", id);
-                          setFieldValue("locationIds", "");
-                          setSelectedLocation(undefined);
-                          setApproverGroupHeaderIdSelected(id);
-                        }}
-                        options={approverGroupHeaderOptions}
-                        value={
-                          approverGroupHeaderOptions.find(
-                            e =>
-                              e.value &&
-                              e.value === approverGroupHeaderIdSelected
-                          ) ?? { label: "", value: "" }
+                      <LocationSelect
+                        orgId={props.orgId}
+                        selectedLocationIds={
+                          values.locationId && [values.locationId]
                         }
                         multiple={false}
-                      />
-                    </Grid>
-                    {selectedApproverGroupHeader?.variesByLocation && (
-                      <Grid item xs={4}>
-                        <InputLabel className={classes.fontBold}>
-                          {t("for School")}
-                        </InputLabel>
-                        <SelectNew
-                          onChange={e => {
-                            const id = e.value.toString();
-                            setSelectedLocation(id);
-                            setFieldValue("locationIds", id);
-                          }}
-                          options={locationOptions}
-                          value={
-                            locationOptions.find(
-                              e => e.value && e.value === selectedLocation
-                            ) ?? { label: "", value: "" }
-                          }
-                          multiple={false}
-                        />
-                      </Grid>
-                    )}
-                    {selectedLocation && (
-                      <TextButton
-                        className={clsx(classes.addLink, classes.displayInline)}
-                        onClick={async () => {
-                          const result = await locationAction();
-                          if (result) {
-                            setFieldValue("locationIds", "");
-                            setSelectedLocation(undefined);
+                        label={t("for School")}
+                        includeAllOption={false}
+                        setSelectedLocationIds={(ids?: string[]) => {
+                          if (ids) {
+                            setFieldValue("locationId", ids[0]);
+                          } else {
+                            setFieldValue("locationId", undefined);
                           }
                         }}
+                        idsToRemoveFromOptions={locationIdsToRemoveFromSelect}
+                      />
+                    </Grid>
+                  )}
+                  {values.approverGroupHeaderId &&
+                    (!selectedApproverGroupHeader?.variesByLocation ||
+                      values.locationId) && (
+                      <TextButton
+                        className={clsx(classes.addLink, classes.displayInline)}
+                        onClick={submitForm}
                       >
                         {t("Add")}
                       </TextButton>
                     )}
-                    {selectedApproverGroupHeader &&
-                      !selectedApproverGroupHeader?.variesByLocation && (
-                        <TextButton
-                          className={clsx(
-                            classes.addLink,
-                            classes.displayInline
-                          )}
-                          onClick={async () => {
-                            const result = await onAddApproverGroupMembership({
-                              approverGroupId:
-                                (selectedApproverGroupHeader &&
-                                  selectedApproverGroupHeader.approverGroups[0]!
-                                    .id) ??
-                                "",
-                              orgUserId: props.orgUserId,
-                              orgId: props.orgId,
-                            });
-
-                            if (result)
-                              setFieldValue("approverGroupHeaderId", "");
-                          }}
-                        >
-                          {t("Add")}
-                        </TextButton>
-                      )}
-                  </>
-                )}
-                <Grid container item spacing={2} xs={12}>
-                  {userApproverGroupHeaders?.length === 0 ? (
-                    <Grid item xs={12}>
-                      {t("User is not in any approver groups")}
-                    </Grid>
-                  ) : (
-                    <Grid item xs={12}>
-                      {userApproverGroupHeaders &&
-                        userApproverGroupHeaders?.map((n: any, i: number) =>
-                          n?.variesByLocation ? (
-                            <div key={i} className={classes.displayInline}>
-                              {t(`${n?.name}`)}
-                              {n?.approverGroups &&
-                                n?.approverGroups.map((x: any, j: number) => (
-                                  <div
-                                    key={j + 1000}
-                                    className={clsx(
-                                      classes.indent,
-                                      classes.displayInline
-                                    )}
-                                  >
-                                    {x.location.name}
-                                    {editingThis && (
-                                      <TextButton
-                                        className={clsx(
-                                          classes.removeLink,
-                                          classes.displayInline
-                                        )}
-                                        onClick={async () => {
-                                          const result = await onRemoveApproverGroupMembership(
-                                            {
-                                              approverGroupId: x.id,
-                                              orgUserId: props.orgUserId,
-                                            }
-                                          );
-                                        }}
-                                      >
-                                        {t("Remove")}
-                                      </TextButton>
-                                    )}
-                                  </div>
-                                ))}
-                            </div>
-                          ) : (
-                            <div key={i} className={classes.displayInline}>
-                              {t(`${n?.name}`)}{" "}
-                              {n?.approvalWorkflows &&
-                                t(
-                                  `(${n?.approvalWorkflows.length} workflows)`
-                                )}{" "}
-                              {editingThis && (
-                                <TextButton
+                </Grid>
+              )}
+              <Grid container item spacing={2} xs={12}>
+                {userApproverGroupHeaders?.length === 0 ? (
+                  <Grid item xs={12}>
+                    {t("User is not in any approver groups")}
+                  </Grid>
+                ) : (
+                  <Grid item xs={12}>
+                    {userApproverGroupHeaders &&
+                      userApproverGroupHeaders?.map((n: any, i: number) =>
+                        n?.variesByLocation ? (
+                          <div key={i} className={classes.displayInline}>
+                            {t(`${n?.name}`)}
+                            {n?.approverGroups &&
+                              n?.approverGroups.map((x: any, j: number) => (
+                                <div
+                                  key={j + 1000}
                                   className={clsx(
-                                    classes.removeLink,
+                                    classes.indent,
                                     classes.displayInline
                                   )}
-                                  onClick={async () => {
-                                    const result = await onRemoveApproverGroupMembership(
-                                      {
-                                        approverGroupId:
-                                          n?.approverGroups[0].id,
-                                        orgUserId: props.orgUserId,
-                                      }
-                                    );
-                                  }}
                                 >
-                                  {t("Remove")}
-                                </TextButton>
-                              )}
-                            </div>
-                          )
-                        )}
-                    </Grid>
-                  )}
-                </Grid>
+                                  {x.location.name}
+                                  {editingThis && (
+                                    <TextButton
+                                      className={clsx(
+                                        classes.removeLink,
+                                        classes.displayInline
+                                      )}
+                                      onClick={async () => {
+                                        const result = await onRemoveApproverGroupMembership(
+                                          {
+                                            approverGroupId: x.id,
+                                            orgUserId: props.orgUserId,
+                                          }
+                                        );
+                                      }}
+                                    >
+                                      {t("Remove")}
+                                    </TextButton>
+                                  )}
+                                </div>
+                              ))}
+                          </div>
+                        ) : (
+                          <div key={i} className={classes.displayInline}>
+                            {t(`${n?.name}`)}{" "}
+                            {n?.approvalWorkflows &&
+                              t(
+                                `(${n?.approvalWorkflows.length} workflows)`
+                              )}{" "}
+                            {editingThis && (
+                              <TextButton
+                                className={clsx(
+                                  classes.removeLink,
+                                  classes.displayInline
+                                )}
+                                onClick={async () => {
+                                  const result = await onRemoveApproverGroupMembership(
+                                    {
+                                      approverGroupId: n?.approverGroups[0].id,
+                                      orgUserId: props.orgUserId,
+                                    }
+                                  );
+                                }}
+                              >
+                                {t("Remove")}
+                              </TextButton>
+                            )}
+                          </div>
+                        )
+                      )}
+                  </Grid>
+                )}
               </Grid>
             </Grid>
           </Section>

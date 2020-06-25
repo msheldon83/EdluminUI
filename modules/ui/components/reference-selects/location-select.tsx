@@ -11,6 +11,7 @@ type Props = {
   includeAllOption?: boolean;
   label?: string;
   multiple?: boolean;
+  idsToRemoveFromOptions?: string[];
 };
 
 export const LocationSelect: React.FC<Props> = props => {
@@ -31,6 +32,12 @@ export const LocationSelect: React.FC<Props> = props => {
       a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
     );
     locationOptions.unshift({ label: t("(All)"), value: "0" });
+  }
+
+  if (props.idsToRemoveFromOptions) {
+    locationOptions = locationOptions.filter(
+      x => !props.idsToRemoveFromOptions?.includes(x.value)
+    );
   }
 
   const selectedLocations = locationOptions.filter(

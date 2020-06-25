@@ -6542,8 +6542,7 @@ type VacancyQueries {
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
   vacanciesForApprovalContext(orgId: ID!, locationIds: [ID], vacancyReasonIds: [ID], absenceReasonIds: [ID], fromDate: Date, toDate: Date): [Vacancy]
   approvalInbox(orgId: ID!, limit: Int, offset: Int, getPastDecisions: Boolean): PagedAbsVacApprovalInboxQueryResult
-  vacanciesNeedingApproval(orgId: ID!): [Vacancy]
-  pastApprovalDecisions(orgId: ID!, limit: Int, offset: Int): PagedVacancy
+  countOfAbsVacNeedingApproval(orgId: ID!): Int
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
   subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
   vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]

@@ -8,6 +8,7 @@ query GetApproverGroupsByUser($orgId: ID!, $orgUserId: ID!) {
         id
         name
         approverGroupHeaderId
+        locationId
         location {
           id
           name
