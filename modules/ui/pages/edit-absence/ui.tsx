@@ -75,7 +75,10 @@ import { ApprovalState } from "ui/components/absence-vacancy/approval-state/stat
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import { Can } from "ui/components/auth/can";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
-import { mapAccountingCodeValueToVacancyDetailAccountingCodeInput, mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence-vacancy/helpers";
+import {
+  mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
+  mapAccountingCodeAllocationsToAccountingCodeValue,
+} from "ui/components/absence-vacancy/helpers";
 
 type Props = {
   firstName: string;
