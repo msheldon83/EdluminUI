@@ -231,14 +231,7 @@ export const Assignment: React.FC<Props> = props => {
     t,
   ]);
 
-  const getVacancyNotes = useQueryBundle(GetVacancyNotes, {
-    variables: {
-      vacancyId: vacancyDetail.vacancy?.id,
-    },
-    skip: !!vacancyDetail.vacancy?.absence,
-  });
-
-  const notesToAdministrator = !vacancyDetail.vacancy?.isNormalVacancy
+  const notesToAdministrator = vacancyDetail.vacancy?.isNormalVacancy
     ? vacancyDetail.vacancy?.absence?.notesToApprover
     : undefined;
 
@@ -468,7 +461,7 @@ export const Assignment: React.FC<Props> = props => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item container alignItems="flex-end" spacing={1}>
+                <Grid item container alignItems="flex-end">
                   <Grid item xs={4}>
                     {isActiveCard ? (
                       <>

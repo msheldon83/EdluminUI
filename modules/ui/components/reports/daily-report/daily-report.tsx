@@ -107,26 +107,6 @@ export const DailyReport: React.FC<Props> = props => {
     }
   }, [props.selectedCard]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Prevent future movement when on the Awaiting Verification card
-  // with some explanation to the user as to why they can't go forward in time
-  useEffect(() => {
-    if (selectedCard === "awaitingVerification" && isFuture(props.date)) {
-      openSnackbar({
-        message: (
-          <div>
-            {t(
-              "Future dates cannot be verified. We switched your view back to today."
-            )}
-          </div>
-        ),
-        dismissable: true,
-        autoHideDuration: 5000,
-        status: "info",
-      });
-      props.setDate(startOfToday());
-    }
-  }, [selectedCard, props.date]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const serverQueryFilters = useMemo(() => filters, [filters]);
   const getDailyReport = useQueryBundle(GetDailyReportV2, {
     variables: {
@@ -361,13 +341,17 @@ export const DailyReport: React.FC<Props> = props => {
                       countOverride={countOverride}
                       totalOverride={totalOverride}
                       onClick={(c: CardType) => {
-                        setSelectedCard(c === "total" ? undefined : c);
+                        history.push({
+                          pathname: VerifyOverviewRoute.generate(
+                            verifyOverviewRouteParams
+                          ),
+                        });
                       }}
                       activeCard={selectedCard}
                       showPercentInLabel={c !== "awaitingVerification"}
                       showFractionCount={false}
                     />
-                  </Grid>
+                  </Grid>{" "}
                 </Can>
               ) : (
                 <Grid item key={i} xs={isMobile ? 6 : undefined}>
@@ -401,9 +385,8 @@ export const DailyReport: React.FC<Props> = props => {
           props.date,
           props.setDate,
           () => {
-            const url = VerifyOverviewRoute.generate(verifyOverviewRouteParams);
-            history.push(url, {
-              selectedDateTab: "older",
+            history.push({
+              pathname: VerifyOverviewRoute.generate(verifyOverviewRouteParams),
             });
           },
           props.orgId,
@@ -597,9 +580,6 @@ const displaySections = (
     case "noSubRequired":
       selectedCardDisplayText = t("Showing only No sub required absences.");
       break;
-    case "awaitingVerification":
-      selectedCardDisplayText = t("Showing only Awaiting verification.");
-      break;
   }
 
   // Build a display section for each group
@@ -635,19 +615,7 @@ const displaySections = (
           </Grid>
         </DesktopOnly>
       </Grid>
-      {selectedCard === "awaitingVerification" ? (
-        <div className={classes.verifyContainer}>
-          <VerifyOverviewUI
-            showVerified={false}
-            locationsFilter={[]}
-            showLinkToVerify={true}
-            date={date}
-            setDate={setDate}
-            olderAction={verifyOlderAction}
-            onUpdateCount={updateVerificationCount}
-          />
-        </div>
-      ) : (
+      {
         <div className={classes.groupedDetailsContainer}>
           {groupedDetails.map((g, i) => {
             const hasNoDetails = !(g.details && g.details.length);
@@ -669,7 +637,7 @@ const displaySections = (
             );
           })}
         </div>
-      )}
+      }
     </div>
   );
 };
