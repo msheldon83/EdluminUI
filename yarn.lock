@@ -13151,9 +13151,9 @@ react-color@^2.17.0:
     reactcss "^1.2.0"
     tinycolor2 "^1.4.1"
 
-"react-confetti@https://github.com/cwstra/react-confetti.git#temp-source-additions":
-  version "2.4.1"
-  resolved "https://github.com/cwstra/react-confetti.git#6ab1aaf0ecde5ac77a6c32b07da00016d08f9c1e"
+"react-confetti@https://github.com/cwstra/react-confetti#temp-source-additions":
+  version "5.1.0"
+  resolved "https://github.com/cwstra/react-confetti#319c48845b0bee198a57448d7ca357a63d47d8e9"
   dependencies:
     tween-functions "^1.2.0"
 
