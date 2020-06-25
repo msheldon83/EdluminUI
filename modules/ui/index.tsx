@@ -16,7 +16,14 @@ import {
   AbsenceVacancyRulesLoader,
   AbsenceVacancyRulesRoute,
 } from "./routes/absence-vacancy/rules";
-import { VerifyLoader, VerifyRoute } from "./routes/absence-vacancy/verify";
+import {
+  VerifyLoader,
+  VerifyRoute,
+  VerifyOverviewLoader,
+  VerifyOverviewRoute,
+  VerifyDailyLoader,
+  VerifyDailyRoute,
+} from "./routes/absence-vacancy/verify";
 import {
   AbsenceReasonLoader,
   AbsenceReasonRoute,
@@ -1048,6 +1055,22 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[
                                         PermissionEnum.ScheduleSettingsView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VerifyOverviewLoader}
+                                      path={VerifyOverviewRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacVerify,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={VerifyDailyLoader}
+                                      path={VerifyDailyRoute.path}
+                                      role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.AbsVacVerify,
                                       ]}
                                     />
                                     <ProtectedRoute

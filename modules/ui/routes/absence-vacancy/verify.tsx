@@ -14,3 +14,25 @@ export const VerifyLoader = asyncComponent({
   },
   name: "Verify",
 });
+
+export const VerifyOverviewRoute = defineSubRoute(VerifyRoute, "/overview");
+
+export const VerifyOverviewLoader = asyncComponent({
+  resolve: async () => {
+    const VerifyOverviewPage = (await import("ui/pages/verify/overview"))
+      .VerifyOverviewPage;
+    return VerifyOverviewPage;
+  },
+  name: "VerifyOverview",
+});
+
+export const VerifyDailyRoute = defineSubRoute(VerifyRoute, "/daily");
+
+export const VerifyDailyLoader = asyncComponent({
+  resolve: async () => {
+    const VerifyDailyPage = (await import("ui/pages/verify/daily"))
+      .VerifyDailyPage;
+    return VerifyDailyPage;
+  },
+  name: "VerifyDaily",
+});

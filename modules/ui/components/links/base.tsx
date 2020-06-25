@@ -28,8 +28,8 @@ type Props = {
   permissions?: CanDo;
   to: {
     pathname: string;
-    hash: string;
-    search: string;
+    hash?: string;
+    search?: string;
     state?: any;
   };
 } & LinkOptions;

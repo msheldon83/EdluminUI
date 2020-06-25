@@ -16,6 +16,7 @@ query GetVacancyDetails(
       shadowFromOrgId: $shadowFromOrgId
     ) {
       id
+      vacancyId
       orgId
       startDate
       startTimeLocal
@@ -93,6 +94,8 @@ query GetVacancyDetails(
               }
             }
           }
+          adminOnlyNotes
+          notesToApprover
         }
         payInfoSummary {
           summaryLabel

@@ -1,0 +1,7 @@
+query GetVacancyNotes($vacancyId: ID!) {
+  vacancy {
+    byId(id: $vacancyId) {
+      adminOnlyNotes
+    }
+  }
+}

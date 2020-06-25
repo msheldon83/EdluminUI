@@ -1,0 +1,19 @@
+query GetJointAssignmentCount(
+  $orgId: ID!
+  $locationIds: [ID]
+  $fromDate: Date
+  $toDate: Date
+) {
+  vacancy {
+    getJointCountOfAssignmentsForVerify(
+      orgId: $orgId
+      locationIds: $locationIds
+      fromDate: $fromDate
+      toDate: $toDate
+    ) {
+      date
+      unverifiedCount
+      totalCount
+    }
+  }
+}

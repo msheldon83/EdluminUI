@@ -20,7 +20,7 @@ type Props = {
   setSubSourceFilter: React.Dispatch<React.SetStateAction<string>>;
 };
 
-export const Filters: React.FC<Props> = props => {
+export const DailyFilters: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
