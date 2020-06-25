@@ -163,12 +163,11 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     });
   };
 
-  const mainDropdownOptions = ([
-    {
-      label: t("Multiple allocations"),
-      value: "multiple-allocations",
-    },
-  ] as OptionType[]).concat(options);
+  const multipleAllocationsOptionType: OptionType = {
+    label: t("Multiple allocations"),
+    value: "multiple-allocations",
+  };
+  const mainDropdownOptions = [multipleAllocationsOptionType].concat(options);
 
   const renderMultiCodeRow = memoize((allocation: Allocation) => {
     return (
@@ -212,7 +211,11 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
   return (
     <div className={classes.container}>
       <Select
-        value={value?.selection}
+        value={
+          value?.type === "multiple-allocations"
+            ? multipleAllocationsOptionType
+            : value?.selection
+        }
         label={showLabel ? t("Accounting code") : undefined}
         placeholder={t("Select code")}
         options={mainDropdownOptions}
