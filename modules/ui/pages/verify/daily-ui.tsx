@@ -31,6 +31,8 @@ type Props = {
   onVerify: (verifyInput: VacancyDetailVerifyInput) => Promise<void>;
   orgId: string;
   showVerified: boolean;
+  width?: number;
+  height?: number;
 };
 
 export const VerifyDailyUI: React.FC<Props> = ({
@@ -39,6 +41,8 @@ export const VerifyDailyUI: React.FC<Props> = ({
   onVerify,
   orgId,
   showVerified,
+  width,
+  height,
 }) => {
   const { t } = useTranslation();
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
@@ -106,7 +110,7 @@ export const VerifyDailyUI: React.FC<Props> = ({
         totalAssignments={assignments.length}
       />
       {unverified.length == 0 && (
-        <PartyPopper>
+        <PartyPopper width={width} height={height}>
           <VerifiedDailyFooter orgId={orgId} />
         </PartyPopper>
       )}

@@ -20,6 +20,7 @@ import {
   VerifyDailyRoute,
 } from "ui/routes/absence-vacancy/verify";
 import { FilterQueryParams } from "./components/filters/filter-params";
+import { useScrollDimensions } from "hooks/use-scroll-dimensions";
 import { PartyPopper } from "./components/party-popper";
 
 export const VerifyOverviewPage: React.FC<{}> = props => {
@@ -29,6 +30,7 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
   const history = useHistory();
   const location = useLocation();
   const { getPresetByDates } = usePresetDateRanges();
+  const [ref, { scrollWidth, scrollHeight }] = useScrollDimensions();
 
   const getJointAssignmentCounts = useQueryBundle(GetJointAssignmentCount, {
     variables: {
@@ -68,7 +70,7 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
     `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
 
   return (
-    <>
+    <div ref={ref}>
       <Typography variant="h5">{t("Verify substitute assignments")}</Typography>
       <PageTitle
         title={getDateTitle(filters.dateRangeStart, filters.dateRangeEnd)}
@@ -80,7 +82,9 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           setFilters={updateFilters}
         />
         {allVerified && (
-          <PartyPopper>{t("Hooray! Your job is done here!")}</PartyPopper>
+          <PartyPopper width={scrollWidth} height={scrollHeight}>
+            {t("Hooray! Your job is done here!")}
+          </PartyPopper>
         )}
         {dates == "LOADING" ? (
           <Typography>{t("Loading...")}</Typography>
@@ -98,6 +102,6 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           />
         )}
       </Section>
-    </>
+    </div>
   );
 };

@@ -9,9 +9,12 @@ const PartyPopperIcon: typeof Icon = props => (
   </Icon>
 );
 
-type Props = {};
+type Props = {
+  width?: number;
+  height?: number;
+};
 
-export const PartyPopper: React.FC<Props> = ({ children }) => {
+export const PartyPopper: React.FC<Props> = ({ width, height, children }) => {
   const classes = useStyles();
   const [ref, { x, y, width: w, height: h }] = useDimensions();
   // We want to generate points along a line,
@@ -41,6 +44,8 @@ export const PartyPopper: React.FC<Props> = ({ children }) => {
             confettiSource={{ getPoint: getLinePoint }}
             initialVelocityX={{ min: 1, max: 10 }}
             style={{ zIndex: 202 }}
+            width={Math.max(width ?? 0, window.innerWidth)}
+            height={Math.max(height ?? 0, window.innerHeight)}
           />
         )}
         <div ref={ref}>

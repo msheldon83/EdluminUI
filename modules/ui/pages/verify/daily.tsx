@@ -1,11 +1,19 @@
 import * as React from "react";
+import { useScrollDimensions } from "hooks/use-scroll-dimensions";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetVacancyDetails } from "./graphql/get-vacancydetails.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useTranslation } from "react-i18next";
-import { Button, Divider, Typography } from "@material-ui/core";
+import {
+  Button,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Grid,
+  Typography,
+} from "@material-ui/core";
 import { VerifyDailyRoute } from "ui/routes/absence-vacancy/verify";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
@@ -27,6 +35,10 @@ export const VerifyDailyPage: React.FC<{}> = props => {
   const [verifiedId, setVerifiedId] = React.useState<string | null | undefined>(
     null
   );
+  const [
+    ref,
+    { scrollWidth: width, scrollHeight: height },
+  ] = useScrollDimensions();
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {
     variables: {
       orgId: params.organizationId,
@@ -89,6 +101,13 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     }
   };
 
+  const [verifyAllEnabled, setVerifyAllEnabled] = React.useState(false);
+  const handleVerifyAllEnable = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setVerifyAllEnabled(event.target.checked);
+  };
+
   const [verifyAllMutation] = useMutationBundle(VerifyAll, {
     refetchQueries: ["GetVacancyDetails"],
   });
@@ -113,7 +132,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     payDurationOverride: assignment.payDurationOverride,
     dayPortion: assignment.dayPortion,
     accountingCodeAllocations: assignment.accountingCodeAllocations.map(a => ({
-      accountingCodeId: a.id,
+      accountingCodeId: a.accountingCodeId,
       allocation: a.allocation,
     })),
     payTypeId: assignment.payInfo?.payTypeId,
@@ -121,7 +140,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
   });
 
   return (
-    <>
+    <div ref={ref}>
       <Typography variant="h5">{t("Verify substitute assignments")}</Typography>
       <PageTitle title={format(new Date(filters.date), "EEE, MMM d")} />
       <Section>
@@ -134,24 +153,43 @@ export const VerifyDailyPage: React.FC<{}> = props => {
         {assignments == "LOADING" ? (
           <Typography>{t("Loading...")}</Typography>
         ) : (
-          <VerifyDailyUI
-            date={filters.date}
-            orgId={params.organizationId}
-            assignments={assignments}
-            showVerified={filters.showVerified}
-            onVerify={onVerify}
-          />
+          <>
+            <VerifyDailyUI
+              date={filters.date}
+              orgId={params.organizationId}
+              assignments={assignments}
+              showVerified={filters.showVerified}
+              onVerify={onVerify}
+              height={height}
+              width={width}
+            />
+            {assignments.find(a => !a.verifiedAtLocal) != undefined && (
+              <Grid container direction="row" justify="flex-end">
+                <FormControlLabel
+                  label={`${t(
+                    "I attest that I have verify the details of all "
+                  )}${assignments.length}${t(" assignments above")}`}
+                  control={
+                    <Checkbox
+                      checked={verifyAllEnabled}
+                      onChange={handleVerifyAllEnable}
+                    />
+                  }
+                />
+                <Button
+                  disabled={!verifyAllEnabled}
+                  variant="outlined"
+                  onClick={async () => {
+                    await verifyAll(assignments);
+                  }}
+                >
+                  {t("Verify All")}
+                </Button>
+              </Grid>
+            )}
+          </>
         )}
-        <Button
-          onClick={async () => {
-            if (assignments != "LOADING") {
-              await verifyAll(assignments);
-            }
-          }}
-        >
-          {t("Verify All")}
-        </Button>
       </Section>
-    </>
+    </div>
   );
 };
