@@ -1,0 +1,5 @@
+query GetCountOfAbsVacNeedingApproval($orgId: ID!) {
+  vacancy {
+    countOfAbsVacNeedingApproval(orgId: $orgId)
+  }
+}
