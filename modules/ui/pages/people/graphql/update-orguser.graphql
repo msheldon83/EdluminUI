@@ -6,6 +6,7 @@ mutation UpdateOrgUser($orgUser: OrgUserUpdateInput!) {
       active
       firstName
       middleName
+      secondaryIdentifier
       lastName
       externalId
     }

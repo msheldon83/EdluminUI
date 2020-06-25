@@ -20,13 +20,14 @@ import { OptionType } from "ui/components/form/select-new";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
-import { OrganizationType } from "graphql/server-types.gen";
+import { OrganizationType, FeatureFlag } from "graphql/server-types.gen";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
 import { DeleteDialog } from "ui/pages/people/components/delete-dialog";
 
 const editableSections = {
   name: "edit-name",
   externalId: "edit-external-id",
+  secondaryIdentifier: "secondary-identifier",
 };
 
 type Props = {
@@ -41,6 +42,7 @@ type Props = {
     lastName: string;
     rowVersion: string;
     externalId?: string | null | undefined;
+    secondaryIdentifier?: string | null | undefined;
     inviteSent: boolean;
     isAccountSetup: boolean;
     isAdmin: boolean;
@@ -51,6 +53,7 @@ type Props = {
     shadowFromOrgId?: string | null;
   };
   orgStatus?: OrganizationType | null | undefined;
+  orgFeatureFlags?: Maybe<FeatureFlag>[] | null | undefined;
   selectedRole?: OrgUserRole | null;
   orgId: string;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
@@ -78,6 +81,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const canSeeSecondaryIdentifier = props.orgFeatureFlags?.includes(
+    FeatureFlag.SecondaryIdentifier
+  );
 
   const orgStatus = props.orgStatus;
   const invite = React.useCallback(async () => {
@@ -366,6 +373,33 @@ export const PersonViewHeader: React.FC<Props> = props => {
           isShadow={orgUser.isShadowRecord}
         />
       </PageHeader>
+      {canSeeSecondaryIdentifier && (
+        <PageHeader
+          text={orgUser.secondaryIdentifier}
+          label={t("Secondary Identifier")}
+          editable={editable}
+          onEdit={() => props.setEditing(editableSections.secondaryIdentifier)}
+          editPermissions={canEditThisOrgUser}
+          validationSchema={yup.object().shape({
+            value: yup.string().nullable(),
+          })}
+          onSubmit={async (value: Maybe<string>) => {
+            await props.onSaveOrgUser({
+              rowVersion: orgUser.rowVersion,
+              id: orgUser.id,
+              secondaryIdentifier: value,
+            });
+          }}
+          onCancel={() => props.setEditing(null)}
+          isSubHeader={true}
+          showLabel={true}
+        >
+          <ShadowIndicator
+            orgName={orgUser.shadowFromOrgName}
+            isShadow={orgUser.isShadowRecord}
+          />
+        </PageHeader>
+      )}
     </>
   );
 };

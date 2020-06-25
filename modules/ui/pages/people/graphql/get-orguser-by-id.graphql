@@ -4,6 +4,7 @@ query GetOrgUserById($id: ID!) {
       id
       createdUtc
       externalId
+      secondaryIdentifier
       userId
       rowVersion
       orgId
