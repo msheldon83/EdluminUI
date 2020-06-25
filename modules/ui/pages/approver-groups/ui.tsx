@@ -58,26 +58,20 @@ export const ApproverGroupsUI: React.FC<{}> = props => {
       searchable: false,
       hidden: isMobile,
       render: data => {
-        return data.variesByLocation ? (
-          data.allLocationsHaveGroup ? (
-            <>
-              <div>{t("Varies by school")}</div>
-            </>
-          ) : (
-            <>
-              <div className={classes.warning}>
-                {t("Varies by school")}
-                <Tooltip
-                  title={t(
-                    "There are no approvers defined for this group. " +
-                      "Any workflow step referring to an empty approver group will be skipped."
-                  )}
-                >
-                  <ErrorIcon className={classes.icon} />
-                </Tooltip>
-              </div>
-            </>
-          )
+        return data.memberCount === 0 ? (
+          <div className={classes.warning}>
+            {data.variesByLocation ? t("Varies by school") : data.memberCount}
+            <Tooltip
+              title={t(
+                "There are no approvers defined for this group. " +
+                  "Any workflow step referring to an empty approver group will be skipped."
+              )}
+            >
+              <ErrorIcon className={classes.icon} />
+            </Tooltip>
+          </div>
+        ) : data.variesByLocation ? (
+          <div>{t("Varies by school")}</div>
         ) : (
           <div>{data.memberCount}</div>
         );
