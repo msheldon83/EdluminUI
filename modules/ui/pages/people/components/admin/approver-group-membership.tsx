@@ -297,10 +297,9 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
                     (!selectedApproverGroupHeader?.variesByLocation ||
                       values.locationId) && (
                       <ButtonDisableOnClick
-                        variant="outlined"
+                        variant="text"
                         onClick={submitForm}
                         className={clsx(classes.addLink, classes.displayInline)}
-                        //disabled={false}
                       >
                         {t("Add")}
                       </ButtonDisableOnClick>
@@ -400,10 +399,18 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.darkRed,
   },
   addLink: {
+    textDecoration: "underline",
     color: theme.customColors.blue,
     maxHeight: "41px",
+    fontWeight: "normal",
+    fontSize: theme.typography.pxToRem(14),
+    letterSpacing: theme.typography.pxToRem(0.5),
     marginTop: "32px",
     marginLeft: theme.spacing(1),
+    "&:hover": {
+      backgroundColor: "inherit",
+      textDecoration: "underline",
+    },
   },
   indent: {
     marginLeft: theme.spacing(2),
