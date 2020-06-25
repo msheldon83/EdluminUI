@@ -34,6 +34,7 @@ import { useLocation } from "react-router";
 import { AppConfig } from "hooks/app-config";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { ContractScheduleWarning } from "ui/components/contract-schedule/contract-schedule-warning";
+import { ApprovalCountBanner } from "ui/components/absence-vacancy/approval-state/admin-count-banner";
 
 type Props = {};
 
@@ -121,6 +122,7 @@ export const AdminHome: React.FC<Props> = props => {
       <Can do={[PermissionEnum.FinanceSettingsSave]}>
         <ContractScheduleWarning orgId={params.organizationId} />
       </Can>
+      <ApprovalCountBanner orgId={params.organizationId} />
       <Can do={[PermissionEnum.AbsVacVerify]}>
         <DailyReport
           orgId={params.organizationId}
