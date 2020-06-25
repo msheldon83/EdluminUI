@@ -13,6 +13,7 @@ type Props = {
   className?: string;
   isAdmin: boolean;
   forSpecificAssignment?: boolean;
+  canCancel?: boolean;
 };
 
 export const AssignmentGroupDetail: React.FC<Props> = props => {

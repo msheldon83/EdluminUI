@@ -5,6 +5,7 @@ query GetOrgConfigStatus($orgId: ID!) {
       config {
         id
         organizationTypeId
+        featureFlags
       }
     }
   }
