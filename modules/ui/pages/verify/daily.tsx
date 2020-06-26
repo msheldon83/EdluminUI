@@ -46,7 +46,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       locationIds: filters.locationIds,
       fromDate: filters.date,
       toDate: filters.date,
-      //shadowFromOrgId: filters.subSource,
+      shadowFromOrgId: filters.subSource ? filters.subSource : undefined,
     },
   });
 
@@ -167,7 +167,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
               <Grid container direction="row" justify="flex-end">
                 <FormControlLabel
                   label={`${t(
-                    "I attest that I have verify the details of all "
+                    "I attest that I have verified the details of all "
                   )}${assignments.length}${t(" assignments above")}`}
                   control={
                     <Checkbox

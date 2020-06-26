@@ -108,7 +108,9 @@ query GetVacancyDetails(
             payTypeId
           }
         }
+        isNormalVacancy
         notesToReplacement
+        adminOnlyNotes
       }
     }
   }

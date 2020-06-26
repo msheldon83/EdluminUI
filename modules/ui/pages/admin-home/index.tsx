@@ -143,9 +143,7 @@ export const AdminHome: React.FC<Props> = props => {
           header={salutation}
           showFilters={false}
           cards={["unfilled", "total"]}
-          selectedCard={
-            selectedCard === "awaitingVerification" ? "unfilled" : selectedCard
-          }
+          selectedCard={selectedCard}
           isHomePage={true}
         />
       </Can>

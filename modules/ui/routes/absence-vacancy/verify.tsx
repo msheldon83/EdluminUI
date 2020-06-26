@@ -7,14 +7,6 @@ export const VerifyRoute = defineSubRoute(
   "/absence-vacancy/verify"
 );
 
-export const VerifyLoader = asyncComponent({
-  resolve: async () => {
-    const VerifyPage = (await import("ui/pages/verify")).VerifyPage;
-    return VerifyPage;
-  },
-  name: "Verify",
-});
-
 export const VerifyOverviewRoute = defineSubRoute(VerifyRoute, "/overview");
 
 export const VerifyOverviewLoader = asyncComponent({

@@ -260,20 +260,13 @@ export const Assignment: React.FC<Props> = props => {
     t,
   ]);
 
-  const getVacancyNotes = useQueryBundle(GetVacancyNotes, {
-    variables: {
-      vacancyId: vacancyDetail.vacancy?.id,
-    },
-    skip: !!vacancyDetail.vacancy?.absence,
-  });
+  const notesToAdministrator = vacancyDetail.vacancy?.isNormalVacancy
+    ? vacancyDetail.vacancy?.absence?.notesToApprover
+    : undefined;
 
-  const notesToAdministrator = vacancyDetail.vacancy?.absence?.notesToApprover;
-
-  const adminOnlyNotes =
-    vacancyDetail.vacancy?.absence?.adminOnlyNotes ??
-    (getVacancyNotes.state != "LOADING"
-      ? getVacancyNotes.data.vacancy?.byId?.adminOnlyNotes ?? undefined
-      : undefined);
+  const adminOnlyNotes = vacancyDetail.vacancy?.isNormalVacancy
+    ? vacancyDetail.vacancy?.adminOnlyNotes
+    : vacancyDetail.vacancy?.absence?.adminOnlyNotes;
 
   const payCodeLabel = props.payCodeOptions.find(
     x => x.value === currentPayCodeId

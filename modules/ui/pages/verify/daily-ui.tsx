@@ -109,7 +109,7 @@ export const VerifyDailyUI: React.FC<Props> = ({
         verifiedAssignments={assignments.length - unverified.length}
         totalAssignments={assignments.length}
       />
-      {unverified.length == 0 && (
+      {assignments.length > 0 && unverified.length == 0 && (
         <PartyPopper width={width} height={height}>
           <VerifiedDailyFooter orgId={orgId} />
         </PartyPopper>
