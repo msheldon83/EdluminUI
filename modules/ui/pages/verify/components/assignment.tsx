@@ -359,9 +359,9 @@ export const Assignment: React.FC<Props> = props => {
     if (currentAccountingCodeAllocations.length === 1) {
       const accountingCodeId =
         currentAccountingCodeAllocations[0].accountingCodeId;
-      const accountingCodeLabel = accountingCodeOptions.find(
-        o => o.value === accountingCodeId
-      )?.label ?? t("N/A");
+      const accountingCodeLabel =
+        accountingCodeOptions.find(o => o.value === accountingCodeId)?.label ??
+        t("N/A");
       return (
         <div className={classes.lightText}>{`${t(
           "Acct"
@@ -376,9 +376,9 @@ export const Assignment: React.FC<Props> = props => {
         <div>
           {currentAccountingCodeAllocations.map((a, i) => {
             const accountingCodeId = a.accountingCodeId;
-            const accountingCodeLabel = accountingCodeOptions.find(
-              o => o.value === accountingCodeId
-            )?.label ?? t("N/A");
+            const accountingCodeLabel =
+              accountingCodeOptions.find(o => o.value === accountingCodeId)
+                ?.label ?? t("N/A");
             return (
               <div key={i}>
                 {accountingCodeLabel} ({Math.floor(a.allocation * 100)}
@@ -574,7 +574,17 @@ export const Assignment: React.FC<Props> = props => {
                   </Grid>
                 </Grid>
                 <Grid item container alignItems="flex-start" spacing={1}>
-                  <Grid item container xs={4} alignItems="flex-end">
+                  <Grid
+                    item
+                    container
+                    xs={
+                      accountingCodeValueSelection?.type ===
+                        "multiple-allocations" && isActiveCard
+                        ? 6
+                        : 4
+                    }
+                    alignItems="flex-end"
+                  >
                     {isActiveCard ? (
                       <>
                         <Grid
