@@ -904,7 +904,8 @@ const buildAbsenceUpdateInput = (
       accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
         : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-            v.accountingCodeAllocations
+            v.accountingCodeAllocations,
+            true
           ),
     })) || undefined;
 
@@ -951,7 +952,8 @@ const buildAbsenceUpdateInput = (
         accountingCodeAllocations: detailsHaveDifferentAccountingCodeSelections
           ? undefined
           : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-              formValues.accountingCodeAllocations
+              formValues.accountingCodeAllocations,
+              true
             ),
         // When the details have Pay Code selections, we won't send a Pay Code on
         // the Vacancy. When they don't we'll take the single selection in Sub Details

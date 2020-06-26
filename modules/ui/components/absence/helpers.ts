@@ -576,11 +576,13 @@ export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
   }
 
   const allocations = mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-    accountingCodeAllocations
+    accountingCodeAllocations,
+    false
   );
   const details = vacancyDetails.map(vd =>
     mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-      vd.accountingCodeAllocations
+      vd.accountingCodeAllocations,
+      false
     )
   );
   return !accountingCodeAllocationsAreTheSame(allocations, details);

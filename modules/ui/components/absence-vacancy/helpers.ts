@@ -5,7 +5,7 @@ import {
   multipleAllocations,
 } from "../form/accounting-code-dropdown";
 import { VacancyDetailAccountingCodeInput } from "graphql/server-types.gen";
-import { isEqual } from "lodash-es";
+import { isEqual, sum } from "lodash-es";
 
 export const accountingCodeAllocationsAreTheSame = (
   accountingCodeAllocationsToCompare: {
@@ -44,24 +44,28 @@ export const accountingCodeAllocationsAreTheSame = (
 };
 
 export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
-  accountingCodeAllocations: AccountingCodeValue | null | undefined
+  accountingCodeAllocations: AccountingCodeValue | null | undefined,
+  returnEmptyIfInvalid: boolean
 ): VacancyDetailAccountingCodeInput[] => {
   if (!accountingCodeAllocations) {
     return [];
   }
 
+  let allocations: VacancyDetailAccountingCodeInput[] = [];
   switch (accountingCodeAllocations.type) {
     case "no-allocation":
-      return [];
+      allocations = [];
+      break;
     case "single-allocation":
-      return [
+      allocations = [
         {
           accountingCodeId: accountingCodeAllocations.selection?.value?.toString(),
           allocation: 1,
         },
       ];
+      break;
     case "multiple-allocations":
-      return accountingCodeAllocations.allocations
+      allocations = accountingCodeAllocations.allocations
         .filter(a => a.selection?.value && a.percentage)
         .map(a => {
           return {
@@ -69,7 +73,24 @@ export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
             allocation: (a.percentage ?? 0) / 100,
           };
         });
+      break;
   }
+
+  if (returnEmptyIfInvalid) {
+    // Validate the data we would create is valid, otherwise return an empty array
+    if (
+      allocations.filter(a => !a.accountingCodeId || !a.allocation).length > 0
+    ) {
+      return [];
+    }
+
+    if (sum(allocations.map(a => a.allocation)) !== 1) {
+      // Allocations need to add up to 100%
+      return [];
+    }
+  }
+
+  return allocations;
 };
 
 export const mapAccountingCodeAllocationsToAccountingCodeValue = (

@@ -694,7 +694,8 @@ export const buildAbsenceCreateInput = (
       accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
         : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-            v.accountingCodeAllocations
+            v.accountingCodeAllocations,
+            true
           ),
     })) || undefined;
 
@@ -716,7 +717,8 @@ export const buildAbsenceCreateInput = (
           !detailsHaveDifferentAccountingCodeSelections &&
           formValues.accountingCodeAllocations
             ? mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-                formValues.accountingCodeAllocations
+                formValues.accountingCodeAllocations,
+                true
               )
             : undefined,
         payCodeId:
