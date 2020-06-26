@@ -17,21 +17,28 @@ type Props = {
     comingFrom?: string
   ) => React.ReactNode;
   defaultComingFrom: string;
-  defaultReturnUrl: string;
-} & LinkOptions;
+} & (
+  | { defaultReturnUrl: string }
+  | { defaultReturnTo: { pathname: string; hash?: string; search?: string } }
+) &
+  LinkOptions;
 
 export const ReturnLink: React.FC<Props> = ({
   renderLink = defaultRenderLink,
   defaultComingFrom,
-  defaultReturnUrl,
   ...props
 }) => {
   const location = useLocation();
   const { t } = useTranslation();
 
   const comingFrom: string = location.state?.comingFrom ?? defaultComingFrom;
+
   const returnLocation: Location<any> = location.state?.returnLocation ?? {
-    ...pickUrl(location.state?.returnUrl ?? defaultReturnUrl),
+    ...(location.state?.returnUrl
+      ? pickUrl(location.state.returnUrl)
+      : "defaultReturnUrl" in props
+      ? pickUrl(props.defaultReturnUrl)
+      : props.defaultReturnTo),
     state: {},
   };
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTheme } from "@material-ui/styles";
 import useWindowSize from "react-use/lib/useWindowSize";
-import Confetti from "react-confetti";
+import Confetti, { Props as ConfettiProps } from "react-confetti";
 
 const Circle = (radius: number, ctx: CanvasRenderingContext2D) => {
   ctx.beginPath();
@@ -565,21 +565,16 @@ function draw(this: any, ctx: CanvasRenderingContext2D) {
   }
 }
 
-type Props = {
-  numberOfPieces?: number;
-  recycle?: boolean;
-};
+type Props = Exclude<ConfettiProps, "drawShape" | "colors">;
 
 export const RedRoverConfetti: React.FC<Props> = ({
-  numberOfPieces = 200,
   recycle = false,
+  ...props
 }) => {
-  const { width, height } = useWindowSize();
   const theme = useTheme();
+
   return (
     <Confetti
-      width={width}
-      height={height}
       colors={[
         theme.palette.primary.main,
         theme.customColors.yellow5,
@@ -589,8 +584,8 @@ export const RedRoverConfetti: React.FC<Props> = ({
         "#C4C4C4",
       ]}
       drawShape={draw}
-      numberOfPieces={numberOfPieces}
       recycle={recycle}
+      {...props}
     />
   );
 };

@@ -1,0 +1,12 @@
+mutation VerifyAll($verifyAllInput: VacancyDetailVerifyBatchInput!) {
+  vacancy {
+    verifyVacancyDetailBatch(vacancyDetailBatch: $verifyAllInput) {
+      results {
+        id
+        messages {
+          text
+        }
+      }
+    }
+  }
+}

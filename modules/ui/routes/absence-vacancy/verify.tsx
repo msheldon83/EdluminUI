@@ -7,10 +7,24 @@ export const VerifyRoute = defineSubRoute(
   "/absence-vacancy/verify"
 );
 
-export const VerifyLoader = asyncComponent({
+export const VerifyOverviewRoute = defineSubRoute(VerifyRoute, "/overview");
+
+export const VerifyOverviewLoader = asyncComponent({
   resolve: async () => {
-    const VerifyPage = (await import("ui/pages/verify")).VerifyPage;
-    return VerifyPage;
+    const VerifyOverviewPage = (await import("ui/pages/verify/overview"))
+      .VerifyOverviewPage;
+    return VerifyOverviewPage;
   },
-  name: "Verify",
+  name: "VerifyOverview",
+});
+
+export const VerifyDailyRoute = defineSubRoute(VerifyRoute, "/daily");
+
+export const VerifyDailyLoader = asyncComponent({
+  resolve: async () => {
+    const VerifyDailyPage = (await import("ui/pages/verify/daily"))
+      .VerifyDailyPage;
+    return VerifyDailyPage;
+  },
+  name: "VerifyDaily",
 });

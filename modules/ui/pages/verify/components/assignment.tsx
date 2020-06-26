@@ -9,6 +9,7 @@ import {
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
+import { useQueryBundle } from "graphql/hooks";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { parseISO, format } from "date-fns";
 import clsx from "clsx";
@@ -229,6 +230,12 @@ export const Assignment: React.FC<Props> = props => {
     t,
   ]);
 
+  const notesToAdministrator = vacancyDetail.vacancy?.absence?.notesToApprover;
+
+  const adminOnlyNotes = vacancyDetail.vacancy?.isNormalVacancy
+    ? vacancyDetail.vacancy?.adminOnlyNotes
+    : vacancyDetail.vacancy?.absence?.adminOnlyNotes;
+
   const payCodeLabel = props.payCodeOptions.find(
     x => x.value === currentPayCodeId
   )?.label;
@@ -397,8 +404,7 @@ export const Assignment: React.FC<Props> = props => {
                     )
                   }
                 >
-                  {`
-                 #C${vacancyDetail.assignment!.id}`}
+                  {`#C${vacancyDetail.assignment!.id}`}
                 </Link>
               </Grid>
               <Grid item xs={2}>
@@ -430,35 +436,250 @@ export const Assignment: React.FC<Props> = props => {
                   <></>
                 )}
               </Grid>
-              <Grid item xs={2}>
-                <Typography className={classes.regularText}>{`${format(
-                  vacancyDetailStartTime,
-                  "h:mm aaa"
-                )} - ${format(vacancyDetailEndTime, "h:mm aaa")}`}</Typography>
-                {!isActiveCard && (
-                  <Typography className={classes.lightText}>
-                    {t("Pay: " + payLabel + "")}
-                  </Typography>
+              <Grid item container direction="column" xs={8}>
+                <Grid item container>
+                  <Grid item xs={4}>
+                    <Typography className={classes.regularText}>{`${format(
+                      vacancyDetailStartTime,
+                      "h:mm aaa"
+                    )} - ${format(
+                      vacancyDetailEndTime,
+                      "h:mm aaa"
+                    )}`}</Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography className={classes.regularText}>
+                      {vacancyDetail.vacancy!.position!.title}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Typography className={classes.regularText}>
+                      {vacancyDetail.location?.name ?? ""}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid item container alignItems="flex-end" spacing={1}>
+                  <Grid item container xs={4} alignItems="flex-end">
+                    {isActiveCard ? (
+                      <>
+                        <Grid
+                          item
+                          className={classes.topMargin}
+                          xs={
+                            travelingTeacher ||
+                            payTypeId === AbsenceReasonTrackingTypeId.Daily
+                              ? 12
+                              : 8
+                          }
+                        >
+                          <Can do={[PermissionEnum.AbsVacSave]}>
+                            <Typography className={classes.boldText}>
+                              {t("Pay:")}
+                            </Typography>
+                            <SelectNew
+                              value={dayConversionOptions.find(
+                                a => a.label === selectedDayConversionName
+                              )}
+                              onChange={async (e: OptionType) => {
+                                let selectedLabel:
+                                  | string
+                                  | undefined = undefined;
+                                if (e) {
+                                  if (Array.isArray(e)) {
+                                    selectedLabel = (e as Array<
+                                      OptionTypeBase
+                                    >)[0].label;
+                                  } else {
+                                    selectedLabel = (e as OptionTypeBase).label;
+                                  }
+                                }
+                                setSelectedDayConversionName(selectedLabel);
+                                await handleDaysUpdate(
+                                  values.dayPortion,
+                                  values.payDurationOverrideHours,
+                                  selectedLabel
+                                );
+                              }}
+                              options={dayConversionOptions}
+                              multiple={false}
+                              withResetValue={false}
+                            />
+                          </Can>
+                        </Grid>
+                        {!travelingTeacher &&
+                        payTypeId === AbsenceReasonTrackingTypeId.Hourly ? (
+                          <Grid item xs={4}>
+                            <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                              <Input
+                                value={values.payDurationOverrideHours ?? ""}
+                                InputComponent={FormTextField}
+                                classes={{ root: classes.root }}
+                                inputComponentProps={{
+                                  name: "payDurationOverrideHours",
+                                  fullWidth: true,
+                                }}
+                                onChange={(
+                                  event: React.ChangeEvent<HTMLInputElement>
+                                ) => {
+                                  setFieldValue(
+                                    "payDurationOverrideHours",
+                                    event.target.value
+                                      ? event.target.value
+                                      : minutesToHours(
+                                          vacancyDetail.actualDuration ??
+                                            undefined
+                                        )
+                                  );
+                                }}
+                                onBlur={() =>
+                                  handleDaysUpdate(
+                                    values.dayPortion,
+                                    values.payDurationOverrideHours,
+                                    selectedDayConversionName
+                                  )
+                                }
+                              />
+                            </Can>
+                          </Grid>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    ) : (
+                      <Typography className={classes.lightText}>
+                        {t("Pay: " + payLabel + "")}
+                      </Typography>
+                    )}
+                  </Grid>
+                  <Grid item xs={4}>
+                    {isActiveCard ? (
+                      <>
+                        <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                          <Typography className={classes.boldText}>
+                            {t("Pay code:")}
+                          </Typography>
+                          <SelectNew
+                            value={{
+                              value: values.payCodeId ?? "",
+                              label:
+                                props.payCodeOptions.find(
+                                  a => a.value === values.payCodeId
+                                )?.label || "",
+                            }}
+                            onChange={async (e: OptionType) => {
+                              let selectedValue = null;
+                              if (e) {
+                                if (Array.isArray(e)) {
+                                  selectedValue = (e as Array<
+                                    OptionTypeBase
+                                  >)[0].value;
+                                } else {
+                                  selectedValue = (e as OptionTypeBase).value;
+                                }
+                              }
+                              setFieldValue("payCodeId", selectedValue);
+                              await handlePayCodeOnChange(selectedValue);
+                            }}
+                            multiple={false}
+                            options={props.payCodeOptions}
+                          />
+                        </Can>
+                        <Can not do={[PermissionEnum.AbsVacSavePayCode]}>
+                          <Typography
+                            className={classes.boldText}
+                          >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
+                        </Can>
+                      </>
+                    ) : (
+                      <Typography
+                        className={classes.lightText}
+                      >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
+                    )}
+                  </Grid>
+                  <Grid item xs={4}>
+                    {isActiveCard ? (
+                      <>
+                        <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                          <Typography className={classes.boldText}>
+                            {t("Accounting code:")}
+                          </Typography>
+                          <SelectNew
+                            value={{
+                              value: values.accountingCodeId ?? "",
+                              label:
+                                accountingCodeOptions.find(
+                                  a => a.value === values.accountingCodeId
+                                )?.label || "",
+                            }}
+                            onChange={async (e: OptionType) => {
+                              let selectedValue = null;
+                              if (e) {
+                                if (Array.isArray(e)) {
+                                  selectedValue = (e as Array<
+                                    OptionTypeBase
+                                  >)[0].value;
+                                } else {
+                                  selectedValue = (e as OptionTypeBase).value;
+                                }
+                              }
+                              setFieldValue("accountingCodeId", selectedValue);
+                              await handleAccountingCodeOnChange(selectedValue);
+                            }}
+                            options={accountingCodeOptions}
+                            multiple={false}
+                          />
+                        </Can>
+                        <Can not do={[PermissionEnum.AbsVacSaveAccountCode]}>
+                          <Typography
+                            className={classes.boldText}
+                          >{`Acct: ${accountingCodeLabel ??
+                            t("N/A")}`}</Typography>
+                        </Can>
+                      </>
+                    ) : (
+                      <Typography
+                        className={classes.lightText}
+                      >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
+                    )}
+                  </Grid>
+                </Grid>
+                {notesToAdministrator && (
+                  <Grid item container direction="column">
+                    <Typography className={classes.boldText}>
+                      {t("Notes to Administrator:")}
+                    </Typography>
+                    <Typography>{notesToAdministrator}</Typography>
+                  </Grid>
                 )}
-              </Grid>
-              <Grid item xs={3}>
-                <Typography className={classes.regularText}>
-                  {vacancyDetail.vacancy!.position!.title}
-                </Typography>
-                {!isActiveCard && (
-                  <Typography
-                    className={classes.lightText}
-                  >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
+                {adminOnlyNotes && (
+                  <Grid item container direction="column">
+                    <Typography className={classes.boldText}>
+                      {t("Administrator comments:")}
+                    </Typography>
+                    <Typography>{adminOnlyNotes}</Typography>
+                  </Grid>
                 )}
-              </Grid>
-              <Grid item xs={3}>
-                <Typography className={classes.regularText}>
-                  {vacancyDetail.location?.name ?? ""}
-                </Typography>
-                {!isActiveCard && (
-                  <Typography
-                    className={classes.lightText}
-                  >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
+                {isActiveCard && (
+                  <Can do={[PermissionEnum.AbsVacSave]}>
+                    <Grid item container>
+                      <Typography className={classes.boldText}>
+                        {t("Verifier Comments:")}
+                      </Typography>
+                      <Input
+                        value={values.verifyComments}
+                        InputComponent={FormTextField}
+                        classes={{ root: classes.root }}
+                        inputComponentProps={{
+                          name: "verifyComments",
+                          margin: "normal",
+                          fullWidth: true,
+                        }}
+                        onBlur={() =>
+                          handleCommentsOnBlur(values.verifyComments)
+                        }
+                      />
+                    </Grid>
+                  </Can>
                 )}
               </Grid>
               <Grid item xs={1}>
@@ -474,215 +695,6 @@ export const Assignment: React.FC<Props> = props => {
                 </Button>
               </Grid>
             </Grid>
-            {isActiveCard && (
-              <div>
-                <Grid
-                  container
-                  justify="space-between"
-                  alignItems="center"
-                  spacing={2}
-                  className={[
-                    props.shadeRow ? classes.shadedRow : undefined,
-                    classes.container,
-                  ].join(" ")}
-                >
-                  <Grid item xs={1}></Grid>
-                  <Grid item xs={3} className={classes.displayFlex}>
-                    <Grid
-                      item
-                      className={classes.topMargin}
-                      xs={
-                        travelingTeacher ||
-                        payTypeId === AbsenceReasonTrackingTypeId.Daily
-                          ? 12
-                          : 8
-                      }
-                    >
-                      <Can do={[PermissionEnum.AbsVacSave]}>
-                        <Typography className={classes.boldText}>
-                          {t("Pay:")}
-                        </Typography>
-                        <SelectNew
-                          value={dayConversionOptions.find(
-                            a => a.label === selectedDayConversionName
-                          )}
-                          onChange={async (e: OptionType) => {
-                            let selectedLabel: string | undefined = undefined;
-                            if (e) {
-                              if (Array.isArray(e)) {
-                                selectedLabel = (e as Array<OptionTypeBase>)[0]
-                                  .label;
-                              } else {
-                                selectedLabel = (e as OptionTypeBase).label;
-                              }
-                            }
-                            setSelectedDayConversionName(selectedLabel);
-                            await handleDaysUpdate(
-                              values.dayPortion,
-                              values.payDurationOverrideHours,
-                              selectedLabel
-                            );
-                          }}
-                          options={dayConversionOptions}
-                          multiple={false}
-                          withResetValue={false}
-                        />
-                      </Can>
-                    </Grid>
-                    {!travelingTeacher &&
-                    payTypeId === AbsenceReasonTrackingTypeId.Hourly ? (
-                      <>
-                        <Grid item xs={3} className={classes.hourlyInput}>
-                          <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                            <Input
-                              value={values.payDurationOverrideHours ?? ""}
-                              InputComponent={FormTextField}
-                              classes={{ root: classes.root }}
-                              inputComponentProps={{
-                                name: "payDurationOverrideHours",
-                                margin: "normal",
-                                fullWidth: true,
-                              }}
-                              onChange={(
-                                event: React.ChangeEvent<HTMLInputElement>
-                              ) => {
-                                setFieldValue(
-                                  "payDurationOverrideHours",
-                                  event.target.value
-                                    ? event.target.value
-                                    : minutesToHours(
-                                        vacancyDetail.actualDuration ??
-                                          undefined
-                                      )
-                                );
-                              }}
-                              onBlur={() =>
-                                handleDaysUpdate(
-                                  values.dayPortion,
-                                  values.payDurationOverrideHours,
-                                  selectedDayConversionName
-                                )
-                              }
-                            />
-                          </Can>
-                        </Grid>
-                      </>
-                    ) : (
-                      <></>
-                    )}
-                  </Grid>
-                  <Grid container item xs={7} spacing={2}>
-                    <Grid item xs={6}>
-                      <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                        <Typography className={classes.boldText}>
-                          {t("Pay code:")}
-                        </Typography>
-                        <SelectNew
-                          value={{
-                            value: values.payCodeId ?? "",
-                            label:
-                              props.payCodeOptions.find(
-                                a => a.value === values.payCodeId
-                              )?.label || "",
-                          }}
-                          onChange={async (e: OptionType) => {
-                            let selectedValue = null;
-                            if (e) {
-                              if (Array.isArray(e)) {
-                                selectedValue = (e as Array<OptionTypeBase>)[0]
-                                  .value;
-                              } else {
-                                selectedValue = (e as OptionTypeBase).value;
-                              }
-                            }
-                            setFieldValue("payCodeId", selectedValue);
-                            await handlePayCodeOnChange(selectedValue);
-                          }}
-                          multiple={false}
-                          options={props.payCodeOptions}
-                        />
-                      </Can>
-                      <Can not do={[PermissionEnum.AbsVacSavePayCode]}>
-                        <Typography
-                          className={classes.boldText}
-                        >{`Pay: ${payCodeLabel ?? t("N/A")}`}</Typography>
-                      </Can>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                        <Typography className={classes.boldText}>
-                          {t("Accounting code:")}
-                        </Typography>
-                        <SelectNew
-                          value={{
-                            value: values.accountingCodeId ?? "",
-                            label:
-                              accountingCodeOptions.find(
-                                a => a.value === values.accountingCodeId
-                              )?.label || "",
-                          }}
-                          onChange={async (e: OptionType) => {
-                            let selectedValue = null;
-                            if (e) {
-                              if (Array.isArray(e)) {
-                                selectedValue = (e as Array<OptionTypeBase>)[0]
-                                  .value;
-                              } else {
-                                selectedValue = (e as OptionTypeBase).value;
-                              }
-                            }
-                            setFieldValue("accountingCodeId", selectedValue);
-                            await handleAccountingCodeOnChange(selectedValue);
-                          }}
-                          options={accountingCodeOptions}
-                          multiple={false}
-                        />
-                      </Can>
-                      <Can not do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                        <Typography
-                          className={classes.boldText}
-                        >{`Acct: ${accountingCodeLabel ??
-                          t("N/A")}`}</Typography>
-                      </Can>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={1}></Grid>
-                </Grid>
-                <Grid
-                  container
-                  justify="space-between"
-                  alignItems="center"
-                  spacing={2}
-                  className={[
-                    props.shadeRow ? classes.shadedRow : undefined,
-                    classes.container,
-                  ].join(" ")}
-                >
-                  <Grid item xs={1}></Grid>
-                  <Grid item xs={10}>
-                    <Can do={[PermissionEnum.AbsVacSave]}>
-                      <Typography className={classes.boldText}>
-                        {t("Comments:")}
-                      </Typography>
-                      <Input
-                        value={values.verifyComments}
-                        InputComponent={FormTextField}
-                        classes={{ root: classes.root }}
-                        inputComponentProps={{
-                          name: "verifyComments",
-                          margin: "normal",
-                          fullWidth: true,
-                        }}
-                        onBlur={() =>
-                          handleCommentsOnBlur(values.verifyComments)
-                        }
-                      />
-                    </Can>
-                  </Grid>
-                  <Grid item xs={1}></Grid>
-                </Grid>
-              </div>
-            )}
           </form>
         )}
       </Formik>
@@ -719,13 +731,10 @@ export const useStyles = makeStyles(theme => ({
   container: { width: "100%" },
   root: {
     marginTop: "0px",
+    backgroundColor: theme.customColors.white,
   },
   displayFlex: {
     display: "flex",
-  },
-  hourlyInput: {
-    marginLeft: "18px",
-    marginTop: "25px",
   },
   topMargin: {
     marginTop: "5px",

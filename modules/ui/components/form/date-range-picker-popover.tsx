@@ -11,10 +11,12 @@ import { DateRangePicker, DateRangePickerProps } from "./date-range-picker";
 import { usePresetDateRanges } from "./hooks/use-preset-date-ranges";
 import { InputLabel } from "./input";
 import { useTranslation } from "react-i18next";
+import clsx from "clsx";
 
 type DateRangePickerPopoverProps = DateRangePickerProps & {
   placeholder?: string;
   label?: string;
+  useStandardWidth?: boolean;
 };
 
 export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
@@ -29,6 +31,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
     endDate,
     placeholder = "",
     label,
+    useStandardWidth,
     ...datePickerProps
   } = props;
 
@@ -86,9 +89,20 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
           {label ?? t("Date range")}
         </InputLabel>
       </div>
-      <div className={classes.trigger} ref={triggerRef}>
+      <div
+        className={clsx(
+          classes.trigger,
+          useStandardWidth ? classes.divStandardWidth : undefined
+        )}
+        ref={triggerRef}
+      >
         <button
-          className={classes.button}
+          className={clsx(
+            classes.button,
+            useStandardWidth
+              ? classes.buttonStandardWidth
+              : classes.buttonMinWidth
+          )}
           id={id}
           onClick={() => setShowPopover(true)}
         >
@@ -206,6 +220,16 @@ const useStyles = makeStyles(theme => ({
   label: {
     cursor: "pointer",
   },
+  buttonMinWidth: {
+    minWidth: theme.typography.pxToRem(280),
+  },
+  buttonStandardWidth: {
+    width: "100%",
+  },
+  divStandardWidth: {
+    display: "block",
+    width: "100%",
+  },
   button: {
     backgroundColor: theme.customColors.white,
     borderRadius: theme.typography.pxToRem(4),
@@ -218,7 +242,6 @@ const useStyles = makeStyles(theme => ({
     display: "block",
     fontSize: theme.typography.pxToRem(14),
     cursor: "pointer",
-    minWidth: theme.typography.pxToRem(280),
     textAlign: "left",
 
     "&:hover": {
