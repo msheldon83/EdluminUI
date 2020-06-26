@@ -3,12 +3,6 @@ import { Grid, Icon, makeStyles, Typography } from "@material-ui/core";
 import useDimensions from "react-use-dimensions";
 import { RedRoverConfetti } from "ui/components/confetti";
 
-const PartyPopperIcon: typeof Icon = props => (
-  <Icon {...props}>
-    <img src={require("ui/icons/party-popper.svg")} />
-  </Icon>
-);
-
 type Props = {
   width?: number;
   height?: number;
@@ -44,17 +38,21 @@ export const PartyPopper: React.FC<Props> = ({
     }, [x, y, w, h]);*/
 
   return (
-    <Grid container direction="column" alignItems="center">
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      className={classes.container}
+    >
       <Grid item className={classes.popper}>
         {x && y && w && h && (
           <RedRoverConfetti
             confettiSource={{
-              x: x + ((0.23628 + 0.6521) / 2) * w,
-              y: y - ((0.48127 + 0.11331) / 2) * h,
+              x: x + w / 2,
+              y: y - h / 2,
               w: 0,
               h: 0,
             }}
-            initialVelocityX={{ min: 1, max: 10 }}
             style={{ zIndex: 202 }}
             width={Math.max(width ?? 0, window.innerWidth)}
             height={Math.max(height ?? 0, window.innerHeight)}
@@ -62,12 +60,14 @@ export const PartyPopper: React.FC<Props> = ({
           />
         )}
         <div ref={ref}>
-          <PartyPopperIcon />
+          <div className={classes.circle} />
         </div>
       </Grid>
       <Grid item className={classes.children}>
         {typeof children === "string" ? (
-          <Typography variant="h3">{children}</Typography>
+          <Typography className={classes.textChild} variant="h3">
+            {children}
+          </Typography>
         ) : (
           children
         )}
@@ -79,8 +79,25 @@ export const PartyPopper: React.FC<Props> = ({
 const useStyles = makeStyles(theme => ({
   children: {
     width: "100%",
+    padding: theme.spacing(3),
   },
   popper: {
     padding: theme.spacing(3),
+  },
+  container: {
+    backgroundColor: "rgba(132, 207, 163, 0.2)",
+    borderRadius: theme.spacing(0.5),
+    border: `1px solid ${theme.customColors.success}`,
+    marginBottom: theme.spacing(4),
+    marginTop: theme.spacing(3),
+  },
+  textChild: {
+    textAlign: "center",
+  },
+  circle: {
+    width: theme.spacing(15),
+    height: theme.spacing(15),
+    borderRadius: theme.spacing(7.5),
+    backgroundColor: theme.customColors.white,
   },
 }));
