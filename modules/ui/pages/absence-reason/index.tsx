@@ -87,8 +87,7 @@ export const AbsenceReason: React.FC<{}> = () => {
           </Grid>
           {group.allowNegativeBalance ? (
             <Grid item xs={3} className={classes.negativeBalanceColCheck}>
-              {" "}
-              <Check />{" "}
+              <Check />
             </Grid>
           ) : (
             <Grid item xs={3} className={classes.negativeBalanceColMin}>
@@ -125,8 +124,7 @@ export const AbsenceReason: React.FC<{}> = () => {
               </Grid>
               {c.allowNegativeBalance ? (
                 <Grid item xs={3} className={classes.negativeBalanceColCheck}>
-                  {" "}
-                  <Check />{" "}
+                  <Check />
                 </Grid>
               ) : (
                 <Grid item xs={3} className={classes.negativeBalanceColMin}>
