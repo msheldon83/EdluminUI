@@ -59,7 +59,7 @@
     "react-autosuggest": "^9.4.3",
     "react-beautiful-dnd": "^13.0.0",
     "react-chartjs-2": "^2.9.0",
-    "react-confetti": "https://github.com/cwstra/react-confetti#319c48845b0bee198a57448d7ca357a63d47d8e9",
+    "react-confetti": "^5.1.0",
     "react-csv": "^2.0.3",
     "react-digraph": "^6.7.1",
     "react-dnd": "^11.1.3",
