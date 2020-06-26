@@ -19,12 +19,25 @@ type Props = {
 
 const nameDraggableId = Symbol("name-draggable");
 
+function moveEntry<T>(arr: T[], from: number, to: number) {
+  return arr.map((item: T, i: number) =>
+    i === to
+      ? arr[from]
+      : i >= Math.min(from, to) && i <= Math.max(from, to)
+      ? arr[i + Math.sign(to - from)]
+      : item
+  );
+}
+
 type ScheduleNameRowProps = {
   period: Period;
   hasMoreThanOnePeriod: boolean;
   isStandard: boolean;
   setFieldValue: Function;
   tabIndex: number;
+  index: number;
+  swapRowName(from: number, to: number): void;
+  findRow(period: Period): number;
 };
 
 const ScheduleNameRow = (props: ScheduleNameRowProps) => {
@@ -34,12 +47,17 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
     hasMoreThanOnePeriod,
     setFieldValue,
     tabIndex,
+    swapRowName,
+    findRow,
   } = props;
 
   const classes = useStyles();
 
   const { dragHandleRef, dragPreviewRef, dragPreviewOpacity } = useDrag({
     dragId: nameDraggableId,
+    data: {
+      period,
+    },
     generateDragValues({ isDragging }) {
       return {
         dragPreviewOpacity: isDragging() ? 0.2 : 1,
@@ -49,15 +67,17 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
 
   const { dropRef } = useDrop({
     dragId: nameDraggableId,
-    canDrop: () => false,
-    // onDrop() {},
     generateDropValues() {},
-    onHover() {
-      console.log("hover");
-      //   if (draggedId !== id) {
-      //     const { index: overIndex } = findCard(id);
-      //     moveCard(draggedId, overIndex);
-      //   }
+    onDrop(data) {
+      // const toIndex = findRow(period);
+      // const fromIndex = findRow(data.period);
+      // swapRowName(fromIndex, toIndex);
+    },
+    onHover(data) {
+      const toIndex = findRow(period);
+      const fromIndex = findRow(data.period);
+
+      swapRowName(fromIndex, toIndex);
     },
   });
 
@@ -67,22 +87,23 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
       ref={node => dropRef(dragPreviewRef(node))}
     >
       <div className={classes.nameInput}>
-        {isStandard && (
+        {isStandard ? (
           <FormTextField
             inputProps={{
               tabIndex,
             }}
             placeholder={period.placeholder}
-            value={period.name || ""}
-            name={period.name ?? ""}
+            value={period.name}
+            name={period.name ?? Math.random().toString()} // There always needs to be a valid name on the element
             variant="outlined"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setFieldValue(period.name, e.target.value);
             }}
             style={{ opacity: dragPreviewOpacity }}
           />
+        ) : (
+          period.name
         )}
-        {!isStandard && period.name}
       </div>
       <IconButton
         className={classes.draggHandle}
@@ -98,7 +119,6 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
 };
 
 export const ScheduleNamesColumn: React.FC<Props> = props => {
-  const { t } = useTranslation();
   const classes = useStyles();
 
   return (
@@ -112,8 +132,10 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
           periodClasses.push(props.scheduleClasses.skippedPeriod);
         }
 
+        const rowKey = p.periodId || Math.random().toString();
+
         return (
-          <div key={p.periodId ?? i} className={periodClasses.join(" ")}>
+          <div key={rowKey} className={periodClasses.join(" ")}>
             <Can do={[PermissionEnum.ScheduleSettingsSave]}>
               <ScheduleNameRow
                 period={p}
@@ -121,6 +143,36 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                 isStandard={props.isStandard}
                 setFieldValue={props.setFieldValue}
                 tabIndex={i + 1}
+                index={i}
+                swapRowName={(from, to) => {
+                  // TODO: figure out how to swap names, not whole rows
+                  // Probably by copying prop.periods to internal state and
+                  // only rendering the names
+                  if (from !== to) {
+                    const fromName = props.periods[from].name;
+                    const toName = props.periods[to].name;
+
+                    // props.periods[from] = {
+                    //   ...props.periods[to],
+                    //   name: fromName,
+                    // };
+                    // props.periods[to] = {
+                    //   ...props.periods[from],
+                    //   name: toName,
+                    // };
+
+                    // const updatedPeriods = moveEntry(props.periods, from, to);
+
+                    // const updatedPeriods = [...props.periods];
+                    // updatedPeriods[from].name = toName;
+                    // updatedPeriods[to].name = fromName;
+
+                    // props.setPeriods([...props.periods]);
+                  }
+                }}
+                findRow={period => {
+                  return props.periods.indexOf(period);
+                }}
               />
             </Can>
             <Can not do={[PermissionEnum.ScheduleSettingsSave]}>

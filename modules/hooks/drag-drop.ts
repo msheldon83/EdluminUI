@@ -6,6 +6,7 @@ import {
   ConnectDropTarget,
   ConnectDragSource,
   ConnectDragPreview,
+  DragObjectWithType,
 } from "react-dnd";
 
 /*
@@ -28,7 +29,10 @@ export type DragReturnData<T> = T & {
   dragPreviewRef: DragPreviewRef;
 };
 
-export type DragConfiguration<T = Record<string, any> | undefined> = {
+export type DragConfiguration<
+  T = Record<string, any> | undefined,
+  U = Record<string, any> | undefined
+> = {
   dragId: symbol;
   /*
     TODO:
@@ -37,17 +41,22 @@ export type DragConfiguration<T = Record<string, any> | undefined> = {
     The type errors are weird and hard to figure out
   */
   generateDragValues(validationData: DragValidationData): T;
+  data?: U;
+  dragEnd?(data: U): void;
 };
 
 export const useDrag = <T>(
   configuration: DragConfiguration<T>
 ): DragReturnData<T> => {
   const [validations, dragHandleRef, dragPreviewRef] = reactDndUseDrag({
-    item: { type: configuration.dragId },
+    item: { ...configuration.data, type: configuration.dragId },
     collect: (monitor: DragLayerMonitor) => {
       return configuration.generateDragValues({
         isDragging: monitor.isDragging.bind(monitor),
       });
+    },
+    end() {
+      configuration.dragEnd?.(configuration.data);
     },
   });
 
@@ -71,10 +80,10 @@ export type DropReturnData<T> = T & {
 
 export type DropConfiguration<T = Record<string, any> | undefined> = {
   dragId: symbol;
-  onDrop?(dropData: DropData<T>): void;
+  onDrop?(data: any, dropData: DropData<T>): void;
   generateDropValues(validationData: DropValidationData): T;
   canDrop?(): boolean;
-  onHover?(): void;
+  onHover?(data: any): void;
 };
 
 export const useDrop = <T>(
@@ -82,11 +91,11 @@ export const useDrop = <T>(
 ): DropReturnData<T> => {
   const [validations, dropRef] = reactDndUseDrop({
     accept: configuration.dragId,
-    drop: () => {
-      configuration.onDrop?.(validations);
+    drop: data => {
+      configuration.onDrop?.(data, validations);
     },
     canDrop: configuration.canDrop?.bind(configuration),
-    hover: configuration.onHover?.bind(configuration),
+    hover: item => configuration.onHover?.(item),
     collect: (monitor: DropTargetMonitor) => {
       return configuration.generateDropValues({
         isOver: monitor.isOver.bind(monitor),
