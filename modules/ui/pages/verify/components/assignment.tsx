@@ -459,8 +459,8 @@ export const Assignment: React.FC<Props> = props => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item container alignItems="flex-end">
-                  <Grid item xs={4}>
+                <Grid item container alignItems="flex-end" spacing={1}>
+                  <Grid item container xs={4} alignItems="flex-end">
                     {isActiveCard ? (
                       <>
                         <Grid
@@ -509,42 +509,39 @@ export const Assignment: React.FC<Props> = props => {
                         </Grid>
                         {!travelingTeacher &&
                         payTypeId === AbsenceReasonTrackingTypeId.Hourly ? (
-                          <>
-                            <Grid item xs={3} className={classes.hourlyInput}>
-                              <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                                <Input
-                                  value={values.payDurationOverrideHours ?? ""}
-                                  InputComponent={FormTextField}
-                                  classes={{ root: classes.root }}
-                                  inputComponentProps={{
-                                    name: "payDurationOverrideHours",
-                                    margin: "normal",
-                                    fullWidth: true,
-                                  }}
-                                  onChange={(
-                                    event: React.ChangeEvent<HTMLInputElement>
-                                  ) => {
-                                    setFieldValue(
-                                      "payDurationOverrideHours",
-                                      event.target.value
-                                        ? event.target.value
-                                        : minutesToHours(
-                                            vacancyDetail.actualDuration ??
-                                              undefined
-                                          )
-                                    );
-                                  }}
-                                  onBlur={() =>
-                                    handleDaysUpdate(
-                                      values.dayPortion,
-                                      values.payDurationOverrideHours,
-                                      selectedDayConversionName
-                                    )
-                                  }
-                                />
-                              </Can>
-                            </Grid>
-                          </>
+                          <Grid item xs={4}>
+                            <Can do={[PermissionEnum.AbsVacSavePayCode]}>
+                              <Input
+                                value={values.payDurationOverrideHours ?? ""}
+                                InputComponent={FormTextField}
+                                classes={{ root: classes.root }}
+                                inputComponentProps={{
+                                  name: "payDurationOverrideHours",
+                                  fullWidth: true,
+                                }}
+                                onChange={(
+                                  event: React.ChangeEvent<HTMLInputElement>
+                                ) => {
+                                  setFieldValue(
+                                    "payDurationOverrideHours",
+                                    event.target.value
+                                      ? event.target.value
+                                      : minutesToHours(
+                                          vacancyDetail.actualDuration ??
+                                            undefined
+                                        )
+                                  );
+                                }}
+                                onBlur={() =>
+                                  handleDaysUpdate(
+                                    values.dayPortion,
+                                    values.payDurationOverrideHours,
+                                    selectedDayConversionName
+                                  )
+                                }
+                              />
+                            </Can>
+                          </Grid>
                         ) : (
                           <></>
                         )}
@@ -739,10 +736,6 @@ export const useStyles = makeStyles(theme => ({
   },
   displayFlex: {
     display: "flex",
-  },
-  hourlyInput: {
-    marginLeft: "18px",
-    marginTop: "25px",
   },
   topMargin: {
     marginTop: "5px",
