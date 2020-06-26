@@ -61,8 +61,8 @@ export const DateDetailItem: React.FC<Props> = props => {
               </>
             )}
             {!noAccountingCodes && !singleAccountingCode && (
-              <div className={classes.multAccountingCodes}>
-                <div className={classes.multAccountingCodesLabel}>
+              <div className={classes.multiAccountingCodes}>
+                <div className={classes.multiAccountingCodesLabel}>
                   {t("Acct")}:
                 </div>
                 <div>
@@ -96,10 +96,10 @@ export const useStyles = makeStyles(theme => ({
   rightColumn: {
     textAlign: "right",
   },
-  multAccountingCodes: {
+  multiAccountingCodes: {
     display: "flex",
   },
-  multAccountingCodesLabel: {
+  multiAccountingCodesLabel: {
     paddingRight: theme.spacing(0.5),
   },
 }));
