@@ -19,7 +19,12 @@ import { compact } from "lodash-es";
 type Props = {
   orgId: string;
   onClose: () => void;
-  onSave: (approverGroupId: string, args?: string, criteria?: string) => void;
+  onSave: (
+    stepId?: string,
+    groupId?: string,
+    args?: string,
+    criteria?: string
+  ) => void;
   onRemove?: () => void;
   steps: ApprovalWorkflowStepInput[];
   myStep?: ApprovalWorkflowStepInput | null;
@@ -38,7 +43,8 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     AbsenceTransitionArgs | undefined
   >(); // TODO: make this use either type
 
-  const myStep = props.myStep;
+  const { myStep } = props;
+  const firstStep = myStep?.isFirstStep;
 
   useEffect(() => {
     if (myStep && myStep.approverGroupHeaderId) {
@@ -60,12 +66,11 @@ export const AddUpdateApprover: React.FC<Props> = props => {
   }, [myStep]);
 
   const handleSave = () => {
-    if (approverGroupIds && approverGroupIds.length === 1) {
-      props.onSave(
-        approverGroupIds[0],
-        buildTransitionArgsJsonString(transitionArgs)
-      );
-    }
+    props.onSave(
+      myStep?.stepId,
+      approverGroupIds ? approverGroupIds[0] : undefined,
+      buildTransitionArgsJsonString(transitionArgs)
+    );
   };
 
   const myTransitions = myStep ? myStep.onApproval : null;
@@ -99,17 +104,23 @@ export const AddUpdateApprover: React.FC<Props> = props => {
   return (
     <Section>
       <div className={classes.labelText}>
-        {myStep ? t("Update approver group") : t("Add approver")}
+        {firstStep
+          ? t("Begin workflow")
+          : myStep
+          ? t("Update approver group")
+          : t("Add approver")}
       </div>
-      <div className={classes.selectContainer}>
-        <ApproverGroupSelect
-          orgId={props.orgId}
-          multiple={false}
-          selectedApproverGroupHeaderIds={approverGroupIds}
-          setSelectedApproverGroupHeaderIds={onSetGroup}
-          idsToFilterOut={approverGroupIdsToFilterOut}
-        />
-      </div>
+      {!firstStep && (
+        <div className={classes.selectContainer}>
+          <ApproverGroupSelect
+            orgId={props.orgId}
+            multiple={false}
+            selectedApproverGroupHeaderIds={approverGroupIds}
+            setSelectedApproverGroupHeaderIds={onSetGroup}
+            idsToFilterOut={approverGroupIdsToFilterOut}
+          />
+        </div>
+      )}
       <div className={classes.labelText}>{t("When approved")}</div>
       <FormControlLabel
         control={
@@ -152,9 +163,9 @@ export const AddUpdateApprover: React.FC<Props> = props => {
           onClick={handleSave}
           className={classes.button}
         >
-          {myStep ? t("Update") : t("Add")}
+          {myStep || firstStep ? t("Update") : t("Add")}
         </Button>
-        {props.onRemove && (
+        {props.onRemove && !firstStep && (
           <Button
             variant="outlined"
             onClick={props.onRemove}

@@ -28,15 +28,15 @@ export const GraphConfig: any = {
       shapeId: "#approverGroup", // relates to the type property of a node
       shape: (
         <symbol
-          width="200"
-          height="80"
-          viewBox="0 0 200 80"
+          width="250"
+          height="110"
+          viewBox="0 0 250 110"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           id="approverGroup"
           key="0"
         >
-          <rect height="80" width="200" fill="#FFFFFF" />
+          <rect height="110" width="250" fill="#FFFFFF" />
         </symbol>
       ),
     },
