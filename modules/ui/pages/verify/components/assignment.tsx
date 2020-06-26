@@ -452,7 +452,12 @@ export const Assignment: React.FC<Props> = props => {
             vacancyDetailId: vacancyDetail.id,
             payCodeId: data.payCodeId ? data.payCodeId : null,
             verifyComments: data.verifyComments,
-            accountingCodeAllocations: data.accountingCodeAllocations,
+            accountingCodeAllocations: data.accountingCodeAllocations?.map(a => {
+              return {
+                accountingCodeId: a.accountingCodeId,
+                allocation: a.allocation
+              }
+            }) ?? [],
             dayPortion: dayConversion?.dayEquivalent ?? data.dayPortion,
             payTypeId:
               dayConversion || travelingTeacher
