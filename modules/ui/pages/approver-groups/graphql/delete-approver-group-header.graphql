@@ -1,0 +1,5 @@
+mutation DeleteApproverGroupHeader($approverGroupHeaderId: ID!) {
+  approverGroup {
+    deleteApproverGroupHeader(approverGroupHeaderId: $approverGroupHeaderId)
+  }
+}

@@ -154,10 +154,16 @@ export const ApproverGroupLocationsPage: React.FC<{}> = props => {
       </div>
       {approverGroupHeader && (
         <NameHeader
+          orgId={params.organizationId}
           approverGroupHeaderId={approverGroupHeader.id}
           name={approverGroupHeader.name}
           identifier={approverGroupHeader.externalId}
           rowVersion={approverGroupHeader.rowVersion}
+          inUse={
+            approverGroupHeader.approvalWorkflows
+              ? approverGroupHeader.approvalWorkflows.length > 0
+              : false
+          }
         />
       )}
       <Grid container className={classes.content}>
