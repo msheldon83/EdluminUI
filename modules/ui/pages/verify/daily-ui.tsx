@@ -45,6 +45,7 @@ export const VerifyDailyUI: React.FC<Props> = ({
   height,
 }) => {
   const { t } = useTranslation();
+  const classes = useStyles();
   const absenceEditParams = useRouteParams(AdminEditAbsenceRoute);
   const vacancyEditParams = useRouteParams(VacancyViewRoute);
   const [selectedAssignment, setSelectedAssignment] = React.useState<
@@ -93,7 +94,11 @@ export const VerifyDailyUI: React.FC<Props> = ({
 
   return (
     <>
-      <Grid container justify="space-between">
+      <Grid
+        container
+        justify="space-between"
+        className={classes.assignmentsCountHeader}
+      >
         <Grid item>
           <Typography variant="h5">{`${assignments.length -
             unverified.length} ${t("verified assignments")}`}</Typography>
@@ -114,7 +119,11 @@ export const VerifyDailyUI: React.FC<Props> = ({
           <VerifiedDailyFooter orgId={orgId} />
         </PartyPopper>
       )}
-      <Grid container direction="column">
+      <Grid
+        container
+        direction="column"
+        className={classes.assignmentsContainer}
+      >
         {(showVerified ? assignments : unverified).map((a, i) => (
           <Assignment
             key={a.id}
@@ -132,3 +141,14 @@ export const VerifyDailyUI: React.FC<Props> = ({
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  assignmentsCountHeader: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  assignmentsContainer: {
+    border: `1px solid ${theme.customColors.sectionBorder}`,
+    marginTop: theme.spacing(2),
+  },
+}));

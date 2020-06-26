@@ -217,7 +217,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
 
 const useStyles = makeStyles(theme => ({
   verifyAll: {
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   },
   link: {
     color: theme.customColors.blue,
