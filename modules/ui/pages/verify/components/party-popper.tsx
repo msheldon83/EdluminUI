@@ -12,9 +12,15 @@ const PartyPopperIcon: typeof Icon = props => (
 type Props = {
   width?: number;
   height?: number;
+  onConfettiComplete?: () => void;
 };
 
-export const PartyPopper: React.FC<Props> = ({ width, height, children }) => {
+export const PartyPopper: React.FC<Props> = ({
+  width,
+  height,
+  onConfettiComplete,
+  children,
+}) => {
   const classes = useStyles();
   const [ref, { x, y, width: w, height: h }] = useDimensions();
   // We want to generate points along a line,
@@ -46,6 +52,7 @@ export const PartyPopper: React.FC<Props> = ({ width, height, children }) => {
             style={{ zIndex: 202 }}
             width={Math.max(width ?? 0, window.innerWidth)}
             height={Math.max(height ?? 0, window.innerHeight)}
+            onConfettiComplete={onConfettiComplete}
           />
         )}
         <div ref={ref}>

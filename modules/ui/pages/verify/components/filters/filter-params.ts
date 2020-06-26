@@ -7,6 +7,7 @@ export const FilterQueryParamDefaults: VerifyFilters = {
   // Overview specific
   dateRangeStart: format(subDays(today, 29), "P"),
   dateRangeEnd: format(today, "P"),
+  confettiOnFinished: "false",
 
   //Daily view specific
   date: format(today, "P"),
@@ -21,6 +22,7 @@ export type VerifyFilters = {
   // Overview specific
   dateRangeStart: string;
   dateRangeEnd: string;
+  confettiOnFinished: string;
 
   //Daily view specific
   date: string;
@@ -35,6 +37,7 @@ export type VerifyQueryFilters = {
   // Overview specific
   dateRangeStart: Date;
   dateRangeEnd: Date;
+  confettiOnFinished: boolean;
 
   //Daily view specific
   date: Date;
@@ -85,6 +88,7 @@ const to = (o: VerifyFilters): VerifyQueryFilters => {
   return {
     dateRangeStart: parse(o.dateRangeStart, "MM/dd/yyyy", 0),
     dateRangeEnd: parse(o.dateRangeEnd, "MM/dd/yyyy", 0),
+    confettiOnFinished: stringToBool(o.confettiOnFinished, false),
     date: parse(o.date, "MM/dd/yyyy", 0),
     showVerified: stringToBool(o.showVerified, true),
     subSource: o.subSource,
@@ -96,6 +100,7 @@ const from = (o: VerifyQueryFilters): VerifyFilters => {
   return {
     dateRangeStart: format(o.dateRangeStart, "P"),
     dateRangeEnd: format(o.dateRangeEnd, "P"),
+    confettiOnFinished: boolToString(o.confettiOnFinished),
     date: format(o.date, "P"),
     showVerified: boolToString(o.showVerified),
     subSource: o.subSource,
