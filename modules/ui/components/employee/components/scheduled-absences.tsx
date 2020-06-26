@@ -10,6 +10,7 @@ type Props = {
   header?: string;
   absences: EmployeeAbsenceDetail[];
   cancelAbsence: (absenceId: string) => Promise<void>;
+  hideAbsence?: (absenceId: string) => Promise<void>;
   isLoading: boolean;
   orgId?: string;
   actingAsEmployee?: boolean;
@@ -55,6 +56,7 @@ export const ScheduledAbsences: React.FC<Props> = props => {
             <AbsenceDetailRow
               absence={a}
               cancelAbsence={props.cancelAbsence}
+              hideAbsence={props.hideAbsence}
               orgId={props.orgId}
               actingAsEmployee={props.actingAsEmployee}
             />

@@ -1,0 +1,5 @@
+mutation HideAbsence($absenceId: ID!) {
+  absence {
+    hideAbsence(absenceId: $absenceId)
+  }
+}

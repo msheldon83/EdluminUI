@@ -7,6 +7,7 @@ import { CancelAbsenceDialog } from "./cancel-absence-dialog";
 type Props = {
   absence: EmployeeAbsenceDetail;
   cancelAbsence: (absenceId: string) => Promise<void>;
+  hideAbsence?: (absenceId: string) => Promise<void>;
   showAbsenceChip?: boolean;
   actingAsEmployee?: boolean;
   orgId?: string;
