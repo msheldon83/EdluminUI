@@ -2,6 +2,7 @@ import * as React from "react";
 import { useScrollDimensions } from "hooks/use-scroll-dimensions";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetVacancyDetails } from "./graphql/get-vacancydetails.gen";
+import { useLocation } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
 import { useQueryParamIso } from "hooks/query-params";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -15,7 +16,10 @@ import {
   Typography,
   makeStyles,
 } from "@material-ui/core";
-import { VerifyDailyRoute } from "ui/routes/absence-vacancy/verify";
+import {
+  VerifyDailyRoute,
+  VerifyOverviewRoute,
+} from "ui/routes/absence-vacancy/verify";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { format } from "date-fns";
@@ -27,10 +31,12 @@ import { VerifyVacancyDetail } from "./graphql/verify-vacancy-detail.gen";
 import { VerifyAll } from "./graphql/verify-all.gen";
 import { VerifyDailyUI } from "./daily-ui";
 import { AssignmentDetail } from "./types";
+import { ReturnLink } from "ui/components/links/return";
 
 export const VerifyDailyPage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const location = useLocation();
   const params = useRouteParams(VerifyDailyRoute);
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const { openSnackbar } = useSnackbar();
@@ -143,6 +149,14 @@ export const VerifyDailyPage: React.FC<{}> = props => {
 
   return (
     <div ref={ref}>
+      <ReturnLink
+        linkClass={classes.link}
+        defaultComingFrom={t("summary")}
+        defaultReturnTo={{
+          pathname: VerifyOverviewRoute.generate(params),
+          search: location.search,
+        }}
+      />
       <Typography variant="h5">{t("Verify substitute assignments")}</Typography>
       <PageTitle title={format(new Date(filters.date), "EEE, MMM d")} />
       <Section>
@@ -204,5 +218,11 @@ export const VerifyDailyPage: React.FC<{}> = props => {
 const useStyles = makeStyles(theme => ({
   verifyAll: {
     marginTop: theme.spacing(1),
+  },
+  link: {
+    color: theme.customColors.blue,
+    "&:visited": {
+      color: theme.customColors.blue,
+    },
   },
 }));
