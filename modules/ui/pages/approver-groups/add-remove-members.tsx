@@ -174,10 +174,16 @@ export const ApproverGroupAddRemoveMemberPage: React.FC<{}> = props => {
       </div>
       {approverGroup && (
         <NameHeader
+          orgId={params.organizationId}
           approverGroupHeaderId={approverGroup.approverGroupHeaderId}
           name={approverGroup.name}
           identifier={approverGroup.externalId}
           rowVersion={approverGroup.rowVersion}
+          inUse={
+            approverGroup.approvalWorkflows
+              ? approverGroup.approvalWorkflows.length > 0
+              : false
+          }
         />
       )}
       <Grid container spacing={2} className={classes.content}>

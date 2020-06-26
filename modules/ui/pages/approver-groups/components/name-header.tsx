@@ -8,6 +8,9 @@ import { PageHeader } from "ui/components/page-header";
 import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import { PermissionEnum } from "graphql/server-types.gen";
+import { DeleteApproverGroupHeader } from "../graphql/delete-approver-group-header.gen";
+import { useHistory } from "react-router";
+import { ApproverGroupsRoute } from "ui/routes/approver-groups";
 
 const editableSections = {
   name: "edit-name",
@@ -15,15 +18,18 @@ const editableSections = {
 };
 
 type Props = {
+  orgId: string;
   approverGroupHeaderId: string;
   name: string;
   identifier?: string | null;
   rowVersion: string;
+  inUse: boolean;
 };
 
 export const NameHeader: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
+  const history = useHistory();
 
   const [editing, setEditing] = useState<string | null>(null);
 
@@ -35,6 +41,34 @@ export const NameHeader: React.FC<Props> = props => {
       },
     }
   );
+
+  const [deleteApproverGroupHeader] = useMutationBundle(
+    DeleteApproverGroupHeader,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
+
+  const onDelete = async () => {
+    if (props.inUse) {
+      openSnackbar({
+        message: <div>{t("This Group is used by a workflow")}</div>,
+        dismissable: true,
+        status: "error",
+      });
+    } else {
+      const result = await deleteApproverGroupHeader({
+        variables: { approverGroupHeaderId: props.approverGroupHeaderId },
+      });
+      if (result) {
+        history.push(
+          ApproverGroupsRoute.generate({ organizationId: props.orgId })
+        );
+      }
+    }
+  };
 
   const onUpdateIdentifier = async (identifier?: string | null) => {
     const result = await updateApproverGroupHeader({
@@ -84,6 +118,13 @@ export const NameHeader: React.FC<Props> = props => {
         onCancel={() => setEditing(null)}
         isSubHeader={false}
         showLabel={true}
+        actions={[
+          {
+            name: t("Delete"),
+            onClick: onDelete,
+            permissions: [PermissionEnum.ApprovalSettingsSave],
+          },
+        ]}
       />
       <PageHeader
         text={props.identifier}
