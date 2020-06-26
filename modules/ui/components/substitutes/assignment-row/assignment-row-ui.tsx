@@ -13,6 +13,7 @@ import { canRemoveSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
 import { useHistory } from "react-router";
 import { VacancyViewRoute } from "ui/routes/vacancy";
+import { SubSpecificAssignmentRoute } from "ui/routes/sub-specific-assignment";
 
 type Props = {
   startDate: string;
@@ -72,6 +73,13 @@ export const AssignmentRowUI: React.FC<Props> = props => {
     history.push(url);
   };
 
+  const goToAssignment = (assignmentId: string) => {
+    const url = SubSpecificAssignmentRoute.generate({
+      assignmentId,
+    });
+    history.push(url);
+  };
+
   return (
     <div className={[classes.container, props.className].join(" ")}>
       <div className={classes.infoContainer}>
@@ -104,9 +112,17 @@ export const AssignmentRowUI: React.FC<Props> = props => {
               >{`#V${props.vacancyId}`}</Link>
             )}
 
-            <Typography className={classes.bold} noWrap>
-              #C{props.confirmationNumber}
-            </Typography>
+            {!props.isAdmin && (
+              <Link
+                className={classes.action}
+                onClick={() => goToAssignment(props.confirmationNumber)}
+              >{`#C${props.confirmationNumber}`}</Link>
+            )}
+            {props.isAdmin && (
+              <Typography className={classes.bold} noWrap>
+                #C{props.confirmationNumber}{" "}
+              </Typography>
+            )}
           </div>
 
           {props.canCancel && (

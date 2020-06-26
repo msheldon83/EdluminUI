@@ -40,6 +40,7 @@ import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
 type Props = {
   userId?: string;
   assignments: VacancyDetail[];
+  actingAsSubstitute?: boolean;
 };
 
 export const UpcomingAssignments: React.FC<Props> = props => {
@@ -116,6 +117,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
             shadeRow={false}
             key={index}
             className={classNames}
+            actingAsSubstitute={props.actingAsSubstitute}
           />
         );
       });

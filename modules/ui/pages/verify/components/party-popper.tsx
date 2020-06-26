@@ -23,11 +23,12 @@ export const PartyPopper: React.FC<Props> = ({
 }) => {
   const classes = useStyles();
   const [ref, { x, y, width: w, height: h }] = useDimensions();
+  // Commented out until react-confetti can be updated
   // We want to generate points along a line,
   // so we make a function to do so.
   // This will depend on the position and
   // dimensions of the popper svg.
-  const getLinePoint = React.useCallback((): { x: number; y: number } => {
+  /*const getLinePoint = React.useCallback((): { x: number; y: number } => {
     if (!x || !y || !w || !h) return { x: 0, y: 0 };
     // The endpoints of the line, for our particular svg, are:
     const p1 = [x + 0.23628 * w, y - 0.48127 * h];
@@ -40,14 +41,19 @@ export const PartyPopper: React.FC<Props> = ({
       x: p1[0] * (1 - r) + p2[0] * r,
       y: p1[1] * (1 - r) + p2[1] * r,
     };
-  }, [x, y, w, h]);
+    }, [x, y, w, h]);*/
 
   return (
     <Grid container direction="column" alignItems="center">
       <Grid item className={classes.popper}>
         {x && y && w && h && (
           <RedRoverConfetti
-            confettiSource={{ getPoint: getLinePoint }}
+            confettiSource={{
+              x: x + ((0.23628 + 0.6521) / 2) * w,
+              y: y - ((0.48127 + 0.11331) / 2) * h,
+              w: 0,
+              h: 0,
+            }}
             initialVelocityX={{ min: 1, max: 10 }}
             style={{ zIndex: 202 }}
             width={Math.max(width ?? 0, window.innerWidth)}

@@ -11,7 +11,6 @@ import {
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
-import { GetVacancyNotes } from "../graphql/get-vacancy-notes.gen";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { parseISO, format } from "date-fns";
 import clsx from "clsx";

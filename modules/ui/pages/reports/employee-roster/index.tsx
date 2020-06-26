@@ -17,7 +17,7 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
   // implementing Saved Views and want to make sure all Users default back
   // to the RDL that we define the next time they visit this report.
   const localStorageKey = React.useMemo(
-    () => `EmployeeRosterReport_20200623_${orgId}`,
+    () => `EmployeeRosterReport_20200626_${orgId}`,
     [orgId]
   );
   const rdl = React.useMemo(() => {
@@ -26,7 +26,7 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
       return localStorageRdl;
     }
 
-    return "QUERY FROM Employee WHERE (Active = '1') SELECT Concat(LastName,', ',FirstName) AS Employee WIDTH(250), ExternalId, Active, InvitationStatus, LocationNames, Title WIDTH(250), PositionTypeName, Email, LoginEmail, ContractName ORDER BY Concat(LastName,', ',FirstName) ASC";
+    return "QUERY FROM Employee WHERE (Active = '1') SELECT Concat(LastName,', ',FirstName) AS Employee WIDTH(250), ExternalId, Active, InvitationStatus, LocationNames, Title WIDTH(250), PositionTypeName, NeedsReplacement, Email, LoginEmail, ContractName ORDER BY Concat(LastName,', ',FirstName) ASC";
   }, [localStorageKey]);
 
   return (
@@ -39,6 +39,7 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
         "PositionTypeId",
         "Active",
         "InvitationStatus",
+        "NeedsReplacement"
       ]}
       saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
     />
