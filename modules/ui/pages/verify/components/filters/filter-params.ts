@@ -11,7 +11,7 @@ export const FilterQueryParamDefaults: VerifyFilters = {
 
   //Daily view specific
   date: format(today, "P"),
-  showVerified: "true",
+  showVerified: "false",
 
   // Shared
   locationIds: "",
@@ -90,7 +90,7 @@ const to = (o: VerifyFilters): VerifyQueryFilters => {
     dateRangeEnd: parse(o.dateRangeEnd, "MM/dd/yyyy", 0),
     confettiOnFinished: stringToBool(o.confettiOnFinished, false),
     date: parse(o.date, "MM/dd/yyyy", 0),
-    showVerified: stringToBool(o.showVerified, true),
+    showVerified: stringToBool(o.showVerified, false),
     subSource: o.subSource,
     locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
   };
