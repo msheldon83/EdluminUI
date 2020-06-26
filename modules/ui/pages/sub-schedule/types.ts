@@ -1,5 +1,8 @@
+import { VacancyDetail } from "graphql/server-types.gen";
+
 export type AssignmentVacancyDetails = {
   id?: string;
+  canCancel: boolean;
   assignment: {
     id: string;
     rowVersion: string;
@@ -21,6 +24,7 @@ export type AssignmentVacancyDetails = {
   payInfo?: { label?: string | null } | null;
   vacancy: {
     id: string;
+    canCancel: boolean;
     payInfoSummary?: { summaryLabel?: string | null } | null;
     notesToReplacement?: string | null;
     organization: { name?: string };

@@ -96,10 +96,10 @@ export const PersonViewPage: React.FC<{}> = props => {
     return <></>;
   }
 
-  const orgStatus =
+  const orgConfig =
     getOrgStatus.state === "LOADING"
       ? undefined
-      : getOrgStatus?.data?.organization?.byId?.config?.organizationTypeId;
+      : getOrgStatus?.data?.organization?.byId?.config;
 
   if (!orgUser) {
     // Redirect the User back to the List page
@@ -136,7 +136,8 @@ export const PersonViewPage: React.FC<{}> = props => {
     <>
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
       <PersonViewHeader
-        orgStatus={orgStatus}
+        orgStatus={orgConfig?.organizationTypeId}
+        orgFeatureFlags={orgConfig?.featureFlags}
         orgUser={orgUser}
         editing={editing}
         setEditing={setEditing}
