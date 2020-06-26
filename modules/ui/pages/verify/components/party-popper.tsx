@@ -3,12 +3,6 @@ import { Grid, Icon, makeStyles, Typography } from "@material-ui/core";
 import useDimensions from "react-use-dimensions";
 import { RedRoverConfetti } from "ui/components/confetti";
 
-const PartyPopperIcon: typeof Icon = props => (
-  <Icon {...props}>
-    <img src={require("ui/icons/party-popper.svg")} />
-  </Icon>
-);
-
 type Props = {
   width?: number;
   height?: number;
