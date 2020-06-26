@@ -302,6 +302,13 @@ export const Assignment: React.FC<Props> = props => {
       return;
     }
 
+    // Run the same validation we would on form submit
+    const errorMessage = validateAccountingCodeAllocations(allocations);
+    if (errorMessage) {
+      // Selections are invalid, don't save
+      return;
+    }
+
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
@@ -393,6 +400,29 @@ export const Assignment: React.FC<Props> = props => {
     t,
   ]);
 
+  const validateAccountingCodeAllocations = (
+    accountingCodeAllocations: AccountingCodeAllocation[]
+  ): string | undefined => {
+    if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
+      return undefined;
+    }
+
+    if (
+      accountingCodeAllocations.filter(
+        a => !a.accountingCodeId || !a.allocation
+      ).length > 0
+    ) {
+      return t("Accounting code selections not complete");
+    }
+
+    if (sum(accountingCodeAllocations.map(a => a.allocation)) !== 1) {
+      // Allocations need to add up to 100%
+      return t("Accounting code allocations do not total 100%");
+    }
+
+    return undefined;
+  };
+
   return (
     <div
       onClick={() => props.onSelectDetail(vacancyDetail.id)}
@@ -456,17 +486,13 @@ export const Assignment: React.FC<Props> = props => {
               accountingCodeAllocations: AccountingCodeAllocation[];
             }) {
               const accountingCodeAllocations = value.accountingCodeAllocations;
-              if (
-                !accountingCodeAllocations ||
-                accountingCodeAllocations.length === 0
-              ) {
-                return true;
-              }
+              const errorMessage = validateAccountingCodeAllocations(
+                accountingCodeAllocations
+              );
 
-              if (sum(accountingCodeAllocations.map(a => a.allocation)) !== 1) {
-                // Allocations need to add up to 100%
+              if (errorMessage) {
                 return new yup.ValidationError(
-                  t("Accounting code allocations do not total 100%"),
+                  errorMessage,
                   null,
                   "accountingCodeAllocations"
                 );
