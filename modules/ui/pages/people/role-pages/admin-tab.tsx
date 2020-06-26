@@ -2,7 +2,6 @@ import * as React from "react";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-
 import {
   OrgUserRole,
   OrganizationRelationshipType,
@@ -10,12 +9,13 @@ import {
   PermissionEnum,
 } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
-import { useHistory } from "react-router";
+import { Can } from "ui/components/auth/can";
 import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 import { OrganizationList } from "../components/admin/org-list";
 import { PersonViewRoute } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
 import { AccessControl } from "../components/admin/access-control";
+import { ApproverGroupMembership } from "../components/admin/approver-group-membership";
 import { Information } from "../components/information";
 import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
 import { canEditAdmin } from "helpers/permissions";
@@ -31,7 +31,6 @@ type Props = {
 export const AdminTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const canDoFn = useCanDo();
-  const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
 
   const [updateAdmin] = useMutationBundle(SaveAdmin, {
@@ -122,8 +121,16 @@ export const AdminTab: React.FC<Props> = props => {
         onSubmit={onUpdateAdmin}
         onCancel={onCancelAdmin}
       />
-      {/* 
-      Approver Group */}
+      <Can do={[PermissionEnum.ApprovalSettingsView]}>
+        <ApproverGroupMembership
+          editing={props.editing}
+          editable={canEditThisAdmin}
+          orgUserId={params.orgUserId}
+          setEditing={props.setEditing}
+          orgId={orgUser.orgId.toString()}
+          onCancel={onCancelAdmin}
+        />
+      </Can>
       {showRelatedOrgs && (
         <OrganizationList
           editing={props.editing}

@@ -7126,9 +7126,7 @@ type VacancyMutations {
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
   swapVacancyAssignments(swapDetails: SwapVacancyAssignmentsInput!): Boolean
   verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
-  verifyVacancyDetailBatch(
-    vacancyDetailBatch: VacancyDetailVerifyBatchInput!
-  ): VerifyVacancyDetailBatchResult
+  verifyVacancyDetailBatch(vacancyDetailBatch: VacancyDetailVerifyBatchInput!): VerifyVacancyDetailBatchResult
 }
 
 type VacancyNotificationLog {
@@ -7170,28 +7168,9 @@ type VacancyQueries {
     sortBy: [SortDetailsInput]
   ): PagedVacancy
   byId(id: ID!): Vacancy
-  getAssignmentsForVerify(
-    locationIds: [ID]
-    fromDate: Date
-    toDate: Date
-    limit: Int
-    orgId: ID!
-    shadowFromOrgId: ID
-    includeVerified: Boolean
-  ): [VacancyDetail]
-  getCountOfAssignmentsForVerify(
-    locationIds: [ID]
-    fromDate: Date
-    toDate: Date
-    orgId: ID!
-    includeVerified: Boolean
-  ): [VacancyDetailCount]
-  getJointCountOfAssignmentsForVerify(
-    locationIds: [ID]
-    fromDate: Date
-    toDate: Date
-    orgId: ID!
-  ): [VacancyDetailJointCount]
+  getAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, shadowFromOrgId: ID, includeVerified: Boolean): [VacancyDetail]
+  getCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!, includeVerified: Boolean): [VacancyDetailCount]
+  getJointCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!): [VacancyDetailJointCount]
   getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: ID!): Int
   wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
