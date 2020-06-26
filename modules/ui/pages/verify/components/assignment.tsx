@@ -315,7 +315,7 @@ export const Assignment: React.FC<Props> = props => {
       accountingCodeAllocations: allocations,
     });
 
-    setCurrentAccountingCodeAllocations(currentAccountingCodeAllocations);
+    setCurrentAccountingCodeAllocations(allocations);
   };
 
   const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
@@ -373,7 +373,7 @@ export const Assignment: React.FC<Props> = props => {
 
     // Multiple Accounting Code Allocations in play
     return (
-      <div className={classes.multiAccountingCodes}>
+      <div className={clsx(classes.multiAccountingCodes, classes.lightText)}>
         <div className={classes.multiAccountingCodesLabel}>{t("Acct")}:</div>
         <div>
           {currentAccountingCodeAllocations.map((a, i) => {
@@ -575,8 +575,16 @@ export const Assignment: React.FC<Props> = props => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item container alignItems="flex-end">
-                  <Grid item xs={4}>
+                <Grid item container alignItems="flex-start">
+                  <Grid
+                    item
+                    xs={
+                      accountingCodeValueSelection?.type ===
+                        "multiple-allocations" && isActiveCard
+                        ? 6
+                        : 4
+                    }
+                  >
                     {isActiveCard ? (
                       <>
                         <Grid
@@ -671,7 +679,15 @@ export const Assignment: React.FC<Props> = props => {
                       </Typography>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid
+                    item
+                    xs={
+                      accountingCodeValueSelection?.type ===
+                        "multiple-allocations" && isActiveCard
+                        ? 6
+                        : 4
+                    }
+                  >
                     {isActiveCard ? (
                       <>
                         <Can do={[PermissionEnum.AbsVacSavePayCode]}>
@@ -716,7 +732,15 @@ export const Assignment: React.FC<Props> = props => {
                       >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid
+                    item
+                    xs={
+                      accountingCodeValueSelection?.type ===
+                        "multiple-allocations" && isActiveCard
+                        ? 12
+                        : 4
+                    }
+                  >
                     {isActiveCard ? (
                       <>
                         <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
