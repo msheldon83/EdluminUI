@@ -13,6 +13,7 @@ import {
   FormControlLabel,
   Grid,
   Typography,
+  makeStyles,
 } from "@material-ui/core";
 import { VerifyDailyRoute } from "ui/routes/absence-vacancy/verify";
 import { PageTitle } from "ui/components/page-title";
@@ -29,6 +30,7 @@ import { AssignmentDetail } from "./types";
 
 export const VerifyDailyPage: React.FC<{}> = props => {
   const { t } = useTranslation();
+  const classes = useStyles();
   const params = useRouteParams(VerifyDailyRoute);
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const { openSnackbar } = useSnackbar();
@@ -164,7 +166,12 @@ export const VerifyDailyPage: React.FC<{}> = props => {
               width={width}
             />
             {assignments.find(a => !a.verifiedAtLocal) != undefined && (
-              <Grid container direction="row" justify="flex-end">
+              <Grid
+                container
+                direction="row"
+                justify="flex-end"
+                className={classes.verifyAll}
+              >
                 <FormControlLabel
                   label={`${t(
                     "I attest that I have verified the details of all "
@@ -193,3 +200,9 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     </div>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  verifyAll: {
+    marginTop: theme.spacing(1),
+  },
+}));

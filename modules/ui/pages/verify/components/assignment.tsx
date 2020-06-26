@@ -260,9 +260,7 @@ export const Assignment: React.FC<Props> = props => {
     t,
   ]);
 
-  const notesToAdministrator = vacancyDetail.vacancy?.isNormalVacancy
-    ? vacancyDetail.vacancy?.absence?.notesToApprover
-    : undefined;
+  const notesToAdministrator = vacancyDetail.vacancy?.absence?.notesToApprover;
 
   const adminOnlyNotes = vacancyDetail.vacancy?.isNormalVacancy
     ? vacancyDetail.vacancy?.adminOnlyNotes

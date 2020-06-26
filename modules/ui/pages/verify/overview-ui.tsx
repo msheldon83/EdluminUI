@@ -109,7 +109,7 @@ export const VerifyOverviewUI: React.FC<Props> = ({ dates, goToDate }) => {
       </colgroup>
       <OverviewTableHead />
       <TableBody>
-        {dates.slice(1).map((d, i) => (
+        {dates.map((d, i) => (
           <OverviewTableRow key={i} {...d} goToDate={goToDate} />
         ))}
       </TableBody>
