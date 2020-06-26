@@ -11,8 +11,8 @@ import {
   getNextId,
 } from "./graph-helpers";
 import { AddUpdateApprover } from "./approver-popper";
-import { compact } from "lodash-es";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
+import { breakLabel } from "./text-helper";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
@@ -60,7 +60,7 @@ export const StepsGraph: React.FC<Props> = props => {
   const EdgeTypes = GraphConfig.EdgeTypes;
 
   const onSelectNode = (node: INode | null) => {
-    if (node && node.type === "approverGroup") {
+    if (node && node.type !== "end") {
       const nodeId = `node-${node.id}-container`;
       const nodeElement = document.getElementById(nodeId);
       setElAnchor(nodeElement);
@@ -99,9 +99,30 @@ export const StepsGraph: React.FC<Props> = props => {
         </text>
       );
     } else {
+      const label = breakLabel(data.title, 25);
       return (
-        <text textAnchor="middle" className={classes.approverGroupText}>
-          {data.title}
+        <text
+          y={
+            label.length === 1
+              ? "0"
+              : label.length === 2
+              ? "-10"
+              : label.length === 3
+              ? "-15"
+              : "-20"
+          }
+          className={classes.approverGroupText}
+        >
+          {label.map((word, index) => (
+            <tspan
+              dy={index > 0 ? "20" : "0"}
+              key={index}
+              textAnchor={"middle"}
+              x={"0"}
+            >
+              {word}
+            </tspan>
+          ))}
         </text>
       );
     }
@@ -149,6 +170,23 @@ export const StepsGraph: React.FC<Props> = props => {
         (sourceStep.xPosition as number) +
         (targetStep.xPosition - sourceStep.xPosition) / 2,
     });
+  };
+
+  const handleUpdateCondition = (
+    stepId?: string,
+    groupId?: string,
+    args?: string,
+    criteria?: string
+  ) => {
+    if (!stepId && groupId) {
+      handleAddCondition(groupId, args, criteria);
+    } else {
+      const stepIndex = steps.findIndex(x => x.stepId == stepId);
+      steps[stepIndex].approverGroupHeaderId = groupId ?? null;
+      steps[stepIndex].onApproval[0].args = args; // TODO: This will need to handle multiple conditions when we start doing IFs
+      steps[stepIndex].onApproval[0].criteria = criteria;
+    }
+
     handleClosePopper();
   };
 
@@ -225,7 +263,7 @@ export const StepsGraph: React.FC<Props> = props => {
                 <AddUpdateApprover
                   orgId={props.orgId}
                   onClose={() => handleClosePopper()}
-                  onSave={handleAddCondition}
+                  onSave={handleUpdateCondition}
                   steps={steps}
                   approverGroups={approverGroups}
                   myStep={selectedStep}
@@ -254,6 +292,7 @@ const useStyles = makeStyles(theme => ({
   approverGroupText: {
     color: theme.customColors.black,
     fontSize: theme.typography.pxToRem(20),
+    wordWrap: "break-word",
   },
   customEdge: {
     stroke: theme.customColors.black,
