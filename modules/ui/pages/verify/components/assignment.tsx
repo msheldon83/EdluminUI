@@ -361,7 +361,7 @@ export const Assignment: React.FC<Props> = props => {
         currentAccountingCodeAllocations[0].accountingCodeId;
       const accountingCodeLabel = accountingCodeOptions.find(
         o => o.value === accountingCodeId
-      )?.label;
+      )?.label ?? t("N/A");
       return (
         <div className={classes.lightText}>{`${t(
           "Acct"
@@ -378,7 +378,7 @@ export const Assignment: React.FC<Props> = props => {
             const accountingCodeId = a.accountingCodeId;
             const accountingCodeLabel = accountingCodeOptions.find(
               o => o.value === accountingCodeId
-            )?.label;
+            )?.label ?? t("N/A");
             return (
               <div key={i}>
                 {accountingCodeLabel} ({Math.floor(a.allocation * 100)}
@@ -573,7 +573,7 @@ export const Assignment: React.FC<Props> = props => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item container alignItems="flex-end" spacing={1}>
+                <Grid item container alignItems="flex-start" spacing={1}>
                   <Grid item container xs={4} alignItems="flex-end">
                     {isActiveCard ? (
                       <>
