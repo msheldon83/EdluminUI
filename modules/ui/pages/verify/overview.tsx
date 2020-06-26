@@ -81,8 +81,14 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           filters={filters}
           setFilters={updateFilters}
         />
-        {allVerified && (
-          <PartyPopper width={scrollWidth} height={scrollHeight}>
+        {allVerified && filters.confettiOnFinished && (
+          <PartyPopper
+            width={scrollWidth}
+            height={scrollHeight}
+            onConfettiComplete={() => {
+              updateFilters({ ...filters, confettiOnFinished: false });
+            }}
+          >
             {t("Hooray! Your job is done here!")}
           </PartyPopper>
         )}
@@ -94,6 +100,7 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
             goToDate={date => {
               const searchParams = new URLSearchParams(location.search);
               searchParams.set("date", format(date, "P"));
+              searchParams.set("confettiOnFinished", "true");
               history.push({
                 pathname: VerifyDailyRoute.generate(params),
                 search: searchParams.toString(),

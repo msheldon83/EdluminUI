@@ -41,6 +41,7 @@ export const OverviewFilters: React.FC<Props> = ({
               ...filters,
               dateRangeStart,
               dateRangeEnd,
+              confettiOnFinished: false,
             })
           }
         />

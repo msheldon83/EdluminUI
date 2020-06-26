@@ -95,7 +95,7 @@ export const VerifyOverviewUI: React.FC<Props> = ({ dates, goToDate }) => {
     );
 
   const sortedDates = dates.sort((d1, d2) =>
-    isBefore(d1.date, d2.date) ? -1 : 1
+    isBefore(d1.date, d2.date) ? 1 : -1
   );
 
   return (
