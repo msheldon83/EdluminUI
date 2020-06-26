@@ -54,11 +54,6 @@ export const VerifiedDailyFooter: React.FC<Props> = ({ orgId }) => {
       alignItems="center"
       className={classes.container}
     >
-      {unverifiedCount != 0 && (
-        <Grid item>
-          <Typography>{t("...but there's more to be done")}</Typography>
-        </Grid>
-      )}
       <Grid item container justify="center">
         <Grid item className={classes.cell}>
           <BaseLink
@@ -95,6 +90,7 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
   },
   cell: {
-    padding: theme.spacing(3),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
   },
 }));

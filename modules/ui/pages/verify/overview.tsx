@@ -13,14 +13,13 @@ import { OverviewFilters as Filters } from "./components/filters/overview";
 import { DayRow } from "./types";
 import { VerifyOverviewUI } from "./overview-ui";
 import { GetJointAssignmentCount } from "./graphql/get-joint-assignment-count.gen";
-import { Typography } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import {
   VerifyOverviewRoute,
   VerifyDailyRoute,
 } from "ui/routes/absence-vacancy/verify";
 import { FilterQueryParams } from "./components/filters/filter-params";
 import { useScrollDimensions } from "hooks/use-scroll-dimensions";
-import { PartyPopper } from "./components/party-popper";
 
 export const VerifyOverviewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -57,14 +56,6 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           return acc;
         }, []);
 
-  const allVerified = React.useMemo(
-    () =>
-      dates == "LOADING"
-        ? false
-        : dates.every(({ unverifiedCount }) => unverifiedCount == 0),
-    [dates]
-  );
-
   const getDateTitle = (startDate: Date, endDate: Date) =>
     getPresetByDates(startDate, endDate)?.label ??
     `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
@@ -81,17 +72,6 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
           filters={filters}
           setFilters={updateFilters}
         />
-        {allVerified && filters.confettiOnFinished && (
-          <PartyPopper
-            width={scrollWidth}
-            height={scrollHeight}
-            onConfettiComplete={() => {
-              updateFilters({ ...filters, confettiOnFinished: false });
-            }}
-          >
-            {t("Hooray! Your job is done here!")}
-          </PartyPopper>
-        )}
         {dates == "LOADING" ? (
           <Typography>{t("Loading...")}</Typography>
         ) : (

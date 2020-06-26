@@ -149,15 +149,24 @@ export const VerifyDailyPage: React.FC<{}> = props => {
 
   return (
     <div ref={ref}>
-      <ReturnLink
-        linkClass={classes.link}
-        defaultComingFrom={t("summary")}
-        defaultReturnTo={{
-          pathname: VerifyOverviewRoute.generate(params),
-          search: location.search,
-        }}
-      />
-      <Typography variant="h5">{t("Verify substitute assignments")}</Typography>
+      <Grid
+        container
+        direction="row"
+        className={classes.headerGrid}
+        justify="space-between"
+      >
+        <Typography variant="h5">
+          {t("Verify substitute assignments")}
+        </Typography>
+        <ReturnLink
+          linkClass={classes.link}
+          defaultComingFrom={t("summary")}
+          defaultReturnTo={{
+            pathname: VerifyOverviewRoute.generate(params),
+            search: location.search,
+          }}
+        />
+      </Grid>
       <PageTitle title={format(new Date(filters.date), "EEE, MMM d")} />
       <Section>
         <Filters
@@ -216,6 +225,9 @@ export const VerifyDailyPage: React.FC<{}> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  headerGrid: {
+    width: "100%",
+  },
   verifyAll: {
     marginTop: theme.spacing(1),
   },
