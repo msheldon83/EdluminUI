@@ -12,7 +12,6 @@ import { Section } from "ui/components/section";
 import { OverviewFilters as Filters } from "./components/filters/overview";
 import { DayRow } from "./types";
 import { VerifyOverviewUI } from "./overview-ui";
-import { GetAssignmentCount } from "./graphql/get-assignment-count.gen";
 import { GetJointAssignmentCount } from "./graphql/get-joint-assignment-count.gen";
 import { Typography } from "@material-ui/core";
 import {
@@ -38,6 +37,7 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
       locationIds: filters.locationIds,
       fromDate: filters.dateRangeStart,
       toDate: filters.dateRangeEnd,
+      shadowFromOrgId: filters.subSource,
     },
   });
 

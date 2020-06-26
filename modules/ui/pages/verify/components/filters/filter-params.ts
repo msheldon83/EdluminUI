@@ -45,7 +45,7 @@ export type VerifyQueryFilters = {
 
   // Shared
   locationIds: string[];
-  subSource: string;
+  subSource?: string;
 };
 
 export const FilterParams: Isomorphism<VerifyFilters, VerifyQueryFilters> = {
@@ -91,7 +91,7 @@ const to = (o: VerifyFilters): VerifyQueryFilters => {
     confettiOnFinished: stringToBool(o.confettiOnFinished, false),
     date: parse(o.date, "MM/dd/yyyy", 0),
     showVerified: stringToBool(o.showVerified, false),
-    subSource: o.subSource,
+    subSource: o.subSource == "" ? undefined : o.subSource,
     locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
   };
 };
@@ -103,7 +103,7 @@ const from = (o: VerifyQueryFilters): VerifyFilters => {
     confettiOnFinished: boolToString(o.confettiOnFinished),
     date: format(o.date, "P"),
     showVerified: boolToString(o.showVerified),
-    subSource: o.subSource,
+    subSource: o.subSource ?? "",
     locationIds: o.locationIds.length == 0 ? "" : o.locationIds.join(","),
   };
 };
