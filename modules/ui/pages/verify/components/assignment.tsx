@@ -452,12 +452,13 @@ export const Assignment: React.FC<Props> = props => {
             vacancyDetailId: vacancyDetail.id,
             payCodeId: data.payCodeId ? data.payCodeId : null,
             verifyComments: data.verifyComments,
-            accountingCodeAllocations: data.accountingCodeAllocations?.map(a => {
-              return {
-                accountingCodeId: a.accountingCodeId,
-                allocation: a.allocation
-              }
-            }) ?? [],
+            accountingCodeAllocations:
+              data.accountingCodeAllocations?.map(a => {
+                return {
+                  accountingCodeId: a.accountingCodeId,
+                  allocation: a.allocation,
+                };
+              }) ?? [],
             dayPortion: dayConversion?.dayEquivalent ?? data.dayPortion,
             payTypeId:
               dayConversion || travelingTeacher
@@ -779,9 +780,13 @@ export const Assignment: React.FC<Props> = props => {
                                   break;
                               }
 
+                              // We only want to validate this field when the form is submitted,
+                              // but if we currently have a validation error, then we need to validate
+                              // the field until the User fixes the issue and the error is removed
                               setFieldValue(
                                 "accountingCodeAllocations",
-                                allocations
+                                allocations,
+                                !!errors?.accountingCodeAllocations
                               );
                               await handleAccountingCodeOnChange(allocations);
                             }}
