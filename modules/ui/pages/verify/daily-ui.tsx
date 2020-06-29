@@ -115,9 +115,12 @@ export const VerifyDailyUI: React.FC<Props> = ({
         totalAssignments={assignments.length}
       />
       {assignments.length > 0 && unverified.length == 0 && (
-        <PartyPopper width={width} height={height}>
+        <>
+          <PartyPopper width={width} height={height}>
+            {t("Hooray, your job is done here!")}
+          </PartyPopper>
           <VerifiedDailyFooter orgId={orgId} />
-        </PartyPopper>
+        </>
       )}
       <Grid
         container

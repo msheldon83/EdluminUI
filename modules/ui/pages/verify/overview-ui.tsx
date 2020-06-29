@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import {
   Typography,
+  Grid,
   Table,
   TableBody,
   TableCell,
@@ -99,25 +100,41 @@ export const VerifyOverviewUI: React.FC<Props> = ({ dates, goToDate }) => {
   );
 
   return (
-    <Table className={classes.table}>
-      <colgroup>
-        <col className={classes.date} />
-        <col className={classes.progress} />
-        <col />
-        <col />
-        <col />
-      </colgroup>
-      <OverviewTableHead />
-      <TableBody>
-        {dates.map((d, i) => (
-          <OverviewTableRow key={i} {...d} goToDate={goToDate} />
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      {dates.every(({ unverifiedCount }) => unverifiedCount == 0) && (
+        <Grid className={classes.allVerified}>
+          <Typography variant="h5">
+            {t("Hooray! Your job is done here!")}
+          </Typography>
+        </Grid>
+      )}
+      <Table className={classes.table}>
+        <colgroup>
+          <col className={classes.date} />
+          <col className={classes.progress} />
+          <col />
+          <col />
+          <col />
+        </colgroup>
+        <OverviewTableHead />
+        <TableBody>
+          {dates.map((d, i) => (
+            <OverviewTableRow key={i} {...d} goToDate={goToDate} />
+          ))}
+        </TableBody>
+      </Table>
+    </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  allVerified: {
+    backgroundColor: "rgba(132, 207, 163, 0.2)",
+    borderRadius: theme.spacing(0.5),
+    border: `1px solid ${theme.customColors.success}`,
+    padding: theme.spacing(3),
+    marginBottom: theme.spacing(3),
+  },
   table: {
     tableLayout: "fixed",
     borderBottom: `1px solid ${theme.customColors.sectionBorder}`,

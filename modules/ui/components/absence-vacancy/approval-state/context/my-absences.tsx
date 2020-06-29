@@ -3,11 +3,11 @@ import { useMemo } from "react";
 import { makeStyles, Grid } from "@material-ui/core";
 import { useQueryBundle } from "graphql/hooks";
 import { GetEmployeeAbsencesForContext } from "../graphql/get-employee-absences-for-context.gen";
-import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { useTranslation } from "react-i18next";
 import { parseISO, format } from "date-fns";
 import { compact } from "lodash-es";
 import { getDateRangeDisplay } from "ui/components/employee/helpers";
+import { getBeginningAndEndOfSchoolYear } from "ui/components/helpers";
 
 type Props = {
   employeeId: string;
@@ -16,32 +16,25 @@ type Props = {
   employeeName: string;
   locationIds: string[];
   actingAsEmployee?: boolean;
+  startDate?: string | null;
 };
 
 export const EmployeeAbsences: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const currentSchoolYear = useCurrentSchoolYear(props.orgId);
+  const startDate = props.startDate ? parseISO(props.startDate) : new Date();
 
-  const startDateOfSchoolYear = useMemo(
-    () =>
-      currentSchoolYear ? parseISO(currentSchoolYear?.startDate) : new Date(),
-    [currentSchoolYear]
-  );
-  const endDate = useMemo(
-    () =>
-      currentSchoolYear ? parseISO(currentSchoolYear?.endDate) : new Date(),
-    [currentSchoolYear]
-  );
+  const [beginningOfSchoolYear, endOfSchoolYear] = useMemo(() => {
+    return getBeginningAndEndOfSchoolYear(startDate);
+  }, [startDate]);
 
   const getEmployeeAbsences = useQueryBundle(GetEmployeeAbsencesForContext, {
     variables: {
       id: props.employeeId,
-      fromDate: startDateOfSchoolYear,
-      toDate: endDate,
+      fromDate: beginningOfSchoolYear,
+      toDate: endOfSchoolYear,
     },
-    skip: !currentSchoolYear?.startDate || !currentSchoolYear?.endDate,
   });
 
   const employeeAbsences = useMemo(
@@ -63,7 +56,10 @@ export const EmployeeAbsences: React.FC<Props> = props => {
       <Grid item xs={12}>
         <div className={classes.subTitle}>{`${
           props.actingAsEmployee ? t("Your") : `${props.employeeName}'s`
-        } ${t("absences this school year")}`}</div>
+        } ${t("absences in")} ${format(beginningOfSchoolYear, "yyyy")}-${format(
+          endOfSchoolYear,
+          "yyyy"
+        )}`}</div>
       </Grid>
       <Grid item xs={12}>
         {employeeAbsences.length === 0 ? (

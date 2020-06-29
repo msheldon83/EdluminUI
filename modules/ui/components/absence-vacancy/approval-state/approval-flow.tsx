@@ -58,7 +58,9 @@ export const WorkflowSummary: React.FC<Props> = props => {
 
   const approvedSteps = useMemo(
     () =>
-      orderedSteps.filter(x => x.stepId && approvedStepIds.includes(x.stepId)),
+      orderedSteps.filter(
+        x => x.stepId && approvedStepIds.includes(x.stepId)
+      ) ?? [],
     [orderedSteps, approvedStepIds]
   );
 
@@ -77,7 +79,7 @@ export const WorkflowSummary: React.FC<Props> = props => {
         x =>
           x.stepId &&
           !approvedStepIds.includes(x.stepId) &&
-          deniedStepIds.includes(x.stepId) &&
+          !deniedStepIds.includes(x.stepId) &&
           x.stepId !== currentStepId
       ),
     [orderedSteps, approvedStepIds, deniedStepIds, currentStepId]
@@ -85,9 +87,13 @@ export const WorkflowSummary: React.FC<Props> = props => {
 
   const deniedSteps = useMemo(
     () =>
-      orderedSteps.filter(x => x.stepId && deniedStepIds.includes(x.stepId)),
+      orderedSteps.filter(x => x.stepId && deniedStepIds.includes(x.stepId)) ??
+      [],
     [orderedSteps, deniedStepIds]
   );
+
+  console.log(nextSteps);
+  console.log(orderedSteps);
 
   const renderApprovedSteps = () => {
     return (
@@ -180,9 +186,12 @@ const useStyles = makeStyles(theme => ({
   container: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
+    width: "100%",
   },
   stepsContainer: {
     display: "flex",
+    width: "100%",
+    overflowX: "auto",
   },
   titleText: {
     fontWeight: 600,
@@ -202,7 +211,7 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid #4CC17C",
     background: "#E6F5ED",
     boxSizing: "border-box",
-    width: "125px",
+    width: "115px",
     height: "70px",
     lineHeight: "70px",
     textAlign: "center",
@@ -213,7 +222,7 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid #C62828",
     background: "#FFDDDD",
     boxSizing: "border-box",
-    width: "125px",
+    width: "115px",
     height: "70px",
     lineHeight: "70px",
     textAlign: "center",
@@ -224,7 +233,7 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid #050039",
     background: "#FFFFFF",
     boxSizing: "border-box",
-    width: "125px",
+    width: "115px",
     height: "70px",
     lineHeight: "70px",
     textAlign: "center",
@@ -235,7 +244,7 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid #9B99B0",
     boxSizing: "border-box",
     background: "#FFFFFF",
-    width: "125px",
+    width: "115px",
     height: "70px",
     lineHeight: "70px",
     textAlign: "center",

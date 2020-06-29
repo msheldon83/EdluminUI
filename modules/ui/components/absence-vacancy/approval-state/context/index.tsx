@@ -52,6 +52,7 @@ export const Context: React.FC<Props> = props => {
           employeeName={props.employeeName ?? ""}
           locationIds={props.locationIds}
           actingAsEmployee={props.actingAsEmployee}
+          startDate={props.startDate}
         />
       )}
     </div>
