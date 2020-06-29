@@ -22,7 +22,7 @@ import {
 import * as yup from "yup";
 import { DeletePostionType } from "./graphql/DeletePositionType.gen";
 import { UpdatePositionType } from "./graphql/update-position-type.gen";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { NeedsReplacement, PermissionEnum } from "graphql/server-types.gen";
 import { ReplacementCriteria } from "./replacement-criteria";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
@@ -323,10 +323,12 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           </Grid>
         </Grid>
       </Section>
-      <ReplacementCriteria
-        editing={editing}
-        replacementCriteria={replacementCriteria}
-      />
+      {positionType.needsReplacement != NeedsReplacement.No && (
+        <ReplacementCriteria
+          editing={editing}
+          replacementCriteria={replacementCriteria}
+        />
+      )}
       <PositionTypeAbsReasonsCard
         positionTypeId={positionType.id}
         positionTypeName={positionType.name}
