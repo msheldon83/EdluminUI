@@ -29,6 +29,7 @@ export const SubPayInformation: React.FC<Props> = props => {
   return (
     <>
       <Formik
+        enableReinitialize
         onSubmit={async (data, e) => {
           await props.onSubmit({
             payCodeId: data.payCodeId,

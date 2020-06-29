@@ -190,6 +190,7 @@ export const ApproverGroupMembership: React.FC<Props> = props => {
 
   return (
     <Formik
+      enableReinitialize
       initialValues={{
         approverGroupHeaderId: undefined,
         locationId: undefined,
