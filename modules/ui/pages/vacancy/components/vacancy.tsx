@@ -32,7 +32,10 @@ import { VacancyConfirmation } from "./vacancy-confirmation";
 import { compact, isEqual, sum } from "lodash-es";
 import { ExecutionResult } from "graphql";
 import { Prompt, useRouteMatch } from "react-router";
-import { buildVacancyCreateInput } from "../helpers";
+import {
+  buildVacancyCreateInput,
+  validateAccountingCodeAllocations,
+} from "../helpers";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -616,6 +619,8 @@ export const VacancyUI: React.FC<Props> = props => {
       )}
       <Formik
         initialValues={initialFormValues}
+        validateOnBlur={false}
+        validateOnChange={false}
         validationSchema={yup.object().shape({
           details: yup.array().of(
             yup.object().test({
@@ -623,25 +628,19 @@ export const VacancyUI: React.FC<Props> = props => {
               test: function test(value: VacancyDetailItem) {
                 const accountingCodeAllocations =
                   value.accountingCodeAllocations;
-                if (
-                  !accountingCodeAllocations ||
-                  accountingCodeAllocations.length === 0
-                ) {
+                const error = validateAccountingCodeAllocations(
+                  accountingCodeAllocations ?? [],
+                  t
+                );
+                if (!error) {
                   return true;
                 }
 
-                if (
-                  sum(accountingCodeAllocations.map(a => a.allocation)) !== 1
-                ) {
-                  // Allocations need to add up to 100%
-                  return new yup.ValidationError(
-                    t("Accounting code allocations do not total 100%"),
-                    null,
-                    `${this.path}.accountingCodeAllocations`
-                  );
-                }
-
-                return true;
+                return new yup.ValidationError(
+                  error,
+                  null,
+                  `${this.path}.accountingCodeAllocations`
+                );
               },
             })
           ),

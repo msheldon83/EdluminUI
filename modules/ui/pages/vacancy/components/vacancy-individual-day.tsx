@@ -19,10 +19,14 @@ import {
   AccountingCodeAllocation,
   VacancyDetailsFormData,
 } from "../helpers/types";
-import { AccountingCodeDropdown } from "ui/components/form/accounting-code-dropdown";
+import {
+  AccountingCodeDropdown,
+  AccountingCodeValue,
+} from "ui/components/form/accounting-code-dropdown";
 import { useFormikContext, FormikErrors } from "formik";
 import { isArray } from "lodash-es";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence-vacancy/helpers";
+import { validateAccountingCodeAllocations } from "../helpers";
 
 type Props = {
   vacancyDetail: VacancyDetailItem;
@@ -213,11 +217,26 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     };
   }, [vacancyReasonOptions, vacancyDetail.vacancyReasonId]);
 
-  const accountingCodeError =
-    errors?.details && isArray(errors.details) && errors.details[dayIndex]
-      ? (errors.details[dayIndex] as FormikErrors<VacancyDetailItem>)
-          ?.accountingCodeAllocations
-      : undefined;
+  const accountingCodeError = useMemo(() => {
+    const formikError =
+      errors?.details && isArray(errors.details) && errors.details[dayIndex]
+        ? (errors.details[dayIndex] as FormikErrors<VacancyDetailItem>)
+            ?.accountingCodeAllocations
+        : undefined;
+
+    if (formikError) {
+      // Because we're only validating on submit, we may have a formik
+      // error that the User has since fixed, but is still present until
+      // the form is submitted again. This will basically run the same validation
+      // and ultimately hide the error if the User has fixed the issue
+      const currentAllocations = getAccountingCodeAllocations(
+        accountingCodeValueSelection
+      );
+      return validateAccountingCodeAllocations(currentAllocations, t);
+    }
+
+    return undefined;
+  }, [accountingCodeValueSelection, dayIndex, errors?.details, t]);
 
   return (
     <Grid container justify="space-between" spacing={2}>
@@ -407,28 +426,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             disabled={disableAccountingCode}
             onChange={value => {
               setAccountingCodeValueSelection(value);
-              const allocations: AccountingCodeAllocation[] = [];
-
-              switch (value.type) {
-                case "single-allocation":
-                  allocations.push({
-                    accountingCodeId: value.selection?.value?.toString() ?? "",
-                    allocation: 1.0,
-                    accountingCodeName: value.selection?.label ?? "",
-                  });
-                  break;
-                case "multiple-allocations":
-                  allocations.push(
-                    ...value.allocations.map(a => {
-                      return {
-                        accountingCodeId: a.selection?.value?.toString() ?? "",
-                        allocation: a.percentage ? a.percentage / 100 : 0,
-                        accountingCodeName: a.selection?.label ?? "",
-                      };
-                    })
-                  );
-                  break;
-              }
+              const allocations = getAccountingCodeAllocations(value);
 
               const newVacDetail: VacancyDetailItem = {
                 ...vacancyDetail,
@@ -446,3 +444,31 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({}));
+
+const getAccountingCodeAllocations = (
+  value: AccountingCodeValue
+): AccountingCodeAllocation[] => {
+  const allocations: AccountingCodeAllocation[] = [];
+
+  switch (value.type) {
+    case "single-allocation":
+      allocations.push({
+        accountingCodeId: value.selection?.value?.toString() ?? "",
+        allocation: 1.0,
+        accountingCodeName: value.selection?.label ?? "",
+      });
+      break;
+    case "multiple-allocations":
+      allocations.push(
+        ...value.allocations.map(a => {
+          return {
+            accountingCodeId: a.selection?.value?.toString() ?? "",
+            allocation: a.percentage ? a.percentage / 100 : 0,
+            accountingCodeName: a.selection?.label ?? "",
+          };
+        })
+      );
+      break;
+  }
+  return allocations;
+};
