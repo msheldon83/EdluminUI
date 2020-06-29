@@ -154,15 +154,20 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
         updateDetailAccountingCodes(value);
       }
 
-      await setValue("accountingCodeAllocations", value);
-      await triggerValidation({ name: "accountingCodeAllocations" });
+      const hasValidationError = !!errors.accountingCodeAllocations;
+
+      await setValue("accountingCodeAllocations", value, hasValidationError);
+      if (hasValidationError) {
+        await triggerValidation({ name: "accountingCodeAllocations" });
+      }
     },
     [
-      setValue,
-      triggerValidation,
       detailsHaveDifferentAccountingCodes,
-      updateDetailAccountingCodes,
       hasEditedDetails,
+      errors.accountingCodeAllocations,
+      setValue,
+      updateDetailAccountingCodes,
+      triggerValidation,
     ]
   );
 
