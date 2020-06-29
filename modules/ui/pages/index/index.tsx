@@ -51,15 +51,24 @@ export const IndexPage: React.FunctionComponent = props => {
   // If they are an employee send them to the employee page
   // Otherwise, they must be a sub
   // If a combination of roles, they will go to admin first, then employee, then sub
+  // If they were impersonating an OrgUser, send them back to that OrgUser's page.
   return (
     <>
-      {impersonatingOrgId && impersonatingOrgUserId ? (
-        <Redirect
-          to={PersonViewRoute.generate({
-            organizationId: impersonatingOrgId,
-            orgUserId: impersonatingOrgUserId,
-          })}
-        />
+      {impersonatingOrgId ? (
+        impersonatingOrgUserId ? (
+          <Redirect
+            to={PersonViewRoute.generate({
+              organizationId: impersonatingOrgId,
+              orgUserId: impersonatingOrgUserId,
+            })}
+          />
+        ) : (
+          <Redirect
+            to={AdminHomeRoute.generate({
+              organizationId: impersonatingOrgId,
+            })}
+          />
+        )
       ) : roles.isSystemAdministrator || (roles.isAdmin && roles.multiOrgs) ? (
         <Redirect to={AdminRootChromeRoute.generate({})} />
       ) : roles.isAdmin && !roles.multiOrgs ? (
