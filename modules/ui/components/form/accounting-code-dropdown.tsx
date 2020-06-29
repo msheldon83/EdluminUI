@@ -173,7 +173,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
     return (
       <>
         <Select
-          value={allocation.selection}
+          value={allocation.selection ?? { value: "", label: "" }}
           className={classes.multiCodeSelect}
           options={options}
           placeholder={t("Select accounting code")}
@@ -214,7 +214,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
         value={
           value?.type === "multiple-allocations"
             ? multipleAllocationsOptionType
-            : value?.selection
+            : value?.selection ?? { value: "", label: "" }
         }
         label={showLabel ? t("Accounting code") : undefined}
         placeholder={t("Select code")}
