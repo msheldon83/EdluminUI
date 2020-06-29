@@ -7,6 +7,7 @@ import {
   OrgUserRole,
   EmployeeInput,
   PermissionEnum,
+  NeedsReplacement,
 } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
 import { SaveEmployee } from "../graphql/employee/save-employee.gen";
@@ -109,26 +110,34 @@ export const EmployeeTab: React.FC<Props> = props => {
         editing={props.editing}
         orgId={params.organizationId}
       />
-      <ReplacementCriteria
-        editing={props.editing}
-        editable={canEditThisEmployee}
-        replacementCriteria={employee?.primaryPosition?.replacementCriteria}
-        inheritedReplacementCriteria={
-          employee?.primaryPosition?.positionType?.replacementCriteria
-        }
-      />
-      <SubstitutePrefCard
-        heading={t("Substitute Preferences")}
-        favoriteSubstitutes={employee.substitutePreferences.favoriteSubstitutes}
-        blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}
-        editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}
-        editing={props.editing ? true : false}
-        editable={canEditThisEmployee}
-        editPermission={[
-          PermissionEnum.EmployeeSaveBlockedSubs,
-          PermissionEnum.EmployeeSaveFavoriteSubs,
-        ]}
-      />
+      {employee.primaryPosition?.needsReplacement != NeedsReplacement.No && (
+        <>
+          <ReplacementCriteria
+            editing={props.editing}
+            editable={canEditThisEmployee}
+            replacementCriteria={employee?.primaryPosition?.replacementCriteria}
+            inheritedReplacementCriteria={
+              employee?.primaryPosition?.positionType?.replacementCriteria
+            }
+          />
+          <SubstitutePrefCard
+            heading={t("Substitute Preferences")}
+            favoriteSubstitutes={
+              employee.substitutePreferences.favoriteSubstitutes
+            }
+            blockedSubstitutes={
+              employee.substitutePreferences.blockedSubstitutes
+            }
+            editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}
+            editing={props.editing ? true : false}
+            editable={canEditThisEmployee}
+            editPermission={[
+              PermissionEnum.EmployeeSaveBlockedSubs,
+              PermissionEnum.EmployeeSaveFavoriteSubs,
+            ]}
+          />
+        </>
+      )}
       <UpcomingAbsences
         employeeId={employee.id}
         orgId={params.organizationId}
