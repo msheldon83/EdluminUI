@@ -104,6 +104,7 @@ export const AccessControl: React.FC<Props> = props => {
   return (
     <>
       <Formik
+        enableReinitialize
         initialValues={{
           isSuperUser: props.isSuperUser,
           permissionSetId: props.permissionSet?.id ?? "",
