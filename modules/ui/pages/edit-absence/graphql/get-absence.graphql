@@ -1,6 +1,6 @@
-query GetAbsence($id: ID!) {
+query GetAbsence($id: ID!, $showHidden: Boolean) {
   absence {
-    byId(id: $id) {
+    byId(id: $id, showHidden: $showHidden) {
       id
       isClosed
       rowVersion

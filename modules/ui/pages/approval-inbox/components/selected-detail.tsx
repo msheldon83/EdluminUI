@@ -41,7 +41,8 @@ export const SelectedDetail: React.FC<Props> = props => {
 
   const getAbsence = useQueryBundle(GetAbsence, {
     variables: {
-      id: props.selectedItem?.id,
+      id: props.selectedItem?.id ?? "",
+      showHidden: true,
     },
     skip: props.selectedItem === null || props.selectedItem?.isNormalVacancy,
   });

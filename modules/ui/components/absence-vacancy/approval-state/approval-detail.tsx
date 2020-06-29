@@ -140,17 +140,20 @@ export const ApprovalDetail: React.FC<Props> = props => {
                   actingAsEmployee={props.actingAsEmployee}
                   showSimpleDetail={true}
                 />
-                <Context
-                  orgId={props.orgId}
-                  employeeId={props.absence.employeeId}
-                  absenceId={props.absence.id}
-                  employeeName={`${props.absence.employee?.firstName} ${props.absence.employee?.lastName}`}
-                  locationIds={props.absence.locationIds}
-                  startDate={props.absence.startDate}
-                  endDate={props.absence.endDate}
-                  actingAsEmployee={props.actingAsEmployee}
-                  isNormalVacancy={false}
-                />
+                {// We are not showing the context to the employee as its felt that the employee doesn't need it. However, I'm leaving the code in place in case we do want to show the user their absences.
+                !props.actingAsEmployee && (
+                  <Context
+                    orgId={props.orgId}
+                    employeeId={props.absence.employeeId}
+                    absenceId={props.absence.id}
+                    employeeName={`${props.absence.employee?.firstName} ${props.absence.employee?.lastName}`}
+                    locationIds={props.absence.locationIds}
+                    startDate={props.absence.startDate}
+                    endDate={props.absence.endDate}
+                    actingAsEmployee={props.actingAsEmployee}
+                    isNormalVacancy={false}
+                  />
+                )}
               </div>
             )
           : props.vacancy && (
