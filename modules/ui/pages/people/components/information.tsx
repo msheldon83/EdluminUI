@@ -180,6 +180,7 @@ export const Information: React.FC<Props> = props => {
   return (
     <>
       <Formik
+        enableReinitialize
         initialValues={{
           email: orgUser.email,
           phoneNumber: orgUser.phoneNumber ?? "",
