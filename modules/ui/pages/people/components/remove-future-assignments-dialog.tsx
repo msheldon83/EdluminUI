@@ -32,7 +32,7 @@ export const RemoveFutureAssignmentsDialog: React.FC<Props> = props => {
       <DialogContent>
         <Typography>
           {t(
-            `Would you like inactivate ${props.orgUserName} and remove them from all future assignments?`
+            `Would you like to inactivate ${props.orgUserName} and remove them from all future assignments?`
           )}
         </Typography>
       </DialogContent>
