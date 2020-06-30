@@ -17,6 +17,7 @@ import { Position } from "../components/employee/position";
 import { ReplacementCriteria } from "../components/employee/replacement-criteria";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
 import { Information } from "../components/information";
+import { Comments } from "../components/comments/index";
 import {
   EmployeeSubstitutePreferenceRoute,
   PersonViewRoute,
@@ -89,6 +90,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         onSubmit={onUpdateEmployee}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
+      <Comments orgId={params.organizationId} />
       <Position
         editing={props.editing}
         editable={canEditThisEmployee}

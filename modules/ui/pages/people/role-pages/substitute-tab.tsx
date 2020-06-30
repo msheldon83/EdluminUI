@@ -22,6 +22,7 @@ import { useMemo } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
+import { Comments } from "../components/comments/index";
 import { useHistory } from "react-router";
 import { useIsAdmin } from "reference-data/is-admin";
 import {
@@ -133,6 +134,7 @@ export const SubstituteTab: React.FC<Props> = props => {
         onSubmit={onUpdateSubstitute}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
+      <Comments orgId={params.organizationId} />
       <SubPositionsAttributes
         editing={props.editing}
         editable={canEditThisSub}
