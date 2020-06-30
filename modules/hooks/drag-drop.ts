@@ -82,7 +82,7 @@ export type DropConfiguration<T = Record<string, any> | undefined> = {
   dragId: symbol;
   onDrop?(data: any, dropData: DropData<T>): void;
   generateDropValues(validationData: DropValidationData): T;
-  canDrop?(): boolean;
+  canDrop?(data: any): boolean;
   onHover?(data: any): void;
 };
 

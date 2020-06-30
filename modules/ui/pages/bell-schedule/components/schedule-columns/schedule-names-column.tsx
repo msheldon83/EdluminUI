@@ -1,13 +1,13 @@
 import * as React from "react";
-import { Period, UpdatePeriodPlaceholders } from "../../helpers";
-import { makeStyles, IconButton } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { TFunction } from "i18next";
+import { Period } from "../../helpers";
+import { makeStyles, IconButton } from "@material-ui/core";
 import { DragHandle } from "@material-ui/icons";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
 import { useDrag, useDrop } from "hooks/drag-drop";
+import { UpdatePeriodPlaceholders } from "../../helpers";
 
 type Props = {
   periods: Period[];
@@ -18,16 +18,6 @@ type Props = {
 };
 
 const nameDraggableId = Symbol("name-draggable");
-
-function moveEntry<T>(arr: T[], from: number, to: number) {
-  return arr.map((item: T, i: number) =>
-    i === to
-      ? arr[from]
-      : i >= Math.min(from, to) && i <= Math.max(from, to)
-      ? arr[i + Math.sign(to - from)]
-      : item
-  );
-}
 
 type ScheduleNameRowProps = {
   period: Period;
@@ -68,10 +58,8 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
   const { dropRef } = useDrop({
     dragId: nameDraggableId,
     generateDropValues() {},
-    onDrop(data) {
-      // const toIndex = findRow(period);
-      // const fromIndex = findRow(data.period);
-      // swapRowName(fromIndex, toIndex);
+    canDrop(data) {
+      return !data.period.skipped;
     },
     onHover(data) {
       const toIndex = findRow(period);
@@ -120,6 +108,7 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
 
 export const ScheduleNamesColumn: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   return (
     <div>
@@ -132,7 +121,7 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
           periodClasses.push(props.scheduleClasses.skippedPeriod);
         }
 
-        const rowKey = p.periodId || Math.random().toString();
+        const rowKey = p.periodId ?? p.placeholder ?? Math.random().toString();
 
         return (
           <div key={rowKey} className={periodClasses.join(" ")}>
@@ -145,33 +134,37 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
                 tabIndex={i + 1}
                 index={i}
                 swapRowName={(from, to) => {
-                  // TODO: figure out how to swap names, not whole rows
-                  // Probably by copying prop.periods to internal state and
-                  // only rendering the names
+                  if (props.periods[to].skipped) {
+                    return;
+                  }
+
+                  UpdatePeriodPlaceholders(props.periods, t);
+
                   if (from !== to) {
-                    const fromName = props.periods[from].name;
-                    const toName = props.periods[to].name;
+                    const fromPeriod = props.periods[from];
+                    const toPeriod = props.periods[to];
 
-                    // props.periods[from] = {
-                    //   ...props.periods[to],
-                    //   name: fromName,
-                    // };
-                    // props.periods[to] = {
-                    //   ...props.periods[from],
-                    //   name: toName,
-                    // };
+                    // Need to swap multiple properties to make references to the rows correct
+                    props.periods[from] = {
+                      ...props.periods[from],
+                      periodId: toPeriod.periodId,
+                      placeholder: toPeriod.placeholder,
+                      name: toPeriod.name,
+                    };
+                    props.periods[to] = {
+                      ...props.periods[to],
+                      periodId: fromPeriod.periodId,
+                      placeholder: fromPeriod.placeholder,
+                      name: fromPeriod.name,
+                    };
 
-                    // const updatedPeriods = moveEntry(props.periods, from, to);
-
-                    // const updatedPeriods = [...props.periods];
-                    // updatedPeriods[from].name = toName;
-                    // updatedPeriods[to].name = fromName;
-
-                    // props.setPeriods([...props.periods]);
+                    props.setPeriods(props.periods);
                   }
                 }}
                 findRow={period => {
-                  return props.periods.indexOf(period);
+                  return props.periods.findIndex(
+                    p => p.periodId === period.periodId
+                  );
                 }}
               />
             </Can>
@@ -184,108 +177,6 @@ export const ScheduleNamesColumn: React.FC<Props> = props => {
     </div>
   );
 };
-
-// export const ScheduleNamesColumn: React.FC<Props> = props => {
-//   const { t } = useTranslation();
-//   const classes = useStyles();
-
-//   return (
-//     <>
-//       <DragDropContext
-//         onDragEnd={(result: DropResult) => {
-//           const updatedPeriods = onDragEnd(result, props.periods, t);
-//           if (updatedPeriods) {
-//             props.setPeriods(updatedPeriods);
-//           }
-//         }}
-//       >
-//         <Droppable droppableId="nameDroppable">
-//           {(provided, snapshot) => {
-//             const { innerRef } = provided;
-//             return (
-//               <div ref={innerRef} {...provided.droppableProps}>
-//                 {props.periods.map((p, i) => {
-//                   const periodClasses = [props.scheduleClasses.period];
-//                   if (i % 2 === 1) {
-//                     periodClasses.push(props.scheduleClasses.alternatingItem);
-//                   }
-//                   if (p.skipped) {
-//                     periodClasses.push(props.scheduleClasses.skippedPeriod);
-//                   }
-
-//                   return (
-//                     <div key={i} className={periodClasses.join(" ")}>
-//                       <Can do={[PermissionEnum.ScheduleSettingsSave]}>
-//                         <Draggable
-//                           key={`${nameDragPrefix}${i}`}
-//                           draggableId={`${nameDragPrefix}${i}`}
-//                           index={i}
-//                           isDragDisabled={p.skipped}
-//                         >
-//                           {(provided, snapshot) => {
-//                             const { innerRef } = provided;
-//                             return (
-//                               <div
-//                                 ref={innerRef}
-//                                 {...provided.draggableProps}
-//                                 className={classes.draggableSection}
-//                                 style={{
-//                                   ...provided.draggableProps.style,
-//                                   position: snapshot.isDragging
-//                                     ? "static"
-//                                     : undefined,
-//                                 }}
-//                               >
-//                                 <div className={classes.nameInput}>
-//                                   {props.isStandard && (
-//                                     <FormTextField
-//                                       inputProps={{
-//                                         tabIndex: i + 1,
-//                                       }}
-//                                       placeholder={p.placeholder}
-//                                       value={p.name || ""}
-//                                       name={`periods[${i}].name`}
-//                                       variant="outlined"
-//                                       onChange={(
-//                                         e: React.ChangeEvent<HTMLInputElement>
-//                                       ) => {
-//                                         props.setFieldValue(
-//                                           `periods[${i}].name`,
-//                                           e.target.value
-//                                         );
-//                                       }}
-//                                     />
-//                                   )}
-//                                   {!props.isStandard && p.name}
-//                                 </div>
-//                                 <div
-//                                   className={classes.actionDiv}
-//                                   {...provided.dragHandleProps}
-//                                   tabIndex={-1}
-//                                 >
-//                                   {props.periods.length > 1 && !p.skipped && (
-//                                     <DragHandle />
-//                                   )}
-//                                 </div>
-//                               </div>
-//                             );
-//                           }}
-//                         </Draggable>
-//                       </Can>
-//                       <Can not do={[PermissionEnum.ScheduleSettingsSave]}>
-//                         <div className={classes.nameDisplay}>{p.name}</div>
-//                       </Can>
-//                     </div>
-//                   );
-//                 })}
-//               </div>
-//             );
-//           }}
-//         </Droppable>
-//       </DragDropContext>
-//     </>
-//   );
-// };
 
 const useStyles = makeStyles(theme => ({
   nameInput: {
@@ -314,55 +205,3 @@ const useStyles = makeStyles(theme => ({
     },
   },
 }));
-
-// const onDragEnd = (
-//   result: DropResult,
-//   periods: Period[],
-//   t: TFunction
-// ): Array<Period> | null => {
-//   const { destination, source, draggableId } = result;
-
-//   if (!destination) {
-//     return null;
-//   }
-
-//   if (
-//     destination.droppableId === source.droppableId &&
-//     destination.index === source.index
-//   ) {
-//     return null;
-//   }
-
-//   if (periods[destination.index].skipped) {
-//     // Should not be able to swap names with a Skipped Period
-//     return null;
-//   }
-
-//   if (!draggableId.startsWith(nameDragPrefix)) {
-//     // Shouldn't occur, but just to be safe
-//     return null;
-//   }
-
-//   // Just reordering the names of the periods
-//   const oldPeriods = periods.map(p => {
-//     return { ...p };
-//   });
-//   if (source.index < destination.index) {
-//     // Dragging down the list
-//     for (let i = destination.index - 1; i >= source.index; i--) {
-//       periods[i].name = oldPeriods[i + 1].name;
-//     }
-//   } else {
-//     // Dragging up the list
-//     for (let i = destination.index + 1; i <= source.index; i++) {
-//       periods[i].name = oldPeriods[i - 1].name;
-//     }
-//   }
-//   // Update the destination name that was actually dragged
-//   periods[destination.index].name = oldPeriods[source.index].name;
-
-//   // Update placeholders
-//   UpdatePeriodPlaceholders(periods, t);
-
-//   return periods;
-// };
