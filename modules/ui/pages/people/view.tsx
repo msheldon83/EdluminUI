@@ -177,8 +177,12 @@ export const PersonViewPage: React.FC<{}> = props => {
     if (orgUser.active == false) {
       await handleSaveOrgUser(false);
     } else {
-      setShowRemoveFutureAssignments(true);
-      setEditing(null);
+      if (!orgUser.isReplacementEmployee && !orgUser.isEmployee) {
+        await handleSaveOrgUser(false);
+      } else {
+        setShowRemoveFutureAssignments(true);
+        setEditing(null);
+      }
     }
   };
 
@@ -202,6 +206,7 @@ export const PersonViewPage: React.FC<{}> = props => {
     <>
       <RemoveFutureAssignmentsDialog
         open={showRemoveFutureAssignments}
+        orgUserName={orgUser.firstName}
         onClose={() => {
           setShowRemoveFutureAssignments(false);
         }}
