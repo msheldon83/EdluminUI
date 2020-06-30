@@ -628,6 +628,10 @@ export const VacancyUI: React.FC<Props> = props => {
               test: function test(value: VacancyDetailItem) {
                 const accountingCodeAllocations =
                   value.accountingCodeAllocations;
+
+                // Any additional validation should go directly into `validateAccountingCodeAllocations`
+                // instead of being added directly here. It is also used alongside the dropdown
+                // to check for any validation errors
                 const error = validateAccountingCodeAllocations(
                   accountingCodeAllocations ?? [],
                   t
