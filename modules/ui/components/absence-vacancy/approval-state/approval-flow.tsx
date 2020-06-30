@@ -52,7 +52,11 @@ export const WorkflowSummary: React.FC<Props> = props => {
   const approvedStepIds =
     compact(
       decisions?.map(x => {
-        if (x.approvalActionId === ApprovalAction.Approve) return x.stepId;
+        if (
+          x.approvalActionId === ApprovalAction.Approve ||
+          x.approvalActionId === ApprovalAction.Skip
+        )
+          return x.stepId;
       })
     ) ?? [];
 

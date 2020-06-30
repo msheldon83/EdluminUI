@@ -102,6 +102,7 @@ export const ApprovalComments: React.FC<Props> = props => {
   const getApprovalActionText = (approvalAction?: ApprovalAction) => {
     if (approvalAction == ApprovalAction.Approve) return t("Approved by ");
     if (approvalAction == ApprovalAction.Deny) return t("Denied by ");
+    if (approvalAction == ApprovalAction.Skip) return t("Skipped by ");
     return null;
   };
 
