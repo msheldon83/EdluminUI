@@ -1,3 +1,5 @@
+import { AccountingCodeValue } from "../form/accounting-code-dropdown";
+
 type AssignmentInfo = {
   assignmentId?: string;
   assignmentRowVersion?: string;
@@ -17,7 +19,7 @@ export type VacancyDetail = {
   locationName?: string;
   absenceStartTime?: string;
   absenceEndTime?: string;
-  accountingCodeId?: string | null;
+  accountingCodeAllocations?: AccountingCodeValue | null;
   payCodeId?: string | null;
   isClosed: boolean;
 } & AssignmentInfo;

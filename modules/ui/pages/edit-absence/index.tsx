@@ -1,7 +1,10 @@
 import { parseISO } from "date-fns";
 import { isValid, startOfDay } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
-import { NeedsReplacement } from "graphql/server-types.gen";
+import {
+  NeedsReplacement,
+  VacancyDetailAccountingCode,
+} from "graphql/server-types.gen";
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import { compact, flatMap, isNil, sortBy, uniqBy } from "lodash-es";
 import * as React from "react";
@@ -24,6 +27,7 @@ import { DeleteAbsenceVacancyDialog } from "../../components/absence-vacancy/del
 import { ShowErrors } from "ui/components/error-helpers";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence-vacancy/helpers";
 
 type Props = { actingAsEmployee?: boolean };
 export const EditAbsence: React.FC<Props> = props => {
@@ -210,9 +214,15 @@ export const EditAbsence: React.FC<Props> = props => {
             endTime: d.endTimeLocal,
             locationId: d.locationId,
             payCodeId: d.payCodeId,
-            accountingCodeId:
-              d?.accountingCodeAllocations &&
-              d?.accountingCodeAllocations[0]?.accountingCode?.id,
+            accountingCodeAllocations: mapAccountingCodeAllocationsToAccountingCodeValue(
+              d?.accountingCodeAllocations?.map(a => {
+                return {
+                  accountingCodeId: a.accountingCodeId,
+                  accountingCodeName: a.accountingCode?.name,
+                  allocation: a.allocation,
+                };
+              })
+            ),
             assignmentId: d.assignment?.id,
             absenceStartTime: absenceDetail?.startTimeLocal,
             absenceEndTime: absenceDetail?.endTimeLocal,

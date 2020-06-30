@@ -229,7 +229,7 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
   },
   verifyAll: {
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
   },
   link: {
     color: theme.customColors.blue,

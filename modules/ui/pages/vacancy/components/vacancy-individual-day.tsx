@@ -13,7 +13,20 @@ import {
   isoToTimestamp,
   secondsToFormattedHourMinuteString,
 } from "helpers/time";
-import { VacancyDayPart, VacancyDetailItem } from "../helpers/types";
+import {
+  VacancyDayPart,
+  VacancyDetailItem,
+  AccountingCodeAllocation,
+  VacancyDetailsFormData,
+} from "../helpers/types";
+import {
+  AccountingCodeDropdown,
+  AccountingCodeValue,
+} from "ui/components/form/accounting-code-dropdown";
+import { useFormikContext, FormikErrors } from "formik";
+import { isArray } from "lodash-es";
+import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence-vacancy/helpers";
+import { validateAccountingCodeAllocations } from "../helpers";
 
 type Props = {
   vacancyDetail: VacancyDetailItem;
@@ -32,11 +45,13 @@ type Props = {
   disableReason?: boolean;
   disablePayCode?: boolean;
   disableAccountingCode?: boolean;
+  dayIndex: number;
 };
 
 export const VacancyIndividualDay: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const { errors } = useFormikContext<VacancyDetailsFormData>();
   const {
     vacancyDetail,
     vacancyReasonOptions,
@@ -50,6 +65,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     dayParts,
     subTitle,
     defaultPayCodeId,
+    dayIndex,
     disableTime = false,
     disableReason = false,
     disablePayCode = false,
@@ -59,6 +75,14 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
   const [startTime, setStartTime] = useState<string | number | undefined>();
   const [endTime, setEndTime] = useState<string | number | undefined>();
   const [showCustom, setShowCustom] = useState(false);
+  const [
+    accountingCodeValueSelection,
+    setAccountingCodeValueSelection,
+  ] = useState(
+    mapAccountingCodeAllocationsToAccountingCodeValue(
+      vacancyDetail.accountingCodeAllocations
+    )
+  );
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const timeOptions = useMemo(() => {
@@ -193,6 +217,27 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
     };
   }, [vacancyReasonOptions, vacancyDetail.vacancyReasonId]);
 
+  const accountingCodeError = useMemo(() => {
+    const formikError =
+      errors?.details && isArray(errors.details) && errors.details[dayIndex]
+        ? (errors.details[dayIndex] as FormikErrors<VacancyDetailItem>)
+            ?.accountingCodeAllocations
+        : undefined;
+
+    if (formikError) {
+      // Because we're only validating on submit, we may have a formik
+      // error that the User has since fixed, but is still present until
+      // the form is submitted again. This will basically run the same validation
+      // and ultimately hide the error if the User has fixed the issue
+      const currentAllocations = getAccountingCodeAllocations(
+        accountingCodeValueSelection
+      );
+      return validateAccountingCodeAllocations(currentAllocations, t);
+    }
+
+    return undefined;
+  }, [accountingCodeValueSelection, dayIndex, errors?.details, t]);
+
   return (
     <Grid container justify="space-between" spacing={2}>
       <Grid item xs={9}>
@@ -318,7 +363,11 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
         <Grid
           item
           xs={
-            accountingCodeOptions.length === 0 || disableAccountingCode ? 12 : 6
+            accountingCodeOptions.length === 0 ||
+            disableAccountingCode ||
+            accountingCodeValueSelection?.type === "multiple-allocations"
+              ? 12
+              : 6
           }
         >
           <Select
@@ -361,55 +410,33 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
         </Grid>
       )}
       {accountingCodeOptions.length > 0 && !disableAccountingCode && (
-        <Grid item xs={payCodeOptions.length === 0 || disablePayCode ? 12 : 6}>
-          <Select
-            multiple={false}
-            withResetValue={true}
+        <Grid
+          item
+          xs={
+            payCodeOptions.length === 0 ||
+            disablePayCode ||
+            accountingCodeValueSelection?.type === "multiple-allocations"
+              ? 12
+              : 6
+          }
+        >
+          <AccountingCodeDropdown
+            value={accountingCodeValueSelection}
             options={accountingCodeOptions}
-            label={t("Accounting code")}
             disabled={disableAccountingCode}
-            value={{
-              value:
-                vacancyDetail.accountingCodeAllocations &&
-                vacancyDetail.accountingCodeAllocations.length > 0
-                  ? vacancyDetail.accountingCodeAllocations[0]
-                      ?.accountingCodeId || ""
-                  : "",
-              label:
-                vacancyDetail.accountingCodeAllocations &&
-                vacancyDetail.accountingCodeAllocations.length > 0
-                  ? accountingCodeOptions.find(
-                      a =>
-                        a.value ===
-                        vacancyDetail.accountingCodeAllocations![0]
-                          ?.accountingCodeId
-                    )?.label || ""
-                  : "",
-            }}
-            onChange={async (e: OptionType) => {
-              let selectedValue: any = null;
-              let selectedLabel: any = null;
-              if (e) {
-                selectedValue = (e as OptionTypeBase).value;
-                selectedLabel = (e as OptionTypeBase).label;
-              }
-              const accountingCodeAllocations =
-                selectedValue && selectedValue.length > 0
-                  ? [
-                      {
-                        accountingCodeId: selectedValue,
-                        allocation: 1.0,
-                        accountingCodeName: selectedLabel,
-                      },
-                    ]
-                  : [];
-              const newVacDetail = {
+            onChange={value => {
+              setAccountingCodeValueSelection(value);
+              const allocations = getAccountingCodeAllocations(value);
+
+              const newVacDetail: VacancyDetailItem = {
                 ...vacancyDetail,
-                accountingCodeAllocations,
+                accountingCodeAllocations: allocations,
               };
               setVacancyAccountingCode(newVacDetail);
             }}
-          ></Select>
+            inputStatus={accountingCodeError ? "error" : undefined}
+            validationMessage={accountingCodeError}
+          />
         </Grid>
       )}
     </Grid>
@@ -417,3 +444,31 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({}));
+
+const getAccountingCodeAllocations = (
+  value: AccountingCodeValue
+): AccountingCodeAllocation[] => {
+  const allocations: AccountingCodeAllocation[] = [];
+
+  switch (value.type) {
+    case "single-allocation":
+      allocations.push({
+        accountingCodeId: value.selection?.value?.toString() ?? "",
+        allocation: 1.0,
+        accountingCodeName: value.selection?.label ?? "",
+      });
+      break;
+    case "multiple-allocations":
+      allocations.push(
+        ...value.allocations.map(a => {
+          return {
+            accountingCodeId: a.selection?.value?.toString() ?? "",
+            allocation: a.percentage ? a.percentage / 100 : 0,
+            accountingCodeName: a.selection?.label ?? "",
+          };
+        })
+      );
+      break;
+  }
+  return allocations;
+};

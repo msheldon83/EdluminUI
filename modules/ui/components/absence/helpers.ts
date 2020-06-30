@@ -6,23 +6,14 @@ import {
   AbsenceDetailCreateInput,
   Vacancy,
 } from "graphql/server-types.gen";
-import {
-  groupBy,
-  differenceWith,
-  uniqWith,
-  compact,
-  map,
-  isEmpty,
-  flatMap,
-  uniq,
-} from "lodash-es";
+import { groupBy, differenceWith, uniqWith, isEmpty } from "lodash-es";
 import {
   isAfter,
   isWithinInterval,
   format,
   isSameDay,
   parseISO,
-  isEqual,
+  isEqual as isDateEqual,
   isBefore,
 } from "date-fns";
 import { convertStringToDate } from "helpers/date";
@@ -31,6 +22,11 @@ import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 import { VacancyDetail, AssignmentOnDate } from "./types";
 import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
+import { AccountingCodeValue } from "../form/accounting-code-dropdown";
+import {
+  mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
+  accountingCodeAllocationsAreTheSame,
+} from "../absence-vacancy/helpers";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -304,7 +300,7 @@ export const getVacancyDetailsGrouping = (
     const startTimeAsDateA = parseISO(a.startTime);
     const startTimeAsDateB = parseISO(b.startTime);
 
-    if (isEqual(startTimeAsDateA, startTimeAsDateB)) {
+    if (isDateEqual(startTimeAsDateA, startTimeAsDateB)) {
       // Fairly unlikely to occur
       return 0;
     }
@@ -573,21 +569,23 @@ export const getGroupedVacancyDetails = (
 
 export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
   vacancyDetails: VacancyDetail[],
-  accountingCodeIdToCompare: string | null
+  accountingCodeAllocations: AccountingCodeValue | null
 ) => {
   if (!vacancyDetails || vacancyDetails.length === 0) {
     return false;
   }
 
-  for (let i = 0; i < vacancyDetails.length; i++) {
-    const d = vacancyDetails[i];
-    const detailAccountingCodeId = d.accountingCodeId ?? null;
-    if (detailAccountingCodeId !== accountingCodeIdToCompare) {
-      return true;
-    }
-  }
-
-  return false;
+  const allocations = mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+    accountingCodeAllocations,
+    false
+  );
+  const details = vacancyDetails.map(vd =>
+    mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+      vd.accountingCodeAllocations,
+      false
+    )
+  );
+  return !accountingCodeAllocationsAreTheSame(allocations, details);
 };
 
 export const vacancyDetailsHaveDifferentPayCodeSelections = (

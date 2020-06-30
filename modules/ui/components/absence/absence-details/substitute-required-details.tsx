@@ -31,6 +31,11 @@ import {
   vacancyDetailsHaveDifferentPayCodeSelections,
 } from "../helpers";
 import { VacancyDetail, AssignmentOnDate } from "../types";
+import {
+  AccountingCodeDropdown,
+  AccountingCodeValue,
+  noAllocation,
+} from "ui/components/form/accounting-code-dropdown";
 
 type Props = {
   setValue: SetValue;
@@ -65,7 +70,9 @@ type Props = {
     vacancyDetailIds?: string[],
     employeeToReplace?: string
   ) => void;
-  updateDetailAccountingCodes: (accountingCodeId: string | null) => void;
+  updateDetailAccountingCodes: (
+    accountingCodeAllocations: AccountingCodeValue | null
+  ) => void;
   updateDetailPayCodes: (payCodeId: string | null) => void;
   hasEditedDetails: boolean;
   assignmentsByDate: AssignmentOnDate[];
@@ -119,9 +126,9 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
 
     return vacancyDetailsHaveDifferentAccountingCodeSelections(
       vacancyDetails,
-      values.accountingCode ? values.accountingCode : null
+      values.accountingCodeAllocations ? values.accountingCodeAllocations : null
     );
-  }, [hasEditedDetails, vacancyDetails, values.accountingCode]);
+  }, [hasEditedDetails, vacancyDetails, values.accountingCodeAllocations]);
 
   const detailsHaveDifferentPayCodes = useMemo(() => {
     if (!hasEditedDetails) {
@@ -142,20 +149,25 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
   );
 
   const onAccountingCodeChange = React.useCallback(
-    async event => {
+    async value => {
       if (!detailsHaveDifferentAccountingCodes && hasEditedDetails) {
-        updateDetailAccountingCodes(event?.value);
+        updateDetailAccountingCodes(value);
       }
 
-      await setValue("accountingCode", event?.value);
-      await triggerValidation({ name: "accountingCode" });
+      const hasValidationError = !!errors.accountingCodeAllocations;
+
+      await setValue("accountingCodeAllocations", value, hasValidationError);
+      if (hasValidationError) {
+        await triggerValidation({ name: "accountingCodeAllocations" });
+      }
     },
     [
-      setValue,
-      triggerValidation,
       detailsHaveDifferentAccountingCodes,
-      updateDetailAccountingCodes,
       hasEditedDetails,
+      errors.accountingCodeAllocations,
+      setValue,
+      updateDetailAccountingCodes,
+      triggerValidation,
     ]
   );
 
@@ -225,30 +237,41 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                 <Grid item container spacing={4} className={classes.subCodes}>
                   {hasAccountingCodeOptions && (
                     <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                      <Grid item xs={hasPayCodeOptions ? 6 : 12}>
-                        <Typography>{t("Accounting code")}</Typography>
+                      <Grid
+                        item
+                        xs={
+                          hasPayCodeOptions &&
+                          (values.accountingCodeAllocations?.type !==
+                            "multiple-allocations" ||
+                            detailsHaveDifferentAccountingCodes)
+                            ? 6
+                            : 12
+                        }
+                      >
                         {detailsHaveDifferentAccountingCodes ? (
-                          <div className={classes.subText}>
-                            {t(
-                              "Details have different Accounting code selections. Click on Edit Substitute Details below to manage."
-                            )}
-                          </div>
+                          <>
+                            <Typography>{t("Accounting code")}</Typography>
+                            <div className={classes.subText}>
+                              {t(
+                                "Details have different Accounting code selections. Click on Edit Substitute Details below to manage."
+                              )}
+                            </div>
+                          </>
                         ) : (
-                          <SelectNew
-                            value={{
-                              value: values.accountingCode ?? "",
-                              label:
-                                accountingCodeOptions.find(
-                                  a => a.value === values.accountingCode
-                                )?.label || "",
-                            }}
-                            onChange={onAccountingCodeChange}
-                            options={accountingCodeOptions}
-                            multiple={false}
-                            inputStatus={
-                              errors.accountingCode ? "error" : undefined
+                          <AccountingCodeDropdown
+                            value={
+                              values.accountingCodeAllocations ?? noAllocation()
                             }
-                            validationMessage={errors.accountingCode?.message}
+                            options={accountingCodeOptions}
+                            onChange={onAccountingCodeChange}
+                            inputStatus={
+                              errors.accountingCodeAllocations
+                                ? "error"
+                                : undefined
+                            }
+                            validationMessage={
+                              errors.accountingCodeAllocations?.message
+                            }
                           />
                         )}
                       </Grid>
@@ -256,7 +279,17 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                   )}
                   {hasPayCodeOptions && (
                     <Can do={[PermissionEnum.AbsVacSavePayCode]}>
-                      <Grid item xs={hasAccountingCodeOptions ? 6 : 12}>
+                      <Grid
+                        item
+                        xs={
+                          hasAccountingCodeOptions &&
+                          (values.accountingCodeAllocations?.type !==
+                            "multiple-allocations" ||
+                            detailsHaveDifferentAccountingCodes)
+                            ? 6
+                            : 12
+                        }
+                      >
                         <Typography>{t("Pay code")}</Typography>
                         {detailsHaveDifferentPayCodes ? (
                           <div className={classes.subText}>

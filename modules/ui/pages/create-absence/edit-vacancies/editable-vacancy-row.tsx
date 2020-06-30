@@ -15,8 +15,12 @@ import { FormikSelect } from "ui/components/form/formik-select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
 import { VacancyDetail } from "../../../components/absence/types";
-import { FormikErrors } from "formik";
+import { FormikErrors, useFormikContext } from "formik";
 import { startOfDay, parseISO, format } from "date-fns";
+import {
+  AccountingCodeDropdown,
+  noAllocation,
+} from "ui/components/form/accounting-code-dropdown";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
@@ -35,7 +39,7 @@ type Props = {
     | undefined;
   keyPrefix: string;
   orgId: string;
-  values: VacancyDetail;
+  detail: VacancyDetail;
   className?: string;
   showRemoveButton: boolean;
   actingAsEmployee?: boolean;
@@ -44,30 +48,46 @@ type Props = {
   error?: FormikErrors<VacancyDetail>;
   isFirstOnDay: boolean;
   isLastOnDay: boolean;
+  multipleAccountingCodesInUse?: boolean;
 };
 
 export const EditableVacancyDetailRow: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  const { setFieldValue } = useFormikContext<any>();
+  const {
+    detail,
+    locationOptions,
+    payCodeOptions,
+    keyPrefix,
+    accountingCodes,
+    error,
+    className,
+    isFirstOnDay,
+    isLastOnDay,
+    actingAsEmployee,
+    showRemoveButton,
+    onAddRow,
+    onRemoveRow,
+    multipleAccountingCodesInUse = false,
+  } = props;
 
   const absenceStartTime = `${format(
-    parseISO(props.values.absenceStartTime!),
+    parseISO(detail.absenceStartTime!),
     "h:mm a"
   )}`;
   const absenceEndTime = `${format(
-    parseISO(props.values.absenceEndTime!),
+    parseISO(detail.absenceEndTime!),
     "h:mm a"
   )}`;
 
-  const locationMenuOptions = props.locationOptions.map(loc => ({
+  const locationMenuOptions = locationOptions.map(loc => ({
     value: loc.id,
     label: loc.name,
   }));
-  const fieldNamePrefix = props.keyPrefix;
-  const locationId = props.values.locationId;
-
-  const accountingCodes = props.accountingCodes;
+  const fieldNamePrefix = keyPrefix;
+  const locationId = detail.locationId;
 
   const accountingCodeOptions = useMemo(
     () =>
@@ -79,20 +99,15 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
     [accountingCodes, locationId]
   );
 
-  const date = parseISO(props.values.date);
+  const date = parseISO(detail.date);
   const startOfDate = date ? startOfDay(date) : undefined;
-  const startTimeError =
-    props.error && props.error.startTime ? props.error.startTime : undefined;
-  const endTimeError =
-    props.error && props.error.endTime ? props.error.endTime : undefined;
+  const startTimeError = error && error.startTime ? error.startTime : undefined;
+  const endTimeError = error && error.endTime ? error.endTime : undefined;
 
   return (
     <>
-      <Grid
-        container
-        className={[classes.rowContainer, props.className].join(" ")}
-      >
-        {props.isFirstOnDay && (
+      <Grid container className={[classes.rowContainer, className].join(" ")}>
+        {isFirstOnDay && (
           <>
             <Grid item container className={classes.date}>
               <Typography variant="h6">
@@ -108,17 +123,26 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                 )}
               </Grid>
               <Grid item container xs={isMobile ? 12 : 8}>
-                <Grid item xs={isMobile ? 12 : 4}>
+                <Grid
+                  item
+                  xs={isMobile ? 12 : multipleAccountingCodesInUse ? 3 : 4}
+                >
                   <Typography variant="h6">{t("School")}</Typography>
                 </Grid>
-                {!props.actingAsEmployee && (
+                {!actingAsEmployee && (
                   <>
-                    <Grid item xs={isMobile ? 12 : 4}>
+                    <Grid
+                      item
+                      xs={isMobile ? 12 : multipleAccountingCodesInUse ? 6 : 4}
+                    >
                       <Typography variant="h6">
                         {t("Accounting Code")}
                       </Typography>
                     </Grid>
-                    <Grid item xs={isMobile ? 12 : 4}>
+                    <Grid
+                      item
+                      xs={isMobile ? 12 : multipleAccountingCodesInUse ? 3 : 4}
+                    >
                       <Typography variant="h6">{t("Pay Code")}</Typography>
                     </Grid>
                   </>
@@ -127,7 +151,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
             </Grid>
           </>
         )}
-        <Grid item container alignItems="center">
+        <Grid item container alignItems="flex-start">
           <Grid
             item
             container
@@ -149,7 +173,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
               <FormikTimeInput
                 name={`${fieldNamePrefix}.endTime`}
                 date={startOfDate}
-                earliestTime={props.values.startTime}
+                earliestTime={detail.startTime}
                 inputStatus={endTimeError ? "error" : "default"}
                 validationMessage={endTimeError}
               />
@@ -166,7 +190,7 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
           >
             <Grid
               item
-              xs={isMobile ? 12 : 4}
+              xs={isMobile ? 12 : multipleAccountingCodesInUse ? 3 : 4}
               className={
                 (classes.vacancyBlockItem,
                 isMobile ? classes.mobileMargin : classes.noClass)
@@ -178,25 +202,35 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                 withResetValue={false}
               />
             </Grid>
-            {!props.actingAsEmployee && (
+            {!actingAsEmployee && (
               <>
                 <Grid
                   item
-                  xs={isMobile ? 12 : 4}
+                  xs={isMobile ? 12 : multipleAccountingCodesInUse ? 6 : 4}
                   className={
                     (classes.vacancyBlockItem,
                     isMobile ? classes.mobileMargin : classes.spacing)
                   }
                 >
-                  <FormikSelect
-                    name={`${fieldNamePrefix}.accountingCodeId`}
+                  <AccountingCodeDropdown
+                    value={detail.accountingCodeAllocations ?? noAllocation()}
                     options={accountingCodeOptions}
-                    withResetValue={true}
+                    onChange={value =>
+                      setFieldValue(
+                        `${fieldNamePrefix}.accountingCodeAllocations`,
+                        value
+                      )
+                    }
+                    showLabel={false}
+                    inputStatus={
+                      error?.accountingCodeAllocations ? "error" : undefined
+                    }
+                    validationMessage={error?.accountingCodeAllocations}
                   />
                 </Grid>
                 <Grid
                   item
-                  xs={isMobile ? 12 : 4}
+                  xs={isMobile ? 12 : multipleAccountingCodesInUse ? 3 : 4}
                   className={
                     (classes.vacancyBlockItem,
                     isMobile ? classes.mobileMargin : classes.spacing)
@@ -204,26 +238,26 @@ export const EditableVacancyDetailRow: React.FC<Props> = props => {
                 >
                   <FormikSelect
                     name={`${fieldNamePrefix}.payCodeId`}
-                    options={props.payCodeOptions}
+                    options={payCodeOptions}
                     withResetValue={true}
                   />
                 </Grid>
               </>
             )}
           </Grid>
-          {props.showRemoveButton && (
+          {showRemoveButton && (
             <Grid item>
-              <IconButton onClick={props.onRemoveRow}>
+              <IconButton onClick={onRemoveRow}>
                 <HighlightOff />
               </IconButton>
             </Grid>
           )}
         </Grid>
       </Grid>
-      {props.isLastOnDay && (
+      {isLastOnDay && (
         <Grid container>
           <Grid item container className={classes.addRow}>
-            <Link onClick={props.onAddRow}>{t("Add row")}</Link>
+            <Link onClick={onAddRow}>{t("Add row")}</Link>
           </Grid>
         </Grid>
       )}

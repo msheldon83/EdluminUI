@@ -65,6 +65,10 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
             name
           }
           payCodeId
+          payCode {
+            id
+            name
+          }
           assignment {
             id
             rowVersion

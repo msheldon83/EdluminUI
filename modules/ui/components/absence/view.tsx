@@ -8,6 +8,7 @@ import {
   PayCode,
   PermissionEnum,
   Vacancy,
+  VacancyDetailAccountingCode,
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -32,6 +33,7 @@ import { VacancyDetails } from "./vacancy-details";
 import { ShowErrors } from "../error-helpers";
 import { AssignmentOnDate } from "./types";
 import { EmployeeLink } from "ui/components/links/people";
+import { accountingCodeAllocationsAreTheSame } from "../absence-vacancy/helpers";
 
 type Props = {
   orgId: string;
@@ -138,8 +140,18 @@ export const View: React.FC<Props> = props => {
     absence.vacancies && absence.vacancies[0]
       ? absence.vacancies[0].notesToReplacement
       : undefined;
-  const payCode = getPayCode(absence);
-  const accountingCode = getAccountingCode(absence);
+  const payCode = getFirstPayCode(absence);
+  const payCodesAreTheSame = payCode
+    ? allPayCodeSelectionsAreTheSame(payCode, absence)
+    : true;
+  const accountingCodeAllocations = getFirstSetOfAccountingCodeAllocations(
+    absence
+  );
+  const accountingCodeAllocationsAreTheSame = accountingCodeAllocations
+    ? allAccountingCodeSelectionsAreTheSame(accountingCodeAllocations, absence)
+    : true;
+  const multipleAccountingCodeAllocations =
+    (accountingCodeAllocations ?? []).length > 1;
 
   return (
     <div>
@@ -274,30 +286,53 @@ export const View: React.FC<Props> = props => {
                       </Typography>
                     </div>
                     <>
-                      {!props.actingAsEmployee && (accountingCode || payCode) && (
-                        <Grid item container className={classes.subCodes}>
-                          {accountingCode && (
-                            <Can do={[PermissionEnum.AbsVacViewAccountCode]}>
-                              <Grid item xs={payCode ? 6 : 12}>
-                                <Typography variant={"h6"}>
-                                  {t("Accounting code")}
-                                </Typography>
-                                {accountingCode.name}
-                              </Grid>
-                            </Can>
-                          )}
-                          {payCode && (
-                            <Can do={[PermissionEnum.AbsVacViewPayCode]}>
-                              <Grid item xs={accountingCode ? 6 : 12}>
-                                <Typography variant={"h6"}>
-                                  {t("Pay code")}
-                                </Typography>
-                                {payCode.name}
-                              </Grid>
-                            </Can>
-                          )}
-                        </Grid>
-                      )}
+                      {!props.actingAsEmployee &&
+                        (accountingCodeAllocations || payCode) && (
+                          <Grid item container className={classes.subCodes}>
+                            {accountingCodeAllocations && (
+                              <Can do={[PermissionEnum.AbsVacViewAccountCode]}>
+                                <Grid item xs={payCode ? 6 : 12}>
+                                  <Typography variant={"h6"}>
+                                    {t("Accounting code")}
+                                  </Typography>
+                                  {accountingCodeAllocationsAreTheSame
+                                    ? accountingCodeAllocations.map((a, i) => {
+                                        return (
+                                          <div key={i}>
+                                            {a.accountingCode?.name}{" "}
+                                            {multipleAccountingCodeAllocations
+                                              ? `(${Math.floor(
+                                                  a.allocation * 100
+                                                )}%)`
+                                              : ""}
+                                          </div>
+                                        );
+                                      })
+                                    : t(
+                                        "Details have different Accounting code selections. Click on Edit below to manage."
+                                      )}
+                                </Grid>
+                              </Can>
+                            )}
+                            {payCode && (
+                              <Can do={[PermissionEnum.AbsVacViewPayCode]}>
+                                <Grid
+                                  item
+                                  xs={accountingCodeAllocations ? 6 : 12}
+                                >
+                                  <Typography variant={"h6"}>
+                                    {t("Pay code")}
+                                  </Typography>
+                                  {payCodesAreTheSame
+                                    ? payCode.name
+                                    : t(
+                                        "Details have different Pay code selections. Click on Edit below to manage."
+                                      )}
+                                </Grid>
+                              </Can>
+                            )}
+                          </Grid>
+                        )}
                     </>
                   </>
                 )}
@@ -433,57 +468,62 @@ const getAbsenceReasonListDisplay = (
   });
 };
 
-/* TODO: Currently we only allow you to specify a single Pay Code on the Absence screen
-    that applies to all Vacancy Details. When we allow a User to specify different Pay Codes
-    per Vacancy Detail, we will have to revisit this.
-*/
-const getPayCode = (
+const getFirstPayCode = (
   absence: Absence
 ): Pick<PayCode, "id" | "name"> | undefined | null => {
-  const hasVacancyDetail =
-    absence.vacancies &&
-    absence.vacancies[0] &&
-    absence.vacancies[0].details &&
-    absence.vacancies[0].details[0];
-  if (!hasVacancyDetail) {
-    return undefined;
-  }
-
-  const firstVacancyDetail = absence.vacancies![0]!.details[0];
-  if (!firstVacancyDetail) {
-    return undefined;
-  }
-
-  return firstVacancyDetail.payCode;
+  const firstVacancyDetail = getFirstVacancyDetail(absence);
+  return firstVacancyDetail?.payCode;
 };
 
-/* TODO: Currently we only allow you to specify a single Accounting Code on the Absence screen
-    that applies to all Vacancy Details. When we allow a User to specify different Accounting Codes
-    (and allocations) per Vacancy Detail, we will have to revisit this.
-*/
-const getAccountingCode = (
+const allPayCodeSelectionsAreTheSame = (
+  payCodeToCompare: Pick<PayCode, "id" | "name">,
   absence: Absence
-): Pick<AccountingCode, "id" | "name"> | undefined | null => {
-  const hasVacancyDetail =
-    absence.vacancies &&
-    absence.vacancies[0] &&
-    absence.vacancies[0].details &&
-    absence.vacancies[0].details[0];
-  if (!hasVacancyDetail) {
-    return undefined;
+) => {
+  const allDetails = getAllVacancyDetails(absence);
+  if (!allDetails) {
+    return true;
   }
 
-  const firstVacancyDetail = absence.vacancies![0]!.details[0];
-  if (!firstVacancyDetail) {
-    return undefined;
+  const mismatch = allDetails.find(x => x.payCode?.id !== payCodeToCompare.id);
+  return !mismatch;
+};
+
+const getFirstSetOfAccountingCodeAllocations = (
+  absence: Absence
+): VacancyDetailAccountingCode[] | undefined | null => {
+  const firstVacancyDetail = getFirstVacancyDetail(absence);
+  return firstVacancyDetail?.accountingCodeAllocations;
+};
+
+const allAccountingCodeSelectionsAreTheSame = (
+  accountingCodeAllocationsToCompare: VacancyDetailAccountingCode[],
+  absence: Absence
+) => {
+  const allDetails = getAllVacancyDetails(absence);
+  if (!allDetails) {
+    return true;
   }
 
-  if (
-    !firstVacancyDetail.accountingCodeAllocations ||
-    !firstVacancyDetail.accountingCodeAllocations[0]
-  ) {
-    return undefined;
-  }
+  const allDetailsAllocations = allDetails.map(d =>
+    d.accountingCodeAllocations.map(a => {
+      return { accountingCodeId: a.accountingCodeId, allocation: a.allocation };
+    })
+  );
+  return accountingCodeAllocationsAreTheSame(
+    accountingCodeAllocationsToCompare.map(a => {
+      return { accountingCodeId: a.accountingCodeId, allocation: a.allocation };
+    }),
+    allDetailsAllocations
+  );
+};
 
-  return firstVacancyDetail.accountingCodeAllocations[0].accountingCode;
+const getFirstVacancyDetail = (absence: Absence) => {
+  const allDetails = getAllVacancyDetails(absence);
+  return allDetails ? allDetails[0] : undefined;
+};
+
+const getAllVacancyDetails = (absence: Absence) => {
+  const hasVacancyDetails =
+    absence.vacancies && absence.vacancies[0] && absence.vacancies[0].details;
+  return hasVacancyDetails ? absence.vacancies![0]!.details : undefined;
 };

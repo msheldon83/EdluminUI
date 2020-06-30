@@ -103,7 +103,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
   if (
     organizationsCount === 1 &&
     props.redirectIfOneOrg &&
-    searchText == undefined
+    (searchText == undefined || searchText == "")
   ) {
     return (
       <Redirect

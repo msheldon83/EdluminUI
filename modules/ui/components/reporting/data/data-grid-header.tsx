@@ -164,10 +164,10 @@ export const DataGridHeader: React.FC<Props> = props => {
         <div className={classes.headerCell}>
           <div>
             {orderByDirection === Direction.Asc && (
-              <ArrowUpward className={classes.sortIndicator} />
+              <ArrowDownward className={classes.sortIndicator} />
             )}
             {orderByDirection === Direction.Desc && (
-              <ArrowDownward className={classes.sortIndicator} />
+              <ArrowUpward className={classes.sortIndicator} />
             )}
             {expression.displayName}
           </div>

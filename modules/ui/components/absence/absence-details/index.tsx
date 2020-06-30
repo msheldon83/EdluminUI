@@ -41,13 +41,14 @@ import {
 import Maybe from "graphql/tsutils/Maybe";
 import { format } from "date-fns/esm";
 import { canEditAbsVac } from "helpers/permissions";
+import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 export type AbsenceDetailsFormData = {
   dayPart?: DayPart;
   absenceReason: string;
   replacementEmployeeId?: string;
   replacementEmployeeName?: string;
-  accountingCode?: string;
+  accountingCodeAllocations?: AccountingCodeValue;
   payCode?: string;
   hourlyStartTime?: Date;
   hourlyEndTime?: Date;
@@ -411,11 +412,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
             onCancelAssignment={props.onRemoveReplacement}
             isSplitVacancy={isSplitVacancy}
             onAssignSubClick={props.onAssignSubClick}
-            updateDetailAccountingCodes={(accountingCodeId: string | null) => {
+            updateDetailAccountingCodes={(
+              accountingCodeAllocations: AccountingCodeValue | null
+            ) => {
               const updatedDetails = props.vacancyDetails.map(vd => {
                 return {
                   ...vd,
-                  accountingCodeId: accountingCodeId ? accountingCodeId : null,
+                  accountingCodeAllocations: accountingCodeAllocations
+                    ? accountingCodeAllocations
+                    : null,
                 };
               });
               props.setVacanciesInput(updatedDetails);
