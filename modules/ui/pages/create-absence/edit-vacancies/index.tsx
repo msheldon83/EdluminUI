@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { FieldArray, Formik, FormikErrors } from "formik";
 import { useQueryBundle } from "graphql/hooks";
-import { compact, isArray } from "lodash-es";
+import { compact, isArray, sum } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -29,6 +29,7 @@ import {
 } from "date-fns";
 import { getDateRangeDisplayTextWithDayOfWeek } from "ui/components/date-helpers";
 import { EmployeeLink } from "ui/components/links/people";
+import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 type Props = {
   details: VacancyDetail[];
@@ -42,7 +43,7 @@ type Props = {
   actingAsEmployee?: boolean;
   positionName?: string;
   disabledDates?: Date[];
-  defaultAccountingCode?: string;
+  defaultAccountingCodeAllocations?: AccountingCodeValue;
   defaultPayCode?: string;
   isEdit?: boolean;
 };
@@ -60,7 +61,8 @@ export const EditVacancies: React.FC<Props> = props => {
       ...d,
       startTime: parseISO(d.startTime).toISOString(),
       endTime: parseISO(d.endTime).toISOString(),
-      accountingCodeId: d.accountingCodeId ?? props.defaultAccountingCode,
+      accountingCodeAllocations:
+        d.accountingCodeAllocations ?? props.defaultAccountingCodeAllocations,
       payCodeId: d.payCodeId ?? props.defaultPayCode,
     })),
   };
@@ -132,6 +134,54 @@ export const EditVacancies: React.FC<Props> = props => {
                       t("End Time before Start Time"),
                       null,
                       `${this.path}.endTime`
+                    );
+                  }
+
+                  return true;
+                },
+              })
+              .test({
+                name: "accountingCodeAllocationsCheck",
+                test: function test(value: VacancyDetail) {
+                  const accountingCodeAllocations =
+                    value.accountingCodeAllocations;
+                  if (
+                    accountingCodeAllocations?.type !== "multiple-allocations"
+                  ) {
+                    return true;
+                  }
+
+                  // Make sure all selections are filled out completely
+                  const selectedAccountingCodes = compact(
+                    accountingCodeAllocations.allocations.filter(
+                      a => a.selection
+                    )
+                  );
+                  if (selectedAccountingCodes.length === 0) {
+                    // Nothing selected yet
+                    return true;
+                  }
+
+                  if (
+                    selectedAccountingCodes.filter(a => !a.percentage).length >
+                    0
+                  ) {
+                    // Missing percentages
+                    return new yup.ValidationError(
+                      t("Accounting codes missing allocation percentages"),
+                      null,
+                      `${this.path}.accountingCodeAllocations`
+                    );
+                  }
+
+                  if (
+                    sum(selectedAccountingCodes.map(a => a.percentage)) !== 100
+                  ) {
+                    // Allocations need to add up to 100%
+                    return new yup.ValidationError(
+                      t("Accounting code allocations do not total 100%"),
+                      null,
+                      `${this.path}.accountingCodeAllocations`
                     );
                   }
 
@@ -255,7 +305,7 @@ export const EditVacancies: React.FC<Props> = props => {
                         orgId={props.orgId}
                         payCodeOptions={payCodeOptions}
                         keyPrefix={`details.${i}`}
-                        values={d}
+                        detail={d}
                         className={shaded ? classes.shadedRow : undefined}
                         onAddRow={() => arrayHelpers.insert(i + 1, d)}
                         onRemoveRow={() => arrayHelpers.remove(i)}
@@ -270,6 +320,13 @@ export const EditVacancies: React.FC<Props> = props => {
                         }
                         isFirstOnDay={isFirstOnDay}
                         isLastOnDay={isLastOnDay}
+                        multipleAccountingCodesInUse={
+                          values.details.filter(
+                            d =>
+                              d.accountingCodeAllocations?.type ===
+                              "multiple-allocations"
+                          ).length > 0
+                        }
                       />
                     </Grid>
                   );

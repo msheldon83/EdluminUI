@@ -22,7 +22,14 @@ import { useQueryParamIso } from "hooks/query-params";
 import { useDialog } from "hooks/use-dialog";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
-import { compact, differenceWith, flatMap, isEqual, some } from "lodash-es";
+import {
+  compact,
+  differenceWith,
+  flatMap,
+  isEqual,
+  some,
+  sum,
+} from "lodash-es";
 import * as React from "react";
 import { useCallback, useMemo, useReducer, useState } from "react";
 import useForm from "react-hook-form";
@@ -67,6 +74,11 @@ import { EmployeeLink } from "ui/components/links/people";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import { Can } from "ui/components/auth/can";
+import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
+import {
+  mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
+  mapAccountingCodeAllocationsToAccountingCodeValue,
+} from "ui/components/absence-vacancy/helpers";
 
 type Props = {
   firstName: string;
@@ -136,7 +148,7 @@ type EditAbsenceFormData = {
   notesToReplacement?: string;
   adminOnlyNotes?: string;
   vacancies?: AbsenceVacancyInput[];
-  accountingCode?: string;
+  accountingCodeAllocations?: AccountingCodeValue;
   payCode?: string;
 };
 
@@ -192,9 +204,17 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     dayPart: props.dayPart,
     payCode:
       props.initialVacancies[0]?.details[0]?.payCodeId?.toString() ?? undefined,
-    accountingCode:
-      props.initialVacancies[0]?.details[0]?.accountingCodeAllocations[0]?.accountingCode?.id?.toString() ??
-      undefined,
+    accountingCodeAllocations: mapAccountingCodeAllocationsToAccountingCodeValue(
+      props.initialVacancies[0]?.details[0]?.accountingCodeAllocations?.map(
+        a => {
+          return {
+            accountingCodeId: a.accountingCodeId,
+            accountingCodeName: a.accountingCode?.name,
+            allocation: a.allocation,
+          };
+        }
+      )
+    ),
     hourlyStartTime:
       props.dayPart === DayPart.Hourly
         ? parseISO(props.startTimeLocal)
@@ -256,7 +276,33 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         t("End time is required"),
     }
   );
-  register({ name: "accountingCode", type: "custom" });
+  register(
+    { name: "accountingCodeAllocations", type: "custom" },
+    {
+      validate: (value: AccountingCodeValue) => {
+        if (value.type !== "multiple-allocations") {
+          return true;
+        }
+
+        // Make sure all selections are filled out completely
+        const selectedAccountingCodes = compact(
+          value.allocations.filter(a => a.selection)
+        );
+
+        if (selectedAccountingCodes.filter(a => !a.percentage).length > 0) {
+          // Missing percentages
+          return `${t("Accounting codes missing allocation percentages")}`;
+        }
+
+        if (sum(selectedAccountingCodes.map(a => a.percentage)) !== 100) {
+          // Allocations need to add up to 100%
+          return `${t("Accounting code allocations do not total 100%")}`;
+        }
+
+        return true;
+      },
+    }
+  );
   register({ name: "payCode", type: "custom" });
 
   const [updateAbsence] = useMutationBundle(UpdateAbsence, {
@@ -823,7 +869,9 @@ const buildAbsenceUpdateInput = (
   // the associated property on the parent Vacancy to the server.
   const detailsHaveDifferentAccountingCodeSelections = vacancyDetailsHaveDifferentAccountingCodeSelections(
     vacancyDetails,
-    formValues.accountingCode ? formValues.accountingCode : null
+    formValues.accountingCodeAllocations
+      ? formValues.accountingCodeAllocations
+      : null
   );
   const detailsHaveDifferentPayCodeSelections = vacancyDetailsHaveDifferentPayCodeSelections(
     vacancyDetails,
@@ -851,9 +899,10 @@ const buildAbsenceUpdateInput = (
       // here on the detail or send null when one doesn't have any Accounting Code selected
       accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
-        : v.accountingCodeId
-        ? [{ accountingCodeId: v.accountingCodeId, allocation: 1 }]
-        : [],
+        : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+            v.accountingCodeAllocations,
+            true
+          ),
     })) || undefined;
 
   const absence: AbsenceUpdateInput = {
@@ -898,14 +947,10 @@ const buildAbsenceUpdateInput = (
         // and send that if there is one or an empty list to clear out all selections on the Details.
         accountingCodeAllocations: detailsHaveDifferentAccountingCodeSelections
           ? undefined
-          : formValues.accountingCode
-          ? [
-              {
-                accountingCodeId: formValues.accountingCode,
-                allocation: 1.0,
-              },
-            ]
-          : [],
+          : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+              formValues.accountingCodeAllocations,
+              true
+            ),
         // When the details have Pay Code selections, we won't send a Pay Code on
         // the Vacancy. When they don't we'll take the single selection in Sub Details
         // and send that if there is one or null to clear out all selections on the Details.

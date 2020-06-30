@@ -18,6 +18,7 @@ import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailItem, VacancyDayPart } from "../helpers/types";
 import { useVacancyReasonOptions } from "reference-data/vacancy-reasons";
+import { accountingCodeAllocationsAreTheSame } from "ui/components/absence-vacancy/helpers";
 
 type Props = {
   vacancyDays: VacancyDetailItem[];
@@ -134,25 +135,18 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
   const handleSetAccountingCodeValue = React.useCallback(
     (vacDetail: VacancyDetailItem) => {
       const newVacancyDays = vacancyDays.slice();
-      const accCode =
-        vacDetail.accountingCodeAllocations &&
-        vacDetail.accountingCodeAllocations.length > 0
-          ? vacDetail.accountingCodeAllocations[0]
-          : undefined;
+      const allocations = vacDetail.accountingCodeAllocations;
+
       newVacancyDays.forEach((vd, i) => {
         newVacancyDays[i] = {
           //need this to mark form as dirty
           ...newVacancyDays[i],
         };
         if (useSameAccountingCode) {
-          newVacancyDays[i].accountingCodeAllocations = accCode
-            ? [accCode]
-            : [];
+          newVacancyDays[i].accountingCodeAllocations = allocations ?? [];
         } else {
           if (isSameDay(vd.date, vacDetail.date)) {
-            newVacancyDays[i].accountingCodeAllocations = accCode
-              ? [accCode]
-              : [];
+            newVacancyDays[i].accountingCodeAllocations = allocations ?? [];
           }
         }
       });
@@ -343,18 +337,12 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
       setUseSamePayCode(useSPC);
 
       /* accounting code */
-      const accountingCodeId = vacancyDays[0].accountingCodeAllocations
-        ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
-        : undefined;
-      let useSAC = true;
-      vacancyDays.forEach(vd => {
-        if (
-          vd.accountingCodeAllocations &&
-          vd.accountingCodeAllocations[0]?.accountingCodeId !== accountingCodeId
-        ) {
-          useSAC = false;
-        }
-      });
+      const firstDayAccountingCodeAllocations =
+        vacancyDays[0].accountingCodeAllocations ?? [];
+      const useSAC = accountingCodeAllocationsAreTheSame(
+        firstDayAccountingCodeAllocations,
+        vacancyDays.map(d => d.accountingCodeAllocations ?? [])
+      );
       setUseSameAccountingCode(useSAC);
     } else {
       setUseSameReason(true);
@@ -464,38 +452,17 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     () => {
       if (vacancyDays.length > 0) {
         let update = false;
-        const accountingCodeId =
-          vacancyDays[0].accountingCodeAllocations &&
-          vacancyDays[0].accountingCodeAllocations.length > 0
-            ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeId
-            : undefined;
-        const accountingCodeName =
-          vacancyDays[0].accountingCodeAllocations &&
-          vacancyDays[0].accountingCodeAllocations.length > 0
-            ? vacancyDays[0].accountingCodeAllocations[0]?.accountingCodeName
-            : undefined;
-        for (let i = 0; i < vacancyDays.length; i++) {
-          if (
-            useSameAccountingCode &&
-            (!vacancyDays[i].accountingCodeAllocations ||
-              (vacancyDays[i].accountingCodeAllocations &&
-                !vacancyDays[i].accountingCodeAllocations?.find(
-                  a => a?.accountingCodeId === accountingCodeId
-                )))
-          ) {
-            vacancyDays[i].accountingCodeAllocations =
-              accountingCodeId && accountingCodeId.length > 0
-                ? [
-                    {
-                      accountingCodeId: accountingCodeId,
-                      accountingCodeName: accountingCodeName ?? "",
-                      allocation: 1.0,
-                    },
-                  ]
-                : [];
-            update = true;
+        const firstDayAccountingCodeAllocations =
+          vacancyDays[0].accountingCodeAllocations ?? [];
+        if (useSameAccountingCode) {
+          for (let i = 0; i < vacancyDays.length; i++) {
+            vacancyDays[
+              i
+            ].accountingCodeAllocations = firstDayAccountingCodeAllocations;
           }
+          update = true;
         }
+
         if (update) {
           setFieldValue("details", vacancyDays);
           updateModel({ details: vacancyDays });
@@ -530,6 +497,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                 ? t("Vacancy Details for all days")
                 : undefined
             }
+            dayIndex={0}
           />
         </Grid>
         {vacancyDays.length > 1 && (
@@ -629,6 +597,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
                   disableReason={useSameReason}
                   disablePayCode={useSamePayCode}
                   disableAccountingCode={useSameAccountingCode}
+                  dayIndex={i}
                 />
               </Grid>
             );

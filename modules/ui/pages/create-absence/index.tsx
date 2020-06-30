@@ -6,6 +6,11 @@ import { useRouteParams } from "ui/routes/definition";
 import { CreateAbsenceUI } from "./ui";
 import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 import { NotFound } from "ui/pages/not-found";
+import {
+  AccountingCodeValue,
+  singleAllocation,
+  noAllocation,
+} from "ui/components/form/accounting-code-dropdown";
 
 type Props = {};
 
@@ -30,6 +35,21 @@ export const CreateAbsence: React.FC<Props> = props => {
     l => l?.id ?? ""
   );
 
+  const accountingCodeAllocations: AccountingCodeValue =
+    employeeInfo.data.employee?.byId?.primaryPosition
+      ?.accountingCodeAllocations &&
+    employeeInfo.data.employee.byId.primaryPosition.accountingCodeAllocations[0]
+      ?.accountingCodeId
+      ? singleAllocation({
+          label:
+            employeeInfo.data.employee.byId.primaryPosition
+              .accountingCodeAllocations[0]?.accountingCode?.name ?? "",
+          value:
+            employeeInfo.data.employee.byId.primaryPosition
+              .accountingCodeAllocations[0]?.accountingCodeId,
+        })
+      : noAllocation();
+
   return (
     <CreateAbsenceUI
       firstName={employeeInfo.data.employee?.byId?.firstName}
@@ -50,13 +70,7 @@ export const CreateAbsence: React.FC<Props> = props => {
         employeeInfo.data.employee?.byId?.primaryPosition?.positionType
           ?.payCodeId
       }
-      accountingCodeId={
-        employeeInfo.data.employee?.byId?.primaryPosition
-          ?.accountingCodeAllocations
-          ? employeeInfo.data.employee.byId.primaryPosition
-              .accountingCodeAllocations[0]?.accountingCodeId ?? undefined
-          : undefined
-      }
+      accountingCodeAllocations={accountingCodeAllocations}
     />
   );
 };
