@@ -22,6 +22,10 @@ import { SubstituteTab } from "./role-pages/substitute-tab";
 import { makeStyles } from "@material-ui/core";
 import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
 import { RemoveOrgUserRole } from "./graphql/remove-orguser-role.gen";
+import { SaveAdmin } from "./graphql/admin/save-administrator.gen";
+import { RemoveFutureAssignmentsDialog } from "./components/remove-future-assignments-dialog";
+import { SaveEmployee } from "./graphql/employee/save-employee.gen";
+import { SaveSubstitute } from "./graphql/substitute/save-substitute.gen";
 
 export const PersonViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -29,6 +33,10 @@ export const PersonViewPage: React.FC<{}> = props => {
   const classes = useStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
+  const [
+    showRemoveFutureAssignments,
+    setShowRemoveFutureAssignments,
+  ] = React.useState(false);
 
   const params = useRouteParams(PersonViewRoute);
 
@@ -66,6 +74,24 @@ export const PersonViewPage: React.FC<{}> = props => {
   }, [deleteOrgUserMutation, history, params]);
 
   const [updateOrgUser] = useMutationBundle(UpdateOrgUser, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [updateAdmin] = useMutationBundle(SaveAdmin, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [updateSub] = useMutationBundle(SaveSubstitute, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [updateEmployee] = useMutationBundle(SaveEmployee, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -113,7 +139,47 @@ export const PersonViewPage: React.FC<{}> = props => {
         orgUser: orgUser,
       },
     });
+
     setEditing(null);
+  };
+
+  const handleSaveOrgUser = async (remove: boolean) => {
+    const userObject = {
+      id: orgUser.id,
+      active: !orgUser.active,
+      removeFutureAssignmentsOnInactivate: remove,
+    };
+
+    if (orgUser.isReplacementEmployee) {
+      await updateSub({
+        variables: {
+          substitute: userObject,
+        },
+      });
+    } else if (orgUser.isEmployee) {
+      await updateEmployee({
+        variables: {
+          employee: userObject,
+        },
+      });
+    } else if (orgUser.isAdmin) {
+      await updateAdmin({
+        variables: {
+          administrator: userObject,
+        },
+      });
+    }
+    await getOrgUser.refetch();
+    setShowRemoveFutureAssignments(false);
+  };
+
+  const onSetOrgUserActivation = async () => {
+    if (orgUser.active == false) {
+      await handleSaveOrgUser(false);
+    } else {
+      setShowRemoveFutureAssignments(true);
+      setEditing(null);
+    }
   };
 
   const onRemoveRole = async (orgUserRole: OrgUserRole) => {
@@ -134,6 +200,18 @@ export const PersonViewPage: React.FC<{}> = props => {
 
   return (
     <>
+      <RemoveFutureAssignmentsDialog
+        open={showRemoveFutureAssignments}
+        onClose={() => {
+          setShowRemoveFutureAssignments(false);
+        }}
+        onRemoveOnInactivate={async () => {
+          await handleSaveOrgUser(true);
+        }}
+        onDontRemoveOnInactivate={async () => {
+          await handleSaveOrgUser(false);
+        }}
+      />
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
       <PersonViewHeader
         orgStatus={orgConfig?.organizationTypeId}
@@ -143,6 +221,7 @@ export const PersonViewPage: React.FC<{}> = props => {
         setEditing={setEditing}
         deleteOrgUser={deleteOrgUser}
         onSaveOrgUser={onUpdateOrgUser}
+        onSetOrgUserActivation={onSetOrgUserActivation}
         onRemoveRole={onRemoveRole}
         selectedRole={selectedRole ?? defaultSelectedRole}
         orgId={params.organizationId}

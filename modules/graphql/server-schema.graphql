@@ -660,6 +660,7 @@ input AdministratorInput {
   country: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
+  removeFutureAssignmentsOnInactivate: Boolean
   isSuperUser: Boolean
   accessControl: AccessControInput
   relatedOrgIds: [ID]
@@ -849,9 +850,7 @@ type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
 type ApprovalMutations {
   approve(approvalState: ApprovalStateUpdateInput!): ApprovalState
   deny(approvalState: ApprovalStateUpdateInput!): ApprovalState
-  skip(approvalState: ApprovalStateUpdateInput!): ApprovalState
   comment(approvalComment: ApprovalStateUpdateInput!): ApprovalComment
-  reset(resetState: ApprovalStateResetInput!): ApprovalState
 }
 
 type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
@@ -873,11 +872,6 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   approvalWorkflowTypeId: ApprovalWorkflowType!
   comments: [ApprovalComment!]!
   decisions: [ApprovalDecision!]!
-}
-
-input ApprovalStateResetInput {
-  approvalStateId: ID!
-  resetToStepId: String!
 }
 
 input ApprovalStateUpdateInput {
@@ -1059,7 +1053,7 @@ type ApproverGroupHeader implements ModelObjectInterface & OrgObjectInterface & 
   name: String!
   description: String
   variesByLocation: Boolean!
-  approverGroups(orgUserId: ID): [ApproverGroup]
+  approverGroups(orgUserId: ID): [ApproverGroup]!
   memberCount: Int
   allLocationsHaveGroup: Boolean
   usageCount: Int
@@ -1263,9 +1257,7 @@ type BasicVacancy implements ModelObjectInterface & OrgObjectInterface & DomainO
   positionId: ID!
   contractId: ID!
   absenceId: ID
-  isNormalVacancy: Boolean!
   notesToReplacement: String
-  adminOnlyNotes: String
   position: Position
   absence: Absence
   payInfoSummary: PayInfoSummary
@@ -2368,6 +2360,7 @@ input EmployeeInput {
   country: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
+  removeFutureAssignmentsOnInactivate: Boolean
   position: PositionInput
   substitutePreferences: SubstitutePreferencesInput
   timeOffBalances: [TimeOffBalancesInput]
@@ -6525,6 +6518,7 @@ input SubstituteInput {
   country: CountryCode
   phoneNumber: String
   inviteImmediately: Boolean
+  removeFutureAssignmentsOnInactivate: Boolean
   payCodeId: ID
   attributes: [SubstituteAttributeInput]
   relatedOrgs: [SubstituteRelatedOrgInput]
@@ -7030,17 +7024,6 @@ input VacancyDetailInput {
   prearrangedReplacementEmployeeId: ID
 }
 
-type VacancyDetailJointCount {
-  date: Date
-  unverifiedCount: Int!
-  totalCount: Int!
-}
-
-input VacancyDetailVerifyBatchInput {
-  orgId: ID!
-  vacancyDetails: [VacancyDetailVerifyInput]!
-}
-
 input VacancyDetailVerifyInput {
   vacancyDetailId: ID
   doVerify: Boolean
@@ -7133,9 +7116,6 @@ type VacancyMutations {
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
   swapVacancyAssignments(swapDetails: SwapVacancyAssignmentsInput!): Boolean
   verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
-  verifyVacancyDetailBatch(
-    vacancyDetailBatch: VacancyDetailVerifyBatchInput!
-  ): VerifyVacancyDetailBatchResult
 }
 
 type VacancyNotificationLog {
@@ -7193,13 +7173,6 @@ type VacancyQueries {
     orgId: ID!
     includeVerified: Boolean
   ): [VacancyDetailCount]
-  getJointCountOfAssignmentsForVerify(
-    locationIds: [ID]
-    fromDate: Date
-    toDate: Date
-    orgId: ID!
-    shadowFromOrgId: ID
-  ): [VacancyDetailJointCount]
   getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: ID!): Int
   wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
@@ -7387,17 +7360,6 @@ type VacancyWasAssignedResult {
   employeeWasAssigned: Boolean!
   assignmentId: ID
   assignment: Assignment
-}
-
-type VerifyVacancyDetailBatchResult {
-  _info: [ReturnMessage]
-  results: [VerifyVacancyDetailBatchSingleResult]
-}
-
-type VerifyVacancyDetailBatchSingleResult {
-  _info: [ReturnMessage]
-  id: ID!
-  messages: [ReturnMessage]
 }
 
 enum VolumeUnit {
