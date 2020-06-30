@@ -7,6 +7,7 @@ import {
   AbsenceReasonTrackingTypeId,
   DayConversion,
   PermissionEnum,
+  VacancyDetailAccountingCode,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
@@ -22,6 +23,12 @@ import { OptionTypeBase } from "react-select/src/types";
 import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 import { getPayLabel } from "ui/components/helpers";
 import { Can } from "ui/components/auth/can";
+import {
+  mapAccountingCodeAllocationsToAccountingCodeValue,
+  accountingCodeAllocationsAreTheSame,
+} from "ui/components/absence-vacancy/helpers";
+import { AccountingCodeDropdown } from "ui/components/form/accounting-code-dropdown";
+import { sum } from "lodash-es";
 
 type Props = {
   vacancyDetail: Pick<
@@ -59,6 +66,11 @@ type Props = {
   goToEdit: (vacancyId: string, absenceId?: string | null) => void;
 };
 
+type AccountingCodeAllocation = {
+  accountingCodeId: string;
+  allocation: number;
+};
+
 export const Assignment: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -66,9 +78,26 @@ export const Assignment: React.FC<Props> = props => {
   const [currentPayCodeId, setCurrentPayCodeId] = useState<string | undefined>(
     vacancyDetail.payCodeId ?? undefined
   );
-  const [currentAccountingCodeId, setCurrentAccountingCodeId] = useState<
-    string | undefined
-  >(vacancyDetail.accountingCodeAllocations[0]?.accountingCodeId ?? undefined);
+  const [
+    currentAccountingCodeAllocations,
+    setCurrentAccountingCodeAllocations,
+  ] = useState<AccountingCodeAllocation[]>(
+    vacancyDetail.accountingCodeAllocations ?? []
+  );
+  const [
+    accountingCodeValueSelection,
+    setAccountingCodeValueSelection,
+  ] = useState(
+    mapAccountingCodeAllocationsToAccountingCodeValue(
+      vacancyDetail.accountingCodeAllocations?.map(a => {
+        return {
+          accountingCodeId: a.accountingCodeId,
+          accountingCodeName: a.accountingCode?.name,
+          allocation: a.allocation,
+        };
+      })
+    )
+  );
   const [selectedDayConversionName, setSelectedDayConversionName] = useState<
     string
   >();
@@ -240,10 +269,6 @@ export const Assignment: React.FC<Props> = props => {
     x => x.value === currentPayCodeId
   )?.label;
 
-  const accountingCodeLabel = accountingCodeOptions.find(
-    x => x.value === currentAccountingCodeId
-  )?.label;
-
   const handlePayCodeOnChange = async (payCodeId: string | undefined) => {
     if (currentPayCodeId === payCodeId) {
       // Don't call the mutation if we're not chaning anything
@@ -263,31 +288,31 @@ export const Assignment: React.FC<Props> = props => {
   };
 
   const handleAccountingCodeOnChange = async (
-    accountingCodeId: string | undefined
+    allocations: AccountingCodeAllocation[]
   ) => {
-    if (currentAccountingCodeId === accountingCodeId) {
-      // Don't call the mutation if we're not chaning anything
+    const sameAllocations = accountingCodeAllocationsAreTheSame(
+      currentAccountingCodeAllocations,
+      [allocations]
+    );
+    if (sameAllocations) {
+      // Don't call the mutation if we're not changing anything
+      return;
+    }
+
+    // Run the same validation we would on form submit
+    const errorMessage = validateAccountingCodeAllocations(allocations);
+    if (errorMessage) {
+      // Selections are invalid, don't save
       return;
     }
 
     await props.onVerify({
       vacancyDetailId: vacancyDetail.id,
       doVerify: null,
-      accountingCodeAllocations: accountingCodeId
-        ? [
-            {
-              accountingCodeId: accountingCodeId,
-              allocation: 1.0,
-            },
-          ]
-        : [],
+      accountingCodeAllocations: allocations,
     });
 
-    // Find the accounting code option that matches our selection and set in state
-    const accountingCode = accountingCodeOptions.find(
-      x => x.value === accountingCodeId
-    );
-    setCurrentAccountingCodeId(accountingCode ? accountingCodeId : undefined);
+    setCurrentAccountingCodeAllocations(allocations);
   };
 
   const handleCommentsOnBlur = async (verifyComments: string | undefined) => {
@@ -323,6 +348,78 @@ export const Assignment: React.FC<Props> = props => {
     });
   };
 
+  const accountingCodeDisplay = useMemo(() => {
+    if (currentAccountingCodeAllocations.length === 0) {
+      return (
+        <div className={classes.lightText}>{`${t("Acct")}: ${t("N/A")}`}</div>
+      );
+    }
+
+    if (currentAccountingCodeAllocations.length === 1) {
+      const accountingCodeId =
+        currentAccountingCodeAllocations[0].accountingCodeId;
+      const accountingCodeLabel =
+        accountingCodeOptions.find(o => o.value === accountingCodeId)?.label ??
+        t("N/A");
+      return (
+        <div className={classes.lightText}>{`${t(
+          "Acct"
+        )}: ${accountingCodeLabel}`}</div>
+      );
+    }
+
+    // Multiple Accounting Code Allocations in play
+    return (
+      <div className={clsx(classes.multiAccountingCodes, classes.lightText)}>
+        <div className={classes.multiAccountingCodesLabel}>{t("Acct")}:</div>
+        <div>
+          {currentAccountingCodeAllocations.map((a, i) => {
+            const accountingCodeId = a.accountingCodeId;
+            const accountingCodeLabel =
+              accountingCodeOptions.find(o => o.value === accountingCodeId)
+                ?.label ?? t("N/A");
+            return (
+              <div key={i}>
+                {accountingCodeLabel} ({Math.floor(a.allocation * 100)}
+                %)
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }, [
+    accountingCodeOptions,
+    classes.lightText,
+    classes.multiAccountingCodes,
+    classes.multiAccountingCodesLabel,
+    currentAccountingCodeAllocations,
+    t,
+  ]);
+
+  const validateAccountingCodeAllocations = (
+    accountingCodeAllocations: AccountingCodeAllocation[]
+  ): string | undefined => {
+    if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
+      return undefined;
+    }
+
+    if (
+      accountingCodeAllocations.filter(
+        a => !a.accountingCodeId || !a.allocation
+      ).length > 0
+    ) {
+      return t("Accounting code selections not complete");
+    }
+
+    if (sum(accountingCodeAllocations.map(a => a.allocation)) !== 1) {
+      // Allocations need to add up to 100%
+      return t("Accounting code allocations do not total 100%");
+    }
+
+    return undefined;
+  };
+
   return (
     <div
       onClick={() => props.onSelectDetail(vacancyDetail.id)}
@@ -337,7 +434,8 @@ export const Assignment: React.FC<Props> = props => {
           verifyComments: vacancyDetail.verifyComments ?? undefined,
           payCodeId: currentPayCodeId ?? undefined,
           dayPortion: vacancyDetail.dayPortion,
-          accountingCodeId: currentAccountingCodeId ?? undefined,
+          accountingCodeAllocations:
+            vacancyDetail.accountingCodeAllocations ?? [],
           payDurationOverrideHours: minutesToHours(
             vacancyDetail.payDurationOverride ??
               vacancyDetail.actualDuration ??
@@ -354,14 +452,13 @@ export const Assignment: React.FC<Props> = props => {
             vacancyDetailId: vacancyDetail.id,
             payCodeId: data.payCodeId ? data.payCodeId : null,
             verifyComments: data.verifyComments,
-            accountingCodeAllocations: data.accountingCodeId
-              ? [
-                  {
-                    accountingCodeId: data.accountingCodeId,
-                    allocation: 1.0,
-                  },
-                ]
-              : [],
+            accountingCodeAllocations:
+              data.accountingCodeAllocations?.map(a => {
+                return {
+                  accountingCodeId: a.accountingCodeId,
+                  allocation: a.allocation,
+                };
+              }) ?? [],
             dayPortion: dayConversion?.dayEquivalent ?? data.dayPortion,
             payTypeId:
               dayConversion || travelingTeacher
@@ -376,14 +473,37 @@ export const Assignment: React.FC<Props> = props => {
             doVerify: notVerified,
           });
         }}
-        validationSchema={yup.object().shape({
-          dayPortion: yup.number().typeError(t("Not a valid number")),
-          payDurationOverrideHours: yup
-            .number()
-            .nullable()
-            .typeError(t("Not a valid number")),
-          verifyComments: yup.string().nullable(),
-        })}
+        validationSchema={yup
+          .object()
+          .shape({
+            dayPortion: yup.number().typeError(t("Not a valid number")),
+            payDurationOverrideHours: yup
+              .number()
+              .nullable()
+              .typeError(t("Not a valid number")),
+            verifyComments: yup.string().nullable(),
+          })
+          .test({
+            name: "accountingCodeAllocationsCheck",
+            test: function test(value: {
+              accountingCodeAllocations: AccountingCodeAllocation[];
+            }) {
+              const accountingCodeAllocations = value.accountingCodeAllocations;
+              const errorMessage = validateAccountingCodeAllocations(
+                accountingCodeAllocations
+              );
+
+              if (errorMessage) {
+                return new yup.ValidationError(
+                  errorMessage,
+                  null,
+                  "accountingCodeAllocations"
+                );
+              }
+
+              return true;
+            },
+          })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => (
           <form onSubmit={handleSubmit}>
@@ -458,8 +578,18 @@ export const Assignment: React.FC<Props> = props => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item container alignItems="flex-end" spacing={1}>
-                  <Grid item container xs={4} alignItems="flex-end">
+                <Grid item container alignItems="flex-start" spacing={1}>
+                  <Grid
+                    item
+                    container
+                    xs={
+                      accountingCodeValueSelection?.type ===
+                        "multiple-allocations" && isActiveCard
+                        ? 6
+                        : 4
+                    }
+                    alignItems="flex-end"
+                  >
                     {isActiveCard ? (
                       <>
                         <Grid
@@ -551,7 +681,15 @@ export const Assignment: React.FC<Props> = props => {
                       </Typography>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid
+                    item
+                    xs={
+                      accountingCodeValueSelection?.type ===
+                        "multiple-allocations" && isActiveCard
+                        ? 6
+                        : 4
+                    }
+                  >
                     {isActiveCard ? (
                       <>
                         <Can do={[PermissionEnum.AbsVacSavePayCode]}>
@@ -596,50 +734,76 @@ export const Assignment: React.FC<Props> = props => {
                       >{`Code: ${payCodeLabel ?? t("N/A")}`}</Typography>
                     )}
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid
+                    item
+                    xs={
+                      accountingCodeValueSelection?.type ===
+                        "multiple-allocations" && isActiveCard
+                        ? 12
+                        : 4
+                    }
+                  >
                     {isActiveCard ? (
                       <>
                         <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
                           <Typography className={classes.boldText}>
                             {t("Accounting code:")}
                           </Typography>
-                          <SelectNew
-                            value={{
-                              value: values.accountingCodeId ?? "",
-                              label:
-                                accountingCodeOptions.find(
-                                  a => a.value === values.accountingCodeId
-                                )?.label || "",
-                            }}
-                            onChange={async (e: OptionType) => {
-                              let selectedValue = null;
-                              if (e) {
-                                if (Array.isArray(e)) {
-                                  selectedValue = (e as Array<
-                                    OptionTypeBase
-                                  >)[0].value;
-                                } else {
-                                  selectedValue = (e as OptionTypeBase).value;
-                                }
-                              }
-                              setFieldValue("accountingCodeId", selectedValue);
-                              await handleAccountingCodeOnChange(selectedValue);
-                            }}
+                          <AccountingCodeDropdown
+                            value={accountingCodeValueSelection}
                             options={accountingCodeOptions}
-                            multiple={false}
+                            showLabel={false}
+                            onChange={async value => {
+                              setAccountingCodeValueSelection(value);
+                              const allocations: AccountingCodeAllocation[] = [];
+
+                              switch (value.type) {
+                                case "single-allocation":
+                                  allocations.push({
+                                    accountingCodeId:
+                                      value.selection?.value?.toString() ?? "",
+                                    allocation: 1.0,
+                                  });
+                                  break;
+                                case "multiple-allocations":
+                                  allocations.push(
+                                    ...value.allocations.map(a => {
+                                      return {
+                                        accountingCodeId:
+                                          a.selection?.value?.toString() ?? "",
+                                        allocation: a.percentage
+                                          ? a.percentage / 100
+                                          : 0,
+                                      };
+                                    })
+                                  );
+                                  break;
+                              }
+
+                              // We only want to validate this field when the form is submitted,
+                              // but if we currently have a validation error, then we need to validate
+                              // the field until the User fixes the issue and the error is removed
+                              setFieldValue(
+                                "accountingCodeAllocations",
+                                allocations,
+                                !!errors?.accountingCodeAllocations
+                              );
+                              await handleAccountingCodeOnChange(allocations);
+                            }}
+                            inputStatus={
+                              errors?.accountingCodeAllocations
+                                ? "error"
+                                : undefined
+                            }
+                            validationMessage={errors?.accountingCodeAllocations?.toString()}
                           />
                         </Can>
                         <Can not do={[PermissionEnum.AbsVacSaveAccountCode]}>
-                          <Typography
-                            className={classes.boldText}
-                          >{`Acct: ${accountingCodeLabel ??
-                            t("N/A")}`}</Typography>
+                          {accountingCodeDisplay}
                         </Can>
                       </>
                     ) : (
-                      <Typography
-                        className={classes.lightText}
-                      >{`Acct: ${accountingCodeLabel ?? t("N/A")}`}</Typography>
+                      accountingCodeDisplay
                     )}
                   </Grid>
                 </Grid>
@@ -738,5 +902,11 @@ export const useStyles = makeStyles(theme => ({
   },
   topMargin: {
     marginTop: "5px",
+  },
+  multiAccountingCodes: {
+    display: "flex",
+  },
+  multiAccountingCodesLabel: {
+    paddingRight: theme.spacing(0.5),
   },
 }));

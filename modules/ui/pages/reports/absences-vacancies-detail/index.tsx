@@ -18,7 +18,7 @@ export const AbsencesVacanciesDetailReport: React.FC<{}> = () => {
   // implementing Saved Views and want to make sure all Users default back
   // to the RDL that we define the next time they visit this report.
   const localStorageKey = React.useMemo(
-    () => `AbsencesAndVacanciesDetailReport_20200618_${orgId}`,
+    () => `AbsencesAndVacanciesDetailReport_20200626_${orgId}`,
     [orgId]
   );
   const rdl = React.useMemo(() => {
@@ -27,7 +27,7 @@ export const AbsencesVacanciesDetailReport: React.FC<{}> = () => {
       return localStorageRdl;
     }
 
-    return "QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN %-6d AND %0d) SELECT ConfirmationNumber WIDTH(150), Date, LocationName, If(IsVacancy = 1, AbsentEmployeeLastName, Concat(AbsentEmployeeLastName, ', ', AbsentEmployeeFirstName)) AS Employee WIDTH(300), AbsentEmployeeExternalId, AbsStartTime, AbsEndTime, ReasonName, Concat(SubLastName, ', ', SubFirstName) AS Substitute, SubExternalId, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, PayCodeName, PayCodeDescription, AccountingCodeName, AccountingCodeDescription, PositionTypeName, Title, PositionTypeName, RequiresSub WIDTH(150), IsFilled, NotesToAdmin, AdminOnlyNotes, NotesToReplacement, IsVerified, VerifiedAtLocal WIDTH(200), VerifyComments ORDER BY Date DESC";
+    return "QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN %-6d AND %0d) SELECT ConfirmationNumber WIDTH(150), Date, LocationName, If(IsVacancy = 1, AbsentEmployeeLastName, Concat(AbsentEmployeeLastName, ', ', AbsentEmployeeFirstName)) AS Employee WIDTH(300), AbsentEmployeeExternalId, AbsStartTime, AbsEndTime, ReasonName, Concat(SubLastName, ', ', SubFirstName) AS Substitute, SubExternalId, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, PayCodeName, PayCodeDescription, AccountingCodeName, AccountingCodeDescription, AccountingCodeAllocation, PositionTypeName, Title, PositionTypeName, RequiresSub WIDTH(150), IsFilled, NotesToAdmin, AdminOnlyNotes, NotesToReplacement, IsVerified, VerifiedAtLocal WIDTH(200), VerifyComments ORDER BY Date DESC";
   }, [localStorageKey]);
 
   return (

@@ -13,6 +13,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { Close } from "@material-ui/icons";
 import { useHistory } from "react-router";
 import { useIsImpersonating } from "reference-data/is-impersonating";
+import { PersonViewRoute } from "ui/routes/people";
 
 type Props = {};
 
@@ -28,11 +29,18 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     const impersonatingOrgId = sessionStorage.getItem(
       Config.impersonation.impersonatingOrgId
     );
+    const impersonatingOrgUserId = sessionStorage.getItem(
+      Config.impersonation.actingOrgUserIdKey
+    );
 
     sessionStorage.removeItem(Config.impersonation.actingUserIdKey);
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
     sessionStorage.removeItem(Config.impersonation.impersonatingOrgId);
-    history.push({ pathname: "/", state: { impersonatingOrgId } });
+
+    history.push({
+      pathname: "/",
+      state: { impersonatingOrgId, impersonatingOrgUserId },
+    });
   }, [history]);
 
   const userDisplayName = useMemo(() => {

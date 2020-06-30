@@ -29,10 +29,13 @@ import { canEditAbsVac } from "helpers/permissions";
 import { parseISO, isSameDay, format, startOfDay, min } from "date-fns";
 import { AssignSub } from "ui/components/assign-sub";
 import { VacancyConfirmation } from "./vacancy-confirmation";
-import { compact, isEqual } from "lodash-es";
+import { compact, isEqual, sum } from "lodash-es";
 import { ExecutionResult } from "graphql";
 import { Prompt, useRouteMatch } from "react-router";
-import { buildVacancyCreateInput } from "../helpers";
+import {
+  buildVacancyCreateInput,
+  validateAccountingCodeAllocations,
+} from "../helpers";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -43,10 +46,15 @@ import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { vacancyReducer } from "../state";
 import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { VacancyDetailsFormData, VacancyFormValues } from "../helpers/types";
+import {
+  VacancyDetailsFormData,
+  VacancyFormValues,
+  VacancyDetailItem,
+} from "../helpers/types";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
+import * as yup from "yup";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -611,6 +619,36 @@ export const VacancyUI: React.FC<Props> = props => {
       )}
       <Formik
         initialValues={initialFormValues}
+        validateOnBlur={false}
+        validateOnChange={false}
+        validationSchema={yup.object().shape({
+          details: yup.array().of(
+            yup.object().test({
+              name: "accountingCodeAllocationsCheck",
+              test: function test(value: VacancyDetailItem) {
+                const accountingCodeAllocations =
+                  value.accountingCodeAllocations;
+
+                // Any additional validation should go directly into `validateAccountingCodeAllocations`
+                // instead of being added directly here. It is also used alongside the dropdown
+                // to check for any validation errors
+                const error = validateAccountingCodeAllocations(
+                  accountingCodeAllocations ?? [],
+                  t
+                );
+                if (!error) {
+                  return true;
+                }
+
+                return new yup.ValidationError(
+                  error,
+                  null,
+                  `${this.path}.accountingCodeAllocations`
+                );
+              },
+            })
+          ),
+        })}
         onReset={(values, e) => {
           setResetKey(resetKey + 1);
           setVacancy({ ...initialVacancy });
@@ -709,6 +747,7 @@ export const VacancyUI: React.FC<Props> = props => {
           resetForm,
           touched,
           initialValues,
+          errors,
         }) => (
           <form id="vacancy-form" onSubmit={handleSubmit}>
             <Prompt

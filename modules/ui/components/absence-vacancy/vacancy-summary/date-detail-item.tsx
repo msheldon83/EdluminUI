@@ -16,9 +16,9 @@ export const DateDetailItem: React.FC<Props> = props => {
   const { t } = useTranslation();
   const { detail, showPayCodes, showAccountingCodes } = props;
 
-  const accountingCodeDisplayName = detail.accountingCodeAllocations
-    ? detail.accountingCodeAllocations[0]?.accountingCodeName
-    : undefined;
+  const accountingCodeAllocations = detail.accountingCodeAllocations ?? [];
+  const noAccountingCodes = accountingCodeAllocations.length === 0;
+  const singleAccountingCode = accountingCodeAllocations.length === 1;
 
   return (
     <div className={classes.row}>
@@ -45,9 +45,37 @@ export const DateDetailItem: React.FC<Props> = props => {
         </div>
         {showAccountingCodes && (
           <div>
-            {`${t("Acct")}: ${accountingCodeDisplayName ?? ""}`}
-            {!accountingCodeDisplayName && (
-              <span className={classes.notSpecified}>{t("Not specified")}</span>
+            {noAccountingCodes && (
+              <>
+                {t("Acct")}
+                {": "}
+                <span className={classes.notSpecified}>
+                  {t("Not specified")}
+                </span>
+              </>
+            )}
+            {singleAccountingCode && (
+              <>
+                {`${t("Acct")}: ${accountingCodeAllocations[0]
+                  .accountingCodeName ?? ""}`}
+              </>
+            )}
+            {!noAccountingCodes && !singleAccountingCode && (
+              <div className={classes.multiAccountingCodes}>
+                <div className={classes.multiAccountingCodesLabel}>
+                  {t("Acct")}:
+                </div>
+                <div>
+                  {accountingCodeAllocations.map((a, i) => {
+                    return (
+                      <div key={i}>
+                        {a.accountingCodeName} ({Math.floor(a.allocation * 100)}
+                        %)
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -67,5 +95,11 @@ export const useStyles = makeStyles(theme => ({
   },
   rightColumn: {
     textAlign: "right",
+  },
+  multiAccountingCodes: {
+    display: "flex",
+  },
+  multiAccountingCodesLabel: {
+    paddingRight: theme.spacing(0.5),
   },
 }));
