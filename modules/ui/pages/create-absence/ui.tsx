@@ -209,10 +209,6 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
         const selectedAccountingCodes = compact(
           value.allocations.filter(a => a.selection)
         );
-        if (selectedAccountingCodes.length === 0) {
-          // Nothing selected yet
-          return true;
-        }
 
         if (selectedAccountingCodes.filter(a => !a.percentage).length > 0) {
           // Missing percentages
