@@ -7,17 +7,18 @@ import {
 import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import Maybe from "graphql/tsutils/Maybe";
-import { OrgUserUpdateInput, PermissionEnum } from "graphql/server-types.gen";
+import {
+  OrgUserUpdateInput,
+  PermissionEnum,
+  AdministratorInput,
+} from "graphql/server-types.gen";
 import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { InviteSingleUser } from "../graphql/invite-single-user.gen";
 import { ShowErrors } from "ui/components/error-helpers";
-import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { OptionType } from "ui/components/form/select-new";
-import { AdminHomeRoute } from "ui/routes/admin-home";
 import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrganizationType, FeatureFlag } from "graphql/server-types.gen";
@@ -59,6 +60,7 @@ type Props = {
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;
   onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
+  onSetOrgUserActivation: (orgUser: AdministratorInput) => Promise<unknown>;
   onRemoveRole: (orgUserRole: OrgUserRole) => Promise<any>;
 };
 
@@ -193,8 +195,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
     menuActions.push({
       name: orgUser.active ? t("Inactivate") : t("Activate"),
       onClick: async () => {
-        await props.onSaveOrgUser({
-          rowVersion: orgUser.rowVersion,
+        await props.onSetOrgUserActivation({
           id: orgUser.id,
           active: !orgUser.active,
         });
