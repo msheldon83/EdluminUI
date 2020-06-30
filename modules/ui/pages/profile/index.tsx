@@ -96,7 +96,7 @@ export const ProfilePage: React.FC<{}> = props => {
     const result = response?.data?.user?.resetPassword;
     if (result) {
       openSnackbar({
-        message: t("Reset password email has been sent"),
+        message: t("Reset password email has been sent."),
         dismissable: true,
         status: "success",
         autoHideDuration: 5000,
@@ -166,30 +166,28 @@ export const ProfilePage: React.FC<{}> = props => {
             preferences: {
               notificationPreferences: data.notificationPreferences
                 ? data.notificationPreferences.map(x => ({
-                    notificationReasonId: x.notificationReasonId,
-                    receiveEmailNotifications: x.receiveEmailNotifications,
-                    receiveInAppNotifications: x.receiveInAppNotifications,
-                    receiveSmsNotifications: x.receiveSmsNotifications,
-                  }))
+                  notificationReasonId: x.notificationReasonId,
+                  receiveEmailNotifications: x.receiveEmailNotifications,
+                  receiveInAppNotifications: x.receiveInAppNotifications,
+                  receiveSmsNotifications: x.receiveSmsNotifications,
+                }))
                 : undefined,
             },
           })
         }
         validationSchema={yup.object().shape({
-          firstName: yup.string().required(t("First name is required")),
-          lastName: yup.string().required(t("Last name is required")),
-          timeZoneId: yup.string().required(t("Time zone is required")),
-          phone: yup
-            .string()
+          firstName: yup.string().required(t("First name is required.")),
+          lastName: yup.string().required(t("Last name is required.")),
+          timeZoneId: yup.string().required(t("Time zone is required.")),
+          phone: yup.string()
+            .when('isSub',
+              {
+                is: (isSub) => { return isSubstitute; },
+                then: yup.string().required("Phone number is required.")
+              }
+            )
             .nullable()
-            .test({
-              name: "isSub",
-              message: t("Phone number is required"),
-              test: value => {
-                return isSubstitute ? false : true;
-              },
-            })
-            .matches(phoneRegExp, t("Phone Number Is Not Valid")),
+            .matches(phoneRegExp, t("Phone number is not valid.")),
         })}
       >
         {({ handleSubmit, submitForm, values, setFieldValue }) => (
