@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button, makeStyles } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { Approve } from "ui/components/absence-vacancy/approval-state/graphql/approve.gen";
@@ -9,25 +9,42 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useTranslation } from "react-i18next";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { ApprovalStatus } from "graphql/server-types.gen";
-import { GetApproverGroupsForOrgUser } from "./graphql/get-approver-groups-for-orguser.gen";
+import { GetApproverGroupsForOrgUser } from "../graphql/get-approver-groups-for-orguser.gen";
 import { compact } from "lodash-es";
+import { SkipDialog } from "./skip-dialog";
+import { ResetDialog } from "./reset-dialog";
+import { ActionMenu, Option } from "ui/components/action-menu";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
   approvalStateId: string;
   onApprove?: () => void;
   onDeny?: () => void;
+  onSkip?: () => void;
+  onReset?: () => void;
   approvalStatus?: ApprovalStatus;
   currentApproverGroupHeaderId?: string | null;
   locationIds: string[];
+  showSkip: boolean;
+  showReset: boolean;
+  currentApproverGroupName: string;
+  nextApproverGroupName: string;
+  previousSteps: {
+    stepId: string;
+    approverGroupHeaderName: string;
+  }[];
 };
 
-export const ApproveDenyButtons: React.FC<Props> = props => {
+export const ApprovalActionButtons: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
   const { locationIds, approvalStatus, currentApproverGroupHeaderId } = props;
+
+  const [skipDialogOpen, setSkipDialogOpen] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   const userAccess = useMyUserAccess();
   const orgUserId = userAccess?.me?.user?.orgUsers?.find(
@@ -68,7 +85,7 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
         },
       },
     });
-    if (result.data && props.onApprove) {
+    if (result?.data && props.onApprove) {
       props.onApprove();
     }
   };
@@ -81,12 +98,38 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
         },
       },
     });
-    if (result.data && props.onDeny) {
+    if (result?.data && props.onDeny) {
       props.onDeny();
     }
   };
 
-  const showButtons = useMemo(() => {
+  const menuOptions = [] as Option[];
+
+  if (props.showSkip) {
+    menuOptions.push({
+      name: t("Skip"),
+      onClick: () => setSkipDialogOpen(true),
+      permissions: [PermissionEnum.AbsVacApprovalsSkip],
+    });
+  }
+
+  if (props.showReset) {
+    menuOptions.push({
+      name: t("Reset"),
+      onClick: () => setResetDialogOpen(true),
+      permissions: [PermissionEnum.AbsVacApprovalsReset],
+    });
+  }
+
+  const onCloseSkipDialog = () => {
+    setSkipDialogOpen(false);
+  };
+
+  const onCloseResetDialog = () => {
+    setResetDialogOpen(false);
+  };
+
+  const showApproveDenyButtons = useMemo(() => {
     // Sys Admins are unable to approve or deny unless impersonating
     if (userAccess?.isSysAdmin) return false;
 
@@ -127,32 +170,57 @@ export const ApproveDenyButtons: React.FC<Props> = props => {
     locationIds,
   ]);
 
-  return showButtons ? (
-    <div className={classes.container}>
-      <Button
-        className={classes.denyButton}
-        variant="contained"
-        onClick={handleDeny}
-      >
-        {t("Deny")}
-      </Button>
-      <Button
-        className={classes.approveButton}
-        variant="contained"
-        onClick={handleApprove}
-      >
-        {t("Approve")}
-      </Button>
-    </div>
-  ) : (
-    <></>
+  return (
+    <>
+      <SkipDialog
+        approvalStateId={props.approvalStateId}
+        open={skipDialogOpen}
+        onClose={onCloseSkipDialog}
+        currentApproverGroupName={props.currentApproverGroupName}
+        onSkip={props.onSkip}
+        nextApproverGroupName={props.nextApproverGroupName}
+      />
+      <ResetDialog
+        approvalStateId={props.approvalStateId}
+        open={resetDialogOpen}
+        onClose={onCloseResetDialog}
+        currentApproverGroupName={props.currentApproverGroupName}
+        onReset={props.onReset}
+        previousSteps={props.previousSteps}
+      />
+      <div className={classes.container}>
+        {showApproveDenyButtons && (
+          <div className={classes.buttonContainer}>
+            <Button
+              className={classes.denyButton}
+              variant="contained"
+              onClick={handleDeny}
+            >
+              {t("Deny")}
+            </Button>
+            <Button
+              className={classes.approveButton}
+              variant="contained"
+              onClick={handleApprove}
+            >
+              {t("Approve")}
+            </Button>
+          </div>
+        )}
+        <ActionMenu options={menuOptions} />
+      </div>
+    </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
-    padding: theme.spacing(1),
+    alignItems: "center",
+  },
+  buttonContainer: {
+    display: "flex",
+    height: "36px",
   },
   approveButton: {
     background: "#4CC17C",

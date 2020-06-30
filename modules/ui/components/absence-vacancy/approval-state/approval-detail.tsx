@@ -15,7 +15,7 @@ import { VacancyDetails } from "./vacancy-details";
 import { AbsenceDetails } from "./absence-details";
 import { compact } from "lodash-es";
 import { Context } from "./context";
-import { ApproveDenyButtons } from "./approve-deny-buttons";
+import { ApprovalActionButtons } from "./approval-action-buttons";
 import { ApprovalWorkflowSteps } from "./types";
 import { useIsMobile } from "hooks";
 
@@ -117,9 +117,25 @@ export const ApprovalDetail: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const classes = useStyles({ isMobile });
 
-  const currentApproverGroupHeaderId = props.approvalWorkflowSteps.find(
-    x => x.stepId == props.currentStepId
-  )?.approverGroupHeaderId;
+  const currentStep = props.approvalWorkflowSteps.find(
+    x => x.stepId === props.currentStepId
+  );
+  const nextStep = props.approvalWorkflowSteps.find(
+    x => x.stepId === currentStep?.onApproval[0].goto && !x.isLastStep
+  );
+  const previousSteps = compact(
+    props.decisions.map(x => {
+      const previousStep = props.approvalWorkflowSteps.find(
+        y => y.stepId === x.stepId
+      );
+      if (previousStep) {
+        return {
+          stepId: previousStep.stepId,
+          approverGroupHeaderName: previousStep.approverGroupHeader?.name ?? "",
+        };
+      }
+    })
+  );
 
   const locationIds =
     compact(
@@ -185,15 +201,24 @@ export const ApprovalDetail: React.FC<Props> = props => {
       <div className={!isMobile ? classes.desktopContainer : undefined}>
         {!isMobile && renderAbsVacDetail()}
         <div className={classes.approvalDetailsContainer}>
-          <ApproveDenyButtons
-            approvalStateId={props.approvalStateId}
-            approvalStatus={props.approvalStatusId}
-            currentApproverGroupHeaderId={currentApproverGroupHeaderId}
-            onApprove={props.onApprove}
-            onDeny={props.onDeny}
-            orgId={props.orgId}
-            locationIds={locationIds}
-          />
+          <div className={classes.buttonContainer}>
+            <ApprovalActionButtons
+              approvalStateId={props.approvalStateId}
+              approvalStatus={props.approvalStatusId}
+              currentApproverGroupHeaderId={currentStep?.approverGroupHeaderId}
+              onApprove={props.onApprove}
+              onDeny={props.onDeny}
+              orgId={props.orgId}
+              locationIds={locationIds}
+              currentApproverGroupName={
+                currentStep?.approverGroupHeader?.name ?? ""
+              }
+              showSkip={nextStep !== undefined}
+              showReset={previousSteps.length > 0}
+              previousSteps={previousSteps}
+              nextApproverGroupName={nextStep?.approverGroupHeader?.name ?? ""}
+            />
+          </div>
           <WorkflowSummary
             currentStepId={props.currentStepId}
             steps={props.approvalWorkflowSteps}
@@ -230,6 +255,11 @@ const useStyles = makeStyles(theme => ({
   },
   desktopContainer: {
     display: "flex",
+  },
+  buttonContainer: {
+    display: "flex",
+    width: "100%",
+    justifyContent: "flex-end",
   },
   absVacDetailsContainer: (props: StyleProps) => ({
     width: props.isMobile ? "100%" : "50%",

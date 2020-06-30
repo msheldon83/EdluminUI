@@ -1,0 +1,7 @@
+mutation ResetApproval($resetState: ApprovalStateResetInput!) {
+  approval {
+    reset(resetState: $resetState) {
+      id
+    }
+  }
+}

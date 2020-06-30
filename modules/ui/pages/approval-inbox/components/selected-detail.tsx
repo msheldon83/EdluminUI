@@ -10,7 +10,7 @@ import { compact } from "lodash-es";
 import { Context } from "ui/components/absence-vacancy/approval-state/context";
 import { GetVacancyById } from "../graphql/get-vacancy-by-id.gen";
 import { GetAbsence } from "../graphql/get-absence-by-id.gen";
-import { ApproveDenyButtons } from "ui/components/absence-vacancy/approval-state/approve-deny-buttons";
+import { ApprovalActionButtons } from "ui/components/absence-vacancy/approval-state/approval-action-buttons";
 import { SummaryDetails } from "ui/components/absence-vacancy/approval-state/summary-details";
 import { useIsMobile } from "hooks";
 
@@ -56,9 +56,25 @@ export const SelectedDetail: React.FC<Props> = props => {
     : null;
 
   const approvalWorkflowSteps = approvalState?.approvalWorkflow.steps ?? [];
-  const currentApproverGroupHeaderId = approvalWorkflowSteps.find(
+  const currentStep = approvalWorkflowSteps.find(
     x => x.stepId == approvalState?.currentStepId
-  )?.approverGroupHeaderId;
+  );
+  const nextStep = approvalWorkflowSteps.find(
+    x => x.stepId === currentStep?.onApproval[0].goto && !x.isLastStep
+  );
+  const previousSteps = compact(
+    approvalState?.decisions.map(x => {
+      const previousStep = approvalWorkflowSteps.find(
+        y => y.stepId === x.stepId
+      );
+      if (previousStep) {
+        return {
+          stepId: previousStep.stepId,
+          approverGroupHeaderName: previousStep.approverGroupHeader?.name ?? "",
+        };
+      }
+    })
+  );
 
   const handleSaveComment = async () => {
     if (props.selectedItem?.isNormalVacancy) {
@@ -85,38 +101,41 @@ export const SelectedDetail: React.FC<Props> = props => {
         }`}</div>
       ) : (
         <>
+          <div className={classes.buttonContainer}>
+            <ApprovalActionButtons
+              approvalStateId={approvalState?.id ?? ""}
+              approvalStatus={approvalState?.approvalStatusId}
+              currentApproverGroupHeaderId={currentStep?.approverGroupHeaderId}
+              onApprove={props.onApprove}
+              onDeny={props.onDeny}
+              orgId={props.orgId}
+              locationIds={locationIds}
+              currentApproverGroupName={
+                currentStep?.approverGroupHeader?.name ?? ""
+              }
+              showSkip={nextStep !== undefined}
+              showReset={previousSteps.length > 0}
+              previousSteps={previousSteps}
+              nextApproverGroupName={nextStep?.approverGroupHeader?.name ?? ""}
+            />
+          </div>
           {!props.selectedItem?.isNormalVacancy && absence && (
             <div className={classes.container}>
-              <div className={classes.summaryContainer}>
-                <SummaryDetails
-                  orgId={props.orgId}
-                  absenceDetails={absence.details}
-                  createdLocal={absence.createdLocal}
-                  approvalChangedLocal={absence.approvalState?.changedLocal}
-                  positionTitle={absence.employee?.primaryPosition?.title}
-                  employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
-                  startDate={absence.startDate}
-                  endDate={absence.endDate}
-                  isNormalVacancy={false}
-                  simpleSummary={false}
-                  locationIds={locationIds}
-                  decisions={absence.approvalState?.decisions}
-                  absVacId={absence.id}
-                />
-                <div
-                  className={!isMobile ? classes.buttonContainer : undefined}
-                >
-                  <ApproveDenyButtons
-                    approvalStateId={approvalState?.id ?? ""}
-                    approvalStatus={approvalState?.approvalStatusId}
-                    currentApproverGroupHeaderId={currentApproverGroupHeaderId}
-                    onApprove={props.onApprove}
-                    onDeny={props.onDeny}
-                    orgId={props.orgId}
-                    locationIds={locationIds}
-                  />
-                </div>
-              </div>
+              <SummaryDetails
+                orgId={props.orgId}
+                absenceDetails={absence.details}
+                createdLocal={absence.createdLocal}
+                approvalChangedLocal={absence.approvalState?.changedLocal}
+                positionTitle={absence.employee?.primaryPosition?.title}
+                employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
+                startDate={absence.startDate}
+                endDate={absence.endDate}
+                isNormalVacancy={false}
+                simpleSummary={false}
+                locationIds={locationIds}
+                decisions={absence.approvalState?.decisions}
+                absVacId={absence.id}
+              />
               <AbsenceDetails
                 orgId={props.orgId}
                 absence={absence}
@@ -126,34 +145,19 @@ export const SelectedDetail: React.FC<Props> = props => {
           )}
           {props.selectedItem?.isNormalVacancy && vacancy && (
             <div className={classes.container}>
-              <div className={classes.summaryContainer}>
-                <SummaryDetails
-                  orgId={props.orgId}
-                  createdLocal={vacancy.createdLocal}
-                  approvalChangedLocal={vacancy.approvalState?.changedLocal}
-                  positionTitle={vacancy.position?.title}
-                  startDate={vacancy.startDate}
-                  endDate={vacancy.endDate}
-                  isNormalVacancy={true}
-                  simpleSummary={false}
-                  locationIds={locationIds}
-                  decisions={vacancy.approvalState?.decisions}
-                  absVacId={vacancy.id}
-                />
-                <div
-                  className={!isMobile ? classes.buttonContainer : undefined}
-                >
-                  <ApproveDenyButtons
-                    approvalStateId={approvalState?.id ?? ""}
-                    approvalStatus={approvalState?.approvalStatusId}
-                    currentApproverGroupHeaderId={currentApproverGroupHeaderId}
-                    onApprove={props.onApprove}
-                    onDeny={props.onDeny}
-                    orgId={props.orgId}
-                    locationIds={locationIds}
-                  />
-                </div>
-              </div>
+              <SummaryDetails
+                orgId={props.orgId}
+                createdLocal={vacancy.createdLocal}
+                approvalChangedLocal={vacancy.approvalState?.changedLocal}
+                positionTitle={vacancy.position?.title}
+                startDate={vacancy.startDate}
+                endDate={vacancy.endDate}
+                isNormalVacancy={true}
+                simpleSummary={false}
+                locationIds={locationIds}
+                decisions={vacancy.approvalState?.decisions}
+                absVacId={vacancy.id}
+              />
               <VacancyDetails
                 orgId={props.orgId}
                 vacancy={vacancy}
@@ -240,14 +244,10 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(1),
     paddingLeft: theme.spacing(1),
   },
-  summaryContainer: (props: StyleProps) => ({
-    display: props.isMobile ? "initial" : "flex",
-    position: "relative",
-  }),
   buttonContainer: {
-    position: "absolute",
-    top: 0,
-    right: 0,
+    display: "flex",
+    width: "100%",
+    justifyContent: "flex-end",
   },
   container: {
     width: "100%",
