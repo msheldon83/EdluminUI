@@ -40,7 +40,7 @@ const PeriodRow = (props: PeriodRowProps) => {
     onDrop() {
       onDrop();
     },
-    validateDrop: ({ isOver, canDrop }: DropValidationData) => ({
+    generateDropValues: ({ isOver, canDrop }: DropValidationData) => ({
       isOver: isOver(),
       canDrop: canDrop() && isBeforeAfternoonStart && !period.skipped,
     }),
