@@ -136,10 +136,18 @@ export const DailyReport: React.FC<Props> = props => {
     }
   );
 
-  const dailyReportDetails = (getDailyReport.state === "LOADING" ||
-  getDailyReport.state === "UPDATING"
-    ? undefined
-    : getDailyReport.data?.absence?.dailyReportV2) as DailyReportType;
+  const [dailyReportDetails, setDailyReportDetails] = useState<
+    DailyReportType | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (getDailyReport.state === "DONE" || getDailyReport.state === "ERROR") {
+      setDailyReportDetails(
+        getDailyReport.data?.absence?.dailyReportV2 ?? undefined
+      );
+    }
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [getDailyReport.state]);
 
   let allDetails: Detail[] = [];
   let groupedDetails: DetailGroup[] = [];

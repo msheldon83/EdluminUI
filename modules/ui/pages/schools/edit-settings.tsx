@@ -73,6 +73,7 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
   const locationObject = {
     address: {
       address1: location?.address1,
+      address2: location?.address2,
       city: location?.city,
       state: location?.state,
       postalCode: location?.postalCode,
@@ -94,6 +95,7 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
         onSubmit={async (
           locationGroupId: string,
           address1?: string | null,
+          address2?: string | null,
           city?: string | null,
           state?: StateCode | null,
           postalCode?: string | null,
@@ -105,6 +107,7 @@ export const LocationEditSettingsPage: React.FC<{}> = props => {
             rowVersion: location?.rowVersion ?? "",
             address: {
               address1: address1,
+              address2: address2,
               city: city,
               state: state,
               postalCode: postalCode,
