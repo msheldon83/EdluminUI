@@ -64,6 +64,7 @@ export const SelectedDateView: React.FC<Props> = props => {
       {displayAbsenceDayInformation(
         absenceDays,
         props.cancelAbsence,
+        props.hideAbsence,
         props.actingAsEmployee,
         props.orgId
       )}
@@ -119,6 +120,7 @@ const displayInstructionalDayInformation = (
 const displayAbsenceDayInformation = (
   absenceDays: AbsenceScheduleDate[],
   cancelAbsence?: (absenceId: string) => Promise<void>,
+  hideAbsence?: (absenceId: string) => Promise<void>,
   actingAsEmployee?: boolean,
   orgId?: string
 ) => {
@@ -130,7 +132,7 @@ const displayAbsenceDayInformation = (
         <AbsenceDetailRow
           absence={day}
           cancelAbsence={cancel}
-          hideAbsence={props.hideAbsence}
+          hideAbsence={hideAbsence}
           showAbsenceChip={true}
           actingAsEmployee={actingAsEmployee}
           orgId={orgId}
