@@ -752,6 +752,7 @@ enum ApprovalAction {
   APPROVE
   DENY
   SKIP
+  RESET
 }
 
 type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
@@ -797,6 +798,7 @@ type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
   approvalStateId: ID!
   stepId: String!
   approvalActionId: ApprovalAction!
+  hasBeenReset: Boolean!
   actingOrgUserId: ID!
   actingOrgUser: OrgUser!
   actualOrgUserId: ID
@@ -841,6 +843,8 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
 input ApprovalStateResetInput {
   approvalStateId: ID!
   resetToStepId: String!
+  comment: String
+  commentIsPublic: Boolean
 }
 
 input ApprovalStateUpdateInput {

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,6 +8,9 @@ import {
   DialogActions,
   DialogTitle,
   Typography,
+  FormControlLabel,
+  TextField,
+  Checkbox,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useMutationBundle } from "graphql/hooks";
@@ -30,6 +34,9 @@ export const SkipDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
+  const [comment, setComment] = useState("");
+  const [commentIsPublic, setCommentIsPublic] = useState(true);
+
   const [skip] = useMutationBundle(SkipApproval, {
     onError: error => {
       ShowErrors(error, openSnackbar);
@@ -41,6 +48,8 @@ export const SkipDialog: React.FC<Props> = props => {
       variables: {
         approvalState: {
           approvalStateId: props.approvalStateId,
+          comment: comment,
+          commentIsPublic: commentIsPublic,
         },
       },
     });
@@ -66,6 +75,29 @@ export const SkipDialog: React.FC<Props> = props => {
         <div>{`${t("Would you like to skip")} ${
           props.currentApproverGroupName
         } ${t("and go to")} ${props.nextApproverGroupName}?`}</div>
+        <div>{t("Comment")}</div>
+        <TextField
+          multiline={true}
+          rows="3"
+          value={comment}
+          fullWidth={true}
+          variant="outlined"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setComment(e.target.value);
+          }}
+        />
+        <FormControlLabel
+          checked={commentIsPublic}
+          control={
+            <Checkbox
+              onChange={e => {
+                setCommentIsPublic(e.target.checked);
+              }}
+              color="primary"
+            />
+          }
+          label={t("Visible to employee")}
+        />
       </DialogContent>
       <Divider className={classes.divider} />
       <DialogActions>

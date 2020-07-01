@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,6 +8,9 @@ import {
   DialogActions,
   DialogTitle,
   Typography,
+  FormControlLabel,
+  TextField,
+  Checkbox,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useMutationBundle } from "graphql/hooks";
@@ -14,6 +18,8 @@ import { ResetApproval } from "../graphql/reset-approval.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { TextButton } from "ui/components/text-button";
+import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
+import clsx from "clsx";
 
 type Props = {
   approvalStateId: string;
@@ -32,18 +38,31 @@ export const ResetDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
+  const previousSteps = props.previousSteps;
+
+  const [comment, setComment] = useState("");
+  const [commentIsPublic, setCommentIsPublic] = useState(true);
+  const [selectedStepId, setSelectedStepId] = useState("");
+
+  useEffect(
+    () => setSelectedStepId(previousSteps[previousSteps.length - 1].stepId),
+    [previousSteps]
+  );
+
   const [reset] = useMutationBundle(ResetApproval, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
 
-  const handleReset = async (stepId: string) => {
+  const handleReset = async () => {
     const result = await reset({
       variables: {
         resetState: {
           approvalStateId: props.approvalStateId,
-          resetToStepId: stepId,
+          resetToStepId: selectedStepId,
+          comment: comment,
+          commentIsPublic: commentIsPublic,
         },
       },
     });
@@ -76,8 +95,11 @@ export const ResetDialog: React.FC<Props> = props => {
               return (
                 <div
                   key={i}
-                  className={classes.stepBox}
-                  onClick={async () => await handleReset(s.stepId)}
+                  className={clsx({
+                    [classes.stepBox]: true,
+                    [classes.selectedStep]: s.stepId === selectedStepId,
+                  })}
+                  onClick={() => setSelectedStepId(s.stepId)}
                 >
                   <span className={classes.groupNameText}>
                     {s.approverGroupHeaderName}
@@ -87,10 +109,36 @@ export const ResetDialog: React.FC<Props> = props => {
             }
           })}
         </div>
+        <div>{t("Comment")}</div>
+        <TextField
+          multiline={true}
+          rows="3"
+          value={comment}
+          fullWidth={true}
+          variant="outlined"
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            setComment(e.target.value);
+          }}
+        />
+        <FormControlLabel
+          checked={commentIsPublic}
+          control={
+            <Checkbox
+              onChange={e => {
+                setCommentIsPublic(e.target.checked);
+              }}
+              color="primary"
+            />
+          }
+          label={t("Visible to employee")}
+        />
       </DialogContent>
       <Divider className={classes.divider} />
       <DialogActions>
         <TextButton onClick={props.onClose}>{t("No, go back")}</TextButton>
+        <ButtonDisableOnClick variant="outlined" onClick={handleReset}>
+          {t("Reset")}
+        </ButtonDisableOnClick>
       </DialogActions>
     </Dialog>
   );
@@ -119,6 +167,9 @@ const useStyles = makeStyles(theme => ({
       borderColor: "rgba(0, 0, 0, 0.87)",
       cursor: "pointer",
     },
+  },
+  selectedStep: {
+    border: "3px solid #050039",
   },
   groupNameText: {
     verticalAlign: "middle",
