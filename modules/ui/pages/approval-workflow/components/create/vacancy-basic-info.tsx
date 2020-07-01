@@ -120,20 +120,13 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
               <Checkbox
                 checked={isAllOthers}
                 onChange={e => {
-                  if (e.target.checked) {
-                    props.setFieldValue(
-                      "usages",
-                      buildVacancyUsagesJsonString(e.target.checked)
-                    );
-                  } else {
-                    props.setFieldValue(
-                      "usages",
-                      buildVacancyUsagesJsonString(
-                        e.target.checked,
-                        positionTypeIds
-                      )
-                    );
-                  }
+                  props.setFieldValue(
+                    "usages",
+                    buildVacancyUsagesJsonString(
+                      e.target.checked,
+                      e.target.checked ? undefined : positionTypeIds
+                    )
+                  );
                 }}
                 value={isAllOthers}
                 color="primary"
