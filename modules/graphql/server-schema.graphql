@@ -805,8 +805,8 @@ type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
   actingUser: User!
   actualUserId: ID!
   actualUser: User!
-  approverGroupId: ID
-  approverGroup: ApproverGroup
+  approverGroupHeaderId: ID
+  approverGroupHeader: ApproverGroupHeader
 }
 
 type ApprovalMutations {
