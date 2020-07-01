@@ -19,6 +19,7 @@ query GetEmployee($employeeId: ID!) {
             id
             name
           }
+          allocation
         }
         positionType {
           id
