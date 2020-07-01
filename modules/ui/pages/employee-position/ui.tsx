@@ -38,10 +38,10 @@ import { isBefore, parseISO } from "date-fns";
 import {
   AccountingCodeDropdown,
   noAllocation,
+  AccountingCodeValue,
 } from "ui/components/form/accounting-code-dropdown";
 import {
   mapAccountingCodeAllocationsToAccountingCodeValue,
-  AccountingCodeAllocation,
   mapAccountingCodeValueToAccountingCodeAllocations,
   validateAccountingCodeAllocations,
 } from "helpers/accounting-code-allocations";
@@ -74,21 +74,6 @@ export const PositionEditUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const params = useRouteParams(PeopleRoute);
-
-  const [
-    accountingCodeValueSelection,
-    setAccountingCodeValueSelection,
-  ] = useState(
-    mapAccountingCodeAllocationsToAccountingCodeValue(
-      props.accountingCodeAllocations?.map(a => {
-        return {
-          accountingCodeId: a.accountingCodeId,
-          accountingCodeName: a.accountingCode?.name,
-          allocation: a.allocation,
-        };
-      })
-    )
-  );
 
   const position = props.position;
 
@@ -168,7 +153,15 @@ export const PositionEditUI: React.FC<Props> = props => {
           title: position?.title ?? "",
           needsReplacement: position?.needsReplacement ?? NeedsReplacement.Yes,
           contractId: position?.contractId ?? "",
-          accountingCodeAllocations: props.accountingCodeAllocations,
+          accountingCodeValue: mapAccountingCodeAllocationsToAccountingCodeValue(
+            props.accountingCodeAllocations.map(a => {
+              return {
+                accountingCodeId: a.accountingCodeId,
+                accountingCodeName: a.accountingCode?.name,
+                allocation: a.allocation,
+              };
+            })
+          ),
           hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
           schedules: props.positionSchedule ?? [buildNewSchedule(true, true)],
         }}
@@ -200,12 +193,9 @@ export const PositionEditUI: React.FC<Props> = props => {
                 ? undefined
                 : data.hoursPerFullWorkDay,
             schedules,
-            accountingCodeAllocations: data.accountingCodeAllocations.map(a => {
-              return {
-                accountingCodeId: a.accountingCodeId,
-                allocation: a.allocation,
-              };
-            }),
+            accountingCodeAllocations: mapAccountingCodeValueToAccountingCodeAllocations(
+              data.accountingCodeValue
+            ),
           });
         }}
         validationSchema={yup
@@ -311,9 +301,11 @@ export const PositionEditUI: React.FC<Props> = props => {
           .test({
             name: "accountingCodeAllocationsCheck",
             test: function test(value: {
-              accountingCodeAllocations: AccountingCodeAllocation[];
+              accountingCodeValue: AccountingCodeValue;
             }) {
-              const accountingCodeAllocations = value.accountingCodeAllocations;
+              const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
+                value.accountingCodeValue
+              );
               const errorMessage = validateAccountingCodeAllocations(
                 accountingCodeAllocations,
                 t
@@ -323,7 +315,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                 return new yup.ValidationError(
                   errorMessage,
                   null,
-                  "accountingCodeAllocations"
+                  "accountingCodeValue"
                 );
               }
 
@@ -342,15 +334,18 @@ export const PositionEditUI: React.FC<Props> = props => {
           const validAccountingCodes = getValidAccountingCodes(
             getScheduledLocationIds(values.schedules)
           );
+          const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
+            values.accountingCodeValue
+          );
           if (
-            values.accountingCodeAllocations.filter(
+            validAccountingCodes.length > 0 &&
+            accountingCodeAllocations.filter(
               a =>
                 a.accountingCodeId &&
                 !validAccountingCodes.find(v => v.value === a.accountingCodeId)
             ).length > 0
           ) {
-            setFieldValue("accountingCodeAllocations", [], false);
-            setAccountingCodeValueSelection(noAllocation());
+            setFieldValue("accountingCodeValue", noAllocation(), false);
           }
           return (
             <form onSubmit={handleSubmit}>
@@ -439,29 +434,22 @@ export const PositionEditUI: React.FC<Props> = props => {
                     </Grid>
                     <Grid item xs={4}>
                       <AccountingCodeDropdown
-                        value={accountingCodeValueSelection}
+                        value={values.accountingCodeValue}
                         options={validAccountingCodes}
                         onChange={value => {
-                          setAccountingCodeValueSelection(value);
-                          const allocations = mapAccountingCodeValueToAccountingCodeAllocations(
-                            value
-                          );
-
                           // We only want to validate this field when the form is submitted,
                           // but if we currently have a validation error, then we need to validate
                           // the field until the User fixes the issue and the error is removed
                           setFieldValue(
-                            "accountingCodeAllocations",
-                            allocations,
-                            !!errors?.accountingCodeAllocations
+                            "accountingCodeValue",
+                            value,
+                            !!errors?.accountingCodeValue
                           );
                         }}
                         inputStatus={
-                          errors?.accountingCodeAllocations
-                            ? "error"
-                            : undefined
+                          errors?.accountingCodeValue ? "error" : undefined
                         }
-                        validationMessage={errors?.accountingCodeAllocations?.toString()}
+                        validationMessage={errors?.accountingCodeValue?.toString()}
                       />
                     </Grid>
                   </Grid>
