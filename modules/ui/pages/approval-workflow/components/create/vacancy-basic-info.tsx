@@ -129,7 +129,7 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
                     props.setFieldValue(
                       "usages",
                       buildVacancyUsagesJsonString(
-                        !e.target.checked,
+                        e.target.checked,
                         positionTypeIds
                       )
                     );
