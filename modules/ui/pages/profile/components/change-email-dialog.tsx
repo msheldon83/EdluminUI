@@ -9,6 +9,7 @@ import { useAuth0 } from "auth/auth0";
 import { Formik } from "formik";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useIsImpersonating } from "reference-data/is-impersonating";
 import { InformationHelperText } from "ui/components/information-helper-text";
 import { TextButton } from "ui/components/text-button";
 import * as Yup from "yup";
@@ -26,6 +27,7 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const auth0 = useAuth0();
+  const isImpersonating = useIsImpersonating();
 
   return (
     <Dialog open={props.open} onClose={props.onClose}>
@@ -33,7 +35,7 @@ export const ChangeLoginEmailDialog: React.FC<Props> = props => {
         initialValues={{ loginEmail: "" }}
         onSubmit={async data => {
           await props.onUpdateLoginEmail(data.loginEmail);
-          if (props.triggerReauth) {
+          if (!isImpersonating && props.triggerReauth) {
             auth0.login();
           }
           props.onClose();
