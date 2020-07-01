@@ -20,10 +20,6 @@ export const ScheduledAbsences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const absences = props.actingAsEmployee
-    ? props.absences
-    : props.absences.filter(x => x.approvalStatus !== ApprovalStatus.Denied);
-
   const wrapper = (children: React.ReactFragment) => {
     return (
       <div>
@@ -45,7 +41,7 @@ export const ScheduledAbsences: React.FC<Props> = props => {
 
   return wrapper(
     <Grid container>
-      {absences.map((a, i) => {
+      {props.absences.map((a, i) => {
         const className = [
           classes.detail,
           i % 2 == 1 ? classes.shadedRow : undefined,

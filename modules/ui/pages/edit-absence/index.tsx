@@ -41,7 +41,6 @@ export const EditAbsence: React.FC<Props> = props => {
   const absence = useQueryBundle(GetAbsence, {
     variables: {
       id: params.absenceId,
-      showHidden: true,
     },
   });
 

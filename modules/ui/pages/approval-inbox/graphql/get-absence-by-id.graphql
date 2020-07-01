@@ -1,6 +1,6 @@
-query GetAbsence($id: ID!, $showHidden: Boolean) {
+query GetAbsence($id: ID!) {
   absence {
-    byId(id: $id, showHidden: $showHidden) {
+    byId(id: $id) {
       id
       orgId
       isClosed

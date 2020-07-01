@@ -162,7 +162,7 @@ type AbsenceMutations {
 type AbsenceQueries {
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
-  byId(id: ID!, showHidden: Boolean): Absence
+  byId(id: ID!): Absence
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): [Vacancy]
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): Absence
@@ -2246,7 +2246,7 @@ type EmployeeQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractedOn: DateTime): PagedEmployee
   employeePositionSchedule(id: ID!, fromDate: Date!, toDate: Date!): [PositionScheduleDate]
   employeeContractSchedule(id: ID!, fromDate: Date!, toDate: Date!): [ContractDate]
-  employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!): [Absence]
+  employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!, showDenied: Boolean): [Absence]
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
   employeeAssignmentSchedule(id: ID!, orgId: ID, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
   employeeSpecificAssignment(id: ID!, assignmentId: ID!, orgId: ID): [VacancyDetail]

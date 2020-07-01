@@ -64,6 +64,7 @@ export const EmployeeHome: React.FC<Props> = props => {
       id: employee?.id ?? "0",
       fromDate: startDate,
       toDate: endDate,
+      showDenied: true,
     },
     skip: !employee || !endDate,
     fetchPolicy: "cache-and-network",

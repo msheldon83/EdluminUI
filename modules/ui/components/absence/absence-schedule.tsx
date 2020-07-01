@@ -82,6 +82,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
       id: props.employeeId,
       fromDate: props.view === "calendar" ? calendarStartDate : queryStartDate,
       toDate: queryEndDate,
+      showDenied: props.actingAsEmployee,
     },
     skip: !endDate,
   });

@@ -1,6 +1,16 @@
-query GetEmployeeAbsenceSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
+query GetEmployeeAbsenceSchedule(
+  $id: ID!
+  $fromDate: Date!
+  $toDate: Date!
+  $showDenied: Boolean
+) {
   employee {
-    employeeAbsenceSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+    employeeAbsenceSchedule(
+      id: $id
+      fromDate: $fromDate
+      toDate: $toDate
+      showDenied: $showDenied
+    ) {
       id
       startDate
       startTimeLocal
