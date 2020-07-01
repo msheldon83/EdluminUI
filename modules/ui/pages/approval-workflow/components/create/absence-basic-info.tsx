@@ -164,21 +164,15 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
               <Checkbox
                 checked={isAllOthers}
                 onChange={e => {
-                  if (e.target.checked) {
-                    props.setFieldValue(
-                      "usages",
-                      buildAbsenceUsagesJsonString(e.target.checked)
-                    );
-                  } else {
-                    props.setFieldValue(
-                      "usages",
-                      buildAbsenceUsagesJsonString(
-                        e.target.checked,
-                        positionTypeIds,
-                        employeeIds
-                      )
-                    );
-                  }
+                  props.setFieldValue(
+                    "usages",
+                    buildAbsenceUsagesJsonString(
+                      e.target.checked,
+                      ...(e.target.checked
+                        ? []
+                        : [positionTypeIds, employeeIds])
+                    )
+                  );
                 }}
                 value={isAllOthers}
                 color="primary"
