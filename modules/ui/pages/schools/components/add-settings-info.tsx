@@ -269,7 +269,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
           );
         }}
       </Formik>
-    </Section >
+    </Section>
   );
 };
 
