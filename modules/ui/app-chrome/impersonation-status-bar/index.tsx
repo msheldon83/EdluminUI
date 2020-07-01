@@ -38,8 +38,8 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
     sessionStorage.removeItem(Config.impersonation.impersonatingOrgId);
 
-    // To prevent issues with cached data from the current user
-    // prior to starting impersonation, let's clear out the Apollo cache
+    // To prevent issues with cached data from the current impersonated user
+    // prior to ending impersonation, let's clear out the Apollo cache
     await client.clearStore();
 
     history.push({

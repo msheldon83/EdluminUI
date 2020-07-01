@@ -37,6 +37,7 @@ import { Column } from "material-table";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { UserSmsLogRoute } from "ui/routes/sms-log";
 import { phoneRegExp } from "helpers/regexp";
+import { useApolloClient } from "@apollo/react-hooks";
 
 export const UserViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ export const UserViewPage: React.FC<{}> = props => {
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const params = useRouteParams(UserViewRoute);
+  const client = useApolloClient();
   const [orgUsers, setOrgUsers] = useState<
     Pick<
       OrgUser,
@@ -174,6 +176,9 @@ export const UserViewPage: React.FC<{}> = props => {
   const triggerImpersonation = async () => {
     // Set userId in sessionStorage
     sessionStorage.setItem(Config.impersonation.actingUserIdKey, params.userId);
+    // To prevent issues with cached data from the current user
+    // prior to starting impersonation, let's clear out the Apollo cache
+    await client.clearStore();
     // Redirect current user to homepage
     history.push("/");
   };
