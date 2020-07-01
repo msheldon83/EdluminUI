@@ -198,7 +198,9 @@ export const VerifyDailyPage: React.FC<{}> = props => {
                 <FormControlLabel
                   label={`${t(
                     "I attest that I have verified the details of all "
-                  )}${assignments.length}${t(" assignments above")}`}
+                  )}${assignments.filter(a => !a.verifiedAtLocal).length}${t(
+                    " assignments above"
+                  )}`}
                   control={
                     <Checkbox
                       checked={verifyAllEnabled}
