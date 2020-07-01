@@ -24,6 +24,7 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { canEditEmployee } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
+import { compact } from "lodash-es";
 
 type Props = {
   editing: string | null;
@@ -100,7 +101,9 @@ export const EmployeeTab: React.FC<Props> = props => {
         contractName={employee.primaryPosition?.contract?.name}
         schedules={employee.primaryPosition?.schedules ?? []}
         accountingCodeAllocations={
-          employee.primaryPosition?.accountingCodeAllocations ?? []
+          employee.primaryPosition?.accountingCodeAllocations
+            ? compact(employee.primaryPosition.accountingCodeAllocations)
+            : []
         }
       />
       <RemainingBalances

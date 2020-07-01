@@ -4,7 +4,11 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
-import { NeedsReplacement, PermissionEnum } from "graphql/server-types.gen";
+import {
+  NeedsReplacement,
+  PermissionEnum,
+  PositionAccountingCode,
+} from "graphql/server-types.gen";
 import Maybe from "graphql/tsutils/Maybe";
 import { useRouteParams } from "ui/routes/definition";
 import {
@@ -33,15 +37,10 @@ type Props = {
   needsReplacement: Maybe<NeedsReplacement>;
   hoursPerFullWorkDay: number | null | undefined;
   contractName: string | null | undefined;
-  accountingCodeAllocations?: Array<
-    | {
-        accountingCode?: {
-          name: string;
-        } | null;
-      }
-    | null
-    | undefined
-  > | null;
+  accountingCodeAllocations: Pick<
+    PositionAccountingCode,
+    "accountingCodeId" | "accountingCode" | "allocation"
+  >[];
   schedules: Array<
     | {
         daysOfTheWeek: DayOfWeek[];
@@ -77,9 +76,15 @@ export const Position: React.FC<Props> = props => {
   const showEditButton = !props.editing && props.editable;
 
   const accountingCodes = props.accountingCodeAllocations
-    ? props.accountingCodeAllocations
-        ?.map(ac => ac?.accountingCode?.name)
-        .join(", ") ?? t("None defined")
+    ? props.accountingCodeAllocations.length > 1
+      ? props.accountingCodeAllocations
+          ?.map(
+            ac =>
+              `${ac?.accountingCode?.name} (${(ac?.allocation ?? 0) * 100}%)`
+          )
+          .join(", ") ?? t("None defined")
+      : props.accountingCodeAllocations[0]?.accountingCode?.name ??
+        t("None defined")
     : t("None defined");
 
   const sortedSchedules = props.schedules.sort((a, b) =>
