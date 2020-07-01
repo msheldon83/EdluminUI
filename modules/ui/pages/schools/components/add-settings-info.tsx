@@ -62,7 +62,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
   };
 
   return (
-    < Section >
+    <Section>
       <SectionHeader title={t("Settings")} />
       <Formik
         initialValues={{
