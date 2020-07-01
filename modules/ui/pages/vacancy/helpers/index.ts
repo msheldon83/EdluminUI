@@ -4,9 +4,7 @@ import {
   VacancyUpdateInput,
 } from "graphql/server-types.gen";
 import { parseISO } from "date-fns";
-import { VacancyDetailsFormData, AccountingCodeAllocation } from "./types";
-import { sum } from "lodash-es";
-import { TFunction } from "i18next";
+import { VacancyDetailsFormData } from "./types";
 
 export const buildVacancyCreateInput = (
   v: VacancyDetailsFormData
@@ -153,20 +151,4 @@ export const buildVacancyUpdateInput = (
     }),
     ignoreWarnings: true,
   };
-};
-
-export const validateAccountingCodeAllocations = (
-  accountingCodeAllocations: AccountingCodeAllocation[],
-  t: TFunction
-): string | undefined => {
-  if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
-    return undefined;
-  }
-
-  if (sum(accountingCodeAllocations.map(a => a.allocation)) !== 1) {
-    // Allocations need to add up to 100%
-    return t("Accounting code allocations do not total 100%");
-  }
-
-  return undefined;
 };

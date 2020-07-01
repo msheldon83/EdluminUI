@@ -76,9 +76,9 @@ import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-st
 import { Can } from "ui/components/auth/can";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import {
-  mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
   mapAccountingCodeAllocationsToAccountingCodeValue,
-} from "ui/components/absence-vacancy/helpers";
+  mapAccountingCodeValueToAccountingCodeAllocations,
+} from "helpers/accounting-code-allocations";
 
 type Props = {
   firstName: string;
@@ -899,7 +899,7 @@ const buildAbsenceUpdateInput = (
       // here on the detail or send null when one doesn't have any Accounting Code selected
       accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
-        : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+        : mapAccountingCodeValueToAccountingCodeAllocations(
             v.accountingCodeAllocations,
             true
           ),
@@ -947,7 +947,7 @@ const buildAbsenceUpdateInput = (
         // and send that if there is one or an empty list to clear out all selections on the Details.
         accountingCodeAllocations: detailsHaveDifferentAccountingCodeSelections
           ? undefined
-          : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+          : mapAccountingCodeValueToAccountingCodeAllocations(
               formValues.accountingCodeAllocations,
               true
             ),

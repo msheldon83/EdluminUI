@@ -3,7 +3,7 @@ import { GetProjectedAbsenceUsageQueryVariables } from "./graphql/get-projected-
 import { GetProjectedVacanciesQuery } from "./graphql/get-projected-vacancies.gen";
 import { VacancyDetail } from "../../components/absence/types";
 import { Vacancy } from "graphql/server-types.gen";
-import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence-vacancy/helpers";
+import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 
 export const projectVacancyDetails = (
   getProjectedVacancies: HookQueryResult<

@@ -1,11 +1,18 @@
+import { VacancyDetailAccountingCodeInput } from "graphql/server-types.gen";
+import { isEqual, sum } from "lodash-es";
 import {
   AccountingCodeValue,
   noAllocation,
   singleAllocation,
   multipleAllocations,
-} from "../form/accounting-code-dropdown";
-import { VacancyDetailAccountingCodeInput } from "graphql/server-types.gen";
-import { isEqual, sum } from "lodash-es";
+} from "ui/components/form/accounting-code-dropdown";
+import { TFunction } from "i18next";
+
+export type AccountingCodeAllocation = {
+  accountingCodeId: string;
+  accountingCodeName?: string | undefined;
+  allocation: number;
+};
 
 export const accountingCodeAllocationsAreTheSame = (
   accountingCodeAllocationsToCompare: {
@@ -43,15 +50,16 @@ export const accountingCodeAllocationsAreTheSame = (
   return true;
 };
 
-export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
+export const mapAccountingCodeValueToAccountingCodeAllocations = (
   accountingCodeAllocations: AccountingCodeValue | null | undefined,
-  returnEmptyIfInvalid: boolean
-): VacancyDetailAccountingCodeInput[] => {
+  returnEmptyIfInvalid?: boolean,
+  setName?: boolean
+): AccountingCodeAllocation[] => {
   if (!accountingCodeAllocations) {
     return [];
   }
 
-  let allocations: VacancyDetailAccountingCodeInput[] = [];
+  let allocations: AccountingCodeAllocation[] = [];
   switch (accountingCodeAllocations.type) {
     case "no-allocation":
       allocations = [];
@@ -59,20 +67,23 @@ export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
     case "single-allocation":
       allocations = [
         {
-          accountingCodeId: accountingCodeAllocations.selection?.value?.toString(),
+          accountingCodeId:
+            accountingCodeAllocations.selection?.value?.toString() ?? "",
           allocation: 1,
+          accountingCodeName: setName
+            ? accountingCodeAllocations.selection?.label
+            : undefined,
         },
       ];
       break;
     case "multiple-allocations":
-      allocations = accountingCodeAllocations.allocations
-        .filter(a => a.selection?.value && a.percentage)
-        .map(a => {
-          return {
-            accountingCodeId: a.selection?.value?.toString(),
-            allocation: (a.percentage ?? 0) / 100,
-          };
-        });
+      allocations = accountingCodeAllocations.allocations.map(a => {
+        return {
+          accountingCodeId: a.selection?.value?.toString() ?? "",
+          allocation: (a.percentage ?? 0) / 100,
+          accountingCodeName: setName ? a.selection?.label : undefined,
+        };
+      });
       break;
   }
 
@@ -94,14 +105,7 @@ export const mapAccountingCodeValueToVacancyDetailAccountingCodeInput = (
 };
 
 export const mapAccountingCodeAllocationsToAccountingCodeValue = (
-  accountingCodeAllocations:
-    | {
-        accountingCodeId: string;
-        accountingCodeName: string | undefined;
-        allocation?: number;
-      }[]
-    | null
-    | undefined
+  accountingCodeAllocations: AccountingCodeAllocation[] | null | undefined
 ): AccountingCodeValue => {
   if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
     return noAllocation();
@@ -126,4 +130,28 @@ export const mapAccountingCodeAllocationsToAccountingCodeValue = (
       };
     })
   );
+};
+
+// Return a string if there is a validation error, otherwise return undefined
+export const validateAccountingCodeAllocations = (
+  accountingCodeAllocations: AccountingCodeAllocation[],
+  t: TFunction
+): string | undefined => {
+  if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
+    return undefined;
+  }
+
+  if (
+    accountingCodeAllocations.filter(a => !a.accountingCodeId || !a.allocation)
+      .length > 0
+  ) {
+    return t("Accounting code selections not complete");
+  }
+
+  if (sum(accountingCodeAllocations.map(a => a.allocation)) !== 1) {
+    // Allocations need to add up to 100%
+    return t("Accounting code allocations do not total 100%");
+  }
+
+  return undefined;
 };

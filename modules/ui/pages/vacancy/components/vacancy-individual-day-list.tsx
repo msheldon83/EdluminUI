@@ -18,7 +18,7 @@ import { isSameDay } from "date-fns";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailItem, VacancyDayPart } from "../helpers/types";
 import { useVacancyReasonOptions } from "reference-data/vacancy-reasons";
-import { accountingCodeAllocationsAreTheSame } from "ui/components/absence-vacancy/helpers";
+import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 
 type Props = {
   vacancyDays: VacancyDetailItem[];
