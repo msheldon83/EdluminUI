@@ -19,14 +19,15 @@ type Props = {
   locationGroupOptions: OptionType[];
   location: {
     address?:
-      | {
-          address1?: string | undefined | null;
-          city?: string | undefined | null;
-          state?: StateCode | undefined | null;
-          postalCode?: string | undefined | null;
-        }
-      | undefined
-      | null;
+    | {
+      address1?: string | undefined | null;
+      address2?: string | undefined | null;
+      city?: string | undefined | null;
+      state?: StateCode | undefined | null;
+      postalCode?: string | undefined | null;
+    }
+    | undefined
+    | null;
     phoneNumber?: string | undefined | null;
     locationGroupId?: string | undefined | null;
     notes?: string | undefined | null;
@@ -35,6 +36,7 @@ type Props = {
   onSubmit: (
     locationGroupId: string,
     address1?: string | undefined | null,
+    address2?: string | undefined | null,
     city?: string | undefined | null,
     state?: StateCode | undefined | null,
     postalCode?: string | undefined | null,
@@ -65,17 +67,19 @@ export const AddSettingsInfo: React.FC<Props> = props => {
       <Formik
         initialValues={{
           address1: props?.location?.address?.address1 ?? "",
+          address2: props?.location?.address?.address2 ?? "",
           city: props?.location?.address?.city ?? "",
           state: props.location?.address?.state ?? undefined,
           postalCode: props?.location?.address?.postalCode ?? "",
           phoneNumber: props.location.phoneNumber ?? "",
           locationGroupId: props.location.locationGroupId ?? "",
-          notes: props.location.notes ?? "",
+          notes: props.location.notes ?? ""
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
             data.locationGroupId,
             data.address1.trim().length === 0 ? null : data.address1,
+            data.address2.trim().length === 0 ? null : data.address2,
             data.city.trim().length === 0 ? null : data.city,
             data.state ?? null,
             data.postalCode.trim().length === 0 ? null : data.postalCode,
@@ -175,6 +179,18 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                         }}
                       />
                     </Grid>
+                    <Grid item xs={12}>
+                      <dt className={classes.title}>{t("")}</dt>
+                      <Input
+                        value={values.address2}
+                        InputComponent={FormTextField}
+                        inputComponentProps={{
+                          name: "address2",
+                          id: "address2",
+                        }}
+                      />
+                    </Grid>
+
                     <Grid item xs={12}>
                       <dt className={classes.title}>{t("City")}</dt>
                       <span className={classes.required}>*</span>
