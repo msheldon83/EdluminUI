@@ -34,6 +34,7 @@ query GetAbsence($id: ID!) {
         comments {
           id
           comment
+          stepId
           commentIsPublic
           createdLocal
           actingUser {
@@ -53,6 +54,7 @@ query GetAbsence($id: ID!) {
           createdLocal
           approvalActionId
           actingOrgUserId
+          hasBeenReset
           actingUser {
             id
             firstName

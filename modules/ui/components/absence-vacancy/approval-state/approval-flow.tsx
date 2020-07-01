@@ -13,6 +13,7 @@ type Props = {
   decisions?: {
     stepId: string;
     approvalActionId: ApprovalAction;
+    hasBeenReset: boolean;
   }[];
 };
 
@@ -20,7 +21,8 @@ export const WorkflowSummary: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const { steps, decisions, currentStepId } = props;
+  const { steps, currentStepId } = props;
+  const decisions = props.decisions?.filter(x => !x.hasBeenReset) ?? [];
 
   const orderedSteps = useMemo(() => {
     const ordered: {
@@ -45,13 +47,13 @@ export const WorkflowSummary: React.FC<Props> = props => {
 
   const deniedStepIds =
     compact(
-      decisions?.map(x => {
+      decisions.map(x => {
         if (x.approvalActionId === ApprovalAction.Deny) return x.stepId;
       })
     ) ?? [];
   const approvedStepIds =
     compact(
-      decisions?.map(x => {
+      decisions.map(x => {
         if (
           x.approvalActionId === ApprovalAction.Approve ||
           x.approvalActionId === ApprovalAction.Skip

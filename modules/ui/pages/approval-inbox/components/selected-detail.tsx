@@ -63,20 +63,23 @@ export const SelectedDetail: React.FC<Props> = props => {
     x => x.stepId === currentStep?.onApproval[0].goto && !x.isLastStep
   );
   const previousSteps = compact(
-    approvalState?.decisions.map(x => {
-      const previousStep = approvalWorkflowSteps.find(
-        y => y.stepId === x.stepId
-      );
-      if (previousStep) {
-        return {
-          stepId: previousStep.stepId,
-          approverGroupHeaderName: previousStep.approverGroupHeader?.name ?? "",
-        };
-      }
-    })
+    approvalState?.decisions
+      .filter(x => !x.hasBeenReset)
+      .map(x => {
+        const previousStep = approvalWorkflowSteps.find(
+          y => y.stepId === x.stepId
+        );
+        if (previousStep) {
+          return {
+            stepId: previousStep.stepId,
+            approverGroupHeaderName:
+              previousStep.approverGroupHeader?.name ?? "",
+          };
+        }
+      })
   );
 
-  const handleSaveComment = async () => {
+  const handleSaveCommentSkipOrReset = async () => {
     if (props.selectedItem?.isNormalVacancy) {
       await getVacancy.refetch();
     } else {
@@ -108,6 +111,8 @@ export const SelectedDetail: React.FC<Props> = props => {
               currentApproverGroupHeaderId={currentStep?.approverGroupHeaderId}
               onApprove={props.onApprove}
               onDeny={props.onDeny}
+              onSkip={handleSaveCommentSkipOrReset}
+              onReset={handleSaveCommentSkipOrReset}
               orgId={props.orgId}
               locationIds={locationIds}
               currentApproverGroupName={
@@ -182,8 +187,9 @@ export const SelectedDetail: React.FC<Props> = props => {
               approvalStateId={approvalState?.id ?? ""}
               comments={approvalState?.comments ?? []}
               decisions={approvalState?.decisions ?? []}
-              onCommentSave={handleSaveComment}
+              onCommentSave={handleSaveCommentSkipOrReset}
               approvalWorkflowId={approvalState?.approvalWorkflowId ?? ""}
+              steps={approvalWorkflowSteps}
             />
           </Grid>
           <Grid item xs={12}>

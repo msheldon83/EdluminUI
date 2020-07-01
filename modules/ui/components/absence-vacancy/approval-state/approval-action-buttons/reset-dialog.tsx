@@ -44,10 +44,11 @@ export const ResetDialog: React.FC<Props> = props => {
   const [commentIsPublic, setCommentIsPublic] = useState(true);
   const [selectedStepId, setSelectedStepId] = useState("");
 
-  useEffect(
-    () => setSelectedStepId(previousSteps[previousSteps.length - 1].stepId),
-    [previousSteps]
-  );
+  useEffect(() => {
+    if (previousSteps.length > 0) {
+      setSelectedStepId(previousSteps[previousSteps.length - 1].stepId);
+    }
+  }, [previousSteps]);
 
   const [reset] = useMutationBundle(ResetApproval, {
     onError: error => {

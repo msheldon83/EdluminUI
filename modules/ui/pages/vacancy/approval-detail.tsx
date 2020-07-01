@@ -52,6 +52,8 @@ export const VacancyApprovalDetail: React.FC<{}> = () => {
         approvalStatusId={approvalState.approvalStatusId}
         onApprove={onApproveOrDeny}
         onDeny={onApproveOrDeny}
+        onSkip={onApproveOrDeny}
+        onReset={onApproveOrDeny}
         onSaveComment={onApproveOrDeny}
         currentStepId={approvalState.currentStepId}
         approvalWorkflowSteps={approvalState.approvalWorkflow?.steps}

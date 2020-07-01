@@ -6,10 +6,12 @@ import { useTranslation } from "react-i18next";
 import { ApprovalAction } from "graphql/server-types.gen";
 import { LeaveComment } from "./leave-comment";
 import { parseISO, format } from "date-fns";
+import { ApprovalWorkflowSteps } from "./types";
 
 type CommentDecision = {
   comment?: string | null;
   approvalActionId?: ApprovalAction;
+  stepId: string;
   commentIsPublic: boolean;
   createdLocal?: string | null;
   actingUser: {
@@ -29,24 +31,11 @@ type Props = {
   actingAsEmployee?: boolean;
   approvalStateId: string;
   approvalWorkflowId: string;
-  comments: {
-    comment?: string | null;
-    commentIsPublic: boolean;
-    createdLocal?: string | null;
-    actingUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-    actualUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-  }[];
+  comments: CommentDecision[];
   decisions: {
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
+    stepId: string;
     actingUser: {
       id: string;
       firstName: string;
@@ -59,6 +48,7 @@ type Props = {
     };
   }[];
   onCommentSave?: () => void;
+  steps: ApprovalWorkflowSteps[];
 };
 
 export const ApprovalComments: React.FC<Props> = props => {
@@ -78,6 +68,7 @@ export const ApprovalComments: React.FC<Props> = props => {
         actualUser: c.actualUser,
         commentIsPublic: c.commentIsPublic,
         createdLocal: c.createdLocal,
+        stepId: c.stepId,
       });
     });
     decisions.forEach(d => {
@@ -87,6 +78,7 @@ export const ApprovalComments: React.FC<Props> = props => {
         actualUser: d.actualUser,
         commentIsPublic: true,
         createdLocal: d.createdLocal,
+        stepId: d.stepId,
       });
     });
 
@@ -99,10 +91,22 @@ export const ApprovalComments: React.FC<Props> = props => {
     );
   }, [comments, decisions]);
 
-  const getApprovalActionText = (approvalAction?: ApprovalAction) => {
+  const getApprovalActionText = (
+    approvalAction?: ApprovalAction,
+    stepId?: string
+  ) => {
     if (approvalAction == ApprovalAction.Approve) return t("Approved by ");
     if (approvalAction == ApprovalAction.Deny) return t("Denied by ");
-    if (approvalAction == ApprovalAction.Skip) return t("Skipped by ");
+    if (approvalAction == ApprovalAction.Skip) {
+      const approverGroupName = props.steps.find(x => x.stepId === stepId)
+        ?.approverGroupHeader?.name;
+      return `${approverGroupName} ${t("Skipped by ")}`;
+    }
+    if (approvalAction == ApprovalAction.Reset) {
+      const approverGroupName = props.steps.find(x => x.stepId === stepId)
+        ?.approverGroupHeader?.name;
+      return `${approverGroupName} ${t("Reset by ")}`;
+    }
     return null;
   };
 
@@ -142,7 +146,7 @@ export const ApprovalComments: React.FC<Props> = props => {
                         ? classes.decisionText
                         : classes.nameText
                     }
-                  >{`${getApprovalActionText(c.approvalActionId) ??
+                  >{`${getApprovalActionText(c.approvalActionId, c.stepId) ??
                     ""}${getApproverName(c)}`}</span>
                   <span
                     className={

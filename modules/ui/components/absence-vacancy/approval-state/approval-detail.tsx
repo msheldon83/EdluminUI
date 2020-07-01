@@ -23,6 +23,8 @@ type Props = {
   orgId: string;
   onApprove?: () => void;
   onDeny?: () => void;
+  onSkip?: () => void;
+  onReset?: () => void;
   actingAsEmployee?: boolean;
   approvalStateId: string;
   approvalWorkflowId: string;
@@ -31,6 +33,7 @@ type Props = {
   currentStepId?: string | null;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
   comments: {
+    stepId: string;
     comment?: string | null;
     commentIsPublic: boolean;
     createdLocal?: string | null;
@@ -49,6 +52,7 @@ type Props = {
     stepId: string;
     approvalActionId: ApprovalAction;
     createdLocal?: string | null;
+    hasBeenReset: boolean;
     actingUser: {
       id: string;
       firstName: string;
@@ -124,17 +128,20 @@ export const ApprovalDetail: React.FC<Props> = props => {
     x => x.stepId === currentStep?.onApproval[0].goto && !x.isLastStep
   );
   const previousSteps = compact(
-    props.decisions.map(x => {
-      const previousStep = props.approvalWorkflowSteps.find(
-        y => y.stepId === x.stepId
-      );
-      if (previousStep) {
-        return {
-          stepId: previousStep.stepId,
-          approverGroupHeaderName: previousStep.approverGroupHeader?.name ?? "",
-        };
-      }
-    })
+    props.decisions
+      .filter(x => !x.hasBeenReset)
+      .map(x => {
+        const previousStep = props.approvalWorkflowSteps.find(
+          y => y.stepId === x.stepId
+        );
+        if (previousStep) {
+          return {
+            stepId: previousStep.stepId,
+            approverGroupHeaderName:
+              previousStep.approverGroupHeader?.name ?? "",
+          };
+        }
+      })
   );
 
   const locationIds =
@@ -208,6 +215,8 @@ export const ApprovalDetail: React.FC<Props> = props => {
               currentApproverGroupHeaderId={currentStep?.approverGroupHeaderId}
               onApprove={props.onApprove}
               onDeny={props.onDeny}
+              onSkip={props.onSkip}
+              onReset={props.onReset}
               orgId={props.orgId}
               locationIds={locationIds}
               currentApproverGroupName={
@@ -233,6 +242,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
             decisions={props.decisions}
             onCommentSave={props.onSaveComment}
             approvalWorkflowId={props.approvalWorkflowId}
+            steps={props.approvalWorkflowSteps}
           />
         </div>
         {isMobile && renderAbsVacDetail()}

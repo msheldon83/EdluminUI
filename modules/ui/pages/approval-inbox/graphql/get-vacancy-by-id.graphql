@@ -32,6 +32,7 @@ query GetVacancyById($id: ID!) {
         changedLocal
         comments {
           id
+          stepId
           comment
           commentIsPublic
           createdLocal
@@ -52,6 +53,7 @@ query GetVacancyById($id: ID!) {
           createdLocal
           approvalActionId
           actingOrgUserId
+          hasBeenReset
           actingUser {
             id
             firstName
