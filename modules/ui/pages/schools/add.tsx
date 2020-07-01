@@ -114,6 +114,7 @@ export const LocationAddPage: React.FC<Props> = props => {
         onSubmit={async (
           locationGroupId: string,
           address1?: string | null,
+          address2?: string | null,
           city?: string | null,
           state?: StateCode | null,
           postalCode?: string | null,
@@ -126,6 +127,7 @@ export const LocationAddPage: React.FC<Props> = props => {
             ...location,
             address: {
               address1: address1,
+              address2: address2,
               city: city,
               state: state,
               postalCode: postalCode,

@@ -51,8 +51,10 @@ export const LocationsInformation: React.FC<Props> = props => {
           <Grid item xs={12}>
             <Typography variant="h6">{t("Address")}</Typography>
             <div>
-              {`${props.location.address1 ?? ""} ${props.location.address2 ??
-                ""}`}
+              {`${props.location.address1 ?? ""}`}
+            </div>
+            <div>
+              {`${props.location.address2 ?? ""}`}
             </div>
             <div>
               {`${props.location.city ?? ""}, ${props.location.state ??
