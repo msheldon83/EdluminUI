@@ -135,6 +135,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     scheduleDates={selectedScheduleDates}
                     selectedDate={selectedScheduleDates[0].date}
                     cancelAbsence={props.cancelAbsence}
+                    hideAbsence={props.hideAbsence}
                     orgId={props.orgId}
                     actingAsEmployee={props.actingAsEmployee}
                   />

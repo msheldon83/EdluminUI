@@ -6,9 +6,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetailRow } from "ui/components/employee/components/absence-detail-row";
 import {
-  ContractDate,
-  EmployeeAbsenceDetail,
-  PositionScheduleDate,
   AbsenceScheduleDate,
   InstructionalScheduleDate,
   OtherScheduleDate,
@@ -19,6 +16,7 @@ type Props = {
   selectedDate: Date;
   scheduleDates: ScheduleDate[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
+  hideAbsence?: (absenceId: string) => Promise<void>;
   actingAsEmployee?: boolean;
   orgId?: string;
 };
@@ -132,6 +130,7 @@ const displayAbsenceDayInformation = (
         <AbsenceDetailRow
           absence={day}
           cancelAbsence={cancel}
+          hideAbsence={props.hideAbsence}
           showAbsenceChip={true}
           actingAsEmployee={actingAsEmployee}
           orgId={orgId}
