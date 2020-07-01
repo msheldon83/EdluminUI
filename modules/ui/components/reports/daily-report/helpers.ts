@@ -15,6 +15,7 @@ import { flatMap, groupBy, identity, keyBy, some, every } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 import { TFunction } from "i18next";
 import { GroupOption } from "./filters/filter-params";
+import { fullNameSort } from "helpers/full-name-sort";
 
 export type CardType =
   | "unfilled"
@@ -624,11 +625,7 @@ export const MapDailyReportDetails = (
   const detailsForDate = details
     .filter(x => isEqual(x.date, date))
     .sort((a, b) =>
-      a.employee && b.employee && a.employee.lastName > b.employee.lastName
-        ? 1
-        : a.employee && b.employee && b.employee.lastName > a.employee.lastName
-        ? -1
-        : 0
+      a.employee && b.employee ? fullNameSort(a.employee, b.employee) : 0
     );
 
   // Filter the list by any client side filtering selections
