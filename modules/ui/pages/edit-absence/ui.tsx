@@ -280,7 +280,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
     { name: "accountingCodeAllocations", type: "custom" },
     {
       validate: (value: AccountingCodeValue) => {
-        if (value.type !== "multiple-allocations") {
+        if (value?.type !== "multiple-allocations") {
           return true;
         }
 
