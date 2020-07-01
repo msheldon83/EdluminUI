@@ -118,6 +118,14 @@ export const SubstituteTab: React.FC<Props> = props => {
     await getSubstitute.refetch();
   };
 
+  //TODO
+  const onAddComment = async (payload: string) => {};
+
+  //Don't submit empty payloads. Assemble Update/Create InputType Def's with OrgUser data.
+
+  //TODO
+  const onEditComment = async (payload: string) => {};
+
   return (
     <>
       <Information
@@ -134,7 +142,11 @@ export const SubstituteTab: React.FC<Props> = props => {
         onSubmit={onUpdateSubstitute}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
-      <Comments orgId={params.organizationId} />
+      <Comments
+        onAddComment={onAddComment}
+        onEditComment={onEditComment}
+        orgId={params.organizationId}
+      />
       <SubPositionsAttributes
         editing={props.editing}
         editable={canEditThisSub}
