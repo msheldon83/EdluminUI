@@ -33,9 +33,6 @@ export const OrgUserSelect: React.FC<Props> = props => {
   let orgUserOptions = useOrgUserOptions(orgId, role);
 
   if (includeAllOption) {
-    orgUserOptions = orgUserOptions.sort((a, b) =>
-      a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
-    );
     orgUserOptions.unshift({ label: t("(All)"), value: "0" });
   }
 
@@ -82,7 +79,7 @@ export const OrgUserSelect: React.FC<Props> = props => {
           ? t("(All)")
           : undefined
       }
-      doSort={!includeAllOption}
+      doSort={false}
       disabled={disabled}
     />
   );

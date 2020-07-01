@@ -22,6 +22,7 @@ import { usePositionTypes } from "reference-data/position-types";
 import { useOrgUsers } from "ui/components/domain-selects/org-user-select/org-users";
 import { Edit } from "@material-ui/icons";
 import { Can } from "ui/components/auth/can";
+import { fullNameSort } from "helpers/full-name-sort";
 import { useQueryBundle } from "graphql/hooks";
 import { GetApprovalWorkflows } from "../../graphql/get-approval-workflows.gen";
 
@@ -106,6 +107,7 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
                 ? t("None")
                 : allPositionTypes
                     .filter(x => positionTypeIds.includes(x.id))
+                    .sort((a, b) => a.name.localeCompare(b.name))
                     .map(x => x.name)
                     .join(", ")
             }`}</div>
@@ -152,6 +154,7 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
               ? t("None")
               : allEmployees
                   .filter(x => employeeIds.includes(x.id))
+                  .sort(fullNameSort)
                   .map(x => `${x.firstName} ${x.lastName}`)
                   .join(", ")
           }`}</div>
@@ -164,21 +167,15 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
               <Checkbox
                 checked={isAllOthers}
                 onChange={e => {
-                  if (e.target.checked) {
-                    props.setFieldValue(
-                      "usages",
-                      buildAbsenceUsagesJsonString(e.target.checked)
-                    );
-                  } else {
-                    props.setFieldValue(
-                      "usages",
-                      buildAbsenceUsagesJsonString(
-                        e.target.checked,
-                        positionTypeIds,
-                        employeeIds
-                      )
-                    );
-                  }
+                  props.setFieldValue(
+                    "usages",
+                    buildAbsenceUsagesJsonString(
+                      e.target.checked,
+                      ...(e.target.checked
+                        ? []
+                        : [positionTypeIds, employeeIds])
+                    )
+                  );
                 }}
                 value={isAllOthers}
                 color="primary"

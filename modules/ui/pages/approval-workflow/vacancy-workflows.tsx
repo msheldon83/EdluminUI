@@ -57,7 +57,9 @@ export const VacancyApprovalWorkflowIndex: React.FC<{}> = props => {
           (workflow.usages as VacancyApprovalWorkflowUsage[]).map(
             x => x.positionType?.name
           )
-        ).join(", "),
+        )
+          .sort((a, b) => a.localeCompare(b))
+          .join(", "),
       })),
     [workflows]
   );

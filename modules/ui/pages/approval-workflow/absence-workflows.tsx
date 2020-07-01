@@ -5,6 +5,7 @@ import { Table } from "ui/components/table";
 import { Column } from "material-table";
 import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
+import { fullNameSort } from "helpers/full-name-sort";
 import { PageTitle } from "ui/components/page-title";
 import { Link } from "react-router-dom";
 import { Can } from "ui/components/auth/can";
@@ -58,12 +59,13 @@ export const AbsenceApprovalWorkflowIndex: React.FC<{}> = props => {
             x => x.positionType?.name
           )
         ).join(", "),
-        employees: compact(
-          (workflow.usages as AbsenceApprovalWorkflowUsage[]).map(x => {
-            if (x.employee)
-              return `${x.employee?.firstName} ${x.employee?.lastName}`;
-          })
-        ).join(", "),
+        employees: (workflow.usages as AbsenceApprovalWorkflowUsage[])
+          .filter((x): x is {
+            employee: { firstName?: string; lastName?: string };
+          } & AbsenceApprovalWorkflowUsage => Boolean(x?.employee))
+          .sort(({ employee: e1 }, { employee: e2 }) => fullNameSort(e1, e2))
+          .map(x => `${x.employee.firstName} ${x.employee.lastName}`)
+          .join(", "),
       })),
     [workflows]
   );
