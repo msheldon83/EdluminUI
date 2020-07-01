@@ -13,7 +13,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { Close } from "@material-ui/icons";
 import { useHistory } from "react-router";
 import { useIsImpersonating } from "reference-data/is-impersonating";
-import { PersonViewRoute } from "ui/routes/people";
+import { useApolloClient } from "@apollo/react-hooks";
 
 type Props = {};
 
@@ -23,9 +23,10 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const userAccess = useMyUserAccess();
+  const client = useApolloClient();
 
   // Remove keys from session storage and redirect to root of site
-  const cancelImpersonation = useCallback(() => {
+  const cancelImpersonation = useCallback(async () => {
     const impersonatingOrgId = sessionStorage.getItem(
       Config.impersonation.impersonatingOrgId
     );
@@ -37,18 +38,22 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
     sessionStorage.removeItem(Config.impersonation.impersonatingOrgId);
 
+    // To prevent issues with cached data from the current user
+    // prior to starting impersonation, let's clear out the Apollo cache
+    await client.clearStore();
+
     history.push({
       pathname: "/",
       state: { impersonatingOrgId, impersonatingOrgUserId },
     });
-  }, [history]);
+  }, [client, history]);
 
   const userDisplayName = useMemo(() => {
     if (userAccess?.me?.user?.firstName && userAccess?.me?.user?.lastName) {
       return `${userAccess?.me?.user?.firstName} ${userAccess?.me?.user?.lastName}`;
     }
     return "";
-  }, [userAccess]);
+  }, [userAccess?.me?.user?.firstName, userAccess?.me?.user?.lastName]);
 
   // Figure out if we are currently impersonating or not
   const isImpersonating = useIsImpersonating();

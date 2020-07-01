@@ -24,6 +24,7 @@ import { OrgUserRole } from "graphql/server-types.gen";
 import { OrganizationType, FeatureFlag } from "graphql/server-types.gen";
 import { ShadowIndicator } from "ui/components/shadow-indicator";
 import { DeleteDialog } from "ui/pages/people/components/delete-dialog";
+import { useApolloClient } from "@apollo/react-hooks";
 
 const editableSections = {
   name: "edit-name",
@@ -77,6 +78,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
     "delete" | OrgUserRole | null
   >(null);
   const [now, setNow] = React.useState<Date>(new Date());
+  const client = useApolloClient();
 
   const [inviteUser] = useMutationBundle(InviteSingleUser, {
     onError: error => {
@@ -272,6 +274,9 @@ export const PersonViewHeader: React.FC<Props> = props => {
         Config.impersonation.impersonatingOrgId,
         props.orgId
       );
+      // To prevent issues with cached data from the current user
+      // prior to starting impersonation, let's clear out the Apollo cache
+      await client.clearStore();
       // Redirect current user to homepage
       history.push("/");
     }
