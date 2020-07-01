@@ -97,6 +97,7 @@ export const VacancyBasicInfo: React.FC<Props> = props => {
                 ? t("None")
                 : allPositionTypes
                     .filter(x => positionTypeIds.includes(x.id))
+                    .sort((a, b) => a.name.localeCompare(b.name))
                     .map(x => x.name)
                     .join(", ")
             }`}</div>
