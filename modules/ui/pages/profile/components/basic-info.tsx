@@ -12,6 +12,7 @@ import { Input } from "ui/components/form/input";
 import { useTimeZoneOptions } from "reference-data/timezones";
 import { SelectNew } from "ui/components/form/select-new";
 import { useIsMobile } from "hooks";
+import { useIsSubstitute } from "reference-data/is-substitute";
 import { TimeZone } from "graphql/server-types.gen";
 import { TextButton } from "ui/components/text-button";
 import { isAfter, parseISO, format } from "date-fns";
@@ -43,6 +44,7 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const isSubstitute = useIsSubstitute();
 
   const [changeEmailIsOpen, setChangeEmailIsOpen] = React.useState(false);
   const [changeTimezoneIsOpen, setChangeTimezoneIsOpen] = React.useState(false);
@@ -132,7 +134,8 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
                 }}
               />
             </Grid>
-            {!props.user.phoneIsValidForSms &&
+            {isSubstitute &&
+              !props.user.phoneIsValidForSms &&
               props.user.phone === props.formValues.phone && (
                 <Grid item xs={12}>
                   <div className={classes.verifyButton}>
