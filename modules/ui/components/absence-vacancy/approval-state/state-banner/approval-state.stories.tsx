@@ -20,7 +20,7 @@ export const ApprovedStory = () => {
         isTrueVacancy={false}
         absenceId={"1000"}
         approvalWorkflowId={"1000"}
-        locationIds={["1000"]}
+        canApprove={true}
       />
     </Provider>
   );
@@ -39,7 +39,7 @@ export const DeniedStory = () => {
         isTrueVacancy={false}
         absenceId={"1000"}
         approvalWorkflowId={"1000"}
-        locationIds={["1000"]}
+        canApprove={true}
       />
     </Provider>
   );
@@ -58,7 +58,7 @@ export const PendingStory = () => {
         isTrueVacancy={true}
         vacancyId={"1000"}
         approvalWorkflowId={"1000"}
-        locationIds={["1000"]}
+        canApprove={true}
       />
     </Provider>
   );

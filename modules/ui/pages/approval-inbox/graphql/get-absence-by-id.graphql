@@ -8,6 +8,7 @@ query GetAbsence($id: ID!) {
       createdLocal
       approvalState {
         id
+        canApprove
         approvalStatusId
         approvalWorkflowId
         approvalWorkflow {

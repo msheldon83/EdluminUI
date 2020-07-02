@@ -7,6 +7,7 @@ query GetVacancyById($id: ID!) {
       createdLocal
       approvalState {
         id
+        canApprove
         approvalStatusId
         approvalWorkflowId
         approvalWorkflow {

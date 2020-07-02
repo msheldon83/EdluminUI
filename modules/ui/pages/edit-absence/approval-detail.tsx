@@ -86,6 +86,7 @@ export const AbsenceApprovalDetail: React.FC<Props> = props => {
         decisions={approvalState.decisions}
         isTrueVacancy={false}
         absence={absence}
+        canApprove={approvalState.canApprove}
       />
     </>
   );

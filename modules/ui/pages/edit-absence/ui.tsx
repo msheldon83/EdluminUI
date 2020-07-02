@@ -128,6 +128,7 @@ type Props = {
   positionTypeId?: string;
   approvalState?: {
     id: string;
+    canApprove: boolean;
     approvalStatusId: ApprovalStatus;
     approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
     currentStepId?: string | null;
@@ -721,7 +722,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
                 isTrueVacancy={false}
                 absenceId={props.absenceId}
                 onChange={props.refetchAbsence}
-                locationIds={props.locationIds ?? []}
+                canApprove={props.approvalState?.canApprove ?? false}
                 decisions={props.approvalState?.decisions}
               />
             </Can>

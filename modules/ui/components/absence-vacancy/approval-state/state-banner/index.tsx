@@ -12,17 +12,15 @@ import {
 } from "ui/routes/edit-absence";
 import { ApproveDenyDialog } from "./approve-dialog";
 import { CommentDialog } from "./comment-dialog";
-import { GetApproverGroupsForOrgUser } from "../graphql/get-approver-groups-for-orguser.gen";
 import { useMyApprovalWorkflows } from "reference-data/my-approval-workflows";
-import { useMyUserAccess } from "reference-data/my-user-access";
 import { ApprovalWorkflowSteps } from "../types";
 import clsx from "clsx";
 import { ApprovalAction } from "graphql/server-types.gen";
-import { useQueryBundle } from "graphql/hooks";
 
 type Props = {
   orgId: string;
   approvalStateId: string;
+  canApprove: boolean;
   approvalWorkflowId: string;
   approvalStatusId: ApprovalStatus;
   approvalWorkflowSteps: ApprovalWorkflowSteps[];
@@ -33,7 +31,6 @@ type Props = {
   vacancyId?: string;
   isTrueVacancy: boolean;
   onChange?: () => void;
-  locationIds: string[];
   decisions?: {
     stepId: string;
     approvalActionId: ApprovalAction;
@@ -51,27 +48,7 @@ export const ApprovalState: React.FC<Props> = props => {
     approvalStatusId,
     currentStepId,
     decisions,
-    locationIds,
   } = props;
-
-  const userAccess = useMyUserAccess();
-  const orgUserId = userAccess?.me?.user?.orgUsers?.find(
-    x => x?.orgId === props.orgId && x.isAdmin
-  )?.id;
-  const getApproverGroups = useQueryBundle(GetApproverGroupsForOrgUser, {
-    variables: {
-      orgId: props.orgId,
-      orgUserId: orgUserId ?? "",
-    },
-    skip: !orgUserId,
-  });
-
-  const myApproverGroupHeaders =
-    getApproverGroups.state === "DONE"
-      ? compact(
-          getApproverGroups.data.approverGroup?.approverGroupHeadersByOrgUserId
-        )
-      : [];
 
   const myApprovalWorkflows = useMyApprovalWorkflows();
 
@@ -146,49 +123,6 @@ export const ApprovalState: React.FC<Props> = props => {
     return false;
   }, [actingAsEmployee, myApprovalWorkflows, approvalWorkflowId]);
 
-  const showApproveDenyButtons = useMemo(() => {
-    // Sys Admins are unable to approve or deny unless impersonating
-    if (userAccess?.isSysAdmin) return false;
-
-    // If the state is not pending, it has already been approved or denied
-    if (
-      approvalStatusId !== ApprovalStatus.ApprovalRequired &&
-      approvalStatusId !== ApprovalStatus.PartiallyApproved
-    )
-      return false;
-
-    // If I'm a member of the current group that needs to approve, show the buttons
-    const currentApproverGroupHeader = currentStep?.approverGroupHeaderId
-      ? myApproverGroupHeaders.find(
-          x => x.id === currentStep.approverGroupHeaderId
-        )
-      : null;
-    if (
-      currentApproverGroupHeader &&
-      !currentApproverGroupHeader.variesByLocation
-    )
-      return true;
-
-    // If the current group varies by location, am I in a group by location that applies to this absence/vacancy
-    if (
-      currentApproverGroupHeader &&
-      currentApproverGroupHeader.variesByLocation
-    ) {
-      const approverGroup = currentApproverGroupHeader.approverGroups?.find(
-        x => x?.locationId && locationIds.includes(x.locationId)
-      );
-      if (approverGroup) return true;
-    }
-
-    return false;
-  }, [
-    userAccess?.isSysAdmin,
-    approvalStatusId,
-    currentStep?.approverGroupHeaderId,
-    myApproverGroupHeaders,
-    locationIds,
-  ]);
-
   if (
     props.approvalStatusId !== ApprovalStatus.Approved &&
     props.approvalStatusId !== ApprovalStatus.Denied &&
@@ -254,7 +188,7 @@ export const ApprovalState: React.FC<Props> = props => {
             />
           </div>
           <div className={classes.button}>
-            {showApproveDenyButtons ? (
+            {props.canApprove ? (
               <Button variant="outlined" onClick={onOpenApproveDialog}>
                 {t("Approve/Deny")}
               </Button>

@@ -1,16 +1,12 @@
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button, makeStyles } from "@material-ui/core";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useMutationBundle } from "graphql/hooks";
 import { Approve } from "ui/components/absence-vacancy/approval-state/graphql/approve.gen";
 import { Deny } from "ui/components/absence-vacancy/approval-state/graphql/deny.gen";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useTranslation } from "react-i18next";
-import { useMyUserAccess } from "reference-data/my-user-access";
-import { ApprovalStatus } from "graphql/server-types.gen";
-import { GetApproverGroupsForOrgUser } from "../graphql/get-approver-groups-for-orguser.gen";
-import { compact } from "lodash-es";
 import { SkipDialog } from "./skip-dialog";
 import { ResetDialog } from "./reset-dialog";
 import { ActionMenu, Option } from "ui/components/action-menu";
@@ -19,13 +15,11 @@ import { PermissionEnum } from "graphql/server-types.gen";
 type Props = {
   orgId: string;
   approvalStateId: string;
+  canApprove: boolean;
   onApprove?: () => void;
   onDeny?: () => void;
   onSkip?: () => void;
   onReset?: () => void;
-  approvalStatus?: ApprovalStatus;
-  currentApproverGroupHeaderId?: string | null;
-  locationIds: string[];
   showSkip: boolean;
   showReset: boolean;
   currentApproverGroupName: string;
@@ -41,29 +35,8 @@ export const ApprovalActionButtons: React.FC<Props> = props => {
   const classes = useStyles();
   const { openSnackbar } = useSnackbar();
 
-  const { locationIds, approvalStatus, currentApproverGroupHeaderId } = props;
-
   const [skipDialogOpen, setSkipDialogOpen] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
-
-  const userAccess = useMyUserAccess();
-  const orgUserId = userAccess?.me?.user?.orgUsers?.find(
-    x => x?.orgId === props.orgId && x.isAdmin
-  )?.id;
-  const getApproverGroups = useQueryBundle(GetApproverGroupsForOrgUser, {
-    variables: {
-      orgId: props.orgId,
-      orgUserId: orgUserId ?? "",
-    },
-    skip: !orgUserId,
-  });
-
-  const myApproverGroupHeaders =
-    getApproverGroups.state === "DONE"
-      ? compact(
-          getApproverGroups.data.approverGroup?.approverGroupHeadersByOrgUserId
-        )
-      : [];
 
   const [approve] = useMutationBundle(Approve, {
     onError: error => {
@@ -129,47 +102,6 @@ export const ApprovalActionButtons: React.FC<Props> = props => {
     setResetDialogOpen(false);
   };
 
-  const showApproveDenyButtons = useMemo(() => {
-    // Sys Admins are unable to approve or deny unless impersonating
-    if (userAccess?.isSysAdmin) return false;
-
-    // If the state is not pending, it has already been approved or denied
-    if (
-      approvalStatus !== ApprovalStatus.ApprovalRequired &&
-      approvalStatus !== ApprovalStatus.PartiallyApproved
-    )
-      return false;
-
-    // If I'm a member of the current group that needs to approve, show the buttons
-    const currentApproverGroupHeader = myApproverGroupHeaders.find(
-      x => x.id === currentApproverGroupHeaderId
-    );
-    if (
-      currentApproverGroupHeader &&
-      !currentApproverGroupHeader.variesByLocation
-    )
-      return true;
-
-    // If the current group varies by location, am I in a group by location that applies to this absence/vacancy
-    if (
-      currentApproverGroupHeader &&
-      currentApproverGroupHeader.variesByLocation
-    ) {
-      const approverGroup = currentApproverGroupHeader.approverGroups?.find(
-        x => x?.locationId && locationIds.includes(x.locationId)
-      );
-      if (approverGroup) return true;
-    }
-
-    return false;
-  }, [
-    userAccess?.isSysAdmin,
-    approvalStatus,
-    myApproverGroupHeaders,
-    currentApproverGroupHeaderId,
-    locationIds,
-  ]);
-
   return (
     <>
       <SkipDialog
@@ -190,7 +122,7 @@ export const ApprovalActionButtons: React.FC<Props> = props => {
       />
       <div className={classes.container}>
         <ActionMenu options={menuOptions} />
-        {showApproveDenyButtons && (
+        {props.canApprove && (
           <div className={classes.buttonContainer}>
             <Button
               className={classes.denyButton}

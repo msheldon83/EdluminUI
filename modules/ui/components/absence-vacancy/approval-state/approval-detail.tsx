@@ -27,6 +27,7 @@ type Props = {
   onReset?: () => void;
   actingAsEmployee?: boolean;
   approvalStateId: string;
+  canApprove: boolean;
   approvalWorkflowId: string;
   approvalWorkflowName: string;
   approvalStatusId: ApprovalStatus;
@@ -213,14 +214,11 @@ export const ApprovalDetail: React.FC<Props> = props => {
           <div className={classes.buttonContainer}>
             <ApprovalActionButtons
               approvalStateId={props.approvalStateId}
-              approvalStatus={props.approvalStatusId}
-              currentApproverGroupHeaderId={currentStep?.approverGroupHeaderId}
               onApprove={props.onApprove}
               onDeny={props.onDeny}
               onSkip={props.onSkip}
               onReset={props.onReset}
               orgId={props.orgId}
-              locationIds={locationIds}
               currentApproverGroupName={
                 currentStep?.approverGroupHeader?.name ?? ""
               }
@@ -228,6 +226,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
               showReset={previousSteps.length > 0}
               previousSteps={previousSteps}
               nextApproverGroupName={nextStep?.approverGroupHeader?.name ?? ""}
+              canApprove={props.canApprove}
             />
           </div>
           <WorkflowSummary

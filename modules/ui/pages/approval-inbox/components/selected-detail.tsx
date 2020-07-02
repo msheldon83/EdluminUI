@@ -110,14 +110,11 @@ export const SelectedDetail: React.FC<Props> = props => {
           <div className={classes.buttonContainer}>
             <ApprovalActionButtons
               approvalStateId={approvalState?.id ?? ""}
-              approvalStatus={approvalState?.approvalStatusId}
-              currentApproverGroupHeaderId={currentStep?.approverGroupHeaderId}
               onApprove={props.onApprove}
               onDeny={props.onDeny}
               onSkip={handleSaveCommentSkipOrReset}
               onReset={handleSaveCommentSkipOrReset}
               orgId={props.orgId}
-              locationIds={locationIds}
               currentApproverGroupName={
                 currentStep?.approverGroupHeader?.name ?? ""
               }
@@ -125,6 +122,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               showReset={previousSteps.length > 0}
               previousSteps={previousSteps}
               nextApproverGroupName={nextStep?.approverGroupHeader?.name ?? ""}
+              canApprove={approvalState?.canApprove ?? false}
             />
           </div>
           {!props.selectedItem?.isNormalVacancy && absence && (

@@ -9,6 +9,7 @@ query GetVacancyById($id: ID!) {
       isClosed
       approvalState {
         id
+        canApprove
         approvalStatusId
         approvalWorkflow {
           id
