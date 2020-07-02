@@ -6,9 +6,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetailRow } from "ui/components/employee/components/absence-detail-row";
 import {
-  ContractDate,
-  EmployeeAbsenceDetail,
-  PositionScheduleDate,
   AbsenceScheduleDate,
   InstructionalScheduleDate,
   OtherScheduleDate,
@@ -19,6 +16,7 @@ type Props = {
   selectedDate: Date;
   scheduleDates: ScheduleDate[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
+  hideAbsence?: (absenceId: string) => Promise<void>;
   actingAsEmployee?: boolean;
   orgId?: string;
 };
@@ -38,6 +36,8 @@ export const SelectedDateView: React.FC<Props> = props => {
 
     props.scheduleDates.forEach(s => {
       switch (s.type) {
+        case "pendingAbsence":
+        case "deniedAbsence":
         case "absence":
           absenceDays.push(s);
           break;
@@ -64,6 +64,7 @@ export const SelectedDateView: React.FC<Props> = props => {
       {displayAbsenceDayInformation(
         absenceDays,
         props.cancelAbsence,
+        props.hideAbsence,
         props.actingAsEmployee,
         props.orgId
       )}
@@ -119,6 +120,7 @@ const displayInstructionalDayInformation = (
 const displayAbsenceDayInformation = (
   absenceDays: AbsenceScheduleDate[],
   cancelAbsence?: (absenceId: string) => Promise<void>,
+  hideAbsence?: (absenceId: string) => Promise<void>,
   actingAsEmployee?: boolean,
   orgId?: string
 ) => {
@@ -130,6 +132,7 @@ const displayAbsenceDayInformation = (
         <AbsenceDetailRow
           absence={day}
           cancelAbsence={cancel}
+          hideAbsence={hideAbsence}
           showAbsenceChip={true}
           actingAsEmployee={actingAsEmployee}
           orgId={orgId}

@@ -7,6 +7,7 @@ import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { useMemo } from "react";
 import { eachDayOfInterval, isToday } from "date-fns";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
+import { ApprovalStatus } from "graphql/server-types.gen";
 
 type Props = {
   startDate: Date;
@@ -18,16 +19,57 @@ export const ScheduleCalendar: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const absentDays = useMemo(() => {
+  const pendingAbsenceDays = useMemo(() => {
     const days: Date[] = [];
-    props.absences.forEach(a => {
-      days.push(
-        ...eachDayOfInterval({
-          start: a.startDate,
-          end: a.endDate,
-        })
-      );
-    });
+    props.absences
+      .filter(
+        x =>
+          x.approvalStatus === ApprovalStatus.ApprovalRequired ||
+          x.approvalStatus === ApprovalStatus.PartiallyApproved
+      )
+      .forEach(a => {
+        days.push(
+          ...eachDayOfInterval({
+            start: a.startDate,
+            end: a.endDate,
+          })
+        );
+      });
+    return days;
+  }, [props.absences]);
+
+  const deniedAbsenceDays = useMemo(() => {
+    const days: Date[] = [];
+    props.absences
+      .filter(x => x.approvalStatus === ApprovalStatus.Denied)
+      .forEach(a => {
+        days.push(
+          ...eachDayOfInterval({
+            start: a.startDate,
+            end: a.endDate,
+          })
+        );
+      });
+    return days;
+  }, [props.absences]);
+
+  const absenceDays = useMemo(() => {
+    const days: Date[] = [];
+    props.absences
+      .filter(
+        x =>
+          x.approvalStatus !== ApprovalStatus.ApprovalRequired &&
+          x.approvalStatus !== ApprovalStatus.PartiallyApproved &&
+          x.approvalStatus !== ApprovalStatus.Denied
+      )
+      .forEach(a => {
+        days.push(
+          ...eachDayOfInterval({
+            start: a.startDate,
+            end: a.endDate,
+          })
+        );
+      });
     return days;
   }, [props.absences]);
 
@@ -36,10 +78,39 @@ export const ScheduleCalendar: React.FC<Props> = props => {
     buttonProps: { className: `${classes.dateDisabled} dateDisabled` },
   }));
 
-  const absenceDates = absentDays.map(date => ({
-    date,
-    buttonProps: { className: classes.absenceDate },
-  }));
+  const absenceDates = useMemo(() => {
+    let dates = [] as { date: Date; buttonProps: { className: string } }[];
+
+    dates = dates.concat(
+      absenceDays.map(date => ({
+        date,
+        buttonProps: { className: classes.absenceDate },
+      }))
+    );
+
+    dates = dates.concat(
+      pendingAbsenceDays.map(date => ({
+        date,
+        buttonProps: { className: classes.pendingDate },
+      }))
+    );
+
+    dates = dates.concat(
+      deniedAbsenceDays.map(date => ({
+        date,
+        buttonProps: { className: classes.deniedDate },
+      }))
+    );
+
+    return dates;
+  }, [
+    absenceDays,
+    classes.absenceDate,
+    classes.deniedDate,
+    classes.pendingDate,
+    deniedAbsenceDays,
+    pendingAbsenceDays,
+  ]);
 
   const customDates = disabledDates.concat(absenceDates);
   const todayIndex = customDates.findIndex(o => isToday(o.date));
@@ -80,12 +151,30 @@ const useStyles = makeStyles(theme => ({
     },
   },
   absenceDate: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#373361",
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: "#373361",
       color: theme.customColors.white,
+    },
+  },
+  deniedDate: {
+    backgroundColor: theme.customColors.darkRed,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.darkRed,
+      color: theme.customColors.white,
+    },
+  },
+  pendingDate: {
+    backgroundColor: theme.customColors.yellow4,
+    color: theme.customColors.black,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.yellow4,
+      color: theme.customColors.black,
     },
   },
   today: {

@@ -4,11 +4,13 @@ import { useTranslation } from "react-i18next";
 import { EmployeeAbsenceDetail } from "ui/components/employee/types";
 import { SectionHeader } from "ui/components/section-header";
 import { AbsenceDetailRow } from "./absence-detail-row";
+import { ApprovalStatus } from "graphql/server-types.gen";
 
 type Props = {
   header?: string;
   absences: EmployeeAbsenceDetail[];
   cancelAbsence: (absenceId: string) => Promise<void>;
+  hideAbsence?: (absenceId: string) => Promise<void>;
   isLoading: boolean;
   orgId?: string;
   actingAsEmployee?: boolean;
@@ -50,6 +52,7 @@ export const ScheduledAbsences: React.FC<Props> = props => {
             <AbsenceDetailRow
               absence={a}
               cancelAbsence={props.cancelAbsence}
+              hideAbsence={props.hideAbsence}
               orgId={props.orgId}
               actingAsEmployee={props.actingAsEmployee}
             />

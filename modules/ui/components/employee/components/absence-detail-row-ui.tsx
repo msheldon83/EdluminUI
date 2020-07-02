@@ -1,15 +1,9 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { EmployeeAbsenceDetail } from "../types";
-import {
-  Grid,
-  makeStyles,
-  Button,
-  Chip,
-  Tooltip,
-  Link as MuiLink,
-} from "@material-ui/core";
-import { isEqual, format, isAfter } from "date-fns";
+import { Grid, makeStyles, Chip, Link as MuiLink } from "@material-ui/core";
+import { TextButton } from "ui/components/text-button";
+import { isAfter } from "date-fns";
 import { DayIcon } from "ui/components/day-icon";
 import { Link } from "react-router-dom";
 import {
@@ -17,8 +11,7 @@ import {
   AdminEditAbsenceRoute,
 } from "ui/routes/edit-absence";
 import { Can } from "ui/components/auth/can";
-import { PermissionEnum, DayPart } from "graphql/server-types.gen";
-import { compact, uniq } from "lodash-es";
+import { PermissionEnum, ApprovalStatus } from "graphql/server-types.gen";
 import { getBasicDateRangeDisplayText } from "ui/components/date-helpers";
 import { useState } from "react";
 import clsx from "clsx";
@@ -27,6 +20,7 @@ import { getDateRangeDisplay, getDayPartCountLabels } from "../helpers";
 type Props = {
   absence: EmployeeAbsenceDetail;
   cancelAbsence: () => void;
+  hideAbsence?: (absenceId: string) => Promise<void>;
   showAbsenceChip?: boolean;
   actingAsEmployee?: boolean;
   orgId?: string;
@@ -104,7 +98,7 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
           <div className={classes.subText}>{t("No substitute required")}</div>
         )}
       </Grid>
-      <Grid item xs={3}>
+      <Grid item xs={2}>
         <div className={classes.dayPartContainer}>
           <DayIcon
             dayPortion={props.absence.allDayParts[0].dayPortion}
@@ -139,24 +133,64 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
                   organizationId: props.orgId!,
                 })
           }
-          className={classes.detailText}
+          className={classes.linkText}
         >
           {`#${props.absence.id}`}
         </Link>
       </Grid>
-      <Can do={[PermissionEnum.AbsVacDelete]}>
-        {props.cancelAbsence && canCancel && (
-          <Grid item xs={2} className={classes.cancelButtonContainer}>
-            <Button
-              variant="outlined"
-              onClick={props.cancelAbsence}
-              className={classes.cancelButton}
+      {props.absence.approvalStatus === ApprovalStatus.Denied ? (
+        <Grid item xs={3} className={classes.cancelButtonContainer}>
+          {props.actingAsEmployee && (
+            <TextButton
+              onClick={async () => {
+                if (props.hideAbsence) {
+                  await props.hideAbsence(props.absence.id);
+                }
+              }}
+              className={classes.hideLink}
             >
-              {t("Cancel")}
-            </Button>
-          </Grid>
-        )}
-      </Can>
+              {t("Hide")}
+            </TextButton>
+          )}
+          <Link
+            to={
+              props.actingAsEmployee
+                ? EmployeeEditAbsenceRoute.generate({
+                    absenceId: props.absence.id,
+                  })
+                : AdminEditAbsenceRoute.generate({
+                    absenceId: props.absence.id,
+                    organizationId: props.orgId!,
+                  })
+            }
+            className={classes.linkText}
+          >
+            {t("Resubmit")}
+          </Link>
+          <Chip label={t("Denied")} className={classes.deniedApprovalChip} />
+        </Grid>
+      ) : (
+        <Grid item xs={3} className={classes.cancelButtonContainer}>
+          <Can do={[PermissionEnum.AbsVacDelete]}>
+            {props.cancelAbsence && canCancel && (
+              <TextButton
+                onClick={props.cancelAbsence}
+                className={classes.linkText}
+              >
+                {t("Cancel")}
+              </TextButton>
+            )}
+          </Can>
+          {(props.absence.approvalStatus === ApprovalStatus.ApprovalRequired ||
+            props.absence.approvalStatus ===
+              ApprovalStatus.PartiallyApproved) && (
+            <Chip
+              label={t("Pending")}
+              className={classes.pendingApprovalChip}
+            />
+          )}
+        </Grid>
+      )}
     </>
   );
 };
@@ -192,5 +226,26 @@ const useStyles = makeStyles(theme => ({
   },
   action: {
     cursor: "pointer",
+  },
+  pendingApprovalChip: {
+    backgroundColor: theme.customColors.yellow4,
+    color: theme.palette.text.primary,
+    wdith: "48px",
+  },
+  deniedApprovalChip: {
+    backgroundColor: theme.customColors.darkRed,
+    color: theme.customColors.white,
+    marginLeft: theme.spacing(1),
+    paddingRight: theme.spacing(0.2),
+    paddingLeft: theme.spacing(0.2),
+  },
+  linkText: {
+    color: theme.customColors.black,
+    fontWeight: 600,
+    fontSize: theme.typography.pxToRem(14),
+  },
+  hideLink: {
+    color: "#FF5555",
+    fontSize: theme.typography.pxToRem(14),
   },
 }));
