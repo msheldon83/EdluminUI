@@ -129,7 +129,9 @@ export const ApprovalDetail: React.FC<Props> = props => {
   );
   const previousSteps = compact(
     props.decisions
-      .filter(x => !x.hasBeenReset)
+      .filter(
+        x => !x.hasBeenReset && x.approvalActionId !== ApprovalAction.Reset
+      )
       .map(x => {
         const previousStep = props.approvalWorkflowSteps.find(
           y => y.stepId === x.stepId

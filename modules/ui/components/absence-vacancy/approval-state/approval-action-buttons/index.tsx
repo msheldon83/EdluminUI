@@ -189,6 +189,7 @@ export const ApprovalActionButtons: React.FC<Props> = props => {
         previousSteps={props.previousSteps}
       />
       <div className={classes.container}>
+        <ActionMenu options={menuOptions} />
         {showApproveDenyButtons && (
           <div className={classes.buttonContainer}>
             <Button
@@ -207,7 +208,6 @@ export const ApprovalActionButtons: React.FC<Props> = props => {
             </Button>
           </div>
         )}
-        <ActionMenu options={menuOptions} />
       </div>
     </>
   );

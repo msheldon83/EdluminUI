@@ -13,6 +13,7 @@ import { GetAbsence } from "../graphql/get-absence-by-id.gen";
 import { ApprovalActionButtons } from "ui/components/absence-vacancy/approval-state/approval-action-buttons";
 import { SummaryDetails } from "ui/components/absence-vacancy/approval-state/summary-details";
 import { useIsMobile } from "hooks";
+import { ApprovalAction } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
@@ -64,7 +65,9 @@ export const SelectedDetail: React.FC<Props> = props => {
   );
   const previousSteps = compact(
     approvalState?.decisions
-      .filter(x => !x.hasBeenReset)
+      .filter(
+        x => !x.hasBeenReset && x.approvalActionId !== ApprovalAction.Reset
+      )
       .map(x => {
         const previousStep = approvalWorkflowSteps.find(
           y => y.stepId === x.stepId
@@ -254,6 +257,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     width: "100%",
     justifyContent: "flex-end",
+    paddingRight: theme.spacing(1),
   },
   container: {
     width: "100%",

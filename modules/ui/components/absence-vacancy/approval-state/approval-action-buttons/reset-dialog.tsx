@@ -56,6 +56,8 @@ export const ResetDialog: React.FC<Props> = props => {
     },
   });
 
+  console.log(previousSteps);
+
   const handleReset = async () => {
     const result = await reset({
       variables: {

@@ -40,15 +40,15 @@ export const ApprovalInbox: React.FC<{}> = () => {
   });
 
   const onApprove = async () => {
-    setSelected(null);
     await getPendingApprovalItems.refetch();
     await getPreviousDecisions.refetch();
+    setSelected(null);
   };
 
   const onDeny = async () => {
-    setSelected(null);
     await getPendingApprovalItems.refetch();
     await getPreviousDecisions.refetch();
+    setSelected(null);
   };
 
   const previousDecisions =
