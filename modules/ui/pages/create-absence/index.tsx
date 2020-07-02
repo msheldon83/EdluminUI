@@ -8,9 +8,10 @@ import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
 import { NotFound } from "ui/pages/not-found";
 import {
   AccountingCodeValue,
-  singleAllocation,
   noAllocation,
 } from "ui/components/form/accounting-code-dropdown";
+import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
+import { compact } from "lodash-es";
 
 type Props = {};
 
@@ -35,20 +36,26 @@ export const CreateAbsence: React.FC<Props> = props => {
     l => l?.id ?? ""
   );
 
-  const accountingCodeAllocations: AccountingCodeValue =
-    employeeInfo.data.employee?.byId?.primaryPosition
-      ?.accountingCodeAllocations &&
-    employeeInfo.data.employee.byId.primaryPosition.accountingCodeAllocations[0]
-      ?.accountingCodeId
-      ? singleAllocation({
-          label:
-            employeeInfo.data.employee.byId.primaryPosition
-              .accountingCodeAllocations[0]?.accountingCode?.name ?? "",
-          value:
-            employeeInfo.data.employee.byId.primaryPosition
-              .accountingCodeAllocations[0]?.accountingCodeId,
-        })
-      : noAllocation();
+  const accountingCodeAllocations: AccountingCodeValue = employeeInfo.data
+    .employee?.byId?.primaryPosition?.accountingCodeAllocations
+    ? mapAccountingCodeAllocationsToAccountingCodeValue(
+        compact(
+          employeeInfo.data.employee.byId.primaryPosition.accountingCodeAllocations?.map(
+            a => {
+              if (!a) {
+                return null;
+              }
+
+              return {
+                accountingCodeId: a.accountingCodeId,
+                accountingCodeName: a.accountingCode?.name,
+                allocation: a.allocation,
+              };
+            }
+          )
+        )
+      )
+    : noAllocation();
 
   return (
     <CreateAbsenceUI

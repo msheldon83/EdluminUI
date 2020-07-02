@@ -1,10 +1,9 @@
 import * as React from "react";
-import { VacancyReason, VacancyDetailInput } from "graphql/server-types.gen";
 import { useState, useMemo, useEffect } from "react";
 import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
-import { OptionsType, OptionTypeBase } from "react-select";
-import { Grid, Typography, makeStyles } from "@material-ui/core";
-import { format, parseISO, isValid } from "date-fns";
+import { OptionTypeBase } from "react-select";
+import { Grid, makeStyles } from "@material-ui/core";
+import { format } from "date-fns";
 import { TextButton } from "ui/components/text-button";
 import { TimeInput } from "ui/components/form/time-input";
 import { useTranslation } from "react-i18next";
@@ -16,17 +15,18 @@ import {
 import {
   VacancyDayPart,
   VacancyDetailItem,
-  AccountingCodeAllocation,
   VacancyDetailsFormData,
 } from "../helpers/types";
 import {
   AccountingCodeDropdown,
-  AccountingCodeValue,
 } from "ui/components/form/accounting-code-dropdown";
 import { useFormikContext, FormikErrors } from "formik";
 import { isArray } from "lodash-es";
-import { mapAccountingCodeAllocationsToAccountingCodeValue } from "ui/components/absence-vacancy/helpers";
-import { validateAccountingCodeAllocations } from "../helpers";
+import {
+  mapAccountingCodeAllocationsToAccountingCodeValue,
+  mapAccountingCodeValueToAccountingCodeAllocations,
+  validateAccountingCodeAllocations,
+} from "helpers/accounting-code-allocations";
 
 type Props = {
   vacancyDetail: VacancyDetailItem;
@@ -229,7 +229,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
       // error that the User has since fixed, but is still present until
       // the form is submitted again. This will basically run the same validation
       // and ultimately hide the error if the User has fixed the issue
-      const currentAllocations = getAccountingCodeAllocations(
+      const currentAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
         accountingCodeValueSelection
       );
       return validateAccountingCodeAllocations(currentAllocations, t);
@@ -426,7 +426,11 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
             disabled={disableAccountingCode}
             onChange={value => {
               setAccountingCodeValueSelection(value);
-              const allocations = getAccountingCodeAllocations(value);
+              const allocations = mapAccountingCodeValueToAccountingCodeAllocations(
+                value,
+                false,
+                 true
+              );
 
               const newVacDetail: VacancyDetailItem = {
                 ...vacancyDetail,
@@ -444,31 +448,3 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({}));
-
-const getAccountingCodeAllocations = (
-  value: AccountingCodeValue
-): AccountingCodeAllocation[] => {
-  const allocations: AccountingCodeAllocation[] = [];
-
-  switch (value.type) {
-    case "single-allocation":
-      allocations.push({
-        accountingCodeId: value.selection?.value?.toString() ?? "",
-        allocation: 1.0,
-        accountingCodeName: value.selection?.label ?? "",
-      });
-      break;
-    case "multiple-allocations":
-      allocations.push(
-        ...value.allocations.map(a => {
-          return {
-            accountingCodeId: a.selection?.value?.toString() ?? "",
-            allocation: a.percentage ? a.percentage / 100 : 0,
-            accountingCodeName: a.selection?.label ?? "",
-          };
-        })
-      );
-      break;
-  }
-  return allocations;
-};

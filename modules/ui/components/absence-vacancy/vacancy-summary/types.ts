@@ -1,3 +1,5 @@
+import { AccountingCodeAllocation } from "helpers/accounting-code-allocations";
+
 /* Something that VacancyDetail can be mapped into */
 export type VacancySummaryDetail = {
   vacancyId?: string;
@@ -75,10 +77,4 @@ type Employee = {
   id: string;
   firstName: string;
   lastName: string;
-};
-
-type AccountingCodeAllocation = {
-  accountingCodeId: string;
-  accountingCodeName: string;
-  allocation: number;
 };
