@@ -11,9 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useMemo, useCallback } from "react";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { Close } from "@material-ui/icons";
-import { useHistory } from "react-router";
 import { useIsImpersonating } from "reference-data/is-impersonating";
-import { useApolloClient } from "@apollo/react-hooks";
 
 type Props = {};
 
@@ -21,12 +19,10 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
   const classes = useStyles();
   const toolbarClasses = useToolbarClasses();
   const { t } = useTranslation();
-  const history = useHistory();
   const userAccess = useMyUserAccess();
-  const client = useApolloClient();
 
   // Remove keys from session storage and redirect to root of site
-  const cancelImpersonation = useCallback(async () => {
+  const cancelImpersonation = useCallback(() => {
     const impersonatingOrgId = sessionStorage.getItem(
       Config.impersonation.impersonatingOrgId
     );
@@ -38,15 +34,11 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
     sessionStorage.removeItem(Config.impersonation.impersonatingOrgId);
 
-    // To prevent issues with cached data from the current impersonated user
-    // prior to ending impersonation, let's clear out the Apollo cache
-    await client.clearStore();
-
-    history.push({
-      pathname: "/",
-      state: { impersonatingOrgId, impersonatingOrgUserId },
-    });
-  }, [client, history]);
+    // To prevent issues with cached data from the impersonated user
+    // we can use window.location.href to redirect, which is the
+    // same as a hard refresh, and empties the cache
+    window.location.href = `/?impersonatingOrgId=${impersonatingOrgId}&impersonatingOrgUserId=${impersonatingOrgUserId}`;
+  }, []);
 
   const userDisplayName = useMemo(() => {
     if (userAccess?.me?.user?.firstName && userAccess?.me?.user?.lastName) {
