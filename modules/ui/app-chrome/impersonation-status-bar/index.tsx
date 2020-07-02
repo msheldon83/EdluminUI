@@ -37,7 +37,10 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     // To prevent issues with cached data from the impersonated user
     // we can use window.location.href to redirect, which is the
     // same as a hard refresh, and empties the cache
-    window.location.href = `/?impersonatingOrgId=${impersonatingOrgId}&impersonatingOrgUserId=${impersonatingOrgUserId}`;
+    window.location.href =
+      impersonatingOrgId && impersonatingOrgUserId
+        ? `/?impersonatingOrgId=${impersonatingOrgId}&impersonatingOrgUserId=${impersonatingOrgUserId}`
+        : "/";
   }, []);
 
   const userDisplayName = useMemo(() => {
