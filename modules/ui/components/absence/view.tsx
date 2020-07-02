@@ -33,7 +33,7 @@ import { VacancyDetails } from "./vacancy-details";
 import { ShowErrors } from "../error-helpers";
 import { AssignmentOnDate } from "./types";
 import { EmployeeLink } from "ui/components/links/people";
-import { accountingCodeAllocationsAreTheSame } from "../absence-vacancy/helpers";
+import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 
 type Props = {
   orgId: string;

@@ -17,6 +17,7 @@ import {
   PositionInput,
   NeedsReplacement,
   DayOfWeek,
+  PositionAccountingCode,
 } from "graphql/server-types.gen";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
@@ -34,6 +35,16 @@ import {
 import { flatMap } from "lodash-es";
 import { secondsSinceMidnight } from "helpers/time";
 import { isBefore, parseISO } from "date-fns";
+import {
+  AccountingCodeDropdown,
+  noAllocation,
+  AccountingCodeValue,
+} from "ui/components/form/accounting-code-dropdown";
+import {
+  mapAccountingCodeAllocationsToAccountingCodeValue,
+  mapAccountingCodeValueToAccountingCodeAllocations,
+  validateAccountingCodeAllocations,
+} from "helpers/accounting-code-allocations";
 
 type Props = {
   position:
@@ -46,7 +57,10 @@ type Props = {
       }
     | null
     | undefined;
-  accountingCodeId?: string | null | undefined;
+  accountingCodeAllocations: Pick<
+    PositionAccountingCode,
+    "accountingCodeId" | "accountingCode" | "allocation"
+  >[];
   positionSchedule: Schedule[] | null | undefined;
   onSave: (position: PositionInput) => Promise<unknown>;
   onCancel: () => void;
@@ -139,7 +153,15 @@ export const PositionEditUI: React.FC<Props> = props => {
           title: position?.title ?? "",
           needsReplacement: position?.needsReplacement ?? NeedsReplacement.Yes,
           contractId: position?.contractId ?? "",
-          accountingCodeId: props.accountingCodeId ?? "",
+          accountingCodeValue: mapAccountingCodeAllocationsToAccountingCodeValue(
+            props.accountingCodeAllocations.map(a => {
+              return {
+                accountingCodeId: a.accountingCodeId,
+                accountingCodeName: a.accountingCode?.name,
+                allocation: a.allocation,
+              };
+            })
+          ),
           hoursPerFullWorkDay: position?.hoursPerFullWorkDay ?? "",
           schedules: props.positionSchedule ?? [buildNewSchedule(true, true)],
         }}
@@ -171,110 +193,135 @@ export const PositionEditUI: React.FC<Props> = props => {
                 ? undefined
                 : data.hoursPerFullWorkDay,
             schedules,
-            accountingCodeAllocations: data.accountingCodeId
-              ? [{ accountingCodeId: data.accountingCodeId, allocation: 1 }]
-              : [],
+            accountingCodeAllocations: mapAccountingCodeValueToAccountingCodeAllocations(
+              data.accountingCodeValue
+            ),
           });
         }}
-        validationSchema={yup.object({
-          positionTypeId: yup
-            .string()
-            .nullable()
-            .required(t("A position type must be selected")),
-          title: yup
-            .string()
-            .nullable()
-            .required(t("A position title is required")),
-          needsReplacement: yup
-            .string()
-            .nullable()
-            .required(t("Needs replacement is required")),
-          contractId: yup
-            .string()
-            .nullable()
-            .required(t("A contract must be selected")),
-          hoursPerFullWorkDay: yup.number().nullable(),
-          schedules: yup.array().of(
-            yup
-              .object()
+        validationSchema={yup
+          .object({
+            positionTypeId: yup
+              .string()
               .nullable()
-              .shape({
-                periods: yup.array().of(
-                  yup
-                    .object()
-                    .shape({
-                      locationId: yup
-                        .string()
-                        .nullable()
-                        .required(t("Location is required")),
-                      bellScheduleId: yup
-                        .string()
-                        .nullable()
-                        .required(t("Bell schedule is required")),
-                      startTime: yup
-                        .string()
-                        .nullable()
-                        .when("bellScheduleId", {
-                          is: val => val === "custom",
-                          then: yup
-                            .string()
-                            .nullable()
-                            .required(t("Required")),
-                        }),
-                      endTime: yup
-                        .string()
-                        .nullable()
-                        .when("bellScheduleId", {
-                          is: val => val === "custom",
-                          then: yup
-                            .string()
-                            .nullable()
-                            .required(t("Required")),
-                        }),
-                      startPeriodId: yup
-                        .string()
-                        .nullable()
-                        .when("bellScheduleId", {
-                          is: val => val !== "custom",
-                          then: yup
-                            .string()
-                            .nullable()
-                            .required(t("Required")),
-                        }),
-                      endPeriodId: yup
-                        .string()
-                        .nullable()
-                        .when("bellScheduleId", {
-                          is: val => val !== "custom",
-                          then: yup
-                            .string()
-                            .nullable()
-                            .required(t("Required")),
-                        }),
-                    })
-                    .test({
-                      name: "endBeforeStartCheck",
-                      test: function test(value) {
-                        if (
-                          isBefore(
-                            parseISO(value.endTime),
-                            parseISO(value.startTime)
-                          )
-                        ) {
-                          return new yup.ValidationError(
-                            t("End Time before Start Time"),
-                            null,
-                            `${this.path}.endTime`
-                          );
-                        }
+              .required(t("A position type must be selected")),
+            title: yup
+              .string()
+              .nullable()
+              .required(t("A position title is required")),
+            needsReplacement: yup
+              .string()
+              .nullable()
+              .required(t("Needs replacement is required")),
+            contractId: yup
+              .string()
+              .nullable()
+              .required(t("A contract must be selected")),
+            hoursPerFullWorkDay: yup.number().nullable(),
+            schedules: yup.array().of(
+              yup
+                .object()
+                .nullable()
+                .shape({
+                  periods: yup.array().of(
+                    yup
+                      .object()
+                      .shape({
+                        locationId: yup
+                          .string()
+                          .nullable()
+                          .required(t("Location is required")),
+                        bellScheduleId: yup
+                          .string()
+                          .nullable()
+                          .required(t("Bell schedule is required")),
+                        startTime: yup
+                          .string()
+                          .nullable()
+                          .when("bellScheduleId", {
+                            is: val => val === "custom",
+                            then: yup
+                              .string()
+                              .nullable()
+                              .required(t("Required")),
+                          }),
+                        endTime: yup
+                          .string()
+                          .nullable()
+                          .when("bellScheduleId", {
+                            is: val => val === "custom",
+                            then: yup
+                              .string()
+                              .nullable()
+                              .required(t("Required")),
+                          }),
+                        startPeriodId: yup
+                          .string()
+                          .nullable()
+                          .when("bellScheduleId", {
+                            is: val => val !== "custom",
+                            then: yup
+                              .string()
+                              .nullable()
+                              .required(t("Required")),
+                          }),
+                        endPeriodId: yup
+                          .string()
+                          .nullable()
+                          .when("bellScheduleId", {
+                            is: val => val !== "custom",
+                            then: yup
+                              .string()
+                              .nullable()
+                              .required(t("Required")),
+                          }),
+                      })
+                      .test({
+                        name: "endBeforeStartCheck",
+                        test: function test(value) {
+                          if (
+                            isBefore(
+                              parseISO(value.endTime),
+                              parseISO(value.startTime)
+                            )
+                          ) {
+                            return new yup.ValidationError(
+                              t("End Time before Start Time"),
+                              null,
+                              `${this.path}.endTime`
+                            );
+                          }
 
-                        return true;
-                      },
-                    })
-                ),
-              })
-          ),
-        })}
+                          return true;
+                        },
+                      })
+                  ),
+                })
+            ),
+          })
+          .test({
+            name: "accountingCodeAllocationsCheck",
+            test: function test(value: {
+              accountingCodeValue: AccountingCodeValue;
+            }) {
+              const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
+                value.accountingCodeValue
+              );
+              const errorMessage = validateAccountingCodeAllocations(
+                accountingCodeAllocations,
+                t
+              );
+
+              if (errorMessage) {
+                return new yup.ValidationError(
+                  errorMessage,
+                  null,
+                  "accountingCodeValue"
+                );
+              }
+
+              return true;
+            },
+          })}
       >
         {({
           values,
@@ -287,13 +334,18 @@ export const PositionEditUI: React.FC<Props> = props => {
           const validAccountingCodes = getValidAccountingCodes(
             getScheduledLocationIds(values.schedules)
           );
+          const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
+            values.accountingCodeValue
+          );
           if (
-            values.accountingCodeId !== "" &&
-            !validAccountingCodes.some(
-              code => code.value === values.accountingCodeId
-            )
+            validAccountingCodes.length > 0 &&
+            accountingCodeAllocations.filter(
+              a =>
+                a.accountingCodeId &&
+                !validAccountingCodes.find(v => v.value === a.accountingCodeId)
+            ).length > 0
           ) {
-            setFieldValue("accountingCodeId", "");
+            setFieldValue("accountingCodeValue", noAllocation(), false);
           }
           return (
             <form onSubmit={handleSubmit}>
@@ -319,16 +371,25 @@ export const PositionEditUI: React.FC<Props> = props => {
                           if (pt?.needsReplacement) {
                             setFieldValue(
                               "needsReplacement",
-                              pt.needsReplacement
+                              pt.needsReplacement,
+                              !!errors?.needsReplacement
                             );
                           }
                           if (pt?.defaultContractId) {
-                            setFieldValue("contractId", pt.defaultContractId);
+                            setFieldValue(
+                              "contractId",
+                              pt.defaultContractId,
+                              !!errors?.contractId
+                            );
                           }
                           if (props.setPositionTypeName) {
                             props.setPositionTypeName(value.label);
                           }
-                          setFieldValue("positionTypeId", id);
+                          setFieldValue(
+                            "positionTypeId",
+                            id,
+                            !!errors?.positionTypeId
+                          );
                         }}
                         options={positionTypeOptions}
                         inputStatus={
@@ -361,31 +422,34 @@ export const PositionEditUI: React.FC<Props> = props => {
                         multiple={false}
                         onChange={(value: OptionType) => {
                           const id = (value as OptionTypeBase).value;
-                          setFieldValue("needsReplacement", id);
+                          setFieldValue(
+                            "needsReplacement",
+                            id,
+                            !!errors?.needsReplacement
+                          );
                         }}
                         options={needsReplacementOptions}
                         withResetValue={false}
                       />
                     </Grid>
                     <Grid item xs={4}>
-                      <Typography>{t("Accounting Code")}</Typography>
-                      <SelectNew
-                        key={`accountingcode-input`}
-                        value={{
-                          value: values.accountingCodeId,
-                          label:
-                            validAccountingCodes.find(
-                              e =>
-                                e.value && e.value === values.accountingCodeId
-                            )?.label || "",
-                        }}
-                        multiple={false}
-                        onChange={(value: OptionType) => {
-                          const id = (value as OptionTypeBase).value;
-                          setFieldValue("accountingCodeId", id);
-                        }}
+                      <AccountingCodeDropdown
+                        value={values.accountingCodeValue}
                         options={validAccountingCodes}
-                        withResetValue={true}
+                        onChange={value => {
+                          // We only want to validate this field when the form is submitted,
+                          // but if we currently have a validation error, then we need to validate
+                          // the field until the User fixes the issue and the error is removed
+                          setFieldValue(
+                            "accountingCodeValue",
+                            value,
+                            !!errors?.accountingCodeValue
+                          );
+                        }}
+                        inputStatus={
+                          errors?.accountingCodeValue ? "error" : undefined
+                        }
+                        validationMessage={errors?.accountingCodeValue?.toString()}
                       />
                     </Grid>
                   </Grid>
@@ -404,7 +468,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                         multiple={false}
                         onChange={(value: OptionType) => {
                           const id = (value as OptionTypeBase).value;
-                          setFieldValue("contractId", id);
+                          setFieldValue("contractId", id, !!errors?.contractId);
                         }}
                         options={contractOptions}
                         inputStatus={errors.contractId ? "error" : undefined}

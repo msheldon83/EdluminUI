@@ -32,10 +32,7 @@ import { VacancyConfirmation } from "./vacancy-confirmation";
 import { compact, isEqual, sum } from "lodash-es";
 import { ExecutionResult } from "graphql";
 import { Prompt, useRouteMatch } from "react-router";
-import {
-  buildVacancyCreateInput,
-  validateAccountingCodeAllocations,
-} from "../helpers";
+import { buildVacancyCreateInput } from "../helpers";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -55,6 +52,7 @@ import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import * as yup from "yup";
+import { validateAccountingCodeAllocations } from "helpers/accounting-code-allocations";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;

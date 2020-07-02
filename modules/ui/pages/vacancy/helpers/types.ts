@@ -1,3 +1,5 @@
+import { AccountingCodeAllocation } from "helpers/accounting-code-allocations";
+
 export type VacancyDayPart = {
   id: "full" | "halfDayAM" | "halfDayPM" | "custom";
   label: string;
@@ -44,12 +46,6 @@ export type VacancyDetailItem = {
       lastName: string;
     };
   };
-};
-
-export type AccountingCodeAllocation = {
-  accountingCodeId: string;
-  accountingCodeName: string;
-  allocation: number;
 };
 
 export type VacancyFormValues = {

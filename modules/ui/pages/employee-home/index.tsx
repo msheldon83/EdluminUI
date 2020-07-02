@@ -35,6 +35,7 @@ import { QuickAbsenceCreate } from "./components/quick-absence-create";
 import { ScheduleCalendar } from "./components/schedule-calendar";
 import { Can } from "ui/components/auth/can";
 import { ShowErrors } from "ui/components/error-helpers";
+import { HideAbsence } from "ui/components/employee/graphql/hide-absence.gen";
 
 type Props = {};
 
@@ -63,6 +64,7 @@ export const EmployeeHome: React.FC<Props> = props => {
       id: employee?.id ?? "0",
       fromDate: startDate,
       toDate: endDate,
+      showDenied: true,
     },
     skip: !employee || !endDate,
     fetchPolicy: "cache-and-network",
@@ -87,6 +89,17 @@ export const EmployeeHome: React.FC<Props> = props => {
     ],
   });
 
+  const [hideAbsence] = useMutationBundle(HideAbsence, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+    refetchQueries: [
+      "GetEmployeeContractSchedule",
+      "GetEmployeeContractScheduleDates",
+      "GetEmployeeAbsenceSchedule",
+    ],
+  });
+
   const cancelAbsence = useCallback(
     async (absenceId: string) => {
       await deleteAbsence({
@@ -96,6 +109,17 @@ export const EmployeeHome: React.FC<Props> = props => {
       });
     },
     [deleteAbsence]
+  );
+
+  const onHideAbsence = useCallback(
+    async (absenceId: string) => {
+      await hideAbsence({
+        variables: {
+          absenceId: absenceId,
+        },
+      });
+    },
+    [hideAbsence]
   );
 
   const disabledDates = useMemo(
@@ -147,6 +171,7 @@ export const EmployeeHome: React.FC<Props> = props => {
               header={t("Scheduled absences")}
               absences={employeeAbsenceDetails}
               cancelAbsence={cancelAbsence}
+              hideAbsence={onHideAbsence}
               isLoading={
                 getAbsenceSchedule.state === "LOADING" ||
                 getAbsenceSchedule.state === "UPDATING"

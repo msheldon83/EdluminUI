@@ -24,9 +24,9 @@ import { VacancyDetail, AssignmentOnDate } from "./types";
 import { projectVacancyDetailsFromVacancies } from "ui/pages/create-absence/project-vacancy-details";
 import { AccountingCodeValue } from "../form/accounting-code-dropdown";
 import {
-  mapAccountingCodeValueToVacancyDetailAccountingCodeInput,
   accountingCodeAllocationsAreTheSame,
-} from "../absence-vacancy/helpers";
+  mapAccountingCodeValueToAccountingCodeAllocations,
+} from "helpers/accounting-code-allocations";
 
 export const dayPartToLabel = (dayPart: DayPart): string => {
   switch (dayPart) {
@@ -575,14 +575,12 @@ export const vacancyDetailsHaveDifferentAccountingCodeSelections = (
     return false;
   }
 
-  const allocations = mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-    accountingCodeAllocations,
-    false
+  const allocations = mapAccountingCodeValueToAccountingCodeAllocations(
+    accountingCodeAllocations
   );
   const details = vacancyDetails.map(vd =>
-    mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
-      vd.accountingCodeAllocations,
-      false
+    mapAccountingCodeValueToAccountingCodeAllocations(
+      vd.accountingCodeAllocations
     )
   );
   return !accountingCodeAllocationsAreTheSame(allocations, details);

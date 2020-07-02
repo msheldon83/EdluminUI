@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { PositionEditUI } from "./ui";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -124,10 +123,10 @@ export const EmployeePosition: React.FC<Props> = props => {
       />
       <PositionEditUI
         position={position}
-        accountingCodeId={
+        accountingCodeAllocations={
           position?.accountingCodeAllocations
-            ? position.accountingCodeAllocations[0]?.accountingCodeId
-            : undefined
+            ? compact(position.accountingCodeAllocations)
+            : []
         }
         positionSchedule={
           positionSchedule.length > 0 ? positionSchedule : undefined

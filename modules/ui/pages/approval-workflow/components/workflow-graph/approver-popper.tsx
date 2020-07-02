@@ -102,87 +102,91 @@ export const AddUpdateApprover: React.FC<Props> = props => {
   };
 
   return (
-    <Section>
-      <div className={classes.labelText}>
-        {firstStep
-          ? t("Begin workflow")
-          : myStep
-          ? t("Update approver group")
-          : t("Add approver")}
-      </div>
-      {!firstStep && (
-        <div className={classes.selectContainer}>
-          <ApproverGroupSelect
-            orgId={props.orgId}
-            multiple={false}
-            selectedApproverGroupHeaderIds={approverGroupIds}
-            setSelectedApproverGroupHeaderIds={onSetGroup}
-            idsToFilterOut={approverGroupIdsToFilterOut}
-          />
+    <div className={classes.popper}>
+      <Section>
+        <div className={classes.labelText}>
+          {firstStep
+            ? t("Begin workflow")
+            : myStep
+            ? t("Update approver group")
+            : t("Add approver")}
         </div>
-      )}
-      <div className={classes.labelText}>{t("When approved")}</div>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={transitionArgs?.makeAvailableToFill ?? false}
-            onChange={e =>
-              setTransitionArgs({
-                makeAvailableToFill: !transitionArgs?.makeAvailableToFill,
-              })
-            }
-            value={transitionArgs?.makeAvailableToFill ?? false}
-            color="primary"
-          />
-        }
-        label={t("Release to be filled")}
-      />
-      <div className={classes.labelText}>{t("Route to:")}</div>
-      {myTransitions ? (
-        myTransitions.map((t, i) => (
-          <div key={i} className={classes.gotoNameContainer}>
+        {!firstStep && (
+          <div className={classes.selectContainer}>
+            <ApproverGroupSelect
+              orgId={props.orgId}
+              multiple={false}
+              selectedApproverGroupHeaderIds={approverGroupIds}
+              setSelectedApproverGroupHeaderIds={onSetGroup}
+              idsToFilterOut={approverGroupIdsToFilterOut}
+            />
+          </div>
+        )}
+        {!firstStep && (
+          <div className={classes.labelText}>{t("When approved")}</div>
+        )}
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={transitionArgs?.makeAvailableToFill ?? false}
+              onChange={e =>
+                setTransitionArgs({
+                  makeAvailableToFill: !transitionArgs?.makeAvailableToFill,
+                })
+              }
+              value={transitionArgs?.makeAvailableToFill ?? false}
+              color="primary"
+            />
+          }
+          label={t("Release to be filled")}
+        />
+        <div className={classes.labelText}>{t("Route to:")}</div>
+        {myTransitions ? (
+          myTransitions.map((t, i) => (
+            <div key={i} className={classes.gotoNameContainer}>
+              <div className={classes.gotoName}>
+                {findApproverGroupName(t.goto)}
+              </div>
+              <div className={classes.gotoCondition}>
+                {renderCondition(t.criteria)}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className={classes.gotoNameContainer}>
             <div className={classes.gotoName}>
-              {findApproverGroupName(t.goto)}
+              {findApproverGroupName(props.defaultGotoStepId)}
             </div>
-            <div className={classes.gotoCondition}>
-              {renderCondition(t.criteria)}
-            </div>
+            <div className={classes.gotoCondition}>{renderCondition()}</div>
           </div>
-        ))
-      ) : (
-        <div className={classes.gotoNameContainer}>
-          <div className={classes.gotoName}>
-            {findApproverGroupName(props.defaultGotoStepId)}
-          </div>
-          <div className={classes.gotoCondition}>{renderCondition()}</div>
-        </div>
-      )}
-      <div className={classes.buttonContainer}>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          className={classes.button}
-        >
-          {myStep || firstStep ? t("Update") : t("Add")}
-        </Button>
-        {props.onRemove && !firstStep && (
+        )}
+        <div className={classes.buttonContainer}>
           <Button
-            variant="outlined"
-            onClick={props.onRemove}
+            variant="contained"
+            onClick={handleSave}
             className={classes.button}
           >
-            {t("Remove")}
+            {myStep || firstStep ? t("Update") : t("Add")}
           </Button>
-        )}
-        <Button
-          variant="text"
-          onClick={() => props.onClose()}
-          className={classes.button}
-        >
-          {t("Close")}
-        </Button>
-      </div>
-    </Section>
+          {props.onRemove && !firstStep && (
+            <Button
+              variant="outlined"
+              onClick={props.onRemove}
+              className={classes.button}
+            >
+              {t("Remove")}
+            </Button>
+          )}
+          <Button
+            variant="text"
+            onClick={() => props.onClose()}
+            className={classes.button}
+          >
+            {t("Close")}
+          </Button>
+        </div>
+      </Section>
+    </div>
   );
 };
 
@@ -209,6 +213,10 @@ const useStyles = makeStyles(theme => ({
     flex: 2,
   },
   gotoCondition: {
-    flex: 3,
+    flex: 2,
+    paddingLeft: theme.spacing(2),
+  },
+  popper: {
+    width: "300px",
   },
 }));

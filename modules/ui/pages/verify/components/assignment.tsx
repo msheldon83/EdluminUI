@@ -7,10 +7,8 @@ import {
   AbsenceReasonTrackingTypeId,
   DayConversion,
   PermissionEnum,
-  VacancyDetailAccountingCode,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
-import { useQueryBundle } from "graphql/hooks";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { parseISO, format } from "date-fns";
 import clsx from "clsx";
@@ -24,11 +22,13 @@ import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
 import { getPayLabel } from "ui/components/helpers";
 import { Can } from "ui/components/auth/can";
 import {
-  mapAccountingCodeAllocationsToAccountingCodeValue,
   accountingCodeAllocationsAreTheSame,
-} from "ui/components/absence-vacancy/helpers";
+  mapAccountingCodeAllocationsToAccountingCodeValue,
+  AccountingCodeAllocation,
+  mapAccountingCodeValueToAccountingCodeAllocations,
+  validateAccountingCodeAllocations,
+} from "helpers/accounting-code-allocations";
 import { AccountingCodeDropdown } from "ui/components/form/accounting-code-dropdown";
-import { sum } from "lodash-es";
 
 type Props = {
   vacancyDetail: Pick<
@@ -64,11 +64,6 @@ type Props = {
     "name" | "maxMinutes" | "dayEquivalent"
   >[];
   goToEdit: (vacancyId: string, absenceId?: string | null) => void;
-};
-
-type AccountingCodeAllocation = {
-  accountingCodeId: string;
-  allocation: number;
 };
 
 export const Assignment: React.FC<Props> = props => {
@@ -300,7 +295,7 @@ export const Assignment: React.FC<Props> = props => {
     }
 
     // Run the same validation we would on form submit
-    const errorMessage = validateAccountingCodeAllocations(allocations);
+    const errorMessage = validateAccountingCodeAllocations(allocations, t);
     if (errorMessage) {
       // Selections are invalid, don't save
       return;
@@ -397,29 +392,6 @@ export const Assignment: React.FC<Props> = props => {
     t,
   ]);
 
-  const validateAccountingCodeAllocations = (
-    accountingCodeAllocations: AccountingCodeAllocation[]
-  ): string | undefined => {
-    if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
-      return undefined;
-    }
-
-    if (
-      accountingCodeAllocations.filter(
-        a => !a.accountingCodeId || !a.allocation
-      ).length > 0
-    ) {
-      return t("Accounting code selections not complete");
-    }
-
-    if (sum(accountingCodeAllocations.map(a => a.allocation)) !== 1) {
-      // Allocations need to add up to 100%
-      return t("Accounting code allocations do not total 100%");
-    }
-
-    return undefined;
-  };
-
   return (
     <div
       onClick={() => props.onSelectDetail(vacancyDetail.id)}
@@ -490,7 +462,7 @@ export const Assignment: React.FC<Props> = props => {
             }) {
               const accountingCodeAllocations = value.accountingCodeAllocations;
               const errorMessage = validateAccountingCodeAllocations(
-                accountingCodeAllocations
+                accountingCodeAllocations, t
               );
 
               if (errorMessage) {
@@ -755,30 +727,9 @@ export const Assignment: React.FC<Props> = props => {
                             showLabel={false}
                             onChange={async value => {
                               setAccountingCodeValueSelection(value);
-                              const allocations: AccountingCodeAllocation[] = [];
-
-                              switch (value.type) {
-                                case "single-allocation":
-                                  allocations.push({
-                                    accountingCodeId:
-                                      value.selection?.value?.toString() ?? "",
-                                    allocation: 1.0,
-                                  });
-                                  break;
-                                case "multiple-allocations":
-                                  allocations.push(
-                                    ...value.allocations.map(a => {
-                                      return {
-                                        accountingCodeId:
-                                          a.selection?.value?.toString() ?? "",
-                                        allocation: a.percentage
-                                          ? a.percentage / 100
-                                          : 0,
-                                      };
-                                    })
-                                  );
-                                  break;
-                              }
+                              const allocations = mapAccountingCodeValueToAccountingCodeAllocations(
+                                value
+                              );
 
                               // We only want to validate this field when the form is submitted,
                               // but if we currently have a validation error, then we need to validate
