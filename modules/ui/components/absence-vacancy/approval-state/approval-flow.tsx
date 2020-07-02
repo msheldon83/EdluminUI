@@ -92,9 +92,6 @@ export const WorkflowSummary: React.FC<Props> = props => {
     [orderedSteps, deniedStepIds]
   );
 
-  console.log(nextSteps);
-  console.log(orderedSteps);
-
   const renderApprovedSteps = () => {
     return (
       <div>

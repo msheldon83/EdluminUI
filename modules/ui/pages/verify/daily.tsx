@@ -129,7 +129,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
         },
       },
     });
-    console.log(result);
   };
   const assignmentToVacancy = (
     assignment: AssignmentDetail

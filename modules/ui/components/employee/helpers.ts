@@ -5,6 +5,7 @@ import {
   CalendarDayType,
   VacancyDetail,
   DayPart,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import {
   parseISO,
@@ -46,6 +47,7 @@ export const GetEmployeeAbsenceDetails = (
         | "startTimeLocal"
         | "endTimeLocal"
         | "vacancies"
+        | "approvalStatus"
       >
     ) => {
       const allVacancyDetails = compact(
@@ -90,6 +92,7 @@ export const GetEmployeeAbsenceDetails = (
           a.details && a.details.length > 0
             ? a.details.map(d => parseISO(d!.startDate))
             : [],
+        approvalStatus: a.approvalStatus ?? ApprovalStatus.Unknown,
       };
     }
   );
@@ -207,7 +210,17 @@ export const GroupEmployeeScheduleByMonth = (
   allDates.push(
     ...flatMap(absences, a => {
       return a.allDays.map(d => {
-        return { date: d, type: "absence", rawData: a } as ScheduleDate;
+        return {
+          date: d,
+          type:
+            a.approvalStatus === ApprovalStatus.Denied
+              ? "deniedAbsence"
+              : a.approvalStatus === ApprovalStatus.ApprovalRequired ||
+                a.approvalStatus === ApprovalStatus.PartiallyApproved
+              ? "pendingAbsence"
+              : "absence",
+          rawData: a,
+        } as ScheduleDate;
       });
     })
   );

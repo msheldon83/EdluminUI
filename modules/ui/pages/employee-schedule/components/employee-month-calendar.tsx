@@ -40,6 +40,10 @@ export const EmployeeMonthCalendar: React.FC<Props> = props => {
             return classes.cancelledDay;
           case "teacherWorkDay":
             return classes.inserviceDay;
+          case "pendingAbsence":
+            return classes.pendingAbsence;
+          case "deniedAbsence":
+            return classes.deniedAbsence;
           case "instructionalDay":
           default:
             return classes.instructionalDay;
@@ -110,7 +114,7 @@ const useStyles = makeStyles(theme => ({
   },
   instructionalDay: {},
   absenceDay: {
-    backgroundColor: theme.customColors.blue,
+    backgroundColor: "#373361",
     color: theme.customColors.white,
   },
   nonWorkDay: {
@@ -124,5 +128,13 @@ const useStyles = makeStyles(theme => ({
   //DELAY / DISMISSAL???
   inserviceDay: {
     backgroundColor: "#FFF5E5",
+  },
+  pendingAbsence: {
+    backgroundColor: theme.customColors.yellow4,
+    color: theme.customColors.black,
+  },
+  deniedAbsence: {
+    backgroundColor: theme.customColors.darkRed,
+    color: theme.customColors.white,
   },
 }));
