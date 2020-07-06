@@ -20,7 +20,6 @@
 const path = require("path");
 const loaders = require("../webpack/loaders");
 var ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-var HardSourceWebpackPlugin = require("hard-source-webpack-plugin");
 const os = require("os");
 const webpack = require("webpack");
 
@@ -57,17 +56,6 @@ module.exports = ({ config, mode }) => {
   config.resolve.modules.unshift(path.resolve(__dirname, "../modules"));
 
   config.plugins.push(
-    // new HardSourceWebpackPlugin(),
-    //   new HappyPack({
-    //     id: "ts",
-    //     threads: Math.max(1, os.cpus().length / 2 - 1),
-    //     loaders: [
-    //       {
-    //         path: "ts-loader",
-    //         query: { happyPackMode: true, configFile: "tsconfig.client.json" }
-    //       }
-    //     ]
-    //   }),
     new webpack.DefinePlugin({
       __TEST__: "false",
       __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),

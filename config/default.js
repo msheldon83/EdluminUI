@@ -17,12 +17,14 @@ function definedOr(x, fallback) {
 }
 
 module.exports = {
-  environment: process.env.NODE_ENV,
+  environment: process.env.NODE_ENV || "development",
   minify: process.env.MINIFY === "true",
 
   production: process.env.NODE_ENV === "production",
   development: process.env.NODE_ENV === "development",
   test: process.env.NODE_ENV === "test",
+
+  trackingId: process.env.TRACKING_ID || "",
 
   auth0_domain: process.env.AUTH0_DOMAIN || "hcmdev.auth0.com",
   auth0_client:
