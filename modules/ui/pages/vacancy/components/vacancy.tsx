@@ -10,7 +10,7 @@ import {
   Assignment,
   CancelVacancyAssignmentInput,
   ApprovalStatus,
-  ApprovalAction,
+  Maybe,
 } from "graphql/server-types.gen";
 import { GetAllPositionTypesWithinOrg } from "ui/pages/position-type/graphql/position-types.gen";
 import { GetAllLocationsWithSchedulesWithinOrg } from "../graphql/get-locations-with-schedules.gen";
@@ -64,15 +64,18 @@ type Props = {
   ) => Promise<ExecutionResult<UpdateVacancyMutation>>;
   onDelete?: () => void;
   approvalState?: {
-    approvalStatusId: ApprovalStatus;
-    canApprove: boolean;
-    approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
-    currentStepId: string;
     id: string;
-    comments: { id: string }[];
-    decisions?: {
-      stepId: string;
-      approvalActionId: ApprovalAction;
+    canApprove: boolean;
+    approvalWorkflowId: string;
+    approvalWorkflow: {
+      steps: ApprovalWorkflowSteps[];
+    };
+    approvalStatusId: ApprovalStatus;
+    deniedApproverGroupHeaderName?: string | null;
+    approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
+    pendingApproverGroupHeaderName?: string | null;
+    comments: {
+      commentIsPublic: boolean;
     }[];
   } | null;
   refetchVacancy?: () => Promise<unknown>;
@@ -592,17 +595,10 @@ export const VacancyUI: React.FC<Props> = props => {
         <Can do={[PermissionEnum.AbsVacApprovalsView]}>
           <ApprovalState
             orgId={params.organizationId}
-            approvalStateId={approvalState?.id}
-            approvalWorkflowId={approvalState?.approvalWorkflow.id ?? ""}
-            approvalStatusId={approvalState?.approvalStatusId}
-            approvalWorkflowSteps={approvalState?.approvalWorkflow?.steps ?? []}
-            currentStepId={approvalState?.currentStepId}
-            countOfComments={approvalState.comments.length}
+            approvalState={approvalState}
             isTrueVacancy={true}
             vacancyId={vacancy.id}
             onChange={props.refetchVacancy}
-            decisions={approvalState?.decisions}
-            canApprove={approvalState?.canApprove ?? false}
           />
         </Can>
       )}

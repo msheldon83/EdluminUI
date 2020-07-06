@@ -838,6 +838,11 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   approvalWorkflowTypeId: ApprovalWorkflowType!
   comments: [ApprovalComment!]!
   decisions: [ApprovalDecision!]!
+  pendingApproverGroupHeaderName: String
+  deniedApproverGroupHeaderName: String
+  approvedApproverGroupHeaderNames: [String]
+  approvedSteps: [ApprovalWorkflowStep]
+  nextSteps: [ApprovalWorkflowStep]
   canApprove: Boolean!
 }
 

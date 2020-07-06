@@ -13,7 +13,7 @@ import {
   Vacancy,
   AbsenceDetail,
   ApprovalStatus,
-  ApprovalAction,
+  Maybe,
 } from "graphql/server-types.gen";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { convertStringToDate } from "helpers/date";
@@ -69,7 +69,6 @@ import { useHistory } from "react-router";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
-import Maybe from "graphql/tsutils/Maybe";
 import { EmployeeLink } from "ui/components/links/people";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
@@ -129,13 +128,16 @@ type Props = {
   approvalState?: {
     id: string;
     canApprove: boolean;
+    approvalWorkflowId: string;
+    approvalWorkflow: {
+      steps: ApprovalWorkflowSteps[];
+    };
     approvalStatusId: ApprovalStatus;
-    approvalWorkflow: { id: string; steps: ApprovalWorkflowSteps[] };
-    currentStepId?: string | null;
-    comments: { id: string }[];
-    decisions?: {
-      stepId: string;
-      approvalActionId: ApprovalAction;
+    deniedApproverGroupHeaderName?: string | null;
+    approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
+    pendingApproverGroupHeaderName?: string | null;
+    comments: {
+      commentIsPublic: boolean;
     }[];
   } | null;
 };
@@ -708,22 +710,11 @@ export const EditAbsenceUI: React.FC<Props> = props => {
             <Can do={[PermissionEnum.AbsVacApprovalsView]}>
               <ApprovalState
                 orgId={props.organizationId}
-                approvalStateId={props.approvalState?.id}
-                approvalStatusId={props.approvalState?.approvalStatusId}
-                approvalWorkflowId={
-                  props.approvalState?.approvalWorkflow.id ?? ""
-                }
-                approvalWorkflowSteps={
-                  props.approvalState?.approvalWorkflow?.steps ?? []
-                }
-                currentStepId={props.approvalState?.currentStepId}
-                countOfComments={props.approvalState?.comments.length}
+                approvalState={props.approvalState}
                 actingAsEmployee={props.actingAsEmployee}
                 isTrueVacancy={false}
                 absenceId={props.absenceId}
                 onChange={props.refetchAbsence}
-                canApprove={props.approvalState?.canApprove ?? false}
-                decisions={props.approvalState?.decisions}
               />
             </Can>
           )}

@@ -13,7 +13,6 @@ import { GetAbsence } from "../graphql/get-absence-by-id.gen";
 import { ApprovalActionButtons } from "ui/components/absence-vacancy/approval-state/approval-action-buttons";
 import { SummaryDetails } from "ui/components/absence-vacancy/approval-state/summary-details";
 import { useIsMobile } from "hooks";
-import { ApprovalAction } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
@@ -57,30 +56,8 @@ export const SelectedDetail: React.FC<Props> = props => {
     : null;
 
   const approvalWorkflowSteps = approvalState?.approvalWorkflow.steps ?? [];
-  const currentStep = approvalWorkflowSteps.find(
-    x => x.stepId == approvalState?.currentStepId
-  );
-  const nextStep = approvalWorkflowSteps.find(
-    x => x.stepId === currentStep?.onApproval[0].goto && !x.isLastStep
-  );
-  const previousSteps = compact(
-    approvalState?.decisions
-      .filter(
-        x => !x.hasBeenReset && x.approvalActionId !== ApprovalAction.Reset
-      )
-      .map(x => {
-        const previousStep = approvalWorkflowSteps.find(
-          y => y.stepId === x.stepId
-        );
-        if (previousStep) {
-          return {
-            stepId: previousStep.stepId,
-            approverGroupHeaderName:
-              previousStep.approverGroupHeader?.name ?? "",
-          };
-        }
-      })
-  );
+  const nextStep = approvalState?.nextSteps && approvalState.nextSteps[0];
+  const previousSteps = compact(approvalState?.approvedSteps) ?? [];
 
   const handleSaveCommentSkipOrReset = async () => {
     if (props.selectedItem?.isNormalVacancy) {
@@ -116,7 +93,7 @@ export const SelectedDetail: React.FC<Props> = props => {
               onReset={handleSaveCommentSkipOrReset}
               orgId={props.orgId}
               currentApproverGroupName={
-                currentStep?.approverGroupHeader?.name ?? ""
+                approvalState?.pendingApproverGroupHeaderName ?? ""
               }
               showSkip={nextStep !== undefined}
               showReset={previousSteps.length > 0}
@@ -176,10 +153,18 @@ export const SelectedDetail: React.FC<Props> = props => {
           </Grid>
           <Grid item xs={12}>
             <WorkflowSummary
-              currentStepId={approvalState?.currentStepId ?? ""}
-              steps={approvalWorkflowSteps}
-              workflowName={approvalState?.approvalWorkflow?.name ?? ""}
-              decisions={approvalState?.decisions}
+              workflowName={approvalState?.approvalWorkflow.name ?? ""}
+              pendingApproverGroupHeaderName={
+                approvalState?.pendingApproverGroupHeaderName
+              }
+              deniedApproverGroupHeaderName={
+                approvalState?.deniedApproverGroupHeaderName
+              }
+              approvedApproverGroupHeaderNames={
+                approvalState?.approvedApproverGroupHeaderNames
+              }
+              nextSteps={approvalState?.nextSteps}
+              approvedSteps={approvalState?.approvedSteps}
             />
           </Grid>
           <Grid item xs={12}>

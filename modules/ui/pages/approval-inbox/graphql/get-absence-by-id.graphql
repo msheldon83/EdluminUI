@@ -31,6 +31,23 @@ query GetAbsence($id: ID!) {
           }
         }
         currentStepId
+        pendingApproverGroupHeaderName
+        deniedApproverGroupHeaderName
+        approvedApproverGroupHeaderNames
+        approvedSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
+        nextSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
         changedLocal
         comments {
           id

@@ -29,7 +29,7 @@ type Props = {
   currentApproverGroupName: string;
   previousSteps: {
     stepId: string;
-    approverGroupHeaderName: string;
+    approverGroupHeader?: { name: string } | null;
   }[];
 };
 
@@ -55,8 +55,6 @@ export const ResetDialog: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-
-  console.log(previousSteps);
 
   const handleReset = async () => {
     const result = await reset({
@@ -88,13 +86,13 @@ export const ResetDialog: React.FC<Props> = props => {
         <Typography variant="h5">{t("Reset")}</Typography>
       </DialogTitle>
       <DialogContent>
-        <div>{`${t("This approval is currently waiting for")} ${
-          props.currentApproverGroupName
-        }`}</div>
+        <div className={classes.subTitle}>{`${t(
+          "This approval is currently waiting for"
+        )} ${props.currentApproverGroupName}`}</div>
         <div>{t("Pick a step to reset to:")}</div>
         <div className={classes.stepsContainer}>
           {props.previousSteps.map((s, i) => {
-            if (s.approverGroupHeaderName) {
+            if (s.approverGroupHeader?.name) {
               return (
                 <div
                   key={i}
@@ -105,7 +103,7 @@ export const ResetDialog: React.FC<Props> = props => {
                   onClick={() => setSelectedStepId(s.stepId)}
                 >
                   <span className={classes.groupNameText}>
-                    {s.approverGroupHeaderName}
+                    {s.approverGroupHeader?.name}
                   </span>
                 </div>
               );
@@ -160,8 +158,8 @@ const useStyles = makeStyles(theme => ({
     background: "#FFFFFF",
     boxSizing: "border-box",
     width: "115px",
-    height: "70px",
-    lineHeight: "70px",
+    height: "80px",
+    lineHeight: "80px",
     textAlign: "center",
     wordWrap: "break-word",
     marginRight: theme.spacing(1),
@@ -178,5 +176,8 @@ const useStyles = makeStyles(theme => ({
     verticalAlign: "middle",
     display: "inline-block",
     lineHeight: "normal",
+  },
+  subTitle: {
+    fontWeight: 600,
   },
 }));

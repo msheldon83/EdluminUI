@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Button, makeStyles, LinearProgress } from "@material-ui/core";
 import { ApprovalStatus } from "graphql/server-types.gen";
-import { compact } from "lodash-es";
 import { VacancyApprovalViewRoute } from "ui/routes/vacancy";
 import {
   AdminAbsenceApprovalViewRoute,
@@ -15,40 +14,37 @@ import { CommentDialog } from "./comment-dialog";
 import { useMyApprovalWorkflows } from "reference-data/my-approval-workflows";
 import { ApprovalWorkflowSteps } from "../types";
 import clsx from "clsx";
-import { ApprovalAction } from "graphql/server-types.gen";
+import { Maybe } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
-  approvalStateId: string;
-  canApprove: boolean;
-  approvalWorkflowId: string;
-  approvalStatusId: ApprovalStatus;
-  approvalWorkflowSteps: ApprovalWorkflowSteps[];
-  currentStepId?: string | null;
-  countOfComments: number;
+  approvalState: {
+    id: string;
+    canApprove: boolean;
+    approvalWorkflowId: string;
+    approvalWorkflow: {
+      steps: ApprovalWorkflowSteps[];
+    };
+    approvalStatusId: ApprovalStatus;
+    deniedApproverGroupHeaderName?: string | null;
+    approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
+    pendingApproverGroupHeaderName?: string | null;
+    comments: {
+      commentIsPublic: boolean;
+    }[];
+  };
   actingAsEmployee?: boolean;
   absenceId?: string;
   vacancyId?: string;
   isTrueVacancy: boolean;
   onChange?: () => void;
-  decisions?: {
-    stepId: string;
-    approvalActionId: ApprovalAction;
-  }[];
 };
 
 export const ApprovalState: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const {
-    approvalWorkflowSteps,
-    approvalWorkflowId,
-    actingAsEmployee,
-    approvalStatusId,
-    currentStepId,
-    decisions,
-  } = props;
+  const { approvalState, actingAsEmployee } = props;
 
   const myApprovalWorkflows = useMyApprovalWorkflows();
 
@@ -68,108 +64,84 @@ export const ApprovalState: React.FC<Props> = props => {
     setCommentDialogOpen(true);
   };
 
-  const currentStep = approvalWorkflowSteps.find(
-    x => x.stepId === currentStepId
-  );
-
-  const orderedSteps = useMemo(() => {
-    const orderedSteps: { stepId: string | null | undefined }[] = [];
-    let step = approvalWorkflowSteps.find(s => s.isFirstStep);
-    orderedSteps.push({ stepId: step?.stepId });
-    do {
-      step = approvalWorkflowSteps.find(
-        s =>
-          s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto &&
-          !s.deleted
-      );
-      orderedSteps.push({ stepId: step?.stepId });
-    } while (step && !step?.isLastStep);
-
-    return compact(orderedSteps);
-  }, [approvalWorkflowSteps]);
-
-  const deniedStepIds =
-    compact(
-      decisions?.map(x => {
-        if (x.approvalActionId === ApprovalAction.Deny) return x.stepId;
-      })
-    ) ?? [];
-  const approvedStepIds =
-    compact(
-      decisions?.map(x => {
-        if (x.approvalActionId === ApprovalAction.Approve) return x.stepId;
-      })
-    ) ?? [];
+  const stepCount = approvalState.approvalWorkflow.steps.filter(
+    x => !x.isFirstStep && !x.isLastStep && !x.deleted
+  ).length;
 
   const barPercentage = useMemo(() => {
-    if (approvalStatusId === ApprovalStatus.Approved) return 100;
-    return (
-      ((approvedStepIds.length + deniedStepIds.length) /
-        (orderedSteps.length - 2)) *
-      100
-    );
-  }, [
-    approvalStatusId,
-    approvedStepIds.length,
-    deniedStepIds.length,
-    orderedSteps.length,
-  ]);
+    if (approvalState.approvalStatusId === ApprovalStatus.Approved) return 100;
+    const approvedCount = approvalState.approvedApproverGroupHeaderNames
+      ? approvalState.approvedApproverGroupHeaderNames.length
+      : 0;
+    const deniedCount = approvalState.deniedApproverGroupHeaderName ? 1 : 0;
+    return ((approvedCount + deniedCount) / stepCount) * 100;
+  }, [approvalState.approvalStatusId, stepCount]);
 
   const allowComments = useMemo(() => {
     if (actingAsEmployee) return true;
 
     // If I'm a member of the current group that needs to approve, show the buttons
-    if (myApprovalWorkflows.find(x => x.id === approvalWorkflowId)) return true;
+    if (
+      myApprovalWorkflows.find(x => x.id === approvalState.approvalWorkflowId)
+    )
+      return true;
     return false;
-  }, [actingAsEmployee, myApprovalWorkflows, approvalWorkflowId]);
+  }, [actingAsEmployee, myApprovalWorkflows, approvalState.approvalWorkflowId]);
 
   if (
-    props.approvalStatusId !== ApprovalStatus.Approved &&
-    props.approvalStatusId !== ApprovalStatus.Denied &&
-    props.approvalStatusId !== ApprovalStatus.PartiallyApproved &&
-    props.approvalStatusId !== ApprovalStatus.ApprovalRequired
+    approvalState.approvalStatusId !== ApprovalStatus.Approved &&
+    approvalState.approvalStatusId !== ApprovalStatus.Denied &&
+    approvalState.approvalStatusId !== ApprovalStatus.PartiallyApproved &&
+    approvalState.approvalStatusId !== ApprovalStatus.ApprovalRequired
   ) {
     return <></>;
   }
+
+  const countOfComments = props.actingAsEmployee
+    ? approvalState.comments.filter(x => x.commentIsPublic).length
+    : approvalState.comments.length;
 
   return (
     <>
       <ApproveDenyDialog
         open={approveDialogOpen}
         onClose={onCloseDialog}
-        approvalStateId={props.approvalStateId}
+        approvalStateId={approvalState.id}
         onApproveDeny={props.onChange}
       />
       <CommentDialog
         open={commentDialogOpen}
         onClose={onCloseDialog}
-        approvalStateId={props.approvalStateId}
+        approvalStateId={approvalState.id}
         actingAsEmployee={props.actingAsEmployee}
         onSaveComment={props.onChange}
-        approvalWorkflowId={props.approvalWorkflowId}
+        approvalWorkflowId={approvalState.approvalWorkflowId}
       />
 
       <div
         className={clsx({
           [classes.container]: true,
-          [classes.approved]: approvalStatusId === ApprovalStatus.Approved,
-          [classes.denied]: approvalStatusId === ApprovalStatus.Denied,
+          [classes.approved]:
+            approvalState.approvalStatusId === ApprovalStatus.Approved,
+          [classes.denied]:
+            approvalState.approvalStatusId === ApprovalStatus.Denied,
           [classes.pending]:
-            approvalStatusId === ApprovalStatus.PartiallyApproved ||
-            approvalStatusId === ApprovalStatus.ApprovalRequired,
+            approvalState.approvalStatusId ===
+              ApprovalStatus.PartiallyApproved ||
+            approvalState.approvalStatusId === ApprovalStatus.ApprovalRequired,
         })}
       >
         <div className={classes.buttonContainer}>
           <div className={classes.progressContainer}>
             <div className={classes.statusText}>
-              {approvalStatusId == ApprovalStatus.Approved
+              {approvalState.approvalStatusId == ApprovalStatus.Approved
                 ? t("Approved")
-                : approvalStatusId == ApprovalStatus.Denied
+                : approvalState.approvalStatusId == ApprovalStatus.Denied
                 ? props.actingAsEmployee
                   ? `${t("Denied")} - ${t("You may edit and resubmit")}`
                   : t("Denied")
                 : `${t("Pending approval from")} ${
-                    currentStep?.approverGroupHeader?.name
+                    approvalState.pendingApproverGroupHeaderName
                   }`}
             </div>
             <LinearProgress
@@ -178,9 +150,9 @@ export const ApprovalState: React.FC<Props> = props => {
               value={barPercentage}
               classes={{
                 barColorPrimary:
-                  approvalStatusId == ApprovalStatus.Approved
+                  approvalState.approvalStatusId == ApprovalStatus.Approved
                     ? classes.approvedBar
-                    : approvalStatusId == ApprovalStatus.Denied
+                    : approvalState.approvalStatusId == ApprovalStatus.Denied
                     ? classes.deniedBar
                     : classes.pendingBar,
                 colorPrimary: classes.unfilledBar,
@@ -188,7 +160,7 @@ export const ApprovalState: React.FC<Props> = props => {
             />
           </div>
           <div className={classes.button}>
-            {props.canApprove ? (
+            {approvalState.canApprove ? (
               <Button variant="outlined" onClick={onOpenApproveDialog}>
                 {t("Approve/Deny")}
               </Button>
@@ -206,7 +178,7 @@ export const ApprovalState: React.FC<Props> = props => {
             src={require("ui/icons/comment.svg")}
             className={classes.commentIcon}
           />
-          <div>{`${props.countOfComments} ${t("comments")}`}</div>
+          <div>{`${countOfComments} ${t("comments")}`}</div>
           <Link
             to={
               props.isTrueVacancy

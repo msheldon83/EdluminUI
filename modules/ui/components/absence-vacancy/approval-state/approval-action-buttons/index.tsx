@@ -26,7 +26,7 @@ type Props = {
   nextApproverGroupName: string;
   previousSteps: {
     stepId: string;
-    approverGroupHeaderName: string;
+    approverGroupHeader?: { name: string } | null;
   }[];
 };
 

@@ -8,6 +8,7 @@ query GetAbsence($id: ID!) {
         id
         canApprove
         approvalStatusId
+        approvalWorkflowId
         approvalWorkflow {
           id
           steps {
@@ -27,13 +28,26 @@ query GetAbsence($id: ID!) {
           }
         }
         currentStepId
+        pendingApproverGroupHeaderName
+        deniedApproverGroupHeaderName
+        approvedApproverGroupHeaderNames
+        nextSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
+        approvedSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
         comments {
           id
-        }
-        decisions {
-          id
-          stepId
-          approvalActionId
+          commentIsPublic
         }
       }
       closedDetails {
