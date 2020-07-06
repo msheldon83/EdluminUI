@@ -8,6 +8,9 @@ query GetSpecificAssignment($id: ID!, $assignmentId: ID!) {
       endTimeLocal
       dayPortion
       canCancel
+      vacancyReason {
+        id
+      }
       assignment {
         id
         rowVersion
