@@ -98,6 +98,7 @@ export const useStyles = makeStyles(theme => ({
   },
   multiAccountingCodes: {
     display: "flex",
+    justifyContent: "flex-end"
   },
   multiAccountingCodesLabel: {
     paddingRight: theme.spacing(0.5),

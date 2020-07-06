@@ -29,6 +29,7 @@ type Props = {
   orgId: string;
   pageTitle: string | JSX.Element;
   cancelAbsence: (absenceId: string) => Promise<void>;
+  hideAbsence?: (absenceId: string) => Promise<void>;
   calendarViewRoute: string;
   listViewRoute: string;
   actingAsEmployee: boolean;
@@ -81,6 +82,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
       id: props.employeeId,
       fromDate: props.view === "calendar" ? calendarStartDate : queryStartDate,
       toDate: queryEndDate,
+      showDenied: props.actingAsEmployee,
     },
     skip: !endDate,
   });
@@ -133,6 +135,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
                     scheduleDates={selectedScheduleDates}
                     selectedDate={selectedScheduleDates[0].date}
                     cancelAbsence={props.cancelAbsence}
+                    hideAbsence={props.hideAbsence}
                     orgId={props.orgId}
                     actingAsEmployee={props.actingAsEmployee}
                   />
@@ -178,6 +181,7 @@ export const AbsenceSchedule: React.FC<Props> = props => {
               <ScheduledAbsences
                 absences={employeeAbsenceDetails}
                 cancelAbsence={props.cancelAbsence}
+                hideAbsence={props.hideAbsence}
                 isLoading={false}
                 orgId={props.orgId}
                 actingAsEmployee={props.actingAsEmployee}

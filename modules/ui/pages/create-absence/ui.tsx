@@ -48,7 +48,7 @@ import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
-import { mapAccountingCodeValueToVacancyDetailAccountingCodeInput } from "ui/components/absence-vacancy/helpers";
+import { mapAccountingCodeValueToAccountingCodeAllocations } from "helpers/accounting-code-allocations";
 
 type Props = {
   firstName: string;
@@ -689,7 +689,7 @@ export const buildAbsenceCreateInput = (
         : null,
       accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
         ? undefined
-        : mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+        : mapAccountingCodeValueToAccountingCodeAllocations(
             v.accountingCodeAllocations,
             true
           ),
@@ -712,7 +712,7 @@ export const buildAbsenceCreateInput = (
         accountingCodeAllocations:
           !detailsHaveDifferentAccountingCodeSelections &&
           formValues.accountingCodeAllocations
-            ? mapAccountingCodeValueToVacancyDetailAccountingCodeInput(
+            ? mapAccountingCodeValueToAccountingCodeAllocations(
                 formValues.accountingCodeAllocations,
                 true
               )

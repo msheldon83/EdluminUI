@@ -231,7 +231,9 @@ export const ApprovalState: React.FC<Props> = props => {
               {approvalStatusId == ApprovalStatus.Approved
                 ? t("Approved")
                 : approvalStatusId == ApprovalStatus.Denied
-                ? t("Denied")
+                ? props.actingAsEmployee
+                  ? `${t("Denied")} - ${t("You may edit and resubmit")}`
+                  : t("Denied")
                 : `${t("Pending approval from")} ${
                     currentStep?.approverGroupHeader?.name
                   }`}

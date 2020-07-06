@@ -15,6 +15,7 @@ import { AbsenceSchedule } from "ui/components/absence/absence-schedule";
 import { useMemo } from "react";
 import { parseISO } from "date-fns";
 import { ShowErrors } from "ui/components/error-helpers";
+import { HideAbsence } from "ui/components/employee/graphql/hide-absence.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -43,8 +44,23 @@ export const EmployeeSchedule: React.FC<Props> = props => {
     refetchQueries: ["GetEmployeeAbsenceSchedule"],
   });
 
+  const [hideAbsence] = useMutationBundle(HideAbsence, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+    refetchQueries: ["GetEmployeeAbsenceSchedule"],
+  });
+
   const cancelAbsence = async (absenceId: string) => {
     const result = await deleteAbsence({
+      variables: {
+        absenceId: absenceId,
+      },
+    });
+  };
+
+  const onHideAbsence = async (absenceId: string) => {
+    const result = await hideAbsence({
       variables: {
         absenceId: absenceId,
       },
@@ -60,6 +76,7 @@ export const EmployeeSchedule: React.FC<Props> = props => {
           orgId={employee?.orgId?.toString()}
           pageTitle={t("My Schedule")}
           cancelAbsence={cancelAbsence}
+          hideAbsence={onHideAbsence}
           calendarViewRoute={EmployeeScheduleCalendarViewRoute.generate(params)}
           listViewRoute={EmployeeScheduleListViewRoute.generate(params)}
           actingAsEmployee={true}
@@ -70,5 +87,4 @@ export const EmployeeSchedule: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({
-}));
+const useStyles = makeStyles(theme => ({}));

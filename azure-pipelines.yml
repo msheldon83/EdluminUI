@@ -11,13 +11,24 @@ trigger:
       - master
       - pull/*
 
+variables:
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+
 steps:
   - task: NodeTool@0
     inputs:
       versionSpec: "12.x"
 
+  - task: Cache@2
+    inputs:
+      key: 'yarn | "$(Agent.OS)" | yarn.lock'
+      restoreKeys: |
+        yarn | "$(Agent.OS)"
+      path: $(YARN_CACHE_FOLDER)
+    displayName: Cache Yarn packages
+
   - script: |
-      yarn
+      yarn --frozen-lockfile
     displayName: "install dependencies"
 
   - script: |

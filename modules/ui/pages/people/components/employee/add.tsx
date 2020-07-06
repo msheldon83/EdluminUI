@@ -21,17 +21,16 @@ import {
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveEmployee } from "../../graphql/employee/save-employee.gen";
-import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
 import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
 import {
-  buildNewSchedule,
   buildDaysOfTheWeek,
   buildNewPeriod,
 } from "ui/pages/employee-position/components/helpers";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
+import { compact } from "lodash-es";
 
 export const EmployeeAddPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -215,9 +214,10 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           contractId: employee.position?.contract?.id,
           hoursPerFullWorkDay: employee.position?.hoursPerFullWorkDay,
         }}
-        accountingCodeId={
-          employee.position?.accountingCodeAllocations &&
-          employee.position?.accountingCodeAllocations[0]?.accountingCodeId
+        accountingCodeAllocations={
+          employee.position?.accountingCodeAllocations
+            ? compact(employee.position.accountingCodeAllocations)
+            : []
         }
         positionSchedule={employee.position?.schedules?.map(s => ({
           daysOfTheWeek:
