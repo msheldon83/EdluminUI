@@ -192,7 +192,6 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
       <SubstitutePreferences
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
-        autoAssignHeading={t("Auto Assign")}
         searchHeading={"All Substitutes"}
         favoriteMembers={
           location.substitutePreferences.favoriteSubstituteMembers ?? []
@@ -200,21 +199,25 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         blockedMembers={
           location.substitutePreferences.blockedSubstituteMembers ?? []
         }
-        autoAssignMembers={autoAssignedMembers}
         headerComponent={headerComponent}
-        useAutoAssign={true}
         onAddNote={onAddNote}
         orgId={params.organizationId}
         onRemoveFavoriteEmployee={onRemoveFavoriteSubstitute}
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
-        onRemoveAutoAssignedEmployee={onRemoveAutoAssignedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}
         onBlockEmployee={onBlockSubstitute}
-        onAutoAssignEmployee={onAutoAssignSubstitute}
-        removeBlockedPermission={[PermissionEnum.LocationSave]}
-        removeFavoritePermission={[PermissionEnum.LocationSave]}
-        addToBlockedPermission={[PermissionEnum.LocationSave]}
-        addToFavoritePermission={[PermissionEnum.LocationSave]}
+        removeBlockedPermission={[PermissionEnum.LocationSaveBlockedSubs]}
+        removeFavoritePermission={[PermissionEnum.LocationSaveFavoriteSubs]}
+        addToBlockedPermission={[PermissionEnum.LocationSaveBlockedSubs]}
+        addToFavoritePermission={[PermissionEnum.LocationSaveFavoriteSubs]}
+        autoAssign={{
+          heading: t("Auto Assign"),
+          members: autoAssignedMembers,
+          onAdd: onAutoAssignSubstitute,
+          addPermission: [PermissionEnum.LocationSaveAutoAssignSubs],
+          onRemove: onRemoveAutoAssignedSubstitute,
+          removePermission: [PermissionEnum.LocationSaveAutoAssignSubs],
+        }}
       />
     </>
   );
