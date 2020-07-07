@@ -209,7 +209,7 @@ export const LocationViewPage: React.FC<{}> = props => {
             editRoute={LocationSubPrefRoute.generate(params)}
             editing={false}
             editable={true}
-            editPermission={[PermissionEnum.LocationSave]}
+            editPermission={[PermissionEnum.LocationSaveFavoriteSubs]}
           />
         )}
         {location && (

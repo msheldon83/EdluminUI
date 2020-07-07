@@ -1237,16 +1237,14 @@ export const App = hot(function() {
                                       path={LocationSubPrefRoute.path}
                                       role={"admin"}
                                       permissions={[
-                                        PermissionEnum.LocationSave,
+                                        PermissionEnum.LocationSaveFavoriteSubs,
                                       ]}
                                     />
                                     <ProtectedRoute
                                       component={LocationAddLoader}
                                       path={LocationAddRoute.path}
                                       role={"admin"}
-                                      permissions={[
-                                        PermissionEnum.LocationSave,
-                                      ]}
+                                      permissions={[PermissionEnum.LocationAdd]}
                                     />
                                     <ProtectedRoute
                                       component={LocationEditSettingsLoader}

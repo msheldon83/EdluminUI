@@ -170,7 +170,7 @@ export const LocationGroupViewPage: React.FC<{}> = props => {
           forRole?: Role | null | undefined
         ) =>
           can(
-            [PermissionEnum.LocationSave],
+            [PermissionEnum.LocationGroupSave],
             permissions,
             isSysAdmin,
             orgId,
