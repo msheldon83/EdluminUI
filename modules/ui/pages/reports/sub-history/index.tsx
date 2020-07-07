@@ -27,7 +27,7 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
       return localStorageRdl;
     }
 
-    return "QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN %-6d AND %0d) AND (IsFilled = '1') SELECT ConfirmationNumber, SubExternalId, Date WIDTH(150), LocationName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee WIDTH(300), AbsStartTime WIDTH(150), AbsEndTime WIDTH(150), ReasonName, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, Title, PositionTypeName, RequiresSub WIDTH(150), NotesToAdmin, AdminOnlyNotes, NotesToReplacement ORDER BY Concat(SubFirstName,' ',SubLastName) ASC, Date DESC WITH SUBTOTALS SubEmployeeId SHOW Concat(SubFirstName,' ',SubLastName) AS Substitute";
+    return "QUERY FROM AbsenceAndVacancy WHERE (Date BETWEEN %-6d AND %0d) AND (IsFilled = '1') SELECT ConfirmationNumber, AssignmentId, SubExternalId, Date WIDTH(150), LocationName, Concat(AbsentEmployeeFirstName,' ',AbsentEmployeeLastName) AS Employee WIDTH(300), AbsStartTime WIDTH(150), AbsEndTime WIDTH(150), ReasonName, SubStartTime WIDTH(150), SubEndTime WIDTH(150), PayDays, PayHours, Title, PositionTypeName, RequiresSub WIDTH(150), NotesToAdmin, AdminOnlyNotes, NotesToReplacement ORDER BY Concat(SubFirstName,' ',SubLastName) ASC, Date DESC WITH SUBTOTALS SubEmployeeId SHOW Concat(SubFirstName,' ',SubLastName) AS Substitute";
   }, [localStorageKey]);
 
   return (
@@ -67,6 +67,9 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
                 </div>
               );
             }
+          : dataColumnIndexMap[index]?.dataSourceField?.dataSourceFieldName ==
+            "AssignmentId"
+          ? (classes, value) => <div className={classes}>{`#C${value}`}</div>
           : undefined
       }
     />
