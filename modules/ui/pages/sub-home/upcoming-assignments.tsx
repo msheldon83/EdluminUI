@@ -345,12 +345,12 @@ const useStyles = makeStyles(theme => ({
     left: theme.spacing(3),
   },
   activeDate: {
-    backgroundColor: theme.customColors.sky,
+    backgroundColor: "#373361",
     color: theme.customColors.white,
     pointerEvents: "none",
 
     "&:hover": {
-      backgroundColor: theme.customColors.sky,
+      backgroundColor: "#373361",
       color: theme.customColors.white,
     },
   },
