@@ -649,6 +649,8 @@ type Application {
   logoUrl: String
   contactEmail: String
   contactPhone: String
+  basicAuthName: String!
+  basicAuthPassword: String!
   presets: [ApplicationPreset!]!
 }
 
@@ -675,12 +677,57 @@ type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface 
   direction: ConnectionDirection!
   lastScheduledRun: DateTime
   nextScheduledRun: DateTime
-  connectionType: ApplicationConnectionType!
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
 }
 
-enum ApplicationConnectionType {
-  FTP
-  API
+input ApplicationConnectionCreateInput {
+  orgId: ID!
+  applicationGrantId: ID!
+  applicationPresetId: ID
+  active: Boolean
+  definition: String!
+  direction: ConnectionDirection!
+  name: String!
+  schedules: [String]
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+}
+
+type ApplicationConnectionMutations {
+  create(applicationConnection: ApplicationConnectionCreateInput!): ApplicationConnection
+  update(applicationConnection: ApplicationConnectionUpdateInput!): ApplicationConnection
+  delete(applicationConnectionId: ID!): Boolean
+}
+
+type ApplicationConnectionQueries {
+  byId(id: ID!): ApplicationConnection
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApplicationConnection]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApplicationConnection
+}
+
+input ApplicationConnectionUpdateInput {
+  applicationConnectionId: ID!
+  active: Boolean
+  definition: String
+  direction: ConnectionDirection
+  name: String
+  schedules: [String]
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+}
+
+input ApplicationCreateInput {
+  orgId: ID
+  name: String!
+  description: String
+  url: String
+  contactEmail: String
+  contactPhone: String
+  helpUrl: String
+  logoUrlSmall: String
+  logoUrl: String
+  defaultForStafferOrgId: ID
 }
 
 type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
@@ -706,15 +753,15 @@ type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
 }
 
 input ApplicationGrantCreateInput {
-  orgId: Int!
-  applicationId: Int!
-  active: Boolean!
+  orgId: ID!
+  applicationId: ID!
+  active: Boolean
 }
 
 type ApplicationGrantMutations {
   create(applicationGrant: ApplicationGrantCreateInput!): ApplicationGrant
   update(applicationGrant: ApplicationGrantUpdateInput!): ApplicationGrant
-  delete(applicationGrantId: Int!): Boolean
+  delete(applicationGrantId: ID!): Boolean
 }
 
 type ApplicationGrantQueries {
@@ -723,9 +770,15 @@ type ApplicationGrantQueries {
 }
 
 input ApplicationGrantUpdateInput {
-  orgId: Int!
-  applicationId: Int!
-  active: Boolean!
+  orgId: ID!
+  applicationId: ID!
+  active: Boolean
+}
+
+type ApplicationMutations {
+  create(application: ApplicationCreateInput!): Application
+  update(application: ApplicationUpdateInput!): Application
+  delete(applicationId: ID!): Boolean
 }
 
 type ApplicationPreset implements ModelObjectInterface {
@@ -739,12 +792,56 @@ type ApplicationPreset implements ModelObjectInterface {
   definition: String!
   path: String!
   direction: ConnectionDirection!
-  connectionType: ApplicationConnectionType!
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+}
+
+input ApplicationPresetCreateInput {
+  applicationId: ID!
+  name: String!
+  definition: String!
+  direction: ConnectionDirection!
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+  path: String!
+}
+
+type ApplicationPresetMutations {
+  create(applicationPreset: ApplicationPresetCreateInput!): ApplicationPreset
+  update(applicationPreset: ApplicationPresetUpdateInput!): ApplicationPreset
+  delete(applicationPresetId: ID!): Boolean
+}
+
+type ApplicationPresetQueries {
+  byId(id: ID!): ApplicationPreset
+}
+
+input ApplicationPresetUpdateInput {
+  id: ID!
+  name: String
+  definition: String
+  direction: ConnectionDirection
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+  path: String
 }
 
 type ApplicationQueries {
   byId(id: ID!): Application
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Application]
+}
+
+input ApplicationUpdateInput {
+  id: ID!
+  name: String!
+  description: String!
+  url: String!
+  contactEmail: String!
+  contactPhone: String!
+  helpUrl: String!
+  logoUrlSmall: String!
+  logoUrl: String!
+  defaultForStafferOrgId: ID
 }
 
 enum ApprovalAction {
@@ -753,6 +850,7 @@ enum ApprovalAction {
   DENY
   SKIP
   RESET
+  NO_OP
 }
 
 type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
@@ -841,7 +939,7 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   pendingApproverGroupHeaderName: String
   deniedApproverGroupHeaderName: String
   approvedApproverGroupHeaderNames: [String]
-  approvedSteps: [ApprovalWorkflowStep]
+  completedSteps: [ApprovalWorkflowStep]
   nextSteps: [ApprovalWorkflowStep]
   canApprove: Boolean!
 }
@@ -1428,6 +1526,50 @@ type ChangeLogTypeDef {
   _info: [ReturnMessage]
   messages: String!
   changes: String!
+}
+
+type Comment implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  payload: String!
+  discussion: Discussion!
+  hasBeenEdited: Boolean!
+  actingOrgUserId: ID!
+  actingOrgUser: OrgUser!
+  actualOrgUserId: OrgUser
+  actualOrgUser: OrgUser
+  actingUserId: ID!
+  actingUser: User!
+  actualUserId: ID!
+  actualUser: User!
+}
+
+input CommentCreateInput {
+  orgId: ID!
+  payload: String!
+  discussionId: ID
+  discussionSubjectType: DiscussionSubjectType!
+}
+
+type CommentMutations {
+  create(comment: CommentCreateInput!): Comment
+  update(comment: CommentUpdateInput!): Comment
+  delete(commentId: ID!): Boolean
+}
+
+input CommentUpdateInput {
+  id: ID!
+  rowVersion: String!
+  payload: String!
 }
 
 type ConfirmationNumberQueryResultTypeDef {
@@ -2087,6 +2229,35 @@ enum DimensionUnit {
   METERS
 }
 
+type Discussion implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  discussionSubjectType: DiscussionSubjectType!
+  comments: [Comment!]!
+}
+
+type DiscussionQueries {
+  byId(id: ID!): Discussion
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Discussion]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedDiscussion
+}
+
+enum DiscussionSubjectType {
+  EMPLOYEE
+  SUBSTITUTE
+}
+
 enum DistanceUnit {
   INVALID
   MILES
@@ -2138,6 +2309,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   endorsements: [EmployeeEndorsement]
   locations: [Location]
   substitutePreferences: SubstitutePreferences!
+  comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
 }
 
 input EmployeeCreateInput {
@@ -2471,6 +2643,9 @@ enum EventType {
   APPLICATION_GRANT_CREATED
   APPLICATION_GRANT_UPDATED
   APPLICATION_GRANT_DELETED
+  APPLICATION_CONNECTION_CREATED
+  APPLICATION_CONNECTION_UPDATED
+  APPLICATION_CONNECTION_DELETED
   LOCATION_CREATED
   LOCATION_UPDATED
   LOCATION_DELETED
@@ -2656,6 +2831,12 @@ enum EventType {
   WORKFLOW_STEP_DENIED
   WORKFLOW_STEP_SKIPPED
   WORKFLOW_STEP_RESET
+  APPLICATION_CREATED
+  APPLICATION_UPDATED
+  APPLICATION_DELETED
+  APPLICATION_PRESET_CREATED
+  APPLICATION_PRESET_UPDATED
+  APPLICATION_PRESET_DELETED
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
@@ -2672,6 +2853,11 @@ enum EventType {
   APPROVAL_WORKFLOW_CREATED
   APPROVAL_WORKFLOW_UPDATED
   APPROVAL_WORKFLOW_DELETED
+  DISCUSSION_CREATED
+  APPLY_DISCUSSION_TO_OBJECT
+  COMMENT_CREATED
+  COMMENT_UPDATED
+  COMMENT_DELETED
 }
 
 enum FeatureFlag {
@@ -2766,7 +2952,6 @@ type InAppNotificationMutations {
 }
 
 type InAppNotificationQueries {
-  byId(id: ID!): InAppNotification
   paged(limit: Int, offset: Int, orgId: ID, includeViewed: Boolean): PagedInAppNotification
   unreadNotificationCount(orgId: ID): Int
 }
@@ -3009,13 +3194,17 @@ interface ModelObjectInterface {
 type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
+  applicationConnection: ApplicationConnectionMutations
   applicationGrant: ApplicationGrantMutations
+  application: ApplicationMutations
+  applicationPreset: ApplicationPresetMutations
   approval: ApprovalMutations
   approvalWorkflow: ApprovalWorkflowMutations
   approverGroup: ApproverGroupMutations
   assignment: AssignmentMutations
   branding: BrandingMutations
   calendarChange: CalendarChangeMutations
+  comment: CommentMutations
   contractedAssignment: ContractedAssignmentMutations
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
@@ -3163,6 +3352,7 @@ enum ObjectType {
   REPLACEMENT_POOL
   REPLACEMENT_CRITERIA_CONFIG
   REPLACEMENT_CRITERIA
+  DISCUSSION
   EMPLOYEE
   ASSIGNMENT
   ABSENCE
@@ -3742,6 +3932,15 @@ type PagedAccountingCode {
   totalCount: Int
 }
 
+type PagedApplicationConnection {
+  _info: [ReturnMessage]
+  results: [ApplicationConnection]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedApprovalWorkflow {
   _info: [ReturnMessage]
   results: [ApprovalWorkflow]
@@ -3835,6 +4034,15 @@ type PagedDataImport {
 type PagedDataImportRow {
   _info: [ReturnMessage]
   results: [DataImportRow]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedDiscussion {
+  _info: [ReturnMessage]
+  results: [Discussion]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4267,8 +4475,12 @@ enum PermissionEnum {
   LOCATION_GROUP_VIEW
   LOCATION_SAVE
   LOCATION_DELETE
+  LOCATION_ADD
   LOCATION_GROUP_SAVE
   LOCATION_GROUP_DELETE
+  LOCATION_SAVE_FAVORITE_SUBS
+  LOCATION_SAVE_BLOCKED_SUBS
+  LOCATION_SAVE_AUTO_ASSIGN_SUBS
   ADMIN_VIEW
   ADMIN_SAVE
   ADMIN_DELETE
@@ -4910,7 +5122,9 @@ type QualifiedEmployeeCounts {
 type Query {
   absence: AbsenceQueries
   absenceReasonBalance: AbsenceReasonBalanceQueries
+  applicationConnection: ApplicationConnectionQueries
   applicationGrant: ApplicationGrantQueries
+  applicationPreset: ApplicationPresetQueries
   application: ApplicationQueries
   approvalWorkflow: ApprovalWorkflowQueries
   approverGroup: ApproverGroupQueries
@@ -4923,6 +5137,7 @@ type Query {
   contractSchedule: ContractScheduleQueries
   customField: CustomFieldQueries
   dataImport: DataImportQueries
+  discussion: DiscussionQueries
   employee: EmployeeQueries
   eventQueue: EventQueueQueries
   inAppNotification: InAppNotificationQueries
@@ -5921,6 +6136,7 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   payCode: PayCode
   qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
+  comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
 }
 
 input SubstituteAttributeInput {

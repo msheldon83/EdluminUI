@@ -34,14 +34,14 @@ query GetAbsence($id: ID!) {
         pendingApproverGroupHeaderName
         deniedApproverGroupHeaderName
         approvedApproverGroupHeaderNames
-        approvedSteps {
+        nextSteps {
           stepId
           approverGroupHeader {
             id
             name
           }
         }
-        nextSteps {
+        completedSteps {
           stepId
           approverGroupHeader {
             id
@@ -82,6 +82,10 @@ query GetAbsence($id: ID!) {
             id
             firstName
             lastName
+          }
+          approverGroupHeader {
+            id
+            name
           }
         }
       }

@@ -1,9 +1,9 @@
 import * as React from "react";
-import { useMemo } from "react";
 import { makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
 import { Maybe } from "graphql/server-types.gen";
+import { ApprovalWorkflowSteps } from "./types";
 
 type Props = {
   workflowName: string;
@@ -12,14 +12,6 @@ type Props = {
   approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
   nextSteps?:
     | Maybe<{
-        approverGroupHeader?: {
-          name: string;
-        } | null;
-      }>[]
-    | null;
-  approvedSteps?:
-    | Maybe<{
-        stepId: string;
         approverGroupHeader?: {
           name: string;
         } | null;
@@ -35,29 +27,16 @@ export const WorkflowSummary: React.FC<Props> = props => {
     pendingApproverGroupHeaderName,
     deniedApproverGroupHeaderName,
     approvedApproverGroupHeaderNames,
-    approvedSteps,
     nextSteps,
     workflowName,
   } = props;
-
-  const approvedGroupNames = useMemo(() => {
-    const names =
-      compact(approvedSteps?.map(x => x?.approverGroupHeader?.name)) ?? [];
-
-    const otherNames =
-      compact(approvedApproverGroupHeaderNames)?.filter(
-        x => !names.includes(x)
-      ) ?? [];
-
-    return names.concat(otherNames);
-  }, [approvedApproverGroupHeaderNames, approvedSteps]);
 
   const renderApprovedSteps = () => {
     return (
       <div>
         <div className={classes.titleText}>{t("Approved by:")}</div>
         <div className={classes.stepsContainer}>
-          {approvedGroupNames.map((name, i) => {
+          {approvedApproverGroupHeaderNames?.map((name, i) => {
             return (
               <div key={i} className={classes.approvedBox}>
                 <span className={classes.groupNameText}>{name}</span>
@@ -120,7 +99,9 @@ export const WorkflowSummary: React.FC<Props> = props => {
     <div className={classes.container}>
       <div className={classes.workflowTitle}>{workflowName}</div>
       <div className={classes.stepsContainer}>
-        {approvedGroupNames.length > 0 && renderApprovedSteps()}
+        {approvedApproverGroupHeaderNames &&
+          approvedApproverGroupHeaderNames.length > 0 &&
+          renderApprovedSteps()}
         {deniedApproverGroupHeaderName && renderDeniedStep()}
         {!deniedApproverGroupHeaderName &&
           pendingApproverGroupHeaderName &&

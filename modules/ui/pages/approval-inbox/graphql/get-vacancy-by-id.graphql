@@ -40,7 +40,7 @@ query GetVacancyById($id: ID!) {
             name
           }
         }
-        approvedSteps {
+        completedSteps {
           stepId
           approverGroupHeader {
             id
@@ -81,6 +81,10 @@ query GetVacancyById($id: ID!) {
             id
             firstName
             lastName
+          }
+          approverGroupHeader {
+            id
+            name
           }
         }
       }

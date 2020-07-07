@@ -41,7 +41,7 @@ query GetVacancyById($id: ID!) {
             name
           }
         }
-        approvedSteps {
+        completedSteps {
           stepId
           approverGroupHeader {
             id

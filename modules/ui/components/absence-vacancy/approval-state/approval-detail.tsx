@@ -42,7 +42,7 @@ type Props = {
           } | null;
         }>[]
       | null;
-    approvedSteps?:
+    completedSteps?:
       | Maybe<{
           stepId: string;
           approverGroupHeader?: {
@@ -147,7 +147,7 @@ export const ApprovalDetail: React.FC<Props> = props => {
   const { approvalState, absence, vacancy, isTrueVacancy } = props;
 
   const nextStep = approvalState?.nextSteps && approvalState.nextSteps[0];
-  const previousSteps = compact(approvalState?.approvedSteps) ?? [];
+  const previousSteps = compact(approvalState?.completedSteps) ?? [];
 
   const locationIds =
     compact(
@@ -240,7 +240,6 @@ export const ApprovalDetail: React.FC<Props> = props => {
               approvalState.approvedApproverGroupHeaderNames
             }
             nextSteps={approvalState.nextSteps}
-            approvedSteps={approvalState.approvedSteps}
           />
           <ApprovalComments
             orgId={props.orgId}
@@ -250,7 +249,6 @@ export const ApprovalDetail: React.FC<Props> = props => {
             decisions={approvalState.decisions}
             onCommentSave={props.onSaveComment}
             approvalWorkflowId={approvalState.approvalWorkflowId}
-            steps={approvalState.approvalWorkflow.steps}
           />
         </div>
         {isMobile && renderAbsVacDetail()}

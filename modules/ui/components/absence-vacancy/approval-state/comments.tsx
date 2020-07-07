@@ -12,6 +12,7 @@ type CommentDecision = {
   comment?: string | null;
   approvalActionId?: ApprovalAction;
   stepId: string;
+  approverGroupHeaderName?: string;
   commentIsPublic: boolean;
   createdLocal?: string | null;
   actingUser: {
@@ -34,6 +35,9 @@ type Props = {
   comments: CommentDecision[];
   decisions: {
     approvalActionId: ApprovalAction;
+    approverGroupHeader?: {
+      name: string;
+    } | null;
     createdLocal?: string | null;
     stepId: string;
     actingUser: {
@@ -48,7 +52,6 @@ type Props = {
     };
   }[];
   onCommentSave?: () => void;
-  steps: ApprovalWorkflowSteps[];
 };
 
 export const ApprovalComments: React.FC<Props> = props => {
@@ -69,6 +72,7 @@ export const ApprovalComments: React.FC<Props> = props => {
         commentIsPublic: c.commentIsPublic,
         createdLocal: c.createdLocal,
         stepId: c.stepId,
+        approverGroupHeaderName: undefined,
       });
     });
     decisions.forEach(d => {
@@ -79,6 +83,7 @@ export const ApprovalComments: React.FC<Props> = props => {
         commentIsPublic: true,
         createdLocal: d.createdLocal,
         stepId: d.stepId,
+        approverGroupHeaderName: d.approverGroupHeader?.name,
       });
     });
 
@@ -93,19 +98,15 @@ export const ApprovalComments: React.FC<Props> = props => {
 
   const getApprovalActionText = (
     approvalAction?: ApprovalAction,
-    stepId?: string
+    approverGroupHeaderName?: string
   ) => {
     if (approvalAction == ApprovalAction.Approve) return t("Approved by ");
     if (approvalAction == ApprovalAction.Deny) return t("Denied by ");
     if (approvalAction == ApprovalAction.Skip) {
-      const approverGroupName = props.steps.find(x => x.stepId === stepId)
-        ?.approverGroupHeader?.name;
-      return `${approverGroupName} ${t("Skipped by ")}`;
+      return `${approverGroupHeaderName} ${t("Skipped by ")}`;
     }
     if (approvalAction == ApprovalAction.Reset) {
-      const approverGroupName = props.steps.find(x => x.stepId === stepId)
-        ?.approverGroupHeader?.name;
-      return `${approverGroupName} ${t("Reset by ")}`;
+      return `${approverGroupHeaderName} ${t("Reset by ")}`;
     }
     return null;
   };
@@ -125,44 +126,48 @@ export const ApprovalComments: React.FC<Props> = props => {
         <div className={classes.commentContainer}>{t("No Comments")}</div>
       ) : (
         allCommentsAndDecisions.map((c, i) => {
-          return (
-            <div key={i} className={classes.commentContainer}>
-              {c.comment && (
-                <div className={classes.commentIcon}>
-                  {c.commentIsPublic ? (
-                    <img src={require("ui/icons/comment.svg")} />
-                  ) : (
-                    <img
-                      src={require("ui/icons/comment-visible-to-admin.svg")}
-                    />
-                  )}
-                </div>
-              )}
-              <div>
+          if (c.approvalActionId !== ApprovalAction.NoOp) {
+            return (
+              <div key={i} className={classes.commentContainer}>
+                {c.comment && (
+                  <div className={classes.commentIcon}>
+                    {c.commentIsPublic ? (
+                      <img src={require("ui/icons/comment.svg")} />
+                    ) : (
+                      <img
+                        src={require("ui/icons/comment-visible-to-admin.svg")}
+                      />
+                    )}
+                  </div>
+                )}
                 <div>
-                  <span
-                    className={
-                      c.approvalActionId
-                        ? classes.decisionText
-                        : classes.nameText
-                    }
-                  >{`${getApprovalActionText(c.approvalActionId, c.stepId) ??
-                    ""}${getApproverName(c)}`}</span>
-                  <span
-                    className={
-                      c.approvalActionId
-                        ? classes.decisionText
-                        : classes.dateText
-                    }
-                  >{` @ ${format(
-                    parseISO(c.createdLocal!),
-                    "MMM d h:mm a"
-                  )}`}</span>
+                  <div>
+                    <span
+                      className={
+                        c.approvalActionId
+                          ? classes.decisionText
+                          : classes.nameText
+                      }
+                    >{`${getApprovalActionText(
+                      c.approvalActionId,
+                      c.approverGroupHeaderName
+                    ) ?? ""}${getApproverName(c)}`}</span>
+                    <span
+                      className={
+                        c.approvalActionId
+                          ? classes.decisionText
+                          : classes.dateText
+                      }
+                    >{` @ ${format(
+                      parseISO(c.createdLocal!),
+                      "MMM d h:mm a"
+                    )}`}</span>
+                  </div>
+                  {c.comment && <div>{c.comment}</div>}
                 </div>
-                {c.comment && <div>{c.comment}</div>}
               </div>
-            </div>
-          );
+            );
+          }
         })
       )}
       <LeaveComment

@@ -57,7 +57,7 @@ export const SelectedDetail: React.FC<Props> = props => {
 
   const approvalWorkflowSteps = approvalState?.approvalWorkflow.steps ?? [];
   const nextStep = approvalState?.nextSteps && approvalState.nextSteps[0];
-  const previousSteps = compact(approvalState?.approvedSteps) ?? [];
+  const previousSteps = compact(approvalState?.completedSteps) ?? [];
 
   const handleSaveCommentSkipOrReset = async () => {
     if (props.selectedItem?.isNormalVacancy) {
@@ -164,7 +164,6 @@ export const SelectedDetail: React.FC<Props> = props => {
                 approvalState?.approvedApproverGroupHeaderNames
               }
               nextSteps={approvalState?.nextSteps}
-              approvedSteps={approvalState?.approvedSteps}
             />
           </Grid>
           <Grid item xs={12}>
@@ -175,7 +174,6 @@ export const SelectedDetail: React.FC<Props> = props => {
               decisions={approvalState?.decisions ?? []}
               onCommentSave={handleSaveCommentSkipOrReset}
               approvalWorkflowId={approvalState?.approvalWorkflowId ?? ""}
-              steps={approvalWorkflowSteps}
             />
           </Grid>
           <Grid item xs={12}>
