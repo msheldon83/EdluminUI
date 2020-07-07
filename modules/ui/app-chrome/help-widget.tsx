@@ -1,14 +1,12 @@
 import * as React from "react";
 const { useEffect } = React;
 import { useMyUserAccess } from "reference-data/my-user-access";
-import { useOrganizationId } from "core/org-context";
 
 export const HelpWidget: React.FC<{}> = () => {
   const userAccess = useMyUserAccess();
-  const orgId = useOrganizationId();
   const user = userAccess?.me?.user;
-  const orgUser = user?.orgUsers?.find(x => x?.orgId == orgId);
-  const showChat = user?.orgUsers?.some(x => x?.administrator?.isSuperUser);
+  const orgUser = user?.orgUsers?.find(x => x?.administrator?.isSuperUser);
+  const showChat = orgUser != null;
 
   useEffect(() => {
     const zE = (window as any).zE;
