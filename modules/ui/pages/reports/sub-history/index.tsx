@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Report } from "ui/components/reporting";
 import { useTranslation } from "react-i18next";
+import { AbsVacLink } from "ui/components/links/abs-vac";
 import {
   saveRdlToLocalStorage,
   getRdlFromLocalStorage,
@@ -46,6 +47,28 @@ export const SubstituteHistoryReport: React.FC<{}> = () => {
         "SubSourceOrgId",
       ]}
       saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
+      customRender={(dataColumnIndexMap, index) =>
+        dataColumnIndexMap[index]?.dataSourceField?.dataSourceFieldName ==
+        "ConfirmationNumber"
+          ? (classes, value) => {
+              if (value.startsWith("#V")) {
+                return (
+                  <div className={classes}>
+                    <AbsVacLink
+                      absVacId={value.slice(2)}
+                      absVacType="vacancy"
+                    />
+                  </div>
+                );
+              }
+              return (
+                <div className={classes}>
+                  <AbsVacLink absVacId={value.slice(1)} absVacType="absence" />
+                </div>
+              );
+            }
+          : undefined
+      }
     />
   );
 };
