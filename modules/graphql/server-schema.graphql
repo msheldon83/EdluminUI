@@ -161,51 +161,15 @@ type AbsenceMutations {
 
 type AbsenceQueries {
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Absence]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedAbsence
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAbsence
   byId(id: ID!): Absence
-  projectedVacancies(
-    absence: AbsenceCreateInput!
-    ignoreAbsenceId: ID
-  ): [Vacancy]
-  replacementEmployeesForVacancy(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    vacancyId: ID
-    vacancyDetailIds: [ID]
-    vacancy: AbsenceVacancyInput
-    absentEmployeeId: ID
-    name: String
-    qualified: [VacancyQualification]
-    available: [VacancyAvailability]
-    favoritesOnly: Boolean
-    replacementEmployeeId: ID
-  ): PagedVacancySubSearchQueryResult
+  projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): [Vacancy]
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): Absence
-  dailyReport(
-    orgId: ID!
-    date: Date!
-    locationIds: [ID]
-    positionTypeIds: [ID]
-  ): DailyReport
-  dailyReportV2(
-    orgId: ID!
-    date: Date!
-    locationIds: [ID]
-    positionTypeIds: [ID]
-  ): DailyReportV2
+  dailyReport(orgId: ID!, date: Date!, locationIds: [ID], positionTypeIds: [ID]): DailyReport
+  dailyReportV2(orgId: ID!, date: Date!, locationIds: [ID], positionTypeIds: [ID]): DailyReportV2
   subSignInReport(orgId: ID!, date: Date!, locationIds: [ID]): [VacancyDetail]
-  byConfirmationId(
-    orgIds: [ID]
-    confirmationId: String!
-  ): [ConfirmationNumberQueryResultTypeDef]
+  byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
   activityLog(id: ID!): ActivityLog
   deletedAbsenceInfo(absenceId: ID!): DeletedAbsenceType
 }
@@ -280,12 +244,8 @@ input AbsenceReasonBalanceCreateInput {
 }
 
 type AbsenceReasonBalanceMutations {
-  create(
-    absenceReasonBalance: AbsenceReasonBalanceCreateInput!
-  ): AbsenceReasonBalance
-  update(
-    absenceReasonBalance: AbsenceReasonBalanceUpdateInput!
-  ): AbsenceReasonBalance
+  create(absenceReasonBalance: AbsenceReasonBalanceCreateInput!): AbsenceReasonBalance
+  update(absenceReasonBalance: AbsenceReasonBalanceUpdateInput!): AbsenceReasonBalance
   delete(absenceReasonBalanceId: ID!): Boolean
 }
 
@@ -689,6 +649,8 @@ type Application {
   logoUrl: String
   contactEmail: String
   contactPhone: String
+  basicAuthName: String!
+  basicAuthPassword: String!
   presets: [ApplicationPreset!]!
 }
 
@@ -715,12 +677,57 @@ type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface 
   direction: ConnectionDirection!
   lastScheduledRun: DateTime
   nextScheduledRun: DateTime
-  connectionType: ApplicationConnectionType!
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
 }
 
-enum ApplicationConnectionType {
-  FTP
-  API
+input ApplicationConnectionCreateInput {
+  orgId: ID!
+  applicationGrantId: ID!
+  applicationPresetId: ID
+  active: Boolean
+  definition: String!
+  direction: ConnectionDirection!
+  name: String!
+  schedules: [String]
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+}
+
+type ApplicationConnectionMutations {
+  create(applicationConnection: ApplicationConnectionCreateInput!): ApplicationConnection
+  update(applicationConnection: ApplicationConnectionUpdateInput!): ApplicationConnection
+  delete(applicationConnectionId: ID!): Boolean
+}
+
+type ApplicationConnectionQueries {
+  byId(id: ID!): ApplicationConnection
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApplicationConnection]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApplicationConnection
+}
+
+input ApplicationConnectionUpdateInput {
+  applicationConnectionId: ID!
+  active: Boolean
+  definition: String
+  direction: ConnectionDirection
+  name: String
+  schedules: [String]
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+}
+
+input ApplicationCreateInput {
+  orgId: ID
+  name: String!
+  description: String
+  url: String
+  contactEmail: String
+  contactPhone: String
+  helpUrl: String
+  logoUrlSmall: String
+  logoUrl: String
+  defaultForStafferOrgId: ID
 }
 
 type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
@@ -746,15 +753,15 @@ type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
 }
 
 input ApplicationGrantCreateInput {
-  orgId: Int!
-  applicationId: Int!
-  active: Boolean!
+  orgId: ID!
+  applicationId: ID!
+  active: Boolean
 }
 
 type ApplicationGrantMutations {
   create(applicationGrant: ApplicationGrantCreateInput!): ApplicationGrant
   update(applicationGrant: ApplicationGrantUpdateInput!): ApplicationGrant
-  delete(applicationGrantId: Int!): Boolean
+  delete(applicationGrantId: ID!): Boolean
 }
 
 type ApplicationGrantQueries {
@@ -763,9 +770,15 @@ type ApplicationGrantQueries {
 }
 
 input ApplicationGrantUpdateInput {
-  orgId: Int!
-  applicationId: Int!
-  active: Boolean!
+  orgId: ID!
+  applicationId: ID!
+  active: Boolean
+}
+
+type ApplicationMutations {
+  create(application: ApplicationCreateInput!): Application
+  update(application: ApplicationUpdateInput!): Application
+  delete(applicationId: ID!): Boolean
 }
 
 type ApplicationPreset implements ModelObjectInterface {
@@ -779,12 +792,56 @@ type ApplicationPreset implements ModelObjectInterface {
   definition: String!
   path: String!
   direction: ConnectionDirection!
-  connectionType: ApplicationConnectionType!
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+}
+
+input ApplicationPresetCreateInput {
+  applicationId: ID!
+  name: String!
+  definition: String!
+  direction: ConnectionDirection!
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+  path: String!
+}
+
+type ApplicationPresetMutations {
+  create(applicationPreset: ApplicationPresetCreateInput!): ApplicationPreset
+  update(applicationPreset: ApplicationPresetUpdateInput!): ApplicationPreset
+  delete(applicationPresetId: ID!): Boolean
+}
+
+type ApplicationPresetQueries {
+  byId(id: ID!): ApplicationPreset
+}
+
+input ApplicationPresetUpdateInput {
+  id: ID!
+  name: String
+  definition: String
+  direction: ConnectionDirection
+  ftpEnabled: Boolean!
+  apiEnabled: Boolean!
+  path: String
 }
 
 type ApplicationQueries {
   byId(id: ID!): Application
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Application]
+}
+
+input ApplicationUpdateInput {
+  id: ID!
+  name: String!
+  description: String!
+  url: String!
+  contactEmail: String!
+  contactPhone: String!
+  helpUrl: String!
+  logoUrlSmall: String!
+  logoUrl: String!
+  defaultForStafferOrgId: ID
 }
 
 enum ApprovalAction {
@@ -878,6 +935,7 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   approvalWorkflowTypeId: ApprovalWorkflowType!
   comments: [ApprovalComment!]!
   decisions: [ApprovalDecision!]!
+  canApprove: Boolean!
 }
 
 input ApprovalStateResetInput {
@@ -941,20 +999,8 @@ type ApprovalWorkflowMutations {
 
 type ApprovalWorkflowQueries {
   byId(id: ID!): ApprovalWorkflow
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    workFlowType: ApprovalWorkflowType
-  ): [ApprovalWorkflow]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    workFlowType: ApprovalWorkflowType
-  ): PagedApprovalWorkflow
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): [ApprovalWorkflow]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], workFlowType: ApprovalWorkflowType): PagedApprovalWorkflow
   myApprovalWorkflows(orgId: ID): [ApprovalWorkflow]
 }
 
@@ -1009,9 +1055,7 @@ input ApprovalWorkflowUpdateInput {
   usages: String
 }
 
-union ApprovalWorkflowUsage =
-    AbsenceApprovalWorkflowUsage
-  | VacancyApprovalWorkflowUsage
+union ApprovalWorkflowUsage = AbsenceApprovalWorkflowUsage | VacancyApprovalWorkflowUsage
 
 type ApproverGroup implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
@@ -1107,46 +1151,23 @@ type ApproverGroupMember implements ModelObjectInterface & OrgObjectInterface {
 }
 
 type ApproverGroupMutations {
-  create(
-    approverGroupHeader: ApproverGroupHeaderCreateInput!
-  ): ApproverGroupHeader
-  createApproverGroupForLocation(
-    approverGroup: ApproverGroupCreateInput!
-  ): ApproverGroup
-  update(
-    approverGroupHeader: ApproverGroupHeaderUpdateInput!
-  ): ApproverGroupHeader
+  create(approverGroupHeader: ApproverGroupHeaderCreateInput!): ApproverGroupHeader
+  createApproverGroupForLocation(approverGroup: ApproverGroupCreateInput!): ApproverGroup
+  update(approverGroupHeader: ApproverGroupHeaderUpdateInput!): ApproverGroupHeader
   delete(approverGroupId: ID!): Boolean
   deleteApproverGroupHeader(approverGroupHeaderId: ID!): Boolean
-  addApproverGroupMember(
-    member: ApproverGroupAddMemberInput!
-  ): ApproverGroupMember
-  removeApproverGroupMember(
-    member: ApproverGroupRemoveMemberInput!
-  ): ApproverGroupMember
+  addApproverGroupMember(member: ApproverGroupAddMemberInput!): ApproverGroupMember
+  removeApproverGroupMember(member: ApproverGroupRemoveMemberInput!): ApproverGroupMember
 }
 
 type ApproverGroupQueries {
   byId(id: ID!): ApproverGroupHeader
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-  ): [ApproverGroupHeader]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedApproverGroupHeader
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ApproverGroupHeader]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedApproverGroupHeader
   groupById(approverGroupId: ID!): ApproverGroup
   groupsByLocationId(locationId: ID!): [ApproverGroup]
   myApproverGroupHeaders: [ApproverGroupHeader]
-  approverGroupHeadersByOrgUserId(
-    orgUserId: ID!
-    orgId: ID!
-  ): [ApproverGroupHeader]
+  approverGroupHeadersByOrgUserId(orgUserId: ID!, orgId: ID!): [ApproverGroupHeader]
 }
 
 input ApproverGroupRemoveMemberInput {
@@ -1202,13 +1223,7 @@ type AssignmentMutations {
 type AssignmentQueries {
   byId(id: ID!): Assignment
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Assignment]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedAssignment
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedAssignment
 }
 
 enum AssignmentType {
@@ -1420,22 +1435,8 @@ type CalendarChangeMutations {
 
 type CalendarChangeQueries {
   byId(id: ID!): CalendarChange
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    contractId: ID
-    schoolYearId: ID
-  ): [CalendarChange]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    contractId: ID
-    schoolYearId: ID
-  ): PagedCalendarChange
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], contractId: ID, schoolYearId: ID): [CalendarChange]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractId: ID, schoolYearId: ID): PagedCalendarChange
 }
 
 type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -1521,6 +1522,50 @@ type ChangeLogTypeDef {
   changes: String!
 }
 
+type Comment implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  payload: String!
+  discussion: Discussion!
+  hasBeenEdited: Boolean!
+  actingOrgUserId: ID!
+  actingOrgUser: OrgUser!
+  actualOrgUserId: OrgUser
+  actualOrgUser: OrgUser
+  actingUserId: ID!
+  actingUser: User!
+  actualUserId: ID!
+  actualUser: User!
+}
+
+input CommentCreateInput {
+  orgId: ID!
+  payload: String!
+  discussionId: ID
+  discussionSubjectType: DiscussionSubjectType!
+}
+
+type CommentMutations {
+  create(comment: CommentCreateInput!): Comment
+  update(comment: CommentUpdateInput!): Comment
+  delete(commentId: ID!): Boolean
+}
+
+input CommentUpdateInput {
+  id: ID!
+  rowVersion: String!
+  payload: String!
+}
+
 type ConfirmationNumberQueryResultTypeDef {
   _info: [ReturnMessage]
   absenceId: ID!
@@ -1554,24 +1599,9 @@ enum ConnectionDirection {
 
 type ContactQueries {
   byId(id: ID!): OrganizationCrmContact
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [OrganizationCrmContact]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedContact
-  crmContactsByContactType(
-    contactType: ContactType
-    orgId: ID!
-  ): [OrganizationCrmContact]
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [OrganizationCrmContact]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedContact
+  crmContactsByContactType(contactType: ContactType, orgId: ID!): [OrganizationCrmContact]
 }
 
 enum ContactType {
@@ -1671,20 +1701,8 @@ type ContractMutations {
 
 type ContractQueries {
   byId(id: ID!): Contract
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [Contract]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedContract
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Contract]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedContract
   contractsWithoutSchedules(schoolYearId: ID!, orgId: ID!): [Contract]
 }
 
@@ -1733,18 +1751,8 @@ type ContractScheduleMutations {
 type ContractScheduleQueries {
   byId(id: ID!): ContractSchedule
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ContractSchedule]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedContractSchedule
-  contractScheduleDates(
-    contractId: ID!
-    fromDate: Date!
-    toDate: Date!
-  ): [ContractDate!]!
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedContractSchedule
+  contractScheduleDates(contractId: ID!, fromDate: Date!, toDate: Date!): [ContractDate!]!
 }
 
 input ContractScheduleUpdateInput {
@@ -1890,20 +1898,8 @@ type CustomFieldMutations {
 
 type CustomFieldQueries {
   byId(id: ID!): CustomField
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [CustomField]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedCustomField
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [CustomField]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedCustomField
 }
 
 enum CustomFieldRequirementLevel {
@@ -2029,36 +2025,10 @@ type DataImportMutations {
 
 type DataImportQueries {
   byId(id: ID!): DataImport
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    status: DataImportStatus
-    type: DataImportType
-    fromDate: Date
-    toDate: Date
-  ): [DataImport]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    status: DataImportStatus
-    type: DataImportType
-    fromDate: Date
-    toDate: Date
-  ): PagedDataImport
-  pagedDataImportRows(
-    dataImportId: ID!
-    orgId: ID!
-    rowStatusId: DataImportRowStatus
-    limit: Int
-    offset: Int
-  ): PagedDataImportRow
-  dataImportTypeColumnDefinition(
-    dataImportType: DataImportType!
-  ): [DataImportColumn]
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): [DataImport]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], status: DataImportStatus, type: DataImportType, fromDate: Date, toDate: Date): PagedDataImport
+  pagedDataImportRows(dataImportId: ID!, orgId: ID!, rowStatusId: DataImportRowStatus, limit: Int, offset: Int): PagedDataImportRow
+  dataImportTypeColumnDefinition(dataImportType: DataImportType!): [DataImportColumn]
 }
 
 type DataImportRow implements ModelObjectInterface & OrgObjectInterface {
@@ -2253,6 +2223,35 @@ enum DimensionUnit {
   METERS
 }
 
+type Discussion implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  externalId: String
+  rowVersion: String!
+  discussionSubjectType: DiscussionSubjectType!
+  comments: [Comment!]!
+}
+
+type DiscussionQueries {
+  byId(id: ID!): Discussion
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Discussion]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedDiscussion
+}
+
+enum DiscussionSubjectType {
+  EMPLOYEE
+  SUBSTITUTE
+}
+
 enum DistanceUnit {
   INVALID
   MILES
@@ -2304,6 +2303,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   endorsements: [EmployeeEndorsement]
   locations: [Location]
   substitutePreferences: SubstitutePreferences!
+  comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
 }
 
 input EmployeeCreateInput {
@@ -2418,73 +2418,17 @@ type EmployeeQualifiedResult {
 
 type EmployeeQueries {
   byId(id: ID!): Employee
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    contractedOn: DateTime
-  ): [Employee]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    contractedOn: DateTime
-  ): PagedEmployee
-  employeePositionSchedule(
-    id: ID!
-    fromDate: Date!
-    toDate: Date!
-  ): [PositionScheduleDate]
-  employeeContractSchedule(
-    id: ID!
-    fromDate: Date!
-    toDate: Date!
-  ): [ContractDate]
-  employeeAbsenceSchedule(
-    id: ID!
-    fromDate: Date!
-    toDate: Date!
-    showDenied: Boolean
-  ): [Absence]
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], contractedOn: DateTime): [Employee]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractedOn: DateTime): PagedEmployee
+  employeePositionSchedule(id: ID!, fromDate: Date!, toDate: Date!): [PositionScheduleDate]
+  employeeContractSchedule(id: ID!, fromDate: Date!, toDate: Date!): [ContractDate]
+  employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!, showDenied: Boolean): [Absence]
   employeeVacancySchedule(id: ID!, fromDate: Date!, toDate: Date!): [Vacancy]
-  employeeAssignmentSchedule(
-    id: ID!
-    orgId: ID
-    fromDate: DateTime!
-    toDate: Date!
-    limit: Int
-    includeCompletedToday: Boolean
-  ): [VacancyDetail]
-  employeeSpecificAssignment(
-    id: ID!
-    assignmentId: ID!
-    orgId: ID
-  ): [VacancyDetail]
-  employeeSmsLogOnDate(
-    id: ID!
-    onDate: Date!
-    orgId: ID
-    limit: Int
-    offset: Int
-  ): PagedSmsMessageLog
-  employeeSmsLogLocal(
-    id: ID!
-    fromTime: DateTime!
-    toTime: DateTime!
-    orgId: ID
-    limit: Int
-    offset: Int
-  ): PagedSmsMessageLog
-  employeeSmsLogUtc(
-    id: ID!
-    fromTime: DateTime!
-    toTime: DateTime!
-    orgId: ID
-    limit: Int
-    offset: Int
-  ): PagedSmsMessageLog
+  employeeAssignmentSchedule(id: ID!, orgId: ID, fromDate: DateTime!, toDate: Date!, limit: Int, includeCompletedToday: Boolean): [VacancyDetail]
+  employeeSpecificAssignment(id: ID!, assignmentId: ID!, orgId: ID): [VacancyDetail]
+  employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
+  employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
+  employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
 }
 
 input EmployeeRejectVacancyInput {
@@ -2693,6 +2637,9 @@ enum EventType {
   APPLICATION_GRANT_CREATED
   APPLICATION_GRANT_UPDATED
   APPLICATION_GRANT_DELETED
+  APPLICATION_CONNECTION_CREATED
+  APPLICATION_CONNECTION_UPDATED
+  APPLICATION_CONNECTION_DELETED
   LOCATION_CREATED
   LOCATION_UPDATED
   LOCATION_DELETED
@@ -2878,6 +2825,12 @@ enum EventType {
   WORKFLOW_STEP_DENIED
   WORKFLOW_STEP_SKIPPED
   WORKFLOW_STEP_RESET
+  APPLICATION_CREATED
+  APPLICATION_UPDATED
+  APPLICATION_DELETED
+  APPLICATION_PRESET_CREATED
+  APPLICATION_PRESET_UPDATED
+  APPLICATION_PRESET_DELETED
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
@@ -2894,6 +2847,11 @@ enum EventType {
   APPROVAL_WORKFLOW_CREATED
   APPROVAL_WORKFLOW_UPDATED
   APPROVAL_WORKFLOW_DELETED
+  DISCUSSION_CREATED
+  APPLY_DISCUSSION_TO_OBJECT
+  COMMENT_CREATED
+  COMMENT_UPDATED
+  COMMENT_DELETED
 }
 
 enum FeatureFlag {
@@ -2988,13 +2946,7 @@ type InAppNotificationMutations {
 }
 
 type InAppNotificationQueries {
-  byId(id: ID!): InAppNotification
-  paged(
-    limit: Int
-    offset: Int
-    orgId: ID
-    includeViewed: Boolean
-  ): PagedInAppNotification
+  paged(limit: Int, offset: Int, orgId: ID, includeViewed: Boolean): PagedInAppNotification
   unreadNotificationCount(orgId: ID): Int
 }
 
@@ -3170,13 +3122,7 @@ type LocationGroupMutations {
 type LocationGroupQueries {
   byId(id: ID!): LocationGroup
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [LocationGroup]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedLocationGroup
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedLocationGroup
 }
 
 input LocationGroupUpdateInput {
@@ -3198,24 +3144,8 @@ type LocationMutations {
 
 type LocationQueries {
   byId(id: ID!): Location
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-    locationGroups: [ID]
-  ): [Location]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-    locationGroups: [ID]
-  ): PagedLocation
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationGroups: [ID]): [Location]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationGroups: [ID]): PagedLocation
 }
 
 input LocationUpdateInput {
@@ -3258,13 +3188,17 @@ interface ModelObjectInterface {
 type Mutation {
   absence: AbsenceMutations
   absenceReasonBalance: AbsenceReasonBalanceMutations
+  applicationConnection: ApplicationConnectionMutations
   applicationGrant: ApplicationGrantMutations
+  application: ApplicationMutations
+  applicationPreset: ApplicationPresetMutations
   approval: ApprovalMutations
   approvalWorkflow: ApprovalWorkflowMutations
   approverGroup: ApproverGroupMutations
   assignment: AssignmentMutations
   branding: BrandingMutations
   calendarChange: CalendarChangeMutations
+  comment: CommentMutations
   contractedAssignment: ContractedAssignmentMutations
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
@@ -3412,6 +3346,7 @@ enum ObjectType {
   REPLACEMENT_POOL
   REPLACEMENT_CRITERIA_CONFIG
   REPLACEMENT_CRITERIA
+  DISCUSSION
   EMPLOYEE
   ASSIGNMENT
   ABSENCE
@@ -3605,29 +3540,15 @@ input OrganizationRelationshipCreateInput {
 }
 
 type OrganizationRelationshipMutations {
-  create(
-    organizationRelationship: OrganizationRelationshipCreateInput!
-  ): OrganizationRelationship
-  update(
-    organizationRelationship: OrganizationRelationshipUpdateInput!
-  ): OrganizationRelationship
+  create(organizationRelationship: OrganizationRelationshipCreateInput!): OrganizationRelationship
+  update(organizationRelationship: OrganizationRelationshipUpdateInput!): OrganizationRelationship
   delete(organizationRelationshipId: ID!): Boolean
 }
 
 type OrganizationRelationshipQueries {
   byId(id: ID!): OrganizationRelationship
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-  ): [OrganizationRelationship]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedOrganizationRelationship
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrganizationRelationship]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrganizationRelationship
 }
 
 enum OrganizationRelationshipType {
@@ -3667,31 +3588,15 @@ interface OrgObjectInterface {
 }
 
 type OrgRef_AbsenceReasonCategoryMutations {
-  create(
-    absenceReasonCategory: AbsenceReasonCategoryCreateInput!
-  ): AbsenceReasonCategory
-  update(
-    absenceReasonCategory: AbsenceReasonCategoryUpdateInput!
-  ): AbsenceReasonCategory
+  create(absenceReasonCategory: AbsenceReasonCategoryCreateInput!): AbsenceReasonCategory
+  update(absenceReasonCategory: AbsenceReasonCategoryUpdateInput!): AbsenceReasonCategory
   delete(absenceReasonCategoryId: ID!): Boolean
 }
 
 type OrgRef_AbsenceReasonCategoryQueries {
   byId(id: ID!): AbsenceReasonCategory
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [AbsenceReasonCategory]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedAbsenceReasonCategory
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [AbsenceReasonCategory]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedAbsenceReasonCategory
 }
 
 type OrgRef_AbsenceReasonMutations {
@@ -3702,22 +3607,8 @@ type OrgRef_AbsenceReasonMutations {
 
 type OrgRef_AbsenceReasonQueries {
   byId(id: ID!): AbsenceReason
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    positionTypeIds: [ID]
-  ): [AbsenceReason]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    positionTypeIds: [ID]
-  ): PagedAbsenceReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): [AbsenceReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): PagedAbsenceReason
 }
 
 type OrgRef_AccountingCodeMutations {
@@ -3728,80 +3619,32 @@ type OrgRef_AccountingCodeMutations {
 
 type OrgRef_AccountingCodeQueries {
   byId(id: ID!): AccountingCode
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    includeExpired: Boolean
-    locationIds: [ID]
-  ): [AccountingCode]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    includeExpired: Boolean
-    locationIds: [ID]
-  ): PagedAccountingCode
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], includeExpired: Boolean, locationIds: [ID]): [AccountingCode]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], includeExpired: Boolean, locationIds: [ID]): PagedAccountingCode
 }
 
 type OrgRef_CalendarChangeReasonMutations {
-  create(
-    calendarChangeReason: CalendarChangeReasonCreateInput!
-  ): CalendarChangeReason
-  update(
-    calendarChangeReason: CalendarChangeReasonUpdateInput!
-  ): CalendarChangeReason
+  create(calendarChangeReason: CalendarChangeReasonCreateInput!): CalendarChangeReason
+  update(calendarChangeReason: CalendarChangeReasonUpdateInput!): CalendarChangeReason
   delete(calendarChangeReasonId: ID!): Boolean
 }
 
 type OrgRef_CalendarChangeReasonQueries {
   byId(id: ID!): CalendarChangeReason
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [CalendarChangeReason]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedCalendarChangeReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [CalendarChangeReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedCalendarChangeReason
 }
 
 type OrgRef_EndEmploymentReasonMutations {
-  create(
-    endEmploymentReason: EndEmploymentReasonCreateInput!
-  ): EndEmploymentReason
-  update(
-    endEmploymentReason: EndEmploymentReasonUpdateInput!
-  ): EndEmploymentReason
+  create(endEmploymentReason: EndEmploymentReasonCreateInput!): EndEmploymentReason
+  update(endEmploymentReason: EndEmploymentReasonUpdateInput!): EndEmploymentReason
   delete(endEmploymentReasonId: ID!): Boolean
 }
 
 type OrgRef_EndEmploymentReasonQueries {
   byId(id: ID!): EndEmploymentReason
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [EndEmploymentReason]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedEndEmploymentReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [EndEmploymentReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedEndEmploymentReason
 }
 
 type OrgRef_EndorsementMutations {
@@ -3812,22 +3655,8 @@ type OrgRef_EndorsementMutations {
 
 type OrgRef_EndorsementQueries {
   byId(id: ID!): Endorsement
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-  ): [Endorsement]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-  ): PagedEndorsement
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): [Endorsement]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String): PagedEndorsement
 }
 
 type OrgRef_LabelMutations {
@@ -3838,20 +3667,8 @@ type OrgRef_LabelMutations {
 
 type OrgRef_LabelQueries {
   byId(id: ID!): Label
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [Label]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedLabel
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [Label]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedLabel
 }
 
 type OrgRef_PayCodeMutations {
@@ -3862,20 +3679,8 @@ type OrgRef_PayCodeMutations {
 
 type OrgRef_PayCodeQueries {
   byId(id: ID!): PayCode
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [PayCode]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedPayCode
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [PayCode]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedPayCode
 }
 
 type OrgRef_VacancyReasonMutations {
@@ -3886,48 +3691,20 @@ type OrgRef_VacancyReasonMutations {
 
 type OrgRef_VacancyReasonQueries {
   byId(id: ID!): VacancyReason
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [VacancyReason]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedVacancyReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [VacancyReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedVacancyReason
 }
 
 type OrgRef_WorkDayScheduleVariantTypeMutations {
-  create(
-    workDayScheduleVariantType: WorkDayScheduleVariantTypeCreateInput!
-  ): WorkDayScheduleVariantType
-  update(
-    workDayScheduleVariantType: WorkDayScheduleVariantTypeUpdateInput!
-  ): WorkDayScheduleVariantType
+  create(workDayScheduleVariantType: WorkDayScheduleVariantTypeCreateInput!): WorkDayScheduleVariantType
+  update(workDayScheduleVariantType: WorkDayScheduleVariantTypeUpdateInput!): WorkDayScheduleVariantType
   delete(workDayScheduleVariantTypeId: ID!): Boolean
 }
 
 type OrgRef_WorkDayScheduleVariantTypeQueries {
   byId(id: ID!): WorkDayScheduleVariantType
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [WorkDayScheduleVariantType]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedWorkDayScheduleVariantType
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [WorkDayScheduleVariantType]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayScheduleVariantType
 }
 
 type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -4027,51 +3804,16 @@ type OrgUserMutations {
   saveAdministrator(administrator: AdministratorInput!): OrgUser
   saveSubstitute(substitute: SubstituteInput!): OrgUser
   saveEmployee(employee: EmployeeInput!): OrgUser
-  addSubPreference(
-    subPreference: SubstitutePreferenceInput!
-  ): ReplacementPoolMember
+  addSubPreference(subPreference: SubstitutePreferenceInput!): ReplacementPoolMember
   removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
   removeOrgUserRole(orgUserId: ID!, orgUserRole: OrgUserRole!): OrgUser
 }
 
 type OrgUserQueries {
   byId(id: ID!): OrgUser
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    name: String
-    role: [OrgUserRole]
-    active: Boolean
-    endorsements: [ID]
-    locations: [ID]
-    positionTypes: [ID]
-    shadowOrgIds: [ID]
-    invitationStatus: InvitationStatus
-  ): [OrgUser]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    name: String
-    role: [OrgUserRole]
-    active: Boolean
-    endorsements: [ID]
-    locations: [ID]
-    positionTypes: [ID]
-    shadowOrgIds: [ID]
-    invitationStatus: InvitationStatus
-  ): PagedOrgUser
-  pagedSubsForPreferences(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    name: String
-  ): PagedOrgUser
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID], invitationStatus: InvitationStatus): [OrgUser]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID], invitationStatus: InvitationStatus): PagedOrgUser
+  pagedSubsForPreferences(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
   verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
   suggestedAdminsForApproverGroups(locationId: ID, orgId: ID!): [OrgUser]
@@ -4184,6 +3926,15 @@ type PagedAccountingCode {
   totalCount: Int
 }
 
+type PagedApplicationConnection {
+  _info: [ReturnMessage]
+  results: [ApplicationConnection]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
 type PagedApprovalWorkflow {
   _info: [ReturnMessage]
   results: [ApprovalWorkflow]
@@ -4277,6 +4028,15 @@ type PagedDataImport {
 type PagedDataImportRow {
   _info: [ReturnMessage]
   results: [DataImportRow]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedDiscussion {
+  _info: [ReturnMessage]
+  results: [Discussion]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4834,22 +4594,8 @@ type PermissionSetMutations {
 
 type PermissionSetQueries {
   byId(id: ID!): PermissionSet
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-    searchText: String
-    roles: [OrgUserRole]
-  ): [PermissionSet]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    searchText: String
-    roles: [OrgUserRole]
-  ): PagedPermissionSet
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], searchText: String, roles: [OrgUserRole]): [PermissionSet]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String, roles: [OrgUserRole]): PagedPermissionSet
 }
 
 type PermissionSetting {
@@ -4979,27 +4725,9 @@ input PositionInput {
 type PositionQueries {
   byId(id: ID!): Position
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Position]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedPosition
-  qualifiedEmployeeCounts(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    positionId: ID!
-    name: String
-  ): QualifiedEmployeeCounts
-  qualifiedEmployees(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    positionId: ID!
-    name: String
-  ): PagedEmployeeQualifiedResult
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPosition
+  qualifiedEmployeeCounts(orgId: ID!, limit: Int, offset: Int, positionId: ID!, name: String): QualifiedEmployeeCounts
+  qualifiedEmployees(orgId: ID!, limit: Int, offset: Int, positionId: ID!, name: String): PagedEmployeeQualifiedResult
 }
 
 type PositionSchedule implements ModelObjectInterface & OrgObjectInterface {
@@ -5148,15 +4876,9 @@ type PositionScheduleMutations {
   create(positionSchedule: PositionScheduleCreateInput!): PositionSchedule
   update(positionSchedule: PositionScheduleUpdateInput!): PositionSchedule
   delete(positionScheduleId: ID!): Boolean
-  modifyScheduleVariant(
-    positionScheduleVariant: PositionScheduleVariantModifyInput!
-  ): PositionScheduleVariant
-  deleteScheduleVariant(
-    positionScheduleVariant: PositionScheduleVariantDeleteInput!
-  ): Boolean
-  createSimple(
-    positionSchedule: PositionScheduleCreateSimpleInputTypeDef!
-  ): PositionSchedule
+  modifyScheduleVariant(positionScheduleVariant: PositionScheduleVariantModifyInput!): PositionScheduleVariant
+  deleteScheduleVariant(positionScheduleVariant: PositionScheduleVariantDeleteInput!): Boolean
+  createSimple(positionSchedule: PositionScheduleCreateSimpleInputTypeDef!): PositionSchedule
 }
 
 input PositionSchedulePeriodInput {
@@ -5182,13 +4904,7 @@ input PositionSchedulePeriodSimpleInput {
 type PositionScheduleQueries {
   byId(id: ID!): PositionSchedule
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [PositionSchedule]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedPositionSchedule
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedPositionSchedule
 }
 
 input PositionScheduleUpdateInput {
@@ -5361,42 +5077,11 @@ type PositionTypeQualifications {
 
 type PositionTypeQueries {
   byId(id: ID!): PositionType
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    forStaffAugmentation: Boolean
-    forPermanentPositions: Boolean
-  ): [PositionType]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    forStaffAugmentation: Boolean
-    forPermanentPositions: Boolean
-  ): PagedPositionType
-  qualifiedEmployeeCounts(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    positionTypeId: ID!
-    name: String
-  ): QualifiedEmployeeCounts
-  qualifiedEmployees(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    positionTypeId: ID!
-    name: String
-  ): PagedEmployeeQualifiedResult
-  getQualificationsFromEndorsements(
-    orgId: ID!
-    endorsementIds: [ID!]!
-  ): PositionTypeQualifications!
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], forStaffAugmentation: Boolean, forPermanentPositions: Boolean): [PositionType]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], forStaffAugmentation: Boolean, forPermanentPositions: Boolean): PagedPositionType
+  qualifiedEmployeeCounts(orgId: ID!, limit: Int, offset: Int, positionTypeId: ID!, name: String): QualifiedEmployeeCounts
+  qualifiedEmployees(orgId: ID!, limit: Int, offset: Int, positionTypeId: ID!, name: String): PagedEmployeeQualifiedResult
+  getQualificationsFromEndorsements(orgId: ID!, endorsementIds: [ID!]!): PositionTypeQualifications!
 }
 
 input PositionTypeUpdateInput {
@@ -5431,7 +5116,9 @@ type QualifiedEmployeeCounts {
 type Query {
   absence: AbsenceQueries
   absenceReasonBalance: AbsenceReasonBalanceQueries
+  applicationConnection: ApplicationConnectionQueries
   applicationGrant: ApplicationGrantQueries
+  applicationPreset: ApplicationPresetQueries
   application: ApplicationQueries
   approvalWorkflow: ApprovalWorkflowQueries
   approverGroup: ApproverGroupQueries
@@ -5444,6 +5131,7 @@ type Query {
   contractSchedule: ContractScheduleQueries
   customField: CustomFieldQueries
   dataImport: DataImportQueries
+  discussion: DiscussionQueries
   employee: EmployeeQueries
   eventQueue: EventQueueQueries
   inAppNotification: InAppNotificationQueries
@@ -5821,29 +5509,15 @@ input ReplacementCriteriaConfigCreateInput {
 }
 
 type ReplacementCriteriaConfigMutations {
-  create(
-    replacementCriteriaConfig: ReplacementCriteriaConfigCreateInput!
-  ): ReplacementCriteriaConfig
-  update(
-    replacementCriteriaConfig: ReplacementCriteriaConfigUpdateInput!
-  ): ReplacementCriteriaConfig
+  create(replacementCriteriaConfig: ReplacementCriteriaConfigCreateInput!): ReplacementCriteriaConfig
+  update(replacementCriteriaConfig: ReplacementCriteriaConfigUpdateInput!): ReplacementCriteriaConfig
   delete(replacementCriteriaConfigId: ID!): Boolean
 }
 
 type ReplacementCriteriaConfigQueries {
   byId(id: ID!): ReplacementCriteriaConfig
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-  ): [ReplacementCriteriaConfig]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedReplacementCriteriaConfig
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementCriteriaConfig]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementCriteriaConfig
 }
 
 input ReplacementCriteriaConfigUpdateInput {
@@ -5873,19 +5547,11 @@ input ReplacementCriteriaInput {
 }
 
 type ReplacementCriteriaMutations {
-  create(
-    replacementCriteria: ReplacementCriteriaCreateInput!
-  ): ReplacementCriteria
-  update(
-    replacementCriteria: ReplacementCriteriaUpdateInput!
-  ): ReplacementCriteria
+  create(replacementCriteria: ReplacementCriteriaCreateInput!): ReplacementCriteria
+  update(replacementCriteria: ReplacementCriteriaUpdateInput!): ReplacementCriteria
   delete(replacementCriteriaId: ID!): Boolean
-  addEndorsements(
-    replacementCriteriaEndorsements: ReplacementCriteriaAddEndorsementsInput!
-  ): ReplacementCriteria
-  removeEndorsements(
-    replacementCriteriaEndorsements: ReplacementCriteriaRemoveEndorsementsInput!
-  ): ReplacementCriteria
+  addEndorsements(replacementCriteriaEndorsements: ReplacementCriteriaAddEndorsementsInput!): ReplacementCriteria
+  removeEndorsements(replacementCriteriaEndorsements: ReplacementCriteriaRemoveEndorsementsInput!): ReplacementCriteria
 }
 
 input ReplacementCriteriaRemoveEndorsementsInput {
@@ -5997,29 +5663,15 @@ input ReplacementPoolConfigCreateInput {
 }
 
 type ReplacementPoolConfigMutations {
-  create(
-    replacementPoolConfig: ReplacementPoolConfigCreateInput!
-  ): ReplacementPoolConfig
-  update(
-    replacementPoolConfig: ReplacementPoolConfigUpdateInput!
-  ): ReplacementPoolConfig
+  create(replacementPoolConfig: ReplacementPoolConfigCreateInput!): ReplacementPoolConfig
+  update(replacementPoolConfig: ReplacementPoolConfigUpdateInput!): ReplacementPoolConfig
   delete(replacementPoolConfigId: ID!): Boolean
 }
 
 type ReplacementPoolConfigQueries {
   byId(id: ID!): ReplacementPoolConfig
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-  ): [ReplacementPoolConfig]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedReplacementPoolConfig
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementPoolConfig]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementPoolConfig
 }
 
 input ReplacementPoolConfigUpdateInput {
@@ -6073,36 +5725,15 @@ type ReplacementPoolMutations {
   create(replacementPool: ReplacementPoolCreateInput!): ReplacementPool
   update(replacementPool: ReplacementPoolUpdateInput!): ReplacementPool
   delete(replacementPoolId: ID!): Boolean
-  addMembers(
-    replacementPoolMember: ReplacementPoolAddEmployeesInput!
-  ): ReplacementPool
-  updateMember(
-    replacementPoolMember: ReplacementPoolMemberUpdateInput!
-  ): ReplacementPoolMember
-  removeMembers(
-    replacementPoolMember: ReplacementPoolRemoveEmployeesInput!
-  ): ReplacementPool
+  addMembers(replacementPoolMember: ReplacementPoolAddEmployeesInput!): ReplacementPool
+  updateMember(replacementPoolMember: ReplacementPoolMemberUpdateInput!): ReplacementPoolMember
+  removeMembers(replacementPoolMember: ReplacementPoolRemoveEmployeesInput!): ReplacementPool
 }
 
 type ReplacementPoolQueries {
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-  ): [ReplacementPoolSummary]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedReplacementPool
-  byId(
-    limit: Int
-    offset: Int
-    forUpdate: Boolean
-    replacementPoolId: ID!
-  ): ReplacementPool
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [ReplacementPoolSummary]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedReplacementPool
+  byId(limit: Int, offset: Int, forUpdate: Boolean, replacementPoolId: ID!): ReplacementPool
 }
 
 input ReplacementPoolRemoveEmployeesInput {
@@ -6161,11 +5792,7 @@ type ReturnMessage {
 }
 
 type ReturnMessageTestQueries {
-  testInfo(
-    includeInfo: Boolean
-    includeWarning: Boolean
-    includeError: Boolean
-  ): TestTypeDef
+  testInfo(includeInfo: Boolean, includeWarning: Boolean, includeError: Boolean): TestTypeDef
 }
 
 type SavedView implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -6235,14 +5862,7 @@ type SavedViewMutations {
 type SavedViewQueries {
   byId(id: ID!): SavedView
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [SavedView]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    searchText: String
-  ): PagedSavedView
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedSavedView
 }
 
 type SavedViewSort {
@@ -6313,13 +5933,7 @@ type SchoolYearMutations {
 type SchoolYearQueries {
   byId(id: ID!): SchoolYear
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [SchoolYear]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedSchoolYear
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedSchoolYear
   currentSchoolYear(orgId: ID!): SchoolYear
 }
 
@@ -6516,6 +6130,7 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   payCode: PayCode
   qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
+  comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
 }
 
 input SubstituteAttributeInput {
@@ -6771,17 +6386,10 @@ type UserMutations {
   acceptEula: User
   invite(idsToInvite: [ID]!, orgId: ID, inviteSynchronously: Boolean): Boolean
   saveAvailableTime(availableTime: UserAvailableTimeInput!): UserAvailableTime
-  saveUnavailableTime(
-    unavailableTime: UserUnavailableTimeInput!
-  ): UserUnavailableTime
+  saveUnavailableTime(unavailableTime: UserUnavailableTimeInput!): UserUnavailableTime
   deleteUnavailableTime(id: ID!): Boolean
   verifyPhoneNumber(phoneNumber: String!): User
-  sendMobileMessage(
-    id: ID!
-    title: String!
-    message: String!
-    nameValuePairs: [NameValuePairInput]
-  ): Boolean
+  sendMobileMessage(id: ID!, title: String!, message: String!, nameValuePairs: [NameValuePairInput]): Boolean
   registerUserDevice(userDevice: RegisterUserDeviceInput!): UserDevice
   deleteUserDevice(userDevice: DeleteUserDeviceInput!): Boolean
 }
@@ -6797,20 +6405,8 @@ input UserPreferencesInput {
 
 type UserQueries {
   byId(id: ID!): User
-  paged(
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    searchText: String
-  ): PagedUser
-  pagedUserUnavailableTime(
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    userId: ID
-    fromDate: DateTime!
-    toDate: Date!
-  ): PagedUserUnavailableTime
+  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedUser
+  pagedUserUnavailableTime(limit: Int, offset: Int, sortBy: [SortDetailsInput], userId: ID, fromDate: DateTime!, toDate: Date!): PagedUserUnavailableTime
 }
 
 type UserUnavailableTime implements ModelObjectInterface {
@@ -7142,18 +6738,12 @@ type VacancyMutations {
   create(vacancy: VacancyCreateInput!): Vacancy
   update(vacancy: VacancyUpdateInput!): Vacancy
   delete(vacancyId: ID!): Boolean
-  requestVacancy(
-    vacancyRequest: EmployeeInterestInVacancyInput!
-  ): VacancyEmployeeInterest
-  rejectVacancy(
-    vacancyRejection: EmployeeRejectVacancyInput!
-  ): VacancyEmployeeInterest
+  requestVacancy(vacancyRequest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
+  rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
   swapVacancyAssignments(swapDetails: SwapVacancyAssignmentsInput!): Boolean
   verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
-  verifyVacancyDetailBatch(
-    vacancyDetailBatch: VacancyDetailVerifyBatchInput!
-  ): VerifyVacancyDetailBatchResult
+  verifyVacancyDetailBatch(vacancyDetailBatch: VacancyDetailVerifyBatchInput!): VerifyVacancyDetailBatchResult
 }
 
 type VacancyNotificationLog {
@@ -7187,101 +6777,24 @@ enum VacancyQualification {
 
 type VacancyQueries {
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Vacancy]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedVacancy
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedVacancy
   byId(id: ID!): Vacancy
-  getAssignmentsForVerify(
-    locationIds: [ID]
-    fromDate: Date
-    toDate: Date
-    limit: Int
-    orgId: ID!
-    shadowFromOrgId: ID
-    includeVerified: Boolean
-  ): [VacancyDetail]
-  getCountOfAssignmentsForVerify(
-    locationIds: [ID]
-    fromDate: Date
-    toDate: Date
-    orgId: ID!
-    includeVerified: Boolean
-  ): [VacancyDetailCount]
-  getJointCountOfAssignmentsForVerify(
-    locationIds: [ID]
-    fromDate: Date
-    toDate: Date
-    orgId: ID!
-    shadowFromOrgId: ID
-  ): [VacancyDetailJointCount]
+  getAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, limit: Int, orgId: ID!, shadowFromOrgId: ID, includeVerified: Boolean): [VacancyDetail]
+  getCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!, includeVerified: Boolean): [VacancyDetailCount]
+  getJointCountOfAssignmentsForVerify(locationIds: [ID], fromDate: Date, toDate: Date, orgId: ID!, shadowFromOrgId: ID): [VacancyDetailJointCount]
   getTotalCountOfAssignmentsToVerifyForCurrentSchoolYear(orgId: ID!): Int
   wasEmployeeAssignedToJob(id: ID!, vacancyId: ID!): VacancyWasAssignedResult
   employeeSuitableForJob(id: ID!, vacancyId: ID!): Boolean
-  employeeJobSearch(
-    id: ID!
-    availableJobsOnly: Boolean
-    locationIds: [ID]
-    positionTypeIds: [ID]
-    limit: Int
-    offset: Int
-  ): PagedVacancy
+  employeeJobSearch(id: ID!, availableJobsOnly: Boolean, locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedVacancy
   userSuitableForJob(id: ID!, vacancyId: ID!): Boolean
-  vacanciesForApprovalContext(
-    orgId: ID!
-    locationIds: [ID]
-    vacancyReasonIds: [ID]
-    absenceReasonIds: [ID]
-    fromDate: Date
-    toDate: Date
-  ): [Vacancy]
-  approvalInbox(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    getPastDecisions: Boolean
-  ): PagedAbsVacApprovalInboxQueryResult
+  vacanciesForApprovalContext(orgId: ID!, locationIds: [ID], vacancyReasonIds: [ID], absenceReasonIds: [ID], fromDate: Date, toDate: Date): [Vacancy]
+  approvalInbox(orgId: ID!, limit: Int, offset: Int, getPastDecisions: Boolean): PagedAbsVacApprovalInboxQueryResult
   countOfAbsVacNeedingApproval(orgId: ID!): Int
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
-  subJobSearch(
-    id: ID!
-    availableJobsOnly: Boolean
-    showNonPreferredJobs: Boolean
-    orgIds: [ID]
-    locationIds: [ID]
-    positionTypeIds: [ID]
-    limit: Int
-    offset: Int
-  ): PagedSubJobSearch
-  vacancyNotificationLogByVacancy(
-    vacancyId: ID!
-    sortBy: [SortDetailsInput]
-  ): [VacancyNotificationLog]
-  vacancyNotificationLogByUser(
-    userId: ID!
-    fromDate: Date
-    toDate: Date
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-  ): PagedVacancyNotificationLog
-  replacementEmployeesForVacancy(
-    orgId: ID!
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-    vacancyId: ID
-    vacancyDetailIds: [ID]
-    vacancy: VacancyCreateInput
-    name: String
-    qualified: [VacancyQualification]
-    available: [VacancyAvailability]
-    favoritesOnly: Boolean
-    replacementEmployeeId: ID
-  ): PagedVacancySubSearchQueryResult
+  subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
+  vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]
+  vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
+  replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   activityLog(id: ID!): ActivityLog
   deletedVacancyInfo(vacancyId: ID!): DeletedVacancyType
 }
@@ -7489,20 +7002,8 @@ type WorkDayPatternMutations {
 
 type WorkDayPatternQueries {
   byId(id: ID!): WorkDayPattern
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): [WorkDayPattern]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-  ): PagedWorkDayPattern
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [WorkDayPattern]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedWorkDayPattern
 }
 
 input WorkDayPatternUpdateInput {
@@ -7556,12 +7057,8 @@ type WorkDayScheduleMutations {
   create(workDaySchedule: WorkDayScheduleCreateInput!): WorkDaySchedule
   update(workDaySchedule: WorkDayScheduleUpdateInput!): WorkDaySchedule
   delete(workDayScheduleId: ID!): Boolean
-  modifyScheduleVariant(
-    workDayScheduleVariant: WorkDayScheduleVariantModifyInput!
-  ): WorkDayScheduleVariant
-  deleteScheduleVariant(
-    workDayScheduleVariant: WorkDayScheduleVariantDeleteInput!
-  ): Boolean
+  modifyScheduleVariant(workDayScheduleVariant: WorkDayScheduleVariantModifyInput!): WorkDayScheduleVariant
+  deleteScheduleVariant(workDayScheduleVariant: WorkDayScheduleVariantDeleteInput!): Boolean
 }
 
 type WorkDaySchedulePeriod implements ModelObjectInterface {
@@ -7586,26 +7083,8 @@ input WorkDaySchedulePeriodInput {
 
 type WorkDayScheduleQueries {
   byId(id: ID!): WorkDaySchedule
-  all(
-    orgId: ID
-    orgIds: [ID]
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-    locationIds: [ID]
-    locationGroupIds: [ID]
-  ): [WorkDaySchedule]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    includeExpired: Boolean
-    sortBy: [SortDetailsInput]
-    searchText: String
-    locationIds: [ID]
-    locationGroupIds: [ID]
-  ): PagedWorkDaySchedule
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationIds: [ID], locationGroupIds: [ID]): [WorkDaySchedule]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], searchText: String, locationIds: [ID], locationGroupIds: [ID]): PagedWorkDaySchedule
 }
 
 input WorkDayScheduleUpdateInput {
