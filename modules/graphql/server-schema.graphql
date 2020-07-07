@@ -752,6 +752,7 @@ enum ApprovalAction {
   APPROVE
   DENY
   SKIP
+  RESET
 }
 
 type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
@@ -797,6 +798,7 @@ type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
   approvalStateId: ID!
   stepId: String!
   approvalActionId: ApprovalAction!
+  hasBeenReset: Boolean!
   actingOrgUserId: ID!
   actingOrgUser: OrgUser!
   actualOrgUserId: ID
@@ -836,11 +838,14 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   approvalWorkflowTypeId: ApprovalWorkflowType!
   comments: [ApprovalComment!]!
   decisions: [ApprovalDecision!]!
+  canApprove: Boolean!
 }
 
 input ApprovalStateResetInput {
   approvalStateId: ID!
   resetToStepId: String!
+  comment: String
+  commentIsPublic: Boolean
 }
 
 input ApprovalStateUpdateInput {
@@ -3396,7 +3401,7 @@ interface OrgObjectInterface {
 type OrgRef_AbsenceReasonCategoryMutations {
   create(absenceReasonCategory: AbsenceReasonCategoryCreateInput!): AbsenceReasonCategory
   update(absenceReasonCategory: AbsenceReasonCategoryUpdateInput!): AbsenceReasonCategory
-  delete(absenceReasonCategoryId: ID!): Boolean
+  delete(absenceReasonCategoryId: ID!, deleteCategoryMembers: Boolean, newCategoryId: ID): Boolean
 }
 
 type OrgRef_AbsenceReasonCategoryQueries {
@@ -3413,8 +3418,8 @@ type OrgRef_AbsenceReasonMutations {
 
 type OrgRef_AbsenceReasonQueries {
   byId(id: ID!): AbsenceReason
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): [AbsenceReason]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): PagedAbsenceReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID], absenceCategoryIds: [ID]): [AbsenceReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID], absenceCategoryIds: [ID]): PagedAbsenceReason
 }
 
 type OrgRef_AccountingCodeMutations {

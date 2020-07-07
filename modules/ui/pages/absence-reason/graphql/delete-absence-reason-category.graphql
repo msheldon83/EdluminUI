@@ -1,5 +1,13 @@
-mutation DeleteAbsenceReasonCategory($absenceReasonCategoryId: ID!) {
+mutation DeleteAbsenceReasonCategory(
+  $absenceReasonCategoryId: ID!
+  $deleteCategoryMembers: Boolean
+  $newCategoryId: ID
+) {
   orgRef_AbsenceReasonCategory {
-    delete(absenceReasonCategoryId: $absenceReasonCategoryId)
+    delete(
+      absenceReasonCategoryId: $absenceReasonCategoryId
+      deleteCategoryMembers: $deleteCategoryMembers
+      newCategoryId: $newCategoryId
+    )
   }
 }

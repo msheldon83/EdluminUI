@@ -13,11 +13,13 @@ import { GetAllAbsenceReasonCategoriesDocument } from "reference-data/get-absenc
 import { UpdateAbsenceReasonCategory } from "./graphql/update-absence-reason-category.gen";
 import { DeleteAbsenceReasonCategory } from "./graphql/delete-absence-reason-category.gen";
 import { GetAbsenceReasonCategory } from "./graphql/get-absence-reason-category.gen";
+import { DeleteCategoryDialog } from "./components/delete-category-dialog";
 
 export const AbsenceReasonCategoryViewEditPage: React.FC<{}> = props => {
   const params = useRouteParams(AbsenceReasonCategoryViewEditRoute);
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
+  const [dialogIsOpen, setDialogIsOpen] = React.useState<boolean>(false);
 
   const absenceReasonCategoriesReferenceQuery = {
     query: GetAllAbsenceReasonCategoriesDocument,
@@ -44,14 +46,21 @@ export const AbsenceReasonCategoryViewEditPage: React.FC<{}> = props => {
     }
   );
 
-  const deleteAbsenceReasonCallback = React.useCallback(async () => {
-    const result = await deleteAbsenceReasonCategory({
-      variables: { absenceReasonCategoryId: params.absenceReasonCategoryId },
-    });
-    if (result.data) {
-      history.push(AbsenceReasonRoute.generate(params));
-    }
-  }, [deleteAbsenceReasonCategory, params, history]);
+  const deleteAbsenceReasonCallback = React.useCallback(
+    async (deleteCategoryMembers: boolean, newCategoryId?: string) => {
+      const result = await deleteAbsenceReasonCategory({
+        variables: {
+          absenceReasonCategoryId: params.absenceReasonCategoryId,
+          deleteCategoryMembers,
+          newCategoryId,
+        },
+      });
+      if (result.data) {
+        history.push(AbsenceReasonRoute.generate(params));
+      }
+    },
+    [deleteAbsenceReasonCategory, params, history]
+  );
 
   const result = useQueryBundle(GetAbsenceReasonCategory, {
     fetchPolicy: "cache-and-network",
@@ -81,17 +90,26 @@ export const AbsenceReasonCategoryViewEditPage: React.FC<{}> = props => {
     });
 
   return (
-    <AbsenceReasonViewEditUI
-      rowVersion={absenceReasonCategory.rowVersion}
-      name={absenceReasonCategory.name}
-      externalId={absenceReasonCategory.externalId || undefined}
-      code={absenceReasonCategory.code || undefined}
-      description={absenceReasonCategory.description || undefined}
-      allowNegativeBalance={absenceReasonCategory.allowNegativeBalance}
-      id={absenceReasonCategory.id}
-      updateNameOrExternalIdOrPositionTypes={updateAbsenceReason}
-      onDelete={deleteAbsenceReasonCallback}
-      isCategory={true}
-    />
+    <>
+      <DeleteCategoryDialog
+        isOpen={dialogIsOpen}
+        onAccept={deleteAbsenceReasonCallback}
+        onCancel={() => setDialogIsOpen(false)}
+        orgId={params.organizationId}
+        absenceCategory={absenceReasonCategory}
+      />
+      <AbsenceReasonViewEditUI
+        rowVersion={absenceReasonCategory.rowVersion}
+        name={absenceReasonCategory.name}
+        externalId={absenceReasonCategory.externalId || undefined}
+        code={absenceReasonCategory.code || undefined}
+        description={absenceReasonCategory.description || undefined}
+        allowNegativeBalance={absenceReasonCategory.allowNegativeBalance}
+        id={absenceReasonCategory.id}
+        updateNameOrExternalIdOrPositionTypes={updateAbsenceReason}
+        onDelete={() => setDialogIsOpen(true)}
+        isCategory={true}
+      />
+    </>
   );
 };

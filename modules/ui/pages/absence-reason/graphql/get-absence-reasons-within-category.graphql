@@ -1,0 +1,22 @@
+query GetAllAbsenceReasonsWithinCategory(
+  $orgId: ID
+  $includeExpired: Boolean
+  $absenceCategoryId: ID
+) {
+  orgRef_AbsenceReason {
+    all(
+      orgId: $orgId
+      includeExpired: $includeExpired
+      absenceCategoryIds: [$absenceCategoryId]
+    ) {
+      id
+      name
+      rowVersion
+      externalId
+      code
+      description
+      expired
+      isRestricted
+    }
+  }
+}
