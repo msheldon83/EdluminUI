@@ -21,14 +21,16 @@ import { SubstituteLink } from "ui/components/links/people";
 
 type Props = {
   title: string;
-  useAutoAssign: boolean;
   orgId: string;
   onAdd: (orgUser: any) => void;
   onBlock: (orgUser: any) => void;
-  onAutoAssign?: (orgUser: any) => void;
   takenSubstitutes: ReplacementPoolMember[];
   addToFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
+  autoAssign?: {
+    onAdd: (orgUser: any) => void;
+    addPermission: PermissionEnum[];
+  };
 };
 
 export const SubstitutePicker: React.FC<Props> = props => {
@@ -177,12 +179,12 @@ export const SubstitutePicker: React.FC<Props> = props => {
                     {t("Add favorite")}
                   </TextButton>
                 </Can>
-                {props.useAutoAssign && props.onAutoAssign && (
-                  <Can do={props.addToFavoritePermission}>
+                {props.autoAssign && (
+                  <Can do={props.autoAssign.addPermission}>
                     <TextButton
                       className={classes.addAutoAssignActionLink}
                       onClick={() =>
-                        props.onAutoAssign!({
+                        props.autoAssign!.onAdd({
                           employeeId: user.id,
                           employee: {
                             firstName: user.firstName,
