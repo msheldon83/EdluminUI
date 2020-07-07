@@ -88,9 +88,9 @@ export const ApprovalComments: React.FC<Props> = props => {
     });
 
     return list.sort((a, b) =>
-      a.createdLocal && b.createdLocal && a.createdLocal > b.createdLocal
+      a.createdLocal && b.createdLocal && a.createdLocal < b.createdLocal
         ? 1
-        : a.createdLocal && b.createdLocal && b.createdLocal > a.createdLocal
+        : a.createdLocal && b.createdLocal && b.createdLocal < a.createdLocal
         ? -1
         : 0
     );
@@ -106,7 +106,7 @@ export const ApprovalComments: React.FC<Props> = props => {
       return `${approverGroupHeaderName} ${t("Skipped by ")}`;
     }
     if (approvalAction == ApprovalAction.Reset) {
-      return `${approverGroupHeaderName} ${t("Reset by ")}`;
+      return `${t("Reset to")} ${approverGroupHeaderName} ${t("by")} `;
     }
     return null;
   };
