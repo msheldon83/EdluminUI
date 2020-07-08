@@ -78,34 +78,46 @@ export const AbsenceNavLink: React.FC<Props> = props => {
   const orgFeatureFlags = useOrgFeatureFlags(props.orgId);
   const orgUsesVerify: boolean = orgFeatureFlags.includes(FeatureFlag.Verify);
 
-  const absenceSubNavItems = [
-    {
-      title: t("Create Absence"),
-      route: AdminSelectEmployeeForCreateAbsenceRoute.generate(paramsCreate),
-      permissions: [PermissionEnum.AbsVacSave],
-    },
-    {
-      title: t("Create Vacancy"),
-      route: VacancyCreateRoute.generate(paramsVacancyCreate),
-      permissions: [PermissionEnum.AbsVacSave],
-    },
-    {
-      title: t("Daily Report"),
-      route: DailyReportRoute.generate(paramsDailyReport),
-      permissions: [PermissionEnum.AbsVacView],
-    },
-    {
-      title: t("Approve"),
-      route: ApprovalInboxRoute.generate(paramsVerify),
-    },
-  ] as SubNavItemType[];
-  if (orgUsesVerify) {
-    absenceSubNavItems.push({
-      title: t("Verify"),
-      route: VerifyOverviewRoute.generate(paramsVerify),
-      permissions: [PermissionEnum.AbsVacVerify],
-    });
-  }
+  const absenceSubNavItems = React.useMemo(() => {
+    const subNavItems = [
+      {
+        title: t("Create Absence"),
+        route: AdminSelectEmployeeForCreateAbsenceRoute.generate(paramsCreate),
+        permissions: [PermissionEnum.AbsVacSave],
+      },
+      {
+        title: t("Create Vacancy"),
+        route: VacancyCreateRoute.generate(paramsVacancyCreate),
+        permissions: [PermissionEnum.AbsVacSave],
+      },
+      {
+        title: t("Daily Report"),
+        route: DailyReportRoute.generate(paramsDailyReport),
+        permissions: [PermissionEnum.AbsVacView],
+      },
+      {
+        title: t("Approve"),
+        route: ApprovalInboxRoute.generate(paramsVerify),
+      },
+    ] as SubNavItemType[];
+
+    if (orgUsesVerify) {
+      subNavItems.push({
+        title: t("Verify"),
+        route: VerifyOverviewRoute.generate(paramsVerify),
+        permissions: [PermissionEnum.AbsVacVerify],
+      });
+    }
+
+    return subNavItems;
+  }, [
+    orgUsesVerify,
+    paramsCreate,
+    paramsDailyReport,
+    paramsVacancyCreate,
+    paramsVerify,
+    t,
+  ]);
 
   return (
     <Can do={canViewAbsVacNavLink} orgId={props.orgId}>
