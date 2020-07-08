@@ -7,46 +7,56 @@ import { compact } from "lodash-es";
 import { UpcomingAssignments } from "./upcoming-assignments";
 import { AvailableAssignments } from "./available-assignments";
 import { useMyUserAccess } from "reference-data/my-user-access";
+import { isAfter, parseISO, startOfWeek } from "date-fns";
 
 export const SubHome: React.FC<{}> = () => {
-  const fromDate = useMemo(() => new Date(), []);
-  const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
+  const now = useMemo(() => new Date(), []);
+  const fromDate = useMemo(() => startOfWeek(now), [now]);
+  const toDate = useMemo(() => addDays(now, 30), [now]);
 
   const userAccess = useMyUserAccess();
 
   const orgUsers = compact(userAccess?.me?.user?.orgUsers) ?? [];
   const userId = userAccess?.me?.user?.id;
 
-  const getUpcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
+  const getAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: userId ?? "",
       fromDate,
       toDate,
-      includeCompletedToday: false,
+      includeCompletedToday: true,
     },
     skip: !userId,
   });
 
-  const assignments = useMemo(
-    () =>
-      getUpcomingAssignments.state === "LOADING"
+  const [completedAssignments, upcomingAssignments] = useMemo(() => {
+    const assignments =
+      getAssignments.state === "LOADING"
         ? []
-        : compact(
-            getUpcomingAssignments.data?.employee?.employeeAssignmentSchedule
-          ) ?? [],
-    [getUpcomingAssignments]
-  );
+        : compact(getAssignments.data?.employee?.employeeAssignmentSchedule) ??
+          [];
+
+    const firstFutureIndex = assignments.findIndex(a =>
+      isAfter(parseISO(a.endTimeLocal), now)
+    );
+    if (firstFutureIndex == -1) return [assignments, []];
+    return [
+      assignments.slice(0, firstFutureIndex),
+      assignments.slice(firstFutureIndex),
+    ];
+  }, [getAssignments, now]);
 
   const onRefetchAssignments = async () => {
-    await getUpcomingAssignments.refetch();
+    await getAssignments.refetch();
   };
 
   return (
     <>
-      {getUpcomingAssignments.state !== "LOADING" && (
+      {getAssignments.state !== "LOADING" && (
         <UpcomingAssignments
           userId={userId}
-          assignments={assignments}
+          completedAssignments={completedAssignments}
+          upcomingAssignments={upcomingAssignments}
           actingAsSubstitute={true}
         />
       )}
