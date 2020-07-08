@@ -7,16 +7,17 @@ import EditIcon from "@material-ui/icons/Edit";
 import clsx from "clsx";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
-import { Comment } from "graphql/server-types.gen";
+import { Comment, CommentUpdateInput } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   comment: Comment;
-  onEditComment: (payload: string, commentId: string) => void;
+  onEditComment: (editComment: CommentUpdateInput) => void;
 };
 
 export const CommentView: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
   const { comment, onEditComment } = props;
 
   const [showEdit, setShowEdit] = useState<boolean>(false);
@@ -50,8 +51,10 @@ export const CommentView: React.FC<Props> = props => {
             <div
               className={classes.iconHover}
               onClick={() => {
-                onEditComment(payload, comment.id);
-                setShowEdit(!showEdit);
+                if (payload != "") {
+                  onEditComment(payload, comment.id);
+                  setShowEdit(!showEdit);
+                }
               }}
             >
               <CheckIcon />

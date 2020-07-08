@@ -5,12 +5,13 @@ import { useState } from "react";
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import CheckIcon from "@material-ui/icons/Check";
+import { CommentCreateInput } from "graphql/server-types.gen";
 import ClearIcon from "@material-ui/icons/Clear";
 import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   setNewCommentVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  onAddComment: (payload: string) => void;
+  onAddComment: (addComment: CommentCreateInput) => void;
 };
 
 export const NewComment: React.FC<Props> = props => {
@@ -41,7 +42,7 @@ export const NewComment: React.FC<Props> = props => {
         <div
           className={classes.iconContainer}
           onClick={() => {
-            onAddComment(payload);
+            if (payload != "") onAddComment(payload);
           }}
         >
           <CheckIcon />

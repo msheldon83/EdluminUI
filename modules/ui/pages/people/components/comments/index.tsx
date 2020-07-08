@@ -11,13 +11,17 @@ import clsx from "clsx";
 import CheckIcon from "@material-ui/icons/Check";
 import { makeStyles } from "@material-ui/styles";
 import { SectionHeader } from "ui/components/section-header";
-//import { Comment } from "graphql/server-types.gen";
+import {
+  Comment,
+  CommentUpdateInput,
+  CommentCreateInput,
+} from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
   comments?: Comment[];
-  onEditComment: (payload: string) => void;
-  onAddComment: (payload: string) => void;
+  onEditComment: (editComment: CommentUpdateInput) => void;
+  onAddComment: (addComment: CommentCreateInput) => void;
 };
 
 export const Comments: React.FC<Props> = props => {

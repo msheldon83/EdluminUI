@@ -7,9 +7,13 @@ import {
   SubstituteInput,
   PermissionEnum,
   OrganizationRelationshipType,
+  CommentCreateInput,
+  CommentUpdateInput,
 } from "graphql/server-types.gen";
 import { GetSubstituteById } from "../graphql/substitute/get-substitute-by-id.gen";
 import { SaveSubstitute } from "../graphql/substitute/save-substitute.gen";
+import { CreateComment } from "../graphql/substitute/create-comment.gen";
+import { UpdateComment } from "../graphql/substitute/update-comment.gen";
 import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPayInformation } from "../components/substitute/pay-information";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
@@ -49,6 +53,18 @@ export const SubstituteTab: React.FC<Props> = props => {
   const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
   const [updateSubstitute] = useMutationBundle(SaveSubstitute, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [updateComment] = useMutationBundle(UpdateComment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [addComment] = useMutationBundle(CreateComment, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -119,12 +135,14 @@ export const SubstituteTab: React.FC<Props> = props => {
   };
 
   //TODO
-  const onAddComment = async (payload: string) => {};
-
-  //Don't submit empty payloads. Assemble Update/Create InputType Def's with OrgUser data.
+  const onAddComment = async (comment: CommentCreateInput) => {
+    await addComment({});
+  };
 
   //TODO
-  const onEditComment = async (payload: string, commentId: string) => {};
+  const onEditComment = async (comment: CommentUpdateInput) => {
+    await updateComment({});
+  };
 
   return (
     <>
