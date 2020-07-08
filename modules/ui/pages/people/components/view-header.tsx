@@ -272,8 +272,10 @@ export const PersonViewHeader: React.FC<Props> = props => {
         Config.impersonation.impersonatingOrgId,
         props.orgId
       );
-      // Redirect current user to homepage
-      history.push("/");
+      // To prevent issues with cached data from the current user
+      // we can use window.location.href to redirect, which is the
+      // same as a hard refresh, and empties the cache
+      window.location.href = "/";
     }
   };
 

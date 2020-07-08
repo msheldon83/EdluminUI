@@ -15,7 +15,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import { SubNavLink } from "./sub-nav-link";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { Can } from "ui/components/auth/can";
+import { useCanDo } from "ui/components/auth/can";
 
 type Props = SubNavItemType & {
   icon: JSX.Element;
@@ -36,6 +36,7 @@ export type SubNavItemType = {
 export const NavLink: React.FC<Props> = props => {
   const classes = useStyles();
   const menuItemClasses = useMenuItemStyles();
+  const canDoFn = useCanDo();
   const matches =
     useRouteMatch({ exact: props.exact ?? false, path: props.route }) !==
       null && props.route;
@@ -131,12 +132,15 @@ export const NavLink: React.FC<Props> = props => {
           {subNavItems.map(s => {
             const { permissions, ...subNavProps } = s;
             return permissions ? (
-              <Can do={permissions} key={subNavProps.route} orgId={props.orgId}>
+              canDoFn(permissions, props.orgId) ? (
                 <SubNavLink
                   {...subNavProps}
                   setSubNavMatches={setSubNavMatchesCallback}
+                  key={subNavProps.route}
                 />
-              </Can>
+              ) : (
+                <React.Fragment key={subNavProps.route} />
+              )
             ) : (
               <SubNavLink
                 {...subNavProps}

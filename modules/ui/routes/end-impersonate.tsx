@@ -1,11 +1,7 @@
-import { defineSubRoute } from "./definition";
-import { AppChromeRoute } from "./app-chrome";
+import { defineRoute } from "./definition";
 import { asyncComponent } from "ui/async-component";
 
-export const endImpersonationRoute = defineSubRoute(
-  AppChromeRoute,
-  "impersonate/end"
-);
+export const endImpersonationRoute = defineRoute("impersonate/end");
 
 export const EndImpersonationLoader = asyncComponent({
   resolve: async () => {
