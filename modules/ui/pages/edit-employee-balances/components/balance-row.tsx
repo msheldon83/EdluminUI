@@ -422,7 +422,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1),
   },
   balanceInput: {
-    width: theme.typography.pxToRem(80),
+    width: theme.typography.pxToRem(100),
     padding: theme.spacing(2),
   },
   balanceType: {
