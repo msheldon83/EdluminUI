@@ -150,7 +150,7 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
 
 												{
 													//first detail contains parent vacancy with property saying if entire assignment can be canceled
-													vacancyDetails[0].vacancy.canCancel && (
+													vacancyDetails[0].vacancy?.canCancel && (
 													<Grid item>
 														<Button
 															variant="outlined"
