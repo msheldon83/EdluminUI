@@ -150,7 +150,6 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
         onRemoveBlockedEmployee={onRemoveBlockedSubstitute}
         onAddFavoriteEmployee={onAddSubstitute}
         onBlockEmployee={onBlockSubstitute}
-        useAutoAssign={false}
         removeBlockedPermission={[PermissionEnum.LocationGroupSave]}
         removeFavoritePermission={[PermissionEnum.LocationGroupSave]}
         addToBlockedPermission={[PermissionEnum.LocationGroupSave]}

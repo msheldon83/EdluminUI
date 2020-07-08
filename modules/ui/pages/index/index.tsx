@@ -43,8 +43,24 @@ export const IndexPage: React.FunctionComponent = props => {
     multiOrgs: orgUsers.length > 1,
   };
 
-  const impersonatingOrgId = history.location.state?.impersonatingOrgId;
-  const impersonatingOrgUserId = history.location.state?.impersonatingOrgUserId;
+  let impersonatingOrgId: string | undefined = undefined;
+  let impersonatingOrgUserId: string | undefined = undefined;
+
+  if (history.location.search) {
+    // These are being passed in the querystring instead of location.state due to
+    // us needing a way to ensure the Apollo cache is cleared when ending impersonation.
+    // https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
+    try {
+      const searchParams = new URLSearchParams(history.location.search);
+      impersonatingOrgId = searchParams.get("impersonatingOrgId") ?? undefined;
+      impersonatingOrgUserId =
+        searchParams.get("impersonatingOrgUserId") ?? undefined;
+    } catch (e) {
+      // All browsers currently support URLSearchParams except for
+      // Internet Explorer. Since we're supporting Edge and not that,
+      // let's just not blow up if someone is using Internet Explorer
+    }
+  }
 
   // Send the user to the Organization switcher if they are a sys admin or admin in multiple orgs
   // If an admin in one org, send them to that org page

@@ -34,7 +34,7 @@ export const Locations: React.FC<Props> = props => {
         <Grid item>
           <PageTitle title={t("Schools")} />
         </Grid>
-        <Can do={[PermissionEnum.LocationSave]}>
+        <Can do={[PermissionEnum.LocationAdd]}>
           <Grid item>
             <Button
               variant="contained"

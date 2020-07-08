@@ -13,24 +13,27 @@ import {
 type Props = {
   favoriteHeading: string;
   blockedHeading: string;
-  autoAssignHeading?: string;
   searchHeading: string;
   favoriteMembers: ReplacementPoolMember[];
   blockedMembers: ReplacementPoolMember[];
-  autoAssignMembers?: ReplacementPoolMember[];
   orgId: string;
   onRemoveFavoriteEmployee: (member: ReplacementPoolMember) => void;
   onRemoveBlockedEmployee: (member: ReplacementPoolMember) => void;
-  onRemoveAutoAssignedEmployee?: (member: ReplacementPoolMember) => void;
   onAddFavoriteEmployee: (member: ReplacementPoolMember) => void;
   onBlockEmployee: (member: ReplacementPoolMember) => void;
-  onAutoAssignEmployee?: (member: ReplacementPoolMember) => void;
   onAddNote: (replacementPoolMember: ReplacementPoolMemberUpdateInput) => void;
   removeBlockedPermission: PermissionEnum[];
   removeFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
   addToFavoritePermission: PermissionEnum[];
-  useAutoAssign: boolean;
+  autoAssign?: {
+    heading: string;
+    members: ReplacementPoolMember[];
+    onRemove: (member: ReplacementPoolMember) => void;
+    onAdd: (member: ReplacementPoolMember) => void;
+    addPermission: PermissionEnum[];
+    removePermission: PermissionEnum[];
+  };
 } & (
   | { heading: string; subHeading?: string }
   | { headerComponent: JSX.Element }
@@ -40,10 +43,10 @@ export const SubstitutePreferences: React.FC<Props> = props => {
   const classes = useStyles();
 
   const takenSubs =
-    props.autoAssignMembers === undefined
+    props.autoAssign === undefined
       ? props.favoriteMembers.concat(props.blockedMembers)
       : props.favoriteMembers.concat(props.blockedMembers).concat(
-          props.autoAssignMembers.map(
+          props.autoAssign.members.map(
             x =>
               ({
                 employeeId: x.employeeId,
@@ -90,29 +93,28 @@ export const SubstitutePreferences: React.FC<Props> = props => {
               removePermission={props.removeBlockedPermission}
             />
           </Grid>
-          {props.useAutoAssign && props.onRemoveAutoAssignedEmployee && (
+          {props.autoAssign && (
             <Grid item xs={12}>
               <SubPoolCard
-                title={props.autoAssignHeading ?? ""} // Auto Assign List?
-                replacementPoolMembers={props.autoAssignMembers}
-                onRemove={props.onRemoveAutoAssignedEmployee}
-                removePermission={props.removeBlockedPermission}
+                title={props.autoAssign.heading} // Auto Assign List?
+                replacementPoolMembers={props.autoAssign.members}
+                onRemove={props.autoAssign.onRemove}
+                removePermission={props.autoAssign.removePermission}
               />
             </Grid>
           )}
         </Grid>
         <Grid item xs={6}>
           <SubstitutePicker
-            useAutoAssign={props.useAutoAssign}
             orgId={props.orgId}
             title={props.searchHeading}
             onAdd={props.onAddFavoriteEmployee}
             onBlock={props.onBlockEmployee}
-            onAutoAssign={props.onAutoAssignEmployee}
             takenSubstitutes={takenSubs}
             addToBlockedPermission={props.addToBlockedPermission}
             addToFavoritePermission={props.addToFavoritePermission}
-          ></SubstitutePicker>
+            autoAssign={props.autoAssign}
+          />
         </Grid>
       </Grid>
     </>

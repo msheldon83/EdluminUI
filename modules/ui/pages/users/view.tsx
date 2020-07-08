@@ -174,8 +174,10 @@ export const UserViewPage: React.FC<{}> = props => {
   const triggerImpersonation = async () => {
     // Set userId in sessionStorage
     sessionStorage.setItem(Config.impersonation.actingUserIdKey, params.userId);
-    // Redirect current user to homepage
-    history.push("/");
+    // To prevent issues with cached data from the current user
+    // we can use window.location.href to redirect, which is the
+    // same as a hard refresh, and empties the cache
+    window.location.href = "/";
   };
 
   const smsStopped = useMemo(() => {
