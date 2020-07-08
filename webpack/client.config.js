@@ -147,11 +147,7 @@ module.exports = {
     new CopyPlugin([
       { from: "scripts/new-relic.js" },
       { from: "static" },
-      /*
-        Only copy the environment file in in development. In production/QA, it will
-        be available from the web server
-      */
-      config.get("development") ? { from: "config/environment.js" } : {},
+      { from: "config/environment.js" },
     ]),
 
     // Define global letiables in the client to instrument behavior.

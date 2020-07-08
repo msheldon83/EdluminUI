@@ -2,8 +2,8 @@ window.__DEV__ = true;
 window.__TEST__ = false;
 
 window.Config = {
-  resutUri: "/api",
-  apiUri: "/graphql",
+  restUri: "https://devapi.edlumin.com/api",
+  apiUri: "https://devapi.edlumin.com/graphql",
   isDevFeatureOnly: true,
 
   Auth0: {
