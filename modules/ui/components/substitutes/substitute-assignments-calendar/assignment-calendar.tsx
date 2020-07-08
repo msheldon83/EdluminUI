@@ -91,6 +91,16 @@ export const AssignmentCalendar: React.FC<Props> = props => {
       buttonProps: { className: classes.selected },
     });
 
+  const today = customDates.find(d => DateFns.isToday(d.date));
+  if (today) {
+    today.buttonProps.className += ` ${classes.today}`;
+  } else {
+    customDates.push({
+      date: DateFns.startOfToday(),
+      buttonProps: { className: classes.today },
+    });
+  }
+
   return (
     <div className={classes.calendar}>
       <SingleMonthCalendar
@@ -143,5 +153,8 @@ const useStyles = makeStyles(theme => ({
   },
   availableAfterDate: {
     background: `linear-gradient(to right bottom, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
+  },
+  today: {
+    border: "2px solid black",
   },
 }));
