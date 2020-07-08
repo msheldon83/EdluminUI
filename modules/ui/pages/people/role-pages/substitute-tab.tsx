@@ -124,7 +124,7 @@ export const SubstituteTab: React.FC<Props> = props => {
   //Don't submit empty payloads. Assemble Update/Create InputType Def's with OrgUser data.
 
   //TODO
-  const onEditComment = async (payload: string) => {};
+  const onEditComment = async (payload: string, commentId: string) => {};
 
   return (
     <>

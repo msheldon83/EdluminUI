@@ -7,12 +7,12 @@ import EditIcon from "@material-ui/icons/Edit";
 import clsx from "clsx";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
-//import { Comment } from "graphql/server-types.gen";
+import { Comment } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   comment: Comment;
-  onEditComment: (payload: string) => void;
+  onEditComment: (payload: string, commentId: string) => void;
 };
 
 export const CommentView: React.FC<Props> = props => {
@@ -50,7 +50,7 @@ export const CommentView: React.FC<Props> = props => {
             <div
               className={classes.iconHover}
               onClick={() => {
-                onEditComment(payload);
+                onEditComment(payload, comment.id);
                 setShowEdit(!showEdit);
               }}
             >
