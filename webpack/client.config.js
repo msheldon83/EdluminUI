@@ -8,6 +8,7 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const loaders = require("./loaders");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const { execSync } = require("child_process");
+const TerserPlugin = require("terser-webpack-plugin");
 
 /*
   This forked version of the component fixes a bug that's yet to get merged into
@@ -17,7 +18,6 @@ const { execSync } = require("child_process");
 */
 const HardSourceWebpackPlugin = require("hard-source-webpack-plugin-fixed-hashbug");
 
-const os = require("os");
 const DEV_PORT = config.get("devServer.port");
 const PROXY_HOST = config.get("devServer.proxyHost");
 
@@ -44,7 +44,7 @@ const environmentPlugins = (() => {
     ];
   }
 
-  switch (process.env.NODE_ENV) {
+  switch (config.get("environment")) {
     case "development":
       return [
         // Hot reloading is set up in webpack-dev-server.js
@@ -62,13 +62,11 @@ const environmentPlugins = (() => {
 })();
 
 module.exports = {
-  mode: config.get("minify") ? "production" : "development",
-
-  devtool: config.get("minify")
-    ? "hidden-source-map"
-    : "cheap-module-eval-source-map",
-
-  cache: config.get("minify") ? false : true,
+  mode: config.get("development") ? "development" : "production",
+  devtool: config.get("development")
+    ? "cheap-module-eval-source-map"
+    : undefined,
+  cache: config.get("development"),
 
   entry: {
     app: [
@@ -85,8 +83,14 @@ module.exports = {
     ],
   },
 
-  optimization: config.get("minify")
-    ? {
+  optimization: config.get("development")
+    ? {}
+    : {
+        minimizer: [
+          new TerserPlugin({
+            parallel: true,
+          }),
+        ],
         splitChunks: {
           chunks: "all",
           // cacheGroups: {
@@ -97,8 +101,7 @@ module.exports = {
           //   },
           // },
         },
-      }
-    : undefined,
+      },
 
   performance: {
     hints: "warning",
@@ -114,15 +117,12 @@ module.exports = {
   },
 
   plugins: [
-    new CopyPlugin([
-      { from: "scripts/new-relic.js" },
-      { from: "static" },
-    ]),
+    new CopyPlugin([{ from: "scripts/new-relic.js" }, { from: "static" }]),
 
     // Define global letiables in the client to instrument behavior.
     new webpack.DefinePlugin({
       // Flag to detect non-production
-      __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
+      __DEV__: JSON.stringify(config.get("development")),
       __TEST__: "false",
 
       "Config.Auth0.domain": JSON.stringify(config.get("auth0_domain")),
@@ -153,10 +153,10 @@ module.exports = {
       ),
 
       // ALlow switching on NODE_ENV in client code
-      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+      "process.env.NODE_ENV": JSON.stringify(config.get("environment")),
 
       // Expose Google Analytics ID to client
-      "process.env.TRACKING_ID": JSON.stringify(process.env.TRACKING_ID),
+      "process.env.TRACKING_ID": JSON.stringify(config.get("trackingId")),
 
       "process.env.CODE_VERSION": JSON.stringify(codeVersion()),
     }),
@@ -193,8 +193,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "../dist"),
     publicPath: "/",
-    filename: config.get("minify") ? "client.[hash].js" : "client.js",
-    chunkFilename: config.get("minify") ? "[name].[hash].js" : "[name].js",
+    filename: config.get("development") ? "client.js" : "client.[hash].js",
+    chunkFilename: config.get("development") ? "[name].js" : "[name].[hash].js",
     pathinfo: false,
   },
 
@@ -209,25 +209,9 @@ module.exports = {
   },
 
   module: {
-    rules: [
-      {
-        // Transpile non-IE compatible node modules.
-        test: /\.jsx?$/,
-        // Whitelist the modules inside the () in this regex:
-        include: /node_modules\/(@material-ui)\//,
-        use: [
-          {
-            loader: "babel-loader",
-            options: {
-              presets: ["@babel/preset-env"],
-              plugins: ["react-hot-loader/babel"],
-            },
-          },
-        ],
-      },
-      loaders.clientSideTypeScript,
-      loaders.graphql,
-    ].concat(loaders.allImagesAndFontsArray),
+    rules: [loaders.clientSideTypeScript, loaders.graphql].concat(
+      loaders.allImagesAndFontsArray
+    ),
   },
 
   devServer: {
