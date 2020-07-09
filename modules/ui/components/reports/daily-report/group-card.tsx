@@ -198,8 +198,8 @@ const useStyles = makeStyles(theme => ({
 const getCardData = (
   cardType: CardType,
   details: Detail[],
-  countOverride?: number,
-  totalOverride?: number,
+  countOverride: number | undefined,
+  totalOverride: number | undefined,
   classes: any,
   t: TFunction
 ): CardData | undefined => {

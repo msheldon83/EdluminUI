@@ -11,9 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useMemo, useCallback } from "react";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { Close } from "@material-ui/icons";
-import { useHistory } from "react-router";
 import { useIsImpersonating } from "reference-data/is-impersonating";
-import { PersonViewRoute } from "ui/routes/people";
 
 type Props = {};
 
@@ -21,7 +19,6 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
   const classes = useStyles();
   const toolbarClasses = useToolbarClasses();
   const { t } = useTranslation();
-  const history = useHistory();
   const userAccess = useMyUserAccess();
 
   // Remove keys from session storage and redirect to root of site
@@ -37,18 +34,21 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
     sessionStorage.removeItem(Config.impersonation.impersonatingOrgId);
 
-    history.push({
-      pathname: "/",
-      state: { impersonatingOrgId, impersonatingOrgUserId },
-    });
-  }, [history]);
+    // To prevent issues with cached data from the impersonated user
+    // we can use window.location.href to redirect, which is the
+    // same as a hard refresh, and empties the cache
+    window.location.href =
+      impersonatingOrgId && impersonatingOrgUserId
+        ? `/?impersonatingOrgId=${impersonatingOrgId}&impersonatingOrgUserId=${impersonatingOrgUserId}`
+        : "/";
+  }, []);
 
   const userDisplayName = useMemo(() => {
     if (userAccess?.me?.user?.firstName && userAccess?.me?.user?.lastName) {
       return `${userAccess?.me?.user?.firstName} ${userAccess?.me?.user?.lastName}`;
     }
     return "";
-  }, [userAccess]);
+  }, [userAccess?.me?.user?.firstName, userAccess?.me?.user?.lastName]);
 
   // Figure out if we are currently impersonating or not
   const isImpersonating = useIsImpersonating();
