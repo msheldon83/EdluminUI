@@ -5,9 +5,11 @@ mutation DeleteAbsenceReasonCategory(
 ) {
   orgRef_AbsenceReasonCategory {
     delete(
-      absenceReasonCategoryId: $absenceReasonCategoryId
-      deleteCategoryMembers: $deleteCategoryMembers
-      newCategoryId: $newCategoryId
+      absenceReasonCategory: {
+        id: $absenceReasonCategoryId
+        deleteCategoryMembers: $deleteCategoryMembers
+        newCategoryId: $newCategoryId
+      }
     )
   }
 }

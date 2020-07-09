@@ -336,6 +336,12 @@ input AbsenceReasonCategoryCreateInput {
   code: String
 }
 
+input AbsenceReasonCategoryDeleteInputTypeDef {
+  id: ID!
+  deleteCategoryMembers: Boolean
+  newCategoryId: ID
+}
+
 input AbsenceReasonCategoryUpdateInput {
   id: ID!
   rowVersion: String!
@@ -3884,9 +3890,7 @@ type OrgRef_AbsenceReasonCategoryMutations {
     absenceReasonCategory: AbsenceReasonCategoryUpdateInput!
   ): AbsenceReasonCategory
   delete(
-    absenceReasonCategoryId: ID!
-    deleteCategoryMembers: Boolean
-    newCategoryId: ID
+    absenceReasonCategory: AbsenceReasonCategoryDeleteInputTypeDef!
   ): Boolean
 }
 
