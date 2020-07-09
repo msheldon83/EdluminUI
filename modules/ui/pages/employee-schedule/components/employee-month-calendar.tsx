@@ -1,9 +1,10 @@
 import { makeStyles } from "@material-ui/core";
-import { parseISO, isSameMonth, isSameDay, isEqual } from "date-fns";
+import { parseISO, isSameMonth, isSameDay, isEqual, isToday } from "date-fns";
 import * as React from "react";
 import { useMemo } from "react";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
 import { ScheduleDate } from "ui/components/employee/types";
+import clsx from "clsx";
 
 type Props = {
   date: string;
@@ -53,8 +54,10 @@ export const EmployeeMonthCalendar: React.FC<Props> = props => {
       return props.scheduleDates.map(d => ({
         date: d.date,
         buttonProps: {
-          className: [getTypeOfDayClass(d.type, d.date), classes.dayHover].join(
-            " "
+          className: clsx(
+            getTypeOfDayClass(d.type, d.date),
+            classes.dayHover,
+            isToday(d.date) ? classes.today : undefined
           ),
         },
       }));
@@ -136,5 +139,8 @@ const useStyles = makeStyles(theme => ({
   deniedAbsence: {
     backgroundColor: theme.customColors.darkRed,
     color: theme.customColors.white,
+  },
+  today: {
+    border: "2px solid black",
   },
 }));

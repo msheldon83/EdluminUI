@@ -16,6 +16,8 @@ import {
   startOfDay,
   startOfWeek,
   eachDayOfInterval,
+  isSameDay,
+  max,
 } from "date-fns";
 import { usePagedQueryBundle, useQueryBundle } from "graphql/hooks";
 import { daysOfWeekOrdered } from "helpers/day-of-week";
@@ -39,7 +41,8 @@ import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
 
 type Props = {
   userId?: string;
-  assignments: VacancyDetail[];
+  completedAssignments: VacancyDetail[];
+  upcomingAssignments: VacancyDetail[];
   actingAsSubstitute?: boolean;
 };
 
@@ -52,7 +55,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
   const fromDate = useMemo(() => new Date(), []);
   const toDate = useMemo(() => addDays(fromDate, 30), [fromDate]);
 
-  const assignments = props.assignments;
+  const { completedAssignments, upcomingAssignments } = props;
 
   const [getExceptions, _] = usePagedQueryBundle(
     GetUnavilableTimeExceptions,
@@ -88,7 +91,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
     return [];
   }, [getAvailableTime]);
 
-  const uniqueWorkingDays = assignments
+  const uniqueWorkingDays = upcomingAssignments
     .map(a => startOfDay(parseISO(a.startDate)))
     .filter(
       (date, i, self) => self.findIndex(d => isEqual(d, startOfDay(date))) === i
@@ -103,7 +106,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
   const renderAssignments = () => {
     const numberOfAssignments = isMobile ? 2 : 3;
 
-    return assignments
+    return upcomingAssignments
       .slice(0, numberOfAssignments)
       .map((assignment, index, assignments) => {
         const classNames = clsx({
@@ -127,13 +130,22 @@ export const UpcomingAssignments: React.FC<Props> = props => {
     () =>
       eachDayOfInterval({
         start: startOfWeek(fromDate),
-        end: fromDate,
-      }).map(date => ({ date, buttonProps: { className: classes.pastDate } })),
-    [fromDate, classes.pastDate]
+        end: max([startOfWeek(fromDate), addDays(fromDate, -1)]),
+      }).map(date => ({
+        date,
+        buttonProps: {
+          className: completedAssignments.some(a =>
+            isSameDay(parseISO(a.startDate), date)
+          )
+            ? classes.activeDate
+            : classes.pastDate,
+        },
+      })),
+    [fromDate, classes.pastDate, classes.activeDate, completedAssignments]
   );
 
   const uniqueNonWorkingDays = useMemo(() => {
-    const dates = [] as Date[];
+    const dates: Date[] = [];
     exceptions
       .filter(e => e.availabilityType === UserAvailability.NotAvailable)
       .forEach(e => {
@@ -263,7 +275,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
           />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={6}>
-          {assignments.length === 0 ? (
+          {upcomingAssignments.length === 0 ? (
             <Section>
               <Typography variant="h5">
                 {t("No Assignments scheduled")}
@@ -333,12 +345,12 @@ const useStyles = makeStyles(theme => ({
     left: theme.spacing(3),
   },
   activeDate: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#373361",
     color: theme.customColors.white,
     pointerEvents: "none",
 
     "&:hover": {
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: "#373361",
       color: theme.customColors.white,
     },
   },

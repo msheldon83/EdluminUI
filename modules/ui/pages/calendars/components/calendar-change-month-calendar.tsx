@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
 import { useMemo } from "react";
 import * as DateFns from "date-fns";
+import clsx from "clsx";
 
 type Props = {
   date: string;
@@ -32,19 +33,33 @@ export const CalendarChangeMonthCalendar: React.FC<Props> = props => {
     [props.selectedDate, classes, className]
   );
 
-  const calendarChangeDates = useMemo(
-    () =>
-      checkDays
-        ? props.calendarChangeDates.map(d => ({
-            date: d,
-            buttonProps: { className: checkSelected(d) },
-          }))
-        : props.calendarChangeDates.map(d => ({
-            date: d,
-            buttonProps: { className },
-          })),
-    [props.calendarChangeDates, className, checkDays, checkSelected]
-  );
+  const calendarChangeDates = useMemo(() => {
+    const days = checkDays
+      ? props.calendarChangeDates.map(d => ({
+          date: d,
+          buttonProps: { className: checkSelected(d) },
+        }))
+      : props.calendarChangeDates.map(d => ({
+          date: d,
+          buttonProps: { className },
+        }));
+    const today = days.find(d => DateFns.isToday(d.date));
+    if (today) {
+      today.buttonProps.className += ` ${classes.today}`;
+    } else {
+      days.push({
+        date: DateFns.startOfToday(),
+        buttonProps: { className: classes.today },
+      });
+    }
+    return days;
+  }, [
+    props.calendarChangeDates,
+    className,
+    checkDays,
+    checkSelected,
+    classes.today,
+  ]);
 
   return (
     <>
@@ -85,5 +100,8 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.customColors.sky,
       color: theme.customColors.white,
     },
+  },
+  today: {
+    border: "2px solid black",
   },
 }));
