@@ -91,7 +91,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         onSubmit={onUpdateEmployee}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
-      <Comments orgId={params.organizationId} />
+      {/* <Comments orgId={params.organizationId} /> */}
       <Position
         editing={props.editing}
         editable={canEditThisEmployee}

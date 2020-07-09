@@ -9,10 +9,12 @@ import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import { Comment, CommentUpdateInput } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
+import { parseISO } from "date-fns/esm";
 
 type Props = {
   comment: Comment;
   onEditComment: (editComment: CommentUpdateInput) => void;
+  onDeleteComment: (id: string) => void;
 };
 
 export const CommentView: React.FC<Props> = props => {
@@ -23,18 +25,22 @@ export const CommentView: React.FC<Props> = props => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [payload, setPayload] = useState<string>(comment.payload ?? "");
 
-  //Set Date here
+  const changedLocal =
+    new Date(comment.changedLocal).toLocaleDateString() +
+    " " +
+    new Date(comment.changedLocal).toLocaleTimeString();
+  console.log(comment);
 
   return (
-    <Grid item xs={12}>
-      <Grid item xs={2}>
-        <div>{comment.poster}</div>
-        <div className={classes.subText}>{comment.createdUtc}</div>
-        <div className={classes.subText}>{comment.location}</div>
+    <Grid container item xs={12}>
+      <Grid item xs={2} className={classes.width}>
+        {/* <div>{comment.poster}</div> */}
+        <div className={classes.subText}>{changedLocal}</div>
+        {/* <div className={classes.subText}>{comment.location}</div> */}
       </Grid>
       {showEdit ? (
         <>
-          <Grid item xs={9} className={classes.position}>
+          <Grid item xs={9}>
             <TextField
               rows="2"
               value={payload}
@@ -47,12 +53,16 @@ export const CommentView: React.FC<Props> = props => {
               }}
             />
           </Grid>
-          <Grid item xs={1} className={classes.position}>
+          <Grid item xs={1}>
             <div
               className={classes.iconHover}
               onClick={() => {
                 if (payload != "") {
-                  onEditComment(payload, comment.id);
+                  const commentUpdateInput: CommentUpdateInput = {
+                    id: comment.id,
+                    payload: payload,
+                  };
+                  onEditComment(commentUpdateInput);
                   setShowEdit(!showEdit);
                 }
               }}
@@ -74,7 +84,9 @@ export const CommentView: React.FC<Props> = props => {
         <>
           <Grid item xs={9}>
             {comment.payload}
-            <div className={classes.edited}>{t("edited")}</div>
+            {comment.hasBeenEdited && (
+              <div className={classes.edited}>{t("edited")}</div>
+            )}
           </Grid>
           <Grid item xs={1}>
             <div
@@ -83,7 +95,7 @@ export const CommentView: React.FC<Props> = props => {
                 setShowEdit(!showEdit);
               }}
             >
-              <ClearIcon className={classes.editIcon} />
+              <EditIcon className={classes.editIcon} />
             </div>
           </Grid>
         </>
@@ -100,12 +112,11 @@ const useStyles = makeStyles(theme => ({
   iconHover: {
     "&:hover": { cursor: "pointer" },
   },
-  position: {
-    maxHeight: "110px",
-    marginTop: theme.spacing(1),
-  },
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  width: {
+    width: "100%",
   },
   edited: {
     color: theme.customColors.edluminSubText,

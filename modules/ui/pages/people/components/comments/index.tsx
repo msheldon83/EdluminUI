@@ -3,32 +3,45 @@ import { Grid, TextField } from "@material-ui/core";
 import { CommentView } from "./comment-view";
 import { NewComment } from "./new-comment";
 import { Section } from "ui/components/section";
-import ClearIcon from "@material-ui/icons/Clear";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
-import CheckIcon from "@material-ui/icons/Check";
 import { makeStyles } from "@material-ui/styles";
 import { SectionHeader } from "ui/components/section-header";
 import {
   Comment,
   CommentUpdateInput,
   CommentCreateInput,
+  DiscussionSubjectType,
+  Maybe,
 } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
-  comments?: Comment[];
+  discussionSubjectType: DiscussionSubjectType;
+  discussionId: string;
+  orgUserId: string;
   onEditComment: (editComment: CommentUpdateInput) => void;
   onAddComment: (addComment: CommentCreateInput) => void;
+  onDeleteComment: (id: string) => void;
+  comments?: any[];
 };
 
 export const Comments: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const { comments, onEditComment, onAddComment, orgId } = props;
+  const {
+    comments,
+    onEditComment,
+    onAddComment,
+    orgId,
+    onDeleteComment,
+    discussionSubjectType,
+    discussionId,
+    orgUserId,
+  } = props;
 
   const [newCommentVisible, setNewCommentVisible] = useState<boolean>(false);
   const [comment, setComment] = useState<string>();
@@ -41,6 +54,10 @@ export const Comments: React.FC<Props> = props => {
           <NewComment
             setNewCommentVisible={setNewCommentVisible}
             onAddComment={onAddComment}
+            orgUserId={orgUserId}
+            discussionSubjectType={discussionSubjectType}
+            discussionId={discussionId}
+            orgId={orgId}
           />
         )}
         {!newCommentVisible &&
@@ -50,9 +67,12 @@ export const Comments: React.FC<Props> = props => {
           </Grid>
         ) : (
           comments?.map((c, i) => (
-            <div key={i}>
-              <CommentView comment={c} onEditComment={onEditComment} />
-            </div>
+            <CommentView
+              comment={c}
+              onEditComment={onEditComment}
+              onDeleteComment={onDeleteComment}
+              key={i}
+            />
           ))
         )}
         <Grid item xs={12}>

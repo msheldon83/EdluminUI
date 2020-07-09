@@ -19,6 +19,8 @@ query GetSubstituteById($id: ID!) {
       lastName
       loginEmail
       temporaryPassword
+      employeeDiscussionId
+      replacementEmployeeDiscussionId
       isShadowRecord
       shadowFromOrgId
       shadowFromOrgName
@@ -32,6 +34,15 @@ query GetSubstituteById($id: ID!) {
         payCode {
           id
           name
+        }
+        comments {
+          id
+          payload
+          changedLocal
+          hasBeenEdited
+          discussion {
+            id
+          }
         }
         permissionSet {
           id

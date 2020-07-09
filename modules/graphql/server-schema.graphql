@@ -651,6 +651,7 @@ type Application {
   contactPhone: String
   basicAuthName: String!
   basicAuthPassword: String!
+  published: Boolean!
   presets: [ApplicationPreset!]!
 }
 
@@ -673,6 +674,8 @@ type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface 
   active: Boolean!
   name: String!
   definition: String!
+  fileNameFormat: String
+  fileFormat: FileFormat
   path: String!
   direction: ConnectionDirection!
   lastScheduledRun: DateTime
@@ -728,6 +731,7 @@ input ApplicationCreateInput {
   logoUrlSmall: String
   logoUrl: String
   defaultForStafferOrgId: ID
+  published: Boolean
 }
 
 type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
@@ -828,7 +832,7 @@ input ApplicationPresetUpdateInput {
 
 type ApplicationQueries {
   byId(id: ID!): Application
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [Application]
+  all(orgId: ID, orgIds: [ID], orgId: ID, includePublished: Boolean): [Application]
 }
 
 input ApplicationUpdateInput {
@@ -842,6 +846,7 @@ input ApplicationUpdateInput {
   logoUrlSmall: String!
   logoUrl: String!
   defaultForStafferOrgId: ID
+  published: Boolean
 }
 
 enum ApprovalAction {
@@ -850,6 +855,7 @@ enum ApprovalAction {
   DENY
   SKIP
   RESET
+  NO_OP
 }
 
 type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
@@ -935,6 +941,13 @@ type ApprovalState implements ModelObjectInterface & OrgObjectInterface {
   approvalWorkflowTypeId: ApprovalWorkflowType!
   comments: [ApprovalComment!]!
   decisions: [ApprovalDecision!]!
+  relatedObjectId: ID!
+  relatedObjectTypeId: ObjectType!
+  pendingApproverGroupHeaderName: String
+  deniedApproverGroupHeaderName: String
+  approvedApproverGroupHeaderNames: [String]
+  completedSteps: [ApprovalWorkflowStep]
+  nextSteps: [ApprovalWorkflowStep]
   canApprove: Boolean!
 }
 
@@ -1554,7 +1567,8 @@ input CommentCreateInput {
   discussionId: ID
   discussionSubjectType: DiscussionSubjectType!
   hasShadow: Boolean
-  orgUserId: ID!
+  objectKey: ID!
+  objectType: ObjectType!
 }
 
 type CommentMutations {
@@ -1565,7 +1579,6 @@ type CommentMutations {
 
 input CommentUpdateInput {
   id: ID!
-  rowVersion: String!
   payload: String!
 }
 
@@ -2867,6 +2880,11 @@ enum FeatureFlag {
   SECONDARY_IDENTIFIER
 }
 
+enum FileFormat {
+  DELIMITED
+  FLAT
+}
+
 enum FilePurpose {
   INVALID
   BRANDING
@@ -3739,6 +3757,8 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   middleName: String
   lastName: String!
   secondaryIdentifier: String
+  employeeDiscussionId: ID
+  replacementEmployeeDiscussionId: ID
   userId: ID
   loginEmail: String
   temporaryPassword: String

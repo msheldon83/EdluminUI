@@ -5,12 +5,20 @@ import { useState } from "react";
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import CheckIcon from "@material-ui/icons/Check";
-import { CommentCreateInput } from "graphql/server-types.gen";
 import ClearIcon from "@material-ui/icons/Clear";
+import {
+  CommentCreateInput,
+  DiscussionSubjectType,
+  ObjectType,
+} from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   setNewCommentVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  discussionId?: string;
+  orgUserId: string;
+  discussionSubjectType: DiscussionSubjectType;
+  orgId: string;
   onAddComment: (addComment: CommentCreateInput) => void;
 };
 
@@ -19,12 +27,22 @@ export const NewComment: React.FC<Props> = props => {
   const classes = useStyles();
 
   const [payload, setPayload] = useState<string>("");
+  const [orgId, setOrgId] = useState<string>(props.orgId);
 
-  const { setNewCommentVisible, onAddComment } = props;
+  const {
+    setNewCommentVisible,
+    onAddComment,
+    discussionId,
+    discussionSubjectType,
+    orgUserId,
+  } = props;
+
+  // If this is a staffing Org, then show drop down with org choices.
+  // Otherwise pass the current OrgId & hasShadow == false
 
   return (
     <Grid container item xs={12}>
-      <Grid item xs={2} className={classes.width} />
+      <Grid item xs={2} className={classes.width}></Grid>
       <Grid item xs={9}>
         <TextField
           rows="2"
@@ -42,7 +60,17 @@ export const NewComment: React.FC<Props> = props => {
         <div
           className={classes.iconContainer}
           onClick={() => {
-            if (payload != "") onAddComment(payload);
+            if (payload != "") {
+              const addComment: CommentCreateInput = {
+                discussionSubjectType: discussionSubjectType,
+                objectKey: orgUserId,
+                objectType: ObjectType.OrgUser,
+                orgId: orgId,
+                payload: payload,
+                discussionId: discussionId,
+              };
+              onAddComment(addComment);
+            }
           }}
         >
           <CheckIcon />
