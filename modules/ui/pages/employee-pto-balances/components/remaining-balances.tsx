@@ -33,6 +33,7 @@ export const RemainingBalances: React.FC<Props> = props => {
       employeeId: props.employeeId,
       schoolYearId: props.schoolYearId,
     },
+    skip: !props.schoolYearId,
   });
 
   const balances =
