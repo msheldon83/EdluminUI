@@ -56,6 +56,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
       isRestricted: boolean;
       requireNotesToAdmin: boolean;
       requiresApproval: boolean;
+      absenceReasonCategoryId?: string;
     }) => {
       if (!basicInfo) {
         return;
@@ -67,6 +68,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
         isRestricted,
         requireNotesToAdmin,
         requiresApproval,
+        absenceReasonCategoryId,
       } = updatedValues;
 
       const result = await createAbsenceReason({
@@ -82,6 +84,7 @@ export const AbsenceReasonAddPage: React.FC<Props> = props => {
             code,
             requireNotesToAdmin: requireNotesToAdmin,
             requiresApproval,
+            absenceReasonCategoryId,
           },
         },
       });
