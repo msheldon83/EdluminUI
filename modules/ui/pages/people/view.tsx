@@ -23,7 +23,6 @@ import { makeStyles } from "@material-ui/core";
 import { GetOrgConfigStatus } from "reference-data/get-org-config-status.gen";
 import { RemoveOrgUserRole } from "./graphql/remove-orguser-role.gen";
 import { SaveAdmin } from "./graphql/admin/save-administrator.gen";
-import { RemoveFutureAssignmentsDialog } from "./components/remove-future-assignments-dialog";
 import { SaveEmployee } from "./graphql/employee/save-employee.gen";
 import { SaveSubstitute } from "./graphql/substitute/save-substitute.gen";
 
@@ -33,19 +32,8 @@ export const PersonViewPage: React.FC<{}> = props => {
   const classes = useStyles();
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
-  const [
-    showRemoveFutureAssignments,
-    setShowRemoveFutureAssignments,
-  ] = React.useState(false);
 
   const params = useRouteParams(PersonViewRoute);
-
-  const [currentDialog, setCurrentDialog] = React.useState<
-    "delete" | "role" | "inactivate" | null
-  >(null);
-  const onCloseDialog = React.useCallback(() => setCurrentDialog(null), [
-    setCurrentDialog,
-  ]);
 
   const [editing, setEditing] = React.useState<string | null>(null);
 
@@ -143,7 +131,7 @@ export const PersonViewPage: React.FC<{}> = props => {
     setEditing(null);
   };
 
-  const handleSaveOrgUser = async (remove: boolean) => {
+  const handleSetOrgUserActivation = async (remove: boolean) => {
     const userObject = {
       id: orgUser.id,
       active: !orgUser.active,
@@ -170,20 +158,6 @@ export const PersonViewPage: React.FC<{}> = props => {
       });
     }
     await getOrgUser.refetch();
-    setShowRemoveFutureAssignments(false);
-  };
-
-  const onSetOrgUserActivation = async () => {
-    if (orgUser.active == false) {
-      await handleSaveOrgUser(false);
-    } else {
-      if (!orgUser.isReplacementEmployee && !orgUser.isEmployee) {
-        await handleSaveOrgUser(false);
-      } else {
-        setShowRemoveFutureAssignments(true);
-        setEditing(null);
-      }
-    }
   };
 
   const onRemoveRole = async (orgUserRole: OrgUserRole) => {
@@ -204,19 +178,6 @@ export const PersonViewPage: React.FC<{}> = props => {
 
   return (
     <>
-      <RemoveFutureAssignmentsDialog
-        open={showRemoveFutureAssignments}
-        orgUserName={orgUser.firstName}
-        onClose={() => {
-          setShowRemoveFutureAssignments(false);
-        }}
-        onRemoveOnInactivate={async () => {
-          await handleSaveOrgUser(true);
-        }}
-        onDontRemoveOnInactivate={async () => {
-          await handleSaveOrgUser(false);
-        }}
-      />
       <PageTitle title={t("Person")} withoutHeading={!isMobile} />
       <PersonViewHeader
         orgStatus={orgConfig?.organizationTypeId}
@@ -226,7 +187,7 @@ export const PersonViewPage: React.FC<{}> = props => {
         setEditing={setEditing}
         deleteOrgUser={deleteOrgUser}
         onSaveOrgUser={onUpdateOrgUser}
-        onSetOrgUserActivation={onSetOrgUserActivation}
+        onSetOrgUserActivation={handleSetOrgUserActivation}
         onRemoveRole={onRemoveRole}
         selectedRole={selectedRole ?? defaultSelectedRole}
         orgId={params.organizationId}
@@ -246,7 +207,7 @@ export const PersonViewPage: React.FC<{}> = props => {
               orgUserId={orgUser.id}
             />
           ) : (
-            <div>Create administrator user</div>
+            <div>{t("Create administrator user")}</div>
           )
         ) : (selectedRole ?? defaultSelectedRole) === OrgUserRole.Employee ? (
           orgUser.isEmployee ? (
@@ -257,7 +218,7 @@ export const PersonViewPage: React.FC<{}> = props => {
               orgUserId={orgUser.id}
             />
           ) : (
-            <div>Create employee</div>
+            <div>{t("Create employee")}</div>
           )
         ) : orgUser.isReplacementEmployee ? (
           <SubstituteTab
@@ -267,7 +228,7 @@ export const PersonViewPage: React.FC<{}> = props => {
             orgUserId={orgUser.id}
           />
         ) : (
-          <div>Create substitute</div>
+          <div>{t("Create substitute")}</div>
         )}
       </div>
     </>

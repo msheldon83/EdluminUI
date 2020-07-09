@@ -113,6 +113,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
         error,
         openDialog,
         t("There was an issue creating the absence"),
+        t("Hmm, we found a possible issue. Would you like to continue?"),
         async () => await quickCreateAbsence(),
         t,
         TranslateAbsenceErrorCodeToMessage

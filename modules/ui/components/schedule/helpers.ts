@@ -8,7 +8,7 @@ export const createYearOption = (startDate: Date) => {
   );
 
   return {
-    label: `${startDate.getFullYear()}-${endOfSchoolYear.getFullYear()}`,
+    label: `${startOfSchoolYear.getFullYear()}-${endOfSchoolYear.getFullYear()}`,
     value: dateRangeString(startOfSchoolYear, endOfSchoolYear),
   };
 };
