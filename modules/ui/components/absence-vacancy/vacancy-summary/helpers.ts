@@ -249,6 +249,20 @@ export const convertToAssignmentWithDetails = (
         accountingCodeAllocations: d.accountingCodeAllocations,
       };
     }),
+    absenceStartTime: summaryDetailsByAssignmentAndDate.details[0]
+      .absenceStartTimeLocal
+      ? format(
+          summaryDetailsByAssignmentAndDate.details[0].absenceStartTimeLocal,
+          "h:mm a"
+        )
+      : undefined,
+    absenceEndTime: summaryDetailsByAssignmentAndDate.details[0]
+      .absenceEndTimeLocal
+      ? format(
+          summaryDetailsByAssignmentAndDate.details[0].absenceEndTimeLocal,
+          "h:mm a"
+        )
+      : undefined,
   };
   return assignmentWithDetails;
 };

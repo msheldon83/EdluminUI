@@ -70,8 +70,10 @@ export const VacancySummary: React.FC<Props> = props => {
   return (
     <div className={classes.container} ref={divRef}>
       <div className={classes.header}>
-        {showAbsenceTimes && <div>{t("Absence")}</div>}
-        <div>{t("Substitute schedule")}</div>
+        {showAbsenceTimes && (
+          <div className={classes.headerItem}>{t("Absence")}</div>
+        )}
+        <div className={classes.headerItem}>{t("Substitute schedule")}</div>
       </div>
       {assignmentGroups.length === 0 && (
         <div className={classes.noDaysChosenContainer}>
@@ -141,6 +143,9 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(),
     paddingRight: theme.spacing(2),
     paddingLeft: theme.spacing(2),
+  },
+  headerItem: {
+    flexGrow: 1,
   },
   noDaysChosenContainer: {
     marginTop: theme.spacing(2),

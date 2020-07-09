@@ -17,6 +17,8 @@ export type VacancySummaryDetail = {
     rowVersion?: string;
     employee?: Employee;
   };
+  absenceStartTimeLocal?: Date;
+  absenceEndTimeLocal?: Date;
 };
 
 /* When you need to keep track of what VacancyDetails are on which 
