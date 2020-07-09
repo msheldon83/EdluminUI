@@ -12,6 +12,7 @@ type Props = {
   apolloErrors: ApolloError | null;
   errorBannerOpen: boolean;
   title: string;
+  warningsOnlyTitle: string;
   setErrorBannerOpen: React.Dispatch<React.SetStateAction<boolean>>;
   continueAction: () => Promise<void>;
   translateCodeToMessage?: (
@@ -53,7 +54,10 @@ export const ErrorBanner: React.FC<Props> = props => {
         <div>
           <Grid container>
             <Grid item xs={12}>
-              <SectionHeader title={props.title} className={classes.header} />
+              <SectionHeader
+                title={warningsOnly ? props.warningsOnlyTitle : props.title}
+                className={classes.header}
+              />
               {messages?.map((m, i) => (
                 <div key={i} className={classes.message}>
                   {m}
