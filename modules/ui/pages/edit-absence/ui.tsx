@@ -311,6 +311,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
         error,
         openDialog,
         t("There was an issue updating the absence"),
+        t("Hmm, we found a possible issue. Would you like to continue?"),
         async () => await update(formValues, true),
         t,
         TranslateAbsenceErrorCodeToMessage
