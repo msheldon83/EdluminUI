@@ -147,20 +147,23 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
                     spacing={2}
                     xs={6}
                   >
-                    <Grid item>
-                      <Button
-                        variant="outlined"
-                        className={classes.cancel}
-                        onClick={() =>
-                          onCancelAssignment(
-                            assignmentId,
-                            vacancyDetails[0].assignment?.rowVersion ?? ""
-                          )
-                        }
-                      >
-                        {t("Cancel")}
-                      </Button>
-                    </Grid>
+                    {//first detail contains parent vacancy with property saying if entire assignment can be canceled
+                    vacancyDetails[0].vacancy?.canCancel && (
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          className={classes.cancel}
+                          onClick={() =>
+                            onCancelAssignment(
+                              assignmentId,
+                              vacancyDetails[0].assignment?.rowVersion ?? ""
+                            )
+                          }
+                        >
+                          {t("Cancel")}
+                        </Button>
+                      </Grid>
+                    )}
                   </Grid>
                 </>
               )}

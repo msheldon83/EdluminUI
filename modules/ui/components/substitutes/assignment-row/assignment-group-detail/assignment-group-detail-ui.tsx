@@ -54,7 +54,7 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
           className={classes.dayPortion}
         />
 
-        {props.canCancel && !props.forSpecificAssignment && (
+        {props.canCancel && (
           <TextButton
             className={classes.cancel}
             onClick={event => {
@@ -87,7 +87,7 @@ export const AssignmentGroupDetailUI: React.FC<Props> = props => {
 
         <div className={classes.locationAndCancelContainer}>
           <Typography className={classes.text}>{props.locationName}</Typography>
-          {props.canCancel && !props.forSpecificAssignment && (
+          {props.canCancel && (
             <TextButton
               className={classes.cancel}
               onClick={event => {

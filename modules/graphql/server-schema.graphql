@@ -316,7 +316,7 @@ input AbsenceReasonCreateInput {
   allowNegativeBalance: Boolean!
   isRestricted: Boolean!
   limitPerDay: Int
-  absenceReasonCategoryId: Int
+  absenceReasonCategoryId: ID
   prioritySequence: Int
   requireNotesToAdmin: Boolean
   code: String
