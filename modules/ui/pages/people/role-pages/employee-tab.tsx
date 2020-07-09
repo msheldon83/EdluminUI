@@ -25,6 +25,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { canEditEmployee } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
 import { compact } from "lodash-es";
+import { useCurrentSchoolYear } from "reference-data/current-school-year";
 
 type Props = {
   editing: string | null;
@@ -48,6 +49,8 @@ export const EmployeeTab: React.FC<Props> = props => {
   const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: { id: props.orgUserId },
   });
+
+  const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
 
   const orgUser =
     getEmployee.state === "LOADING"
@@ -112,6 +115,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         showEdit={canEditThisEmployee}
         editing={props.editing}
         orgId={params.organizationId}
+        schoolYearId={currentSchoolYear?.id}
       />
       {employee.primaryPosition?.needsReplacement != NeedsReplacement.No && (
         <>
