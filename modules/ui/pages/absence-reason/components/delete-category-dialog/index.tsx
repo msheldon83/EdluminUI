@@ -131,7 +131,7 @@ export const DeleteCategoryDialog: React.FC<Props> = ({
               <Grid item xs={6}>
                 <SelectNew
                   value={destinationOptions.find(
-                    o => o.value == destinationCategory ?? ""
+                    o => o.value == (destinationCategory ?? "")
                   )}
                   multiple={false}
                   onChange={({ value }: OptionType) =>
