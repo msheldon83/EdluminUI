@@ -33,11 +33,14 @@ export const DailyReportSection: React.FC<Props> = props => {
 
   const detailGroup = props.group;
   let headerText = `${detailGroup.label}`;
-  if (!detailGroup.subGroups && detailGroup.details) {
-    headerText = `${headerText} (${detailGroup.details.length})`;
-  }
+
   const [isOpen, setIsOpen] = React.useState<boolean>(props.defaultIsOpen);
   React.useEffect(() => setIsOpen(props.defaultIsOpen), [props.defaultIsOpen]);
+
+  if (!isOpen) {
+    headerText = `${headerText} (${detailGroup.details?.length ?? 0})`;
+  }
+
   const panelId = detailGroup.label;
 
   const DetailsGroupUI: React.FC<DetailsGroupProps> = ({
