@@ -1,4 +1,6 @@
-if (process.env.NODE_ENV !== "production") {
+var environment = process.env.NODE_ENV || "development";
+
+if (environment !== "production") {
   require("dotenv").config({
     silent: false,
   });
@@ -17,12 +19,12 @@ function definedOr(x, fallback) {
 }
 
 module.exports = {
-  environment: process.env.NODE_ENV || "development",
+  environment: environment,
   minify: process.env.MINIFY === "true",
 
-  production: process.env.NODE_ENV === "production",
-  development: process.env.NODE_ENV === "development",
-  test: process.env.NODE_ENV === "test",
+  production: environment === "production",
+  development: environment === "development",
+  test: environment === "test",
 
   trackingId: process.env.TRACKING_ID || "",
 
