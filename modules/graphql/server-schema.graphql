@@ -687,7 +687,7 @@ type Application {
   _info: [ReturnMessage]
   id: ID!
   orgId: ID
-  name: String
+  name: String!
   description: String
   url: String
   helpUrl: String
@@ -807,7 +807,7 @@ type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   applicationId: Int!
-  application: Application
+  application: Application!
   active: Boolean!
   apiKey: String!
   ftpUserName: String
@@ -892,7 +892,12 @@ input ApplicationPresetUpdateInput {
 
 type ApplicationQueries {
   byId(id: ID!): Application
-  all(orgId: ID, orgIds: [ID], orgId: ID, includePublished: Boolean): [Application]
+  all(
+    orgId: ID
+    orgIds: [ID]
+    orgId: ID
+    includePublished: Boolean
+  ): [Application]
 }
 
 input ApplicationUpdateInput {
@@ -1684,7 +1689,8 @@ input CommentCreateInput {
   discussionId: ID
   discussionSubjectType: DiscussionSubjectType!
   hasShadow: Boolean
-  orgUserId: ID!
+  objectKey: ID!
+  objectType: ObjectType!
 }
 
 type CommentMutations {
@@ -3909,7 +3915,8 @@ type OrgRef_AbsenceReasonCategoryMutations {
   update(
     absenceReasonCategory: AbsenceReasonCategoryUpdateInput!
   ): AbsenceReasonCategory
-  delete(
+  delete(absenceReasonCategoryId: ID!): Boolean
+  deleteAndUpdateReasons(
     absenceReasonCategory: AbsenceReasonCategoryDeleteInputTypeDef!
   ): Boolean
 }
@@ -4199,6 +4206,8 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   middleName: String
   lastName: String!
   secondaryIdentifier: String
+  employeeDiscussionId: ID
+  replacementEmployeeDiscussionId: ID
   userId: ID
   loginEmail: String
   temporaryPassword: String
@@ -4982,6 +4991,7 @@ enum PermissionEnum {
   EMPLOYEE_DELETE
   EMPLOYEE_SAVE_FAVORITE_SUBS
   EMPLOYEE_SAVE_BLOCKED_SUBS
+  EMPLOYEE_SAVE_AUTO_ASSIGN_SUBS
   POSITION_VIEW
   POSITION_SAVE
   POSITION_DELETE
