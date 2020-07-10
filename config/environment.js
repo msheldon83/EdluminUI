@@ -2,8 +2,10 @@ window.__DEV__ = true;
 window.__TEST__ = false;
 
 window.Config = {
-  restUri: "https://devapi.edlumin.com/api",
-  apiUri: "https://devapi.edlumin.com/graphql",
+  // These are relative because we use a proxy to route the API calls
+  restUri: "/api",
+  apiUri: "/graphql",
+
   isDevFeatureOnly: true,
 
   Auth0: {
