@@ -8,12 +8,8 @@ query GetApplicationGrantById($id: ID!) {
       ftpUserName
       application {
         id
-        orgId
         name
         logoUrl
-        helpUrl
-        basicAuthName
-        basicAuthPassword
         presets {
           id
           direction
