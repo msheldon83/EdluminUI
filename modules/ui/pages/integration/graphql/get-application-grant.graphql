@@ -1,0 +1,40 @@
+query GetApplicationGrantById($id: ID!) {
+  applicationGrant {
+    byId(id: $id) {
+      id
+      apiKey
+      createdLocal
+      ftpPassword
+      ftpUserName
+      application {
+        id
+        name
+        logoUrl
+        presets {
+          id
+          direction
+          definition
+          name
+          apiEnabled
+          ftpEnabled
+        }
+      }
+      connections {
+        id
+        name
+        active
+        apiEnabled
+        ftpEnabled
+        createdLocal
+        definition
+        path
+        lastScheduledRun
+        nextScheduledRun
+        direction
+        applicationPresetId
+        fileNameFormat
+        fileFormat
+      }
+    }
+  }
+}
