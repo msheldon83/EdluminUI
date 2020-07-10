@@ -247,7 +247,10 @@ export const canViewDataManagementNavLink = (
   if (isSysAdmin) return true;
 
   const userPerms = getUserPermissions(permissions, orgId);
-  if (!userPerms?.includes(PermissionEnum.DataImport)) {
+  if (
+    !userPerms?.includes(PermissionEnum.DataImport) &&
+    !userPerms?.includes(PermissionEnum.ExternalConnectionsView)
+  ) {
     return false;
   }
 
