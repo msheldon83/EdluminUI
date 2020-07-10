@@ -218,6 +218,7 @@ export const DailyReport: React.FC<Props> = props => {
         error,
         openDialog,
         t("There was an issue swapping substitutes"),
+        t("Hmm, we found a possible issue. Would you like to continue?"),
         async () => await swapSubs(true),
         t
       );

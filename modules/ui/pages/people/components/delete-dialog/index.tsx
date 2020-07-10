@@ -9,26 +9,15 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  getHours,
-  getMinutes,
-  getMonth,
-  getYear,
-  isBefore,
-  lastDayOfYear,
-  parseISO,
-  set,
-} from "date-fns";
+import { getHours, getMinutes, isBefore, parseISO, set } from "date-fns";
 import { compact } from "lodash-es";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
 import { OrgUser } from "graphql/server-types.gen";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useSnackbar } from "hooks/use-snackbar";
+import { useQueryBundle } from "graphql/hooks";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
-import { ShowErrors } from "ui/components/error-helpers";
 import { convertStringToDate, getDateRangeDisplayText } from "helpers/date";
 import { getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates } from "ui/components/date-helpers";
 import { GetEmployeeAbsences } from "../../graphql/get-employee-absences.gen";
@@ -38,9 +27,9 @@ import { DeleteDialogRow } from "./row";
 import { AbsVac } from "./types";
 
 type Props = {
-  type: "delete" | OrgUserRole | null;
+  type: "delete" | "inactivate" | OrgUserRole | null;
   now: Date;
-  onAccept: () => void;
+  onAccept: (removeFromAssignments: boolean) => void;
   onCancel: () => void;
   orgId: string;
   orgUser: Pick<
@@ -67,6 +56,9 @@ export const DeleteDialog: React.FC<Props> = ({
   switch (type) {
     case "delete":
       titleString = t("Are you sure you want to delete this user?");
+      break;
+    case "inactivate":
+      titleString = t("Are you sure you want to inactivate this user?");
       break;
     case OrgUserRole.Administrator:
       titleString = t(
@@ -176,6 +168,24 @@ export const DeleteDialog: React.FC<Props> = ({
       <DialogContent>
         {(showEmployee || showSubstitute) && (
           <Grid container spacing={2}>
+            {type === "inactivate" &&
+              (showEmployee && showSubstitute ? (
+                <Typography variant="h6">
+                  {t(
+                    "Would you like to delete these employee absences and remove the substitute from these assignments?"
+                  )}
+                </Typography>
+              ) : showEmployee ? (
+                <Typography variant="h6">
+                  {t("Would you like to delete these employee absences?")}
+                </Typography>
+              ) : (
+                <Typography variant="h6">
+                  {t(
+                    "Would you like to remove this subsitute from these assignments?"
+                  )}
+                </Typography>
+              ))}
             {showEmployee && (
               <>
                 <Grid item xs={12} className={classes.header}>
@@ -223,10 +233,19 @@ export const DeleteDialog: React.FC<Props> = ({
         <TextButton onClick={onCancel} className={classes.buttonSpacing}>
           {t("No")}
         </TextButton>
+        {type === "inactivate" && (showEmployee || showSubstitute) && (
+          <ButtonDisableOnClick
+            variant="outlined"
+            onClick={() => onAccept(false)}
+            className={classes.noButton}
+          >
+            {t("No, just inactivate")}
+          </ButtonDisableOnClick>
+        )}
         <ButtonDisableOnClick
           variant="outlined"
-          onClick={onAccept}
-          className={classes.delete}
+          onClick={() => onAccept(true)}
+          className={classes.yesButton}
         >
           {t("Yes")}
         </ButtonDisableOnClick>
@@ -244,6 +263,7 @@ const useStyles = makeStyles(theme => ({
     fontWeight: theme.typography.fontWeightMedium,
   },
   dividedContainer: { display: "flex" },
-  delete: { color: theme.customColors.blue },
+  noButton: { color: theme.customColors.darkRed },
+  yesButton: { color: theme.customColors.darkBlue },
   header: { textAlign: "center" },
 }));

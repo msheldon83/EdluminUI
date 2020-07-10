@@ -474,6 +474,9 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
               <ErrorBanner
                 errorBannerOpen={errorBannerOpen}
                 title={t("There was an issue creating the absence")}
+                warningsOnlyTitle={t(
+                  "Hmm, we found a possible issue. Would you like to continue?"
+                )}
                 apolloErrors={absenceErrors}
                 setErrorBannerOpen={setErrorBannerOpen}
                 continueAction={async () => await create(formValues, true)}
