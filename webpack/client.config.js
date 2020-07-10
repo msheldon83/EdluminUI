@@ -30,20 +30,46 @@ function codeVersion() {
   );
 }
 
+const temporaryProductionEnv = {
+  // Flag to detect non-production
+  __DEV__: JSON.stringify(config.get("development")),
+  __TEST__: "false",
+
+  "Config.Auth0.domain": JSON.stringify(config.get("auth0_domain")),
+  "Config.Auth0.clientId": JSON.stringify(config.get("auth0_client")),
+  "Config.Auth0.redirectUrl": JSON.stringify(config.get("auth0_redirect_url")),
+  "Config.Auth0.apiAudience": JSON.stringify(config.get("auth0_api_audience")),
+  "Config.Auth0.scope": JSON.stringify(config.get("auth0_scope")),
+  "Config.Auth0.clockSkewLeewaySeconds": JSON.stringify(
+    config.get("auth0_clock_skew_leeway_seconds")
+  ),
+  "Config.restUri": JSON.stringify(config.get("restUrl")),
+  "Config.apiUri": JSON.stringify(config.get("apiUrl")),
+  "Config.isDevFeatureOnly": JSON.stringify(config.get("isDevFeatureOnly")),
+
+  // Impersonation header keys
+  "Config.impersonation.actingUserIdKey": JSON.stringify(
+    config.get("impersonation_actingUserIdKey")
+  ),
+  "Config.impersonation.actingOrgUserIdKey": JSON.stringify(
+    config.get("impersonation_actingOrgUserIdKey")
+  ),
+  "Config.impersonation.impersonatingOrgId": JSON.stringify(
+    config.get("impersonation_impersonatingOrgId")
+  ),
+
+  // ALlow switching on NODE_ENV in client code
+  "process.env.NODE_ENV": JSON.stringify(config.get("environment")),
+
+  // Expose Google Analytics ID to client
+  "process.env.TRACKING_ID": JSON.stringify(config.get("trackingId")),
+
+  "process.env.CODE_VERSION": JSON.stringify(codeVersion()),
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 // per-environment plugins
 const environmentPlugins = (() => {
-  if (config.get("minify")) {
-    return [
-      new CompressionPlugin({
-        algorithm: "gzip",
-        test: /\.(js|html|css)$/,
-        threshold: 10240,
-        minRatio: 0.8,
-      }),
-    ];
-  }
-
   switch (config.get("environment")) {
     case "development":
       return [
@@ -56,8 +82,16 @@ const environmentPlugins = (() => {
         }),
       ];
 
+    // Non development plugins
     default:
-      return [];
+      return [
+        new CompressionPlugin({
+          algorithm: "gzip",
+          test: /\.(js|html|css)$/,
+          threshold: 10240,
+          minRatio: 0.8,
+        }),
+      ];
   }
 })();
 
@@ -93,13 +127,6 @@ module.exports = {
         ],
         splitChunks: {
           chunks: "all",
-          // cacheGroups: {
-          //   commons: {
-          //     test: /[\\/]node_modules[\\/]/,
-          //     name: "vendors",
-          //     chunks: "all",
-          //   },
-          // },
         },
       },
 
@@ -117,53 +144,28 @@ module.exports = {
   },
 
   plugins: [
-    new CopyPlugin([{ from: "scripts/new-relic.js" }, { from: "static" }]),
+    new CopyPlugin([
+      { from: "scripts/new-relic.js" },
+      { from: "static" },
+      { from: "config/environment.js" },
+    ]),
 
     // Define global letiables in the client to instrument behavior.
-    new webpack.DefinePlugin({
-      // Flag to detect non-production
-      __DEV__: JSON.stringify(config.get("development")),
-      __TEST__: "false",
+    new webpack.DefinePlugin(
+      config.get("development") ? {} : temporaryProductionEnv
+    ),
 
-      "Config.Auth0.domain": JSON.stringify(config.get("auth0_domain")),
-      "Config.Auth0.clientId": JSON.stringify(config.get("auth0_client")),
-      "Config.Auth0.redirectUrl": JSON.stringify(
-        config.get("auth0_redirect_url")
-      ),
-      "Config.Auth0.apiAudience": JSON.stringify(
-        config.get("auth0_api_audience")
-      ),
-      "Config.Auth0.scope": JSON.stringify(config.get("auth0_scope")),
-      "Config.Auth0.clockSkewLeewaySeconds": JSON.stringify(
-        config.get("auth0_clock_skew_leeway_seconds")
-      ),
-      "Config.restUri": JSON.stringify(config.get("restUrl")),
-      "Config.apiUri": JSON.stringify(config.get("apiUrl")),
-      "Config.isDevFeatureOnly": JSON.stringify(config.get("isDevFeatureOnly")),
+    /*
+    Process index.html and insert script and stylesheet tags for us.
 
-      // Impersonation header keys
-      "Config.impersonation.actingUserIdKey": JSON.stringify(
-        config.get("impersonation_actingUserIdKey")
-      ),
-      "Config.impersonation.actingOrgUserIdKey": JSON.stringify(
-        config.get("impersonation_actingOrgUserIdKey")
-      ),
-      "Config.impersonation.impersonatingOrgId": JSON.stringify(
-        config.get("impersonation_impersonatingOrgId")
-      ),
-
-      // ALlow switching on NODE_ENV in client code
-      "process.env.NODE_ENV": JSON.stringify(config.get("environment")),
-
-      // Expose Google Analytics ID to client
-      "process.env.TRACKING_ID": JSON.stringify(config.get("trackingId")),
-
-      "process.env.CODE_VERSION": JSON.stringify(codeVersion()),
-    }),
-
-    // Process index.html and insert script and stylesheet tags for us.
+    Temporarily there are 2 different index files because of how the
+    environment is loaded. This will change when we have the environment file
+      in QA and production builds
+    */
     new HtmlWebpackPlugin({
-      template: "./entry/index.html",
+      template: config.get("development")
+        ? "./entry/index.development.tmp.html"
+        : "./entry/index.production.tmp.html",
       inject: "body",
     }),
 
