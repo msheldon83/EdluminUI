@@ -5,7 +5,6 @@ import { useState } from "react";
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import CheckIcon from "@material-ui/icons/Check";
-import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import ClearIcon from "@material-ui/icons/Clear";
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import {
@@ -21,6 +20,7 @@ type Props = {
   orgUserId: string;
   discussionSubjectType: DiscussionSubjectType;
   orgId: string;
+  staffingOrgId?: string | null;
   onAddComment: (addComment: CommentCreateInput) => void;
 };
 
@@ -40,22 +40,22 @@ export const NewComment: React.FC<Props> = props => {
     discussionSubjectType,
     orgUserId,
     orgId,
+    staffingOrgId,
   } = props;
-
-  // If this is a staffing Org, then show drop down with org choices.
-  // Otherwise pass the current OrgId & hasShadow == false
 
   return (
     <Grid container item xs={12}>
       <Grid item xs={3} className={classes.width}>
-        {}
-        <OrgRelationshipSelect
-          orgId={orgId}
-          setSelectedOrgId={setSelectedOrgId}
-          includeAllOption={true}
-          includeMyOrgOption={true}
-          label={t("Something Here")}
-        />
+        {staffingOrgId && (
+          <OrgRelationshipSelect
+            orgId={orgId}
+            selectedOrgId={selectedOrgId}
+            setSelectedOrgId={setSelectedOrgId}
+            includeAllOption={true}
+            includeMyOrgOption={true}
+            label={t("Something Here")}
+          />
+        )}
       </Grid>
       <Grid item xs={8}>
         <TextField
@@ -80,9 +80,7 @@ export const NewComment: React.FC<Props> = props => {
                 objectKey: orgUserId,
                 objectType: ObjectType.OrgUser,
                 orgId:
-                  selectedOrgId === undefined
-                    ? "STAFFING ORG_ID"
-                    : selectedOrgId,
+                  selectedOrgId === undefined ? staffingOrgId! : selectedOrgId,
                 payload: payload,
                 hasShadow: selectedOrgId === undefined ? true : false,
                 discussionId: discussionId,

@@ -296,6 +296,12 @@ input AbsenceReasonCategoryCreateInput {
   code: String
 }
 
+input AbsenceReasonCategoryDeleteInputTypeDef {
+  id: ID!
+  deleteCategoryMembers: Boolean
+  newCategoryId: ID
+}
+
 input AbsenceReasonCategoryUpdateInput {
   id: ID!
   rowVersion: String!
@@ -641,7 +647,7 @@ type Application {
   _info: [ReturnMessage]
   id: ID!
   orgId: ID
-  name: String
+  name: String!
   description: String
   url: String
   helpUrl: String
@@ -747,7 +753,7 @@ type ApplicationGrant implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   applicationId: Int!
-  application: Application
+  application: Application!
   active: Boolean!
   apiKey: String!
   ftpUserName: String
@@ -1550,8 +1556,8 @@ type Comment implements ModelObjectInterface & OrgObjectInterface {
   payload: String!
   discussion: Discussion!
   hasBeenEdited: Boolean!
-  actingOrgUserId: ID!
-  actingOrgUser: OrgUser!
+  actingOrgUserId: ID
+  actingOrgUser: OrgUser
   actualOrgUserId: OrgUser
   actualOrgUser: OrgUser
   actingUserId: ID!
@@ -3612,6 +3618,7 @@ type OrgRef_AbsenceReasonCategoryMutations {
   create(absenceReasonCategory: AbsenceReasonCategoryCreateInput!): AbsenceReasonCategory
   update(absenceReasonCategory: AbsenceReasonCategoryUpdateInput!): AbsenceReasonCategory
   delete(absenceReasonCategoryId: ID!): Boolean
+  deleteAndUpdateReasons(absenceReasonCategory: AbsenceReasonCategoryDeleteInputTypeDef!): Boolean
 }
 
 type OrgRef_AbsenceReasonCategoryQueries {
@@ -3628,8 +3635,8 @@ type OrgRef_AbsenceReasonMutations {
 
 type OrgRef_AbsenceReasonQueries {
   byId(id: ID!): AbsenceReason
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): [AbsenceReason]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID]): PagedAbsenceReason
+  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID], absenceCategoryIds: [ID]): [AbsenceReason]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput], positionTypeIds: [ID], absenceCategoryIds: [ID]): PagedAbsenceReason
 }
 
 type OrgRef_AccountingCodeMutations {
@@ -4507,6 +4514,7 @@ enum PermissionEnum {
   EMPLOYEE_DELETE
   EMPLOYEE_SAVE_FAVORITE_SUBS
   EMPLOYEE_SAVE_BLOCKED_SUBS
+  EMPLOYEE_SAVE_AUTO_ASSIGN_SUBS
   POSITION_VIEW
   POSITION_SAVE
   POSITION_DELETE

@@ -1,4 +1,8 @@
-query GetSubstituteById($id: ID!) {
+query GetSubstituteById(
+  $id: ID!
+  $includeRelatedOrgs: Boolean
+  $relatedOrgId: ID
+) {
   orgUser {
     byId(id: $id) {
       id
@@ -35,7 +39,10 @@ query GetSubstituteById($id: ID!) {
           id
           name
         }
-        comments {
+        comments(
+          includeRelatedOrgs: $includeRelatedOrgs
+          relatedOrgId: $relatedOrgId
+        ) {
           id
           payload
           createdLocal

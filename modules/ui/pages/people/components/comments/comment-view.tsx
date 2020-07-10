@@ -10,20 +10,29 @@ import ClearIcon from "@material-ui/icons/Clear";
 import { Comment, CommentUpdateInput } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
 import { parseISO } from "date-fns/esm";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 type Props = {
   comment: Comment;
   onEditComment: (editComment: CommentUpdateInput) => void;
   onDeleteComment: (id: string) => void;
+  setShowEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  showEdit: boolean;
   newCommentVisible: boolean;
 };
 
 export const CommentView: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { comment, onEditComment, newCommentVisible } = props;
+  const {
+    comment,
+    onEditComment,
+    newCommentVisible,
+    onDeleteComment,
+    setShowEdit,
+    showEdit,
+  } = props;
 
-  const [showEdit, setShowEdit] = useState<boolean>(false);
   const [payload, setPayload] = useState<string>(comment.payload ?? "");
 
   const createdLocal = formatAMPM(
@@ -31,13 +40,33 @@ export const CommentView: React.FC<Props> = props => {
     new Date(comment.createdLocal)
   );
 
-  //Commenter should be the actingUser.Name or possibly SysAdmin if null
+  const name = () => {
+    let name;
+    if (comment.actualUser === undefined) {
+      name = "SysAdmin";
+    } else if (comment.actingUser.id != comment.actualUser.id) {
+      name = `${comment.actingUser.firstName} ${
+        comment.actingUser.lastName
+      } ${t("impersonated by")} ${comment.actualUser.firstName} ${
+        comment.actualUser.lastName
+      }}`;
+    } else {
+      name = `${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
+    }
+
+    return name;
+  };
+
   return (
     <Grid container item xs={12}>
       <Grid item xs={3} className={classes.width}>
-        {/* <div>{comment.poster}</div> */}
+        <div>{name()}</div>
         <div className={classes.subText}>{createdLocal}</div>
-        {/* <div className={classes.subText}>{comment.location}</div> */}
+        {comment.actingOrgUser && (
+          <div className={classes.subText}>
+            {comment.actingOrgUser.organization.name}
+          </div>
+        )}
       </Grid>
       {showEdit ? (
         <>
@@ -54,7 +83,7 @@ export const CommentView: React.FC<Props> = props => {
               }}
             />
           </Grid>
-          <Grid item xs={1}>
+          <Grid item xs={1} className={classes.padding}>
             <div
               className={classes.iconHover}
               onClick={() => {
@@ -77,7 +106,7 @@ export const CommentView: React.FC<Props> = props => {
                 setPayload(comment.payload ?? "");
               }}
             >
-              <ClearIcon className={classes.editIcon} />
+              <ClearIcon className={classes.clearIcon} />
             </div>
           </Grid>
         </>
@@ -86,19 +115,29 @@ export const CommentView: React.FC<Props> = props => {
           <Grid item xs={8}>
             {comment.payload}
             {comment.hasBeenEdited && (
-              <div className={classes.edited}>{t("edited")}</div>
+              <div className={classes.edited}>{t("(edited)")}</div>
             )}
           </Grid>
           <Grid item xs={1}>
             {!newCommentVisible && (
-              <div
-                className={classes.iconHover}
-                onClick={() => {
-                  setShowEdit(!showEdit);
-                }}
-              >
-                <EditIcon className={classes.editIcon} />
-              </div>
+              <>
+                <div
+                  className={classes.iconHover}
+                  onClick={() => {
+                    onDeleteComment(comment.id);
+                  }}
+                >
+                  <DeleteIcon className={classes.deleteIcon} />
+                </div>
+                <div
+                  className={classes.iconHover}
+                  onClick={() => {
+                    setShowEdit(!showEdit);
+                  }}
+                >
+                  <EditIcon className={classes.editIcon} />
+                </div>
+              </>
             )}
           </Grid>
         </>
@@ -109,14 +148,23 @@ export const CommentView: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   editIcon: {
-    marginTop: theme.spacing(1),
     height: "20px",
+  },
+  deleteIcon: {
+    height: "20px",
+    float: "right",
+  },
+  clearIcon: {
+    marginTop: theme.spacing(2),
   },
   iconHover: {
     "&:hover": { cursor: "pointer" },
   },
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  padding: {
+    paddingLeft: theme.spacing(1),
   },
   width: {
     width: "100%",

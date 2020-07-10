@@ -80,21 +80,23 @@ export const SubstituteTab: React.FC<Props> = props => {
     },
   });
 
-  const getSubstitute = useQueryBundle(GetSubstituteById, {
-    variables: { id: props.orgUserId },
-  });
-
   const getOrgRelationships = useOrganizationRelationships(
     params.organizationId
   );
 
-  console.log(getOrgRelationships);
+  const staffingOrgId = getOrgRelationships.find(
+    x => x.relationshipType === OrganizationRelationshipType.Services
+  )?.orgId;
 
   const showRelatedOrgs = getOrgRelationships?.find(
     x => x?.relationshipType === OrganizationRelationshipType.Services
   )
     ? true
     : false;
+
+  const getSubstitute = useQueryBundle(GetSubstituteById, {
+    variables: { id: props.orgUserId, includeRelatedOrgs: showRelatedOrgs },
+  });
 
   const getPayCodes = usePayCodes(params.organizationId);
   const payCodeOptions = useMemo(
@@ -189,6 +191,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       />
       <Comments
         onAddComment={onAddComment}
+        staffingOrgId={staffingOrgId}
         comments={orgUser.substitute.comments ?? []}
         discussionId={orgUser.replacementEmployeeDiscussionId ?? ""}
         orgUserId={orgUser.id}

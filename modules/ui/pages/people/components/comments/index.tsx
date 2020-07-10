@@ -10,11 +10,9 @@ import clsx from "clsx";
 import { makeStyles } from "@material-ui/styles";
 import { SectionHeader } from "ui/components/section-header";
 import {
-  Comment,
   CommentUpdateInput,
   CommentCreateInput,
   DiscussionSubjectType,
-  Maybe,
 } from "graphql/server-types.gen";
 
 type Props = {
@@ -25,6 +23,7 @@ type Props = {
   onEditComment: (editComment: CommentUpdateInput) => void;
   onAddComment: (addComment: CommentCreateInput) => void;
   onDeleteComment: (id: string) => void;
+  staffingOrgId?: string | null;
   comments?: any[];
 };
 
@@ -41,10 +40,11 @@ export const Comments: React.FC<Props> = props => {
     discussionSubjectType,
     discussionId,
     orgUserId,
+    staffingOrgId,
   } = props;
 
+  const [showEdit, setShowEdit] = useState<boolean>(false);
   const [newCommentVisible, setNewCommentVisible] = useState<boolean>(false);
-  const [comment, setComment] = useState<string>();
 
   return (
     <Section>
@@ -58,6 +58,7 @@ export const Comments: React.FC<Props> = props => {
             discussionSubjectType={discussionSubjectType}
             discussionId={discussionId}
             orgId={orgId}
+            staffingOrgId={staffingOrgId}
           />
         )}
         {!newCommentVisible &&
@@ -72,6 +73,8 @@ export const Comments: React.FC<Props> = props => {
               onEditComment={onEditComment}
               onDeleteComment={onDeleteComment}
               key={i}
+              setShowEdit={setShowEdit}
+              showEdit={showEdit}
               newCommentVisible={newCommentVisible}
             />
           ))
@@ -88,7 +91,7 @@ export const Comments: React.FC<Props> = props => {
               }}
             >
               <span className={classes.link}>
-                {t(`View all ${comment?.length} comments`)}
+                {t(`View all ${comments?.length} comments`)}
               </span>
             </TextButton>
           )}
@@ -97,6 +100,7 @@ export const Comments: React.FC<Props> = props => {
               className={classes.inline}
               onClick={() => {
                 setNewCommentVisible(true);
+                setShowEdit(false);
               }}
             >
               <span className={classes.link}>{t("Add comment")}</span>
