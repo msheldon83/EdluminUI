@@ -364,6 +364,12 @@ import {
   DataImportColumnDefinitionsRoute,
   DataImportColumnDefinitionsLoader,
 } from "./routes/data-import";
+import {
+  IntegrationRoute,
+  IntegrationLoader, 
+  IntegrationViewRoute, 
+  IntegrationViewLoader,
+} from "./routes/integration"
 import { RoleContextProvider } from "core/role-context";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -712,6 +718,18 @@ export const App = hot(function() {
                                       path={DataImportRoute.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.DataImport]}
+                                    />
+                                    <ProtectedRoute
+                                      component={IntegrationViewLoader}
+                                      path={IntegrationViewRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.ExternalConnectionView]}
+                                    />
+                                    <ProtectedRoute
+                                      component={IntegrationLoader}
+                                      path={IntegrationRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.ExternalConnectionView]}
                                     />
                                     <ProtectedRoute
                                       component={AdminEditAbsenceLoader}
