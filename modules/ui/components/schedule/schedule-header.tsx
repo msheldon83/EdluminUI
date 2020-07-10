@@ -48,9 +48,10 @@ export const ScheduleHeader: React.FC<Props> = props => {
 
     // 1. fill in the years between the startYear and the current year
     // 2. create the respective values for each
+    // Range creates a range up to but not including the second values, so need to add 1 to include the endYear
     const yearOptions =
       startYear !== endYear
-        ? range(startYear, endYear).map(d => {
+        ? range(startYear, endYear + 1).map(d => {
             const year = props.userCreatedDate;
             year.setFullYear(d);
             return createYearOption(year);

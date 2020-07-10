@@ -7,11 +7,7 @@ import {
 import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import Maybe from "graphql/tsutils/Maybe";
-import {
-  OrgUserUpdateInput,
-  PermissionEnum,
-  AdministratorInput,
-} from "graphql/server-types.gen";
+import { OrgUserUpdateInput, PermissionEnum } from "graphql/server-types.gen";
 import { useMutationBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { InviteSingleUser } from "../graphql/invite-single-user.gen";
@@ -60,7 +56,7 @@ type Props = {
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   deleteOrgUser: () => Promise<unknown>;
   onSaveOrgUser: (orgUser: OrgUserUpdateInput) => Promise<unknown>;
-  onSetOrgUserActivation: (orgUser: AdministratorInput) => Promise<unknown>;
+  onSetOrgUserActivation: (remove: boolean) => Promise<unknown>;
   onRemoveRole: (orgUserRole: OrgUserRole) => Promise<any>;
 };
 
@@ -74,7 +70,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
     orgUser.inviteSent || false
   );
   const [currentDialog, setCurrentDialog] = React.useState<
-    "delete" | OrgUserRole | null
+    "inactivate" | "delete" | OrgUserRole | null
   >(null);
   const [now, setNow] = React.useState<Date>(new Date());
 
@@ -164,6 +160,15 @@ export const PersonViewHeader: React.FC<Props> = props => {
 
   const editable = props.editing === null;
 
+  const handleActivateOrInactivate = async (active: boolean) => {
+    if (active) {
+      setNow(new Date());
+      setCurrentDialog("inactivate");
+    } else {
+      await props.onSetOrgUserActivation(false);
+    }
+  };
+
   const buildActionMenu = React.useCallback(() => {
     // setup 3 dot menu actions
     let menuActions = [];
@@ -195,10 +200,7 @@ export const PersonViewHeader: React.FC<Props> = props => {
     menuActions.push({
       name: orgUser.active ? t("Inactivate") : t("Activate"),
       onClick: async () => {
-        await props.onSetOrgUserActivation({
-          id: orgUser.id,
-          active: !orgUser.active,
-        });
+        await handleActivateOrInactivate(orgUser.active);
       },
       permissions: canEditThisOrgUser,
     });
@@ -282,12 +284,18 @@ export const PersonViewHeader: React.FC<Props> = props => {
   const onAccept =
     currentDialog == "delete"
       ? props.deleteOrgUser
+      : currentDialog == "inactivate"
+      ? async (remove: boolean) => {
+          await props.onSetOrgUserActivation(remove);
+          setCurrentDialog(null);
+        }
       : currentDialog == null
       ? () => {}
       : async () => {
           await props.onRemoveRole(currentDialog);
           setCurrentDialog(null);
         };
+
   const onCancel = () => setCurrentDialog(null);
 
   return (

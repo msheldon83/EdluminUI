@@ -10,6 +10,7 @@ export const ShowIgnoreAndContinueOrError = (
   error: ApolloError,
   openDialog: (options: OpenDialogOptions) => void,
   title: string,
+  warningsOnlyTitle: string,
   continueAction: () => Promise<void>,
   t: TFunction,
   translateCodeToMessage?: (
@@ -23,7 +24,7 @@ export const ShowIgnoreAndContinueOrError = (
   const warningsOnly = warnings.length === error.graphQLErrors.length;
 
   openDialog({
-    title: title,
+    title: warningsOnly ? warningsOnlyTitle : title,
     renderContent() {
       const messages = uniq(
         compact(
