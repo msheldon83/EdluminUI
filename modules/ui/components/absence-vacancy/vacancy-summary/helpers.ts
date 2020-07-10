@@ -4,10 +4,11 @@ import {
   DateDetail,
   VacancySummaryDetailByAssignmentAndDate,
 } from "./types";
-import { format, isEqual as isDateEqual } from "date-fns";
+import { format, isEqual as isDateEqual, parseISO } from "date-fns";
 import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
+import { Vacancy } from "graphql/server-types.gen";
 
 export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   vacancy: VacancyDetailsFormData
@@ -53,6 +54,48 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
     };
   });
   return summaryDetails;
+};
+
+export const convertVacancyToVacancySummaryDetails = (
+  vacancy: Vacancy
+): VacancySummaryDetail[] => {
+  const absenceDetails = vacancy?.absence?.details;
+  return vacancy.details?.map(vd => {
+    // Find a matching Absence Detail record if available
+    const absenceDetail = absenceDetails?.find(
+      ad => ad?.startDate === vd?.startDate
+    );
+
+    return {
+      vacancyId: vacancy.id,
+      vacancyDetailId: vd.id,
+      date: parseISO(vd.startDate),
+      startTimeLocal: parseISO(vd.startTimeLocal),
+      endTimeLocal: parseISO(vd.endTimeLocal),
+      locationId: vd.locationId,
+      locationName: vd.location?.name ?? "",
+      assignment: vd.assignment
+        ? {
+            id: vd.assignment.id,
+            rowVersion: vd.assignment.rowVersion,
+            employee: vd.assignment.employee
+              ? {
+                  id: vd.assignment.employee.id,
+                  firstName: vd.assignment.employee.firstName,
+                  lastName: vd.assignment.employee.lastName,
+                }
+              : undefined,
+          }
+        : undefined,
+      accountingCodeAllocations: [],
+      absenceStartTimeLocal: absenceDetail?.startTimeLocal
+        ? parseISO(absenceDetail.startTimeLocal)
+        : undefined,
+      absenceEndTimeLocal: absenceDetail?.endTimeLocal
+        ? parseISO(absenceDetail.endTimeLocal)
+        : undefined,
+    };
+  });
 };
 
 export const buildAssignmentGroups = (
