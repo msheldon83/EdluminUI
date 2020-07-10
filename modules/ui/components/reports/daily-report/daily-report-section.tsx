@@ -20,6 +20,8 @@ type Props = {
   ) => Promise<void>;
   vacancyDate?: string;
   swapSubs?: (detail: Detail) => void;
+  isOpen: boolean;
+  setIsOpen: (b: boolean) => void;
 };
 
 type DetailsGroupProps = {
@@ -56,7 +58,10 @@ export const DailyReportSection: React.FC<Props> = props => {
   );
 
   return (
-    <ExpansionPanel defaultExpanded={hasDetails}>
+    <ExpansionPanel
+      expanded={props.isOpen}
+      onChange={(_, expanded) => props.setIsOpen(expanded)}
+    >
       <ExpansionPanelSummary
         expandIcon={hasDetails ? <ExpandMore /> : undefined}
         aria-label="Expand"
