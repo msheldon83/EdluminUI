@@ -20,8 +20,7 @@ type Props = {
   ) => Promise<void>;
   vacancyDate?: string;
   swapSubs?: (detail: Detail) => void;
-  isOpen: boolean;
-  setIsOpen: (b: boolean) => void;
+  defaultIsOpen: boolean;
 };
 
 type DetailsGroupProps = {
@@ -37,7 +36,8 @@ export const DailyReportSection: React.FC<Props> = props => {
   if (!detailGroup.subGroups && detailGroup.details) {
     headerText = `${headerText} (${detailGroup.details.length})`;
   }
-  const hasDetails = !!(detailGroup.details && detailGroup.details.length);
+  const [isOpen, setIsOpen] = React.useState<boolean>(props.defaultIsOpen);
+  React.useEffect(() => setIsOpen(props.defaultIsOpen), [props.defaultIsOpen]);
   const panelId = detailGroup.label;
 
   const DetailsGroupUI: React.FC<DetailsGroupProps> = ({
@@ -59,11 +59,11 @@ export const DailyReportSection: React.FC<Props> = props => {
 
   return (
     <ExpansionPanel
-      expanded={props.isOpen}
-      onChange={(_, expanded) => props.setIsOpen(expanded)}
+      expanded={isOpen}
+      onChange={(_, expanded) => setIsOpen(expanded)}
     >
       <ExpansionPanelSummary
-        expandIcon={hasDetails ? <ExpandMore /> : undefined}
+        expandIcon={props.defaultIsOpen ? <ExpandMore /> : undefined}
         aria-label="Expand"
         aria-controls={`${panelId}-content`}
         id={panelId}
