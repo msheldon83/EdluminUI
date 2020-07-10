@@ -18,6 +18,7 @@ import { UpdateComment } from "../graphql/update-comment.gen";
 import { DeleteComment } from "../graphql/delete-comment.gen";
 import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPayInformation } from "../components/substitute/pay-information";
+import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
 import { OrganizationList } from "../components/substitute/org-list";
 import { Information } from "../components/information";
@@ -83,17 +84,17 @@ export const SubstituteTab: React.FC<Props> = props => {
     variables: { id: props.orgUserId },
   });
 
-  const getOrgRelationships = useQueryBundle(GetOrganizationRelationships, {
-    variables: { orgId: params.organizationId },
-  });
-  const showRelatedOrgs =
-    getOrgRelationships.state === "LOADING"
-      ? false
-      : getOrgRelationships?.data?.organizationRelationship?.all?.find(
-          x => x?.relationshipType === OrganizationRelationshipType.Services
-        )
-      ? true
-      : false;
+  const getOrgRelationships = useOrganizationRelationships(
+    params.organizationId
+  );
+
+  console.log(getOrgRelationships);
+
+  const showRelatedOrgs = getOrgRelationships?.find(
+    x => x?.relationshipType === OrganizationRelationshipType.Services
+  )
+    ? true
+    : false;
 
   const getPayCodes = usePayCodes(params.organizationId);
   const payCodeOptions = useMemo(

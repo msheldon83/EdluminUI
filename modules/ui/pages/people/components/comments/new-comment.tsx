@@ -5,7 +5,9 @@ import { useState } from "react";
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import CheckIcon from "@material-ui/icons/Check";
+import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import ClearIcon from "@material-ui/icons/Clear";
+import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import {
   CommentCreateInput,
   DiscussionSubjectType,
@@ -27,7 +29,9 @@ export const NewComment: React.FC<Props> = props => {
   const classes = useStyles();
 
   const [payload, setPayload] = useState<string>("");
-  const [orgId, setOrgId] = useState<string>(props.orgId);
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null | undefined>(
+    props.orgId
+  );
 
   const {
     setNewCommentVisible,
@@ -35,6 +39,7 @@ export const NewComment: React.FC<Props> = props => {
     discussionId,
     discussionSubjectType,
     orgUserId,
+    orgId,
   } = props;
 
   // If this is a staffing Org, then show drop down with org choices.
@@ -42,8 +47,17 @@ export const NewComment: React.FC<Props> = props => {
 
   return (
     <Grid container item xs={12}>
-      <Grid item xs={2} className={classes.width}></Grid>
-      <Grid item xs={9}>
+      <Grid item xs={3} className={classes.width}>
+        {}
+        <OrgRelationshipSelect
+          orgId={orgId}
+          setSelectedOrgId={setSelectedOrgId}
+          includeAllOption={true}
+          includeMyOrgOption={true}
+          label={t("Something Here")}
+        />
+      </Grid>
+      <Grid item xs={8}>
         <TextField
           rows="2"
           value={payload}
@@ -60,13 +74,17 @@ export const NewComment: React.FC<Props> = props => {
         <div
           className={classes.iconContainer}
           onClick={() => {
-            if (payload != "") {
+            if (payload != "" && selectedOrgId) {
               const addComment: CommentCreateInput = {
                 discussionSubjectType: discussionSubjectType,
                 objectKey: orgUserId,
                 objectType: ObjectType.OrgUser,
-                orgId: orgId,
+                orgId:
+                  selectedOrgId === undefined
+                    ? "STAFFING ORG_ID"
+                    : selectedOrgId,
                 payload: payload,
+                hasShadow: selectedOrgId === undefined ? true : false,
                 discussionId: discussionId,
               };
               onAddComment(addComment);
@@ -97,6 +115,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   width: {
+    paddingRight: theme.spacing(1),
     width: "100%",
   },
   displayInline: {

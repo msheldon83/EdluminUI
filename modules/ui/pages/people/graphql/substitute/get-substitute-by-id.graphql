@@ -38,7 +38,7 @@ query GetSubstituteById($id: ID!) {
         comments {
           id
           payload
-          changedLocal
+          createdLocal
           hasBeenEdited
           discussion {
             id

@@ -72,6 +72,7 @@ export const Comments: React.FC<Props> = props => {
               onEditComment={onEditComment}
               onDeleteComment={onDeleteComment}
               key={i}
+              newCommentVisible={newCommentVisible}
             />
           ))
         )}

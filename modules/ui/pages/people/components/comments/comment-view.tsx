@@ -15,32 +15,33 @@ type Props = {
   comment: Comment;
   onEditComment: (editComment: CommentUpdateInput) => void;
   onDeleteComment: (id: string) => void;
+  newCommentVisible: boolean;
 };
 
 export const CommentView: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { comment, onEditComment } = props;
+  const { comment, onEditComment, newCommentVisible } = props;
 
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [payload, setPayload] = useState<string>(comment.payload ?? "");
 
-  const changedLocal =
-    new Date(comment.changedLocal).toLocaleDateString() +
-    " " +
-    new Date(comment.changedLocal).toLocaleTimeString();
-  console.log(comment);
+  const createdLocal = formatAMPM(
+    new Date(comment.createdLocal).toLocaleDateString(),
+    new Date(comment.createdLocal)
+  );
 
+  //Commenter should be the actingUser.Name or possibly SysAdmin if null
   return (
     <Grid container item xs={12}>
-      <Grid item xs={2} className={classes.width}>
+      <Grid item xs={3} className={classes.width}>
         {/* <div>{comment.poster}</div> */}
-        <div className={classes.subText}>{changedLocal}</div>
+        <div className={classes.subText}>{createdLocal}</div>
         {/* <div className={classes.subText}>{comment.location}</div> */}
       </Grid>
       {showEdit ? (
         <>
-          <Grid item xs={9}>
+          <Grid item xs={8}>
             <TextField
               rows="2"
               value={payload}
@@ -82,21 +83,23 @@ export const CommentView: React.FC<Props> = props => {
         </>
       ) : (
         <>
-          <Grid item xs={9}>
+          <Grid item xs={8}>
             {comment.payload}
             {comment.hasBeenEdited && (
               <div className={classes.edited}>{t("edited")}</div>
             )}
           </Grid>
           <Grid item xs={1}>
-            <div
-              className={classes.iconHover}
-              onClick={() => {
-                setShowEdit(!showEdit);
-              }}
-            >
-              <EditIcon className={classes.editIcon} />
-            </div>
+            {!newCommentVisible && (
+              <div
+                className={classes.iconHover}
+                onClick={() => {
+                  setShowEdit(!showEdit);
+                }}
+              >
+                <EditIcon className={classes.editIcon} />
+              </div>
+            )}
           </Grid>
         </>
       )}
@@ -123,3 +126,14 @@ const useStyles = makeStyles(theme => ({
     fontStyle: "italic",
   },
 }));
+
+const formatAMPM = (date: string, time: Date) => {
+  let hours = time.getHours();
+  const minutes = time.getMinutes();
+  const ampm = hours >= 12 ? "pm" : "am";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  const newMin = minutes < 10 ? "0" + minutes.toString() : minutes;
+  const strTime = hours.toString() + ":" + newMin.toString() + " " + ampm;
+  return date + " " + strTime;
+};
