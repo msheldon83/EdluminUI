@@ -45,7 +45,7 @@ export const PartyPopper: React.FC<Props> = ({
       className={classes.container}
     >
       <Grid item className={classes.popper}>
-        {x && y && w && h && (
+        {x && x != 0 && y && y != 0 && w && w != 0 && h && h != 0 && (
           <RedRoverConfetti
             confettiSource={{
               x: x + w / 2,
