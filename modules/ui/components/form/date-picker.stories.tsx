@@ -28,6 +28,8 @@ export const DateRangePickerStory = () => {
         contained={boolean("contained", false)}
         startDate={startDate}
         endDate={endDate}
+        minimumDate={new Date("6-10-20")}
+        maximumDate={new Date("8-1-20")}
         onDateRangeSelected={(start, end) => {
           action("onDateRangeSelected")({
             start,

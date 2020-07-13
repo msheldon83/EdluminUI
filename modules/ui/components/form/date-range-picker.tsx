@@ -9,6 +9,8 @@ import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import isBefore from "date-fns/isBefore";
 import isAfter from "date-fns/isAfter";
 import isWithinInterval from "date-fns/isWithinInterval";
+import maxOfDates from "date-fns/max";
+import minOfDates from "date-fns/min";
 import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
 import { DateInput } from "./date-input";
@@ -19,10 +21,13 @@ import {
   PresetRange,
   DateRange,
 } from "./hooks/use-preset-date-ranges";
+import { isAfterDate } from "helpers/date";
 
 export type DateRangePickerProps = {
   startDate?: Date;
   endDate?: Date;
+  minimumDate?: Date;
+  maximumDate?: Date;
   onDateRangeSelected: (start: Date, end: Date) => void;
   defaultMonth?: Date;
   additionalPresets?: PresetRange[];
@@ -40,6 +45,8 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     additionalPresets,
     startDate,
     endDate,
+    minimumDate,
+    maximumDate,
     contained = false,
   } = props;
 
@@ -78,7 +85,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     }
 
     setSelectedPreset(preset);
-  }, [endDateInput, getPresetByDates, selectedPreset, startDateInput]);
+  }, [endDateInput, startDateInput, getPresetByDates, selectedPreset?.value]);
 
   // Make sure that if a preset is selected it shows when the popover is closed then repoened
   React.useEffect(() => resetSelectedPreset(), [
@@ -101,7 +108,16 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
 
   const setRange = React.useCallback(
     ({ start, end }: DateRange, ignoreVisibilityTrigger?: boolean) => {
-      const selectedDates = eachDayOfInterval({ start, end }).map(date => {
+      // Adjust values for max and min dates so that the selection never goes out of the range
+      const constrainedStart = minimumDate
+        ? maxOfDates([start, minimumDate])
+        : start;
+      const constrainedEnd = maximumDate ? minOfDates([end, maximumDate]) : end;
+
+      const selectedDates = eachDayOfInterval({
+        start: constrainedStart,
+        end: constrainedEnd,
+      }).map(date => {
         return {
           date,
           buttonProps: {
@@ -117,41 +133,39 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       const startMonthDate = startOfMonth(startMonth);
       const endMonthDate = endOfMonth(endMonth);
 
-      const endDateVisible = isWithinInterval(end, {
+      const endDateVisible = isWithinInterval(constrainedEnd, {
         start: startMonthDate,
         end: endMonthDate,
       });
 
       // End date of range will show on the left side
-      if (
-        !ignoreVisibilityTrigger &&
-        !endDateVisible &&
-        isAfter(endMonthDate, end)
-      ) {
-        setStartMonth(end);
+      if (!ignoreVisibilityTrigger && !endDateVisible) {
+        setStartMonth(constrainedEnd);
       }
 
       // End date of range will show on the right side
       if (
         !ignoreVisibilityTrigger &&
         !endDateVisible &&
-        isBefore(startMonthDate, end)
+        isBefore(startMonthDate, constrainedEnd)
       ) {
-        setStartMonth(addMonth(end, -1));
+        setStartMonth(addMonth(constrainedEnd, -1));
       }
 
       setSelectedDates(selectedDates);
 
-      setStartDateInput(start);
-      setEndDateInput(end);
+      setStartDateInput(constrainedStart);
+      setEndDateInput(constrainedEnd);
 
-      onDateRangeSelected(start, end);
+      onDateRangeSelected(constrainedStart, constrainedEnd);
     },
     [
       onDateRangeSelected,
       startMonth,
       theme.calendar.selected,
       theme.customColors.white,
+      maximumDate,
+      minimumDate,
     ]
   );
 
@@ -255,15 +269,9 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   };
 
   const calendarDates = React.useMemo(() => {
+    // TODO: take into account disabled dates
     return selectedDates.concat(highlightedDates);
   }, [selectedDates, highlightedDates]);
-
-  React.useEffect(() => {
-    // Make sure the dates stay in sync in everything that needs to know about them
-    if (startDate !== undefined && endDate !== undefined) {
-      setRange({ start: startDate, end: endDate }, true);
-    }
-  }, [startDate, endDate, setRange]);
 
   const containerClasses = clsx({
     [classes.contained]: contained,
@@ -278,6 +286,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
           label={t("Date Range")}
           multiple={false}
           onChange={handlePresetChange}
+          readOnly
         />
       </div>
       <div className={classes.dateInputContainer}>

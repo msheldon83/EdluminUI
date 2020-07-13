@@ -232,6 +232,14 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     input?.dispatchEvent(new Event("focus"));
   };
 
+  /*
+    Keeping a selecting value and a typed value in sync is difficult. This makes sure
+    that the auto complete is always displaying the latest value correctly
+  */
+  const renderableValue = multiple
+    ? inputValue
+    : inputValue ?? (value as any)?.label ?? "";
+
   return (
     <div
       className={`${className} ${containerClasses}`}
@@ -242,7 +250,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
         <div className={classes.dropdownContainer}>
           <Input
             {...autocompleteInputProps}
-            value={value === undefined ? "" : inputValue}
+            value={renderableValue}
             inputRef={inputRef}
             disabled={disabled}
             label={label}
