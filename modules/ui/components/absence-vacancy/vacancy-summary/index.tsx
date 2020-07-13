@@ -11,7 +11,6 @@ type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
   showPayCodes: boolean;
   showAccountingCodes: boolean;
-  showAbsenceTimes?: boolean;
   notesForSubstitute?: string;
   setNotesForSubstitute?: (notes: string) => void;
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
@@ -20,6 +19,10 @@ type Props = {
   detailsOnly?: boolean;
   divRef?: React.RefObject<HTMLDivElement>;
   readOnly?: boolean;
+  noDaysChosenText?: string;
+  isAbsence?: boolean;
+  absenceActions?: JSX.Element;
+  footerActions?: JSX.Element;
 };
 
 export const VacancySummary: React.FC<Props> = props => {
@@ -33,10 +36,13 @@ export const VacancySummary: React.FC<Props> = props => {
     showPayCodes,
     showAccountingCodes,
     notesForSubstitute = "",
-    showAbsenceTimes = false,
+    isAbsence = false,
     disableAssignmentActions = false,
     detailsOnly = false,
     divRef = null,
+    absenceActions = null,
+    footerActions = null,
+    noDaysChosenText = t("No days chosen"),
   } = props;
 
   const assignmentGroups = useMemo(() => {
@@ -70,14 +76,12 @@ export const VacancySummary: React.FC<Props> = props => {
   return (
     <div className={classes.container} ref={divRef}>
       <div className={classes.header}>
-        {showAbsenceTimes && (
-          <div className={classes.headerItem}>{t("Absence")}</div>
-        )}
+        {isAbsence && <div className={classes.headerItem}>{t("Absence")}</div>}
         <div className={classes.headerItem}>{t("Substitute schedule")}</div>
       </div>
       {assignmentGroups.length === 0 && (
         <div className={classes.noDaysChosenContainer}>
-          <Typography>{t("No days chosen")}</Typography>
+          <Typography>{noDaysChosenText}</Typography>
         </div>
       )}
       <div className={classes.assignmentGroupsContainer}>
@@ -86,7 +90,7 @@ export const VacancySummary: React.FC<Props> = props => {
             key={i}
             assignmentWithDetails={a}
             isPartiallyFilled={isPartiallyFilled}
-            showAbsenceTimes={showAbsenceTimes}
+            showAbsenceTimes={isAbsence}
             onAssignClick={onAssignClick}
             onCancelAssignment={onCancelAssignment}
             disableActions={disableAssignmentActions}
@@ -97,6 +101,7 @@ export const VacancySummary: React.FC<Props> = props => {
           />
         ))}
       </div>
+      {absenceActions && <div>{absenceActions}</div>}
       {!detailsOnly && (
         <div className={classes.notesContainer}>
           <Typography variant={"h6"}>{t("Notes to substitute")}</Typography>
@@ -119,6 +124,7 @@ export const VacancySummary: React.FC<Props> = props => {
           </div>
         </div>
       )}
+      {footerActions && <div>{footerActions}</div>}
     </div>
   );
 };
