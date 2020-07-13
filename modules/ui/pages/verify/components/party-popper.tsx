@@ -17,6 +17,13 @@ export const PartyPopper: React.FC<Props> = ({
 }) => {
   const classes = useStyles();
   const [ref, { x, y, width: w, height: h }] = useDimensions();
+  const [scrollSnapshot, setScrollSnapshot] = React.useState<number>(0);
+  React.useEffect(() => {
+    setScrollSnapshot(
+      document.getElementById("main-container")?.scrollTop ?? 0
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [x, y, w, h]);
   // Commented out until react-confetti can be updated
   // We want to generate points along a line,
   // so we make a function to do so.
@@ -36,7 +43,6 @@ export const PartyPopper: React.FC<Props> = ({
       y: p1[1] * (1 - r) + p2[1] * r,
     };
     }, [x, y, w, h]);*/
-
   return (
     <Grid
       container
@@ -45,11 +51,11 @@ export const PartyPopper: React.FC<Props> = ({
       className={classes.container}
     >
       <Grid item className={classes.popper}>
-        {x && x != 0 && y && y != 0 && w && w != 0 && h && h != 0 && (
+        {x && y && w && h && (
           <RedRoverConfetti
             confettiSource={{
               x: x + w / 2,
-              y: y - h / 2,
+              y: y + scrollSnapshot - h / 2,
               w: 0,
               h: 0,
             }}
