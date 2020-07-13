@@ -9,7 +9,9 @@ query GetVacancyById($id: ID!) {
       isClosed
       approvalState {
         id
+        canApprove
         approvalStatusId
+        approvalWorkflowId
         approvalWorkflow {
           id
           steps {
@@ -29,8 +31,26 @@ query GetVacancyById($id: ID!) {
           }
         }
         currentStepId
+        pendingApproverGroupHeaderName
+        deniedApproverGroupHeaderName
+        approvedApproverGroupHeaderNames
+        nextSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
+        completedSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
         comments {
           id
+          commentIsPublic
         }
         decisions {
           id

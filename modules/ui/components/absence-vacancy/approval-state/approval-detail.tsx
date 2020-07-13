@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Section } from "ui/components/section";
-import { Grid, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import {
   ApprovalAction,
@@ -15,7 +15,7 @@ import { VacancyDetails } from "./vacancy-details";
 import { AbsenceDetails } from "./absence-details";
 import { compact } from "lodash-es";
 import { Context } from "./context";
-import { ApproveDenyButtons } from "./approve-deny-buttons";
+import { ApprovalActionButtons } from "./approval-action-buttons";
 import { ApprovalWorkflowSteps } from "./types";
 import { useIsMobile } from "hooks";
 
@@ -23,43 +23,70 @@ type Props = {
   orgId: string;
   onApprove?: () => void;
   onDeny?: () => void;
+  onSkip?: () => void;
+  onReset?: () => void;
   actingAsEmployee?: boolean;
-  approvalStateId: string;
-  approvalWorkflowId: string;
-  approvalWorkflowName: string;
-  approvalStatusId: ApprovalStatus;
-  currentStepId?: string | null;
-  approvalWorkflowSteps: ApprovalWorkflowSteps[];
-  comments: {
-    comment?: string | null;
-    commentIsPublic: boolean;
-    createdLocal?: string | null;
-    actingUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
+  approvalState: {
+    id: string;
+    canApprove: boolean;
+    approvalStatusId: ApprovalStatus;
+    approvalWorkflowId: string;
+    currentStepId?: string | null;
+    pendingApproverGroupHeaderName?: string | null;
+    deniedApproverGroupHeaderName?: string | null;
+    approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
+    nextSteps?:
+      | Maybe<{
+          approverGroupHeader?: {
+            name: string;
+          } | null;
+        }>[]
+      | null;
+    completedSteps?:
+      | Maybe<{
+          stepId: string;
+          approverGroupHeader?: {
+            name: string;
+          } | null;
+        }>[]
+      | null;
+    approvalWorkflow: {
+      name: string;
+      steps: ApprovalWorkflowSteps[];
     };
-    actualUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-  }[];
-  decisions: {
-    stepId: string;
-    approvalActionId: ApprovalAction;
-    createdLocal?: string | null;
-    actingUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-    actualUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-  }[];
+    comments: {
+      stepId: string;
+      comment?: string | null;
+      commentIsPublic: boolean;
+      createdLocal?: string | null;
+      actingUser: {
+        id: string;
+        firstName: string;
+        lastName: string;
+      };
+      actualUser: {
+        id: string;
+        firstName: string;
+        lastName: string;
+      };
+    }[];
+    decisions: {
+      stepId: string;
+      approvalActionId: ApprovalAction;
+      createdLocal?: string | null;
+      hasBeenReset: boolean;
+      actingUser: {
+        id: string;
+        firstName: string;
+        lastName: string;
+      };
+      actualUser: {
+        id: string;
+        firstName: string;
+        lastName: string;
+      };
+    }[];
+  };
   isTrueVacancy: boolean;
   vacancy?: {
     id: string;
@@ -117,26 +144,27 @@ export const ApprovalDetail: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const classes = useStyles({ isMobile });
 
-  const currentApproverGroupHeaderId = props.approvalWorkflowSteps.find(
-    x => x.stepId == props.currentStepId
-  )?.approverGroupHeaderId;
+  const { approvalState, absence, vacancy, isTrueVacancy } = props;
+
+  const nextStep = approvalState?.nextSteps && approvalState.nextSteps[0];
+  const previousSteps = compact(approvalState?.completedSteps) ?? [];
 
   const locationIds =
     compact(
-      props.isTrueVacancy
-        ? props.vacancy?.details?.map(x => x?.locationId)
-        : props.absence?.locationIds
+      isTrueVacancy
+        ? vacancy?.details?.map(x => x?.locationId)
+        : absence?.locationIds
     ) ?? [];
 
   const renderAbsVacDetail = () => {
     return (
       <div className={classes.absVacDetailsContainer}>
-        {!props.isTrueVacancy
-          ? props.absence && (
+        {!isTrueVacancy
+          ? absence && (
               <div>
                 <AbsenceDetails
                   orgId={props.orgId}
-                  absence={props.absence}
+                  absence={absence}
                   actingAsEmployee={props.actingAsEmployee}
                   showSimpleDetail={true}
                 />
@@ -144,34 +172,31 @@ export const ApprovalDetail: React.FC<Props> = props => {
                 !props.actingAsEmployee && (
                   <Context
                     orgId={props.orgId}
-                    employeeId={props.absence.employeeId}
-                    absenceId={props.absence.id}
-                    employeeName={`${props.absence.employee?.firstName} ${props.absence.employee?.lastName}`}
-                    locationIds={props.absence.locationIds}
-                    startDate={props.absence.startDate}
-                    endDate={props.absence.endDate}
+                    employeeId={absence.employeeId}
+                    absenceId={absence.id}
+                    employeeName={`${absence.employee?.firstName} ${absence.employee?.lastName}`}
+                    locationIds={locationIds}
+                    startDate={absence.startDate}
+                    endDate={absence.endDate}
                     actingAsEmployee={props.actingAsEmployee}
                     isNormalVacancy={false}
                   />
                 )}
               </div>
             )
-          : props.vacancy && (
+          : vacancy && (
               <div>
                 <VacancyDetails
                   orgId={props.orgId}
-                  vacancy={props.vacancy}
+                  vacancy={vacancy}
                   showSimpleDetail={true}
                 />
                 <Context
                   orgId={props.orgId}
-                  vacancyId={props.vacancy?.id ?? ""}
-                  startDate={props.vacancy?.startDate}
-                  endDate={props.vacancy?.endDate}
-                  locationIds={
-                    compact(props.vacancy?.details?.map(x => x?.locationId)) ??
-                    []
-                  }
+                  vacancyId={vacancy?.id ?? ""}
+                  startDate={vacancy?.startDate}
+                  endDate={vacancy?.endDate}
+                  locationIds={locationIds}
                   isNormalVacancy={true}
                 />
               </div>
@@ -185,29 +210,45 @@ export const ApprovalDetail: React.FC<Props> = props => {
       <div className={!isMobile ? classes.desktopContainer : undefined}>
         {!isMobile && renderAbsVacDetail()}
         <div className={classes.approvalDetailsContainer}>
-          <ApproveDenyButtons
-            approvalStateId={props.approvalStateId}
-            approvalStatus={props.approvalStatusId}
-            currentApproverGroupHeaderId={currentApproverGroupHeaderId}
-            onApprove={props.onApprove}
-            onDeny={props.onDeny}
-            orgId={props.orgId}
-            locationIds={locationIds}
-          />
+          <div className={classes.buttonContainer}>
+            <ApprovalActionButtons
+              approvalStateId={approvalState.id}
+              onApprove={props.onApprove}
+              onDeny={props.onDeny}
+              onSkip={props.onSkip}
+              onReset={props.onReset}
+              orgId={props.orgId}
+              currentApproverGroupName={
+                approvalState.pendingApproverGroupHeaderName ?? ""
+              }
+              showSkip={nextStep !== undefined}
+              showReset={previousSteps.length > 0}
+              previousSteps={previousSteps}
+              nextApproverGroupName={nextStep?.approverGroupHeader?.name ?? ""}
+              canApprove={approvalState.canApprove}
+            />
+          </div>
           <WorkflowSummary
-            currentStepId={props.currentStepId}
-            steps={props.approvalWorkflowSteps}
-            workflowName={props.approvalWorkflowName}
-            decisions={props.decisions}
+            workflowName={approvalState.approvalWorkflow.name}
+            pendingApproverGroupHeaderName={
+              approvalState.pendingApproverGroupHeaderName
+            }
+            deniedApproverGroupHeaderName={
+              approvalState.deniedApproverGroupHeaderName
+            }
+            approvedApproverGroupHeaderNames={
+              approvalState.approvedApproverGroupHeaderNames
+            }
+            nextSteps={approvalState.nextSteps}
           />
           <ApprovalComments
             orgId={props.orgId}
-            approvalStateId={props.approvalStateId}
+            approvalStateId={approvalState.id}
             actingAsEmployee={props.actingAsEmployee}
-            comments={props.comments}
-            decisions={props.decisions}
+            comments={approvalState.comments}
+            decisions={approvalState.decisions}
             onCommentSave={props.onSaveComment}
-            approvalWorkflowId={props.approvalWorkflowId}
+            approvalWorkflowId={approvalState.approvalWorkflowId}
           />
         </div>
         {isMobile && renderAbsVacDetail()}
@@ -230,6 +271,11 @@ const useStyles = makeStyles(theme => ({
   },
   desktopContainer: {
     display: "flex",
+  },
+  buttonContainer: {
+    display: "flex",
+    width: "100%",
+    justifyContent: "flex-end",
   },
   absVacDetailsContainer: (props: StyleProps) => ({
     width: props.isMobile ? "100%" : "50%",
