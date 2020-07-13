@@ -1,108 +1,45 @@
 import * as React from "react";
-import { useMemo } from "react";
 import { makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useTranslation } from "react-i18next";
+import { Maybe } from "graphql/server-types.gen";
 import { ApprovalWorkflowSteps } from "./types";
-import { ApprovalAction } from "graphql/server-types.gen";
 
 type Props = {
-  steps: ApprovalWorkflowSteps[];
   workflowName: string;
-  currentStepId?: string | null;
-  decisions?: {
-    stepId: string;
-    approvalActionId: ApprovalAction;
-  }[];
+  pendingApproverGroupHeaderName?: string | null;
+  deniedApproverGroupHeaderName?: string | null;
+  approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
+  nextSteps?:
+    | Maybe<{
+        approverGroupHeader?: {
+          name: string;
+        } | null;
+      }>[]
+    | null;
 };
 
 export const WorkflowSummary: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const { steps, decisions, currentStepId } = props;
-
-  const orderedSteps = useMemo(() => {
-    const ordered: {
-      stepId: string | null | undefined;
-      approverGroupHeaderName: string | null | undefined;
-    }[] = [];
-    let step = steps.find(s => s.isFirstStep);
-    do {
-      step = steps.find(
-        s =>
-          s.stepId === step?.onApproval.find(x => x.criteria === null)?.goto &&
-          !s.deleted
-      );
-      ordered.push({
-        stepId: step?.stepId,
-        approverGroupHeaderName: step?.approverGroupHeader?.name,
-      });
-    } while (step && !step?.isLastStep);
-
-    return compact(ordered);
-  }, [steps]);
-
-  const deniedStepIds =
-    compact(
-      decisions?.map(x => {
-        if (x.approvalActionId === ApprovalAction.Deny) return x.stepId;
-      })
-    ) ?? [];
-  const approvedStepIds =
-    compact(
-      decisions?.map(x => {
-        if (x.approvalActionId === ApprovalAction.Approve) return x.stepId;
-      })
-    ) ?? [];
-
-  const approvedSteps = useMemo(
-    () =>
-      orderedSteps.filter(
-        x => x.stepId && approvedStepIds.includes(x.stepId)
-      ) ?? [],
-    [orderedSteps, approvedStepIds]
-  );
-
-  // This checks the Steps array and not the current steps array in case the current step has been deleted
-  const pendingStep = useMemo(() => {
-    const step = steps.find(x => x.stepId === currentStepId);
-    return {
-      stepId: step?.stepId,
-      approverGroupHeaderName: step?.approverGroupHeader?.name,
-    };
-  }, [steps, currentStepId]);
-
-  const nextSteps = useMemo(
-    () =>
-      orderedSteps.filter(
-        x =>
-          x.stepId &&
-          !approvedStepIds.includes(x.stepId) &&
-          !deniedStepIds.includes(x.stepId) &&
-          x.stepId !== currentStepId
-      ),
-    [orderedSteps, approvedStepIds, deniedStepIds, currentStepId]
-  );
-
-  const deniedSteps = useMemo(
-    () =>
-      orderedSteps.filter(x => x.stepId && deniedStepIds.includes(x.stepId)) ??
-      [],
-    [orderedSteps, deniedStepIds]
-  );
+  const {
+    pendingApproverGroupHeaderName,
+    deniedApproverGroupHeaderName,
+    approvedApproverGroupHeaderNames,
+    nextSteps,
+    workflowName,
+  } = props;
 
   const renderApprovedSteps = () => {
     return (
       <div>
         <div className={classes.titleText}>{t("Approved by:")}</div>
         <div className={classes.stepsContainer}>
-          {approvedSteps.map((s, i) => {
+          {approvedApproverGroupHeaderNames?.map((name, i) => {
             return (
               <div key={i} className={classes.approvedBox}>
-                <span className={classes.groupNameText}>
-                  {s.approverGroupHeaderName}
-                </span>
+                <span className={classes.groupNameText}>{name}</span>
               </div>
             );
           })}
@@ -111,37 +48,31 @@ export const WorkflowSummary: React.FC<Props> = props => {
     );
   };
 
-  const renderDeniedSteps = () => {
+  const renderDeniedStep = () => {
     return (
       <div>
         <div className={classes.titleText}>{t("Denied by:")}</div>
         <div className={classes.stepsContainer}>
-          {deniedSteps.map((s, i) => {
-            return (
-              <div key={i} className={classes.deniedBox}>
-                <span className={classes.groupNameText}>
-                  {s.approverGroupHeaderName}
-                </span>
-              </div>
-            );
-          })}
+          <div className={classes.deniedBox}>
+            <span className={classes.groupNameText}>
+              {deniedApproverGroupHeaderName}
+            </span>
+          </div>
         </div>
       </div>
     );
   };
 
   const renderPendingStep = () => {
-    return pendingStep.approverGroupHeaderName ? (
+    return (
       <div>
         <div className={classes.titleText}>{t("Pending:")}</div>
         <div className={classes.pendingBox}>
           <span className={classes.groupNameText}>
-            {pendingStep.approverGroupHeaderName}
+            {pendingApproverGroupHeaderName}
           </span>
         </div>
       </div>
-    ) : (
-      <></>
     );
   };
 
@@ -150,16 +81,14 @@ export const WorkflowSummary: React.FC<Props> = props => {
       <div>
         <div className={classes.titleText}>{t("Next:")}</div>
         <div className={classes.stepsContainer}>
-          {nextSteps.map((s, i) => {
-            if (s.approverGroupHeaderName) {
-              return (
-                <div key={i} className={classes.nextBox}>
-                  <span className={classes.nextText}>
-                    {s.approverGroupHeaderName}
-                  </span>
-                </div>
-              );
-            }
+          {compact(nextSteps)?.map((s, i) => {
+            return (
+              <div key={i} className={classes.nextBox}>
+                <span className={classes.nextText}>
+                  {s.approverGroupHeader?.name}
+                </span>
+              </div>
+            );
           })}
         </div>
       </div>
@@ -168,12 +97,19 @@ export const WorkflowSummary: React.FC<Props> = props => {
 
   return (
     <div className={classes.container}>
-      <div className={classes.workflowTitle}>{props.workflowName}</div>
+      <div className={classes.workflowTitle}>{workflowName}</div>
       <div className={classes.stepsContainer}>
-        {approvedSteps.length > 0 && renderApprovedSteps()}
-        {deniedSteps.length > 0 && renderDeniedSteps()}
-        {deniedSteps.length === 0 && pendingStep && renderPendingStep()}
-        {deniedSteps.length === 0 && nextSteps.length > 1 && renderNextSteps()}
+        {approvedApproverGroupHeaderNames &&
+          approvedApproverGroupHeaderNames.length > 0 &&
+          renderApprovedSteps()}
+        {deniedApproverGroupHeaderName && renderDeniedStep()}
+        {!deniedApproverGroupHeaderName &&
+          pendingApproverGroupHeaderName &&
+          renderPendingStep()}
+        {!deniedApproverGroupHeaderName &&
+          nextSteps &&
+          nextSteps.length > 0 &&
+          renderNextSteps()}
       </div>
     </div>
   );
@@ -209,8 +145,8 @@ const useStyles = makeStyles(theme => ({
     background: "#E6F5ED",
     boxSizing: "border-box",
     width: "115px",
-    height: "70px",
-    lineHeight: "70px",
+    height: "80px",
+    lineHeight: "80px",
     textAlign: "center",
     wordWrap: "break-word",
     marginRight: theme.spacing(1),
@@ -220,8 +156,8 @@ const useStyles = makeStyles(theme => ({
     background: "#FFDDDD",
     boxSizing: "border-box",
     width: "115px",
-    height: "70px",
-    lineHeight: "70px",
+    height: "80px",
+    lineHeight: "80px",
     textAlign: "center",
     wordWrap: "break-word",
     marginRight: theme.spacing(1),
@@ -231,8 +167,8 @@ const useStyles = makeStyles(theme => ({
     background: "#FFFFFF",
     boxSizing: "border-box",
     width: "115px",
-    height: "70px",
-    lineHeight: "70px",
+    height: "80px",
+    lineHeight: "80px",
     textAlign: "center",
     wordWrap: "break-word",
     marginRight: theme.spacing(1),
@@ -242,8 +178,8 @@ const useStyles = makeStyles(theme => ({
     boxSizing: "border-box",
     background: "#FFFFFF",
     width: "115px",
-    height: "70px",
-    lineHeight: "70px",
+    height: "80px",
+    lineHeight: "80px",
     textAlign: "center",
     wordWrap: "break-word",
     marginRight: theme.spacing(1),
