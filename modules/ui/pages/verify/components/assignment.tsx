@@ -462,7 +462,8 @@ export const Assignment: React.FC<Props> = props => {
             }) {
               const accountingCodeAllocations = value.accountingCodeAllocations;
               const errorMessage = validateAccountingCodeAllocations(
-                accountingCodeAllocations, t
+                accountingCodeAllocations,
+                t
               );
 
               if (errorMessage) {
@@ -625,18 +626,19 @@ export const Assignment: React.FC<Props> = props => {
                                 ) => {
                                   setFieldValue(
                                     "payDurationOverrideHours",
-                                    event.target.value
-                                      ? event.target.value
-                                      : minutesToHours(
-                                          vacancyDetail.actualDuration ??
-                                            undefined
-                                        )
+                                    event.target.value == ""
+                                      ? null
+                                      : event.target.value
                                   );
                                 }}
                                 onBlur={() =>
                                   handleDaysUpdate(
                                     values.dayPortion,
-                                    values.payDurationOverrideHours,
+                                    values.payDurationOverrideHours ??
+                                      minutesToHours(
+                                        vacancyDetail.actualDuration ??
+                                          undefined
+                                      ),
                                     selectedDayConversionName
                                   )
                                 }
