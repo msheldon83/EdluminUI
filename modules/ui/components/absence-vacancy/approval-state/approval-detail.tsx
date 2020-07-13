@@ -55,7 +55,7 @@ type Props = {
       steps: ApprovalWorkflowSteps[];
     };
     comments: {
-      stepId: string;
+      stepId?: string | null;
       comment?: string | null;
       commentIsPublic: boolean;
       createdLocal?: string | null;
@@ -71,7 +71,7 @@ type Props = {
       };
     }[];
     decisions: {
-      stepId: string;
+      stepId?: string | null;
       approvalActionId: ApprovalAction;
       createdLocal?: string | null;
       hasBeenReset: boolean;

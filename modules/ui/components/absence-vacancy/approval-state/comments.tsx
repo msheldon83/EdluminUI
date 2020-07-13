@@ -11,7 +11,7 @@ import { ApprovalWorkflowSteps } from "./types";
 type CommentDecision = {
   comment?: string | null;
   approvalActionId?: ApprovalAction;
-  stepId: string;
+  stepId?: string | null;
   approverGroupHeaderName?: string;
   commentIsPublic: boolean;
   createdLocal?: string | null;
@@ -39,7 +39,7 @@ type Props = {
       name: string;
     } | null;
     createdLocal?: string | null;
-    stepId: string;
+    stepId?: string | null;
     actingUser: {
       id: string;
       firstName: string;
