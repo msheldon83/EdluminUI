@@ -1,0 +1,50 @@
+query GetEmployeesForOrg(
+  $orgId: ID!
+  $limit: Int
+  $offset: Int
+  $name: String
+  $sortBy: [SortDetailsInput]
+  $active: Boolean
+) {
+  orgUser {
+    paged(
+      orgId: $orgId
+      limit: $limit
+      offset: $offset
+      role: EMPLOYEE
+      name: $name
+      sortBy: $sortBy
+      active: $active
+    ) {
+      totalCount
+      offset
+      limit
+      results {
+        id
+        externalId
+        phoneNumber
+        firstName
+        lastName
+        employee {
+          id
+          locations {
+            id
+            name
+          }
+          primaryPosition {
+            id
+            title
+            positionType {
+              id
+              name
+              payCode {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

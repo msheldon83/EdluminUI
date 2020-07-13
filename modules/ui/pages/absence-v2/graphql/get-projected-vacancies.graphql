@@ -1,0 +1,45 @@
+query GetProjectedVacancies(
+  $absence: AbsenceCreateInput!
+  $ignoreAbsenceId: ID
+) {
+  absence {
+    projectedVacancies(absence: $absence, ignoreAbsenceId: $ignoreAbsenceId) {
+      startDate
+      startTimeLocal
+      endDate
+      endTimeLocal
+      numDays
+      positionId
+      details {
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        locationId
+        payCodeId
+        payCode {
+          name
+        }
+        accountingCodeAllocations {
+          accountingCodeId
+          accountingCode {
+            name
+          }
+        }
+        location {
+          name
+        }
+      }
+      absence {
+        startDate
+        endDate
+        details {
+          startDate
+          endDate
+          startTimeLocal
+          endTimeLocal
+        }
+      }
+    }
+  }
+}
