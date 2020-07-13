@@ -1,11 +1,8 @@
 import * as React from "react";
-import { Grid, TextField } from "@material-ui/core";
+import { Grid, TextField, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
-import CheckIcon from "@material-ui/icons/Check";
-import ClearIcon from "@material-ui/icons/Clear";
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import {
   CommentCreateInput,
@@ -21,7 +18,7 @@ type Props = {
   discussionSubjectType: DiscussionSubjectType;
   orgId: string;
   staffingOrgId?: string | null;
-  onAddComment: (addComment: CommentCreateInput) => void;
+  onAddComment: (addComment: CommentCreateInput) => Promise<boolean>;
 };
 
 export const NewComment: React.FC<Props> = props => {
@@ -53,53 +50,77 @@ export const NewComment: React.FC<Props> = props => {
             setSelectedOrgId={setSelectedOrgId}
             includeAllOption={true}
             includeMyOrgOption={true}
-            label={t("Something Here")}
+            label={t("Post comment to: ")}
           />
         )}
       </Grid>
-      <Grid item xs={8}>
+      <Grid
+        item
+        xs={8}
+        className={clsx({
+          [classes.marginTop]: staffingOrgId,
+        })}
+      >
         <TextField
           rows="2"
           value={payload}
           multiline={true}
-          placeholder={t("Comments")}
+          placeholder={t("Comment")}
           fullWidth={true}
           variant="outlined"
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setPayload(e.target.value);
           }}
         />
+
+        <Grid container item xs={12} justify="flex-end">
+          <Grid
+            item
+            className={clsx({
+              [classes.buttonPadding]: true,
+              [classes.paddingRight]: true,
+            })}
+          >
+            <Button
+              onClick={async () => {
+                if (payload != "" && selectedOrgId) {
+                  const addComment: CommentCreateInput = {
+                    discussionSubjectType: discussionSubjectType,
+                    objectKey: orgUserId,
+                    objectType: ObjectType.OrgUser,
+                    orgId:
+                      selectedOrgId === undefined
+                        ? staffingOrgId!
+                        : selectedOrgId,
+                    payload: payload,
+                    hasShadow: selectedOrgId === undefined ? true : false,
+                    discussionId: discussionId,
+                  };
+                  const result = await onAddComment(addComment);
+                  if (result) {
+                    setPayload("");
+                    setNewCommentVisible(false);
+                  }
+                }
+              }}
+              variant="contained"
+            >
+              {t("Submit")}
+            </Button>
+          </Grid>
+          <Grid item className={classes.buttonPadding}>
+            <Button
+              onClick={() => {
+                setNewCommentVisible(false);
+              }}
+              variant="outlined"
+            >
+              {t("Cancel")}
+            </Button>
+          </Grid>
+        </Grid>
       </Grid>
-      <Grid item xs={1}>
-        <div
-          className={classes.iconContainer}
-          onClick={() => {
-            if (payload != "" && selectedOrgId) {
-              const addComment: CommentCreateInput = {
-                discussionSubjectType: discussionSubjectType,
-                objectKey: orgUserId,
-                objectType: ObjectType.OrgUser,
-                orgId:
-                  selectedOrgId === undefined ? staffingOrgId! : selectedOrgId,
-                payload: payload,
-                hasShadow: selectedOrgId === undefined ? true : false,
-                discussionId: discussionId,
-              };
-              onAddComment(addComment);
-            }
-          }}
-        >
-          <CheckIcon />
-        </div>
-        <div
-          className={classes.iconContainer}
-          onClick={() => {
-            setNewCommentVisible(false);
-          }}
-        >
-          <ClearIcon className={classes.editIcon} />
-        </div>
-      </Grid>
+      <Grid item xs={1} />
     </Grid>
   );
 };
@@ -126,5 +147,15 @@ const useStyles = makeStyles(theme => ({
   },
   textHeight: {
     height: "30px",
+  },
+  marginTop: {
+    marginTop: "23px",
+  },
+  paddingRight: {
+    paddingRight: theme.spacing(1),
+  },
+  buttonPadding: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
 }));

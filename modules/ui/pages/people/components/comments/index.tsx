@@ -21,7 +21,7 @@ type Props = {
   discussionId: string;
   orgUserId: string;
   onEditComment: (editComment: CommentUpdateInput) => void;
-  onAddComment: (addComment: CommentCreateInput) => void;
+  onAddComment: (addComment: CommentCreateInput) => Promise<boolean>;
   onDeleteComment: (id: string) => void;
   staffingOrgId?: string | null;
   comments?: any[];
@@ -43,13 +43,22 @@ export const Comments: React.FC<Props> = props => {
     staffingOrgId,
   } = props;
 
-  const [showEdit, setShowEdit] = useState<boolean>(false);
   const [newCommentVisible, setNewCommentVisible] = useState<boolean>(false);
 
+  const [truncatedComments, setTruncatedComments] = useState<boolean>(true);
+
   return (
-    <Section>
+    <Section className={classes.positionRelative}>
       <SectionHeader title={t("Comments")} />
-      <Grid container item spacing={2}>
+      <Grid
+        container
+        item
+        spacing={2}
+        className={clsx({
+          [classes.gridHeight]:
+            truncatedComments && comments?.length > 0 && comments !== undefined,
+        })}
+      >
         {newCommentVisible && (
           <NewComment
             setNewCommentVisible={setNewCommentVisible}
@@ -72,41 +81,57 @@ export const Comments: React.FC<Props> = props => {
               comment={c}
               onEditComment={onEditComment}
               onDeleteComment={onDeleteComment}
-              key={i}
-              setShowEdit={setShowEdit}
-              showEdit={showEdit}
               newCommentVisible={newCommentVisible}
+              iterationCount={i}
+              key={i}
             />
           ))
         )}
-        <Grid item xs={12}>
-          {comments && comments?.length > 3 && (
-            <TextButton
-              className={clsx({
-                [classes.inline]: true,
-                [classes.floatLeft]: true,
-              })}
-              onClick={() => {
-                //Show All comments
-              }}
-            >
-              <span className={classes.link}>
-                {t(`View all ${comments?.length} comments`)}
-              </span>
-            </TextButton>
-          )}
-          {!newCommentVisible && (
-            <TextButton
-              className={classes.inline}
-              onClick={() => {
-                setNewCommentVisible(true);
-                setShowEdit(false);
-              }}
-            >
-              <span className={classes.link}>{t("Add comment")}</span>
-            </TextButton>
-          )}
-        </Grid>
+      </Grid>
+      {truncatedComments && <div className={classes.fade}></div>}
+      <Grid item xs={12} className={classes.paddingTop}>
+        {comments && comments?.length > 3 && (
+          <>
+            {truncatedComments && (
+              <TextButton
+                className={clsx({
+                  [classes.inline]: true,
+                  [classes.floatLeft]: true,
+                })}
+                onClick={() => {
+                  setTruncatedComments(false);
+                }}
+              >
+                <span className={classes.link}>
+                  {t(`View all ${comments?.length} comments`)}
+                </span>
+              </TextButton>
+            )}
+            {!truncatedComments && (
+              <TextButton
+                className={clsx({
+                  [classes.inline]: true,
+                  [classes.floatLeft]: true,
+                })}
+                onClick={() => {
+                  setTruncatedComments(true);
+                }}
+              >
+                <span className={classes.link}>{t("Hide Comments")}</span>
+              </TextButton>
+            )}
+          </>
+        )}
+        {!newCommentVisible && (
+          <TextButton
+            className={classes.inline}
+            onClick={() => {
+              setNewCommentVisible(true);
+            }}
+          >
+            <span className={classes.link}>{t("Add comment")}</span>
+          </TextButton>
+        )}
       </Grid>
     </Section>
   );
@@ -119,6 +144,28 @@ const useStyles = makeStyles(theme => ({
   },
   floatLeft: {
     float: "left",
+  },
+  positionRelative: {
+    position: "relative",
+  },
+  gridHeight: {
+    height: "250px",
+    overflow: "hidden",
+    position: "relative",
+  },
+  paddingTop: {
+    paddingTop: theme.spacing(1),
+  },
+  fade: {
+    position: "absolute",
+    height: "130px",
+    left: "0",
+    width: "100%",
+    textAlign: "center",
+    zIndex: 20,
+    top: "200px",
+    background:
+      "linear-gradient(rgba(255, 255, 255, 0)0%, rgba(255, 255, 255, 1) 100%)",
   },
   inline: {
     paddingRight: theme.spacing(2),

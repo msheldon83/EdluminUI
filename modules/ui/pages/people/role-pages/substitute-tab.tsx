@@ -147,12 +147,17 @@ export const SubstituteTab: React.FC<Props> = props => {
   };
 
   const onAddComment = async (comment: CommentCreateInput) => {
-    await addComment({
+    const result = await addComment({
       variables: {
         comment: comment,
       },
     });
-    await getSubstitute.refetch();
+
+    if (result.data != null || result.data != undefined) {
+      await getSubstitute.refetch();
+      return true;
+    }
+    return false;
   };
 
   const onEditComment = async (comment: CommentUpdateInput) => {

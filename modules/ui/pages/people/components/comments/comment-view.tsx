@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, TextField } from "@material-ui/core";
+import { Grid, TextField, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { TextButton } from "ui/components/text-button";
@@ -16,22 +16,16 @@ type Props = {
   comment: Comment;
   onEditComment: (editComment: CommentUpdateInput) => void;
   onDeleteComment: (id: string) => void;
-  setShowEdit: React.Dispatch<React.SetStateAction<boolean>>;
-  showEdit: boolean;
   newCommentVisible: boolean;
+  iterationCount: number;
 };
 
 export const CommentView: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const {
-    comment,
-    onEditComment,
-    newCommentVisible,
-    onDeleteComment,
-    setShowEdit,
-    showEdit,
-  } = props;
+  const { comment, onEditComment, newCommentVisible, onDeleteComment } = props;
+
+  const [showEdit, setShowEdit] = useState<boolean>(false);
 
   const [payload, setPayload] = useState<string>(comment.payload ?? "");
 
@@ -58,7 +52,12 @@ export const CommentView: React.FC<Props> = props => {
   };
 
   return (
-    <Grid container item xs={12}>
+    <Grid
+      container
+      item
+      xs={12}
+      className={clsx({ [classes.backgroundColor]: props.iterationCount % 2 })}
+    >
       <Grid item xs={3} className={classes.width}>
         <div>{name()}</div>
         <div className={classes.subText}>{createdLocal}</div>
@@ -82,33 +81,60 @@ export const CommentView: React.FC<Props> = props => {
                 setPayload(e.target.value);
               }}
             />
+            <Grid container item xs={12} justify="flex-end">
+              <Grid
+                item
+                className={clsx({
+                  [classes.buttonPadding]: true,
+                  [classes.paddingRight]: true,
+                })}
+              >
+                <Button
+                  onClick={() => {
+                    if (payload != "") {
+                      const commentUpdateInput: CommentUpdateInput = {
+                        id: comment.id,
+                        payload: payload,
+                      };
+                      onEditComment(commentUpdateInput);
+                      setShowEdit(!showEdit);
+                    }
+                  }}
+                  variant="contained"
+                >
+                  {t("Save")}
+                </Button>
+              </Grid>
+              <Grid
+                item
+                className={clsx({
+                  [classes.buttonPadding]: true,
+                  [classes.paddingRight]: true,
+                })}
+              >
+                <Button
+                  onClick={() => {
+                    setShowEdit(!showEdit);
+                  }}
+                  variant="outlined"
+                >
+                  {t("Cancel")}
+                </Button>
+              </Grid>
+              <Grid item className={classes.buttonPadding}>
+                <Button
+                  onClick={() => {
+                    onDeleteComment(comment.id);
+                    setShowEdit(!showEdit);
+                  }}
+                  variant="outlined"
+                >
+                  {t("Delete")}
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={1} className={classes.padding}>
-            <div
-              className={classes.iconHover}
-              onClick={() => {
-                if (payload != "") {
-                  const commentUpdateInput: CommentUpdateInput = {
-                    id: comment.id,
-                    payload: payload,
-                  };
-                  onEditComment(commentUpdateInput);
-                  setShowEdit(!showEdit);
-                }
-              }}
-            >
-              <CheckIcon />
-            </div>
-            <div
-              className={classes.iconHover}
-              onClick={() => {
-                setShowEdit(!showEdit);
-                setPayload(comment.payload ?? "");
-              }}
-            >
-              <ClearIcon className={classes.clearIcon} />
-            </div>
-          </Grid>
+          <Grid item xs={1} />
         </>
       ) : (
         <>
@@ -120,24 +146,14 @@ export const CommentView: React.FC<Props> = props => {
           </Grid>
           <Grid item xs={1}>
             {!newCommentVisible && (
-              <>
-                <div
-                  className={classes.iconHover}
-                  onClick={() => {
-                    onDeleteComment(comment.id);
-                  }}
-                >
-                  <DeleteIcon className={classes.deleteIcon} />
-                </div>
-                <div
-                  className={classes.iconHover}
-                  onClick={() => {
-                    setShowEdit(!showEdit);
-                  }}
-                >
-                  <EditIcon className={classes.editIcon} />
-                </div>
-              </>
+              <div
+                className={classes.iconHover}
+                onClick={() => {
+                  setShowEdit(!showEdit);
+                }}
+              >
+                <EditIcon className={classes.icon} />
+              </div>
             )}
           </Grid>
         </>
@@ -147,12 +163,8 @@ export const CommentView: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  editIcon: {
+  icon: {
     height: "20px",
-  },
-  deleteIcon: {
-    height: "20px",
-    float: "right",
   },
   clearIcon: {
     marginTop: theme.spacing(2),
@@ -163,11 +175,18 @@ const useStyles = makeStyles(theme => ({
   subText: {
     color: theme.customColors.edluminSubText,
   },
-  padding: {
-    paddingLeft: theme.spacing(1),
+  paddingRight: {
+    paddingRight: theme.spacing(1),
+  },
+  buttonPadding: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
   width: {
     width: "100%",
+  },
+  backgroundColor: {
+    backgroundColor: theme.customColors.lightGray,
   },
   edited: {
     color: theme.customColors.edluminSubText,
