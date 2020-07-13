@@ -3556,7 +3556,7 @@ type OrganizationCrmContact implements ModelObjectInterface & OrgObjectInterface
 }
 
 input OrganizationCrmContactCreateInput {
-  orgId: ID!
+
 }
 
 type OrganizationCrmContactMutations {
