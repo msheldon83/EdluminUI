@@ -101,9 +101,9 @@ query GetAbsence($id: ID!) {
         isClosed
         reasonUsages {
           id
-          amount
+          hourlyAmount
+          dailyAmount
           sequence
-          absenceReasonTrackingTypeId
           absenceReasonId
           absenceReason {
             id

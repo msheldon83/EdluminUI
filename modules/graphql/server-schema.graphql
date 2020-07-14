@@ -247,7 +247,7 @@ type AbsenceReasonBalanceMutations {
   create(absenceReasonBalance: AbsenceReasonBalanceCreateInput!): AbsenceReasonBalance
   update(absenceReasonBalance: AbsenceReasonBalanceUpdateInput!): AbsenceReasonBalance
   delete(absenceReasonBalanceId: ID!): Boolean
-  recalculateEmployeeBalances(recalulateEmployeeBalances: RecalculateEmployeeBalancesInput!): [AbsenceReasonBalance!]!
+  recalculateEmployeeBalances(recalculateEmployeeBalances: RecalculateEmployeeBalancesInput!): [AbsenceReasonBalance!]!
 }
 
 type AbsenceReasonBalanceQueries {
@@ -5297,7 +5297,6 @@ type Query {
 input RecalculateEmployeeBalancesInput {
   employeeId: ID!
   schoolYearId: ID
-  orgId: ID!
 }
 
 type RefAbsenceDocumentType {
