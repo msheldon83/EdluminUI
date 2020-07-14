@@ -7,6 +7,7 @@ query GetVacancyById($id: ID!) {
       createdLocal
       approvalState {
         id
+        canApprove
         approvalStatusId
         approvalWorkflowId
         approvalWorkflow {
@@ -29,9 +30,27 @@ query GetVacancyById($id: ID!) {
           }
         }
         currentStepId
+        pendingApproverGroupHeaderName
+        deniedApproverGroupHeaderName
+        approvedApproverGroupHeaderNames
+        nextSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
+        completedSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
         changedLocal
         comments {
           id
+          stepId
           comment
           commentIsPublic
           createdLocal
@@ -52,6 +71,7 @@ query GetVacancyById($id: ID!) {
           createdLocal
           approvalActionId
           actingOrgUserId
+          hasBeenReset
           actingUser {
             id
             firstName
@@ -61,6 +81,10 @@ query GetVacancyById($id: ID!) {
             id
             firstName
             lastName
+          }
+          approverGroupHeader {
+            id
+            name
           }
         }
       }
