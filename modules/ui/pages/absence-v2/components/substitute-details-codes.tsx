@@ -3,7 +3,6 @@ import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useTranslation } from "react-i18next";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { vacancyDetailsHaveDifferentAccountingCodeSelections } from "ui/components/absence/helpers";
 import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 import { Grid, Typography, makeStyles } from "@material-ui/core";
 import { Can } from "ui/components/auth/can";
@@ -101,11 +100,21 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
               <AccountingCodeDropdown
                 value={values.accountingCodeAllocations ?? noAllocation()}
                 options={accountingCodeOptions}
-                onChange={() => {}}
+                onChange={value =>
+                  setFieldValue(
+                    "accountingCodeAllocations",
+                    value,
+                    !!errors.accountingCodeAllocations
+                  )
+                }
                 inputStatus={
                   errors.accountingCodeAllocations ? "error" : undefined
                 }
-                //validationMessage={errors.accountingCodeAllocations}
+                validationMessage={
+                  errors.accountingCodeAllocations
+                    ? (errors.accountingCodeAllocations as string)
+                    : undefined
+                }
               />
             )}
           </Grid>
@@ -139,11 +148,13 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
                     payCodeOptions.find(a => a.value === values.payCodeId)
                       ?.label || "",
                 }}
-                onChange={() => {}}
+                onChange={value =>
+                  setFieldValue("payCodeId", value.value, !!errors.payCodeId)
+                }
                 options={payCodeOptions}
                 multiple={false}
                 inputStatus={errors.payCodeId ? "error" : undefined}
-                //validationMessage={errors.payCode?.message}
+                validationMessage={errors.payCodeId}
               />
             )}
           </Grid>

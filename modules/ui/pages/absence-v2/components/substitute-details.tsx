@@ -4,6 +4,7 @@ import {
   Typography,
   Checkbox,
   FormControlLabel,
+  Button,
 } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
@@ -17,23 +18,29 @@ import {
   AbsenceCreateInput,
   Vacancy,
   NeedsReplacement,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { compact } from "lodash-es";
+import { compact, groupBy } from "lodash-es";
 import { parseISO } from "date-fns";
 import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { SubstituteDetailsCodes } from "./substitute-details-codes";
+import { Can } from "ui/components/auth/can";
+import { OrgUserPermissions, Role } from "ui/components/auth/types";
+import { canAssignSub } from "helpers/permissions";
+import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 
 type Props = {
+  isCreate: boolean;
   organizationId: string;
   actingAsEmployee: boolean;
   needsReplacement: NeedsReplacement;
   locationIds?: string[];
   absenceInput: AbsenceCreateInput | null;
-  onPreArrangeClick: () => void;
+  onAssignSubClick: () => void;
   onEditSubDetailsClick: () => void;
 };
 
@@ -41,15 +48,16 @@ export const SubstituteDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const {
+    isCreate,
     organizationId,
     actingAsEmployee,
     needsReplacement,
     absenceInput,
-    onPreArrangeClick,
+    onAssignSubClick,
     onEditSubDetailsClick,
     locationIds,
   } = props;
-  const { values, errors, setFieldValue } = useFormikContext<AbsenceFormData>();
+  const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
   const snackbar = useSnackbar();
 
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
@@ -90,78 +98,223 @@ export const SubstituteDetails: React.FC<Props> = props => {
     return convertVacancyToVacancySummaryDetails(vacancy);
   }, [projectedVacancies]);
 
-  const absenceActions: JSX.Element = (
-    <>
-      {!actingAsEmployee || needsReplacement === NeedsReplacement.Sometimes ? (
-        <FormControlLabel
-          label={t("Requires a substitute")}
-          control={
-            <Checkbox
-              checked={values.needsReplacement}
-              onChange={e =>
-                setFieldValue("needsReplacement", e.target.checked)
+  const needsReplacementDisplay: JSX.Element = React.useMemo(() => {
+    return (
+      <>
+        {!actingAsEmployee ||
+        needsReplacement === NeedsReplacement.Sometimes ? (
+          <FormControlLabel
+            label={t("Requires a substitute")}
+            control={
+              <Checkbox
+                checked={values.needsReplacement}
+                onChange={e =>
+                  setFieldValue("needsReplacement", e.target.checked)
+                }
+                color="primary"
+              />
+            }
+          />
+        ) : (
+          <Typography className={classes.substituteRequiredText}>
+            {needsReplacement === NeedsReplacement.Yes
+              ? t("Requires a substitute")
+              : t("No substitute required")}
+          </Typography>
+        )}
+      </>
+    );
+  }, [
+    actingAsEmployee,
+    classes.substituteRequiredText,
+    needsReplacement,
+    setFieldValue,
+    t,
+    values.needsReplacement,
+  ]);
+
+  const absenceActions: JSX.Element = React.useMemo(() => {
+    return (
+      <>
+        {needsReplacementDisplay}
+        {values.needsReplacement && (
+          <SubstituteDetailsCodes
+            organizationId={organizationId}
+            actingAsEmployee={actingAsEmployee}
+            locationIds={locationIds}
+            vacancySummaryDetails={vacancySummaryDetails}
+          />
+        )}
+      </>
+    );
+  }, [
+    actingAsEmployee,
+    locationIds,
+    needsReplacementDisplay,
+    organizationId,
+    vacancySummaryDetails,
+    values.needsReplacement,
+  ]);
+
+  const isSplitVacancy = React.useMemo(() => {
+    const group = groupBy(vacancySummaryDetails, vsd => vsd.assignment?.id);
+    return Object.keys(group).length > 1;
+  }, [vacancySummaryDetails]);
+
+  const footerActions: JSX.Element = React.useMemo(() => {
+    if (vacancySummaryDetails.length === 0) {
+      return <></>;
+    }
+
+    return (
+      <div>
+        {" "}
+        {/*className={classes.substituteActions} */}
+        {!isSplitVacancy && (
+          <>
+            <Can
+              do={(
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string,
+                forRole?: Role | null | undefined
+              ) =>
+                canAssignSub(
+                  vacancySummaryDetails[0].date,
+                  permissions,
+                  isSysAdmin,
+                  orgId,
+                  forRole
+                )
               }
-              color="primary"
-            />
-          }
-        />
-      ) : (
-        <Typography>
-          {" "}
-          {/*className={classes.substituteRequiredText}*/}
-          {needsReplacement === NeedsReplacement.Yes
-            ? t("Requires a substitute")
-            : t("No substitute required")}
-        </Typography>
-      )}
-      {values.needsReplacement && (
-        <SubstituteDetailsCodes
-          organizationId={organizationId}
-          actingAsEmployee={actingAsEmployee}
-          locationIds={locationIds}
-          vacancySummaryDetails={vacancySummaryDetails}
-        />
-      )}
-    </>
-  );
+            >
+              <Button
+                variant="outlined"
+                className={classes.actionButton}
+                onClick={onAssignSubClick}
+                // disabled={
+                //   props.disableReplacementInteractions ||
+                //   props.replacementEmployeeId !== undefined ||
+                //   (props.isFormDirty && !!props.arrangeSubButtonTitle)
+                // }
+              >
+                {isCreate ? t("Pre-arrange") : t("Assign Sub")}
+              </Button>
+            </Can>
+            {/* {props.replacementEmployeeId !== undefined &&
+              props.arrangeSubButtonTitle && (
+                <Can
+                  do={(
+                    permissions: OrgUserPermissions[],
+                    isSysAdmin: boolean,
+                    orgId?: string,
+                    forRole?: Role | null | undefined
+                  ) =>
+                    canReassignSub(
+                      parseISO(vacancies[0].startDate),
+                      permissions,
+                      isSysAdmin,
+                      orgId,
+                      forRole
+                    )
+                  }
+                >
+                  <Button
+                    variant="outlined"
+                    className={classes.reassignButton}
+                    onClick={() => props.onAssignSubClick()}
+                    disabled={props.disableReplacementInteractions}
+                  >
+                    {t("Reassign Sub")}
+                  </Button>
+                </Can>
+              )} */}
+          </>
+        )}
+        <Can do={[PermissionEnum.AbsVacSave]}>
+          <Button
+            variant="outlined"
+            onClick={onEditSubDetailsClick}
+            //disabled={props.disableEditingDatesAndTimes}
+          >
+            <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
+            <MobileOnly>{t("Edit Details")}</MobileOnly>
+          </Button>
+        </Can>
+      </div>
+    );
+  }, [
+    isCreate,
+    isSplitVacancy,
+    onAssignSubClick,
+    onEditSubDetailsClick,
+    t,
+    vacancySummaryDetails,
+  ]);
 
   return (
     <>
-      <Typography className={classes.substituteDetailsTitle} variant="h5">
-        {t("Substitute Details")}
-      </Typography>
-      <Typography className={classes.subText}>
-        {t(
-          "These times may not match your schedule exactly depending on district configuration."
-        )}
-      </Typography>
-      <VacancySummary
-        vacancySummaryDetails={vacancySummaryDetails}
-        onAssignClick={(currentAssignmentInfo: AssignmentFor) => {
-          // dispatch({
-          //   action: "setVacancyDetailIdsToAssign",
-          //   vacancyDetailIdsToAssign: currentAssignmentInfo.vacancyDetailIds,
-          // });
-          // setStep("preAssignSub");
-        }}
-        onCancelAssignment={async () => {}}
-        notesForSubstitute={values.notesToReplacement}
-        setNotesForSubstitute={(notes: string) => {
-          setFieldValue("notesToReplacement", notes);
-        }}
-        showPayCodes={false}
-        showAccountingCodes={false}
-        isAbsence={true}
-        noDaysChosenText={t("Select Date(s), Reason, and Times...")}
-        absenceActions={absenceActions}
-      />
+      <div className={classes.substituteDetailsHeader}>
+        <Typography className={classes.substituteDetailsTitle} variant="h5">
+          {t("Substitute Details")}
+        </Typography>
+        <Typography className={classes.subText}>
+          {t(
+            "These times may not match your schedule exactly depending on district configuration."
+          )}
+        </Typography>
+      </div>
+      {values.needsReplacement && (
+        <VacancySummary
+          vacancySummaryDetails={vacancySummaryDetails}
+          onAssignClick={(currentAssignmentInfo: AssignmentFor) => {
+            // dispatch({
+            //   action: "setVacancyDetailIdsToAssign",
+            //   vacancyDetailIdsToAssign: currentAssignmentInfo.vacancyDetailIds,
+            // });
+            // setStep("preAssignSub");
+          }}
+          onCancelAssignment={async () => {}}
+          notesForSubstitute={values.notesToReplacement}
+          setNotesForSubstitute={(notes: string) => {
+            setFieldValue("notesToReplacement", notes);
+          }}
+          showPayCodes={true}
+          showAccountingCodes={true}
+          isAbsence={true}
+          noDaysChosenText={t("Select Date(s), Reason, and Times...")}
+          absenceActions={absenceActions}
+          footerActions={footerActions}
+        />
+      )}
+      {!values.needsReplacement && (
+        <div className={classes.noReplacementNeeded}>
+          {needsReplacementDisplay}
+        </div>
+      )}
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  substituteDetailsHeader: {
+    marginBottom: theme.spacing(2),
+  },
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  substituteRequiredText: {
+    fontStyle: "italic",
+  },
+  noReplacementNeeded: {
+    width: "100%",
+    border: `${theme.typography.pxToRem(1)} solid ${
+      theme.customColors.medLightGray
+    }`,
+    padding: theme.spacing(2),
+  },
+  actionButton: {
+    marginRight: theme.spacing(2),
   },
 
   substituteDetailsTitle: { paddingBottom: theme.typography.pxToRem(3) },

@@ -101,7 +101,9 @@ export const VacancySummary: React.FC<Props> = props => {
           />
         ))}
       </div>
-      {absenceActions && <div>{absenceActions}</div>}
+      {absenceActions && (
+        <div className={classes.absenceActions}>{absenceActions}</div>
+      )}
       {!detailsOnly && (
         <div className={classes.notesContainer}>
           <Typography variant={"h6"}>{t("Notes to substitute")}</Typography>
@@ -124,7 +126,9 @@ export const VacancySummary: React.FC<Props> = props => {
           </div>
         </div>
       )}
-      {footerActions && <div>{footerActions}</div>}
+      {footerActions && (
+        <div className={classes.footerActions}>{footerActions}</div>
+      )}
     </div>
   );
 };
@@ -169,5 +173,15 @@ const useStyles = makeStyles(theme => ({
   },
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  absenceActions: {
+    marginTop: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+  },
+  footerActions: {
+    marginTop: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
   },
 }));
