@@ -25,7 +25,8 @@ export type CardType =
   | "awaitingVerification";
 
 export type DailyReportDetails = {
-  groups: DetailGroup[];
+  groupedDetails: DetailGroup[];
+  defaultOpenFlags: boolean[];
   allDetails: Detail[];
 };
 
@@ -645,11 +646,16 @@ export const MapDailyReportDetails = (
 
   if (subGroupDetailsBy) groupFns.push(groupDictionary[subGroupDetailsBy]);
 
-  const groups: DetailGroup[] = subGroupBy(details, groupFns);
+  const groupedDetails: DetailGroup[] = subGroupBy(details, groupFns);
+
+  const defaultOpenFlags: boolean[] = groupedDetails.map(
+    group => !!(group.details && group.details.length)
+  );
 
   // Return an object that gives all of the groups as well as the raw details data
   return {
-    groups,
+    groupedDetails,
+    defaultOpenFlags,
     allDetails: filteredDetails,
   };
 };
