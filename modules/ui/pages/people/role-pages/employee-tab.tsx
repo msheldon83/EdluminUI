@@ -7,15 +7,23 @@ import {
   OrgUserRole,
   EmployeeInput,
   PermissionEnum,
+  OrganizationRelationshipType,
   NeedsReplacement,
+  CommentUpdateInput,
+  DiscussionSubjectType,
+  CommentCreateInput,
 } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
 import { SaveEmployee } from "../graphql/employee/save-employee.gen";
+import { CreateComment } from "../graphql/create-comment.gen";
+import { UpdateComment } from "../graphql/update-comment.gen";
+import { DeleteComment } from "../graphql/delete-comment.gen";
 import { UpcomingAbsences } from "../components/employee/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { Position } from "../components/employee/position";
 import { ReplacementCriteria } from "../components/employee/replacement-criteria";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
+import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import { Information } from "../components/information";
 import { Comments } from "../components/comments/index";
 import {
@@ -47,8 +55,40 @@ export const EmployeeTab: React.FC<Props> = props => {
     },
   });
 
+  const [updateComment] = useMutationBundle(UpdateComment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [addComment] = useMutationBundle(CreateComment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [deleteComment] = useMutationBundle(DeleteComment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const getOrgRelationships = useOrganizationRelationships(
+    params.organizationId
+  );
+
+  const staffingOrgId = getOrgRelationships.find(
+    x => x.relationshipType === OrganizationRelationshipType.Services
+  )?.orgId;
+
+  const includeRelatedOrgs = getOrgRelationships?.find(
+    x => x?.relationshipType === OrganizationRelationshipType.Services
+  )
+    ? true
+    : false;
+
   const getEmployee = useQueryBundle(GetEmployeeById, {
-    variables: { id: props.orgUserId },
+    variables: { id: props.orgUserId, includeRelatedOrgs: includeRelatedOrgs },
   });
 
   const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
@@ -78,6 +118,38 @@ export const EmployeeTab: React.FC<Props> = props => {
     await getEmployee.refetch();
   };
 
+  const onAddComment = async (comment: CommentCreateInput) => {
+    const result = await addComment({
+      variables: {
+        comment: comment,
+      },
+    });
+
+    if (result.data != null || result.data != undefined) {
+      await getEmployee.refetch();
+      return true;
+    }
+    return false;
+  };
+
+  const onEditComment = async (comment: CommentUpdateInput) => {
+    await updateComment({
+      variables: {
+        comment: comment,
+      },
+    });
+    await getEmployee.refetch();
+  };
+
+  const onDeleteComment = async (id: string) => {
+    await deleteComment({
+      variables: {
+        commentId: id,
+      },
+    });
+    await getEmployee.refetch();
+  };
+
   return (
     <>
       <Information
@@ -94,7 +166,17 @@ export const EmployeeTab: React.FC<Props> = props => {
         onSubmit={onUpdateEmployee}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
-      {/* <Comments orgId={params.organizationId} /> */}
+      <Comments
+        onAddComment={onAddComment}
+        staffingOrgId={staffingOrgId}
+        comments={orgUser.employee.comments ?? []}
+        discussionId={orgUser.employeeDiscussionId ?? ""}
+        orgUserId={orgUser.id}
+        discussionSubjectType={DiscussionSubjectType.Employee}
+        onEditComment={onEditComment}
+        onDeleteComment={onDeleteComment}
+        orgId={params.organizationId}
+      />
       <Position
         editing={props.editing}
         editable={canEditThisEmployee}

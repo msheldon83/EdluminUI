@@ -1,4 +1,8 @@
-query GetEmployeeById($id: ID!) {
+query GetEmployeeById(
+  $id: ID!
+  $includeRelatedOrgs: Boolean
+  $relatedOrgId: ID
+) {
   orgUser {
     byId(id: $id) {
       id
@@ -19,6 +23,7 @@ query GetEmployeeById($id: ID!) {
       lastName
       loginEmail
       temporaryPassword
+      employeeDiscussionId
       isShadowRecord
       shadowFromOrgName
       employee {
@@ -26,6 +31,18 @@ query GetEmployeeById($id: ID!) {
         locations {
           id
           name
+        }
+        comments(
+          includeRelatedOrgs: $includeRelatedOrgs
+          relatedOrgId: $relatedOrgId
+        ) {
+          id
+          payload
+          createdLocal
+          hasBeenEdited
+          discussion {
+            id
+          }
         }
         permissionSet {
           id

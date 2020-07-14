@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Grid, TextField } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { CommentView } from "./comment-view";
 import { NewComment } from "./new-comment";
 import { Section } from "ui/components/section";
@@ -44,8 +44,9 @@ export const Comments: React.FC<Props> = props => {
   } = props;
 
   const [newCommentVisible, setNewCommentVisible] = useState<boolean>(false);
-
   const [truncatedComments, setTruncatedComments] = useState<boolean>(true);
+
+  const commentLength = comments?.length ?? 0;
 
   return (
     <Section className={classes.positionRelative}>
@@ -55,8 +56,7 @@ export const Comments: React.FC<Props> = props => {
         item
         spacing={2}
         className={clsx({
-          [classes.gridHeight]:
-            truncatedComments && comments?.length > 0 && comments !== undefined,
+          [classes.gridHeight]: truncatedComments && commentLength > 0,
         })}
       >
         {newCommentVisible && (
@@ -70,8 +70,7 @@ export const Comments: React.FC<Props> = props => {
             staffingOrgId={staffingOrgId}
           />
         )}
-        {!newCommentVisible &&
-        (comments?.length === 0 || comments === undefined) ? (
+        {!newCommentVisible && commentLength === 0 ? (
           <Grid item xs={12}>
             {t("No Comments")}
           </Grid>
@@ -88,9 +87,11 @@ export const Comments: React.FC<Props> = props => {
           ))
         )}
       </Grid>
-      {truncatedComments && <div className={classes.fade}></div>}
+      {truncatedComments && (
+        <div className={clsx({ [classes.fade]: commentLength > 3 })}></div>
+      )}
       <Grid item xs={12} className={classes.paddingTop}>
-        {comments && comments?.length > 3 && (
+        {commentLength > 3 && (
           <>
             {truncatedComments && (
               <TextButton
@@ -103,7 +104,7 @@ export const Comments: React.FC<Props> = props => {
                 }}
               >
                 <span className={classes.link}>
-                  {t(`View all ${comments?.length} comments`)}
+                  {t(`View all ${commentLength} comments`)}
                 </span>
               </TextButton>
             )}
@@ -124,7 +125,10 @@ export const Comments: React.FC<Props> = props => {
         )}
         {!newCommentVisible && (
           <TextButton
-            className={classes.inline}
+            className={clsx({
+              [classes.inline]: true,
+              [classes.paddingTop]: true,
+            })}
             onClick={() => {
               setNewCommentVisible(true);
             }}
@@ -142,6 +146,9 @@ const useStyles = makeStyles(theme => ({
     textDecoration: "underline",
     color: theme.customColors.primary,
   },
+  paddingTop: {
+    paddingTop: theme.spacing(2),
+  },
   floatLeft: {
     float: "left",
   },
@@ -149,21 +156,18 @@ const useStyles = makeStyles(theme => ({
     position: "relative",
   },
   gridHeight: {
-    height: "250px",
+    maxHeight: "200px",
     overflow: "hidden",
     position: "relative",
   },
-  paddingTop: {
-    paddingTop: theme.spacing(1),
-  },
   fade: {
     position: "absolute",
-    height: "130px",
+    height: "110px",
     left: "0",
     width: "100%",
     textAlign: "center",
     zIndex: 20,
-    top: "200px",
+    top: "170px",
     background:
       "linear-gradient(rgba(255, 255, 255, 0)0%, rgba(255, 255, 255, 1) 100%)",
   },
