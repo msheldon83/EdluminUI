@@ -6,7 +6,6 @@ query GetProjectedAbsenceUsage(
     projectedAbsence(absence: $absence, ignoreAbsenceId: $ignoreAbsenceId) {
       details {
         reasonUsages {
-          absenceReasonId
           sequence
           hourlyAmount
           dailyAmount
