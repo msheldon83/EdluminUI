@@ -149,23 +149,31 @@ export const DailyReport: React.FC<Props> = props => {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [getDailyReport.state]);
 
-  let allDetails: Detail[] = [];
-  let groupedDetails: DetailGroup[] = [];
-
-  if (dailyReportDetails) {
-    const mappedDetails = MapDailyReportDetails(
+  const { allDetails, groupedDetails, defaultOpenFlags } = useMemo(
+    () =>
+      dailyReportDetails
+        ? MapDailyReportDetails(
+            dailyReportDetails,
+            props.orgId,
+            new Date(filters.date),
+            filters.showAbsences,
+            filters.showVacancies,
+            filters.groupDetailsBy,
+            filters.subGroupDetailsBy,
+            t
+          )
+        : { allDetails: [], groupedDetails: [], defaultOpenFlags: [] },
+    [
       dailyReportDetails,
       props.orgId,
-      new Date(filters.date),
+      filters.date,
       filters.showAbsences,
       filters.showVacancies,
       filters.groupDetailsBy,
       filters.subGroupDetailsBy,
-      t
-    );
-    allDetails = mappedDetails.allDetails;
-    groupedDetails = mappedDetails.groups;
-  }
+      t,
+    ]
+  );
 
   const totalContractedEmployeeCount = useMemo(() => {
     if (
@@ -383,6 +391,7 @@ export const DailyReport: React.FC<Props> = props => {
         </div>
         {displaySections(
           groupedDetails,
+          defaultOpenFlags,
           selectedCard,
           classes,
           t,
@@ -555,6 +564,7 @@ const useStyles = makeStyles(theme => ({
 
 const displaySections = (
   groupedDetails: DetailGroup[],
+  defaultOpenFlags: boolean[],
   selectedCard: CardType | undefined,
   classes: any,
   t: TFunction,
@@ -641,6 +651,7 @@ const displaySections = (
                   removeSub={removeSub}
                   vacancyDate={format(date, "MMM d")}
                   swapSubs={handleSwapSubs}
+                  defaultIsOpen={defaultOpenFlags[i]}
                 />
               </div>
             );
