@@ -287,6 +287,9 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
           multiple={false}
           onChange={handlePresetChange}
           readOnly
+          renderInputValue={() => {
+            return selectedPreset?.label ?? "";
+          }}
         />
       </div>
       <div className={classes.dateInputContainer}>

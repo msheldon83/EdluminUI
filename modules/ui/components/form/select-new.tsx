@@ -30,6 +30,9 @@ export type SelectProps<T extends boolean> = {
   fixedListBox?: boolean;
   readOnly?: boolean;
   inputClassName?: string;
+  renderInputValue?: (
+    value: T extends true ? Array<OptionType> : OptionType
+  ) => string | number;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -73,6 +76,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     doSort = true,
     readOnly = false,
     inputClassName = "",
+    renderInputValue,
     onSort = (a: OptionType, b: OptionType) =>
       a.label > b.label ? 1 : b.label > a.label ? -1 : 0,
     fixedListBox,
@@ -109,8 +113,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   };
 
   const getOptionValue = (option: OptionType): string | number => option.value;
-  const getOptionSelected = (option: OptionType, value: OptionType) =>
-    getOptionValue(option) === getOptionValue(value);
+  const getOptionSelected = (option: OptionType, value: OptionType) => {
+    return getOptionValue(option) === getOptionValue(value);
+  };
 
   const optionsWithReset = withResetValue
     ? ([
@@ -148,6 +153,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     getOptionProps,
     groupedOptions,
     inputValue,
+    value: autoCompleteValue,
   } = useAutocomplete({
     id: `${label}-${Date.now()}`,
     getOptionSelected,
@@ -238,6 +244,8 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   */
   const renderableValue = multiple
     ? inputValue
+    : renderInputValue
+    ? renderInputValue(value as any)
     : inputValue ?? (value as any)?.label ?? "";
 
   return (
