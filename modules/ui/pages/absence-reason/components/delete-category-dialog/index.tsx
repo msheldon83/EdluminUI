@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { useAbsenceReasonCategoryOptions } from 'reference-data/absence-reason-categories';
 import { compact } from "lodash-es";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
@@ -49,21 +50,9 @@ export const DeleteCategoryDialog: React.FC<Props> = ({
     string | undefined
   >(undefined);
 
-  const getAllCategories = useQueryBundle(
-    GetAllAbsenceReasonCategoriesWithinOrg,
-    {
-      fetchPolicy: "cache-first",
-      variables: {
-        orgId: orgId,
-      },
-    }
-  );
+  const categories = useAbsenceReasonCategoryOptions(orgId);
   const destinationOptions = [{ value: "", label: "Uncategorized" }].concat(
-    getAllCategories.state == "LOADING"
-      ? []
-      : compact(getAllCategories.data?.orgRef_AbsenceReasonCategory?.all ?? [])
-          .filter(c => c.id != absenceCategory.id)
-          .map(c => ({ value: c.id, label: c.name }))
+    categories.filter(c => c.value != absenceCategory.id)
   );
 
   const getAbsenceReasons = useQueryBundle(GetAllAbsenceReasonsWithinCategory, {
@@ -86,7 +75,7 @@ export const DeleteCategoryDialog: React.FC<Props> = ({
           {t("Are you sure you want to delete this category?")}
         </Typography>
       </DialogTitle>
-      <DialogContent>
+        <DialogContent classes={{root: classes.dialogOverride}}>
         {absenceReasons.length > 0 && (
           <Grid container spacing={2}>
             <Grid item xs={12} className={classes.header}>
@@ -177,4 +166,5 @@ const useStyles = makeStyles(theme => ({
   dividedContainer: { display: "flex" },
   delete: { color: theme.customColors.blue },
   header: { textAlign: "center" },
+  dialogOverride: {overflowY: "visible"}
 }));
