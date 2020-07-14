@@ -32,10 +32,11 @@ export const DailyReportSection: React.FC<Props> = props => {
   const classes = useStyles();
 
   const detailGroup = props.group;
+  const { defaultIsOpen } = props;
   let headerText = `${detailGroup.label}`;
 
-  const [isOpen, setIsOpen] = React.useState<boolean>(props.defaultIsOpen);
-  React.useEffect(() => setIsOpen(props.defaultIsOpen), [props.defaultIsOpen]);
+  const [isOpen, setIsOpen] = React.useState<boolean>(defaultIsOpen);
+  React.useEffect(() => setIsOpen(defaultIsOpen), [defaultIsOpen]);
 
   if (!isOpen) {
     headerText = `${headerText} (${detailGroup.details?.length ?? 0})`;
