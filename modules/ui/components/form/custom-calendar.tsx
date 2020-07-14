@@ -15,6 +15,8 @@ import isSameDay from "date-fns/isSameDay";
 import isWeekend from "date-fns/isWeekend";
 import startOfMonth from "date-fns/startOfMonth";
 import startOfWeek from "date-fns/startOfWeek";
+import isBefore from "date-fns/isBefore";
+import isAfter from "date-fns/isAfter";
 import { inDateInterval, sortDates } from "helpers/date";
 import * as React from "react";
 
@@ -29,6 +31,8 @@ type CustomCalendarProps = {
   onSelectDates?: (dates: Array<Date>) => void;
   month?: Date;
   customDates?: CustomDate[];
+  minimumDate?: Date;
+  maximumDate?: Date;
   variant?: "weeks" | "month";
   onMonthChange?: (date: Date) => void;
   previousMonthNavigation?: boolean;
@@ -59,6 +63,8 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     onClickDate,
     onHoverDate = () => {},
     onMouseLeave = () => {},
+    minimumDate,
+    maximumDate,
   } = props;
 
   const classes = useStyles({ contained, onSelectDates });
@@ -125,56 +131,81 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     }
   };
 
-  const handleDateSelect = (date: Date) => {
-    if (!onSelectDates && !onClickDate) {
-      return;
-    }
+  const dateOutOfRange = React.useCallback(
+    (date: Date) => {
+      if (minimumDate && isBefore(date, minimumDate)) {
+        return true;
+      }
 
-    if (onClickDate) {
-      return onClickDate(date);
-    }
+      if (maximumDate && isAfter(date, maximumDate)) {
+        return true;
+      }
 
-    // Make it only about the actual date
-    date.setHours(0, 0, 0, 0);
-
-    // Always make sure that the start date is before the end date
-    const { earlier, later } =
-      shiftPressed && lastDateSelected !== undefined
-        ? sortDates(lastDateSelected, date)
-        : {
-            earlier: date,
-            later: date,
-          };
-
-    const dayRange =
-      shiftPressed &&
-      lastDateSelected !== undefined &&
-      !isSameDay(lastDateSelected, date)
-        ? eachDayOfInterval({ start: earlier, end: later })
-        : [date];
-
-    onSelectDates(dayRange);
-
-    // Keep track of the last date selected for use with the shift key and selecting date ranges
-    setLastDateSelected(date);
-  };
-
-  const dateIsInSelectionRange = (date: Date) => {
-    if (!lastDateSelected || !mouseOverDate) {
       return false;
-    }
-    const { earlier, later } = sortDates(lastDateSelected, mouseOverDate);
+    },
+    [maximumDate, minimumDate]
+  );
 
-    return (
-      shiftPressed &&
-      lastDateSelected &&
-      mouseOverDate &&
-      inDateInterval(date, {
-        start: earlier,
-        end: later,
-      })
-    );
-  };
+  const handleDateSelect = React.useCallback(
+    (date: Date) => {
+      if (!onSelectDates && !onClickDate) {
+        return;
+      }
+
+      if (dateOutOfRange(date)) {
+        return;
+      }
+
+      if (onClickDate) {
+        return onClickDate(date);
+      }
+
+      // Make it only about the actual date
+      date.setHours(0, 0, 0, 0);
+
+      // Always make sure that the start date is before the end date
+      const { earlier, later } =
+        shiftPressed && lastDateSelected !== undefined
+          ? sortDates(lastDateSelected, date)
+          : {
+              earlier: date,
+              later: date,
+            };
+
+      const dayRange =
+        shiftPressed &&
+        lastDateSelected !== undefined &&
+        !isSameDay(lastDateSelected, date)
+          ? eachDayOfInterval({ start: earlier, end: later })
+          : [date];
+
+      onSelectDates(dayRange);
+
+      // Keep track of the last date selected for use with the shift key and selecting date ranges
+      setLastDateSelected(date);
+    },
+    [dateOutOfRange, lastDateSelected, onClickDate, onSelectDates, shiftPressed]
+  );
+
+  const dateIsInSelectionRange = React.useCallback(
+    (date: Date) => {
+      if (!lastDateSelected || !mouseOverDate) {
+        return false;
+      }
+      const { earlier, later } = sortDates(lastDateSelected, mouseOverDate);
+
+      return (
+        shiftPressed &&
+        lastDateSelected &&
+        mouseOverDate &&
+        inDateInterval(date, {
+          start: earlier,
+          end: later,
+        })
+      );
+    },
+    [lastDateSelected, mouseOverDate, shiftPressed]
+  );
 
   const handlePreviousMonthClick = React.useCallback(() => {
     onMonthChange(addMonths(month, -1));
@@ -188,73 +219,99 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
     onMonthChange(new Date());
   };
 
-  const renderDates = () =>
-    daysList.map((date, index) => {
-      const day = format(date, "d");
-      const formattedDate = format(date, "yyyy-MM-dd");
+  const renderDates = React.useCallback(
+    () =>
+      daysList.map((date, index) => {
+        const day = format(date, "d");
+        const formattedDate = format(date, "yyyy-MM-dd");
 
-      const { buttonProps = {} } =
-        customDates.find(highlightedDate =>
-          isSameDay(highlightedDate.date, date)
-        ) || {};
+        const { buttonProps = {} } =
+          customDates.find(highlightedDate =>
+            isSameDay(highlightedDate.date, date)
+          ) || {};
 
-      const buttonClassName = buttonProps.className
-        ? buttonProps.className
-        : "";
+        const buttonClassName = buttonProps.className
+          ? buttonProps.className
+          : "";
 
-      const dateIsWeekend = isWeekend(date);
+        const dateIsWeekend = isWeekend(date);
 
-      const classNames = clsx({
-        [classes.dayButton]: true,
-        [classes.dayInDateRange]: dateIsInSelectionRange(date),
-        [classes.dayShiftPressed]: shiftPressed,
-        [customClasses.weekend ?? ""]: dateIsWeekend,
-        [customClasses.weekday ?? ""]: !dateIsWeekend,
-      });
+        const classNames = clsx({
+          [classes.dayButton]: true,
+          [classes.dayInDateRange]: dateIsInSelectionRange(date),
+          [classes.dayShiftPressed]: shiftPressed,
+          [customClasses.weekend ?? ""]: dateIsWeekend,
+          [customClasses.weekday ?? ""]: !dateIsWeekend,
+          [classes.disabled]: dateOutOfRange(date),
+        });
 
-      /*
+        const listItemClasses = clsx({
+          [classes.date]: true,
+        });
+
+        /*
         Start rendering the first day of the month in the correct column, only for the month
         variant
       */
-      const dayItemStyle =
-        index === 0 && variant === "month"
-          ? { gridColumn: firstDayOfMonthNumber + 1 }
-          : {};
+        const dayItemStyle =
+          index === 0 && variant === "month"
+            ? { gridColumn: firstDayOfMonthNumber + 1 }
+            : {};
 
-      return (
-        <li
-          className={classes.date}
-          style={dayItemStyle}
-          role="gridcell"
-          key={formattedDate}
-        >
-          <Button
-            disableFocusRipple
-            disableRipple
-            disableElevation
-            onClick={() => handleDateSelect(date)}
-            onKeyPress={() => handleDateSelect(date)}
-            onMouseEnter={() => {
-              setMouseOverDate(date);
-              onHoverDate(date);
-            }}
-            onMouseLeave={() => {
-              setMouseOverDate(undefined);
-            }}
-            {...buttonProps}
-            className={`${classNames} ${buttonClassName}`}
+        return (
+          <li
+            className={listItemClasses}
+            style={dayItemStyle}
+            role="gridcell"
+            key={formattedDate}
           >
-            <time
-              className={classes.dayButtonTime}
-              dateTime={formattedDate}
-              data-date={date}
+            <Button
+              disableFocusRipple
+              disableRipple
+              disableElevation
+              onClick={() => handleDateSelect(date)}
+              onKeyPress={() => handleDateSelect(date)}
+              onMouseEnter={() => {
+                setMouseOverDate(date);
+                onHoverDate(date);
+              }}
+              onMouseLeave={() => {
+                setMouseOverDate(undefined);
+              }}
+              {...buttonProps}
+              className={`${classNames} ${buttonClassName}`}
             >
-              {day}
-            </time>
-          </Button>
-        </li>
-      );
-    });
+              <time
+                className={classes.dayButtonTime}
+                dateTime={formattedDate}
+                data-date={date}
+              >
+                {day}
+              </time>
+            </Button>
+          </li>
+        );
+      }),
+    [
+      classes.date,
+      classes.dayButton,
+      classes.dayButtonTime,
+      classes.dayInDateRange,
+      classes.dayShiftPressed,
+      classes.disabled,
+      customClasses.weekday,
+      customClasses.weekend,
+      customDates,
+      dateIsInSelectionRange,
+      dateOutOfRange,
+      daysList,
+      firstDayOfMonthNumber,
+      handleDateSelect,
+      onHoverDate,
+      shiftPressed,
+      variant,
+    ]
+  );
 
   const renderDayOfWeek = (day: string) => (
     <li role="gridcell" key={day} className={classes.dayOfWeek}>
@@ -443,6 +500,17 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
   },
   dayInDateRange: {
     backgroundColor: theme.customColors.lightGray,
+  },
+  disabled: {
+    color: theme.customColors.gray,
+    pointerEvents: "none",
+    cursor: "not-allowed",
+
+    "&:hover": {
+      backgroundColor: theme.customColors.white,
+      pointerEvents: "none",
+      cursor: "not-allowed !important",
+    },
   },
   dayShiftPressed: {
     "&:hover": {

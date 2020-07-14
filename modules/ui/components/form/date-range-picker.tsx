@@ -106,13 +106,22 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
 
   const restartRange = (date: Date) => setRange({ start: date, end: date });
 
-  const setRange = React.useCallback(
-    ({ start, end }: DateRange, ignoreVisibilityTrigger?: boolean) => {
-      // Adjust values for max and min dates so that the selection never goes out of the range
+  const constrainedDates = React.useCallback(
+    (start: Date, end: Date) => {
       const constrainedStart = minimumDate
         ? maxOfDates([start, minimumDate])
         : start;
       const constrainedEnd = maximumDate ? minOfDates([end, maximumDate]) : end;
+
+      return [constrainedStart, constrainedEnd];
+    },
+    [maximumDate, minimumDate]
+  );
+
+  const setRange = React.useCallback(
+    ({ start, end }: DateRange, ignoreVisibilityTrigger?: boolean) => {
+      // Adjust values for max and min dates so that the selection never goes out of the range
+      const [constrainedStart, constrainedEnd] = constrainedDates(start, end);
 
       const selectedDates = eachDayOfInterval({
         start: constrainedStart,
@@ -164,8 +173,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       startMonth,
       theme.calendar.selected,
       theme.customColors.white,
-      maximumDate,
-      minimumDate,
+      constrainedDates,
     ]
   );
 
@@ -321,6 +329,8 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
             onClickDate={handleDateClick}
             onHoverDate={handleDateHover}
             onMouseLeave={handleCalendarMouseLeave}
+            maximumDate={maximumDate}
+            minimumDate={minimumDate}
           />
         </div>
         <div className={classes.endCalendar}>
@@ -339,6 +349,8 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
             onClickDate={handleDateClick}
             onHoverDate={handleDateHover}
             onMouseLeave={handleCalendarMouseLeave}
+            maximumDate={maximumDate}
+            minimumDate={minimumDate}
           />
         </div>
       </div>
