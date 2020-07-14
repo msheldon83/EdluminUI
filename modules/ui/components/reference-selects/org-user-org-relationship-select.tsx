@@ -29,17 +29,11 @@ export const OrgUserOrgRelationshipSelect: React.FC<Props> = props => {
     label,
   } = props;
 
-  //These component will render the orgUserOrganizationRelationships query and return all elidgible
-  //Orgs that the User is a part of
-
   const orgRelationships = useOrgUserOrgRelationships(userId, staffingOrgId);
 
   const orgOptions = useMemo(() => {
-    const delgateTo = orgRelationships.filter(
-      l => l.relationshipType === OrganizationRelationshipType.Services
-    );
     const options =
-      delgateTo
+      orgRelationships
         ?.map(x => ({
           label: x.relatesToOrganization!.name,
           value: x.relatesToOrganization!.id,
@@ -57,7 +51,13 @@ export const OrgUserOrgRelationshipSelect: React.FC<Props> = props => {
     }
 
     return options;
-  }, [includeAllOption, includeMyOrgOption, orgId, orgRelationships, t]);
+  }, [
+    includeAllOption,
+    includeMyOrgOption,
+    orgRelationships,
+    staffingOrgId,
+    t,
+  ]);
 
   const selectedValue = orgOptions.find(e =>
     selectedOrgId === "" || selectedOrgId === undefined

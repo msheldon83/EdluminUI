@@ -34,7 +34,6 @@ export const NewComment: React.FC<Props> = props => {
     onAddComment,
     discussionSubjectType,
     userId,
-    orgId,
     staffingOrgId,
   } = props;
 
