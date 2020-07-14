@@ -120,13 +120,13 @@ export const VacancyUI: React.FC<Props> = props => {
   );
 
   useEffect(() => {
-    if (initialVacancy.id !== vacancy.id) {
+    if (initialVacancy.id && initialVacancy.id !== vacancy.id) {
       setVacancy({ ...initialVacancy });
     }
   }, [initialVacancy, vacancy.id]);
 
   useEffect(() => {
-    if (initialFormValues.id !== vacancy.id) {
+    if (initialFormValues.id && initialFormValues.id !== vacancy.id) {
       setInitialFormValues({
         id: vacancy.id,
         positionTypeId: vacancy.positionTypeId,
