@@ -247,6 +247,7 @@ type AbsenceReasonBalanceMutations {
   create(absenceReasonBalance: AbsenceReasonBalanceCreateInput!): AbsenceReasonBalance
   update(absenceReasonBalance: AbsenceReasonBalanceUpdateInput!): AbsenceReasonBalance
   delete(absenceReasonBalanceId: ID!): Boolean
+  recalculateEmployeeBalances(recalulateEmployeeBalances: RecalculateEmployeeBalancesInput!): [AbsenceReasonBalance!]!
 }
 
 type AbsenceReasonBalanceQueries {
@@ -371,6 +372,8 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
   absenceDetailId: ID!
   sequence: Byte!
   amount: Decimal!
+  hourlyAmount: Decimal!
+  dailyAmount: Decimal!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   absenceReasonId: ID!
   absenceReason: AbsenceReason
@@ -382,13 +385,17 @@ type AbsenceReasonUsageDr {
   absenceDetailId: ID!
   absenceReasonId: ID!
   absenceReason: String!
-  absenceReasonAmount: Decimal!
+  absenceReasonAmount: Decimal
+  absenceReasonHourlyAmount: Decimal
+  absenceReasonDailyAmount: Decimal
 }
 
 input AbsenceReasonUsageInput {
   id: ID
   absenceReasonId: ID
   amount: Decimal
+  hourlyAmount: Decimal
+  dailyAmount: Decimal
 }
 
 enum AbsenceStatus {
@@ -5246,6 +5253,12 @@ type Query {
   vacancy: VacancyQueries
   workDayPattern: WorkDayPatternQueries
   workDaySchedule: WorkDayScheduleQueries
+}
+
+input RecalculateEmployeeBalancesInput {
+  employeeId: ID!
+  schoolYearId: ID
+  orgId: ID!
 }
 
 type RefAbsenceDocumentType {

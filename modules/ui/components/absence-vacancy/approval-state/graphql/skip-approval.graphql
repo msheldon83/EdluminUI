@@ -1,0 +1,7 @@
+mutation SkipApproval($approvalState: ApprovalStateUpdateInput!) {
+  approval {
+    skip(approvalState: $approvalState) {
+      id
+    }
+  }
+}
