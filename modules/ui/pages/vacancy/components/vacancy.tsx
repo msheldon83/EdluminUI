@@ -48,11 +48,11 @@ import {
   VacancyFormValues,
   VacancyDetailItem,
 } from "../helpers/types";
-import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import * as yup from "yup";
 import { validateAccountingCodeAllocations } from "helpers/accounting-code-allocations";
+import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -460,13 +460,18 @@ export const VacancyUI: React.FC<Props> = props => {
               {showAssign && (
                 <FilteredAssignmentButton
                   {...{
-                    vacancy,
-                    vacancyExists,
+                    details: vacancy.details,
+                    exists: vacancyExists,
                     dirty: formIsDirty,
                     disableAssign,
                     isSubmitting,
-                    dispatch,
-                    setStep,
+                    onClick: (detailIds: string[]) => {
+                      dispatch({
+                        action: "setVacancyDetailIdsToAssign",
+                        vacancyDetailIdsToAssign: detailIds,
+                      });
+                      setStep("preAssignSub");
+                    },
                   }}
                 />
               )}
@@ -861,8 +866,6 @@ export const VacancyUI: React.FC<Props> = props => {
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
                     ?.firstName ?? undefined
                 }
-                orgHasPayCodesDefined={payCodes.length > 0}
-                orgHasAccountingCodesDefined={accountingCodes.length > 0}
               />
             )}
             {step === "confirmation" && (

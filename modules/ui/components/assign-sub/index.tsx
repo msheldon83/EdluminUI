@@ -32,6 +32,8 @@ import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employ
 import { VacancySummary } from "../absence-vacancy/vacancy-summary";
 import { VacancySummaryDetail } from "../absence-vacancy/vacancy-summary/types";
 import { EmployeeLink } from "ui/components/links/people";
+import { useAccountingCodes } from "reference-data/accounting-codes";
+import { usePayCodes } from "reference-data/pay-codes";
 
 type Props = {
   orgId: string;
@@ -60,8 +62,6 @@ type Props = {
   vacancySummaryDetails?: VacancySummaryDetail[];
   vacancy?: VacancyCreateInput;
   vacancyId?: string;
-  orgHasPayCodesDefined?: boolean;
-  orgHasAccountingCodesDefined?: boolean;
   isEdit?: boolean;
 };
 
@@ -99,9 +99,7 @@ export const AssignSub: React.FC<Props> = props => {
     vacancySummaryDetails,
     isForVacancy = false,
     vacancy = undefined,
-    vacancyId = undefined,
-    orgHasPayCodesDefined = true,
-    orgHasAccountingCodesDefined = true,
+    vacancyId = undefined
   } = props;
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
@@ -316,6 +314,9 @@ export const AssignSub: React.FC<Props> = props => {
     updateSearch(filters);
   };
 
+  const accountingCodes = useAccountingCodes(props.orgId);
+  const payCodes = usePayCodes(props.orgId);
+
   const renderVacancyDetails = () => {
     const showViewAllDetails =
       vacancyDetailsHeight &&
@@ -362,8 +363,8 @@ export const AssignSub: React.FC<Props> = props => {
                   onCancelAssignment={async () => {}}
                   detailsOnly={true}
                   divRef={vacancyDetailsRef}
-                  showAccountingCodes={orgHasAccountingCodesDefined}
-                  showPayCodes={orgHasPayCodesDefined}
+                  showAccountingCodes={accountingCodes.length > 0}
+                  showPayCodes={payCodes.length > 0}
                 />
               </div>
             </>
