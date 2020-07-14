@@ -8,6 +8,7 @@ import { isBefore, isAfter, parseISO } from "date-fns";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { compact, round } from "lodash-es";
+import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
@@ -19,14 +20,14 @@ type Props = {
 };
 
 export type AbsenceReasonUsageData = {
-  amount: number;
-  absenceReasonTrackingTypeId?: "INVALID" | "HOURLY" | "DAILY" | null;
+  hourlyAmount: number;
+  dailyAmount: number;
   absenceReasonId: string;
 };
 
 type usageAmountData = {
   name: string;
-  trackingType: "INVALID" | "HOURLY" | "DAILY" | null | undefined;
+  trackingType: AbsenceReasonTrackingTypeId;
   amount: number;
   negativeWarning: boolean;
   remainingBalance: number;
@@ -82,8 +83,14 @@ export const BalanceUsage: React.FC<Props> = props => {
     if (!balance) return null;
 
     const name = balance.absenceReason?.name ?? "";
-    const trackingType = usages[0].absenceReasonTrackingTypeId;
-    const amount = usages.reduce((m, v) => m + v.amount, 0);
+    const trackingType = balance.absenceReasonTrackingTypeId;
+    const amount = usages.reduce((m, v) => {
+      const a =
+        trackingType === AbsenceReasonTrackingTypeId.Hourly
+          ? v.hourlyAmount
+          : v.dailyAmount;
+      return m + a;
+    }, 0);
     const negativeWarning =
       (balance.usedBalance as number) + amount > balance.initialBalance &&
       !balance.absenceReason?.allowNegativeBalance;
@@ -105,8 +112,14 @@ export const BalanceUsage: React.FC<Props> = props => {
     if (!categoryBalance) return null;
 
     const name = categoryBalance.absenceReasonCategory?.name ?? "";
-    const trackingType = usages[0].absenceReasonTrackingTypeId;
-    const amount = usages.reduce((m, v) => m + v.amount, 0);
+    const trackingType = categoryBalance.absenceReasonTrackingTypeId;
+    const amount = usages.reduce((m, v) => {
+      const a =
+        trackingType === AbsenceReasonTrackingTypeId.Hourly
+          ? v.hourlyAmount
+          : v.dailyAmount;
+      return m + a;
+    }, 0);
     const negativeWarning =
       (categoryBalance.usedBalance as number) + amount >
         categoryBalance.initialBalance &&

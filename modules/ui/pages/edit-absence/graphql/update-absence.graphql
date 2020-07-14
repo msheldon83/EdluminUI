@@ -13,9 +13,9 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
         dayPartId
         reasonUsages {
           id
-          amount
+          hourlyAmount
+          dailyAmount
           sequence
-          absenceReasonTrackingTypeId
           absenceReasonId
         }
       }
