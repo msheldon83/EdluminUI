@@ -8,7 +8,7 @@ query GetOrgUserRelationships($staffingOrgId: ID!, $userId: ID!) {
       orgId
       relatesToOrganizationId
       relationshipType
-      relatesToOrganization {
+      organization {
         id
         name
       }

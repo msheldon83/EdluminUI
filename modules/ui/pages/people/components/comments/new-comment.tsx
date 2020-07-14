@@ -43,7 +43,7 @@ export const NewComment: React.FC<Props> = props => {
         {staffingOrgId && (
           <OrgUserOrgRelationshipSelect
             staffingOrgId={staffingOrgId ?? ""}
-            userId={staffingOrgId}
+            userId={userId}
             selectedOrgId={selectedOrgId}
             setSelectedOrgId={setSelectedOrgId}
             includeAllOption={true}

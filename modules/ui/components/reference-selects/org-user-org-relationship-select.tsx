@@ -35,8 +35,8 @@ export const OrgUserOrgRelationshipSelect: React.FC<Props> = props => {
     const options =
       orgRelationships
         ?.map(x => ({
-          label: x.relatesToOrganization!.name,
-          value: x.relatesToOrganization!.id,
+          label: x.organization!.name,
+          value: x.organization!.id,
         }))
         .sort((a, b) =>
           a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
