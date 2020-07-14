@@ -40,7 +40,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   locationIds?: string[];
   absenceInput: AbsenceCreateInput | null;
-  onAssignSubClick: () => void;
+  onAssignSubClick?: (currentAssignmentInfo: AssignmentFor) => void;
   onEditSubDetailsClick: () => void;
 };
 
@@ -172,6 +172,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
         {/*className={classes.substituteActions} */}
         {!isSplitVacancy && (
           <>
+            <FilteredAssignmentButton
+              details
             <Can
               do={(
                 permissions: OrgUserPermissions[],

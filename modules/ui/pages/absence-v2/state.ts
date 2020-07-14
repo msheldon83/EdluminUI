@@ -9,11 +9,12 @@ export type AbsenceState = {
   positionId: string;
   viewingCalendarMonth: Date;
   absenceDates: Date[];
-  customizedVacanciesInput?: VacancyDetail[];
   absenceId?: string;
   absenceRowVersion?: string;
   isClosed?: boolean;
   closedDates: Date[];
+  customizedVacanciesInput?: VacancyDetail[];
+  vacancyDetailIdsToAssign: string[];
 };
 
 export type AbsenceActions =
@@ -22,7 +23,11 @@ export type AbsenceActions =
   | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] }
   | { action: "removeAbsenceDates"; dates: Date[] }
   | { action: "resetAfterSave" }
-  | { action: "resetToInitialState"; initialState: AbsenceState };
+  | { action: "resetToInitialState"; initialState: AbsenceState }
+  | {
+      action: "setVacancyDetailIdsToAssign";
+      vacancyDetailIdsToAssign: string[];
+    };
 
 export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
   prev,
@@ -66,6 +71,12 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
     }
     case "resetToInitialState": {
       return action.initialState;
+    }
+    case "setVacancyDetailIdsToAssign": {
+      return {
+        ...prev,
+        vacancyDetailIdsToAssign: action.vacancyDetailIdsToAssign,
+      };
     }
   }
 };

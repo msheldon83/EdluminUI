@@ -330,7 +330,16 @@ export const AbsenceUI: React.FC<Props> = props => {
                           false
                         ) as AbsenceCreateInput
                       }
-                      onAssignSubClick={() => {}}
+                      onAssignSubClick={(
+                        currentAssignmentInfo: AssignmentFor
+                      ) => {
+                        dispatch({
+                          action: "setVacancyDetailIdsToAssign",
+                          vacancyDetailIdsToAssign:
+                            currentAssignmentInfo.vacancyDetailIds,
+                        });
+                        setStep("preAssignSub");
+                      }}
                       onEditSubDetailsClick={() => {}}
                     />
                   </Grid>
@@ -421,8 +430,6 @@ export const AbsenceUI: React.FC<Props> = props => {
             vacancySummaryDetailsToAssign[0]?.assignment?.employee?.firstName ??
             undefined
           }
-          orgHasPayCodesDefined={payCodes.length > 0}
-          orgHasAccountingCodesDefined={accountingCodes.length > 0}
         />
       )}
     </>
