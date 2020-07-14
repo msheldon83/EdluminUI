@@ -13,19 +13,15 @@ type Props = {
     date: Date;
     startTime: number;
   }[];
-  exists: boolean;
-  dirty: boolean;
-  disableAssign: boolean;
-  isSubmitting: boolean;
+  buttonText: string;
   onClick: (detailIds: string[]) => void;
+  disableAssign: boolean;
 };
 
 export const FilteredAssignmentButton: React.FC<Props> = ({
   details,
-  exists,
-  dirty,
+  buttonText
   disableAssign,
-  isSubmitting,
   onClick,
 }) => {
   const classes = useStyles();
@@ -73,22 +69,22 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
   }) => (
     <Button
       variant="outlined"
-      disabled={exists ? dirty : disableAssign || isSubmitting}
+      disabled={disableAssign}
       className={classes.preArrangeButton}
       onClick={() => onClick(detailIds)}
     >
-      {!exists ? t("Pre-arrange") : t("Assign")}
+      {buttonText}
     </Button>
   );
 
   return (
     <>
       <Can do={allDetailPerms}>
-        <PreArrangeButton detailIds={details.map(d => d.id)} />
+        <PreArrangeButton detailIds={details.map(d => d.id ?? "")} />
       </Can>
       <Can not do={allDetailPerms}>
         <Can do={futureDetailPerms}>
-          <PreArrangeButton detailIds={futureDetails.map(d => d.id)} />
+          <PreArrangeButton detailIds={futureDetails.map(d => d.id ?? "")} />
         </Can>
       </Can>
     </>

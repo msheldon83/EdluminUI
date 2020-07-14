@@ -461,10 +461,8 @@ export const VacancyUI: React.FC<Props> = props => {
                 <FilteredAssignmentButton
                   {...{
                     details: vacancy.details,
-                    exists: vacancyExists,
-                    dirty: formIsDirty,
-                    disableAssign,
-                    isSubmitting,
+                    buttonText: !vacancyExists ? t("Pre-arrange") : t("Assign"),
+                    disableAssign: isSubmitting || (vacancyExists ? formIsDirty : disableAssign),
                     onClick: (detailIds: string[]) => {
                       dispatch({
                         action: "setVacancyDetailIdsToAssign",
