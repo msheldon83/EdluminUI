@@ -18,8 +18,7 @@ import {
 type Props = {
   orgId: string;
   discussionSubjectType: DiscussionSubjectType;
-  discussionId: string;
-  orgUserId: string;
+  userId: string;
   onEditComment: (editComment: CommentUpdateInput) => void;
   onAddComment: (addComment: CommentCreateInput) => Promise<boolean>;
   onDeleteComment: (id: string) => void;
@@ -38,8 +37,7 @@ export const Comments: React.FC<Props> = props => {
     orgId,
     onDeleteComment,
     discussionSubjectType,
-    discussionId,
-    orgUserId,
+    userId,
     staffingOrgId,
   } = props;
 
@@ -63,9 +61,8 @@ export const Comments: React.FC<Props> = props => {
           <NewComment
             setNewCommentVisible={setNewCommentVisible}
             onAddComment={onAddComment}
-            orgUserId={orgUserId}
+            userId={userId}
             discussionSubjectType={discussionSubjectType}
-            discussionId={discussionId}
             orgId={orgId}
             staffingOrgId={staffingOrgId}
           />
@@ -88,12 +85,16 @@ export const Comments: React.FC<Props> = props => {
         )}
       </Grid>
       {truncatedComments && (
-        <div className={clsx({ [classes.fade]: commentLength > 3 })}></div>
+        <div
+          className={clsx({
+            [classes.fade]: commentLength > 3 && !newCommentVisible,
+          })}
+        ></div>
       )}
       <Grid item xs={12} className={classes.paddingTop}>
         {commentLength > 3 && (
           <>
-            {truncatedComments && (
+            {truncatedComments && !newCommentVisible && (
               <TextButton
                 className={clsx({
                   [classes.inline]: true,
@@ -108,7 +109,7 @@ export const Comments: React.FC<Props> = props => {
                 </span>
               </TextButton>
             )}
-            {!truncatedComments && (
+            {!truncatedComments && !newCommentVisible && (
               <TextButton
                 className={clsx({
                   [classes.inline]: true,

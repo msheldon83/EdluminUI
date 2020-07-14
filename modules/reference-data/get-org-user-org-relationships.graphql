@@ -1,0 +1,17 @@
+query GetOrgUserRelationships($staffingOrgId: ID!, $userId: ID!) {
+  organizationRelationship {
+    orgUserOrganizationRelationships(
+      staffingOrgId: $staffingOrgId
+      userId: $userId
+    ) {
+      id
+      orgId
+      relatesToOrganizationId
+      relationshipType
+      relatesToOrganization {
+        id
+        name
+      }
+    }
+  }
+}

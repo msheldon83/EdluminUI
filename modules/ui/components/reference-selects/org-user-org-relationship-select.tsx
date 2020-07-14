@@ -2,11 +2,12 @@ import * as React from "react";
 import { SelectNew } from "ui/components/form/select-new";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useOrganizationRelationships } from "reference-data/organization-relationships";
+import { useOrgUserOrgRelationships } from "reference-data/org-user-org-relationships";
 import { OrganizationRelationshipType } from "graphql/server-types.gen";
 
 type Props = {
-  orgId: string;
+  staffingOrgId: string;
+  userId: string;
   selectedOrgId?: string | null;
   setSelectedOrgId: (orgId?: string | null) => void;
   includeAllOption?: boolean;
@@ -15,18 +16,23 @@ type Props = {
   multiple?: boolean;
 };
 
-export const OrgRelationshipSelect: React.FC<Props> = props => {
+//Returns elidigble Org's the User is a Shadow of.
+export const OrgUserOrgRelationshipSelect: React.FC<Props> = props => {
   const { t } = useTranslation();
   const {
-    orgId,
     selectedOrgId,
     setSelectedOrgId,
     includeAllOption = true,
     includeMyOrgOption = true,
+    staffingOrgId,
+    userId,
     label,
   } = props;
 
-  const orgRelationships = useOrganizationRelationships(orgId);
+  //These component will render the orgUserOrganizationRelationships query and return all elidgible
+  //Orgs that the User is a part of
+
+  const orgRelationships = useOrgUserOrgRelationships(userId, staffingOrgId);
 
   const orgOptions = useMemo(() => {
     const delgateTo = orgRelationships.filter(
@@ -43,7 +49,7 @@ export const OrgRelationshipSelect: React.FC<Props> = props => {
         ) ?? [];
 
     if (includeMyOrgOption) {
-      options.unshift({ label: t("My Organization"), value: orgId });
+      options.unshift({ label: t("My Organization"), value: staffingOrgId });
     }
 
     if (includeAllOption) {

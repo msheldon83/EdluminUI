@@ -23,7 +23,6 @@ query GetSubstituteById(
       lastName
       loginEmail
       temporaryPassword
-      replacementEmployeeDiscussionId
       isShadowRecord
       shadowFromOrgId
       shadowFromOrgName

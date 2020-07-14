@@ -3,7 +3,7 @@ import { Grid, TextField, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import clsx from "clsx";
-import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
+import { OrgUserOrgRelationshipSelect } from "ui/components/reference-selects/org-user-org-relationship-select";
 import {
   CommentCreateInput,
   DiscussionSubjectType,
@@ -13,8 +13,7 @@ import { makeStyles } from "@material-ui/styles";
 
 type Props = {
   setNewCommentVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  discussionId?: string;
-  orgUserId: string;
+  userId: string;
   discussionSubjectType: DiscussionSubjectType;
   orgId: string;
   staffingOrgId?: string | null;
@@ -33,9 +32,8 @@ export const NewComment: React.FC<Props> = props => {
   const {
     setNewCommentVisible,
     onAddComment,
-    discussionId,
     discussionSubjectType,
-    orgUserId,
+    userId,
     orgId,
     staffingOrgId,
   } = props;
@@ -44,13 +42,14 @@ export const NewComment: React.FC<Props> = props => {
     <Grid container item xs={12}>
       <Grid item xs={3} className={classes.width}>
         {staffingOrgId && (
-          <OrgRelationshipSelect
-            orgId={orgId}
+          <OrgUserOrgRelationshipSelect
+            staffingOrgId={staffingOrgId ?? ""}
+            userId={staffingOrgId}
             selectedOrgId={selectedOrgId}
             setSelectedOrgId={setSelectedOrgId}
             includeAllOption={true}
             includeMyOrgOption={true}
-            label={t("Post comment to: ")}
+            label={t("Comment visible to: ")}
           />
         )}
       </Grid>
@@ -83,19 +82,27 @@ export const NewComment: React.FC<Props> = props => {
           >
             <Button
               onClick={async () => {
-                if (payload != "" && selectedOrgId) {
+                if (payload != "") {
+                  let orgId;
+                  if (
+                    selectedOrgId === undefined &&
+                    staffingOrgId !== undefined
+                  )
+                    orgId = staffingOrgId;
+                  else if (selectedOrgId === undefined) return;
+                  else orgId = selectedOrgId;
+
                   const addComment: CommentCreateInput = {
                     discussionSubjectType: discussionSubjectType,
-                    objectKey: orgUserId,
-                    objectType: ObjectType.OrgUser,
-                    orgId:
-                      selectedOrgId === undefined
-                        ? staffingOrgId!
-                        : selectedOrgId,
+                    objectKey: userId,
+                    objectType: ObjectType.User,
+                    orgId: orgId ?? "",
                     payload: payload,
                     hasShadow: selectedOrgId === undefined ? true : false,
-                    discussionId: discussionId,
                   };
+
+                  console.log(addComment);
+
                   const result = await onAddComment(addComment);
                   if (result) {
                     setPayload("");

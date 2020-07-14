@@ -23,7 +23,6 @@ query GetEmployeeById(
       lastName
       loginEmail
       temporaryPassword
-      employeeDiscussionId
       isShadowRecord
       shadowFromOrgName
       employee {

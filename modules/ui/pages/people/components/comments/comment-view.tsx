@@ -2,15 +2,10 @@ import * as React from "react";
 import { Grid, TextField, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { TextButton } from "ui/components/text-button";
 import EditIcon from "@material-ui/icons/Edit";
 import clsx from "clsx";
-import CheckIcon from "@material-ui/icons/Check";
-import ClearIcon from "@material-ui/icons/Clear";
 import { Comment, CommentUpdateInput } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
-import { parseISO } from "date-fns/esm";
-import DeleteIcon from "@material-ui/icons/Delete";
 
 type Props = {
   comment: Comment;

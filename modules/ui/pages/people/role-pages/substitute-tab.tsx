@@ -18,6 +18,7 @@ import { UpdateComment } from "../graphql/update-comment.gen";
 import { DeleteComment } from "../graphql/delete-comment.gen";
 import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPayInformation } from "../components/substitute/pay-information";
+import { useOrganization } from "reference-data/organization";
 import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
 import { OrganizationList } from "../components/substitute/org-list";
@@ -38,7 +39,6 @@ import {
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
-import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
 import { useCanDo } from "ui/components/auth/can";
 import { canEditSub } from "helpers/permissions";
 
@@ -84,9 +84,9 @@ export const SubstituteTab: React.FC<Props> = props => {
     params.organizationId
   );
 
-  const staffingOrgId = getOrgRelationships.find(
-    x => x.relationshipType === OrganizationRelationshipType.Services
-  )?.orgId;
+  const getOrganization = useOrganization(params.organizationId);
+  const includeRelatedOrgs = getOrganization?.isStaffingProvider ?? false;
+  const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
 
   const showRelatedOrgs = getOrgRelationships?.find(
     x => x?.relationshipType === OrganizationRelationshipType.Services
@@ -198,8 +198,7 @@ export const SubstituteTab: React.FC<Props> = props => {
         onAddComment={onAddComment}
         staffingOrgId={staffingOrgId}
         comments={orgUser.substitute.comments ?? []}
-        discussionId={orgUser.replacementEmployeeDiscussionId ?? ""}
-        orgUserId={orgUser.id}
+        userId={orgUser.userId ?? ""}
         discussionSubjectType={DiscussionSubjectType.Substitute}
         onEditComment={onEditComment}
         onDeleteComment={onDeleteComment}

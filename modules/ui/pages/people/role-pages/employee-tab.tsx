@@ -11,6 +11,7 @@ import {
   NeedsReplacement,
   CommentUpdateInput,
   DiscussionSubjectType,
+  Organization,
   CommentCreateInput,
 } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
@@ -23,7 +24,7 @@ import { RemainingBalances } from "ui/pages/employee-pto-balances/components/rem
 import { Position } from "../components/employee/position";
 import { ReplacementCriteria } from "../components/employee/replacement-criteria";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
-import { useOrganizationRelationships } from "reference-data/organization-relationships";
+import { useOrganization } from "reference-data/organization";
 import { Information } from "../components/information";
 import { Comments } from "../components/comments/index";
 import {
@@ -73,19 +74,9 @@ export const EmployeeTab: React.FC<Props> = props => {
     },
   });
 
-  const getOrgRelationships = useOrganizationRelationships(
-    params.organizationId
-  );
-
-  const staffingOrgId = getOrgRelationships.find(
-    x => x.relationshipType === OrganizationRelationshipType.Services
-  )?.orgId;
-
-  const includeRelatedOrgs = getOrgRelationships?.find(
-    x => x?.relationshipType === OrganizationRelationshipType.Services
-  )
-    ? true
-    : false;
+  const getOrganization = useOrganization(params.organizationId);
+  const includeRelatedOrgs = getOrganization?.isStaffingProvider ?? false;
+  const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: { id: props.orgUserId, includeRelatedOrgs: includeRelatedOrgs },
@@ -170,8 +161,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         onAddComment={onAddComment}
         staffingOrgId={staffingOrgId}
         comments={orgUser.employee.comments ?? []}
-        discussionId={orgUser.employeeDiscussionId ?? ""}
-        orgUserId={orgUser.id}
+        userId={orgUser.userId ?? ""}
         discussionSubjectType={DiscussionSubjectType.Employee}
         onEditComment={onEditComment}
         onDeleteComment={onDeleteComment}
