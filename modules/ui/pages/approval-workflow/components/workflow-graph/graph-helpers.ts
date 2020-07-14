@@ -36,9 +36,10 @@ export const convertStepsToEdges = (
       steps
         .filter(x => !x.deleted)
         .map(step =>
-          step.onApproval?.map((oa: any) => ({
+          step.onApproval?.map(oa => ({
             stepId: step.stepId,
-            goto: step.deleted ? oa.goto : oa.goto,
+            goto: oa.goto,
+            criteria: oa.criteria,
           }))
         )
     ).map(g => {
@@ -46,7 +47,7 @@ export const convertStepsToEdges = (
         return {
           source: g.stepId,
           target: g.goto,
-          type: allGroupsUsed ? "emptyEdge" : "addEdge",
+          type: allGroupsUsed ? "emptyEdge" : g.criteria ? "ifEdge" : "addEdge",
         };
       }
     })
