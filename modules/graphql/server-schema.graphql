@@ -247,6 +247,7 @@ type AbsenceReasonBalanceMutations {
   create(absenceReasonBalance: AbsenceReasonBalanceCreateInput!): AbsenceReasonBalance
   update(absenceReasonBalance: AbsenceReasonBalanceUpdateInput!): AbsenceReasonBalance
   delete(absenceReasonBalanceId: ID!): Boolean
+  recalculateEmployeeBalances(recalulateEmployeeBalances: RecalculateEmployeeBalancesInput!): [AbsenceReasonBalance!]!
 }
 
 type AbsenceReasonBalanceQueries {
@@ -371,6 +372,8 @@ type AbsenceReasonUsage implements ModelObjectInterface & OrgObjectInterface {
   absenceDetailId: ID!
   sequence: Byte!
   amount: Decimal!
+  hourlyAmount: Decimal!
+  dailyAmount: Decimal!
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
   absenceReasonId: ID!
   absenceReason: AbsenceReason
@@ -382,13 +385,17 @@ type AbsenceReasonUsageDr {
   absenceDetailId: ID!
   absenceReasonId: ID!
   absenceReason: String!
-  absenceReasonAmount: Decimal!
+  absenceReasonAmount: Decimal
+  absenceReasonHourlyAmount: Decimal
+  absenceReasonDailyAmount: Decimal
 }
 
 input AbsenceReasonUsageInput {
   id: ID
   absenceReasonId: ID
   amount: Decimal
+  hourlyAmount: Decimal
+  dailyAmount: Decimal
 }
 
 enum AbsenceStatus {
@@ -877,7 +884,7 @@ type ApprovalComment implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   approvalStateId: ID!
-  stepId: String!
+  stepId: String
   comment: String
   commentIsPublic: Boolean!
   actingOrgUserId: ID!
@@ -905,7 +912,7 @@ type ApprovalDecision implements ModelObjectInterface & OrgObjectInterface {
   changedLocal: DateTime
   deletedLocal: DateTime
   approvalStateId: ID!
-  stepId: String!
+  stepId: String
   approvalActionId: ApprovalAction!
   hasBeenReset: Boolean!
   actingOrgUserId: ID!
@@ -1621,9 +1628,8 @@ enum ConnectionDirection {
 
 type ContactQueries {
   byId(id: ID!): OrganizationCrmContact
-  all(orgId: ID, orgIds: [ID], includeExpired: Boolean, sortBy: [SortDetailsInput]): [OrganizationCrmContact]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, includeExpired: Boolean, sortBy: [SortDetailsInput]): PagedContact
-  crmContactsByContactType(contactType: ContactType, orgId: ID!): [OrganizationCrmContact]
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrganizationCrmContact]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrganizationCrmContact
 }
 
 enum ContactType {
@@ -1820,6 +1826,15 @@ type CrmAddress {
   country: String
 }
 
+input CrmAddressInput {
+  address1: String
+  address2: String
+  city: String
+  stateId: StateCode
+  postalCode: String
+  countryId: CountryCode
+}
+
 enum Culture {
   INVALID
   US_ENGLISH
@@ -1834,7 +1849,10 @@ enum Currency {
 type Customer {
   _info: [ReturnMessage]
   billingContact: OrganizationCrmContact
+  itContact: OrganizationCrmContact
+  payrollContact: OrganizationCrmContact
   businessContact: OrganizationCrmContact
+  redRoverAdmin: OrganizationCrmContact
   billingAddress: CrmAddress
   subscription: CustomerSubscription!
   invoices: [CustomerInvoice]!
@@ -1849,6 +1867,11 @@ type CustomerInvoice {
   status: InvoiceStatus!
   url: String!
   dueDate: Date!
+}
+
+type CustomerMutations {
+  updateBillingAddress(address: CrmAddressInput): CrmAddress
+  updateInvoicePoNumber(orgId: ID!, invoiceNumber: String!, poNumber: String!): CustomerInvoice
 }
 
 type CustomerSubscription {
@@ -2847,6 +2870,9 @@ enum EventType {
   WORKFLOW_STEP_DENIED
   WORKFLOW_STEP_SKIPPED
   WORKFLOW_STEP_RESET
+  ORGANIZATION_CRM_CONTACT_CREATED
+  ORGANIZATION_CRM_CONTACT_UPDATED
+  ORGANIZATION_CRM_CONTACT_DELETED
   APPLICATION_CREATED
   APPLICATION_UPDATED
   APPLICATION_DELETED
@@ -3229,6 +3255,7 @@ type Mutation {
   contractedAssignment: ContractedAssignmentMutations
   contract: ContractMutations
   contractSchedule: ContractScheduleMutations
+  customer: CustomerMutations
   customField: CustomFieldMutations
   dataImport: DataImportMutations
   employee: EmployeeMutations
@@ -3236,6 +3263,7 @@ type Mutation {
   inAppNotification: InAppNotificationMutations
   locationGroup: LocationGroupMutations
   location: LocationMutations
+  organizationCrmContact: OrganizationCrmContactMutations
   organization: OrganizationMutations
   organizationRelationship: OrganizationRelationshipMutations
   orgUser: OrgUserMutations
@@ -3390,6 +3418,7 @@ enum ObjectType {
   APPROVER_GROUP
   APPROVAL_WORKFLOW
   APPROVAL_STATE
+  ORGANIZATION_CRM_CONTACT
   APPLICATION
 }
 
@@ -3524,6 +3553,28 @@ type OrganizationCrmContact implements ModelObjectInterface & OrgObjectInterface
   orgUser: OrgUser
   position: String
   contactType: ContactType
+}
+
+input OrganizationCrmContactCreateInput {
+  orgId: ID!
+}
+
+type OrganizationCrmContactMutations {
+  create(organizationCrmContact: OrganizationCrmContactCreateInput!): OrganizationCrmContact
+  update(organizationCrmContact: OrganizationCrmContactUpdateInput!): OrganizationCrmContact
+  delete(organizationCrmContactId: Int!): Boolean
+}
+
+type OrganizationCrmContactQueries {
+  byId(id: ID!): OrganizationCrmContact
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrganizationCrmContact]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrganizationCrmContact
+}
+
+input OrganizationCrmContactUpdateInput {
+  organizationCrmContactId: ID
+  firstName: String
+  lastName: String
 }
 
 type OrganizationMutations {
@@ -4010,15 +4061,6 @@ type PagedCalendarChangeReason {
   totalCount: Int
 }
 
-type PagedContact {
-  _info: [ReturnMessage]
-  results: [OrganizationCrmContact]
-  offset: Int!
-  limit: Int!
-  hasMoreData: Boolean!
-  totalCount: Int
-}
-
 type PagedContract {
   _info: [ReturnMessage]
   results: [Contract]
@@ -4157,6 +4199,15 @@ type PagedLocationGroup {
 type PagedOrganization {
   _info: [ReturnMessage]
   results: [Organization]
+  offset: Int!
+  limit: Int!
+  hasMoreData: Boolean!
+  totalCount: Int
+}
+
+type PagedOrganizationCrmContact {
+  _info: [ReturnMessage]
+  results: [OrganizationCrmContact]
   offset: Int!
   limit: Int!
   hasMoreData: Boolean!
@@ -4561,6 +4612,8 @@ enum PermissionEnum {
   REPORTS_ABS_VAC_SCHEMA
   REPORTS_EMP_SCHEMA
   REPORTS_SUB_SCHEMA
+  ORGANIZATION_CRM_CONTACT_SAVE
+  ORGANIZATION_CRM_CONTACT_DELETE
   FILE_UPLOAD
   FILE_DELETE
   REPLACEMENT_POOL_CONFIG_SAVE
@@ -5168,6 +5221,7 @@ type Query {
   inAppNotification: InAppNotificationQueries
   locationGroup: LocationGroupQueries
   location: LocationQueries
+  organizationCrmContact: OrganizationCrmContactQueries
   organization: OrganizationQueries
   organizationRelationship: OrganizationRelationshipQueries
   orgRef_AbsenceReasonCategory: OrgRef_AbsenceReasonCategoryQueries
@@ -5199,6 +5253,12 @@ type Query {
   vacancy: VacancyQueries
   workDayPattern: WorkDayPatternQueries
   workDaySchedule: WorkDayScheduleQueries
+}
+
+input RecalculateEmployeeBalancesInput {
+  employeeId: ID!
+  schoolYearId: ID
+  orgId: ID!
 }
 
 type RefAbsenceDocumentType {
