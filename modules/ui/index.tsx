@@ -278,6 +278,12 @@ import {
   SubAvailabilityLoader,
 } from "./routes/sub-schedule";
 import {
+  SubSchoolPreferencesRoute,
+  SubSchoolPreferencesLoader,
+  SubSchoolPreferencesEditRoute,
+  SubSchoolPreferencesEditLoader,
+} from "./routes/sub-school-preferences";
+import {
   SubstituteSettingsLoader,
   SubstituteSettingsRoute,
 } from "./routes/substitute-settings";
@@ -545,8 +551,16 @@ export const App = hot(function() {
                                 path={SubMobileSearchRoute.path}
                                 component={SubstituteMobileSearchLoader}
                               />
-                              {/* The following two routes must be the last two in this switch.  
-                              This first will match exactly and send the substitute to the home page.  
+                              <Route
+                                path={SubSchoolPreferencesEditRoute.path}
+                                component={SubSchoolPreferencesEditLoader}
+                              />
+                              <Route
+                                path={SubSchoolPreferencesRoute.path}
+                                component={SubSchoolPreferencesLoader}
+                              />
+                              {/* The following two routes must be the last two in this switch.
+                              This first will match exactly and send the substitute to the home page.
                               The second will send any unfound routes to the not found page.*/}
                               <Route
                                 exact

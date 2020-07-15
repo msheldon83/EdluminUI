@@ -1,0 +1,15 @@
+query GetUserById($id: ID!) {
+  user {
+    byId(id: $id) {
+      id
+      allOrgUsers {
+        id
+        isReplacementEmployee
+        organization {
+          id
+          name
+        }
+      }
+    }
+  }
+}

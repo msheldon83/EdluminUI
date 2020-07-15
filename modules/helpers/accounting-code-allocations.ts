@@ -137,6 +137,7 @@ export const validateAccountingCodeAllocations = (
   accountingCodeAllocations: AccountingCodeAllocation[],
   t: TFunction
 ): string | undefined => {
+  console.log(accountingCodeAllocations);
   if (!accountingCodeAllocations || accountingCodeAllocations.length === 0) {
     return undefined;
   }
