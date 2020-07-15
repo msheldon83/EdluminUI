@@ -34,6 +34,7 @@ export const OrgUserOrgRelationshipSelect: React.FC<Props> = props => {
   const orgOptions = useMemo(() => {
     const options =
       orgRelationships
+        .filter(x => x.organization.id != staffingOrgId)
         ?.map(x => ({
           label: x.organization!.name,
           value: x.organization!.id,
@@ -72,6 +73,7 @@ export const OrgUserOrgRelationshipSelect: React.FC<Props> = props => {
       multiple={false}
       options={orgOptions}
       withResetValue={false}
+      fixedListBox={true}
       doSort={false}
       onChange={e => {
         if (e.value.toString() === "0") {

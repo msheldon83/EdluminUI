@@ -157,7 +157,7 @@ const useStyles = makeStyles(theme => ({
     position: "relative",
   },
   gridHeight: {
-    maxHeight: "200px",
+    maxHeight: "220px",
     overflow: "hidden",
     position: "relative",
   },
@@ -168,7 +168,7 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
     textAlign: "center",
     zIndex: 20,
-    top: "170px",
+    top: "190px",
     background:
       "linear-gradient(rgba(255, 255, 255, 0)0%, rgba(255, 255, 255, 1) 100%)",
   },

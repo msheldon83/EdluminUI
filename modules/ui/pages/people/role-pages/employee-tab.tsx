@@ -80,6 +80,7 @@ export const EmployeeTab: React.FC<Props> = props => {
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: { id: props.orgUserId, includeRelatedOrgs: includeRelatedOrgs },
+    skip: !includeRelatedOrgs,
   });
 
   const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
