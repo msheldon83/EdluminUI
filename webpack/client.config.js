@@ -157,9 +157,15 @@ module.exports = {
 
     /*
     Process index.html and insert script and stylesheet tags for us.
+
+    Temporarily there are 2 different index files because of how the
+    environment is loaded. This will change when we have the environment file
+      in QA and production builds
     */
     new HtmlWebpackPlugin({
-      template: "./entry/index.html",
+      template: config.get("development")
+        ? "./entry/index.development.tmp.html"
+        : "./entry/index.production.tmp.html",
       inject: "body",
     }),
 
