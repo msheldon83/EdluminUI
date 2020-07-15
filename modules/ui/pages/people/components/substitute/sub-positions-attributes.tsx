@@ -35,8 +35,6 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
   const params = useRouteParams(PersonViewRoute);
   const showEditButton = !props.editing && props.editable;
 
-  console.log(props.attributes);
-
   return (
     <>
       <Section>
