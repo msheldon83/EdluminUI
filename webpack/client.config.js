@@ -159,7 +159,7 @@ module.exports = {
     Process index.html and insert script and stylesheet tags for us.
     */
     new HtmlWebpackPlugin({
-      template: "./entry/index.tmp.html",
+      template: "./entry/index.html",
       inject: "body",
     }),
 
