@@ -108,14 +108,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
           </Grid>
         )} */}
 
-      <BalanceUsage
+      {/* <BalanceUsage
         orgId={organizationId}
         employeeId={employeeId}
         startDate={startOfDay(min(absenceDates))}
         actingAsEmployee={actingAsEmployee}
         usages={absenceBalanceUsages}
         setNegativeBalanceWarning={setNegativeBalanceWarning}
-      />
+      /> */}
 
       <div>
         <AbsenceDays

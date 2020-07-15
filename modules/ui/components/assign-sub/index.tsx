@@ -53,12 +53,14 @@ type Props = {
     replacementEmployeeFirstName: string,
     replacementEmployeeLastName: string,
     payCode: string | undefined,
-    vacancyDetailIds?: string[]
+    vacancyDetailIds?: string[],
+    vacancyDetailStartTimes?: Date[]
   ) => void;
   onCancel: () => void;
   employeeToReplace?: string;
   assignmentsByDate: AssignmentOnDate[];
   isForVacancy?: boolean;
+  useVacancySummaryDetails?: boolean;
   vacancySummaryDetails?: VacancySummaryDetail[];
   vacancy?: VacancyCreateInput;
   vacancyId?: string;
@@ -98,8 +100,9 @@ export const AssignSub: React.FC<Props> = props => {
     employeeToReplace = "",
     vacancySummaryDetails,
     isForVacancy = false,
+    useVacancySummaryDetails = false,
     vacancy = undefined,
-    vacancyId = undefined
+    vacancyId = undefined,
   } = props;
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
@@ -120,9 +123,9 @@ export const AssignSub: React.FC<Props> = props => {
 
   // If we don't have any info, cancel the Assign Sub action
   if (
-    (!isForVacancy && !props.vacancies) ||
+    (!useVacancySummaryDetails && !props.vacancies) ||
     props.vacancies?.length === 0 ||
-    (isForVacancy && !vacancySummaryDetails) ||
+    (useVacancySummaryDetails && !vacancySummaryDetails) ||
     vacancySummaryDetails?.length === 0
   ) {
     props.onCancel();
@@ -273,11 +276,14 @@ export const AssignSub: React.FC<Props> = props => {
           replacementEmployeeFirstName,
           replacementEmployeeLastName,
           payCodeId,
-          vacancyDetailIdsToAssign
+          vacancyDetailIdsToAssign,
+          !vacancyDetailIdsToAssign && vacancySummaryDetails
+            ? vacancySummaryDetails.map(vsd => vsd.startTimeLocal)
+            : undefined
         );
       }
     },
-    [onAssignReplacement, vacancyDetailIdsToAssign, t]
+    [onAssignReplacement, vacancyDetailIdsToAssign, vacancySummaryDetails, t]
   );
 
   const confirmReassign = useCallback(
@@ -329,13 +335,13 @@ export const AssignSub: React.FC<Props> = props => {
           collapsedHeight={theme.typography.pxToRem(
             vacancyDetailsHeight
               ? Math.min(
-                  vacancyDetailsHeight + (isForVacancy ? 75 : 0),
+                  vacancyDetailsHeight + (useVacancySummaryDetails ? 75 : 0),
                   collapsedVacancyDetailsHeight
                 )
               : collapsedVacancyDetailsHeight
           )}
         >
-          {props.vacancies && !isForVacancy && (
+          {props.vacancies && !useVacancySummaryDetails && (
             <VacancyDetails
               vacancies={props.vacancies}
               vacancyDetailIds={vacancyDetailIdsToAssign}
@@ -348,7 +354,7 @@ export const AssignSub: React.FC<Props> = props => {
               isForVacancy={isForVacancy}
             />
           )}
-          {vacancySummaryDetails && isForVacancy && (
+          {vacancySummaryDetails && useVacancySummaryDetails && (
             <>
               <VacancySummaryHeader
                 positionName={props.positionName}

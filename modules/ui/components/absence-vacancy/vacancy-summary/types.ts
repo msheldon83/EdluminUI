@@ -13,8 +13,8 @@ export type VacancySummaryDetail = {
   locationName: string;
   accountingCodeAllocations: AccountingCodeAllocation[];
   assignment?: {
-    id?: string;
-    rowVersion?: string;
+    id?: string | undefined;
+    rowVersion?: string | undefined;
     employee?: Employee;
   };
   absenceStartTimeLocal?: Date;

@@ -14,7 +14,7 @@ type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   assignmentStartTime: Date;
   onReassignClick?: () => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
+  onCancelAssignment: (vacancyDetailIds: string[], vacancyDetailStartTimes?: Date[]) => Promise<void>;
   disableActions?: boolean;
   readOnly: boolean;
 };
@@ -42,7 +42,7 @@ export const AssignedBanner: React.FC<Props> = props => {
   const onRemoveClick = useCallback(async () => {
     if (assignmentWithDetails.dates.length === 1) {
       // Cancelling an assignment for a single day, no need to prompt the user
-      await onCancelAssignment(assignmentWithDetails.vacancyDetailIds);
+      await onCancelAssignment(assignmentWithDetails.vacancyDetailIds, assignmentWithDetails.);
     } else {
       // Cancelling a multi day assignment, want to ask the user what they want to do
       setCancelAssignmentDialogIsOpen(true);

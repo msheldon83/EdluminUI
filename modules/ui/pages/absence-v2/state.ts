@@ -1,7 +1,11 @@
-import { isSameDay, startOfDay } from "date-fns";
+import { isSameDay, startOfDay, isEqual, parseISO } from "date-fns";
 import { differenceWith, filter, find, sortBy } from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
+import { Vacancy } from "graphql/server-types.gen";
+import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
+import { AssignmentOnDate } from "./types";
 
 export type AbsenceState = {
   employeeId: string;
@@ -14,19 +18,31 @@ export type AbsenceState = {
   isClosed?: boolean;
   closedDates: Date[];
   customizedVacanciesInput?: VacancyDetail[];
-  vacancyDetailIdsToAssign: string[];
+  projectedVacancies?: Vacancy[];
+  projectedVacancyDetails?: VacancyDetail[];
+  vacancySummaryDetailsToAssign: VacancySummaryDetail[];
+  assignmentsByStartTime?: AssignmentOnDate[];
 };
 
 export type AbsenceActions =
   | { action: "switchMonth"; month: Date }
   | { action: "toggleDate"; date: Date }
   | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] }
+  | {
+      action: "setProjectedVacancies";
+      projectedVacancies: undefined | Vacancy[];
+    }
   | { action: "removeAbsenceDates"; dates: Date[] }
   | { action: "resetAfterSave" }
   | { action: "resetToInitialState"; initialState: AbsenceState }
   | {
-      action: "setVacancyDetailIdsToAssign";
-      vacancyDetailIdsToAssign: string[];
+      action: "setVacancySummaryDetailsToAssign";
+      vacancySummaryDetailsToAssign: VacancySummaryDetail[];
+    }
+  | {
+      action: "updateAssignments";
+      assignments: AssignmentOnDate[];
+      add: boolean;
     };
 
 export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
@@ -72,11 +88,114 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
     case "resetToInitialState": {
       return action.initialState;
     }
-    case "setVacancyDetailIdsToAssign": {
+    case "setVacancySummaryDetailsToAssign": {
       return {
         ...prev,
-        vacancyDetailIdsToAssign: action.vacancyDetailIdsToAssign,
+        vacancySummaryDetailsToAssign: action.vacancySummaryDetailsToAssign,
+      };
+    }
+    case "setProjectedVacancies": {
+      return {
+        ...prev,
+        projectedVacancies: action.projectedVacancies,
+        projectedVacancyDetails: projectVacancyDetailsFromVacancies(
+          action.projectedVacancies,
+          prev.assignmentsByStartTime
+        ),
+      };
+    }
+    case "updateAssignments": {
+      let assignments = prev.assignmentsByStartTime ?? [];
+      if (action.add) {
+        assignments = [...assignments, ...action.assignments];
+      } else {
+        // Remove the specified assignments from the list
+        assignments = assignments.filter(
+          a =>
+            !action.assignments.find(x =>
+              isEqual(x.startTimeLocal, a.startTimeLocal)
+            )
+        );
+      }
+
+      console.log("assignments", assignments);
+
+      return {
+        ...prev,
+        assignmentsByStartTime: assignments,
       };
     }
   }
+};
+
+const projectVacancyDetailsFromVacancies = (
+  vacancies: Partial<Vacancy | null>[] | null | undefined,
+  assignmentsByStartTime: AssignmentOnDate[] | undefined
+): VacancyDetail[] => {
+  if (!vacancies || vacancies.length < 1) {
+    return [];
+  }
+  const absenceDetails = vacancies[0]?.absence?.details;
+  return (vacancies[0]?.details ?? [])
+    .map(d => {
+      // Find a matching Absence Detail record if available
+      const absenceDetail = absenceDetails?.find(
+        ad => ad?.startDate === d?.startDate
+      );
+
+      // Find a matching assignment from state if we don't already
+      // have one on the VacancyDetail record itself
+      const assignment = assignmentsByStartTime?.find(
+        a =>
+          (d.id && a.vacancyDetailId === d.id) ||
+          isEqual(a.startTimeLocal, parseISO(d.startTimeLocal))
+      );
+
+      console.log(
+        "projectVacancyDetailsFromVacancies",
+        assignmentsByStartTime,
+        d.startTimeLocal,
+        parseISO(d.startTimeLocal),
+        assignment
+      );
+
+      return {
+        vacancyDetailId: d?.id,
+        date: d?.startDate,
+        locationId: d?.locationId,
+        startTime: d?.startTimeLocal,
+        endTime: d?.endTimeLocal,
+        locationName: d?.location?.name,
+        absenceStartTime: absenceDetail?.startTimeLocal,
+        absenceEndTime: absenceDetail?.endTimeLocal,
+        payCodeId: d?.payCodeId,
+        accountingCodeAllocations: mapAccountingCodeAllocationsToAccountingCodeValue(
+          d?.accountingCodeAllocations?.map(a => {
+            return {
+              accountingCodeId: a.accountingCodeId,
+              accountingCodeName: a.accountingCode?.name,
+              allocation: a.allocation,
+            };
+          })
+        ),
+        assignmentId: d?.assignment?.id ?? assignment?.assignmentId,
+        assignmentRowVersion:
+          d?.assignment?.rowVersion ?? assignment?.assignmentRowVersion,
+        assignmentStartDateTime:
+          d?.startTimeLocal ?? assignment?.startTimeLocal?.toISOString(),
+        assignmentEmployeeId:
+          d?.assignment?.employee?.id ?? assignment?.employee?.id,
+        assignmentEmployeeFirstName:
+          d?.assignment?.employee?.firstName ?? assignment?.employee?.firstName,
+        assignmentEmployeeLastName:
+          d?.assignment?.employee?.lastName ?? assignment?.employee?.lastName,
+      } as VacancyDetail;
+    })
+    .filter(
+      (detail): detail is VacancyDetail =>
+        !!detail.locationId &&
+        !!detail.date &&
+        !!detail.startTime &&
+        !!detail.endTime
+    );
 };

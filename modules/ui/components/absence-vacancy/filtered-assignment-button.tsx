@@ -1,11 +1,11 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { Button } from "@material-ui/core";
 import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canAssignSub } from "helpers/permissions";
 import { endOfTomorrow, min, setSeconds, isToday, isFuture } from "date-fns";
+import { compact } from "lodash-es";
 
 type Props = {
   details: {
@@ -14,18 +14,17 @@ type Props = {
     startTime: number;
   }[];
   buttonText: string;
-  onClick: (detailIds: string[]) => void;
+  onClick: (detailIds: string[], dates: Date[]) => void;
   disableAssign: boolean;
 };
 
 export const FilteredAssignmentButton: React.FC<Props> = ({
   details,
-  buttonText
+  buttonText,
   disableAssign,
   onClick,
 }) => {
   const classes = useStyles();
-  const { t } = useTranslation();
 
   const futureDetails = details.filter(d => {
     const startDateTime = setSeconds(d.date, d.startTime);
@@ -64,14 +63,15 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
       forRole
     );
 
-  const PreArrangeButton: React.FC<{ detailIds: string[] }> = ({
+  const PreArrangeButton: React.FC<{ detailIds: string[]; dates: Date[] }> = ({
     detailIds,
+    dates,
   }) => (
     <Button
       variant="outlined"
       disabled={disableAssign}
       className={classes.preArrangeButton}
-      onClick={() => onClick(detailIds)}
+      onClick={() => onClick(detailIds, dates)}
     >
       {buttonText}
     </Button>
@@ -80,11 +80,17 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
   return (
     <>
       <Can do={allDetailPerms}>
-        <PreArrangeButton detailIds={details.map(d => d.id ?? "")} />
+        <PreArrangeButton
+          detailIds={compact(details.map(d => d.id))}
+          dates={details.map(d => d.date)}
+        />
       </Can>
       <Can not do={allDetailPerms}>
         <Can do={futureDetailPerms}>
-          <PreArrangeButton detailIds={futureDetails.map(d => d.id ?? "")} />
+          <PreArrangeButton
+            detailIds={compact(futureDetails.map(d => d.id))}
+            dates={futureDetails.map(d => d.date)}
+          />
         </Can>
       </Can>
     </>

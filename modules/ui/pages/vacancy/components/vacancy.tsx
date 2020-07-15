@@ -864,6 +864,7 @@ export const VacancyUI: React.FC<Props> = props => {
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
                     ?.firstName ?? undefined
                 }
+                useVacancySummaryDetails={true}
               />
             )}
             {step === "confirmation" && (

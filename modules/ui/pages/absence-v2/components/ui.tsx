@@ -8,6 +8,7 @@ import {
   DayPart,
   AbsenceDetailCreateInput,
   Absence,
+  Vacancy,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
@@ -18,7 +19,10 @@ import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
 import { AbsenceFormData, AbsenceDetail } from "../types";
 import { Formik } from "formik";
-import { validateAccountingCodeAllocations } from "helpers/accounting-code-allocations";
+import {
+  validateAccountingCodeAllocations,
+  mapAccountingCodeValueToAccountingCodeAllocations,
+} from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
 import { makeStyles, Grid, Typography, Button } from "@material-ui/core";
@@ -30,6 +34,8 @@ import {
   isBefore,
   startOfDay,
   min,
+  isEqual,
+  parseISO,
 } from "date-fns";
 import { SubstituteDetails } from "./substitute-details";
 import { ContentFooter } from "ui/components/content-footer";
@@ -37,6 +43,8 @@ import { Can, useCanDo } from "ui/components/auth/can";
 import {
   getAbsenceDates,
   getCannotCreateAbsenceDates,
+  vacancyDetailsHaveDifferentAccountingCodeSelections,
+  vacancyDetailsHaveDifferentPayCodeSelections,
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
@@ -44,6 +52,10 @@ import { some, sortBy } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
 import { ErrorBanner } from "ui/components/error-banner";
+import { AssignSub } from "ui/components/assign-sub";
+import { EditVacancies } from "ui/pages/create-absence/edit-vacancies";
+import { VacancyDetail } from "ui/components/absence/types";
+import { convertStringToDate } from "helpers/date";
 
 type Props = {
   organizationId: string;
@@ -98,6 +110,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       viewingCalendarMonth,
       absenceDates,
       closedDates: [],
+      vacancySummaryDetailsToAssign: [],
     };
   };
   const [state, dispatch] = React.useReducer(
@@ -164,272 +177,499 @@ export const AbsenceUI: React.FC<Props> = props => {
     [actingAsEmployee, canDoFn, isCreate]
   );
 
+  const onProjectedVacanciesChange = React.useCallback(
+    (vacancies: Vacancy[]) => {
+      dispatch({
+        action: "setProjectedVacancies",
+        projectedVacancies: vacancies,
+      });
+    },
+    []
+  );
+
+  const onChangedVacancies = React.useCallback(
+    (vacancyDetails: VacancyDetail[]) => {
+      setStep("absence");
+      dispatch({
+        action: "setVacanciesInput",
+        input: vacancyDetails,
+      });
+    },
+    [setStep]
+  );
+
+  // --- Handling of Sub pre-arrange, assignment, or removal ------
+
+  const onCancelAssignment = React.useCallback(
+    async (vacancyDetailIds?: string[], vacancyDetailStartTimes?: Date[]) => {
+      // Get all of the matching details
+      const vacancyDetails =
+        state.customizedVacanciesInput ?? state.projectedVacancyDetails;
+      const detailsToCancelAssignmentsFor = vacancyDetailIds
+        ? vacancyDetails?.filter(d =>
+            vacancyDetailIds.find(i => i === d.vacancyDetailId)
+          )
+        : vacancyDetails?.filter(d =>
+            vacancyDetailStartTimes?.find(date =>
+              isEqual(date, parseISO(d.startTime))
+            )
+          );
+
+      if (
+        !detailsToCancelAssignmentsFor ||
+        detailsToCancelAssignmentsFor.length === 0
+      ) {
+        setStep("absence");
+        return;
+      }
+
+      //const updatedDetails = [...vacancy.details];
+      const localDetailIdsToClearAssignmentsOn: string[] = [];
+      if (!isCreate) {
+        // // Get all of the Assignment Ids and Row Versions to Cancel
+        // const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
+        //   (accumulator: CancelVacancyAssignmentInput[], detail) => {
+        //     const matchingAssignment = accumulator.find(
+        //       a => a.assignmentId === detail.assignment?.id
+        //     );
+        //     if (matchingAssignment) {
+        //       matchingAssignment.vacancyDetailIds?.push(detail.id!);
+        //     } else {
+        //       accumulator.push({
+        //         assignmentId: detail.assignment?.id ?? "",
+        //         rowVersion: detail.assignment?.rowVersion ?? "",
+        //         vacancyDetailIds: [detail.id!],
+        //       });
+        //     }
+        //     return accumulator;
+        //   },
+        //   []
+        // );
+        // for (let index = 0; index < assignmentsToCancel.length; index++) {
+        //   const a = assignmentsToCancel[index];
+        //   const result = await cancelAssignment({
+        //     variables: {
+        //       assignment: a,
+        //     },
+        //   });
+        //   if (result?.data) {
+        //     if (a.vacancyDetailIds) {
+        //       localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
+        //     }
+        //     updatedDetails
+        //       .filter(
+        //         d =>
+        //           d.assignment?.id &&
+        //           d.assignment?.id ===
+        //             result?.data?.assignment?.cancelAssignment?.id
+        //       )
+        //       .forEach(d => {
+        //         if (d.assignment) {
+        //           d.assignment.rowVersion =
+        //             result.data?.assignment?.cancelAssignment?.rowVersion;
+        //         }
+        //       });
+        //   }
+        // }
+      } else {
+        dispatch({
+          action: "updateAssignments",
+          assignments: detailsToCancelAssignmentsFor.map(d => {
+            return {
+              startTimeLocal: parseISO(d.startTime),
+              vacancyDetailId: d.vacancyDetailId,
+              employee: {
+                id: d.assignmentEmployeeId ?? "",
+                firstName: d.assignmentEmployeeFirstName ?? "",
+                lastName: d.assignmentEmployeeLastName ?? "",
+              },
+            };
+          }),
+          add: false,
+        });
+      }
+    },
+    [isCreate, setStep, state.customizedVacanciesInput, state.projectedVacancyDetails]
+  );
+
+  const onAssignSub = React.useCallback(
+    async (
+      replacementEmployeeId: string,
+      replacementEmployeeFirstName: string,
+      replacementEmployeeLastName: string,
+      payCode: string | undefined,
+      vacancyDetailIds?: string[],
+      vacancyDetailStartTimes?: Date[]
+    ) => {
+      const vacancyDetails =
+        state.customizedVacanciesInput ?? state.projectedVacancyDetails;
+
+      // Get all of the matching details
+      const detailsToAssign = vacancyDetailIds
+        ? vacancyDetails?.filter(d =>
+            vacancyDetailIds.find(i => i === d.vacancyDetailId)
+          )
+        : vacancyDetails?.filter(d =>
+            vacancyDetailStartTimes?.find(date =>
+              isEqual(date, parseISO(d.startTime))
+            )
+          );
+
+      if (!detailsToAssign || detailsToAssign.length === 0) {
+        setStep("absence");
+        return;
+      }
+
+      if (!isCreate) {
+        // // Cancel any existing assignments on these Details
+        // await onCancelAssignment(vacancyDetailIds);
+        // // Create an Assignment for these Details
+        // const result = await assignVacancy({
+        //   variables: {
+        //     assignment: {
+        //       orgId: params.organizationId,
+        //       vacancyId: vacancy.id,
+        //       employeeId: replacementEmployeeId,
+        //       vacancyDetailIds: detailsToAssign.map(d => d.id!),
+        //     },
+        //   },
+        // });
+        // const assignment = result?.data?.vacancy?.assignVacancy as Assignment;
+        // if (assignment) {
+        //   setVacancy({
+        //     ...vacancy,
+        //     details: vacancy.details.map(d => {
+        //       if (!vacancyDetailIds?.find(i => d.id === i)) {
+        //         return d;
+        //       }
+        //       return {
+        //         ...d,
+        //         assignment: {
+        //           id: assignment.id,
+        //           rowVersion: assignment.rowVersion,
+        //           employee: {
+        //             id: replacementEmployeeId,
+        //             firstName: replacementEmployeeFirstName,
+        //             lastName: replacementEmployeeLastName,
+        //           },
+        //         },
+        //       };
+        //     }),
+        //   });
+        // }
+      } else {
+        // if we have customized vacancies input, then find the appropriate details
+        // and set their assignment info
+
+        // if we only have projected vacancies, then find the appropriate details
+        // and set their assignment info
+
+        // Need some way to not lose assignments when a projected vacancies call occurs
+        // Maybe set assignmentsByStartTime in state when an assignment occurs and remove
+        // when an assignment is cancelled
+
+        dispatch({
+          action: "updateAssignments",
+          assignments: detailsToAssign.map(d => {
+            return {
+              startTimeLocal: parseISO(d.startTime),
+              vacancyDetailId: d.vacancyDetailId,
+              employee: {
+                id: replacementEmployeeId,
+                firstName: replacementEmployeeFirstName,
+                lastName: replacementEmployeeLastName,
+              },
+            };
+          }),
+          add: true,
+        });
+      }
+
+      setStep("absence");
+    },
+    [
+      isCreate,
+      setStep,
+      state.customizedVacanciesInput,
+      state.projectedVacancyDetails,
+    ]
+  );
+
   return (
     <>
       <PageTitle
         title={isCreate ? t("Create absence") : t("Edit absence")}
         withoutHeading
       />
-      {step === "absence" && (
-        <Formik
-          initialValues={initialAbsenceData}
-          validationSchema={yup.object().shape({
-            details: yup.array().of(
-              yup.object().shape({
-                absenceReasonId: yup
-                  .string()
-                  .nullable()
-                  .required(t("Required")),
-                dayPart: yup
-                  .string()
-                  .nullable()
-                  .required(t("Required")),
-                hourlyStartTime: yup.string().when("dayPart", {
-                  is: DayPart.Hourly,
-                  then: yup.string().required(t("Required")),
-                }),
-                hourlyEndTime: yup.string().when("dayPart", {
-                  is: DayPart.Hourly,
-                  then: yup.string().required(t("Required")),
-                }),
-              })
-            ),
+      <Formik
+        initialValues={initialAbsenceData}
+        validationSchema={yup.object().shape({
+          details: yup.array().of(
+            yup.object().shape({
+              absenceReasonId: yup
+                .string()
+                .nullable()
+                .required(t("Required")),
+              dayPart: yup
+                .string()
+                .nullable()
+                .required(t("Required")),
+              hourlyStartTime: yup.string().when("dayPart", {
+                is: DayPart.Hourly,
+                then: yup.string().required(t("Required")),
+              }),
+              hourlyEndTime: yup.string().when("dayPart", {
+                is: DayPart.Hourly,
+                then: yup.string().required(t("Required")),
+              }),
+            })
+          ),
 
-            // Notes To Approver if notes are required
-            // Accounting Code Allocations
+          // Notes To Approver if notes are required
+          // Accounting Code Allocations
 
-            // accountingCodeAllocations: yup.object().test({
-            //   name: "accountingCodeAllocationsCheck",
-            //   test: function test(value: AbsenceFormData) {
-            //     const accountingCodeAllocations =
-            //       value.accountingCodeAllocations;
+          // accountingCodeAllocations: yup.object().test({
+          //   name: "accountingCodeAllocationsCheck",
+          //   test: function test(value: AbsenceFormData) {
+          //     const accountingCodeAllocations =
+          //       value.accountingCodeAllocations;
 
-            //     const error = validateAccountingCodeAllocations(
-            //       accountingCodeAllocations ?? [],
-            //       t
-            //     );
-            //     if (!error) {
-            //       return true;
-            //     }
+          //     const error = validateAccountingCodeAllocations(
+          //       accountingCodeAllocations ?? [],
+          //       t
+          //     );
+          //     if (!error) {
+          //       return true;
+          //     }
 
-            //     return new yup.ValidationError(
-            //       error,
-            //       null,
-            //       `${this.path}.accountingCodeAllocations`
-            //     );
-            //   },
-            // })
-          })}
-          onSubmit={async (data, e) => {
-            const absenceInput = buildAbsenceInput(
-              isCreate,
-              data,
-              state,
-              disabledDates,
-              false
-            );
-            if (absenceInput != null) {
-              const absence = await saveAbsence(absenceInput, () => {});
-              console.log(absence);
-            }
-          }}
-        >
-          {({
+          //     return new yup.ValidationError(
+          //       error,
+          //       null,
+          //       `${this.path}.accountingCodeAllocations`
+          //     );
+          //   },
+          // })
+        })}
+        onSubmit={async (data, e) => {
+          const absenceInput = buildAbsenceInput(
+            isCreate,
+            data,
+            state,
+            disabledDates
+          );
+          if (absenceInput != null) {
+            const absence = await saveAbsence(absenceInput, () => {});
+            console.log(absence);
+          }
+        }}
+      >
+        {({
+          values,
+          handleSubmit,
+          handleReset,
+          setFieldValue,
+          dirty,
+          isSubmitting,
+          resetForm,
+          touched,
+          initialValues,
+          errors,
+        }) => {
+          const inputForProjectedCalls = buildAbsenceInput(
+            true,
             values,
-            handleSubmit,
-            handleReset,
-            setFieldValue,
-            dirty,
-            isSubmitting,
-            resetForm,
-            touched,
-            initialValues,
-            errors,
-          }) => (
+            state,
+            disabledDates
+          ) as AbsenceCreateInput;
+
+          return (
             <form id="absence-form" onSubmit={handleSubmit}>
-              <AbsenceVacancyHeader
-                pageHeader={isCreate ? t("Create absence") : t("Edit absence")}
-                subHeader={
-                  !actingAsEmployee
-                    ? `${employee.firstName} ${employee.lastName}`
-                    : undefined
-                }
-              />
-              <Section className={classes.content}>
-                {/* <ErrorBanner
+              {step === "absence" && (
+                <>
+                  <AbsenceVacancyHeader
+                    pageHeader={
+                      isCreate ? t("Create absence") : t("Edit absence")
+                    }
+                    subHeader={
+                      !actingAsEmployee
+                        ? `${employee.firstName} ${employee.lastName}`
+                        : undefined
+                    }
+                  />
+                  <Section className={classes.content}>
+                    {/* <ErrorBanner
                 errorBannerOpen={errorBannerOpen}
                 title={t("There was an issue creating the absence")}
                 apolloErrors={absenceErrors}
                 setErrorBannerOpen={setErrorBannerOpen}
                 continueAction={async () => await create(formValues, true)}
               /> */}
-                <Grid container spacing={2}>
-                  <Grid item md={5}>
-                    <AbsenceDetails
-                      organizationId={organizationId}
-                      employeeId={employee.id}
-                      actingAsEmployee={actingAsEmployee}
-                      absenceDates={state.absenceDates}
-                      onToggleAbsenceDate={d => {
-                        dispatch({ action: "toggleDate", date: d });
-                        // Update the details in the form
-                        const exists = values.details.find(x =>
-                          isSameDay(x.date, d)
-                        );
-                        if (exists) {
-                          setFieldValue(
-                            "details",
-                            values.details.filter(x => !isSameDay(x.date, d)),
-                            false
-                          );
-                        } else {
-                          setFieldValue(
-                            "details",
-                            sortBy(
-                              [
-                                ...values.details,
-                                copyDetail(d, values.details),
-                              ],
-                              d => d.date
-                            ),
-                            false
-                          );
-                        }
-                      }}
-                      closedDates={[]}
-                      currentMonth={state.viewingCalendarMonth}
-                      onSwitchMonth={(d: Date) =>
-                        dispatch({ action: "switchMonth", month: d })
-                      }
-                      absenceInput={
-                        buildAbsenceInput(
-                          true,
-                          values,
-                          state,
-                          disabledDates,
-                          false
-                        ) as AbsenceCreateInput
-                      }
-                      positionTypeId={position?.positionTypeId}
-                    />
-                  </Grid>
-                  <Grid item md={6}>
-                    <SubstituteDetails
-                      isCreate={isCreate}
-                      organizationId={organizationId}
-                      actingAsEmployee={actingAsEmployee}
-                      needsReplacement={
-                        position?.needsReplacement ?? NeedsReplacement.No
-                      }
-                      absenceInput={
-                        buildAbsenceInput(
-                          true,
-                          values,
-                          state,
-                          disabledDates,
-                          false
-                        ) as AbsenceCreateInput
-                      }
-                      onAssignSubClick={(
-                        currentAssignmentInfo: AssignmentFor
-                      ) => {
-                        dispatch({
-                          action: "setVacancyDetailIdsToAssign",
-                          vacancyDetailIdsToAssign:
-                            currentAssignmentInfo.vacancyDetailIds,
-                        });
-                        setStep("preAssignSub");
-                      }}
-                      onEditSubDetailsClick={() => {}}
-                    />
-                  </Grid>
-                </Grid>
-              </Section>
-              <ContentFooter>
-                <Grid item xs={12} className={classes.contentFooter}>
-                  <div className={classes.actionButtons}>
-                    <div className={classes.unsavedText}>
-                      {(dirty || isCreate) && (
-                        <Typography>
-                          {t("This page has unsaved changes")}
-                        </Typography>
-                      )}
-                    </div>
-                    {deleteAbsence && !dirty && (
-                      <Can do={[PermissionEnum.AbsVacDelete]}>
-                        <Button
-                          onClick={() => deleteAbsence()}
-                          variant="text"
-                          className={classes.deleteButton}
-                        >
-                          {t("Delete")}
-                        </Button>
-                      </Can>
-                    )}
-                    {!isCreate && dirty && !state.isClosed && (
-                      <Button
-                        onClick={() => {
-                          // reset the form and the state
-                          resetForm();
-                        }}
-                        variant="outlined"
-                        className={classes.cancelButton}
-                        disabled={!dirty}
-                      >
-                        {t("Discard Changes")}
-                      </Button>
-                    )}
-                    {canSaveAbsence(values.details) && (
-                      <Button
-                        form="absence-form"
-                        type="submit"
-                        variant="contained"
-                        className={classes.saveButton}
-                        disabled={
-                          !dirty ||
-                          //negativeBalanceWarning ||
-                          state.isClosed
-                        }
-                      >
-                        {isCreate ? t("Create") : t("Save")}
-                      </Button>
-                    )}
-                  </div>
-                </Grid>
-              </ContentFooter>
+                    <Grid container spacing={2}>
+                      <Grid item md={5}>
+                        <AbsenceDetails
+                          organizationId={organizationId}
+                          employeeId={employee.id}
+                          actingAsEmployee={actingAsEmployee}
+                          absenceDates={state.absenceDates}
+                          onToggleAbsenceDate={d => {
+                            dispatch({ action: "toggleDate", date: d });
+                            // Update the details in the form
+                            const exists = values.details.find(x =>
+                              isSameDay(x.date, d)
+                            );
+                            if (exists) {
+                              setFieldValue(
+                                "details",
+                                values.details.filter(
+                                  x => !isSameDay(x.date, d)
+                                ),
+                                false
+                              );
+                            } else {
+                              setFieldValue(
+                                "details",
+                                sortBy(
+                                  [
+                                    ...values.details,
+                                    copyDetail(d, values.details),
+                                  ],
+                                  d => d.date
+                                ),
+                                false
+                              );
+                            }
+                          }}
+                          closedDates={[]}
+                          currentMonth={state.viewingCalendarMonth}
+                          onSwitchMonth={(d: Date) =>
+                            dispatch({ action: "switchMonth", month: d })
+                          }
+                          absenceInput={inputForProjectedCalls}
+                          positionTypeId={position?.positionTypeId}
+                        />
+                      </Grid>
+                      <Grid item md={6}>
+                        <SubstituteDetails
+                          isCreate={isCreate}
+                          organizationId={organizationId}
+                          actingAsEmployee={actingAsEmployee}
+                          needsReplacement={
+                            position?.needsReplacement ?? NeedsReplacement.No
+                          }
+                          absenceInput={inputForProjectedCalls}
+                          onAssignSubClick={vacancySummaryDetailsToAssign => {
+                            dispatch({
+                              action: "setVacancySummaryDetailsToAssign",
+                              vacancySummaryDetailsToAssign,
+                            });
+                            setStep("preAssignSub");
+                          }}
+                          onCancelAssignment={onCancelAssignment}
+                          onEditSubDetailsClick={() => setStep("edit")}
+                          onProjectedVacanciesChange={
+                            onProjectedVacanciesChange
+                          }
+                          assignmentsByStartTime={state.assignmentsByStartTime}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Section>
+                  <ContentFooter>
+                    <Grid item xs={12} className={classes.contentFooter}>
+                      <div className={classes.actionButtons}>
+                        <div className={classes.unsavedText}>
+                          {(dirty || isCreate) && (
+                            <Typography>
+                              {t("This page has unsaved changes")}
+                            </Typography>
+                          )}
+                        </div>
+                        {deleteAbsence && !dirty && (
+                          <Can do={[PermissionEnum.AbsVacDelete]}>
+                            <Button
+                              onClick={() => deleteAbsence()}
+                              variant="text"
+                              className={classes.deleteButton}
+                            >
+                              {t("Delete")}
+                            </Button>
+                          </Can>
+                        )}
+                        {!isCreate && dirty && !state.isClosed && (
+                          <Button
+                            onClick={() => {
+                              // reset the form and the state
+                              resetForm();
+                            }}
+                            variant="outlined"
+                            className={classes.cancelButton}
+                            disabled={!dirty}
+                          >
+                            {t("Discard Changes")}
+                          </Button>
+                        )}
+                        {canSaveAbsence(values.details) && (
+                          <Button
+                            form="absence-form"
+                            type="submit"
+                            variant="contained"
+                            className={classes.saveButton}
+                            disabled={
+                              !dirty ||
+                              //negativeBalanceWarning ||
+                              state.isClosed
+                            }
+                          >
+                            {isCreate ? t("Create") : t("Save")}
+                          </Button>
+                        )}
+                      </div>
+                    </Grid>
+                  </ContentFooter>
+                </>
+              )}
+              {step === "preAssignSub" && (
+                <AssignSub
+                  orgId={organizationId}
+                  actingAsEmployee={actingAsEmployee}
+                  onAssignReplacement={onAssignSub}
+                  onCancel={() => setStep("absence")}
+                  assignmentsByDate={[]}
+                  employeeName={`${employee.firstName} ${employee.lastName}`}
+                  employeeId={employee.id}
+                  positionId={position?.id}
+                  positionName={position?.title}
+                  vacancySummaryDetails={state.vacancySummaryDetailsToAssign}
+                  useVacancySummaryDetails={true}
+                  vacancies={state.projectedVacancies}
+                  // vacancyId={vacancyExists ? vacancy.id : undefined}
+                  // existingVacancy={vacancyExists}
+                  // employeeToReplace={
+                  //   vacancySummaryDetailsToAssign[0]?.assignment?.employee?.firstName ??
+                  //   undefined
+                  // }
+                />
+              )}
             </form>
-          )}
-        </Formik>
-      )}
-      {step === "preAssignSub" && (
-        <AssignSub
+          );
+        }}
+      </Formik>
+      {step === "edit" && (
+        <EditVacancies
           orgId={organizationId}
           actingAsEmployee={actingAsEmployee}
-          onAssignReplacement={async () => {}}
-          onCancel={() => setStep("absence")}
-          assignmentsByDate={[]}
           employeeName={`${employee.firstName} ${employee.lastName}`}
-          employeeId={employee.id}
-          positionId={position?.id}
           positionName={position?.title}
-          vacancySummaryDetails={vacancySummaryDetailsToAssign}
-          // vacancy={
-          //   vacancyExists
-          //     ? undefined
-          //     : buildVacancyCreateInput({
-          //         ...vacancy,
-          //         details: vacancy.details.filter(d =>
-          //           state.vacancyDetailIdsToAssign.find(s => s === d.id)
-          //         ),
-          //       })
+          onCancel={() => setStep("absence")}
+          details={state.projectedVacancyDetails ?? []}
+          onChangedVacancies={onChangedVacancies}
+          employeeId={employee.id}
+          setStep={setStep}
+          disabledDates={disabledDates}
+          // defaultAccountingCodeAllocations={
+          //   formValues.accountingCodeAllocations
           // }
-          // vacancyId={vacancyExists ? vacancy.id : undefined}
-          // existingVacancy={vacancyExists}
-          vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
-          employeeToReplace={
-            vacancySummaryDetailsToAssign[0]?.assignment?.employee?.firstName ??
-            undefined
-          }
+          // defaultPayCode={formValues.payCode}
         />
       )}
     </>
@@ -493,9 +733,7 @@ const buildAbsenceInput = (
   isCreate: boolean,
   formValues: AbsenceFormData,
   state: AbsenceState,
-  disabledDates: Date[],
-  hasEditedDetails: boolean
-  //vacancyDetails?: VacancyDetail[],
+  disabledDates: Date[]
 ): AbsenceCreateInput | AbsenceUpdateInput | null => {
   if (
     hasIncompleteDetails(formValues.details) ||
@@ -530,47 +768,51 @@ const buildAbsenceInput = (
     details: createAbsenceDetailInput(formValues.details),
   };
 
+  const hasEditedDetails = !!state.customizedVacanciesInput;
+  const vacancyDetails =
+    state.customizedVacanciesInput ?? state.projectedVacancyDetails;
+
   // If the Vacancy Details records have selections, we don't want to send
   // the associated property on the parent Vacancy to the server.
-  // const detailsHaveDifferentAccountingCodeSelections =
-  //   hasEditedDetails &&
-  //   vacancyDetails &&
-  //   vacancyDetailsHaveDifferentAccountingCodeSelections(
-  //     vacancyDetails,
-  //     formValues.accountingCodeAllocations
-  //       ? formValues.accountingCodeAllocations
-  //       : null
-  //   );
-  // const detailsHaveDifferentPayCodeSelections =
-  //   hasEditedDetails &&
-  //   vacancyDetails &&
-  //   vacancyDetailsHaveDifferentPayCodeSelections(
-  //     vacancyDetails,
-  //     formValues.payCode ? formValues.payCode : null
-  //   );
+  const detailsHaveDifferentAccountingCodeSelections =
+    hasEditedDetails &&
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentAccountingCodeSelections(
+      vacancyDetails,
+      formValues.accountingCodeAllocations
+        ? formValues.accountingCodeAllocations
+        : null
+    );
+  const detailsHaveDifferentPayCodeSelections =
+    hasEditedDetails &&
+    vacancyDetails &&
+    vacancyDetailsHaveDifferentPayCodeSelections(
+      vacancyDetails,
+      formValues.payCodeId ? formValues.payCodeId : null
+    );
 
-  // const vDetails =
-  //   vacancyDetails?.map(v => ({
-  //     date: v.date,
-  //     locationId: v.locationId,
-  //     startTime: secondsSinceMidnight(
-  //       parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
-  //     ),
-  //     endTime: secondsSinceMidnight(
-  //       parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
-  //     ),
-  //     payCodeId: !detailsHaveDifferentPayCodeSelections
-  //       ? undefined
-  //       : v.payCodeId
-  //       ? v.payCodeId
-  //       : null,
-  //     accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
-  //       ? undefined
-  //       : mapAccountingCodeValueToAccountingCodeAllocations(
-  //           v.accountingCodeAllocations,
-  //           true
-  //         ),
-  //   })) || undefined;
+  const vDetails =
+    vacancyDetails?.map(v => ({
+      date: v.date,
+      locationId: v.locationId,
+      startTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
+      ),
+      endTime: secondsSinceMidnight(
+        parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
+      ),
+      payCodeId: !detailsHaveDifferentPayCodeSelections
+        ? undefined
+        : v.payCodeId
+        ? v.payCodeId
+        : null,
+      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
+        ? undefined
+        : mapAccountingCodeValueToAccountingCodeAllocations(
+            v.accountingCodeAllocations,
+            true
+          ),
+    })) || undefined;
 
   // Populate the Vacancies on the Absence
   absence = {
@@ -581,24 +823,23 @@ const buildAbsenceInput = (
     vacancies: [
       {
         positionId: state.positionId,
-        //useSuppliedDetails: vDetails !== undefined,
-        useSuppliedDetails: false,
+        useSuppliedDetails: hasEditedDetails,
         needsReplacement: formValues.needsReplacement,
         notesToReplacement: formValues.notesToReplacement,
         //prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
-        //details: vDetails,
-        // accountingCodeAllocations:
-        //   !detailsHaveDifferentAccountingCodeSelections &&
-        //   formValues.accountingCodeAllocations
-        //     ? mapAccountingCodeValueToAccountingCodeAllocations(
-        //         formValues.accountingCodeAllocations,
-        //         true
-        //       )
-        //     : undefined,
-        // payCodeId:
-        //   !detailsHaveDifferentPayCodeSelections && formValues.payCode
-        //     ? formValues.payCode
-        //     : undefined,
+        details: hasEditedDetails ? vDetails : undefined,
+        accountingCodeAllocations:
+          !detailsHaveDifferentAccountingCodeSelections &&
+          formValues.accountingCodeAllocations
+            ? mapAccountingCodeValueToAccountingCodeAllocations(
+                formValues.accountingCodeAllocations,
+                true
+              )
+            : undefined,
+        payCodeId:
+          !detailsHaveDifferentPayCodeSelections && formValues.payCodeId
+            ? formValues.payCodeId
+            : undefined,
       },
     ],
   };

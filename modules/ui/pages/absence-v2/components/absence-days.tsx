@@ -213,8 +213,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const getErrorMessage = (errors: any, fieldName: string, index: number) => {
-  console.log(errors?.details);
-
   if (!errors.details || !errors.details[index]) {
     return undefined;
   }

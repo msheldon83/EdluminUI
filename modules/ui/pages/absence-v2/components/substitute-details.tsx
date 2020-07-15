@@ -12,7 +12,7 @@ import {
   AssignmentFor,
   VacancySummaryDetail,
 } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { AbsenceFormData } from "../types";
+import { AbsenceFormData, AssignmentOnDate } from "../types";
 import { useFormikContext } from "formik";
 import {
   AbsenceCreateInput,
@@ -25,13 +25,13 @@ import { useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact, groupBy } from "lodash-es";
-import { parseISO } from "date-fns";
 import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { SubstituteDetailsCodes } from "./substitute-details-codes";
 import { Can } from "ui/components/auth/can";
-import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { canAssignSub } from "helpers/permissions";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
+import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
+import { secondsSinceMidnight } from "helpers/time";
+import { VacancyDetail } from "ui/components/absence/types";
 
 type Props = {
   isCreate: boolean;
@@ -40,8 +40,13 @@ type Props = {
   needsReplacement: NeedsReplacement;
   locationIds?: string[];
   absenceInput: AbsenceCreateInput | null;
-  onAssignSubClick?: (currentAssignmentInfo: AssignmentFor) => void;
+  onAssignSubClick: (
+    vacancySummaryDetailsToAssign: VacancySummaryDetail[]
+  ) => void;
+  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   onEditSubDetailsClick: () => void;
+  onProjectedVacanciesChange: (vacancies: Vacancy[]) => void;
+  assignmentsByStartTime?: AssignmentOnDate[] | undefined;
 };
 
 export const SubstituteDetails: React.FC<Props> = props => {
@@ -54,8 +59,11 @@ export const SubstituteDetails: React.FC<Props> = props => {
     needsReplacement,
     absenceInput,
     onAssignSubClick,
+    onCancelAssignment,
     onEditSubDetailsClick,
     locationIds,
+    onProjectedVacanciesChange,
+    assignmentsByStartTime,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
   const snackbar = useSnackbar();
@@ -89,14 +97,31 @@ export const SubstituteDetails: React.FC<Props> = props => {
     [getProjectedVacancies.state]
   );
 
-  const vacancySummaryDetails: VacancySummaryDetail[] = React.useMemo(() => {
-    if (!projectedVacancies || projectedVacancies.length < 1) {
-      return [];
-    }
+  React.useEffect(() => {
+    onProjectedVacanciesChange(projectedVacancies);
+  }, [onProjectedVacanciesChange, projectedVacancies]);
 
-    const vacancy = projectedVacancies[0];
-    return convertVacancyToVacancySummaryDetails(vacancy);
-  }, [projectedVacancies]);
+  // Prevent flashes of loading in the Vacancy Summary component by keeping the
+  // vacancySummaryDetails in state and only updating them when getProjectedVacancies
+  // request has finished loading
+  const [vacancySummaryDetails, setVacancySummaryDetails] = React.useState<
+    VacancySummaryDetail[]
+  >([]);
+  React.useEffect(() => {
+    if (
+      getProjectedVacancies.state !== "LOADING" &&
+      getProjectedVacancies.state !== "UPDATING"
+    ) {
+      setVacancySummaryDetails(
+        projectedVacancies[0]
+          ? convertVacancyToVacancySummaryDetails(
+              projectedVacancies[0],
+              assignmentsByStartTime
+            )
+          : []
+      );
+    }
+  }, [getProjectedVacancies.state, projectedVacancies, assignmentsByStartTime]);
 
   const needsReplacementDisplay: JSX.Element = React.useMemo(() => {
     return (
@@ -173,8 +198,27 @@ export const SubstituteDetails: React.FC<Props> = props => {
         {!isSplitVacancy && (
           <>
             <FilteredAssignmentButton
-              details
-            <Can
+              details={vacancySummaryDetails.map(d => {
+                return {
+                  id: d.vacancyDetailId,
+                  date: d.date,
+                  startTime: secondsSinceMidnight(
+                    d.startTimeLocal.toISOString()
+                  ),
+                };
+              })}
+              buttonText={isCreate ? t("Pre-arrange") : t("Assign")}
+              disableAssign={false}
+              onClick={(detailIds, dates) => {
+                const detailsToAssign = vacancySummaryDetails.filter(
+                  d =>
+                    detailIds.includes(d.vacancyDetailId) ||
+                    dates.includes(d.date)
+                );
+                onAssignSubClick(detailsToAssign);
+              }}
+            />
+            {/* <Can
               do={(
                 permissions: OrgUserPermissions[],
                 isSysAdmin: boolean,
@@ -202,7 +246,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
               >
                 {isCreate ? t("Pre-arrange") : t("Assign Sub")}
               </Button>
-            </Can>
+            </Can> */}
             {/* {props.replacementEmployeeId !== undefined &&
               props.arrangeSubButtonTitle && (
                 <Can
@@ -270,13 +314,15 @@ export const SubstituteDetails: React.FC<Props> = props => {
         <VacancySummary
           vacancySummaryDetails={vacancySummaryDetails}
           onAssignClick={(currentAssignmentInfo: AssignmentFor) => {
+            console.log("currentAssignmentInfo", currentAssignmentInfo);
             // dispatch({
             //   action: "setVacancyDetailIdsToAssign",
             //   vacancyDetailIdsToAssign: currentAssignmentInfo.vacancyDetailIds,
             // });
             // setStep("preAssignSub");
+            //onAssignSubClick(currentAssignmentInfo)
           }}
-          onCancelAssignment={async () => {}}
+          onCancelAssignment={onCancelAssignment}
           notesForSubstitute={values.notesToReplacement}
           setNotesForSubstitute={(notes: string) => {
             setFieldValue("notesToReplacement", notes);

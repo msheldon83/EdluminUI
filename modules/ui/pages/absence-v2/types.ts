@@ -21,4 +21,14 @@ export type AbsenceDetail = {
   absenceReasonId?: string;
 };
 
-export type VacancyDetailFormData = {};
+export type AssignmentOnDate = {
+  startTimeLocal: Date;
+  vacancyDetailId?: string | undefined;
+  assignmentId?: string;
+  assignmentRowVersion?: string;
+  employee: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+};

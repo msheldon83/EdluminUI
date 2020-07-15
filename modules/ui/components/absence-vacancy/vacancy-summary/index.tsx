@@ -14,7 +14,10 @@ type Props = {
   notesForSubstitute?: string;
   setNotesForSubstitute?: (notes: string) => void;
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
+  onCancelAssignment: (
+    vacancyDetailIds: string[],
+    vacancyDetailStartTimes?: Date[]
+  ) => Promise<void>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
   divRef?: React.RefObject<HTMLDivElement>;

@@ -9,6 +9,7 @@ import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
 import { Vacancy } from "graphql/server-types.gen";
+import { AssignmentOnDate } from "ui/pages/absence-v2/types";
 
 export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   vacancy: VacancyDetailsFormData
@@ -57,7 +58,8 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
 };
 
 export const convertVacancyToVacancySummaryDetails = (
-  vacancy: Vacancy
+  vacancy: Vacancy,
+  assignmentsByStartTime?: AssignmentOnDate[] | undefined
 ): VacancySummaryDetail[] => {
   const absenceDetails = vacancy?.absence?.details;
   return vacancy.details?.map(vd => {
@@ -65,6 +67,25 @@ export const convertVacancyToVacancySummaryDetails = (
     const absenceDetail = absenceDetails?.find(
       ad => ad?.startDate === vd?.startDate
     );
+
+    //console.log(assignmentsByStartTime);
+
+    // Find a matching assignment from assignmentsByStartTime if we
+    // don't already have one on the VacancyDetail record itself
+    const assignmentByStartTime = assignmentsByStartTime?.find(
+      a =>
+        (vd.id && a.vacancyDetailId === vd.id) ||
+        isEqual(a.startTimeLocal, parseISO(vd.startTimeLocal))
+    );
+
+    if (assignmentsByStartTime) {
+      console.log(
+        "convertVacancyToVacancySummaryDetails",
+        assignmentsByStartTime[0]?.startTimeLocal,
+        vd.startTimeLocal,
+        vd.id
+      );
+    }
 
     return {
       vacancyId: vacancy.id,
@@ -74,19 +95,29 @@ export const convertVacancyToVacancySummaryDetails = (
       endTimeLocal: parseISO(vd.endTimeLocal),
       locationId: vd.locationId,
       locationName: vd.location?.name ?? "",
-      assignment: vd.assignment
-        ? {
-            id: vd.assignment.id,
-            rowVersion: vd.assignment.rowVersion,
-            employee: vd.assignment.employee
-              ? {
-                  id: vd.assignment.employee.id,
-                  firstName: vd.assignment.employee.firstName,
-                  lastName: vd.assignment.employee.lastName,
-                }
-              : undefined,
-          }
-        : undefined,
+      assignment:
+        vd.assignment || assignmentByStartTime
+          ? {
+              id: vd.assignment?.id ?? assignmentByStartTime?.assignmentId,
+              rowVersion:
+                vd.assignment?.rowVersion ??
+                assignmentByStartTime?.assignmentRowVersion,
+              employee:
+                vd.assignment?.employee || assignmentByStartTime?.employee
+                  ? {
+                      id:
+                        vd.assignment?.employee?.id ??
+                        assignmentByStartTime!.employee.id,
+                      firstName:
+                        vd.assignment?.employee?.firstName ??
+                        assignmentByStartTime!.employee.firstName,
+                      lastName:
+                        vd.assignment?.employee?.lastName ??
+                        assignmentByStartTime!.employee.lastName,
+                    }
+                  : undefined,
+            }
+          : undefined,
       accountingCodeAllocations: [],
       absenceStartTimeLocal: absenceDetail?.startTimeLocal
         ? parseISO(absenceDetail.startTimeLocal)
