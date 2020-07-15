@@ -235,18 +235,21 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
           : "";
 
         const dateIsWeekend = isWeekend(date);
+        const dateIsDisabled = dateOutOfRange(date);
 
         const classNames = clsx({
           [classes.dayButton]: true,
-          [classes.dayInDateRange]: dateIsInSelectionRange(date),
+          [classes.dayInDateRange]:
+            !dateIsDisabled && dateIsInSelectionRange(date),
           [classes.dayShiftPressed]: shiftPressed,
           [customClasses.weekend ?? ""]: dateIsWeekend,
           [customClasses.weekday ?? ""]: !dateIsWeekend,
-          [classes.disabled]: dateOutOfRange(date),
+          [classes.disabled]: dateIsDisabled,
         });
 
         const listItemClasses = clsx({
           [classes.date]: true,
+          [classes.disabled]: dateIsDisabled,
         });
 
         /*
@@ -257,6 +260,11 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
           index === 0 && variant === "month"
             ? { gridColumn: firstDayOfMonthNumber + 1 }
             : {};
+
+        const timeClasses = clsx({
+          [classes.dayButtonTime]: true,
+          [classes.disabled]: dateIsDisabled,
+        });
 
         return (
           <li
@@ -282,7 +290,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
               className={`${classNames} ${buttonClassName}`}
             >
               <time
-                className={classes.dayButtonTime}
+                className={timeClasses}
                 dateTime={formattedDate}
                 data-date={date}
               >
@@ -473,7 +481,6 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     textAlign: "center",
   },
   dayButton: {
-    cursor: props => (props.onSelectDates ? "pointer" : "default"),
     fontSize: theme.typography.pxToRem(15),
     fontWeight: "normal",
     minWidth: theme.typography.pxToRem(20),
@@ -481,8 +488,6 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
     width: "100%",
     transition: "none",
     borderRadius: 0,
-
-    pointerEvents: props => (props.onSelectDates ? "auto" : "none"),
 
     "&:after": {
       content: "''",
@@ -503,27 +508,16 @@ const useStyles = makeStyles<Theme, CustomCalendarProps>(theme => ({
   },
   disabled: {
     color: theme.customColors.gray,
-    pointerEvents: "none",
+    // pointerEvents: "none",
     cursor: "not-allowed",
 
     "&:hover": {
       backgroundColor: theme.customColors.white,
-      pointerEvents: "none",
-      cursor: "not-allowed !important",
     },
   },
   dayShiftPressed: {
     "&:hover": {
       backgroundColor: theme.customColors.lightGray,
-    },
-  },
-  dayDisabled: {
-    backgroundColor: theme.customColors.lightGray,
-    color: theme.palette.text.disabled,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
-      color: theme.palette.text.disabled,
     },
   },
 }));

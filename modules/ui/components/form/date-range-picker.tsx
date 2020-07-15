@@ -235,9 +235,15 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       return;
     }
 
-    const newHighlightedDates = generateHighlightedDates(
+    // Make sure that the dates out of range never get highlighted
+    const [highlightedStart, highlightedEnd] = constrainedDates(
       selectedDates[0]?.date,
       date
+    );
+
+    const newHighlightedDates = generateHighlightedDates(
+      highlightedStart,
+      highlightedEnd
     );
 
     setHighlightedDates(newHighlightedDates);
@@ -277,7 +283,6 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   };
 
   const calendarDates = React.useMemo(() => {
-    // TODO: take into account disabled dates
     return selectedDates.concat(highlightedDates);
   }, [selectedDates, highlightedDates]);
 
