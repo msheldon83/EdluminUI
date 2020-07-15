@@ -78,8 +78,6 @@ export const EmployeeTab: React.FC<Props> = props => {
   const includeRelatedOrgs = getOrganization?.isStaffingProvider ?? false;
   const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
 
-  console.log(staffingOrgId);
-
   const getEmployee = useQueryBundle(GetEmployeeById, {
     variables: { id: props.orgUserId, includeRelatedOrgs: includeRelatedOrgs },
   });

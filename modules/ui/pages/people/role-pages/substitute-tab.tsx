@@ -88,8 +88,6 @@ export const SubstituteTab: React.FC<Props> = props => {
   const includeRelatedOrgs = getOrganization?.isStaffingProvider ?? false;
   const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
 
-  console.log(staffingOrgId);
-
   const showRelatedOrgs = getOrgRelationships?.find(
     x => x?.relationshipType === OrganizationRelationshipType.Services
   )
