@@ -303,6 +303,9 @@ export const PositionEditUI: React.FC<Props> = props => {
             test: function test(value: {
               accountingCodeValue: AccountingCodeValue;
             }) {
+              if (value.accountingCodeValue?.selection?.value === undefined)
+                return true;
+
               const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
                 value.accountingCodeValue
               );
@@ -413,7 +416,15 @@ export const PositionEditUI: React.FC<Props> = props => {
                     </Grid>
                   </Grid>
                   <Grid item container spacing={2}>
-                    <Grid item xs={values.accountingCodeValue?.type === "multiple-allocations" ? 8 : 4}>
+                    <Grid
+                      item
+                      xs={
+                        values.accountingCodeValue?.type ===
+                        "multiple-allocations"
+                          ? 8
+                          : 4
+                      }
+                    >
                       <Typography>{t("Needs Replacement")}</Typography>
                       <SelectNew
                         value={needsReplacementOptions.find(
@@ -432,7 +443,15 @@ export const PositionEditUI: React.FC<Props> = props => {
                         withResetValue={false}
                       />
                     </Grid>
-                    <Grid item xs={values.accountingCodeValue?.type === "multiple-allocations" ? 8 : 4}>
+                    <Grid
+                      item
+                      xs={
+                        values.accountingCodeValue?.type ===
+                        "multiple-allocations"
+                          ? 8
+                          : 4
+                      }
+                    >
                       <AccountingCodeDropdown
                         value={values.accountingCodeValue}
                         options={validAccountingCodes}

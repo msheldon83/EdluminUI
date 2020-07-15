@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/styles";
 import { useTranslation } from "react-i18next";
 import { Typography, Grid, Button } from "@material-ui/core";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useState, useMemo, useReducer } from "react";
+import { useState, useMemo, useReducer, useEffect } from "react";
 import { useRouteParams } from "ui/routes/definition";
 import {
   PermissionEnum,
@@ -104,6 +104,45 @@ export const VacancyUI: React.FC<Props> = props => {
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
     ...initialVacancy,
   });
+  const [initialFormValues, setInitialFormValues] = useState<VacancyFormValues>(
+    {
+      id: vacancy.id,
+      positionTypeId: vacancy.positionTypeId,
+      title: vacancy.title,
+      locationId: vacancy.locationId,
+      locationName: vacancy.locationName,
+      contractId: vacancy.contractId,
+      workDayScheduleId: vacancy.workDayScheduleId,
+      details: vacancy.details,
+      notesToReplacement: vacancy.notesToReplacement,
+      adminOnlyNotes: vacancy.adminOnlyNotes,
+    }
+  );
+
+  useEffect(() => {
+    if (initialVacancy.id && initialVacancy.id !== vacancy.id) {
+      setVacancy({ ...initialVacancy });
+    }
+  }, [initialVacancy, vacancy.id]);
+
+  useEffect(() => {
+    if (initialFormValues.id && initialFormValues.id !== vacancy.id) {
+      setInitialFormValues({
+        id: vacancy.id,
+        positionTypeId: vacancy.positionTypeId,
+        title: vacancy.title,
+        locationId: vacancy.locationId,
+        locationName: vacancy.locationName,
+        contractId: vacancy.contractId,
+        workDayScheduleId: vacancy.workDayScheduleId,
+        details: vacancy.details,
+        notesToReplacement: vacancy.notesToReplacement,
+        adminOnlyNotes: vacancy.adminOnlyNotes,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vacancy.id]);
+
   const vacancyExists = useMemo(() => {
     return vacancy.id ? true : false;
   }, [vacancy]);
@@ -577,18 +616,6 @@ export const VacancyUI: React.FC<Props> = props => {
     return vacancy.positionTypeId === "" ? "" : label;
   };
 
-  const initialFormValues: VacancyFormValues = {
-    positionTypeId: vacancy.positionTypeId,
-    title: vacancy.title,
-    locationId: vacancy.locationId,
-    locationName: vacancy.locationName,
-    contractId: vacancy.contractId,
-    workDayScheduleId: vacancy.workDayScheduleId,
-    details: vacancy.details,
-    notesToReplacement: vacancy.notesToReplacement,
-    adminOnlyNotes: vacancy.adminOnlyNotes,
-  };
-
   return (
     <>
       <Typography className={classes.subHeader} variant="h4">
@@ -616,6 +643,7 @@ export const VacancyUI: React.FC<Props> = props => {
         </Grid>
       )}
       <Formik
+        enableReinitialize
         initialValues={initialFormValues}
         validateOnBlur={false}
         validateOnChange={false}
