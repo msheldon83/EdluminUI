@@ -88,6 +88,8 @@ export const SubstituteTab: React.FC<Props> = props => {
   const includeRelatedOrgs = getOrganization?.isStaffingProvider ?? false;
   const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
 
+  console.log(staffingOrgId);
+
   const showRelatedOrgs = getOrgRelationships?.find(
     x => x?.relationshipType === OrganizationRelationshipType.Services
   )
@@ -96,7 +98,6 @@ export const SubstituteTab: React.FC<Props> = props => {
 
   const getSubstitute = useQueryBundle(GetSubstituteById, {
     variables: { id: props.orgUserId, includeRelatedOrgs: showRelatedOrgs },
-    skip: !includeRelatedOrgs,
   });
 
   const getPayCodes = usePayCodes(params.organizationId);
