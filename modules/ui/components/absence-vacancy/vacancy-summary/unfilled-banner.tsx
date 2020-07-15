@@ -61,11 +61,11 @@ export const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
     paddingLeft: theme.spacing(1),
     color: theme.customColors.darkRed,
-    marginLeft: theme.typography.pxToRem(60),
+    marginLeft: theme.spacing(8),
   },
   divider: {
-    marginLeft: theme.typography.pxToRem(60),
-    marginRight: theme.typography.pxToRem(15),
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
   },
   assignButton: {
     marginRight: theme.typography.pxToRem(5),

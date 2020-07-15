@@ -158,8 +158,8 @@ export const useStyles = makeStyles(theme => ({
     width: "100%",
   },
   divider: {
-    marginLeft: theme.typography.pxToRem(60),
-    marginRight: theme.typography.pxToRem(15),
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
   },
 
   employeeInfo: {

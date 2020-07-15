@@ -30,24 +30,24 @@ export const DateGroup: React.FC<Props> = props => {
           )}
         </Typography>
       </div>
-      <div>
+      <div className={classes.details}>
         {showAbsenceTimes && (
-          <div>{`${dateDetails.absenceStartTime ??
+          <div
+            className={classes.absenceTimes}
+          >{`${dateDetails.absenceStartTime ??
             ""} - ${dateDetails.absenceEndTime ?? ""}`}</div>
         )}
-        <div>
-          {dateDetails.details.map((d, i) => {
-            return (
-              <DateDetailItem
-                key={i}
-                detail={d}
-                showPayCodes={showPayCodes}
-                showAccountingCodes={showAccountingCodes}
-                readOnly={props.readOnly}
-              />
-            );
-          })}
-        </div>
+        {dateDetails.details.map((d, i) => {
+          return (
+            <DateDetailItem
+              key={i}
+              detail={d}
+              showPayCodes={showPayCodes}
+              showAccountingCodes={showAccountingCodes}
+              readOnly={props.readOnly}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -58,9 +58,15 @@ export const useStyles = makeStyles(theme => ({
     width: "100%",
     paddingBottom: theme.spacing(),
     paddingRight: theme.spacing(2),
-    paddingLeft: theme.spacing(8),
+    paddingLeft: theme.spacing(2),
   },
   dateGroupHeader: {
     paddingTop: theme.spacing(2),
+  },
+  details: {
+    display: "flex",
+  },
+  absenceTimes: {
+    flexGrow: 1,
   },
 }));
