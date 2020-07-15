@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography, Grid } from "@material-ui/core";
 import * as React from "react";
 import { DateDetails } from "./types";
 import { DateDetailItem } from "./date-detail-item";
@@ -30,25 +30,25 @@ export const DateGroup: React.FC<Props> = props => {
           )}
         </Typography>
       </div>
-      <div className={classes.details}>
+      <Grid container>
         {showAbsenceTimes && (
-          <div
-            className={classes.absenceTimes}
-          >{`${dateDetails.absenceStartTime ??
-            ""} - ${dateDetails.absenceEndTime ?? ""}`}</div>
+          <Grid item xs={4}>{`${dateDetails.absenceStartTime ??
+            ""} - ${dateDetails.absenceEndTime ?? ""}`}</Grid>
         )}
-        {dateDetails.details.map((d, i) => {
-          return (
-            <DateDetailItem
-              key={i}
-              detail={d}
-              showPayCodes={showPayCodes}
-              showAccountingCodes={showAccountingCodes}
-              readOnly={props.readOnly}
-            />
-          );
-        })}
-      </div>
+        <Grid item xs={showAbsenceTimes ? 8 : 12}>
+          {dateDetails.details.map((d, i) => {
+            return (
+              <DateDetailItem
+                key={i}
+                detail={d}
+                showPayCodes={showPayCodes}
+                showAccountingCodes={showAccountingCodes}
+                readOnly={props.readOnly}
+              />
+            );
+          })}
+        </Grid>
+      </Grid>
     </div>
   );
 };
@@ -62,11 +62,5 @@ export const useStyles = makeStyles(theme => ({
   },
   dateGroupHeader: {
     paddingTop: theme.spacing(2),
-  },
-  details: {
-    display: "flex",
-  },
-  absenceTimes: {
-    flexGrow: 1,
   },
 }));

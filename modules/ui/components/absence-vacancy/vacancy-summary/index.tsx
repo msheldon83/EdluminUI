@@ -78,10 +78,16 @@ export const VacancySummary: React.FC<Props> = props => {
 
   return (
     <div className={classes.container} ref={divRef}>
-      <div className={classes.header}>
-        {isAbsence && <div className={classes.headerItem}>{t("Absence")}</div>}
-        <div className={classes.headerItem}>{t("Substitute schedule")}</div>
-      </div>
+      <Grid container className={classes.header}>
+        {isAbsence && (
+          <Grid item xs={4}>
+            {t("Absence")}
+          </Grid>
+        )}
+        <Grid item xs={isAbsence ? 8 : 12}>
+          {t("Substitute schedule")}
+        </Grid>
+      </Grid>
       {assignmentGroups.length === 0 && (
         <div className={classes.noDaysChosenContainer}>
           <Typography>{noDaysChosenText}</Typography>
@@ -145,8 +151,6 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(2),
   },
   header: {
-    display: "flex",
-    justifyContent: "space-between",
     backgroundColor: theme.customColors.lightGray,
     color: theme.customColors.edluminSubText,
     borderBottom: `${theme.typography.pxToRem(1)} solid ${
@@ -156,9 +160,6 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(),
     paddingRight: theme.spacing(2),
     paddingLeft: theme.spacing(2),
-  },
-  headerItem: {
-    flexGrow: 1,
   },
   noDaysChosenContainer: {
     marginTop: theme.spacing(2),
