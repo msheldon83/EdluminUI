@@ -7,11 +7,9 @@ import {
   OrgUserRole,
   EmployeeInput,
   PermissionEnum,
-  OrganizationRelationshipType,
   NeedsReplacement,
   CommentUpdateInput,
   DiscussionSubjectType,
-  Organization,
   CommentCreateInput,
 } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
@@ -75,11 +73,15 @@ export const EmployeeTab: React.FC<Props> = props => {
   });
 
   const getOrganization = useOrganization(params.organizationId);
-  const includeRelatedOrgs = getOrganization?.isStaffingProvider ?? false;
+  const includeRelatedOrgs = getOrganization?.isStaffingProvider;
   const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
-    variables: { id: props.orgUserId, includeRelatedOrgs: includeRelatedOrgs },
+    variables: {
+      id: props.orgUserId,
+      includeRelatedOrgs: includeRelatedOrgs,
+    },
+    skip: includeRelatedOrgs === undefined,
   });
 
   const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
