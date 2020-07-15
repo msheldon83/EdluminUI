@@ -1,10 +1,11 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
-import { TextField } from "@material-ui/core";
+import { Grid, TextField, makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetUserById } from "../graphql/get-user-by-id.gen";
+import { useIsMobile } from "hooks";
 import { IsoSelectOne, IsoOptionType } from "ui/components/form/iso-select";
 
 type Props = {
@@ -27,6 +28,9 @@ export const Filters: React.FC<Props> = ({
   setSearch,
 }) => {
   const { t } = useTranslation();
+  const classes = useStyles();
+  const isMobile = useIsMobile();
+
   const getUser = useQueryBundle(GetUserById, {
     variables: { id: userId },
   });
@@ -44,27 +48,52 @@ export const Filters: React.FC<Props> = ({
   );
 
   return (
-    <>
-      <IsoSelectOne
-        options={orgOptions}
-        value={[orgId, orgUserId]}
-        iso={{
-          to: (s: string) => s.split(",") as [string, string],
-          from: (t: [string, string]) => t.join(","),
-        }}
-        onChange={([oId, oUId]) => {
-          setOrgId(oId);
-          setOrgUserId(oUId);
-        }}
-      />
-      <Input
-        value={search}
-        InputComponent={TextField}
-        inputComponentProps={{
-          placeholder: `search`,
-        }}
-        onChange={event => setSearch(event.target.value)}
-      />
-    </>
+    <Grid container>
+      <Grid
+        item
+        xs={isMobile ? 12 : 3}
+        className={isMobile ? classes.mobileTopFilter : classes.filter}
+      >
+        <IsoSelectOne
+          label={t("District")}
+          options={orgOptions}
+          value={[orgId, orgUserId]}
+          iso={{
+            to: (s: string) => s.split(",") as [string, string],
+            from: (t: [string, string]) => t.join(","),
+          }}
+          onChange={([oId, oUId]) => {
+            console.log(oId, oUId);
+            setOrgId(oId);
+            setOrgUserId(oUId);
+          }}
+        />
+      </Grid>
+      <Grid
+        item
+        xs={isMobile ? 12 : 3}
+        className={isMobile ? classes.mobileBottomFilter : classes.filter}
+      >
+        <Input
+          label={t("Schools")}
+          placeholder={t("Search")}
+          value={search}
+          onChange={event => setSearch(event.target.value)}
+        />
+      </Grid>
+    </Grid>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  filter: {
+    padding: theme.spacing(3),
+    paddingLeft: 0,
+  },
+  mobileTopFilter: {
+    paddingBottom: theme.spacing(2),
+  },
+  mobileBottomFilter: {
+    paddingBottom: theme.spacing(3),
+  },
+}));

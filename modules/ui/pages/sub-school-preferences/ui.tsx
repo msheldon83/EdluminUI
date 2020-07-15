@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Grid, Typography, makeStyles } from "@material-ui/core";
+import { useIsMobile } from "hooks";
 import { Lens } from "@atomic-object/lenses";
 import { District, SchoolGroup, School } from "./types";
 import { groupBy } from "lodash-es";
@@ -50,13 +51,20 @@ export const SubSchoolPreferencesUI: React.FC<Props> = ({ userId }) => {
   const { t } = useTranslation();
   const { favorites, hidden } = groupDistricts(dummyDistricts);
   const classes = useStyles();
+  const isMobile = useIsMobile();
 
   return (
     <Grid container>
-      <Grid item container xs={6} direction="column" className={classes.column}>
+      <Grid
+        item
+        container
+        xs={isMobile ? 12 : 6}
+        direction="column"
+        className={classes.column}
+      >
         <Typography variant="h4">{t("Favorites")}</Typography>
         {favorites.map(d => (
-          <>
+          <React.Fragment key={d.id}>
             <Typography variant="h5" className={classes.districtName}>
               {d.name}
             </Typography>
@@ -70,13 +78,19 @@ export const SubSchoolPreferencesUI: React.FC<Props> = ({ userId }) => {
                 setSchoolToDefault={() => {}}
               />
             ))}
-          </>
+          </React.Fragment>
         ))}
       </Grid>
-      <Grid item container xs={6} direction="column" className={classes.column}>
+      <Grid
+        item
+        container
+        xs={isMobile ? 12 : 6}
+        direction="column"
+        className={classes.column}
+      >
         <Typography variant="h4">{t("Hidden")}</Typography>
         {hidden.map(d => (
-          <>
+          <React.Fragment key={d.id}>
             <Typography variant="h5" className={classes.districtName}>
               {d.name}
             </Typography>
@@ -90,7 +104,7 @@ export const SubSchoolPreferencesUI: React.FC<Props> = ({ userId }) => {
                 setSchoolToDefault={() => {}}
               />
             ))}
-          </>
+          </React.Fragment>
         ))}
       </Grid>
     </Grid>

@@ -5,6 +5,7 @@ import {
   SelectProps,
   OptionType,
 } from "ui/components/form/select-new";
+import { isEqual } from "lodash-es";
 
 // Equivalent of OptionType, but supports a generic type for value
 export type IsoOptionType<InterpretedType> = {
@@ -72,7 +73,9 @@ export function IsoSelectOne<RawType extends string | number, InterpretedType>(
       {...props}
       multiple={false}
       options={options.map(optionIso.from)}
-      value={optionIso.from(options.find(o => o.value == value) ?? options[0])}
+      value={optionIso.from(
+        options.find(o => isEqual(o.value, value)) ?? options[0]
+      )}
       onChange={
         onChange
           ? rawValue => onChange(optionIso.to(rawValue).value)

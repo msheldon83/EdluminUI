@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Button, Grid, Link, Typography, makeStyles } from "@material-ui/core";
+import { useIsMobile } from "hooks";
 import { useTranslation } from "react-i18next";
 import { District, SchoolGroup, School } from "../types";
 
@@ -17,7 +18,7 @@ const Row: React.FC<RowProps> = ({ name, className, links }) => (
     className={className}
     alignItems="center"
   >
-    <Typography>{name}</Typography>
+    {name}
     {links}
   </Grid>
 );
@@ -95,34 +96,62 @@ export const EditGroup: React.FC<EditGroupProps> = ({
   onDeleteAll,
 }) => {
   const { t } = useTranslation();
+  const classes = useEditStyles();
+  const isMobile = useIsMobile();
 
   return (
     <GenericGroup
       group={group}
       headerLinks={
-        <Grid item container>
-          <Typography>{t("Mark all as")}</Typography>
-          <Link onClick={() => onSetAll("favorite")}>{t("Favorite")}</Link>
-          <Link onClick={() => onDeleteAll()}>{t("Default")}</Link>
-          <Link onClick={() => onSetAll("hidden")}>{t("Hide")}</Link>
+        <Grid item container xs={6} justify="flex-end">
+          {!isMobile && (
+            <Typography className={classes.text}>{t("Mark all as")}</Typography>
+          )}
+          <Link
+            className={classes.headerLink}
+            onClick={() => onSetAll("favorite")}
+          >
+            {t("Favorite")}
+          </Link>
+          <Link className={classes.headerLink} onClick={() => onDeleteAll()}>
+            {t("Default")}
+          </Link>
+          <Link
+            className={classes.headerLink}
+            onClick={() => onSetAll("hidden")}
+          >
+            {t("Hide")}
+          </Link>
         </Grid>
       }
       renderRowLinks={({ id, status }) => (
-        <Grid item container>
+        <Grid item container xs={6} justify="flex-end">
           {status == "favorite" ? (
-            <Typography>{t("Favorite")}</Typography>
+            <Typography className={classes.text}>{t("Favorite")}</Typography>
           ) : (
-            <Link onClick={() => onSet("favorite")(id)}>{t("Favorite")}</Link>
+            <Link
+              className={classes.bodyLink}
+              onClick={() => onSet("favorite")(id)}
+            >
+              {t("Favorite")}
+            </Link>
           )}
           {status == "default" ? (
-            <Typography>{t("Default")}</Typography>
+            <Typography className={classes.text}>{t("Default")}</Typography>
           ) : (
-            <Link onClick={() => onDelete(id)}>{t("Default")}</Link>
+            <Link className={classes.bodyLink} onClick={() => onDelete(id)}>
+              {t("Default")}
+            </Link>
           )}
           {status == "hidden" ? (
-            <Typography>{t("Hide")}</Typography>
+            <Typography className={classes.text}>{t("Hide")}</Typography>
           ) : (
-            <Link onClick={() => onSet("hidden")(id)}>{t("Hide")}</Link>
+            <Link
+              className={classes.bodyLink}
+              onClick={() => onSet("hidden")(id)}
+            >
+              {t("Hide")}
+            </Link>
           )}
         </Grid>
       )}
@@ -133,16 +162,32 @@ export const EditGroup: React.FC<EditGroupProps> = ({
 const useStyles = makeStyles(theme => ({
   header: {
     backgroundColor: theme.customColors.lightSlate,
-    padding: theme.spacing(1.5),
+    padding: `${theme.spacing(1.5)}px ${theme.spacing(2)}px`,
+    border: "1px solid #E5E5E5",
   },
   oddRow: {
     padding: theme.spacing(2),
+    backgroundColor: "#F8F8F8",
+    borderBottom: "1px solid #E5E5E5",
   },
   evenRow: {
     padding: theme.spacing(2),
-    backgroundColor: "#F8F8F8",
+    borderBottom: "1px solid #E5E5E5",
   },
   group: {
     paddingBottom: theme.spacing(2),
+  },
+}));
+
+const useEditStyles = makeStyles(theme => ({
+  headerLink: {
+    padding: theme.spacing(1),
+  },
+  text: {
+    padding: theme.spacing(1),
+  },
+  bodyLink: {
+    color: "#9E9E9E",
+    padding: theme.spacing(1),
   },
 }));

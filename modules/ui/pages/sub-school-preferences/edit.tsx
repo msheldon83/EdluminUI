@@ -4,15 +4,24 @@ import { Typography } from "@material-ui/core";
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { Filters } from "./components/filters";
+import { useMyUserAccess } from "reference-data/my-user-access";
 import { SubSchoolPreferencesEditUI } from "./edit-ui";
 
 type Props = {};
 
 export const SubSchoolPreferencesEditPage: React.FC<Props> = props => {
   const { t } = useTranslation();
+
+  const userAccess = useMyUserAccess();
+  const userId = userAccess?.me?.user?.id;
+
   const [orgId, setOrgId] = React.useState<string>("");
   const [orgUserId, setOrgUserId] = React.useState<string>("");
   const [search, setSearch] = React.useState<string>("");
+
+  if (!userId) {
+    return <></>;
+  }
 
   return (
     <>
@@ -22,9 +31,17 @@ export const SubSchoolPreferencesEditPage: React.FC<Props> = props => {
           {search ? `"${search}"` : t("All Schools")}
         </Typography>
         <Filters
-          userId={""}
-          {...{ orgId, setOrgId, orgUserId, setOrgUserId, search, setSearch }}
+          {...{
+            userId,
+            orgId,
+            setOrgId,
+            orgUserId,
+            setOrgUserId,
+            search,
+            setSearch,
+          }}
         />
+        <SubSchoolPreferencesEditUI {...{ orgId, orgUserId, search }} />
       </Section>
     </>
   );
