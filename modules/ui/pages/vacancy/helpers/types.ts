@@ -49,6 +49,7 @@ export type VacancyDetailItem = {
 };
 
 export type VacancyFormValues = {
+  id?: string;
   positionTypeId: string;
   title: string;
   contractId: string;
