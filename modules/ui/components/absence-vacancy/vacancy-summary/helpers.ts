@@ -4,7 +4,7 @@ import {
   DateDetail,
   VacancySummaryDetailByAssignmentAndDate,
 } from "./types";
-import { format, isEqual as isDateEqual, parseISO } from "date-fns";
+import { format, isEqual as isDateEqual, parseISO, isSameDay } from "date-fns";
 import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
@@ -59,7 +59,7 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
 
 export const convertVacancyToVacancySummaryDetails = (
   vacancy: Vacancy,
-  assignmentsByStartTime?: AssignmentOnDate[] | undefined
+  assignmentsByDate?: AssignmentOnDate[] | undefined
 ): VacancySummaryDetail[] => {
   const absenceDetails = vacancy?.absence?.details;
   return vacancy.details?.map(vd => {
@@ -68,24 +68,15 @@ export const convertVacancyToVacancySummaryDetails = (
       ad => ad?.startDate === vd?.startDate
     );
 
-    //console.log(assignmentsByStartTime);
-
     // Find a matching assignment from assignmentsByStartTime if we
     // don't already have one on the VacancyDetail record itself
-    const assignmentByStartTime = assignmentsByStartTime?.find(
+    const assignmentOnDate = assignmentsByDate?.find(
       a =>
         (vd.id && a.vacancyDetailId === vd.id) ||
-        isEqual(a.startTimeLocal, parseISO(vd.startTimeLocal))
+        isSameDay(a.startTimeLocal, parseISO(vd.startTimeLocal))
     );
 
-    if (assignmentsByStartTime) {
-      console.log(
-        "convertVacancyToVacancySummaryDetails",
-        assignmentsByStartTime[0]?.startTimeLocal,
-        vd.startTimeLocal,
-        vd.id
-      );
-    }
+    console.log(assignmentsByDate);
 
     return {
       vacancyId: vacancy.id,
@@ -96,24 +87,24 @@ export const convertVacancyToVacancySummaryDetails = (
       locationId: vd.locationId,
       locationName: vd.location?.name ?? "",
       assignment:
-        vd.assignment || assignmentByStartTime
+        vd.assignment || assignmentOnDate
           ? {
-              id: vd.assignment?.id ?? assignmentByStartTime?.assignmentId,
+              id: vd.assignment?.id ?? assignmentOnDate?.assignmentId,
               rowVersion:
                 vd.assignment?.rowVersion ??
-                assignmentByStartTime?.assignmentRowVersion,
+                assignmentOnDate?.assignmentRowVersion,
               employee:
-                vd.assignment?.employee || assignmentByStartTime?.employee
+                vd.assignment?.employee || assignmentOnDate?.employee
                   ? {
                       id:
                         vd.assignment?.employee?.id ??
-                        assignmentByStartTime!.employee.id,
+                        assignmentOnDate!.employee.id,
                       firstName:
                         vd.assignment?.employee?.firstName ??
-                        assignmentByStartTime!.employee.firstName,
+                        assignmentOnDate!.employee.firstName,
                       lastName:
                         vd.assignment?.employee?.lastName ??
-                        assignmentByStartTime!.employee.lastName,
+                        assignmentOnDate!.employee.lastName,
                     }
                   : undefined,
             }
@@ -209,6 +200,9 @@ export const buildAssignmentGroups = (
               ...assignmentAndDateGroupItem.details.map(d => d.vacancyDetailId),
             ],
           });
+          lastGroup.vacancySummaryDetails.push(
+            ...assignmentAndDateGroupItem.details
+          );
         } else {
           // Details are different so we need to add a new group
           groupAccumulator.push(
@@ -312,6 +306,7 @@ export const convertToAssignmentWithDetails = (
         ],
       },
     ],
+    vacancySummaryDetails: summaryDetailsByAssignmentAndDate.details,
     details: summaryDetailsByAssignmentAndDate.details.map(d => {
       return {
         startTime: format(d.startTimeLocal, "h:mm a"),

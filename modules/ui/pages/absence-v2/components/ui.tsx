@@ -201,25 +201,25 @@ export const AbsenceUI: React.FC<Props> = props => {
   // --- Handling of Sub pre-arrange, assignment, or removal ------
 
   const onCancelAssignment = React.useCallback(
-    async (vacancyDetailIds?: string[], vacancyDetailStartTimes?: Date[]) => {
+    async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]) => {
       // Get all of the matching details
       const vacancyDetails =
         state.customizedVacanciesInput ?? state.projectedVacancyDetails;
-      const detailsToCancelAssignmentsFor = vacancyDetailIds
-        ? vacancyDetails?.filter(d =>
-            vacancyDetailIds.find(i => i === d.vacancyDetailId)
-          )
-        : vacancyDetails?.filter(d =>
-            vacancyDetailStartTimes?.find(date =>
-              isEqual(date, parseISO(d.startTime))
+      const detailsToCancelAssignmentsFor =
+        vacancyDetailIds && vacancyDetailIds.length > 0
+          ? vacancyDetails?.filter(d =>
+              vacancyDetailIds.find(i => i === d.vacancyDetailId)
             )
-          );
+          : vacancyDetails?.filter(d =>
+            vacancyDetailDates?.find(date =>
+                isSameDay(date, new Date(d.startTime))
+              )
+            );
 
       if (
         !detailsToCancelAssignmentsFor ||
         detailsToCancelAssignmentsFor.length === 0
       ) {
-        setStep("absence");
         return;
       }
 
@@ -289,7 +289,12 @@ export const AbsenceUI: React.FC<Props> = props => {
         });
       }
     },
-    [isCreate, setStep, state.customizedVacanciesInput, state.projectedVacancyDetails]
+    [
+      isCreate,
+      setStep,
+      state.customizedVacanciesInput,
+      state.projectedVacancyDetails,
+    ]
   );
 
   const onAssignSub = React.useCallback(
@@ -299,7 +304,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       replacementEmployeeLastName: string,
       payCode: string | undefined,
       vacancyDetailIds?: string[],
-      vacancyDetailStartTimes?: Date[]
+      vacancyDetailDates?: Date[]
     ) => {
       const vacancyDetails =
         state.customizedVacanciesInput ?? state.projectedVacancyDetails;
@@ -310,10 +315,12 @@ export const AbsenceUI: React.FC<Props> = props => {
             vacancyDetailIds.find(i => i === d.vacancyDetailId)
           )
         : vacancyDetails?.filter(d =>
-            vacancyDetailStartTimes?.find(date =>
-              isEqual(date, parseISO(d.startTime))
+          vacancyDetailDates?.find(date =>
+              isSameDay(date, parseISO(d.startTime))
             )
           );
+
+            console.log(detailsToAssign);
 
       if (!detailsToAssign || detailsToAssign.length === 0) {
         setStep("absence");
@@ -569,7 +576,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                           onProjectedVacanciesChange={
                             onProjectedVacanciesChange
                           }
-                          assignmentsByStartTime={state.assignmentsByStartTime}
+                          assignmentsByDate={state.assignmentsByDate}
                         />
                       </Grid>
                     </Grid>

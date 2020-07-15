@@ -32,6 +32,7 @@ import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
 import { secondsSinceMidnight } from "helpers/time";
 import { VacancyDetail } from "ui/components/absence/types";
+import { isSameDay } from "date-fns";
 
 type Props = {
   isCreate: boolean;
@@ -46,7 +47,7 @@ type Props = {
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   onEditSubDetailsClick: () => void;
   onProjectedVacanciesChange: (vacancies: Vacancy[]) => void;
-  assignmentsByStartTime?: AssignmentOnDate[] | undefined;
+  assignmentsByDate?: AssignmentOnDate[] | undefined;
 };
 
 export const SubstituteDetails: React.FC<Props> = props => {
@@ -63,7 +64,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     onEditSubDetailsClick,
     locationIds,
     onProjectedVacanciesChange,
-    assignmentsByStartTime,
+    assignmentsByDate,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
   const snackbar = useSnackbar();
@@ -116,12 +117,12 @@ export const SubstituteDetails: React.FC<Props> = props => {
         projectedVacancies[0]
           ? convertVacancyToVacancySummaryDetails(
               projectedVacancies[0],
-              assignmentsByStartTime
+              assignmentsByDate
             )
           : []
       );
     }
-  }, [getProjectedVacancies.state, projectedVacancies, assignmentsByStartTime]);
+  }, [getProjectedVacancies.state, projectedVacancies, assignmentsByDate]);
 
   const needsReplacementDisplay: JSX.Element = React.useMemo(() => {
     return (
@@ -181,101 +182,35 @@ export const SubstituteDetails: React.FC<Props> = props => {
     values.needsReplacement,
   ]);
 
-  const isSplitVacancy = React.useMemo(() => {
-    const group = groupBy(vacancySummaryDetails, vsd => vsd.assignment?.id);
-    return Object.keys(group).length > 1;
-  }, [vacancySummaryDetails]);
-
   const footerActions: JSX.Element = React.useMemo(() => {
     if (vacancySummaryDetails.length === 0) {
       return <></>;
     }
 
+    const hasAssignments = assignmentsByDate && assignmentsByDate.length > 0;
+
     return (
       <div>
-        {" "}
-        {/*className={classes.substituteActions} */}
-        {!isSplitVacancy && (
-          <>
-            <FilteredAssignmentButton
-              details={vacancySummaryDetails.map(d => {
-                return {
-                  id: d.vacancyDetailId,
-                  date: d.date,
-                  startTime: secondsSinceMidnight(
-                    d.startTimeLocal.toISOString()
-                  ),
-                };
-              })}
-              buttonText={isCreate ? t("Pre-arrange") : t("Assign")}
-              disableAssign={false}
-              onClick={(detailIds, dates) => {
-                const detailsToAssign = vacancySummaryDetails.filter(
-                  d =>
-                    detailIds.includes(d.vacancyDetailId) ||
-                    dates.includes(d.date)
-                );
-                onAssignSubClick(detailsToAssign);
-              }}
-            />
-            {/* <Can
-              do={(
-                permissions: OrgUserPermissions[],
-                isSysAdmin: boolean,
-                orgId?: string,
-                forRole?: Role | null | undefined
-              ) =>
-                canAssignSub(
-                  vacancySummaryDetails[0].date,
-                  permissions,
-                  isSysAdmin,
-                  orgId,
-                  forRole
-                )
-              }
-            >
-              <Button
-                variant="outlined"
-                className={classes.actionButton}
-                onClick={onAssignSubClick}
-                // disabled={
-                //   props.disableReplacementInteractions ||
-                //   props.replacementEmployeeId !== undefined ||
-                //   (props.isFormDirty && !!props.arrangeSubButtonTitle)
-                // }
-              >
-                {isCreate ? t("Pre-arrange") : t("Assign Sub")}
-              </Button>
-            </Can> */}
-            {/* {props.replacementEmployeeId !== undefined &&
-              props.arrangeSubButtonTitle && (
-                <Can
-                  do={(
-                    permissions: OrgUserPermissions[],
-                    isSysAdmin: boolean,
-                    orgId?: string,
-                    forRole?: Role | null | undefined
-                  ) =>
-                    canReassignSub(
-                      parseISO(vacancies[0].startDate),
-                      permissions,
-                      isSysAdmin,
-                      orgId,
-                      forRole
-                    )
-                  }
-                >
-                  <Button
-                    variant="outlined"
-                    className={classes.reassignButton}
-                    onClick={() => props.onAssignSubClick()}
-                    disabled={props.disableReplacementInteractions}
-                  >
-                    {t("Reassign Sub")}
-                  </Button>
-                </Can>
-              )} */}
-          </>
+        {!hasAssignments && (
+          <FilteredAssignmentButton
+            details={vacancySummaryDetails.map(d => {
+              return {
+                id: d.vacancyDetailId,
+                date: d.date,
+                startTime: secondsSinceMidnight(d.startTimeLocal.toISOString()),
+              };
+            })}
+            buttonText={isCreate ? t("Pre-arrange") : t("Assign")}
+            disableAssign={false}
+            onClick={(detailIds, dates) => {
+              const detailsToAssign = vacancySummaryDetails.filter(
+                d =>
+                  detailIds.includes(d.vacancyDetailId) ||
+                  dates.find(date => isSameDay(date, d.date))
+              );
+              onAssignSubClick(detailsToAssign);
+            }}
+          />
         )}
         <Can do={[PermissionEnum.AbsVacSave]}>
           <Button
@@ -290,8 +225,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
       </div>
     );
   }, [
+    assignmentsByDate,
     isCreate,
-    isSplitVacancy,
     onAssignSubClick,
     onEditSubDetailsClick,
     t,
@@ -313,24 +248,18 @@ export const SubstituteDetails: React.FC<Props> = props => {
       {values.needsReplacement && (
         <VacancySummary
           vacancySummaryDetails={vacancySummaryDetails}
-          onAssignClick={(currentAssignmentInfo: AssignmentFor) => {
-            console.log("currentAssignmentInfo", currentAssignmentInfo);
-            // dispatch({
-            //   action: "setVacancyDetailIdsToAssign",
-            //   vacancyDetailIdsToAssign: currentAssignmentInfo.vacancyDetailIds,
-            // });
-            // setStep("preAssignSub");
-            //onAssignSubClick(currentAssignmentInfo)
-          }}
+          onAssignClick={(currentAssignmentInfo: AssignmentFor) =>
+            onAssignSubClick(currentAssignmentInfo.vacancySummaryDetails)
+          }
           onCancelAssignment={onCancelAssignment}
           notesForSubstitute={values.notesToReplacement}
           setNotesForSubstitute={(notes: string) => {
             setFieldValue("notesToReplacement", notes);
           }}
-          showPayCodes={true}
-          showAccountingCodes={true}
+          showPayCodes={false}
+          showAccountingCodes={false}
+          noDaysChosenText={t("Select a Date, Reason, and Times...")}
           isAbsence={true}
-          noDaysChosenText={t("Select Date(s), Reason, and Times...")}
           absenceActions={absenceActions}
           footerActions={footerActions}
         />

@@ -40,6 +40,7 @@ export type AssignmentFor = {
     date: Date;
     vacancyDetailIds: string[];
   }[];
+  vacancySummaryDetails: VacancySummaryDetail[];
 };
 
 /* For relevant Assignment information. If an existing Assignment, then

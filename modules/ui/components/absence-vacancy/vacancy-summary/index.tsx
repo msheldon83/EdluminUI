@@ -1,4 +1,4 @@
-import { makeStyles, Typography, TextField } from "@material-ui/core";
+import { makeStyles, Typography, TextField, Grid } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
@@ -16,7 +16,7 @@ type Props = {
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
   onCancelAssignment: (
     vacancyDetailIds: string[],
-    vacancyDetailStartTimes?: Date[]
+    vacancyDetailDates?: Date[]
   ) => Promise<void>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;

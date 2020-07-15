@@ -21,7 +21,7 @@ export type AbsenceState = {
   projectedVacancies?: Vacancy[];
   projectedVacancyDetails?: VacancyDetail[];
   vacancySummaryDetailsToAssign: VacancySummaryDetail[];
-  assignmentsByStartTime?: AssignmentOnDate[];
+  assignmentsByDate?: AssignmentOnDate[];
 };
 
 export type AbsenceActions =
@@ -100,29 +100,33 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
         projectedVacancies: action.projectedVacancies,
         projectedVacancyDetails: projectVacancyDetailsFromVacancies(
           action.projectedVacancies,
-          prev.assignmentsByStartTime
+          prev.assignmentsByDate
         ),
       };
     }
     case "updateAssignments": {
-      let assignments = prev.assignmentsByStartTime ?? [];
+      let assignments = prev.assignmentsByDate ?? [];
       if (action.add) {
-        assignments = [...assignments, ...action.assignments];
+        const incomingDates = action.assignments.map(a => a.startTimeLocal);
+        assignments = [
+          ...assignments.filter(
+            a => !incomingDates.find(d => isSameDay(d, a.startTimeLocal))
+          ),
+          ...action.assignments,
+        ];
       } else {
         // Remove the specified assignments from the list
         assignments = assignments.filter(
           a =>
             !action.assignments.find(x =>
-              isEqual(x.startTimeLocal, a.startTimeLocal)
+              isSameDay(x.startTimeLocal, a.startTimeLocal)
             )
         );
       }
 
-      console.log("assignments", assignments);
-
       return {
         ...prev,
-        assignmentsByStartTime: assignments,
+        assignmentsByDate: assignments,
       };
     }
   }
@@ -130,7 +134,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
 
 const projectVacancyDetailsFromVacancies = (
   vacancies: Partial<Vacancy | null>[] | null | undefined,
-  assignmentsByStartTime: AssignmentOnDate[] | undefined
+  assignmentsByDate: AssignmentOnDate[] | undefined
 ): VacancyDetail[] => {
   if (!vacancies || vacancies.length < 1) {
     return [];
@@ -145,18 +149,10 @@ const projectVacancyDetailsFromVacancies = (
 
       // Find a matching assignment from state if we don't already
       // have one on the VacancyDetail record itself
-      const assignment = assignmentsByStartTime?.find(
+      const assignment = assignmentsByDate?.find(
         a =>
           (d.id && a.vacancyDetailId === d.id) ||
-          isEqual(a.startTimeLocal, parseISO(d.startTimeLocal))
-      );
-
-      console.log(
-        "projectVacancyDetailsFromVacancies",
-        assignmentsByStartTime,
-        d.startTimeLocal,
-        parseISO(d.startTimeLocal),
-        assignment
+          isSameDay(a.startTimeLocal, parseISO(d.startTimeLocal))
       );
 
       return {

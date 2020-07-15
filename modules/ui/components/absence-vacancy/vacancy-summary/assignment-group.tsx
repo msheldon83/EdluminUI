@@ -14,7 +14,7 @@ type Props = {
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
   onCancelAssignment: (
     vacancyDetailIds: string[],
-    vacancyDetailStartTimes?: Date[]
+    vacancyDetailDates?: Date[]
   ) => Promise<void>;
   disableActions?: boolean;
   detailsOnly?: boolean;

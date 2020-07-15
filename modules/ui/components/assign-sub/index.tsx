@@ -54,7 +54,7 @@ type Props = {
     replacementEmployeeLastName: string,
     payCode: string | undefined,
     vacancyDetailIds?: string[],
-    vacancyDetailStartTimes?: Date[]
+    vacancyDetailDates?: Date[]
   ) => void;
   onCancel: () => void;
   employeeToReplace?: string;
@@ -278,7 +278,7 @@ export const AssignSub: React.FC<Props> = props => {
           payCodeId,
           vacancyDetailIdsToAssign,
           !vacancyDetailIdsToAssign && vacancySummaryDetails
-            ? vacancySummaryDetails.map(vsd => vsd.startTimeLocal)
+            ? uniq(vacancySummaryDetails.map(vsd => vsd.date))
             : undefined
         );
       }

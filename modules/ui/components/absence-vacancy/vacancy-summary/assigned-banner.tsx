@@ -1,7 +1,7 @@
 import { makeStyles, Button, Typography, Divider } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { AssignmentWithDetails, Assignment } from "./types";
+import { AssignmentWithDetails } from "./types";
 import { Can } from "ui/components/auth/can";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
@@ -9,12 +9,16 @@ import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { SubstituteLink } from "ui/components/links/people";
+import { compact } from "lodash-es";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   assignmentStartTime: Date;
   onReassignClick?: () => void;
-  onCancelAssignment: (vacancyDetailIds: string[], vacancyDetailStartTimes?: Date[]) => Promise<void>;
+  onCancelAssignment: (
+    vacancyDetailIds: string[],
+    vacancyDetailDates?: Date[]
+  ) => Promise<void>;
   disableActions?: boolean;
   readOnly: boolean;
 };
@@ -42,7 +46,10 @@ export const AssignedBanner: React.FC<Props> = props => {
   const onRemoveClick = useCallback(async () => {
     if (assignmentWithDetails.dates.length === 1) {
       // Cancelling an assignment for a single day, no need to prompt the user
-      await onCancelAssignment(assignmentWithDetails.vacancyDetailIds, assignmentWithDetails.);
+      await onCancelAssignment(
+        compact(assignmentWithDetails.vacancyDetailIds),
+        compact(assignmentWithDetails.dates)
+      );
     } else {
       // Cancelling a multi day assignment, want to ask the user what they want to do
       setCancelAssignmentDialogIsOpen(true);
