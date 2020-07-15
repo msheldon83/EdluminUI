@@ -1,8 +1,10 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
-import { Typography, Grid, Button } from "@material-ui/core";
+import { Typography, Grid, Tooltip } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import InfoIcon from "@material-ui/icons/Info";
+import { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import {
@@ -11,7 +13,6 @@ import {
   PositionType,
   PermissionEnum,
 } from "graphql/server-types.gen";
-import { Can } from "ui/components/auth/can";
 import {
   PersonViewRoute,
   PeopleSubPositionsAttributesEditRoute,
@@ -21,7 +22,9 @@ import { useRouteParams } from "ui/routes/definition";
 type Props = {
   editing: string | null;
   editable: boolean;
-  attributes?: Maybe<Pick<Endorsement, "name"> | null | undefined>[] | null;
+  attributes?:
+    | Maybe<Pick<Endorsement, "name" | "expires"> | null | undefined>[]
+    | null;
   qualifiedPositionTypes?: Maybe<Pick<PositionType, "name">>[] | null;
 };
 
@@ -31,6 +34,8 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(PersonViewRoute);
   const showEditButton = !props.editing && props.editable;
+
+  console.log(props.attributes);
 
   return (
     <>
@@ -70,7 +75,12 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
               {props.attributes?.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
-                props.attributes?.map((n, i) => <div key={i}>{n?.name}</div>)
+                props.attributes?.map((n, i) => (
+                  <div key={i}>
+                    {n?.name}
+                    {n?.expires && ToolTip(t)}
+                  </div>
+                ))
               )}
             </Grid>
           </Grid>
@@ -84,7 +94,31 @@ const useStyles = makeStyles(theme => ({
   noteText: {
     fontWeight: "bold",
   },
+  tooltip: {
+    padding: theme.spacing(2),
+  },
   sectionBackground: {
     backgroundColor: theme.customColors.lightBlue,
   },
 }));
+
+const ToolTip = (t: TFunction) => {
+  return (
+    <Tooltip
+      title={
+        <div className={useStyles().tooltip}>
+          <Typography variant="body1">{t("Attribute is expired")}</Typography>
+        </div>
+      }
+      placement="right-start"
+    >
+      <InfoIcon
+        color="primary"
+        style={{
+          fontSize: "16px",
+          marginLeft: "8px",
+        }}
+      />
+    </Tooltip>
+  );
+};
