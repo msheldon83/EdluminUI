@@ -247,7 +247,7 @@ type AbsenceReasonBalanceMutations {
   create(absenceReasonBalance: AbsenceReasonBalanceCreateInput!): AbsenceReasonBalance
   update(absenceReasonBalance: AbsenceReasonBalanceUpdateInput!): AbsenceReasonBalance
   delete(absenceReasonBalanceId: ID!): Boolean
-  recalculateEmployeeBalances(recalulateEmployeeBalances: RecalculateEmployeeBalancesInput!): [AbsenceReasonBalance!]!
+  recalculateEmployeeBalances(recalculateEmployeeBalances: RecalculateEmployeeBalancesInput!): [AbsenceReasonBalance!]!
 }
 
 type AbsenceReasonBalanceQueries {
@@ -2346,6 +2346,7 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   absenceReasonBalances: [AbsenceReasonBalance]
   employmentHistories: [EmploymentHistory]
   endorsements: [EmployeeEndorsement]
+  locationPreferences: [EmployeeLocationPreference]
   locations: [Location]
   substitutePreferences: SubstitutePreferences!
   comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
@@ -2434,6 +2435,31 @@ input EmployeeInterestInVacancyInput {
   overrideNonPreferredWarning: Boolean
 }
 
+type EmployeeLocationPreference implements ModelObjectInterface & OrgObjectInterface {
+  _info: [ReturnMessage]
+  id: ID!
+  createdUtc: DateTime!
+  changedUtc: DateTime!
+  deletedUtc: DateTime!
+  isDeleted: Boolean!
+  orgId: ID!
+  organization: Organization!
+  createdLocal: DateTime
+  changedLocal: DateTime
+  deletedLocal: DateTime
+  employeeId: ID!
+  locationId: ID!
+  preferenceId: PersonalPreference!
+  location: Location!
+}
+
+input EmployeeLocationPreferenceInput {
+  orgId: ID!
+  employeeId: ID!
+  locationId: ID!
+  preferenceId: PersonalPreference!
+}
+
 type EmployeeMutations {
   create(employee: EmployeeCreateInput!): Employee
   update(employee: EmployeeUpdateInput!): Employee
@@ -2441,6 +2467,8 @@ type EmployeeMutations {
   addEndorsement(endorsement: EmployeeEndorsementInput!): Employee
   changeEndorsement(endorsement: EmployeeEndorsementInput!): Employee
   removeEndorsement(employeeId: ID!, endorsementId: ID!): Employee
+  addOrChangeLocationPreference(locationPreference: EmployeeLocationPreferenceInput!): EmployeeLocationPreference
+  removeLocationPreference(orgId: ID!, employeeId: ID!, locationId: ID!): Boolean
 }
 
 type EmployeeQualifiedResult {
@@ -2474,6 +2502,7 @@ type EmployeeQueries {
   employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
+  employeeLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 input EmployeeRejectVacancyInput {
@@ -2797,6 +2826,9 @@ enum EventType {
   EMPLOYEE_ENDORSEMENT_ADDED
   EMPLOYEE_ENDORSEMENT_CHANGED
   EMPLOYEE_ENDORSEMENT_REMOVED
+  EMPLOYEE_LOCATION_PREFERENCE_ADDED
+  EMPLOYEE_LOCATION_PREFERENCE_CHANGED
+  EMPLOYEE_LOCATION_PREFERENCE_REMOVED
   CONTRACTED_ASSIGNMENT_CREATED
   CONTRACTED_ASSIGNMENT_UPDATED
   CONTRACTED_ASSIGNMENT_ENDED
@@ -4709,6 +4741,12 @@ input PermissionSetUpdateInput {
   categories: [PermissionCategoryIdentifierInput]
 }
 
+enum PersonalPreference {
+  INVALID
+  FAVORITE
+  HIDDEN
+}
+
 enum PhoneType {
   INVALID
   HOME_PHONE
@@ -5258,7 +5296,6 @@ type Query {
 input RecalculateEmployeeBalancesInput {
   employeeId: ID!
   schoolYearId: ID
-  orgId: ID!
 }
 
 type RefAbsenceDocumentType {

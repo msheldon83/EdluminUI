@@ -58,9 +58,9 @@ query GetAbsence($id: ID!) {
         endTimeLocal
         reasonUsages {
           id
-          amount
+          hourlyAmount
+          dailyAmount
           sequence
-          absenceReasonTrackingTypeId
           absenceReasonId
           absenceReason {
             id
@@ -83,9 +83,9 @@ query GetAbsence($id: ID!) {
         isClosed
         reasonUsages {
           id
-          amount
+          hourlyAmount
+          dailyAmount
           sequence
-          absenceReasonTrackingTypeId
           absenceReasonId
           absenceReason {
             id

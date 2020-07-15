@@ -307,12 +307,12 @@ export const EditAbsence: React.FC<Props> = props => {
   const processedUsage: AbsenceReasonUsageData[] = (() => {
     const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
     return usages.reduce((p, u) => {
-      if (u && u.absenceReasonTrackingTypeId && !isNil(u.amount)) {
+      if (u && !isNil(u.dailyAmount) && !isNil(u.hourlyAmount)) {
         return [
           ...p,
           {
-            amount: u.amount,
-            absenceReasonTrackingTypeId: u.absenceReasonTrackingTypeId,
+            hourlyAmount: u.hourlyAmount,
+            dailyAmount: u.dailyAmount,
             absenceReasonId: u.absenceReasonId,
           },
         ];
