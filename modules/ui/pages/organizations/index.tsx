@@ -36,6 +36,7 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import { StyledTableRow, StyledTableCell } from "ui/components/styled-table";
 import { PaginationControls } from "ui/components/pagination-controls";
 
 type Props = { redirectIfOneOrg?: boolean };
@@ -296,28 +297,3 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.typography.pxToRem(12),
   },
 }));
-
-const StyledTableRow = withStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      borderTop: `1px solid ${theme.customColors.sectionBorder}`,
-      "&:nth-of-type(odd)": {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-  })
-)(TableRow);
-
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    head: {
-      color: `${theme.palette.secondary.main} !important`,
-      fontSize: 14,
-      fontWeight: "bold",
-      paddingTop: 0,
-    },
-    body: {
-      color: `${theme.palette.secondary.main} !important`,
-    },
-  })
-)(TableCell);

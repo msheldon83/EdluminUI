@@ -534,18 +534,25 @@ export const convertReportDefinitionInputToRdl = (
   return rdlString;
 };
 
+export const getRqlFilterString = (filters?: FilterField[]) => {
+  if (filters && filters.length > 0) {
+    const filterStrings = compact(
+      filters.map(f =>
+        buildFormula(getFilterFieldName(f), f.expressionFunction, f.value)
+      )
+    );
+    return filterStrings.join(" AND ");
+  }
+  return null;
+};
+
 const getRdlFromAndWhere = (report: Report) => {
   const rdlPieces: string[] = [];
   rdlPieces.push(`QUERY FROM ${report.from}`);
 
-  if (report.filters && report.filters.length > 0) {
-    const filterStrings = compact(
-      report.filters.map(f =>
-        buildFormula(getFilterFieldName(f), f.expressionFunction, f.value)
-      )
-    );
-    rdlPieces.push(`WHERE ${filterStrings.join(" AND ")}`);
-  }
+  const filterString = getRqlFilterString(report.filters);
+  if (filterString) rdlPieces.push(`WHERE ${filterString}`);
+
   return rdlPieces;
 };
 

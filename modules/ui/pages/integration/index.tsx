@@ -16,12 +16,18 @@ import {
   TableHead,
   Typography,
 } from "@material-ui/core";
+import {
+  StyledTableContainer,
+  StyledTableRow,
+  StyledTableCell,
+} from "ui/components/styled-table";
 import { useRouteParams } from "ui/routes/definition";
 import { PageTitle } from "ui/components/page-title";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useOrganizationId } from "core/org-context";
 import { GetAllApplicationGrantsWithinOrg } from "./graphql/get-application-grants.gen";
 import { IntegrationRoute, IntegrationViewRoute } from "ui/routes/integration";
+import { ApplicationLogo } from "./components/ApplicationLogo";
 
 type Props = {};
 
@@ -57,40 +63,69 @@ export const IntegrationList: React.FC<Props> = props => {
           <PageTitle title={t("Integrations")} />
         </Grid>
       </Grid>
-      <TableContainer component={Paper}>
+      <StyledTableContainer>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>Vendor</TableCell>
-              <TableCell>Connections</TableCell>
-              <TableCell>Created</TableCell>
-            </TableRow>
+            <StyledTableRow>
+              <StyledTableCell className={classes.logoColumn}></StyledTableCell>
+              <StyledTableCell>Vendor</StyledTableCell>
+              <StyledTableCell>Connections</StyledTableCell>
+              <StyledTableCell>Created</StyledTableCell>
+            </StyledTableRow>
           </TableHead>
           <TableBody>
             {appGrants.map(grant => (
-              <TableRow key={grant.id} onClick={() => onRowClick(grant.id)}>
-                <TableCell>logo</TableCell>
-                <TableCell>{grant.application?.name}</TableCell>
-                <TableCell>{grant.connections.length}</TableCell>
-                <TableCell>
+              <StyledTableRow
+                key={grant.id}
+                onClick={() => onRowClick(grant.id)}
+                className={classes.clickable}
+              >
+                <StyledTableCell className={classes.logoColumn}>
+                  <div className={classes.logoBox}>
+                    <ApplicationLogo
+                      logo={grant.application?.logoUrlSmall}
+                      isPrivate={!!grant.application?.orgId}
+                    />
+                  </div>
+                </StyledTableCell>
+                <StyledTableCell>{grant.application?.name}</StyledTableCell>
+                <StyledTableCell>{grant.connections.length}</StyledTableCell>
+                <StyledTableCell>
                   {parseAndFormat(grant.createdLocal, "MMM d, yyyy")}
-                </TableCell>
-              </TableRow>
+                </StyledTableCell>
+              </StyledTableRow>
             ))}
           </TableBody>
         </Table>
-      </TableContainer>
+      </StyledTableContainer>
     </>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  filters: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+  logoColumn: {
+    maxWidth: 50,
+    align: "center",
   },
-  header: {
-    marginBottom: theme.spacing(),
+  logoBox: {
+    border: `1px solid ${theme.customColors.sectionBorder}`,
+    padding: 3,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 36,
+    height: 36,
+    "& img": {
+      width: "100%",
+    },
+    "& svg": {
+      width: "100%",
+    },
+  },
+  clickable: {
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: theme.background.hoverRow,
+    },
   },
 }));
