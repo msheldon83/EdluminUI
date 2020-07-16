@@ -12,7 +12,7 @@ type Props = {
   showAccountingCodes: boolean;
   showAbsenceTimes: boolean;
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
-  onCancelAssignment: (
+  onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
   ) => Promise<void>;

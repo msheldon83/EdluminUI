@@ -15,7 +15,7 @@ type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   assignmentStartTime: Date;
   onReassignClick?: () => void;
-  onCancelAssignment: (
+  onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
   ) => Promise<void>;
@@ -44,6 +44,10 @@ export const AssignedBanner: React.FC<Props> = props => {
     ""}`;
 
   const onRemoveClick = useCallback(async () => {
+    if (!onCancelAssignment) {
+      return;
+    }
+
     if (assignmentWithDetails.dates.length === 1) {
       // Cancelling an assignment for a single day, no need to prompt the user
       await onCancelAssignment(
@@ -65,14 +69,16 @@ export const AssignedBanner: React.FC<Props> = props => {
 
   return (
     <>
-      <CancelAssignmentDialog
-        onCancelAssignment={onCancelAssignment}
-        onClose={() =>
-          componentIsMounted.current && setCancelAssignmentDialogIsOpen(false)
-        }
-        open={cancelAssignmentDialogIsOpen}
-        assignmentWithDetails={assignmentWithDetails}
-      />
+      {onCancelAssignment && (
+        <CancelAssignmentDialog
+          onCancelAssignment={onCancelAssignment}
+          onClose={() =>
+            componentIsMounted.current && setCancelAssignmentDialogIsOpen(false)
+          }
+          open={cancelAssignmentDialogIsOpen}
+          assignmentWithDetails={assignmentWithDetails}
+        />
+      )}
       <Divider className={classes.divider} />
       <div className={classes.assignedBanner}>
         <div className={classes.employeeInfo}>
@@ -125,31 +131,33 @@ export const AssignedBanner: React.FC<Props> = props => {
               </Button>
             </Can>
           )}
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string,
-              forRole?: Role | null | undefined
-            ) =>
-              canRemoveSub(
-                assignmentStartTime,
-                permissions,
-                isSysAdmin,
-                orgId,
-                forRole
-              )
-            }
-          >
-            <Button
-              disabled={disableActions}
-              variant={"outlined"}
-              onClick={onRemoveClick}
-              className={classes.removeButton}
+          {onCancelAssignment && (
+            <Can
+              do={(
+                permissions: OrgUserPermissions[],
+                isSysAdmin: boolean,
+                orgId?: string,
+                forRole?: Role | null | undefined
+              ) =>
+                canRemoveSub(
+                  assignmentStartTime,
+                  permissions,
+                  isSysAdmin,
+                  orgId,
+                  forRole
+                )
+              }
             >
-              {t("Remove")}
-            </Button>
-          </Can>
+              <Button
+                disabled={disableActions}
+                variant={"outlined"}
+                onClick={onRemoveClick}
+                className={classes.removeButton}
+              >
+                {t("Remove")}
+              </Button>
+            </Can>
+          )}
         </div>
       </div>
     </>

@@ -14,7 +14,7 @@ type Props = {
   notesForSubstitute?: string;
   setNotesForSubstitute?: (notes: string) => void;
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
-  onCancelAssignment: (
+  onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
   ) => Promise<void>;
