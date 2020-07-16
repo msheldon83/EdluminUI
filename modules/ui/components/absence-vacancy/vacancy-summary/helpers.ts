@@ -76,8 +76,6 @@ export const convertVacancyToVacancySummaryDetails = (
         isSameDay(a.startTimeLocal, parseISO(vd.startTimeLocal))
     );
 
-    console.log(assignmentsByDate);
-
     return {
       vacancyId: vacancy.id,
       vacancyDetailId: vd.id,
@@ -109,7 +107,16 @@ export const convertVacancyToVacancySummaryDetails = (
                   : undefined,
             }
           : undefined,
-      accountingCodeAllocations: [],
+      payCodeId: vd.payCodeId ?? undefined,
+      payCodeName: vd.payCode?.name,
+      accountingCodeAllocations:
+        vd.accountingCodeAllocations?.map(a => {
+          return {
+            accountingCodeId: a.accountingCodeId,
+            accountingCodeName: a.accountingCode?.name,
+            allocation: a.allocation,
+          };
+        }) ?? [],
       absenceStartTimeLocal: absenceDetail?.startTimeLocal
         ? parseISO(absenceDetail.startTimeLocal)
         : undefined,

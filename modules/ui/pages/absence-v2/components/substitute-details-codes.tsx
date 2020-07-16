@@ -3,7 +3,6 @@ import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useTranslation } from "react-i18next";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 import { Grid, Typography, makeStyles } from "@material-ui/core";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
@@ -20,6 +19,8 @@ type Props = {
   actingAsEmployee: boolean;
   locationIds?: string[];
   vacancySummaryDetails: VacancySummaryDetail[];
+  detailsHaveDifferentAccountingCodes: boolean;
+  detailsHaveDifferentPayCodes: boolean;
 };
 
 export const SubstituteDetailsCodes: React.FC<Props> = props => {
@@ -30,6 +31,8 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
     actingAsEmployee,
     locationIds,
     vacancySummaryDetails,
+    detailsHaveDifferentAccountingCodes,
+    detailsHaveDifferentPayCodes,
   } = props;
 
   const { values, errors, setFieldValue } = useFormikContext<AbsenceFormData>();
@@ -49,28 +52,6 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
     accountingCodeOptions && accountingCodeOptions.length
   );
   const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
-
-  const detailsHaveDifferentAccountingCodes = React.useMemo(() => {
-    const codesAreTheSame = accountingCodeAllocationsAreTheSame(
-      vacancySummaryDetails[0]?.accountingCodeAllocations ?? [],
-      vacancySummaryDetails?.map(vsd => vsd.accountingCodeAllocations)
-    );
-    return !codesAreTheSame;
-  }, [vacancySummaryDetails]);
-
-  const detailsHaveDifferentPayCodes = React.useMemo(() => {
-    const payCodeIdToCompare = vacancySummaryDetails[0]?.payCodeId;
-
-    for (let i = 0; i < vacancySummaryDetails.length; i++) {
-      const d = vacancySummaryDetails[i];
-      const detailPayCodeId = d?.payCodeId ?? null;
-      if (detailPayCodeId !== payCodeIdToCompare) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [vacancySummaryDetails]);
 
   return (
     <Grid item container spacing={4}>

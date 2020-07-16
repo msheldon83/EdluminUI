@@ -25,6 +25,7 @@ query GetProjectedVacancies(
           accountingCode {
             name
           }
+          allocation
         }
         location {
           name

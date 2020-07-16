@@ -33,6 +33,7 @@ import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered
 import { secondsSinceMidnight } from "helpers/time";
 import { VacancyDetail } from "ui/components/absence/types";
 import { isSameDay } from "date-fns";
+import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 
 type Props = {
   isCreate: boolean;
@@ -124,6 +125,28 @@ export const SubstituteDetails: React.FC<Props> = props => {
     }
   }, [getProjectedVacancies.state, projectedVacancies, assignmentsByDate]);
 
+  const detailsHaveDifferentAccountingCodes = React.useMemo(() => {
+    const codesAreTheSame = accountingCodeAllocationsAreTheSame(
+      vacancySummaryDetails[0]?.accountingCodeAllocations ?? [],
+      vacancySummaryDetails?.map(vsd => vsd.accountingCodeAllocations)
+    );
+    return !codesAreTheSame;
+  }, [vacancySummaryDetails]);
+
+  const detailsHaveDifferentPayCodes = React.useMemo(() => {
+    const payCodeIdToCompare = vacancySummaryDetails[0]?.payCodeId;
+
+    for (let i = 0; i < vacancySummaryDetails.length; i++) {
+      const d = vacancySummaryDetails[i];
+      const detailPayCodeId = d?.payCodeId ?? null;
+      if (detailPayCodeId !== payCodeIdToCompare) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [vacancySummaryDetails]);
+
   const needsReplacementDisplay: JSX.Element = React.useMemo(() => {
     return (
       <>
@@ -169,6 +192,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
             actingAsEmployee={actingAsEmployee}
             locationIds={locationIds}
             vacancySummaryDetails={vacancySummaryDetails}
+            detailsHaveDifferentAccountingCodes={detailsHaveDifferentAccountingCodes}
+            detailsHaveDifferentPayCodes={detailsHaveDifferentPayCodes}
           />
         )}
       </>
@@ -256,8 +281,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
           setNotesForSubstitute={(notes: string) => {
             setFieldValue("notesToReplacement", notes);
           }}
-          showPayCodes={false}
-          showAccountingCodes={false}
+          showPayCodes={detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes}
+          showAccountingCodes={detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes}
           noDaysChosenText={t("Select a Date, Reason, and Times...")}
           isAbsence={true}
           absenceActions={absenceActions}

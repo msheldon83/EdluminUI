@@ -829,25 +829,6 @@ const buildAbsenceInput = (
   const vacancyDetails =
     state.customizedVacanciesInput ?? state.projectedVacancyDetails;
 
-  // If the Vacancy Details records have selections, we don't want to send
-  // the associated property on the parent Vacancy to the server.
-  const detailsHaveDifferentAccountingCodeSelections =
-    hasEditedDetails &&
-    vacancyDetails &&
-    vacancyDetailsHaveDifferentAccountingCodeSelections(
-      vacancyDetails,
-      formValues.accountingCodeAllocations
-        ? formValues.accountingCodeAllocations
-        : null
-    );
-  const detailsHaveDifferentPayCodeSelections =
-    hasEditedDetails &&
-    vacancyDetails &&
-    vacancyDetailsHaveDifferentPayCodeSelections(
-      vacancyDetails,
-      formValues.payCodeId ? formValues.payCodeId : null
-    );
-
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -858,17 +839,11 @@ const buildAbsenceInput = (
       endTime: secondsSinceMidnight(
         parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
       ),
-      payCodeId: !detailsHaveDifferentPayCodeSelections
-        ? undefined
-        : v.payCodeId
-        ? v.payCodeId
-        : null,
-      accountingCodeAllocations: !detailsHaveDifferentAccountingCodeSelections
-        ? undefined
-        : mapAccountingCodeValueToAccountingCodeAllocations(
-            v.accountingCodeAllocations,
-            true
-          ),
+      payCodeId: v.payCodeId ?? null,
+      accountingCodeAllocations: mapAccountingCodeValueToAccountingCodeAllocations(
+        v.accountingCodeAllocations,
+        true
+      ),
     })) || undefined;
 
   // Populate the Vacancies on the Absence
@@ -886,17 +861,16 @@ const buildAbsenceInput = (
         //prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
         details: hasEditedDetails ? vDetails : undefined,
         accountingCodeAllocations:
-          !detailsHaveDifferentAccountingCodeSelections &&
-          formValues.accountingCodeAllocations
-            ? mapAccountingCodeValueToAccountingCodeAllocations(
+          hasEditedDetails || !formValues.accountingCodeAllocations
+            ? undefined
+            : mapAccountingCodeValueToAccountingCodeAllocations(
                 formValues.accountingCodeAllocations,
                 true
-              )
-            : undefined,
+              ),
         payCodeId:
-          !detailsHaveDifferentPayCodeSelections && formValues.payCodeId
-            ? formValues.payCodeId
-            : undefined,
+          hasEditedDetails || !formValues.payCodeId
+            ? undefined
+            : formValues.payCodeId,
       },
     ],
   };
