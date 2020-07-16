@@ -5,6 +5,7 @@ import {
   ApprovalWorkflowTransitionInput,
   ApprovalWorkflowType,
 } from "graphql/server-types.gen";
+import { compact } from "lodash-es";
 
 // Transition helpers
 
@@ -36,6 +37,23 @@ export type VacancyTransition = {
   args?: VacancyTransitionArgs;
 };
 
+export const convertTransitionsFromInput = (
+  transitions: ApprovalWorkflowTransitionInput[],
+  type: ApprovalWorkflowType
+) => {
+  if (type === ApprovalWorkflowType.Absence) {
+    return compact(
+      transitions.map(t => convertTransitionFromInput(t, type))
+    ) as AbsenceTransition[];
+  } else if (type === ApprovalWorkflowType.Vacancy) {
+    return compact(
+      transitions.map(t => convertTransitionFromInput(t, type))
+    ) as VacancyTransition[];
+  } else {
+    return [] as AbsenceTransition[];
+  }
+};
+
 export const convertTransitionFromInput = (
   transition: ApprovalWorkflowTransitionInput,
   type: ApprovalWorkflowType
@@ -52,8 +70,7 @@ export const convertTransitionFromInput = (
       criteria: parsedCriteria,
       args: parsedArgs,
     } as AbsenceTransition;
-  }
-  if (type === ApprovalWorkflowType.Vacancy) {
+  } else if (type === ApprovalWorkflowType.Vacancy) {
     const parsedCriteria: VacancyTransitionCriteria = transition.criteria
       ? JSON.parse(transition.criteria)
       : null;
@@ -65,6 +82,8 @@ export const convertTransitionFromInput = (
       criteria: parsedCriteria,
       args: parsedArgs,
     } as VacancyTransition;
+  } else {
+    return {} as AbsenceTransition;
   }
 };
 
@@ -132,6 +151,31 @@ export const buildVacancyUsagesJsonString = (
 };
 
 // Step helpers
+
+export const createNewStep = (
+  steps: ApprovalWorkflowStepInput[],
+  nextStepId?: string,
+  previousStepId?: string
+) => {
+  const ids = steps.map(s => Number(s.stepId));
+  const nextId = (Math.max(...ids) + 1).toString();
+
+  const previousStep = steps.find(x => x.stepId === previousStepId);
+  const nextStep = steps.find(x => x.stepId === nextStepId);
+
+  return {
+    stepId: nextId,
+    approverGroupHeaderId: null,
+    isFirstStep: false,
+    isLastStep: false,
+    deleted: false,
+    onApproval: [{ goto: nextStep?.stepId, criteria: null, args: null }],
+    yPosition: previousStep?.yPosition,
+    xPosition:
+      (previousStep?.xPosition as number) +
+      (nextStep?.xPosition - previousStep?.xPosition) / 2,
+  };
+};
 
 export const buildCleanStepInput = (steps: ApprovalWorkflowStep[]) => {
   return steps.map(s => ({

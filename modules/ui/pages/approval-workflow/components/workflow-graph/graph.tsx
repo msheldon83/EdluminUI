@@ -159,61 +159,13 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
-  const handleAddApprover = (
-    groupId: string,
-    onApproval: ApprovalWorkflowTransitionInput[]
-  ) => {
-    const nextId = getNextId(steps);
-    const sourceIndex = steps.findIndex(x => x.stepId == selectedEdge?.source);
-    const sourceStep = steps[sourceIndex];
-    const targetIndex = steps.findIndex(x => x.stepId == selectedEdge?.target);
-    const targetStep = steps[targetIndex];
-
-    steps.push({
-      stepId: nextId,
-      approverGroupHeaderId: groupId,
-      isFirstStep: false,
-      isLastStep: false,
-      deleted: false,
-      onApproval: onApproval,
-      yPosition: sourceStep.yPosition,
-      xPosition:
-        (sourceStep.xPosition as number) +
-        (targetStep.xPosition - sourceStep.xPosition) / 2,
-    });
-  };
-
-  const handleUpdateApprover = (
-    onApproval: ApprovalWorkflowTransitionInput[],
-    stepId?: string,
-    groupId?: string
-  ) => {
-    if (!stepId && groupId) {
-      handleAddApprover(groupId, onApproval);
+  const handleUpdateStep = (step: ApprovalWorkflowStepInput) => {
+    const stepIndex = steps.findIndex(x => x.stepId === step.stepId);
+    if (stepIndex === -1) {
+      steps.push(step);
     } else {
-      const stepIndex = steps.findIndex(x => x.stepId == stepId);
-      steps[stepIndex].approverGroupHeaderId = groupId ?? null;
-      steps[stepIndex].onApproval = onApproval;
+      steps[stepIndex] = step;
     }
-
-    handleClosePopper();
-  };
-
-  const handleUpdateCondition = (
-    stepId: string,
-    transition: ApprovalWorkflowTransitionInput
-  ) => {
-    const stepIndex = steps.findIndex(x => x.stepId == stepId);
-    const onApprovalIndex = steps[stepIndex].onApproval.findIndex(
-      x => x.goto == selectedEdge?.target
-    );
-    if (onApprovalIndex >= 0) {
-      steps[stepIndex].onApproval[onApprovalIndex] = transition;
-    } else {
-      steps[stepIndex].onApproval.unshift(transition);
-    }
-
-    handleClosePopper();
   };
 
   const handleClosePopper = () => {
@@ -288,15 +240,14 @@ export const StepsGraph: React.FC<Props> = props => {
             >
               <>
                 <AddUpdateApprover
-                  workflowType={workflowType}
                   orgId={props.orgId}
+                  workflowType={workflowType}
                   onClose={() => handleClosePopper()}
-                  onSave={handleUpdateApprover}
+                  onSave={handleUpdateStep}
+                  onRemove={selectedStep ? handleRemoveStep : undefined}
                   steps={steps}
                   approverGroups={approverGroups}
-                  myStep={selectedStep}
-                  defaultGotoStepId={selectedEdge?.target ?? ""}
-                  onRemove={selectedStep ? handleRemoveStep : undefined}
+                  selectedStep={selectedStep}
                   reasons={
                     workflowType === ApprovalWorkflowType.Absence
                       ? absenceReasons
@@ -304,6 +255,8 @@ export const StepsGraph: React.FC<Props> = props => {
                       ? vacancyReasons
                       : []
                   }
+                  previousStepId={selectedEdge?.source}
+                  nextStepId={selectedEdge?.target}
                 />
               </>
             </ClickAwayListener>
@@ -329,10 +282,11 @@ export const StepsGraph: React.FC<Props> = props => {
                   workflowType={workflowType}
                   orgId={props.orgId}
                   onClose={() => handleClosePopper()}
-                  onSave={handleUpdateCondition}
+                  onSave={handleUpdateStep}
                   steps={steps}
-                  myStep={selectedStep}
-                  gotoStepId={selectedEdge?.target}
+                  selectedStep={selectedStep}
+                  previousStepId={selectedEdge?.source}
+                  nextStepId={selectedEdge?.target}
                 />
               </>
             </ClickAwayListener>

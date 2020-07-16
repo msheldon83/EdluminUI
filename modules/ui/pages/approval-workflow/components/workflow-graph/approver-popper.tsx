@@ -1,26 +1,16 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import {
-  makeStyles,
-  Button,
-  FormControlLabel,
-  Checkbox,
-} from "@material-ui/core";
+import { makeStyles, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { ApproverGroupSelect } from "ui/components/domain-selects/approver-group-select/approver-group-select";
 import { Section } from "ui/components/section";
-import {
-  AbsenceTransitionArgs,
-  buildTransitionArgsJsonString,
-  AbsenceTransitionCriteria,
-  VacancyTransitionCriteria,
-} from "../../types";
+import { createNewStep } from "../../types";
 import {
   ApprovalWorkflowStepInput,
   ApprovalWorkflowType,
-  ApprovalWorkflowTransitionInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
+import { AbsVacTransitions } from "./components/abs-vac-transitions";
 
 type Props = {
   orgId: string;
@@ -29,76 +19,49 @@ type Props = {
   onSave: (step: ApprovalWorkflowStepInput) => void;
   onRemove?: () => void;
   steps: ApprovalWorkflowStepInput[];
-  myStep?: ApprovalWorkflowStepInput | null;
-  defaultGotoStepId: string;
+  selectedStep?: ApprovalWorkflowStepInput | null;
   approverGroups: { id: string; name: string }[];
   reasons: {
     id: string;
     name: string;
   }[];
+  previousStepId?: string;
+  nextStepId?: string;
 };
 
 export const AddUpdateApprover: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { myStep } = props;
-  const firstStep = myStep?.isFirstStep;
+  const { selectedStep } = props;
+  const firstStep = selectedStep?.isFirstStep;
 
-  const [approverGroupIds, setApproverGroupIds] = useState<
-    string[] | undefined
-  >(undefined);
-  const [transitionArgs, setTransitionArgs] = useState<
-    AbsenceTransitionArgs | undefined
-  >(); // TODO: make this use either type
-
-  const [onApproval, setOnApproval] = useState<
-    ApprovalWorkflowTransitionInput[]
-  >(myStep ? myStep.onApproval : [{ goto: null, criteria: null, args: null }]);
+  const [step, setStep] = useState<ApprovalWorkflowStepInput>(
+    selectedStep
+      ? selectedStep
+      : createNewStep(props.steps, props.nextStepId, props.previousStepId)
+  );
 
   useEffect(() => {
-    if (myStep && myStep.approverGroupHeaderId) {
-      setApproverGroupIds([myStep.approverGroupHeaderId]);
+    if (selectedStep && selectedStep.stepId !== step.stepId) {
+      setStep(selectedStep);
     }
-  }, [myStep]);
+  }, [selectedStep, step.stepId]);
 
   const onSetGroup = (ids?: string[]) => {
-    setApproverGroupIds(ids);
-  };
-
-  useEffect(() => {
-    if (myStep) {
-      const args: AbsenceTransitionArgs = JSON.parse(
-        myStep.onApproval?.find(x => !x.criteria)?.args ?? "{}"
-      );
-      setTransitionArgs(args);
+    if (ids && ids.length > 0) {
+      step.approverGroupHeaderId = ids[0];
+    } else {
+      step.approverGroupHeaderId = null;
     }
-  }, [myStep]);
+  };
 
-  // TODO: Refactor the save so that this component is building the full step Input and passing it back to the parent
   const handleSave = () => {
-    props.onSave(
-      onApproval,
-      myStep?.stepId,
-      approverGroupIds ? approverGroupIds[0] : undefined
-    );
+    props.onSave(step);
   };
 
-  const handleUpdateTransitionArgs = (args: AbsenceTransitionArgs) => {
-    const argsJsonString = buildTransitionArgsJsonString(transitionArgs);
-    onApproval.forEach(x => (x.args = argsJsonString));
-    setTransitionArgs(args);
-  };
-
-  const myTransitions = myStep ? myStep.onApproval : null;
-
-  const findApproverGroupName = (stepId?: string | null) => {
-    const nextStep = props.steps.find(s => s.stepId === stepId);
-    const approverGroupName = nextStep?.approverGroupHeaderId
-      ? props.approverGroups.find(x => x.id === nextStep.approverGroupHeaderId)
-          ?.name
-      : t("Approved");
-    return approverGroupName;
+  const handleUpdateTransitions = (step: ApprovalWorkflowStepInput) => {
+    setStep(step);
   };
 
   const approverGroupIdsToFilterOut = compact(
@@ -106,35 +69,13 @@ export const AddUpdateApprover: React.FC<Props> = props => {
       .filter(x => !x.deleted)
       .map(x => {
         if (
-          !myStep ||
-          (myStep && myStep.approverGroupHeaderId != x.approverGroupHeaderId)
+          !step ||
+          (step && step.approverGroupHeaderId != x.approverGroupHeaderId)
         ) {
           return x.approverGroupHeaderId;
         }
       })
   );
-
-  const renderCondition = (criteria?: string | null) => {
-    if (!criteria) return t("(Default)");
-
-    if (props.workflowType === ApprovalWorkflowType.Absence) {
-      const parsedCriteria: AbsenceTransitionCriteria = JSON.parse(criteria);
-      const reasonNames = props.reasons
-        .filter(x => parsedCriteria.absenceReasonIds?.includes(x.id))
-        .map(x => x.name)
-        .join(", ");
-      return `${t("if Reason is")} ${reasonNames}`;
-    }
-    if (props.workflowType === ApprovalWorkflowType.Vacancy) {
-      const parsedCriteria: VacancyTransitionCriteria = JSON.parse(criteria);
-      const reasonNames = props.reasons
-        .filter(x => parsedCriteria.vacancyReasonIds?.includes(x.id))
-        .map(x => x.name)
-        .join(", ");
-      return `${t("if Reason is")} ${reasonNames}`;
-    }
-    return "";
-  };
 
   return (
     <div className={classes.popper}>
@@ -149,57 +90,31 @@ export const AddUpdateApprover: React.FC<Props> = props => {
             <ApproverGroupSelect
               orgId={props.orgId}
               multiple={false}
-              selectedApproverGroupHeaderIds={approverGroupIds}
+              selectedApproverGroupHeaderIds={
+                step.approverGroupHeaderId
+                  ? [step.approverGroupHeaderId]
+                  : undefined
+              }
               setSelectedApproverGroupHeaderIds={onSetGroup}
               idsToFilterOut={approverGroupIdsToFilterOut}
             />
           </div>
         )}
-        {!firstStep && (
-          <div className={classes.labelText}>{t("When approved")}</div>
-        )}
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={transitionArgs?.makeAvailableToFill ?? false}
-              onChange={e =>
-                setTransitionArgs({
-                  makeAvailableToFill: !transitionArgs?.makeAvailableToFill,
-                })
-              }
-              value={transitionArgs?.makeAvailableToFill ?? false}
-              color="primary"
-            />
-          }
-          label={t("Release to be filled")}
+        <AbsVacTransitions
+          workflowType={props.workflowType}
+          approverGroups={props.approverGroups}
+          reasons={props.reasons}
+          steps={props.steps}
+          step={step}
+          onChange={handleUpdateTransitions}
         />
-        <div className={classes.labelText}>{t("Route to:")}</div>
-        {myTransitions ? (
-          myTransitions.map((t, i) => (
-            <div key={i} className={classes.gotoNameContainer}>
-              <div className={classes.gotoName}>
-                {findApproverGroupName(t.goto)}
-              </div>
-              <div className={classes.gotoCondition}>
-                {renderCondition(t.criteria)}
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className={classes.gotoNameContainer}>
-            <div className={classes.gotoName}>
-              {findApproverGroupName(props.defaultGotoStepId)}
-            </div>
-            <div className={classes.gotoCondition}>{renderCondition()}</div>
-          </div>
-        )}
         <div className={classes.buttonContainer}>
           <Button
             variant="contained"
             onClick={handleSave}
             className={classes.button}
           >
-            {myStep || firstStep ? t("Update") : t("Add")}
+            {step.approverGroupHeaderId || firstStep ? t("Update") : t("Add")}
           </Button>
           {props.onRemove && !firstStep && (
             <Button

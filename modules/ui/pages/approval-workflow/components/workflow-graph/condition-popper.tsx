@@ -1,18 +1,26 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { makeStyles, Button } from "@material-ui/core";
+import {
+  makeStyles,
+  Button,
+  Checkbox,
+  FormControlLabel,
+} from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { ApproverGroupSelect } from "ui/components/domain-selects/approver-group-select/approver-group-select";
 import { Section } from "ui/components/section";
 import {
   AbsenceTransitionCriteria,
   VacancyTransitionCriteria,
-  buildTransitionCriteriaJsonString,
+  convertTransitionFromInput,
+  convertTransitionToInput,
+  createNewStep,
+  AbsenceTransition,
+  VacancyTransition,
 } from "../../types";
 import {
   ApprovalWorkflowStepInput,
   ApprovalWorkflowType,
-  ApprovalWorkflowTransitionInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 import { AbsenceReasonSelect } from "ui/components/reference-selects/absence-reason-select";
@@ -22,18 +30,54 @@ type Props = {
   orgId: string;
   workflowType: ApprovalWorkflowType;
   onClose: () => void;
-  onSave: (stepId: string, transition: ApprovalWorkflowTransitionInput) => void;
+  onSave: (step: ApprovalWorkflowStepInput) => void;
   onRemove?: () => void;
   steps: ApprovalWorkflowStepInput[];
-  myStep: ApprovalWorkflowStepInput;
-  gotoStepId?: string | null;
+  selectedStep?: ApprovalWorkflowStepInput | null;
+  previousStepId?: string;
+  nextStepId?: string;
 };
 
 export const ConditionPopper: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { myStep, workflowType, steps, gotoStepId } = props;
+  const { selectedStep, workflowType, steps, nextStepId } = props;
+
+  const [step, setStep] = useState<ApprovalWorkflowStepInput>(
+    selectedStep
+      ? selectedStep
+      : createNewStep(props.steps, props.nextStepId, props.previousStepId)
+  );
+
+  const [transition, setTransition] = useState<
+    AbsenceTransition | VacancyTransition
+  >(
+    convertTransitionFromInput(
+      step.onApproval.find(x => x.goto == nextStepId) ?? {
+        goto: nextStepId,
+        criteria: null,
+        args: null,
+      },
+      props.workflowType
+    )
+  );
+
+  useEffect(() => {
+    if (selectedStep && selectedStep.stepId !== step.stepId) {
+      setStep(selectedStep);
+      setTransition(
+        convertTransitionFromInput(
+          step.onApproval.find(x => x.goto == nextStepId) ?? {
+            goto: nextStepId,
+            criteria: null,
+            args: null,
+          },
+          workflowType
+        )
+      );
+    }
+  }, [nextStepId, selectedStep, step.onApproval, step.stepId, workflowType]);
 
   const conditionLabel =
     workflowType === ApprovalWorkflowType.Absence
@@ -42,9 +86,9 @@ export const ConditionPopper: React.FC<Props> = props => {
       ? t("Vacancy Reason")
       : t("Condition");
 
-  const [approverGroupIds, setApproverGroupIds] = useState<
-    string[] | undefined
-  >(undefined);
+  const [approverGroupId, setApproverGroupId] = useState<string | undefined>(
+    undefined
+  );
   const [transitionCriteria, setTransitionCriteria] = useState<
     AbsenceTransitionCriteria | VacancyTransitionCriteria | undefined
   >();
@@ -52,57 +96,53 @@ export const ConditionPopper: React.FC<Props> = props => {
   const [reasonIds, setReasonIds] = useState<string[] | undefined>(undefined);
 
   useEffect(() => {
-    if (gotoStepId) {
-      const nextStep = steps.find(x => x.stepId === gotoStepId);
-      setApproverGroupIds(
-        nextStep?.approverGroupHeaderId
-          ? [nextStep.approverGroupHeaderId]
-          : undefined
-      );
+    if (transition.goto) {
+      const nextStep = steps.find(x => x.stepId === transition.goto);
+      setApproverGroupId(nextStep?.approverGroupHeaderId ?? undefined);
     }
-  }, [gotoStepId, steps]);
+  }, [transition.goto, steps]);
 
   const onSetGroup = (ids?: string[]) => {
-    setApproverGroupIds(ids);
+    if (ids && ids.length > 0) {
+      setApproverGroupId(ids[0]);
+      const step = steps.find(x => x.approverGroupHeaderId == ids[0]);
+      transition.goto = step?.stepId;
+    }
   };
 
   useEffect(() => {
-    if (gotoStepId && myStep) {
-      const criteria = myStep.onApproval.find(x => x.goto === gotoStepId)
-        ?.criteria;
-      if (criteria) {
-        if (workflowType === ApprovalWorkflowType.Absence) {
-          const parsedCriteria: AbsenceTransitionCriteria = JSON.parse(
-            criteria
-          );
-          setTransitionCriteria(parsedCriteria);
-          setReasonIds(compact(parsedCriteria.absenceReasonIds) ?? []);
-        }
-        if (workflowType === ApprovalWorkflowType.Vacancy) {
-          const parsedCriteria: VacancyTransitionCriteria = JSON.parse(
-            criteria
-          );
-          setTransitionCriteria(parsedCriteria);
-          setReasonIds(compact(parsedCriteria.vacancyReasonIds) ?? []);
-        }
+    if (transition.criteria) {
+      if (workflowType === ApprovalWorkflowType.Absence) {
+        const criteria = transition.criteria as AbsenceTransitionCriteria;
+        setTransitionCriteria(criteria);
+        setReasonIds(compact(criteria.absenceReasonIds) ?? []);
+      } else if (workflowType === ApprovalWorkflowType.Vacancy) {
+        const criteria = transition.criteria as VacancyTransitionCriteria;
+        setTransitionCriteria(criteria);
+        setReasonIds(compact(criteria.vacancyReasonIds) ?? []);
       }
     }
-  }, [gotoStepId, myStep, workflowType]);
+  }, [transition, workflowType]);
 
   const handleSave = () => {
-    props.onSave(myStep.stepId, {
-      buildTransitionCriteriaJsonString(transitionCriteria);,
-    });
+    const existingTransitionIndex = step.onApproval.findIndex(
+      x => x.goto === transition.goto
+    );
+    const transitionInput = convertTransitionToInput(transition);
+    if (existingTransitionIndex === -1) {
+      step.onApproval.unshift(transitionInput);
+      props.onSave(step);
+    } else {
+      step.onApproval[existingTransitionIndex] = transitionInput;
+      props.onSave(step);
+    }
   };
 
   const approverGroupIdsToInclude = compact(
     props.steps
       .filter(x => !x.deleted)
       .map(x => {
-        if (
-          !myStep ||
-          (myStep && myStep.approverGroupHeaderId != x.approverGroupHeaderId)
-        ) {
+        if (step.approverGroupHeaderId != x.approverGroupHeaderId) {
           return x.approverGroupHeaderId;
         }
       })
@@ -111,7 +151,7 @@ export const ConditionPopper: React.FC<Props> = props => {
   return (
     <div className={classes.popper}>
       <Section>
-        <div className={classes.labelText}>{t("Route if")}</div>
+        <div className={classes.labelText}>{t("When approved and...")}</div>
         <div className={classes.labelText}>{`${conditionLabel} ${t(
           "is"
         )}`}</div>
@@ -139,11 +179,26 @@ export const ConditionPopper: React.FC<Props> = props => {
           <ApproverGroupSelect
             orgId={props.orgId}
             multiple={false}
-            selectedApproverGroupHeaderIds={approverGroupIds}
+            selectedApproverGroupHeaderIds={
+              approverGroupId ? [approverGroupId] : undefined
+            }
             setSelectedApproverGroupHeaderIds={onSetGroup}
             idsToInclude={approverGroupIdsToInclude}
           />
         </div>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={transition.args?.makeAvailableToFill ?? false}
+              onChange={(e, checked) => {
+                transition.args = { makeAvailableToFill: checked };
+              }}
+              value={transition.args?.makeAvailableToFill ?? false}
+              color="primary"
+            />
+          }
+          label={t("Release to be filled")}
+        />
         <div className={classes.buttonContainer}>
           <Button
             variant="contained"
@@ -152,7 +207,7 @@ export const ConditionPopper: React.FC<Props> = props => {
           >
             {t("Save")}
           </Button>
-          {gotoStepId && myStep && (
+          {selectedStep && (
             <Button
               variant="outlined"
               onClick={props.onRemove}
