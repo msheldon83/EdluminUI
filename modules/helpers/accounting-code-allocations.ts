@@ -155,3 +155,59 @@ export const validateAccountingCodeAllocations = (
 
   return undefined;
 };
+
+export const accountingCodeValuesAreEqual = (
+  value: AccountingCodeValue,
+  toCompare: AccountingCodeValue
+) => {
+  if (value.type === "no-allocation" && toCompare.type === "no-allocation") {
+    return true;
+  }
+
+  if (
+    value.type === "single-allocation" &&
+    toCompare.type === "single-allocation" &&
+    value.selection?.value === toCompare.selection?.value
+  ) {
+    return true;
+  }
+
+  if (
+    value.type === "multiple-allocations" &&
+    toCompare.type === "multiple-allocations"
+  ) {
+    const valueAllocations = value.allocations.map(a => {
+      return {
+        accountingCodeId: a.selection?.value,
+        allocation: a.percentage,
+      };
+    });
+    const toCompareAllocations = toCompare.allocations.map(a => {
+      return {
+        accountingCodeId: a.selection?.value,
+        allocation: a.percentage,
+      };
+    });
+
+    if (valueAllocations.length !== toCompareAllocations.length) {
+      // Different number of allocations between the 2
+      return false;
+    }
+
+    if (
+      isEqual(
+        valueAllocations.sort(
+          (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
+        ),
+        toCompareAllocations.sort(
+          (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
+        )
+      )
+    ) {
+      // Same lists
+      return true;
+    }
+  }
+
+  return false;
+};
