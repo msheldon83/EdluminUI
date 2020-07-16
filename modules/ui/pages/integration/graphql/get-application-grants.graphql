@@ -5,6 +5,7 @@ query GetAllApplicationGrantsWithinOrg($orgId: ID!) {
       createdLocal
       application {
         id
+        orgId
         name
         logoUrlSmall
       }

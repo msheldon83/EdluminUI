@@ -723,13 +723,13 @@ export const App = hot(function() {
                                       component={IntegrationViewLoader}
                                       path={IntegrationViewRoute.path}
                                       role={"admin"}
-                                      permissions={[PermissionEnum.ExternalConnectionView]}
+                                      permissions={[PermissionEnum.ExternalConnectionsView]}
                                     />
                                     <ProtectedRoute
                                       component={IntegrationLoader}
                                       path={IntegrationRoute.path}
                                       role={"admin"}
-                                      permissions={[PermissionEnum.ExternalConnectionView]}
+                                      permissions={[PermissionEnum.ExternalConnectionsView]}
                                     />
                                     <ProtectedRoute
                                       component={AdminEditAbsenceLoader}
