@@ -34,6 +34,7 @@ export const buildNewPeriod = (allDay: boolean): Period => {
     locationGroupId: "",
     bellScheduleId: null,
     allDay: allDay,
+    overMidnightConfirmed: false,
   };
 };
 
@@ -57,7 +58,6 @@ export const GetError = (
   periodIndex: number,
   scheduleIndex: number
 ) => {
-  
   if (!errors.schedules || !errors.schedules[scheduleIndex]) {
     return undefined;
   }
