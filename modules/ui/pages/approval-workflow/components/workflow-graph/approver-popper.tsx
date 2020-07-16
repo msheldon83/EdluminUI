@@ -26,11 +26,7 @@ type Props = {
   orgId: string;
   workflowType: ApprovalWorkflowType;
   onClose: () => void;
-  onSave: (
-    onApproval: ApprovalWorkflowTransitionInput[],
-    stepId?: string,
-    groupId?: string
-  ) => void;
+  onSave: (step: ApprovalWorkflowStepInput) => void;
   onRemove?: () => void;
   steps: ApprovalWorkflowStepInput[];
   myStep?: ApprovalWorkflowStepInput | null;
@@ -145,10 +141,8 @@ export const AddUpdateApprover: React.FC<Props> = props => {
       <Section>
         <div className={classes.labelText}>
           {firstStep
-            ? t("Begin workflow")
-            : myStep
-            ? t("Update approver group")
-            : t("Add approver")}
+            ? t("When workflow starts...")
+            : t("Wait for approval from")}
         </div>
         {!firstStep && (
           <div className={classes.selectContainer}>

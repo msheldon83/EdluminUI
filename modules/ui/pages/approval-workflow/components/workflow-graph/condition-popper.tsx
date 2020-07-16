@@ -90,7 +90,7 @@ export const ConditionPopper: React.FC<Props> = props => {
   }, [gotoStepId, myStep, workflowType]);
 
   const handleSave = () => {
-    props.onSave(myStep.Id, {
+    props.onSave(myStep.stepId, {
       buildTransitionCriteriaJsonString(transitionCriteria);,
     });
   };
