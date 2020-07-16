@@ -56,6 +56,8 @@ import { AssignSub } from "ui/components/assign-sub";
 import { EditVacancies } from "ui/pages/create-absence/edit-vacancies";
 import { VacancyDetail } from "ui/components/absence/types";
 import { convertStringToDate } from "helpers/date";
+import { Confirmation } from "../create/confirmation";
+import { ApolloError } from "apollo-client";
 
 type Props = {
   organizationId: string;
@@ -76,9 +78,10 @@ type Props = {
   };
   initialAbsenceData: AbsenceFormData;
   saveAbsence: (
-    data: AbsenceCreateInput | AbsenceUpdateInput,
-    onError: Function
+    data: AbsenceCreateInput | AbsenceUpdateInput
   ) => Promise<Absence>;
+  saveErrorsInfo: { error: ApolloError | null; confirmed: boolean } | undefined;
+  onErrorsConfirmed: () => void;
   deleteAbsence?: () => void;
 };
 
@@ -95,7 +98,10 @@ export const AbsenceUI: React.FC<Props> = props => {
     initialAbsenceData,
     saveAbsence,
     deleteAbsence,
+    saveErrorsInfo,
+    onErrorsConfirmed,
   } = props;
+  const [absence, setAbsence] = React.useState<Absence | undefined>();
 
   const initialState = (props: Props): AbsenceState => {
     const absenceDates = initialAbsenceData.details.map(d => d.date);
@@ -211,7 +217,7 @@ export const AbsenceUI: React.FC<Props> = props => {
               vacancyDetailIds.find(i => i === d.vacancyDetailId)
             )
           : vacancyDetails?.filter(d =>
-            vacancyDetailDates?.find(date =>
+              vacancyDetailDates?.find(date =>
                 isSameDay(date, new Date(d.startTime))
               )
             );
@@ -315,12 +321,12 @@ export const AbsenceUI: React.FC<Props> = props => {
             vacancyDetailIds.find(i => i === d.vacancyDetailId)
           )
         : vacancyDetails?.filter(d =>
-          vacancyDetailDates?.find(date =>
+            vacancyDetailDates?.find(date =>
               isSameDay(date, parseISO(d.startTime))
             )
           );
 
-            console.log(detailsToAssign);
+      console.log(detailsToAssign);
 
       if (!detailsToAssign || detailsToAssign.length === 0) {
         setStep("absence");
@@ -402,6 +408,40 @@ export const AbsenceUI: React.FC<Props> = props => {
     ]
   );
 
+  const save = React.useCallback(
+    async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
+      let absenceInput = buildAbsenceInput(
+        isCreate,
+        formValues,
+        state,
+        disabledDates
+      );
+
+      if (!absenceInput) {
+        return;
+      }
+
+      if (ignoreWarnings) {
+        absenceInput = {
+          ...absenceInput,
+          ignoreWarnings: true,
+        };
+      }
+
+      const absence = await saveAbsence(absenceInput);
+      console.log(absence);
+      if (!absence) {
+        return;
+      }
+
+      setAbsence(absence);
+      if (isCreate) {
+        setStep("confirmation");
+      }
+    },
+    []
+  );
+
   return (
     <>
       <PageTitle
@@ -458,16 +498,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           // })
         })}
         onSubmit={async (data, e) => {
-          const absenceInput = buildAbsenceInput(
-            isCreate,
-            data,
-            state,
-            disabledDates
-          );
-          if (absenceInput != null) {
-            const absence = await saveAbsence(absenceInput, () => {});
-            console.log(absence);
-          }
+          await save(data);
         }}
       >
         {({
@@ -490,195 +521,214 @@ export const AbsenceUI: React.FC<Props> = props => {
           ) as AbsenceCreateInput;
 
           return (
-            <form id="absence-form" onSubmit={handleSubmit}>
-              {step === "absence" && (
-                <>
-                  <AbsenceVacancyHeader
-                    pageHeader={
-                      isCreate ? t("Create absence") : t("Edit absence")
-                    }
-                    subHeader={
-                      !actingAsEmployee
-                        ? `${employee.firstName} ${employee.lastName}`
-                        : undefined
-                    }
-                  />
-                  <Section className={classes.content}>
-                    {/* <ErrorBanner
-                errorBannerOpen={errorBannerOpen}
-                title={t("There was an issue creating the absence")}
-                apolloErrors={absenceErrors}
-                setErrorBannerOpen={setErrorBannerOpen}
-                continueAction={async () => await create(formValues, true)}
-              /> */}
-                    <Grid container spacing={2}>
-                      <Grid item md={5}>
-                        <AbsenceDetails
-                          organizationId={organizationId}
-                          employeeId={employee.id}
-                          actingAsEmployee={actingAsEmployee}
-                          absenceDates={state.absenceDates}
-                          onToggleAbsenceDate={d => {
-                            dispatch({ action: "toggleDate", date: d });
-                            // Update the details in the form
-                            const exists = values.details.find(x =>
-                              isSameDay(x.date, d)
-                            );
-                            if (exists) {
-                              setFieldValue(
-                                "details",
-                                values.details.filter(
-                                  x => !isSameDay(x.date, d)
-                                ),
-                                false
+            <>
+              <form id="absence-form" onSubmit={handleSubmit}>
+                {step === "absence" && (
+                  <>
+                    <AbsenceVacancyHeader
+                      pageHeader={
+                        isCreate ? t("Create absence") : t("Edit absence")
+                      }
+                      subHeader={
+                        !actingAsEmployee
+                          ? `${employee.firstName} ${employee.lastName}`
+                          : undefined
+                      }
+                    />
+                    <Section className={classes.content}>
+                      <ErrorBanner
+                        errorBannerOpen={
+                          !!(
+                            saveErrorsInfo?.error && !saveErrorsInfo?.confirmed
+                          )
+                        }
+                        title={
+                          isCreate
+                            ? t("There was an issue creating the absence")
+                            : t("There was an issue saving the absence")
+                        }
+                        warningsOnlyTitle={t(
+                          "Hmm, we found a possible issue. Would you like to continue?"
+                        )}
+                        apolloErrors={saveErrorsInfo?.error ?? null}
+                        onClose={onErrorsConfirmed}
+                        continueAction={async () => await save(values, true)}
+                      />
+                      <Grid container spacing={2}>
+                        <Grid item md={5}>
+                          <AbsenceDetails
+                            organizationId={organizationId}
+                            employeeId={employee.id}
+                            actingAsEmployee={actingAsEmployee}
+                            absenceDates={state.absenceDates}
+                            onToggleAbsenceDate={d => {
+                              dispatch({ action: "toggleDate", date: d });
+                              // Update the details in the form
+                              const exists = values.details.find(x =>
+                                isSameDay(x.date, d)
                               );
-                            } else {
-                              setFieldValue(
-                                "details",
-                                sortBy(
-                                  [
-                                    ...values.details,
-                                    copyDetail(d, values.details),
-                                  ],
-                                  d => d.date
-                                ),
-                                false
-                              );
+                              if (exists) {
+                                setFieldValue(
+                                  "details",
+                                  values.details.filter(
+                                    x => !isSameDay(x.date, d)
+                                  ),
+                                  false
+                                );
+                              } else {
+                                setFieldValue(
+                                  "details",
+                                  sortBy(
+                                    [
+                                      ...values.details,
+                                      copyDetail(d, values.details),
+                                    ],
+                                    d => d.date
+                                  ),
+                                  false
+                                );
+                              }
+                            }}
+                            closedDates={[]}
+                            currentMonth={state.viewingCalendarMonth}
+                            onSwitchMonth={(d: Date) =>
+                              dispatch({ action: "switchMonth", month: d })
                             }
-                          }}
-                          closedDates={[]}
-                          currentMonth={state.viewingCalendarMonth}
-                          onSwitchMonth={(d: Date) =>
-                            dispatch({ action: "switchMonth", month: d })
-                          }
-                          absenceInput={inputForProjectedCalls}
-                          positionTypeId={position?.positionTypeId}
-                        />
+                            absenceInput={inputForProjectedCalls}
+                            positionTypeId={position?.positionTypeId}
+                          />
+                        </Grid>
+                        <Grid item md={6}>
+                          <SubstituteDetails
+                            isCreate={isCreate}
+                            organizationId={organizationId}
+                            actingAsEmployee={actingAsEmployee}
+                            needsReplacement={
+                              position?.needsReplacement ?? NeedsReplacement.No
+                            }
+                            absenceInput={inputForProjectedCalls}
+                            onAssignSubClick={vacancySummaryDetailsToAssign => {
+                              dispatch({
+                                action: "setVacancySummaryDetailsToAssign",
+                                vacancySummaryDetailsToAssign,
+                              });
+                              setStep("preAssignSub");
+                            }}
+                            onCancelAssignment={onCancelAssignment}
+                            onEditSubDetailsClick={() => setStep("edit")}
+                            onProjectedVacanciesChange={
+                              onProjectedVacanciesChange
+                            }
+                            assignmentsByDate={state.assignmentsByDate}
+                          />
+                        </Grid>
                       </Grid>
-                      <Grid item md={6}>
-                        <SubstituteDetails
-                          isCreate={isCreate}
-                          organizationId={organizationId}
-                          actingAsEmployee={actingAsEmployee}
-                          needsReplacement={
-                            position?.needsReplacement ?? NeedsReplacement.No
-                          }
-                          absenceInput={inputForProjectedCalls}
-                          onAssignSubClick={vacancySummaryDetailsToAssign => {
-                            dispatch({
-                              action: "setVacancySummaryDetailsToAssign",
-                              vacancySummaryDetailsToAssign,
-                            });
-                            setStep("preAssignSub");
-                          }}
-                          onCancelAssignment={onCancelAssignment}
-                          onEditSubDetailsClick={() => setStep("edit")}
-                          onProjectedVacanciesChange={
-                            onProjectedVacanciesChange
-                          }
-                          assignmentsByDate={state.assignmentsByDate}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Section>
-                  <ContentFooter>
-                    <Grid item xs={12} className={classes.contentFooter}>
-                      <div className={classes.actionButtons}>
-                        <div className={classes.unsavedText}>
-                          {(dirty || isCreate) && (
-                            <Typography>
-                              {t("This page has unsaved changes")}
-                            </Typography>
+                    </Section>
+                    <ContentFooter>
+                      <Grid item xs={12} className={classes.contentFooter}>
+                        <div className={classes.actionButtons}>
+                          <div className={classes.unsavedText}>
+                            {(dirty || isCreate) && (
+                              <Typography>
+                                {t("This page has unsaved changes")}
+                              </Typography>
+                            )}
+                          </div>
+                          {deleteAbsence && !dirty && (
+                            <Can do={[PermissionEnum.AbsVacDelete]}>
+                              <Button
+                                onClick={() => deleteAbsence()}
+                                variant="text"
+                                className={classes.deleteButton}
+                              >
+                                {t("Delete")}
+                              </Button>
+                            </Can>
+                          )}
+                          {!isCreate && dirty && !state.isClosed && (
+                            <Button
+                              onClick={() => {
+                                // reset the form and the state
+                                resetForm();
+                              }}
+                              variant="outlined"
+                              className={classes.cancelButton}
+                              disabled={!dirty}
+                            >
+                              {t("Discard Changes")}
+                            </Button>
+                          )}
+                          {canSaveAbsence(values.details) && (
+                            <Button
+                              form="absence-form"
+                              type="submit"
+                              variant="contained"
+                              className={classes.saveButton}
+                              disabled={
+                                !dirty ||
+                                //negativeBalanceWarning ||
+                                state.isClosed
+                              }
+                            >
+                              {isCreate ? t("Create") : t("Save")}
+                            </Button>
                           )}
                         </div>
-                        {deleteAbsence && !dirty && (
-                          <Can do={[PermissionEnum.AbsVacDelete]}>
-                            <Button
-                              onClick={() => deleteAbsence()}
-                              variant="text"
-                              className={classes.deleteButton}
-                            >
-                              {t("Delete")}
-                            </Button>
-                          </Can>
-                        )}
-                        {!isCreate && dirty && !state.isClosed && (
-                          <Button
-                            onClick={() => {
-                              // reset the form and the state
-                              resetForm();
-                            }}
-                            variant="outlined"
-                            className={classes.cancelButton}
-                            disabled={!dirty}
-                          >
-                            {t("Discard Changes")}
-                          </Button>
-                        )}
-                        {canSaveAbsence(values.details) && (
-                          <Button
-                            form="absence-form"
-                            type="submit"
-                            variant="contained"
-                            className={classes.saveButton}
-                            disabled={
-                              !dirty ||
-                              //negativeBalanceWarning ||
-                              state.isClosed
-                            }
-                          >
-                            {isCreate ? t("Create") : t("Save")}
-                          </Button>
-                        )}
-                      </div>
-                    </Grid>
-                  </ContentFooter>
-                </>
-              )}
-              {step === "preAssignSub" && (
-                <AssignSub
+                      </Grid>
+                    </ContentFooter>
+                  </>
+                )}
+                {step === "preAssignSub" && (
+                  <AssignSub
+                    orgId={organizationId}
+                    actingAsEmployee={actingAsEmployee}
+                    onAssignReplacement={onAssignSub}
+                    onCancel={() => setStep("absence")}
+                    assignmentsByDate={[]}
+                    employeeName={`${employee.firstName} ${employee.lastName}`}
+                    employeeId={employee.id}
+                    positionId={position?.id}
+                    positionName={position?.title}
+                    vacancySummaryDetails={state.vacancySummaryDetailsToAssign}
+                    useVacancySummaryDetails={true}
+                    vacancies={state.projectedVacancies}
+                  />
+                )}
+                {step === "confirmation" && (
+                  <Confirmation
+                    orgId={organizationId}
+                    absence={absence}
+                    setStep={setStep}
+                    actingAsEmployee={actingAsEmployee}
+                  />
+                )}
+              </form>
+              {step === "edit" && (
+                <EditVacancies
                   orgId={organizationId}
                   actingAsEmployee={actingAsEmployee}
-                  onAssignReplacement={onAssignSub}
-                  onCancel={() => setStep("absence")}
-                  assignmentsByDate={[]}
                   employeeName={`${employee.firstName} ${employee.lastName}`}
-                  employeeId={employee.id}
-                  positionId={position?.id}
                   positionName={position?.title}
-                  vacancySummaryDetails={state.vacancySummaryDetailsToAssign}
-                  useVacancySummaryDetails={true}
-                  vacancies={state.projectedVacancies}
-                  // vacancyId={vacancyExists ? vacancy.id : undefined}
-                  // existingVacancy={vacancyExists}
-                  // employeeToReplace={
-                  //   vacancySummaryDetailsToAssign[0]?.assignment?.employee?.firstName ??
-                  //   undefined
-                  // }
+                  onCancel={() => setStep("absence")}
+                  details={
+                    state.customizedVacanciesInput ??
+                    state.projectedVacancyDetails ??
+                    []
+                  }
+                  onChangedVacancies={onChangedVacancies}
+                  employeeId={employee.id}
+                  setStep={setStep}
+                  disabledDates={disabledDates}
+                  defaultAccountingCodeAllocations={
+                    values.accountingCodeAllocations
+                  }
+                  defaultPayCode={values.payCodeId}
                 />
               )}
-            </form>
+            </>
           );
         }}
       </Formik>
-      {step === "edit" && (
-        <EditVacancies
-          orgId={organizationId}
-          actingAsEmployee={actingAsEmployee}
-          employeeName={`${employee.firstName} ${employee.lastName}`}
-          positionName={position?.title}
-          onCancel={() => setStep("absence")}
-          details={state.projectedVacancyDetails ?? []}
-          onChangedVacancies={onChangedVacancies}
-          employeeId={employee.id}
-          setStep={setStep}
-          disabledDates={disabledDates}
-          // defaultAccountingCodeAllocations={
-          //   formValues.accountingCodeAllocations
-          // }
-          // defaultPayCode={formValues.payCode}
-        />
-      )}
     </>
   );
 };

@@ -17,6 +17,7 @@ import {
   AccountingCodeValue,
 } from "ui/components/form/accounting-code-dropdown";
 import { CreateAbsence } from "../graphql/create.gen";
+import { ApolloError } from "apollo-client";
 
 export const AdminCreateAbsence: React.FC<{}> = props => {
   const { organizationId, employeeId } = useRouteParams(
@@ -28,11 +29,15 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
     },
   });
 
+  const [createErrorsInfo, setCreateErrorsInfo] = React.useState<
+    { error: ApolloError | null; confirmed: boolean } | undefined
+  >();
   const [createAbsence] = useMutationBundle(CreateAbsence, {
-    onError: error => {
-      //setAbsenceErrors(error);
-      //setErrorBannerOpen(true);
-    },
+    onError: error =>
+      setCreateErrorsInfo({
+        error,
+        confirmed: false,
+      }),
   });
 
   if (employeeInfo.state !== "DONE") {
@@ -97,7 +102,7 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
         payCodeId:
           employee.primaryPosition?.positionType?.payCodeId ?? undefined,
       }}
-      saveAbsence={async (data, onError) => {
+      saveAbsence={async data => {
         const result = await createAbsence({
           variables: {
             absence: data as AbsenceCreateInput,
@@ -106,6 +111,10 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
         const absence = result?.data?.absence?.create as Absence;
         return absence;
       }}
+      saveErrorsInfo={createErrorsInfo}
+      onErrorsConfirmed={() =>
+        setCreateErrorsInfo({ error: null, confirmed: true })
+      }
     />
   );
 };
