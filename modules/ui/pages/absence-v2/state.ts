@@ -6,6 +6,7 @@ import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summ
 import { Vacancy } from "graphql/server-types.gen";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 import { AssignmentOnDate } from "./types";
+import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 export type AbsenceState = {
   employeeId: string;
@@ -28,6 +29,14 @@ export type AbsenceActions =
   | { action: "switchMonth"; month: Date }
   | { action: "toggleDate"; date: Date }
   | { action: "setVacanciesInput"; input: undefined | VacancyDetail[] }
+  | {
+      action: "setAccountingCodesOnAllCustomVacancyDetails";
+      accountingCodeValue: AccountingCodeValue;
+    }
+  | {
+      action: "setPayCodeOnAllCustomVacancyDetails";
+      payCodeId: string | null;
+    }
   | {
       action: "setProjectedVacancies";
       projectedVacancies: undefined | Vacancy[];
@@ -59,18 +68,44 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
         return {
           ...prev,
           customizedVacanciesInput: undefined,
+          projectedVacancyDetails: undefined,
+          projectedVacancies: undefined,
           absenceDates: filter(prev.absenceDates, d => !isSameDay(d, date)),
         };
       } else {
         return {
           ...prev,
           customizedVacanciesInput: undefined,
+          projectedVacancyDetails: undefined,
+          projectedVacancies: undefined,
           absenceDates: sortBy([...prev.absenceDates, date]),
         };
       }
     }
     case "setVacanciesInput": {
       return { ...prev, customizedVacanciesInput: action.input };
+    }
+    case "setAccountingCodesOnAllCustomVacancyDetails": {
+      return {
+        ...prev,
+        customizedVacanciesInput: prev.customizedVacanciesInput?.map(v => {
+          return {
+            ...v,
+            accountingCodeAllocations: action.accountingCodeValue,
+          };
+        }),
+      };
+    }
+    case "setPayCodeOnAllCustomVacancyDetails": {
+      return {
+        ...prev,
+        customizedVacanciesInput: prev.customizedVacanciesInput?.map(v => {
+          return {
+            ...v,
+            payCodeId: action.payCodeId,
+          };
+        }),
+      };
     }
     case "removeAbsenceDates": {
       return {

@@ -31,9 +31,13 @@ import { Can } from "ui/components/auth/can";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
 import { secondsSinceMidnight } from "helpers/time";
-import { VacancyDetail } from "ui/components/absence/types";
 import { isSameDay } from "date-fns";
-import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
+import {
+  accountingCodeAllocationsAreTheSame,
+  mapAccountingCodeAllocationsToAccountingCodeValue,
+  accountingCodeValuesAreEqual,
+} from "helpers/accounting-code-allocations";
+import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 type Props = {
   isCreate: boolean;
@@ -48,6 +52,10 @@ type Props = {
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
   onEditSubDetailsClick: () => void;
   onProjectedVacanciesChange: (vacancies: Vacancy[]) => void;
+  onOverallCodeChanges: (details: {
+    accountingCodeValue?: AccountingCodeValue;
+    payCodeId?: string | null;
+  }) => void;
   assignmentsByDate?: AssignmentOnDate[] | undefined;
 };
 
@@ -65,6 +73,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     onEditSubDetailsClick,
     locationIds,
     onProjectedVacanciesChange,
+    onOverallCodeChanges,
     assignmentsByDate,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
@@ -78,6 +87,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
       },
     },
     skip: !absenceInput,
+    fetchPolicy: "network-only",
     onError: error => {
       ShowErrors(error, snackbar.openSnackbar);
     },
@@ -100,7 +110,9 @@ export const SubstituteDetails: React.FC<Props> = props => {
   );
 
   React.useEffect(() => {
-    onProjectedVacanciesChange(projectedVacancies);
+    if (projectedVacancies.length > 0) {
+      onProjectedVacanciesChange(projectedVacancies);
+    }
   }, [onProjectedVacanciesChange, projectedVacancies]);
 
   // Prevent flashes of loading in the Vacancy Summary component by keeping the
@@ -139,6 +151,12 @@ export const SubstituteDetails: React.FC<Props> = props => {
     for (let i = 0; i < vacancySummaryDetails.length; i++) {
       const d = vacancySummaryDetails[i];
       const detailPayCodeId = d?.payCodeId ?? null;
+
+      if (!detailPayCodeId && !payCodeIdToCompare) {
+        // Both values are falsy so they are the same
+        continue;
+      }
+
       if (detailPayCodeId !== payCodeIdToCompare) {
         return true;
       }
@@ -146,6 +164,43 @@ export const SubstituteDetails: React.FC<Props> = props => {
 
     return false;
   }, [vacancySummaryDetails]);
+
+  // Keep the accounting code allocations and pay code selections
+  // on the Absence view in sync with changes potentially happening
+  // via the Edit Sub Details view. No dependencies on values.accountingCodeAllocations
+  // or values.payCodeId, because we only really want this to fire when the details
+  // are updated and when they no longer have different selections
+  React.useEffect(() => {
+    if (vacancySummaryDetails.length === 0) {
+      return;
+    }
+
+    if (!detailsHaveDifferentAccountingCodes) {
+      const newAccountingCodeValue = mapAccountingCodeAllocationsToAccountingCodeValue(
+        vacancySummaryDetails[0].accountingCodeAllocations
+      );
+      if (
+        !accountingCodeValuesAreEqual(
+          values.accountingCodeAllocations,
+          newAccountingCodeValue
+        )
+      ) {
+        setFieldValue("accountingCodeAllocations", newAccountingCodeValue);
+      }
+    }
+
+    if (
+      !detailsHaveDifferentPayCodes &&
+      values.payCodeId !== vacancySummaryDetails[0].payCodeId
+    ) {
+      setFieldValue("payCodeId", vacancySummaryDetails[0].payCodeId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    detailsHaveDifferentAccountingCodes,
+    detailsHaveDifferentPayCodes,
+    vacancySummaryDetails,
+  ]);
 
   const needsReplacementDisplay: JSX.Element = React.useMemo(() => {
     return (
@@ -191,19 +246,22 @@ export const SubstituteDetails: React.FC<Props> = props => {
             organizationId={organizationId}
             actingAsEmployee={actingAsEmployee}
             locationIds={locationIds}
-            vacancySummaryDetails={vacancySummaryDetails}
-            detailsHaveDifferentAccountingCodes={detailsHaveDifferentAccountingCodes}
+            detailsHaveDifferentAccountingCodes={
+              detailsHaveDifferentAccountingCodes
+            }
             detailsHaveDifferentPayCodes={detailsHaveDifferentPayCodes}
+            onOverallCodeChanges={onOverallCodeChanges}
           />
         )}
       </>
     );
   }, [
     actingAsEmployee,
+    detailsHaveDifferentAccountingCodes,
+    detailsHaveDifferentPayCodes,
     locationIds,
     needsReplacementDisplay,
     organizationId,
-    vacancySummaryDetails,
     values.needsReplacement,
   ]);
 
@@ -281,8 +339,12 @@ export const SubstituteDetails: React.FC<Props> = props => {
           setNotesForSubstitute={(notes: string) => {
             setFieldValue("notesToReplacement", notes);
           }}
-          showPayCodes={detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes}
-          showAccountingCodes={detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes}
+          showPayCodes={
+            detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes
+          }
+          showAccountingCodes={
+            detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes
+          }
           noDaysChosenText={t("Select a Date, Reason, and Times...")}
           isAbsence={true}
           absenceActions={absenceActions}

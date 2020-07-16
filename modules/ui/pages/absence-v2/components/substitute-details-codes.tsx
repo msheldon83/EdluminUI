@@ -9,6 +9,7 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import {
   AccountingCodeDropdown,
   noAllocation,
+  AccountingCodeValue,
 } from "ui/components/form/accounting-code-dropdown";
 import { useFormikContext } from "formik";
 import { AbsenceFormData } from "../types";
@@ -20,6 +21,10 @@ type Props = {
   locationIds?: string[];
   detailsHaveDifferentAccountingCodes: boolean;
   detailsHaveDifferentPayCodes: boolean;
+  onOverallCodeChanges: (details: {
+    accountingCodeValue?: AccountingCodeValue;
+    payCodeId?: string | null;
+  }) => void;
 };
 
 export const SubstituteDetailsCodes: React.FC<Props> = props => {
@@ -31,6 +36,7 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
     locationIds,
     detailsHaveDifferentAccountingCodes,
     detailsHaveDifferentPayCodes,
+    onOverallCodeChanges,
   } = props;
 
   const { values, errors, setFieldValue } = useFormikContext<AbsenceFormData>();
@@ -79,13 +85,14 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
               <AccountingCodeDropdown
                 value={values.accountingCodeAllocations ?? noAllocation()}
                 options={accountingCodeOptions}
-                onChange={value =>
+                onChange={value => {
                   setFieldValue(
                     "accountingCodeAllocations",
                     value,
                     !!errors.accountingCodeAllocations
-                  )
-                }
+                  );
+                  onOverallCodeChanges({ accountingCodeValue: value });
+                }}
                 inputStatus={
                   errors.accountingCodeAllocations ? "error" : undefined
                 }
@@ -127,9 +134,10 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
                     payCodeOptions.find(a => a.value === values.payCodeId)
                       ?.label || "",
                 }}
-                onChange={value =>
-                  setFieldValue("payCodeId", value.value, !!errors.payCodeId)
-                }
+                onChange={value => {
+                  setFieldValue("payCodeId", value.value, !!errors.payCodeId);
+                  onOverallCodeChanges({ payCodeId: !value.value ? null : value.value.toString() });
+                }}
                 options={payCodeOptions}
                 multiple={false}
                 inputStatus={errors.payCodeId ? "error" : undefined}

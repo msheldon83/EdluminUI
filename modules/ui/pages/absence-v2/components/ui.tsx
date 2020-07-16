@@ -195,6 +195,8 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
+      console.log(vacancyDetails);
+
       setStep("absence");
       dispatch({
         action: "setVacanciesInput",
@@ -295,12 +297,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         });
       }
     },
-    [
-      isCreate,
-      setStep,
-      state.customizedVacanciesInput,
-      state.projectedVacancyDetails,
-    ]
+    [isCreate, state.customizedVacanciesInput, state.projectedVacancyDetails]
   );
 
   const onAssignSub = React.useCallback(
@@ -408,6 +405,29 @@ export const AbsenceUI: React.FC<Props> = props => {
     ]
   );
 
+  const onOverallCodeChanges = React.useCallback(
+    (accountingCodeValue?: AccountingCodeValue, payCodeId?: string | null) => {
+      if (
+        accountingCodeValue &&
+        (accountingCodeValue.type !== "multiple-allocations" ||
+          accountingCodeValue.allocations.length > 0)
+      ) {
+        dispatch({
+          action: "setAccountingCodesOnAllCustomVacancyDetails",
+          accountingCodeValue,
+        });
+      }
+
+      if (payCodeId === null || payCodeId) {
+        dispatch({
+          action: "setPayCodeOnAllCustomVacancyDetails",
+          payCodeId,
+        });
+      }
+    },
+    []
+  );
+
   const save = React.useCallback(
     async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
       let absenceInput = buildAbsenceInput(
@@ -439,7 +459,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         setStep("confirmation");
       }
     },
-    []
+    [disabledDates, isCreate, saveAbsence, setStep, state]
   );
 
   return (
@@ -519,6 +539,11 @@ export const AbsenceUI: React.FC<Props> = props => {
             state,
             disabledDates
           ) as AbsenceCreateInput;
+
+          console.log(
+            "state.customizedVacanciesInput",
+            state.customizedVacanciesInput
+          );
 
           return (
             <>
@@ -620,6 +645,15 @@ export const AbsenceUI: React.FC<Props> = props => {
                               onProjectedVacanciesChange
                             }
                             assignmentsByDate={state.assignmentsByDate}
+                            onOverallCodeChanges={({
+                              accountingCodeValue,
+                              payCodeId,
+                            }) =>
+                              onOverallCodeChanges(
+                                accountingCodeValue,
+                                payCodeId
+                              )
+                            }
                           />
                         </Grid>
                       </Grid>
@@ -710,11 +744,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                   employeeName={`${employee.firstName} ${employee.lastName}`}
                   positionName={position?.title}
                   onCancel={() => setStep("absence")}
-                  details={
-                    state.customizedVacanciesInput ??
-                    state.projectedVacancyDetails ??
-                    []
-                  }
+                  details={state.projectedVacancyDetails ?? []}
                   onChangedVacancies={onChangedVacancies}
                   employeeId={employee.id}
                   setStep={setStep}
@@ -829,6 +859,8 @@ const buildAbsenceInput = (
   const vacancyDetails =
     state.customizedVacanciesInput ?? state.projectedVacancyDetails;
 
+  //console.log(vacancyDetails);
+
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
@@ -844,7 +876,8 @@ const buildAbsenceInput = (
         v.accountingCodeAllocations,
         true
       ),
-    })) || undefined;
+      prearrangedReplacementEmployeeId: v.assignmentEmployeeId,
+    })) ?? undefined;
 
   // Populate the Vacancies on the Absence
   absence = {
@@ -855,11 +888,10 @@ const buildAbsenceInput = (
     vacancies: [
       {
         positionId: state.positionId,
-        useSuppliedDetails: hasEditedDetails,
+        useSuppliedDetails: vDetails && vDetails.length > 0,
         needsReplacement: formValues.needsReplacement,
         notesToReplacement: formValues.notesToReplacement,
-        //prearrangedReplacementEmployeeId: formValues.replacementEmployeeId,
-        details: hasEditedDetails ? vDetails : undefined,
+        details: vDetails,
         accountingCodeAllocations:
           hasEditedDetails || !formValues.accountingCodeAllocations
             ? undefined
