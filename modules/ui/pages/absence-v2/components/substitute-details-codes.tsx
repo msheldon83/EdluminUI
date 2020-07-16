@@ -18,7 +18,6 @@ type Props = {
   organizationId: string;
   actingAsEmployee: boolean;
   locationIds?: string[];
-  vacancySummaryDetails: VacancySummaryDetail[];
   detailsHaveDifferentAccountingCodes: boolean;
   detailsHaveDifferentPayCodes: boolean;
 };
@@ -30,7 +29,6 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
     organizationId,
     actingAsEmployee,
     locationIds,
-    vacancySummaryDetails,
     detailsHaveDifferentAccountingCodes,
     detailsHaveDifferentPayCodes,
   } = props;
