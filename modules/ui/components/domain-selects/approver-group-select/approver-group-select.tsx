@@ -12,6 +12,7 @@ type Props = {
   multiple?: boolean;
   disabled?: boolean;
   idsToFilterOut?: string[];
+  idsToInclude?: string[];
 };
 
 export const ApproverGroupSelect: React.FC<Props> = props => {
@@ -24,9 +25,16 @@ export const ApproverGroupSelect: React.FC<Props> = props => {
     multiple = false,
     disabled = false,
     idsToFilterOut,
+    idsToInclude,
   } = props;
 
-  const approverGroupOptions = useApproverGroupOptions(orgId, idsToFilterOut);
+  let approverGroupOptions = useApproverGroupOptions(orgId, idsToFilterOut);
+
+  if (idsToInclude) {
+    approverGroupOptions = approverGroupOptions.filter(x =>
+      idsToInclude.includes(x.value)
+    );
+  }
 
   const selectedGroups = approverGroupOptions.filter(
     e => e.value && selectedApproverGroupHeaderIds?.includes(e.value.toString())

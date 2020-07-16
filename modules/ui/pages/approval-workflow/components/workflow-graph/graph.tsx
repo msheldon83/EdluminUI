@@ -1,7 +1,10 @@
 import * as React from "react";
 import { useState, useMemo } from "react";
 import { GraphView, INode, IEdge } from "react-digraph";
-import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
+import {
+  ApprovalWorkflowStepInput,
+  ApprovalWorkflowTransitionInput,
+} from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { makeStyles, Popper, Fade, ClickAwayListener } from "@material-ui/core";
 import { GraphConfig, NODE_KEY } from "./graph-config";
@@ -13,10 +16,15 @@ import {
 import { AddUpdateApprover } from "./approver-popper";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { breakLabel } from "./text-helper";
+import { ApprovalWorkflowType } from "graphql/server-types.gen";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { useVacancyReasons } from "reference-data/vacancy-reasons";
+import { ConditionPopper } from "./condition-popper";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
   orgId: string;
+  workflowType: ApprovalWorkflowType;
   setSteps: (steps: ApprovalWorkflowStepInput[]) => void;
 };
 
@@ -24,10 +32,14 @@ export const StepsGraph: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { steps, setSteps } = props;
+  const { steps, setSteps, workflowType } = props;
+
+  const absenceReasons = useAbsenceReasons(props.orgId);
+  const vacancyReasons = useVacancyReasons(props.orgId);
 
   const [elAnchor, setElAnchor] = useState<null | HTMLElement>(null);
   const [conditionOpen, setConditionOpen] = useState(false);
+  const [approverOpen, setApproverOpen] = useState(false);
 
   const [selectedEdge, setSelectedEdge] = useState<IEdge | undefined>(
     undefined
@@ -65,7 +77,7 @@ export const StepsGraph: React.FC<Props> = props => {
       const nodeElement = document.getElementById(nodeId);
       setElAnchor(nodeElement);
       setSelectedNode(node);
-      setConditionOpen(true);
+      setApproverOpen(true);
       const step = steps.find(x => x.stepId == node.id);
       setSelectedStep(step);
     }
@@ -78,11 +90,15 @@ export const StepsGraph: React.FC<Props> = props => {
   };
 
   const onSelectEdge = (edge: IEdge) => {
+    const edgeId = `edge-${edge.source}-${edge.target}-container`;
+    const edgeElement = document.getElementById(edgeId);
+    setElAnchor(edgeElement);
     if (edge.type === "addEdge") {
-      const edgeId = `edge-${edge.source}-${edge.target}-container`;
-      const edgeElement = document.getElementById(edgeId);
-      setElAnchor(edgeElement);
       setSelectedEdge(edge);
+      setApproverOpen(true);
+    } else if (edge.type === "ifEdge") {
+      setSelectedEdge(edge);
+      setSelectedStep(steps.find(x => x.stepId === edge.source));
       setConditionOpen(true);
     }
   };
@@ -143,20 +159,15 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
-  const handleAddCondition = (
+  const handleAddApprover = (
     groupId: string,
-    args?: string,
-    criteria?: string
+    onApproval: ApprovalWorkflowTransitionInput[]
   ) => {
     const nextId = getNextId(steps);
     const sourceIndex = steps.findIndex(x => x.stepId == selectedEdge?.source);
     const sourceStep = steps[sourceIndex];
     const targetIndex = steps.findIndex(x => x.stepId == selectedEdge?.target);
     const targetStep = steps[targetIndex];
-    const sourceOnApprovalIndex = steps[sourceIndex].onApproval?.findIndex(
-      (x: any) => x?.goto == selectedEdge?.target
-    );
-    steps[sourceIndex].onApproval[sourceOnApprovalIndex].goto = nextId;
 
     steps.push({
       stepId: nextId,
@@ -164,7 +175,7 @@ export const StepsGraph: React.FC<Props> = props => {
       isFirstStep: false,
       isLastStep: false,
       deleted: false,
-      onApproval: [{ goto: selectedEdge?.target, args, criteria }],
+      onApproval: onApproval,
       yPosition: sourceStep.yPosition,
       xPosition:
         (sourceStep.xPosition as number) +
@@ -172,19 +183,34 @@ export const StepsGraph: React.FC<Props> = props => {
     });
   };
 
-  const handleUpdateCondition = (
+  const handleUpdateApprover = (
+    onApproval: ApprovalWorkflowTransitionInput[],
     stepId?: string,
-    groupId?: string,
-    args?: string,
-    criteria?: string
+    groupId?: string
   ) => {
     if (!stepId && groupId) {
-      handleAddCondition(groupId, args, criteria);
+      handleAddApprover(groupId, onApproval);
     } else {
       const stepIndex = steps.findIndex(x => x.stepId == stepId);
       steps[stepIndex].approverGroupHeaderId = groupId ?? null;
-      steps[stepIndex].onApproval[0].args = args; // TODO: This will need to handle multiple conditions when we start doing IFs
-      steps[stepIndex].onApproval[0].criteria = criteria;
+      steps[stepIndex].onApproval = onApproval;
+    }
+
+    handleClosePopper();
+  };
+
+  const handleUpdateCondition = (
+    stepId: string,
+    transition: ApprovalWorkflowTransitionInput
+  ) => {
+    const stepIndex = steps.findIndex(x => x.stepId == stepId);
+    const onApprovalIndex = steps[stepIndex].onApproval.findIndex(
+      x => x.goto == selectedEdge?.target
+    );
+    if (onApprovalIndex >= 0) {
+      steps[stepIndex].onApproval[onApprovalIndex] = transition;
+    } else {
+      steps[stepIndex].onApproval.unshift(transition);
     }
 
     handleClosePopper();
@@ -194,6 +220,7 @@ export const StepsGraph: React.FC<Props> = props => {
     setElAnchor(null);
     setSelectedNode(null);
     setConditionOpen(false);
+    setApproverOpen(false);
     setSelectedEdge(undefined);
     setSelectedStep(null);
   };
@@ -247,7 +274,7 @@ export const StepsGraph: React.FC<Props> = props => {
       />
       <Popper
         transition
-        open={conditionOpen}
+        open={approverOpen}
         anchorEl={elAnchor}
         placement="top"
       >
@@ -261,14 +288,51 @@ export const StepsGraph: React.FC<Props> = props => {
             >
               <>
                 <AddUpdateApprover
+                  workflowType={workflowType}
                   orgId={props.orgId}
                   onClose={() => handleClosePopper()}
-                  onSave={handleUpdateCondition}
+                  onSave={handleUpdateApprover}
                   steps={steps}
                   approverGroups={approverGroups}
                   myStep={selectedStep}
                   defaultGotoStepId={selectedEdge?.target ?? ""}
                   onRemove={selectedStep ? handleRemoveStep : undefined}
+                  reasons={
+                    workflowType === ApprovalWorkflowType.Absence
+                      ? absenceReasons
+                      : workflowType === ApprovalWorkflowType.Vacancy
+                      ? vacancyReasons
+                      : []
+                  }
+                />
+              </>
+            </ClickAwayListener>
+          </Fade>
+        )}
+      </Popper>
+      <Popper
+        transition
+        open={conditionOpen}
+        anchorEl={elAnchor}
+        placement="top"
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={150}>
+            <ClickAwayListener
+              mouseEvent="onMouseDown"
+              onClickAway={() => {
+                handleClosePopper();
+              }}
+            >
+              <>
+                <ConditionPopper
+                  workflowType={workflowType}
+                  orgId={props.orgId}
+                  onClose={() => handleClosePopper()}
+                  onSave={handleUpdateCondition}
+                  steps={steps}
+                  myStep={selectedStep}
+                  gotoStepId={selectedEdge?.target}
                 />
               </>
             </ClickAwayListener>

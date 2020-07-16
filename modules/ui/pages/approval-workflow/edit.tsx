@@ -196,6 +196,7 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
           steps={steps}
           setSteps={setSteps}
           orgId={params.organizationId}
+          workflowType={approvalWorkflow.approvalWorkflowTypeId}
         />
         <Grid
           container

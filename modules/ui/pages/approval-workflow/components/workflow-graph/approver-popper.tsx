@@ -12,29 +12,42 @@ import { Section } from "ui/components/section";
 import {
   AbsenceTransitionArgs,
   buildTransitionArgsJsonString,
+  AbsenceTransitionCriteria,
+  VacancyTransitionCriteria,
 } from "../../types";
-import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
+import {
+  ApprovalWorkflowStepInput,
+  ApprovalWorkflowType,
+  ApprovalWorkflowTransitionInput,
+} from "graphql/server-types.gen";
 import { compact } from "lodash-es";
 
 type Props = {
   orgId: string;
+  workflowType: ApprovalWorkflowType;
   onClose: () => void;
   onSave: (
+    onApproval: ApprovalWorkflowTransitionInput[],
     stepId?: string,
-    groupId?: string,
-    args?: string,
-    criteria?: string
+    groupId?: string
   ) => void;
   onRemove?: () => void;
   steps: ApprovalWorkflowStepInput[];
   myStep?: ApprovalWorkflowStepInput | null;
   defaultGotoStepId: string;
   approverGroups: { id: string; name: string }[];
+  reasons: {
+    id: string;
+    name: string;
+  }[];
 };
 
 export const AddUpdateApprover: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+
+  const { myStep } = props;
+  const firstStep = myStep?.isFirstStep;
 
   const [approverGroupIds, setApproverGroupIds] = useState<
     string[] | undefined
@@ -43,8 +56,9 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     AbsenceTransitionArgs | undefined
   >(); // TODO: make this use either type
 
-  const { myStep } = props;
-  const firstStep = myStep?.isFirstStep;
+  const [onApproval, setOnApproval] = useState<
+    ApprovalWorkflowTransitionInput[]
+  >(myStep ? myStep.onApproval : [{ goto: null, criteria: null, args: null }]);
 
   useEffect(() => {
     if (myStep && myStep.approverGroupHeaderId) {
@@ -65,12 +79,19 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     }
   }, [myStep]);
 
+  // TODO: Refactor the save so that this component is building the full step Input and passing it back to the parent
   const handleSave = () => {
     props.onSave(
+      onApproval,
       myStep?.stepId,
-      approverGroupIds ? approverGroupIds[0] : undefined,
-      buildTransitionArgsJsonString(transitionArgs)
+      approverGroupIds ? approverGroupIds[0] : undefined
     );
+  };
+
+  const handleUpdateTransitionArgs = (args: AbsenceTransitionArgs) => {
+    const argsJsonString = buildTransitionArgsJsonString(transitionArgs);
+    onApproval.forEach(x => (x.args = argsJsonString));
+    setTransitionArgs(args);
   };
 
   const myTransitions = myStep ? myStep.onApproval : null;
@@ -98,7 +119,25 @@ export const AddUpdateApprover: React.FC<Props> = props => {
   );
 
   const renderCondition = (criteria?: string | null) => {
-    return criteria ? "" : `(${t("Default")})`;
+    if (!criteria) return t("(Default)");
+
+    if (props.workflowType === ApprovalWorkflowType.Absence) {
+      const parsedCriteria: AbsenceTransitionCriteria = JSON.parse(criteria);
+      const reasonNames = props.reasons
+        .filter(x => parsedCriteria.absenceReasonIds?.includes(x.id))
+        .map(x => x.name)
+        .join(", ");
+      return `${t("if Reason is")} ${reasonNames}`;
+    }
+    if (props.workflowType === ApprovalWorkflowType.Vacancy) {
+      const parsedCriteria: VacancyTransitionCriteria = JSON.parse(criteria);
+      const reasonNames = props.reasons
+        .filter(x => parsedCriteria.vacancyReasonIds?.includes(x.id))
+        .map(x => x.name)
+        .join(", ");
+      return `${t("if Reason is")} ${reasonNames}`;
+    }
+    return "";
   };
 
   return (
@@ -213,10 +252,10 @@ const useStyles = makeStyles(theme => ({
     flex: 2,
   },
   gotoCondition: {
-    flex: 2,
+    flex: 3,
     paddingLeft: theme.spacing(2),
   },
   popper: {
-    width: "300px",
+    width: "350px",
   },
 }));
