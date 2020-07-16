@@ -9,6 +9,7 @@ export type Period = {
   startPeriodId?: string | null | undefined;
   endPeriodId?: string | null | undefined;
   allDay?: boolean;
+  overMidnightConfirmed: boolean;
 };
 
 export type Schedule = {
@@ -56,6 +57,7 @@ export const GetError = (
   periodIndex: number,
   scheduleIndex: number
 ) => {
+  
   if (!errors.schedules || !errors.schedules[scheduleIndex]) {
     return undefined;
   }

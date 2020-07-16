@@ -328,7 +328,7 @@ export const SubstituteRequiredDetails: React.FC<Props> = props => {
                 ].join(" ")}
               >
                 {t(
-                  "Can be seen by the substitute, administrator and employee."
+                  "Can be seen by the substitute, administrator, and employee."
                 )}
               </Typography>
               <NoteField

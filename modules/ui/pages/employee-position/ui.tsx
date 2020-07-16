@@ -111,11 +111,14 @@ export const PositionEditUI: React.FC<Props> = props => {
   const getScheduledLocationIds = (schedules: Schedule[]) => {
     const scheduledLocationIds: Set<string> = new Set();
     (schedules ?? []).forEach(ps =>
-      ps.periods.forEach(p => scheduledLocationIds.add(p.locationId))
+      ps.periods.forEach(p => {
+          scheduledLocationIds.add(p.locationId);
+      })
     );
     return Array.from(scheduledLocationIds);
   };
 
+  
   const accountingCodes = useAccountingCodes(params.organizationId);
   const getValidAccountingCodes: (
     locationIds: string[]
@@ -144,6 +147,8 @@ export const PositionEditUI: React.FC<Props> = props => {
     ],
     [t]
   );
+
+  
 
   return (
     <>
@@ -276,21 +281,17 @@ export const PositionEditUI: React.FC<Props> = props => {
                           }),
                       })
                       .test({
-                        name: "endBeforeStartCheck",
-                        test: function test(value) {
-                          if (
-                            isBefore(
-                              parseISO(value.endTime),
-                              parseISO(value.startTime)
-                            )
+                        name: "overMidnightConfirmed",
+                        test: function test(value) { 
+                          //allow for reversed time 
+                          if (isBefore(parseISO(value.endTime), parseISO(value.startTime))
                           ) {
-                            return new yup.ValidationError(
-                              t("End Time before Start Time"),
-                              null,
-                              `${this.path}.endTime`
-                            );
+                            if (!value.overMidnightConfirmed) {
+                              //Would really enjoy displaying nothing, but it appears that the mechanism that
+                              //restricts submitting the form doesn't work when an empty message is returned.
+                              return new yup.ValidationError(t(`Confirmation required`), null, `${this.path}.endTime`);
+                            }
                           }
-
                           return true;
                         },
                       })
@@ -303,9 +304,6 @@ export const PositionEditUI: React.FC<Props> = props => {
             test: function test(value: {
               accountingCodeValue: AccountingCodeValue;
             }) {
-              if (value.accountingCodeValue?.selection?.value === undefined)
-                return true;
-
               const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
                 value.accountingCodeValue
               );
@@ -416,15 +414,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                     </Grid>
                   </Grid>
                   <Grid item container spacing={2}>
-                    <Grid
-                      item
-                      xs={
-                        values.accountingCodeValue?.type ===
-                        "multiple-allocations"
-                          ? 8
-                          : 4
-                      }
-                    >
+                    <Grid item xs={values.accountingCodeValue?.type === "multiple-allocations" ? 8 : 4}>
                       <Typography>{t("Needs Replacement")}</Typography>
                       <SelectNew
                         value={needsReplacementOptions.find(
@@ -443,15 +433,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                         withResetValue={false}
                       />
                     </Grid>
-                    <Grid
-                      item
-                      xs={
-                        values.accountingCodeValue?.type ===
-                        "multiple-allocations"
-                          ? 8
-                          : 4
-                      }
-                    >
+                    <Grid item xs={values.accountingCodeValue?.type === "multiple-allocations" ? 8 : 4}>
                       <AccountingCodeDropdown
                         value={values.accountingCodeValue}
                         options={validAccountingCodes}
