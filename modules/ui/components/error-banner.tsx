@@ -13,7 +13,7 @@ type Props = {
   errorBannerOpen: boolean;
   title: string;
   warningsOnlyTitle: string;
-  setErrorBannerOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
   continueAction: () => Promise<void>;
   translateCodeToMessage?: (
     errorCode: string,
@@ -67,7 +67,7 @@ export const ErrorBanner: React.FC<Props> = props => {
                 <Button
                   size="small"
                   variant="outlined"
-                  onClick={() => props.setErrorBannerOpen(false)}
+                  onClick={() => props.onClose()}
                 >
                   {warningsOnly ? t("Cancel") : t("Okay")}
                 </Button>
@@ -77,7 +77,7 @@ export const ErrorBanner: React.FC<Props> = props => {
                     variant="contained"
                     className={classes.buttonPadding}
                     onClick={async () => {
-                      props.setErrorBannerOpen(false);
+                      props.onClose();
                       await props.continueAction();
                     }}
                   >
