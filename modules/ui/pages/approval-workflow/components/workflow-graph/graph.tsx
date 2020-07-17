@@ -1,18 +1,11 @@
 import * as React from "react";
 import { useState, useMemo } from "react";
 import { GraphView, INode, IEdge } from "react-digraph";
-import {
-  ApprovalWorkflowStepInput,
-  ApprovalWorkflowTransitionInput,
-} from "graphql/server-types.gen";
+import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { makeStyles, Popper, Fade, ClickAwayListener } from "@material-ui/core";
 import { GraphConfig, NODE_KEY } from "./graph-config";
-import {
-  convertStepsToNodes,
-  convertStepsToEdges,
-  getNextId,
-} from "./graph-helpers";
+import { convertStepsToNodes, convertStepsToEdges } from "./graph-helpers";
 import { AddUpdateApprover } from "./approver-popper";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { breakLabel } from "./text-helper";
@@ -20,6 +13,7 @@ import { ApprovalWorkflowType } from "graphql/server-types.gen";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useVacancyReasons } from "reference-data/vacancy-reasons";
 import { ConditionPopper } from "./condition-popper";
+import { compact, flatMap } from "lodash-es";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
@@ -168,6 +162,32 @@ export const StepsGraph: React.FC<Props> = props => {
         steps[stepIndex] = step;
       }
     });
+
+    // If removing a criteria caused an orphaned path, remove any orphaned steps
+    let allGotos = flatMap(
+      compact(
+        steps.filter(x => !x.deleted).map(x => x.onApproval.map(y => y.goto))
+      )
+    );
+    let orphanedStep = steps
+      .filter(x => !x.deleted)
+      .find(x => !allGotos.includes(x.stepId) && !x.isFirstStep);
+    while (orphanedStep) {
+      allGotos = flatMap(
+        compact(
+          steps.filter(x => !x.deleted).map(x => x.onApproval.map(y => y.goto))
+        )
+      );
+      orphanedStep = steps
+        .filter(x => !x.deleted)
+        .find(x => !allGotos.includes(x.stepId) && !x.isFirstStep);
+      if (orphanedStep !== undefined) {
+        const orphanedStepIndex = steps.findIndex(
+          x => x.stepId === orphanedStep?.stepId
+        );
+        steps[orphanedStepIndex].deleted = true;
+      }
+    }
   };
 
   const handleClosePopper = () => {

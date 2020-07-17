@@ -179,7 +179,7 @@ export const createNewStep = (
     xPosition:
       (previousStep?.xPosition as number) +
       (nextStep?.xPosition - previousStep?.xPosition) / 2,
-  };
+  } as ApprovalWorkflowStepInput;
 };
 
 export const buildCleanStepInput = (steps: ApprovalWorkflowStep[]) => {
@@ -221,3 +221,48 @@ export const initialSteps: ApprovalWorkflowStepInput[] = [
     yPosition: 250,
   },
 ];
+
+// Path through workflow
+
+export const determinePathThroughAbsVacWorkflow = (
+  steps: ApprovalWorkflowStepInput[],
+  workflowType: ApprovalWorkflowType,
+  reasonIds?: string[],
+  upToStepId?: string
+) => {
+  const pathSteps = [] as ApprovalWorkflowStepInput[];
+  let step = steps.filter(x => !x.deleted).find(x => x.isFirstStep);
+
+  while (step && step.stepId !== upToStepId) {
+    pathSteps.push(step);
+
+    const transitions = convertTransitionsFromInput(
+      step.onApproval,
+      workflowType
+    ) as any[];
+    let nextStepId = transitions[transitions.length - 1].goto;
+
+    if (reasonIds && reasonIds.length > 0 && transitions.length > 1) {
+      nextStepId = transitions.find((transition: any) => {
+        if (transition.criteria) {
+          if (workflowType === ApprovalWorkflowType.Absence) {
+            const criteria = transition.criteria as AbsenceTransitionCriteria;
+            if (reasonIds.some(r => criteria.absenceReasonIds?.includes(r))) {
+              return true;
+            }
+          } else {
+            const criteria = transition.criteria as VacancyTransitionCriteria;
+            if (reasonIds.some(r => criteria.vacancyReasonIds?.includes(r))) {
+              return true;
+            }
+          }
+        }
+        return false;
+      })?.goto;
+    }
+
+    step = steps.find(x => x.stepId === nextStepId);
+  }
+
+  return pathSteps;
+};

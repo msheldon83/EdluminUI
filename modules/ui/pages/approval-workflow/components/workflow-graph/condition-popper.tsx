@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   makeStyles,
   Button,
@@ -17,6 +17,7 @@ import {
   createNewStep,
   AbsenceTransition,
   VacancyTransition,
+  determinePathThroughAbsVacWorkflow,
 } from "../../types";
 import {
   ApprovalWorkflowStepInput,
@@ -120,6 +121,20 @@ export const ConditionPopper: React.FC<Props> = props => {
       }
     }
   }, [transition, workflowType]);
+
+  const determineApproverGroupIdsToFilterOut = (reasonIds?: string[]) => {
+    const path = determinePathThroughAbsVacWorkflow(
+      steps,
+      props.workflowType,
+      reasonIds,
+      step.stepId
+    );
+    const ids = compact(path.map(x => x.approverGroupHeaderId));
+    if (step.approverGroupHeaderId) {
+      ids.push(step.approverGroupHeaderId);
+    }
+    return ids;
+  };
 
   return (
     <div className={classes.popper}>
@@ -241,6 +256,9 @@ export const ConditionPopper: React.FC<Props> = props => {
                       setFieldValue("approverGroupHeaderId", null);
                     }
                   }}
+                  idsToFilterOut={determineApproverGroupIdsToFilterOut(
+                    values.reasonIds
+                  )}
                   addApprovedOption={true}
                   errorMessage={errors.approverGroupHeaderId}
                 />
