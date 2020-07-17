@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
-import { Grid, TextField, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { GetUserById } from "../graphql/get-user-by-id.gen";
 import { useIsMobile } from "hooks";
 import { IsoSelectOne, IsoOptionType } from "ui/components/form/iso-select";
@@ -12,6 +12,8 @@ type Props = {
   userId: string;
   orgId: string;
   setOrgId: (id: string) => void;
+  orgName: string;
+  setOrgName: (id: string) => void;
   orgUserId: string;
   setOrgUserId: (id: string) => void;
   search: string;
@@ -22,6 +24,8 @@ export const Filters: React.FC<Props> = ({
   userId,
   orgId,
   setOrgId,
+  orgName,
+  setOrgName,
   orgUserId,
   setOrgUserId,
   search,
@@ -62,9 +66,9 @@ export const Filters: React.FC<Props> = ({
             to: (s: string) => s.split(",") as [string, string],
             from: (t: [string, string]) => t.join(","),
           }}
-          onChange={([oId, oUId]) => {
-            console.log(oId, oUId);
+          onChange={({ value: [oId, oUId], label: oName }) => {
             setOrgId(oId);
+            setOrgName(oName);
             setOrgUserId(oUId);
           }}
         />

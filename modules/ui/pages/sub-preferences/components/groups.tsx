@@ -82,8 +82,8 @@ export const ViewGroup: React.FC<ViewGroupProps> = ({
 
 export type EditGroupProps = {
   group: SchoolGroup;
-  onSet: (status: "favorite" | "hidden") => (schoolId: string) => void;
-  onSetAll: (status: "favorite" | "hidden") => void;
+  onSet: (schoolId: string, preference: "favorite" | "hidden") => void;
+  onSetAll: (preference: "favorite" | "hidden") => void;
   onDelete: (schoolId: string) => void;
   onDeleteAll: () => void;
 };
@@ -124,31 +124,31 @@ export const EditGroup: React.FC<EditGroupProps> = ({
           </Link>
         </Grid>
       }
-      renderRowLinks={({ id, status }) => (
+      renderRowLinks={({ id, preference }) => (
         <Grid item container xs={6} justify="flex-end">
-          {status == "favorite" ? (
+          {preference == "favorite" ? (
             <Typography className={classes.text}>{t("Favorite")}</Typography>
           ) : (
             <Link
               className={classes.bodyLink}
-              onClick={() => onSet("favorite")(id)}
+              onClick={() => onSet(id, "favorite")}
             >
               {t("Favorite")}
             </Link>
           )}
-          {status == "default" ? (
+          {preference == "default" ? (
             <Typography className={classes.text}>{t("Default")}</Typography>
           ) : (
             <Link className={classes.bodyLink} onClick={() => onDelete(id)}>
               {t("Default")}
             </Link>
           )}
-          {status == "hidden" ? (
+          {preference == "hidden" ? (
             <Typography className={classes.text}>{t("Hide")}</Typography>
           ) : (
             <Link
               className={classes.bodyLink}
-              onClick={() => onSet("hidden")(id)}
+              onClick={() => onSet(id, "hidden")}
             >
               {t("Hide")}
             </Link>

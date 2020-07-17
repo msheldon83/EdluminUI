@@ -260,6 +260,8 @@ import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
 import {
   SubPreferencesLoader,
   SubPreferencesRoute,
+  SubPreferencesEditLoader,
+  SubPreferencesEditRoute,
 } from "./routes/sub-preferences";
 import {
   SubSpecificOpportunityLoader,
@@ -277,12 +279,6 @@ import {
   SubAvailabilityRoute,
   SubAvailabilityLoader,
 } from "./routes/sub-schedule";
-import {
-  SubSchoolPreferencesRoute,
-  SubSchoolPreferencesLoader,
-  SubSchoolPreferencesEditRoute,
-  SubSchoolPreferencesEditLoader,
-} from "./routes/sub-school-preferences";
 import {
   SubstituteSettingsLoader,
   SubstituteSettingsRoute,
@@ -536,6 +532,10 @@ export const App = hot(function() {
                                 <SubScheduleLoader view="list" />
                               </Route>
                               <Route
+                                component={SubPreferencesEditLoader}
+                                path={SubPreferencesEditRoute.path}
+                              />
+                              <Route
                                 component={SubPreferencesLoader}
                                 path={SubPreferencesRoute.path}
                               />
@@ -550,14 +550,6 @@ export const App = hot(function() {
                               <Route
                                 path={SubMobileSearchRoute.path}
                                 component={SubstituteMobileSearchLoader}
-                              />
-                              <Route
-                                path={SubSchoolPreferencesEditRoute.path}
-                                component={SubSchoolPreferencesEditLoader}
-                              />
-                              <Route
-                                path={SubSchoolPreferencesRoute.path}
-                                component={SubSchoolPreferencesLoader}
                               />
                               {/* The following two routes must be the last two in this switch.
                               This first will match exactly and send the substitute to the home page.

@@ -1,0 +1,9 @@
+query GetSubPreferences($userId: ID!, $orgId: ID) {
+  employee {
+    employeeLocationPreferences(id: $userId, orgId: $orgId){
+      id
+      locationId
+      preferenceId
+    }
+  }
+}

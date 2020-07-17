@@ -49,7 +49,9 @@ export type IsoSelectProps<
   options: Array<IsoOptionType<InterpretedType>>;
   value: T extends true ? Array<InterpretedType> : InterpretedType;
   onChange?: (
-    value: T extends true ? Array<InterpretedType> : InterpretedType
+    value: T extends true
+      ? Array<IsoOptionType<InterpretedType>>
+      : IsoOptionType<InterpretedType>
   ) => void;
   onSort?: (
     option1: IsoOptionType<InterpretedType>,
@@ -77,9 +79,7 @@ export function IsoSelectOne<RawType extends string | number, InterpretedType>(
         options.find(o => isEqual(o.value, value)) ?? options[0]
       )}
       onChange={
-        onChange
-          ? rawValue => onChange(optionIso.to(rawValue).value)
-          : undefined
+        onChange ? rawValue => onChange(optionIso.to(rawValue)) : undefined
       }
       onSort={
         onSort
@@ -105,7 +105,7 @@ export function IsoSelectMany<RawType extends string | number, InterpretedType>(
       value={options.filter(o => value.includes(o.value)).map(optionIso.from)}
       onChange={
         onChange
-          ? rawValue => onChange(rawValue.map(v => optionIso.to(v).value))
+          ? rawValue => onChange(rawValue.map(v => optionIso.to(v)))
           : undefined
       }
       onSort={

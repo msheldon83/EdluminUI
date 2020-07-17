@@ -5,17 +5,18 @@ import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { Filters } from "./components/filters";
 import { useMyUserAccess } from "reference-data/my-user-access";
-import { SubSchoolPreferencesEditUI } from "./edit-ui";
+import { SubPreferencesEditUI } from "./edit-ui";
 
 type Props = {};
 
-export const SubSchoolPreferencesEditPage: React.FC<Props> = props => {
+export const SubPreferencesEditPage: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   const userAccess = useMyUserAccess();
   const userId = userAccess?.me?.user?.id;
 
   const [orgId, setOrgId] = React.useState<string>("");
+  const [orgName, setOrgName] = React.useState<string>("");
   const [orgUserId, setOrgUserId] = React.useState<string>("");
   const [search, setSearch] = React.useState<string>("");
 
@@ -35,13 +36,17 @@ export const SubSchoolPreferencesEditPage: React.FC<Props> = props => {
             userId,
             orgId,
             setOrgId,
+            orgName,
+            setOrgName,
             orgUserId,
             setOrgUserId,
             search,
             setSearch,
           }}
         />
-        <SubSchoolPreferencesEditUI {...{ orgId, orgUserId, search }} />
+        <SubPreferencesEditUI
+          {...{ userId, orgId, orgName, orgUserId, search }}
+        />
       </Section>
     </>
   );
