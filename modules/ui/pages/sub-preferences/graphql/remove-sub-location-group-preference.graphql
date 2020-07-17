@@ -4,15 +4,6 @@ mutation RemoveSubLocationGroupPreference($orgUserId: ID!, $orgId: ID!, $locatio
       orgId: $orgId,
       employeeId: $orgUserId,
       locationGroupId: $locationGroupId
-    ) {
-      results {
-        id
-        messages {
-          text
-          code
-          severity
-        }
-      }
-    }
+    )
   }
 }
