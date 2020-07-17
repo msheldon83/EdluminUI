@@ -1,14 +1,8 @@
-import {
-  makeStyles,
-  TextField,
-  TextFieldProps,
-  Typography,
-} from "@material-ui/core";
+import { makeStyles, TextField, Typography } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
 import { isEmpty, words } from "lodash-es";
-import { FieldError } from "react-hook-form/dist/types";
 
 type Props = {
   name: string;
@@ -16,7 +10,7 @@ type Props = {
   onChange: (event: any) => Promise<void>;
   initialAbsenceCreation: boolean;
   isSubmitted: boolean;
-  validationMessage?: FieldError | undefined;
+  validationMessage?: string | undefined;
   required?: boolean;
 };
 
@@ -36,9 +30,7 @@ export const NoteField: React.FC<Props> = props => {
   const requireNotes =
     (props.required && isEmpty(words(props.value))) ||
     !!props.validationMessage;
-  const requiredText = requireNotes
-    ? t("Required")
-    : props.validationMessage?.message;
+  const requiredText = requireNotes ? t("Required") : props.validationMessage;
 
   return (
     <>
