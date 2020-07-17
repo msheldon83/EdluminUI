@@ -27,9 +27,12 @@ export const AbsenceDays: React.FC<Props> = props => {
     positionTypeId
   );
 
-  //TODO: pull these defaults from the details
-  const [sameReason, setSameReason] = React.useState(true);
-  const [sameTimes, setSameTimes] = React.useState(true);
+  const [sameReason, setSameReason] = React.useState(
+    detailsHaveTheSameReasons(details)
+  );
+  const [sameTimes, setSameTimes] = React.useState(
+    detailsHaveTheSameTimes(details)
+  );
 
   const setAllReasonsTheSame = React.useCallback(() => {
     const firstReason = details[0]?.absenceReasonId;
@@ -224,4 +227,63 @@ const getErrorMessage = (errors: any, fieldName: string, index: number) => {
 
   const errorMessage: string = detailError[fieldName];
   return errorMessage;
+};
+
+const detailsHaveTheSameReasons = (details: AbsenceDetail[]) => {
+  if (!details || details.length === 0) {
+    return true;
+  }
+
+  const absenceReasonIdToCompare = details[0].absenceReasonId;
+  for (let index = 0; index < details.length; index++) {
+    const absenceReasonId = details[index].absenceReasonId;
+    if (!absenceReasonId && !absenceReasonIdToCompare) {
+      continue;
+    }
+
+    if (absenceReasonId !== absenceReasonIdToCompare) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const detailsHaveTheSameTimes = (details: AbsenceDetail[]) => {
+  if (!details || details.length === 0) {
+    return true;
+  }
+
+  const timesToCompare = {
+    dayPart: details[0].dayPart,
+    hourlyStartTime: details[0].hourlyStartTime,
+    hourlyEndTime: details[0].hourlyEndTime,
+  };
+  for (let index = 0; index < details.length; index++) {
+    const times = {
+      dayPart: details[index].dayPart,
+      hourlyStartTime: details[index].hourlyStartTime,
+      hourlyEndTime: details[index].hourlyEndTime,
+    };
+    if (!times?.dayPart && !timesToCompare?.dayPart) {
+      continue;
+    }
+
+    if (times.dayPart !== timesToCompare.dayPart) {
+      return false;
+    }
+
+    // If Hourly, check if the start and end are the same
+    if (
+      times.dayPart === DayPart.Hourly &&
+      (times.hourlyStartTime?.toISOString() !==
+        timesToCompare.hourlyStartTime?.toISOString() ||
+        times.hourlyEndTime?.toISOString() !==
+          timesToCompare.hourlyEndTime?.toISOString())
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 };
