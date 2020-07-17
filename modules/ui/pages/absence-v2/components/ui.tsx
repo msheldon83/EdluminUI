@@ -126,10 +126,6 @@ export const AbsenceUI: React.FC<Props> = props => {
   );
 
   const isCreate = !state.absenceId;
-  const absenceReasons = useAbsenceReasons(
-    organizationId,
-    position?.positionTypeId
-  );
   // const initialFormValues: AbsenceFormData = {
   //   id: state.absenceId,
   //   details: state.absenceDetails,
@@ -491,6 +487,10 @@ export const AbsenceUI: React.FC<Props> = props => {
               }),
             })
           ),
+          notesToApprover: yup.string().when("requireNotesToApprover", {
+            is: true,
+            then: yup.string().required(t("Required")),
+          }),
 
           // Notes To Approver if notes are required
           // Accounting Code Allocations

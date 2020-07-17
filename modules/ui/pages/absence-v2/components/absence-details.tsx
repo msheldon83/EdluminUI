@@ -12,12 +12,13 @@ import { startOfDay, min, format } from "date-fns";
 import { FormikErrors, useFormikContext } from "formik";
 import { NoteField } from "ui/components/absence/absence-details/notes-field";
 import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-calendar";
-import { sortBy, compact, flatMap } from "lodash-es";
+import { sortBy, compact, flatMap, intersection } from "lodash-es";
 import { AbsenceCreateInput } from "graphql/server-types.gen";
 import { GetProjectedAbsenceUsage } from "../graphql/get-projected-absence-usage.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { BalanceUsage } from "ui/components/absence/balance-usage";
 import { AbsenceDays } from "./absence-days";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
 
 type Props = {
   employeeId: string;
@@ -35,7 +36,9 @@ type Props = {
 export const AbsenceDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { values, errors, setFieldValue } = useFormikContext<AbsenceFormData>();
+  const { values, errors, setFieldValue, dirty } = useFormikContext<
+    AbsenceFormData
+  >();
   const {
     employeeId,
     organizationId,
@@ -86,6 +89,27 @@ export const AbsenceDetails: React.FC<Props> = props => {
     );
   }, [getProjectedAbsenceUsage]);
 
+  // Keep track of selected Absence Reasons and properly set "requireNotesToApprover" as required
+  // if any of the selected Absence Reasons have "requireNotesToAdmin" set to true
+  const absenceReasons = useAbsenceReasons(organizationId, positionTypeId);
+  React.useEffect(() => {
+    const absenceReasonsThatRequireNotes = absenceReasons
+      .filter(a => a.requireNotesToAdmin)
+      .map(a => a.id);
+    const currentSelectedReasons = compact(
+      values.details.map(d => d.absenceReasonId)
+    );
+    const overlap = intersection(
+      absenceReasonsThatRequireNotes,
+      currentSelectedReasons
+    );
+    const isRequired = overlap.length > 0;
+    if (values.requireNotesToApprover !== isRequired) {
+      setFieldValue("requireNotesToApprover", isRequired);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [absenceReasons, setFieldValue, t, values.details]);
+
   return (
     <>
       <Typography variant="h5">{t("Absence Details")}</Typography>
@@ -99,6 +123,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
         />
       </div>
+
       {/* {showClosedDatesBanner && (
           <Grid className={classes.closedDayBanner} item xs={12}>
             <Typography>
@@ -133,13 +158,15 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </Typography>
 
         <NoteField
-          onChange={async () => {}}
+          onChange={async value =>
+            setFieldValue("notesToApprover", value, !!errors.notesToApprover)
+          }
           name={"notesToApprover"}
-          isSubmitted={false}
-          initialAbsenceCreation={false}
+          isSubmitted={!dirty}
+          initialAbsenceCreation={!values.id}
           value={values.notesToApprover}
-          //validationMessage={errors.notesToApprover}
-          //required={requireAdminNotes}
+          validationMessage={errors.notesToApprover}
+          required={values.requireNotesToApprover}
         />
       </div>
 
@@ -151,10 +178,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
           </Typography>
 
           <NoteField
-            onChange={async () => {}}
+            onChange={async value =>
+              setFieldValue("adminOnlyNotes", value, !!errors.notesToApprover)
+            }
             name={"adminOnlyNotes"}
-            isSubmitted={false}
-            initialAbsenceCreation={false}
+            isSubmitted={!dirty}
+            initialAbsenceCreation={!values.id}
             value={values.adminOnlyNotes}
           />
         </div>

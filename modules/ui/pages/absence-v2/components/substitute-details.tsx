@@ -261,6 +261,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     detailsHaveDifferentPayCodes,
     locationIds,
     needsReplacementDisplay,
+    onOverallCodeChanges,
     organizationId,
     values.needsReplacement,
   ]);
