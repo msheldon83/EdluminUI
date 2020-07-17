@@ -1,10 +1,9 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
-import { Typography, Grid, Tooltip } from "@material-ui/core";
+import { Typography, Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import InfoIcon from "@material-ui/icons/Info";
-import { TFunction } from "i18next";
+import { ToolTip } from "ui/components/tool-tip";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import {
@@ -23,7 +22,7 @@ type Props = {
   editing: string | null;
   editable: boolean;
   attributes?:
-    | Maybe<Pick<Endorsement, "name" | "expires"> | null | undefined>[]
+    | Maybe<Pick<Endorsement, "name" | "expired"> | null | undefined>[]
     | null;
   qualifiedPositionTypes?: Maybe<Pick<PositionType, "name">>[] | null;
 };
@@ -76,7 +75,9 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
                 props.attributes?.map((n, i) => (
                   <div key={i}>
                     {n?.name}
-                    {n?.expires && ToolTip(t)}
+                    {n?.expired && (
+                      <ToolTip message={t("Attribute is expired")} />
+                    )}
                   </div>
                 ))
               )}
@@ -99,24 +100,3 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.lightBlue,
   },
 }));
-
-const ToolTip = (t: TFunction) => {
-  return (
-    <Tooltip
-      title={
-        <div className={useStyles().tooltip}>
-          <Typography variant="body1">{t("Attribute is expired")}</Typography>
-        </div>
-      }
-      placement="right-start"
-    >
-      <InfoIcon
-        color="primary"
-        style={{
-          fontSize: "16px",
-          marginLeft: "8px",
-        }}
-      />
-    </Tooltip>
-  );
-};

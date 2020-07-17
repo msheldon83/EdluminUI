@@ -44,6 +44,7 @@ query GetSubstituteById($id: ID!) {
             id
             name
             expires
+            expired
           }
           expirationDate
         }
