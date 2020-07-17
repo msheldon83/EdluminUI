@@ -89,16 +89,14 @@ export type Detail = {
 export const filterDetailGroups = (
   groups: DetailGroup[],
   filterFn: (detail: Detail) => boolean
-) => {
-  groups.forEach(g => {
-    if (g.subGroups) {
-      filterDetailGroups(g.subGroups, filterFn);
-    }
-    if (g.details) {
-      g.details = g.details.filter(filterFn);
-    }
-  });
-};
+): DetailGroup[] =>
+  groups.map(g => ({
+    ...g,
+    subGroups: g.subGroups
+      ? filterDetailGroups(g.subGroups, filterFn)
+      : undefined,
+    details: g.details ? g.details.filter(filterFn) : undefined,
+  }));
 
 export const MapDailyReportDetails = (
   dailyReport: DailyReportType,

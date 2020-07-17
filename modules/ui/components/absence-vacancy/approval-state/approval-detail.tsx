@@ -125,8 +125,8 @@ type Props = {
           startTimeLocal?: string | null;
           reasonUsages?:
             | Maybe<{
-                amount: number;
-                absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+                hourlyAmount: number;
+                dailyAmount: number;
                 absenceReasonId: string;
                 absenceReason?: {
                   name: string;
