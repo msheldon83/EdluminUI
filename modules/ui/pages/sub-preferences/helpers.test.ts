@@ -88,9 +88,11 @@ const checkDistricts = (districts1: District[], districts2: District[]) =>
 describe("groupDistricts", () => {
   it("when provided only favorite or hidden schools, partitions them (no elements dropped or added)", () => {
     fc.assert(
-      fc.property(withUniqueIds(arbitraryDistrict(), 1, 10), districts => {
+      fc.property(withUniqueIds(arbitraryDistrict()), districts => {
         const grouped = groupDistricts(districts);
         const rejoined = joinGroupedDistricts(grouped);
+        // Here to keep eslint appeased
+        expect(rejoined.length).not.toBeUndefined();
         checkDistricts(districts, rejoined);
       })
     );
@@ -100,6 +102,8 @@ describe("groupDistricts", () => {
       fc.property(arbitraryGroupedDistricts, grouped => {
         const joined = joinGroupedDistricts(grouped);
         const regrouped = groupDistricts(joined);
+        // Here to keep eslint appeased
+        expect(joined.length).not.toBeUndefined();
         checkDistricts(grouped.favorites, regrouped.favorites);
         checkDistricts(grouped.hidden, regrouped.hidden);
       })
