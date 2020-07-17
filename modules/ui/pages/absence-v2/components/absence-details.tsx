@@ -158,8 +158,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
         </Typography>
 
         <NoteField
-          onChange={async value =>
-            setFieldValue("notesToApprover", value, !!errors.notesToApprover)
+          onChange={async e =>
+            setFieldValue("notesToApprover", e.target.value, !!errors.notesToApprover)
           }
           name={"notesToApprover"}
           isSubmitted={!dirty}
@@ -178,8 +178,8 @@ export const AbsenceDetails: React.FC<Props> = props => {
           </Typography>
 
           <NoteField
-            onChange={async value =>
-              setFieldValue("adminOnlyNotes", value, !!errors.notesToApprover)
+            onChange={async e =>
+              setFieldValue("adminOnlyNotes", e.target.value, !!errors.notesToApprover)
             }
             name={"adminOnlyNotes"}
             isSubmitted={!dirty}
