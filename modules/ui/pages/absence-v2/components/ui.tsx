@@ -119,19 +119,13 @@ export const AbsenceUI: React.FC<Props> = props => {
       vacancySummaryDetailsToAssign: [],
     };
   };
+
   const [state, dispatch] = React.useReducer(
     absenceReducer,
     props,
     initialState
   );
-
   const isCreate = !state.absenceId;
-  // const initialFormValues: AbsenceFormData = {
-  //   id: state.absenceId,
-  //   details: state.absenceDetails,
-  //   needsReplacement: state.needsReplacement,
-  //   accountingCodeAllocations: noAllocation(),
-  // };
 
   const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
@@ -364,16 +358,6 @@ export const AbsenceUI: React.FC<Props> = props => {
         //   });
         // }
       } else {
-        // if we have customized vacancies input, then find the appropriate details
-        // and set their assignment info
-
-        // if we only have projected vacancies, then find the appropriate details
-        // and set their assignment info
-
-        // Need some way to not lose assignments when a projected vacancies call occurs
-        // Maybe set assignmentsByStartTime in state when an assignment occurs and remove
-        // when an assignment is cancelled
-
         dispatch({
           action: "updateAssignments",
           assignments: detailsToAssign.map(d => {
@@ -427,10 +411,10 @@ export const AbsenceUI: React.FC<Props> = props => {
   const save = React.useCallback(
     async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
       let absenceInput = buildAbsenceInput(
-        isCreate,
         formValues,
         state,
-        disabledDates
+        disabledDates,
+        false
       );
 
       if (!absenceInput) {
@@ -534,10 +518,10 @@ export const AbsenceUI: React.FC<Props> = props => {
           errors,
         }) => {
           const inputForProjectedCalls = buildAbsenceInput(
-            true,
             values,
             state,
-            disabledDates
+            disabledDates,
+            true
           ) as AbsenceCreateInput;
 
           console.log(
@@ -817,10 +801,10 @@ const copyDetail = (
 };
 
 const buildAbsenceInput = (
-  isCreate: boolean,
   formValues: AbsenceFormData,
   state: AbsenceState,
-  disabledDates: Date[]
+  disabledDates: Date[],
+  forProjections: boolean
 ): AbsenceCreateInput | AbsenceUpdateInput | null => {
   if (
     hasIncompleteDetails(formValues.details) ||
@@ -835,7 +819,7 @@ const buildAbsenceInput = (
   if (!dates) return null;
 
   let absence: AbsenceCreateInput | AbsenceUpdateInput;
-  if (isCreate) {
+  if (!state.absenceId) {
     absence = {
       orgId: state.organizationId,
       employeeId: state.employeeId,
@@ -850,16 +834,14 @@ const buildAbsenceInput = (
   // Add properties that span create and update
   absence = {
     ...absence,
-    notesToApprover: formValues.notesToApprover,
-    adminOnlyNotes: formValues.adminOnlyNotes,
+    notesToApprover: forProjections ? undefined : formValues.notesToApprover,
+    adminOnlyNotes: forProjections ? undefined : formValues.adminOnlyNotes,
     details: createAbsenceDetailInput(formValues.details),
   };
 
   const hasEditedDetails = !!state.customizedVacanciesInput;
   const vacancyDetails =
     state.customizedVacanciesInput ?? state.projectedVacancyDetails;
-
-  //console.log(vacancyDetails);
 
   const vDetails =
     vacancyDetails?.map(v => ({
@@ -890,7 +872,7 @@ const buildAbsenceInput = (
         positionId: state.positionId,
         useSuppliedDetails: vDetails && vDetails.length > 0,
         needsReplacement: formValues.needsReplacement,
-        notesToReplacement: formValues.notesToReplacement,
+        notesToReplacement: forProjections ? undefined : formValues.notesToReplacement,
         details: vDetails,
         accountingCodeAllocations:
           hasEditedDetails || !formValues.accountingCodeAllocations
