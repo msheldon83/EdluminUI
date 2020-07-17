@@ -1,17 +1,13 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/styles";
-import { Typography, Grid, Button } from "@material-ui/core";
+import { Typography, Grid } from "@material-ui/core";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
+import { ToolTip } from "ui/components/tool-tip";
 import { useTranslation } from "react-i18next";
+import { parseISO } from "date-fns";
 import { useHistory } from "react-router";
-import {
-  Maybe,
-  Endorsement,
-  PositionType,
-  PermissionEnum,
-} from "graphql/server-types.gen";
-import { Can } from "ui/components/auth/can";
+import { Maybe, PositionType, PermissionEnum } from "graphql/server-types.gen";
 import {
   PersonViewRoute,
   PeopleSubPositionsAttributesEditRoute,
@@ -21,7 +17,10 @@ import { useRouteParams } from "ui/routes/definition";
 type Props = {
   editing: string | null;
   editable: boolean;
-  attributes?: Maybe<Pick<Endorsement, "name"> | null | undefined>[] | null;
+  attributes: {
+    endorsementName: string | undefined;
+    expirationDate: string | undefined;
+  }[];
   qualifiedPositionTypes?: Maybe<Pick<PositionType, "name">>[] | null;
 };
 
@@ -31,6 +30,11 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
   const classes = useStyles();
   const params = useRouteParams(PersonViewRoute);
   const showEditButton = !props.editing && props.editable;
+
+  const expired = (expirationDate: string) => {
+    const currentDate = new Date();
+    return parseISO(expirationDate) <= currentDate ? true : false;
+  };
 
   return (
     <>
@@ -70,7 +74,14 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
               {props.attributes?.length === 0 ? (
                 <div>{t("Not defined")}</div>
               ) : (
-                props.attributes?.map((n, i) => <div key={i}>{n?.name}</div>)
+                props.attributes?.map((n, i) => (
+                  <div key={i}>
+                    {n.endorsementName}
+                    {n.expirationDate && expired(n.expirationDate) && (
+                      <ToolTip message={t("Attribute is expired")} />
+                    )}
+                  </div>
+                ))
               )}
             </Grid>
           </Grid>
@@ -83,6 +94,9 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   noteText: {
     fontWeight: "bold",
+  },
+  tooltip: {
+    padding: theme.spacing(2),
   },
   sectionBackground: {
     backgroundColor: theme.customColors.lightBlue,
