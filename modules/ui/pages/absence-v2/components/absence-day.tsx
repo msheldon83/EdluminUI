@@ -2,10 +2,9 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetail } from "../types";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
-import { Typography, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { DayPart } from "graphql/server-types.gen";
 import { DayPartSelect, DayPartValue } from "./day-part-select";
-import { useFormikContext, FormikErrors } from "formik";
 
 type Props = {
   organizationId: string;
@@ -60,7 +59,7 @@ export const AbsenceDay: React.FC<Props> = props => {
   }, [detail]);
 
   return (
-    <div className={classes.item}>
+    <div>
       <div className={classes.subTitle}>{subTitle}</div>
       {showReason && (
         <SelectNew
@@ -80,30 +79,32 @@ export const AbsenceDay: React.FC<Props> = props => {
         />
       )}
       {showDayPart && (
-        <DayPartSelect
-          value={dayPartValue}
-          date={detail.date}
-          organizationId={organizationId}
-          employeeId={employeeId}
-          onDayPartChange={value => {
-            if (value?.part) {
-              onTimeChange(
-                value.part,
-                value.part === DayPart.Hourly ? value.start : undefined,
-                value.part === DayPart.Hourly ? value.end : undefined
-              );
-            }
-          }}
-          timeError={timeError}
-        />
+        <div className={classes.dayPartSelection}>
+          <DayPartSelect
+            value={dayPartValue}
+            date={detail.date}
+            organizationId={organizationId}
+            employeeId={employeeId}
+            onDayPartChange={value => {
+              if (value?.part) {
+                onTimeChange(
+                  value.part,
+                  value.part === DayPart.Hourly ? value.start : undefined,
+                  value.part === DayPart.Hourly ? value.end : undefined
+                );
+              }
+            }}
+            timeError={timeError}
+          />
+        </div>
       )}
     </div>
   );
 };
 
 const useStyles = makeStyles(theme => ({
-  item: {
-    //fontWeight: "bold",
+  dayPartSelection: {
+    marginTop: theme.spacing(),
   },
   subTitle: {
     fontWeight: "bold",
