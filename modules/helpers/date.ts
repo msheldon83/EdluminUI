@@ -16,6 +16,8 @@ import {
   differenceInCalendarDays,
   isSameDay,
   differenceInMinutes,
+  max,
+  min,
 } from "date-fns";
 import { useMemo } from "react";
 import { differenceWith } from "lodash-es";
@@ -246,6 +248,16 @@ export const getContiguousDateIntervals = (
   }
 
   return intervals;
+};
+
+export const maxOfDates = (dates: Array<Date | undefined>) => {
+  const actualDates = dates.filter(date => date !== undefined);
+  return max(actualDates);
+};
+
+export const minOfDates = (dates: Array<Date | undefined>) => {
+  const actualDates = dates.filter(date => date !== undefined);
+  return min(actualDates);
 };
 
 export const sortDates = (date1: Date, date2: Date) => {
