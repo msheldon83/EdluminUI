@@ -92,9 +92,13 @@ export const convertTransitionToInput = (
 ) => {
   return {
     goto: transition.goto,
-    criteria: JSON.stringify(transition.criteria),
-    args: JSON.stringify(transition.args),
+    criteria: transition.criteria ? JSON.stringify(transition.criteria) : null,
+    args: transition.args ? JSON.stringify(transition.args) : null,
   } as ApprovalWorkflowTransitionInput;
+};
+
+export const convertTransitionsToInput = (transitions: any[]) => {
+  return transitions.map(tr => convertTransitionToInput(tr));
 };
 
 // Usage helpers
@@ -154,8 +158,9 @@ export const buildVacancyUsagesJsonString = (
 
 export const createNewStep = (
   steps: ApprovalWorkflowStepInput[],
-  nextStepId?: string,
-  previousStepId?: string
+  nextStepId?: string | null,
+  previousStepId?: string,
+  approverGroupHeaderId?: string
 ) => {
   const ids = steps.map(s => Number(s.stepId));
   const nextId = (Math.max(...ids) + 1).toString();
@@ -165,7 +170,7 @@ export const createNewStep = (
 
   return {
     stepId: nextId,
-    approverGroupHeaderId: null,
+    approverGroupHeaderId: approverGroupHeaderId ? approverGroupHeaderId : null,
     isFirstStep: false,
     isLastStep: false,
     deleted: false,

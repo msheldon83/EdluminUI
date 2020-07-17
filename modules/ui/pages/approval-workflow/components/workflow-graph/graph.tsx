@@ -159,13 +159,15 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
-  const handleUpdateStep = (step: ApprovalWorkflowStepInput) => {
-    const stepIndex = steps.findIndex(x => x.stepId === step.stepId);
-    if (stepIndex === -1) {
-      steps.push(step);
-    } else {
-      steps[stepIndex] = step;
-    }
+  const handleUpdateSteps = (stepsForUpdate: ApprovalWorkflowStepInput[]) => {
+    stepsForUpdate.forEach(step => {
+      const stepIndex = steps.findIndex(x => x.stepId === step.stepId);
+      if (stepIndex === -1) {
+        steps.push(step);
+      } else {
+        steps[stepIndex] = step;
+      }
+    });
   };
 
   const handleClosePopper = () => {
@@ -187,14 +189,12 @@ export const StepsGraph: React.FC<Props> = props => {
       steps
         .filter(
           x =>
-            !x.deleted &&
-            x.onApproval.find(x => !x.criteria)?.goto === selectedStep.stepId
+            !x.deleted && x.onApproval.some(x => x.goto === selectedStep.stepId)
         )
         .forEach(x => {
-          const defaultTransition = x.onApproval.find(x => !x.criteria);
-          if (defaultTransition) {
-            defaultTransition.goto = defaultGoto;
-          }
+          x.onApproval.forEach(a => {
+            if (a.goto === selectedStep.stepId) a.goto = defaultGoto;
+          });
         });
 
       handleClosePopper();
@@ -243,7 +243,7 @@ export const StepsGraph: React.FC<Props> = props => {
                   orgId={props.orgId}
                   workflowType={workflowType}
                   onClose={() => handleClosePopper()}
-                  onSave={handleUpdateStep}
+                  onSave={handleUpdateSteps}
                   onRemove={selectedStep ? handleRemoveStep : undefined}
                   steps={steps}
                   approverGroups={approverGroups}
@@ -282,7 +282,7 @@ export const StepsGraph: React.FC<Props> = props => {
                   workflowType={workflowType}
                   orgId={props.orgId}
                   onClose={() => handleClosePopper()}
-                  onSave={handleUpdateStep}
+                  onSave={handleUpdateSteps}
                   steps={steps}
                   selectedStep={selectedStep}
                   previousStepId={selectedEdge?.source}

@@ -4,13 +4,16 @@ import { useTranslation } from "react-i18next";
 import {
   ApprovalWorkflowStepInput,
   ApprovalWorkflowType,
+  ApprovalWorkflowTransitionInput,
 } from "graphql/server-types.gen";
 import {
   convertTransitionsFromInput,
+  convertTransitionsToInput,
   AbsenceTransitionCriteria,
   VacancyTransitionCriteria,
 } from "../../../types";
 import { Cancel } from "@material-ui/icons";
+import { TextButton } from "ui/components/text-button";
 
 type Props = {
   workflowType: ApprovalWorkflowType;
@@ -19,20 +22,27 @@ type Props = {
     id: string;
     name: string;
   }[];
-  step: ApprovalWorkflowStepInput;
   steps: ApprovalWorkflowStepInput[];
-  onChange: (step: ApprovalWorkflowStepInput) => void;
+  transitions: ApprovalWorkflowTransitionInput[];
+  onUpdate: (onApproval: ApprovalWorkflowTransitionInput[]) => void;
+  onEditTransition: (nextStepId?: string | null) => void;
+};
+
+type AbsVacTransition = {
+  goto?: string | null;
+  args?: { makeAvailableToFill: boolean };
+  criteria?: any;
 };
 
 export const AbsVacTransitions: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { step } = props;
+  const { transitions } = props;
 
-  const transitions = convertTransitionsFromInput(
-    step.onApproval,
+  const parsedTransitions = convertTransitionsFromInput(
+    transitions,
     props.workflowType
-  ) as any[];
+  ) as AbsVacTransition[];
 
   const findApproverGroupName = (stepId?: string | null) => {
     const nextStep = props.steps.find(s => s.stepId === stepId);
@@ -65,23 +75,6 @@ export const AbsVacTransitions: React.FC<Props> = props => {
     return "";
   };
 
-  const onUpdateAvailableToFill = (
-    makeAvailableToFill: boolean,
-    index: number
-  ) => {
-    step.onApproval[index].args = JSON.stringify({
-      makeAvailableToFill: makeAvailableToFill,
-    });
-    props.onChange(step);
-  };
-
-  const onRemoveCriteria = (index: number) => {
-    if (step.onApproval[index].criteria) {
-      step.onApproval.splice(index, 1);
-      props.onChange(step);
-    }
-  };
-
   return (
     <div className={classes.container}>
       <Grid container spacing={1}>
@@ -93,11 +86,16 @@ export const AbsVacTransitions: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={1}></Grid>
       </Grid>
-      {transitions.map((tr, i) => {
+      {parsedTransitions.map((tr, i) => {
         return (
           <Grid container spacing={1} key={i} className={classes.rowContainer}>
             <Grid item xs={9}>
-              <div>{findApproverGroupName(tr.goto)}</div>
+              <TextButton
+                onClick={() => props.onEditTransition(tr.goto)}
+                className={classes.route}
+              >
+                {findApproverGroupName(tr.goto)}
+              </TextButton>
               <div className={classes.argsText}>
                 {renderCondition(tr.criteria)}
               </div>
@@ -105,7 +103,12 @@ export const AbsVacTransitions: React.FC<Props> = props => {
             <Grid item xs={2}>
               <Checkbox
                 checked={tr.args?.makeAvailableToFill ?? false}
-                onChange={(e, checked) => onUpdateAvailableToFill(checked, i)}
+                onChange={() => {
+                  parsedTransitions[i].args = {
+                    makeAvailableToFill: !tr.args?.makeAvailableToFill,
+                  };
+                  props.onUpdate(convertTransitionsToInput(parsedTransitions));
+                }}
                 value={tr.args?.makeAvailableToFill ?? false}
                 color="primary"
               />
@@ -116,7 +119,14 @@ export const AbsVacTransitions: React.FC<Props> = props => {
                   key="close"
                   aria-label="close"
                   color="inherit"
-                  onClick={() => onRemoveCriteria(i)}
+                  onClick={() => {
+                    if (parsedTransitions[i].criteria) {
+                      parsedTransitions.splice(i, 1);
+                      props.onUpdate(
+                        convertTransitionsToInput(parsedTransitions)
+                      );
+                    }
+                  }}
                 >
                   <Cancel className={classes.cancelIcon} />
                 </IconButton>
@@ -147,5 +157,9 @@ const useStyles = makeStyles(theme => ({
   argsText: {
     fontSize: theme.typography.pxToRem(12),
     color: "#9E9E9E",
+  },
+  route: {
+    color: "#050039",
+    textDecorationLine: "underline",
   },
 }));

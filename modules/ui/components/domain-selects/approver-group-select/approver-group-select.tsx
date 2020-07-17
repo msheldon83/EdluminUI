@@ -12,7 +12,8 @@ type Props = {
   multiple?: boolean;
   disabled?: boolean;
   idsToFilterOut?: string[];
-  idsToInclude?: string[];
+  addApprovedOption?: boolean;
+  errorMessage?: string;
 };
 
 export const ApproverGroupSelect: React.FC<Props> = props => {
@@ -25,15 +26,17 @@ export const ApproverGroupSelect: React.FC<Props> = props => {
     multiple = false,
     disabled = false,
     idsToFilterOut,
-    idsToInclude,
+    addApprovedOption = false,
+    errorMessage,
   } = props;
 
   let approverGroupOptions = useApproverGroupOptions(orgId, idsToFilterOut);
 
-  if (idsToInclude) {
-    approverGroupOptions = approverGroupOptions.filter(x =>
-      idsToInclude.includes(x.value)
+  if (addApprovedOption) {
+    approverGroupOptions = approverGroupOptions.sort((a, b) =>
+      a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
     );
+    approverGroupOptions.unshift({ label: t("(Approved)"), value: "0" });
   }
 
   const selectedGroups = approverGroupOptions.filter(
@@ -47,11 +50,7 @@ export const ApproverGroupSelect: React.FC<Props> = props => {
           ? value.map((v: OptionType) => v.value)
           : [value.value]
         : [];
-      if (ids.includes("0")) {
-        setSelectedApproverGroupHeaderIds(undefined);
-      } else {
-        setSelectedApproverGroupHeaderIds(ids);
-      }
+      setSelectedApproverGroupHeaderIds(ids);
     },
     [setSelectedApproverGroupHeaderIds]
   );
@@ -69,6 +68,9 @@ export const ApproverGroupSelect: React.FC<Props> = props => {
       withResetValue={false}
       onChange={onChangeApproverGroups}
       disabled={disabled}
+      doSort={!addApprovedOption}
+      inputStatus={errorMessage ? "error" : "default"}
+      validationMessage={errorMessage}
     />
   );
 };

@@ -11,6 +11,7 @@ type Props = {
   includeAllOption?: boolean;
   label?: string;
   multiple?: boolean;
+  errorMessage?: string;
 };
 
 export const AbsenceReasonSelect: React.FC<Props> = props => {
@@ -22,6 +23,7 @@ export const AbsenceReasonSelect: React.FC<Props> = props => {
     setSelectedAbsenceReasonIds,
     includeAllOption = true,
     multiple = true,
+    errorMessage,
   } = props;
 
   let absenceReasonOptions = useAbsenceReasonOptions(orgId);
@@ -71,6 +73,8 @@ export const AbsenceReasonSelect: React.FC<Props> = props => {
           : undefined
       }
       doSort={!includeAllOption}
+      inputStatus={errorMessage ? "error" : "default"}
+      validationMessage={errorMessage}
     />
   );
 };
