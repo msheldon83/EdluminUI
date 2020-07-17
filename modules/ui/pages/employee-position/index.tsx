@@ -110,6 +110,7 @@ export const EmployeePosition: React.FC<Props> = props => {
         allDay: p.isAllDay,
         startPeriodId: p.startPeriod?.id,
         endPeriodId: p.endPeriod?.id,
+        overMidnightConfirmed: p.overMidnightConfirmed,
       })),
       daysOfTheWeek: ps.daysOfTheWeek,
     }));
