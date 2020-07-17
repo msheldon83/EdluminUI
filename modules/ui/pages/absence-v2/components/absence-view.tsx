@@ -1,19 +1,16 @@
-import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
-import { isSameDay, parseISO } from "date-fns";
-import { useMutationBundle } from "graphql/hooks";
+import * as React from "react";
+import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { parseISO, format } from "date-fns";
 import {
   Absence,
-  AbsenceReason,
   PayCode,
   PermissionEnum,
-  Vacancy,
   VacancyDetailAccountingCode,
+  DayPart,
+  AbsenceDetail,
 } from "graphql/server-types.gen";
-import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { useSnackbar } from "hooks/use-snackbar";
-import { some, flatMap, compact } from "lodash-es";
-import * as React from "react";
-import { useMemo, useState } from "react";
+import { compact } from "lodash-es";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { getDateRangeDisplayTextWithDayOfWeekForContiguousDates } from "ui/components/date-helpers";
@@ -23,6 +20,7 @@ import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-cale
 import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
 import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { Can } from "ui/components/auth/can";
+import { dayPartToLabel } from "ui/components/absence/helpers";
 
 type Props = {
   orgId: string;
@@ -38,7 +36,6 @@ type Props = {
 export const AbsenceView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  //const { openSnackbar } = useSnackbar();
   const {
     orgId,
     absence,
@@ -46,8 +43,6 @@ export const AbsenceView: React.FC<Props> = props => {
     goToEdit,
     onCancelAssignment,
   } = props;
-
-  const absenceReasons = useAbsenceReasons(orgId);
 
   const absenceDates = useMemo(
     () =>
@@ -63,40 +58,6 @@ export const AbsenceView: React.FC<Props> = props => {
     const details = convertVacancyToVacancySummaryDetails(absence.vacancies[0]);
     return details;
   }, [absence?.vacancies]);
-
-  // const removeSub = async (
-  //   assignmentId?: string,
-  //   assignmentRowVersion?: string,
-  //   vacancyDetailIds?: string[]
-  // ) => {
-  //   const result = await cancelAssignment({
-  //     variables: {
-  //       cancelRequest: {
-  //         assignmentId: assignmentId ?? "",
-  //         rowVersion: assignmentRowVersion ?? "",
-  //         vacancyDetailIds: vacancyDetailIds ?? undefined,
-  //       },
-  //     },
-  //   });
-
-  //   const removedSuccessfully = !!result?.data?.assignment?.cancelAssignment
-  //     ?.id;
-  //   if (
-  //     removedSuccessfully &&
-  //     props.goToEdit &&
-  //     vacancyDetailIds &&
-  //     vacancyDetailIds.length > 0
-  //   ) {
-  //     // Determine if the Sub was only removed from part of the day
-  //     // and if so, redirect the User to the Edit view of the Absence
-  //     const allVacancyDetailIds = compact(
-  //       flatMap(vacancies.map(v => v?.details?.map(d => d?.id)))
-  //     );
-  //     if (vacancyDetailIds.length !== allVacancyDetailIds.length) {
-  //       props.goToEdit();
-  //     }
-  //   }
-  // };
 
   const subDetailsAbsenceInfo = React.useMemo(() => {
     const payCode = getFirstPayCode(absence);
@@ -163,12 +124,7 @@ export const AbsenceView: React.FC<Props> = props => {
         </>
       </>
     );
-  }, [
-    absence,
-    classes.requiresSubSection,
-    actingAsEmployee,
-    t,
-  ]);
+  }, [absence, classes.requiresSubSection, actingAsEmployee, t]);
 
   return (
     <div>
@@ -188,14 +144,7 @@ export const AbsenceView: React.FC<Props> = props => {
               </div>
             )}
 
-            {/* <div>
-              {getAbsenceReasonListDisplay(
-                absence,
-                absenceReasons,
-                disabledDates,
-                classes
-              )}
-            </div> */}
+            <AbsenceDetailsOverview absence={absence} />
 
             <div className={classes.dates}>
               <CreateAbsenceCalendar
@@ -315,53 +264,6 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-/* TODO: Currently we are assuming that there is only 1 Absence Reason in
-    use per Absence Detail. As we build in support for more complicated
-    Absences, we will have to revisit this.
-*/
-// const getAbsenceReasonListDisplay = (
-//   absence: Absence,
-//   absenceReasons: Pick<AbsenceReason, "id" | "name">[],
-//   disabledDates: Date[],
-//   classes: any
-// ) => {
-//   const detailsGrouping = getAbsenceDetailsGrouping(absence);
-//   if (detailsGrouping === null || !detailsGrouping.length) {
-//     return null;
-//   }
-
-//   return detailsGrouping.map((d, groupIndex) => {
-//     const matchingAbsenceReason = absenceReasons.find(
-//       a => a.id === d.absenceReasonId?.toString()
-//     );
-//     const allDates = d.detailItems.map(di => di.date);
-
-//     return (
-//       <div key={groupIndex}>
-//         <div className={classes.absenceReasonDetails}>
-//           {matchingAbsenceReason?.name}
-//         </div>
-//         <Typography variant="h6">
-//           {getDateRangeDisplayTextWithDayOfWeekForContiguousDates(
-//             allDates,
-//             disabledDates
-//           )}
-//         </Typography>
-//         {d.simpleDetailItems &&
-//           d.simpleDetailItems.map((di, detailIndex) => {
-//             return (
-//               <div key={detailIndex} className={classes.absenceReasonDetails}>
-//                 {`${dayPartToLabel(di.dayPart)} (${di.startTime} - ${
-//                   di.endTime
-//                 })`}
-//               </div>
-//             );
-//           })}
-//       </div>
-//     );
-//   });
-// };
-
 const getFirstPayCode = (
   absence: Absence
 ): Pick<PayCode, "id" | "name"> | undefined | null => {
@@ -420,4 +322,85 @@ const getAllVacancyDetails = (absence: Absence) => {
   const hasVacancyDetails =
     absence.vacancies && absence.vacancies[0] && absence.vacancies[0].details;
   return hasVacancyDetails ? absence.vacancies![0]!.details : undefined;
+};
+
+type AbsenceDetailsOverviewProps = {
+  absence: Absence;
+};
+
+type AbsenceDetailsGroup = {
+  dates: Date[];
+  absenceReasonId: string;
+  absenceReasonName: string;
+  dayPart?: DayPart;
+  dayPartLabel: string;
+  startTime?: string;
+  endTime?: string;
+};
+
+const AbsenceDetailsOverview: React.FC<AbsenceDetailsOverviewProps> = props => {
+  const { absence } = props;
+  const absenceReasons = useAbsenceReasons(absence.orgId);
+
+  if (!absence.details) {
+    return null;
+  }
+
+  // Put the details in order by start date and time
+  const sortedAbsenceDetails = compact(absence.details)
+    .slice()
+    .sort((a, b) => a.startTimeLocal - b.startTimeLocal);
+
+  const groups = sortedAbsenceDetails.reduce(
+    (accumulator: AbsenceDetailsGroup[], detail: AbsenceDetail) => {
+      const currentGroup = accumulator[accumulator.length - 1];
+      const detailAbsenceReasonId = (detail.reasonUsages ?? [])[0]
+        ?.absenceReasonId;
+      const detailStartTime = format(parseISO(detail.startTimeLocal), "h:mm a");
+      const detailEndTime = format(parseISO(detail.endTimeLocal), "h:mm a");
+
+      const detailDate = parseISO(detail.startTimeLocal);
+      if (
+        currentGroup?.absenceReasonId === detailAbsenceReasonId &&
+        currentGroup?.dayPart === detail.dayPartId &&
+        currentGroup?.startTime === detailStartTime &&
+        currentGroup?.endTime === detailEndTime
+      ) {
+        currentGroup.dates.push(detailDate);
+      } else {
+        accumulator.push({
+          dates: [detailDate],
+          absenceReasonId: detailAbsenceReasonId ?? "",
+          absenceReasonName:
+            absenceReasons.find(a => a.id === detailAbsenceReasonId)?.name ??
+            "",
+          dayPart: detail.dayPartId ?? undefined,
+          dayPartLabel: detail.dayPartId
+            ? dayPartToLabel(detail.dayPartId)
+            : "",
+          startTime: detailStartTime,
+          endTime: detailEndTime,
+        });
+      }
+      return accumulator;
+    },
+    []
+  );
+
+  return (
+    <>
+      {groups.map((g, i) => {
+        return (
+          <div key={i}>
+            <Typography variant="h6">
+              {getDateRangeDisplayTextWithDayOfWeekForContiguousDates(g.dates)}
+            </Typography>
+            <div>
+              {`${g.absenceReasonName} - ${g.dayPartLabel} (${g.startTime} - ${g.endTime})`}
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
 };
