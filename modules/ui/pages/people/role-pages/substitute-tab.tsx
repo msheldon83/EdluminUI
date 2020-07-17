@@ -136,7 +136,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       <SubPositionsAttributes
         editing={props.editing}
         editable={canEditThisSub}
-        attributes={substitute.attributes?.map(ee => ee?.endorsement) ?? []}
+        attributes={substitute.attributes ?? []}
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
       />
       <SubPayInformation
