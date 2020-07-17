@@ -523,7 +523,7 @@ export const AbsenceUI: React.FC<Props> = props => {
             disabledDates,
             true
           ) as AbsenceCreateInput;
-
+          console.log("inputForProjectedCalls", inputForProjectedCalls);
           console.log(
             "state.customizedVacanciesInput",
             state.customizedVacanciesInput
@@ -605,6 +605,12 @@ export const AbsenceUI: React.FC<Props> = props => {
                             }
                             absenceInput={inputForProjectedCalls}
                             positionTypeId={position?.positionTypeId}
+                            onTimeChange={() => {
+                              dispatch({
+                                action: "setVacanciesInput",
+                                input: undefined,
+                              });
+                            }}
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -870,9 +876,11 @@ const buildAbsenceInput = (
     vacancies: [
       {
         positionId: state.positionId,
-        useSuppliedDetails: vDetails && vDetails.length > 0,
+        useSuppliedDetails: hasEditedDetails && vDetails && vDetails.length > 0,
         needsReplacement: formValues.needsReplacement,
-        notesToReplacement: forProjections ? undefined : formValues.notesToReplacement,
+        notesToReplacement: forProjections
+          ? undefined
+          : formValues.notesToReplacement,
         details: vDetails,
         accountingCodeAllocations:
           hasEditedDetails || !formValues.accountingCodeAllocations

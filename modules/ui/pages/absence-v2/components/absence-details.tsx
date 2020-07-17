@@ -31,6 +31,7 @@ type Props = {
   onSwitchMonth: (month: Date) => void;
   absenceInput: AbsenceCreateInput | null;
   positionTypeId?: string;
+  onTimeChange: () => void;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -49,6 +50,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     absenceInput,
     positionTypeId,
     absenceDates,
+    onTimeChange,
     closedDates = [],
   } = props;
 
@@ -148,6 +150,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           organizationId={organizationId}
           employeeId={employeeId}
           positionTypeId={positionTypeId}
+          onTimeChange={onTimeChange}
         />
       </div>
 

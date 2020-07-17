@@ -13,13 +13,14 @@ type Props = {
   organizationId: string;
   employeeId: string;
   positionTypeId?: string;
+  onTimeChange: () => void;
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { errors, setFieldValue } = useFormikContext<any>();
-  const { organizationId, employeeId, positionTypeId, details = [] } = props;
+  const { organizationId, employeeId, positionTypeId, onTimeChange, details = [] } = props;
 
   const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
     organizationId,
@@ -154,6 +155,7 @@ export const AbsenceDays: React.FC<Props> = props => {
                     );
                   }
                 }
+                onTimeChange();
               }}
               timeError={
                 dayPartError || hourlyStartTimeError || hourlyEndTimeError
