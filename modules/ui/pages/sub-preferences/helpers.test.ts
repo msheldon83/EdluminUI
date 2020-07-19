@@ -4,18 +4,12 @@ import { School, SchoolGroup, District, Grouped } from "./types";
 
 const natString = fc.nat().map(n => n.toString());
 
-const liftArbitraries = fc.tuple as <T>(
-  ...arbs: fc.Arbitrary<T>[]
-) => fc.Arbitrary<T[]>;
-
 const withUniqueIds: <T>(
   generator: (id: string) => fc.Arbitrary<T>,
   min?: number,
   max?: number
 ) => fc.Arbitrary<T[]> = (generator, min = 0, max = 10) =>
-  fc
-    .set(natString, min, max)
-    .chain(ids => liftArbitraries(...ids.map(generator)));
+  fc.set(natString, min, max).chain(ids => fc.genericTuple(ids.map(generator)));
 
 const arbitrarySchool = (constantPreference?: "favorite" | "hidden") => (
   id: string
