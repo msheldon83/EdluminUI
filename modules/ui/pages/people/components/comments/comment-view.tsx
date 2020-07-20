@@ -38,10 +38,10 @@ export const CommentView: React.FC<Props> = props => {
   const name = () => {
     let name;
     if (comment.actingUser.id != comment.actualUser.id) {
-      name = `${comment.actingUser.firstName} ${
-        comment.actingUser.lastName
-      } ${t("on behalf of ")} ${comment.actualUser.firstName} ${
+      name = `${comment.actualUser.firstName} ${
         comment.actualUser.lastName
+      } ${t("on behalf of ")} ${comment.actingUser.firstName} ${
+        comment.actingUser.lastName
       }}`;
     } else {
       name = `${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
