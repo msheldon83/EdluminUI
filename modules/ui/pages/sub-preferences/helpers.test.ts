@@ -1,6 +1,6 @@
 import * as fc from "fast-check";
 import { groupDistricts, joinGroupedDistricts } from "./helpers";
-import { School, SchoolGroup, District, Grouped } from "./types";
+import { School, SchoolGroup, District } from "./types";
 
 const natString = fc.nat().map(n => n.toString());
 
@@ -64,7 +64,10 @@ const arbitraryDistrict = (constantPreference?: "favorite" | "hidden") => (
     ),
   });
 
-const arbitraryGroupedDistricts: fc.Arbitrary<Grouped<District>> = fc.record({
+const arbitraryGroupedDistricts: fc.Arbitrary<{
+  favorites: District[];
+  hidden: District[];
+}> = fc.record({
   favorites: withUniqueIds(arbitraryDistrict("favorite"), ""),
   hidden: withUniqueIds(arbitraryDistrict("hidden"), ""),
 });

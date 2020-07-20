@@ -4,56 +4,6 @@ import { useIsMobile } from "hooks";
 import { useTranslation } from "react-i18next";
 import { District, SchoolGroup, School } from "../types";
 
-type RowProps = {
-  name: JSX.Element;
-  className: string;
-  links: JSX.Element;
-};
-
-const Row: React.FC<RowProps> = ({ name, className, links }) => (
-  <Grid
-    item
-    container
-    justify="space-between"
-    className={className}
-    alignItems="center"
-  >
-    {name}
-    {links}
-  </Grid>
-);
-
-type GenericGroupProps = {
-  group: SchoolGroup;
-  headerLinks: JSX.Element;
-  renderRowLinks: (school: School) => JSX.Element;
-};
-
-const GenericGroup: React.FC<GenericGroupProps> = ({
-  group,
-  headerLinks,
-  renderRowLinks,
-}) => {
-  const classes = useStyles();
-  return (
-    <Grid container direction="column" className={classes.group}>
-      <Row
-        className={classes.header}
-        name={<Typography variant="h6">{group.name}</Typography>}
-        links={headerLinks}
-      />
-      {group.schools.map((s, i) => (
-        <Row
-          key={s.id}
-          className={i % 2 ? classes.oddRow : classes.evenRow}
-          name={<Typography>{s.name}</Typography>}
-          links={renderRowLinks(s)}
-        />
-      ))}
-    </Grid>
-  );
-};
-
 export type ViewGroupProps = {
   group: SchoolGroup;
   allActionName: string;
@@ -68,17 +18,38 @@ export const ViewGroup: React.FC<ViewGroupProps> = ({
   actionName,
   setGroupToDefault,
   setSchoolToDefault,
-}) => (
-  <GenericGroup
-    group={group}
-    headerLinks={
-      <Link onClick={() => setGroupToDefault(group.id)}>{allActionName}</Link>
-    }
-    renderRowLinks={school => (
-      <Link onClick={() => setSchoolToDefault(school.id)}>{actionName}</Link>
-    )}
-  />
-);
+}) => {
+  const classes = useStyles();
+  return (
+    <Grid container direction="column" className={classes.group}>
+      <Grid
+        item
+        container
+        justify="space-between"
+        className={classes.header}
+        alignItems="center"
+      >
+        <Typography variant="h6">{group.name}</Typography>
+        <Link onClick={() => setGroupToDefault(group.id)}>{allActionName}</Link>
+      </Grid>
+      {group.schools.map((school, i) => (
+        <Grid
+          item
+          container
+          justify="space-between"
+          className={i % 2 ? classes.oddRow : classes.evenRow}
+          alignItems="center"
+          key={school.id}
+        >
+          <Typography>{school.name}</Typography>
+          <Link onClick={() => setSchoolToDefault(school.id)}>
+            {actionName}
+          </Link>
+        </Grid>
+      ))}
+    </Grid>
+  );
+};
 
 export type EditGroupProps = {
   group: SchoolGroup;
@@ -100,9 +71,15 @@ export const EditGroup: React.FC<EditGroupProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <GenericGroup
-      group={group}
-      headerLinks={
+    <Grid container direction="column" className={classes.group}>
+      <Grid
+        item
+        container
+        justify="space-between"
+        className={classes.header}
+        alignItems="center"
+      >
+        <Typography variant="h6">{group.name}</Typography>
         <Grid item container xs={6} justify="flex-end">
           {!isMobile && (
             <Typography className={classes.text}>{t("Mark all as")}</Typography>
@@ -123,39 +100,49 @@ export const EditGroup: React.FC<EditGroupProps> = ({
             {t("Hide")}
           </Link>
         </Grid>
-      }
-      renderRowLinks={({ id, preference }) => (
-        <Grid item container xs={6} justify="flex-end">
-          {preference == "favorite" ? (
-            <Typography className={classes.text}>{t("Favorite")}</Typography>
-          ) : (
-            <Link
-              className={classes.bodyLink}
-              onClick={() => onSet(id, "favorite")}
-            >
-              {t("Favorite")}
-            </Link>
-          )}
-          {preference == "default" ? (
-            <Typography className={classes.text}>{t("Default")}</Typography>
-          ) : (
-            <Link className={classes.bodyLink} onClick={() => onDelete(id)}>
-              {t("Default")}
-            </Link>
-          )}
-          {preference == "hidden" ? (
-            <Typography className={classes.text}>{t("Hide")}</Typography>
-          ) : (
-            <Link
-              className={classes.bodyLink}
-              onClick={() => onSet(id, "hidden")}
-            >
-              {t("Hide")}
-            </Link>
-          )}
+      </Grid>
+      {group.schools.map(({ id, name, preference }, i) => (
+        <Grid
+          key={id}
+          item
+          container
+          justify="space-between"
+          className={i % 2 ? classes.oddRow : classes.evenRow}
+          alignItems="center"
+        >
+          <Typography>{name}</Typography>
+          <Grid item container xs={6} justify="flex-end">
+            {preference == "favorite" ? (
+              <Typography className={classes.text}>{t("Favorite")}</Typography>
+            ) : (
+              <Link
+                className={classes.bodyLink}
+                onClick={() => onSet(id, "favorite")}
+              >
+                {t("Favorite")}
+              </Link>
+            )}
+            {preference == "default" ? (
+              <Typography className={classes.text}>{t("Default")}</Typography>
+            ) : (
+              <Link className={classes.bodyLink} onClick={() => onDelete(id)}>
+                {t("Default")}
+              </Link>
+            )}
+            {preference == "hidden" ? (
+              <Typography className={classes.text}>{t("Hide")}</Typography>
+            ) : (
+              <Link
+                className={classes.bodyLink}
+                onClick={() => onSet(id, "hidden")}
+              >
+                {t("Hide")}
+              </Link>
+            )}
+          </Grid>
         </Grid>
-      )}
-    />
+      ))}
+    </Grid>
   );
 };
 
@@ -180,6 +167,23 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const useEditStyles = makeStyles(theme => ({
+  header: {
+    backgroundColor: theme.customColors.lightSlate,
+    padding: `${theme.spacing(1.5)}px ${theme.spacing(2)}px`,
+    border: "1px solid #E5E5E5",
+  },
+  oddRow: {
+    padding: theme.spacing(2),
+    backgroundColor: "#F8F8F8",
+    borderBottom: "1px solid #E5E5E5",
+  },
+  evenRow: {
+    padding: theme.spacing(2),
+    borderBottom: "1px solid #E5E5E5",
+  },
+  group: {
+    paddingBottom: theme.spacing(2),
+  },
   headerLink: {
     padding: theme.spacing(1),
   },

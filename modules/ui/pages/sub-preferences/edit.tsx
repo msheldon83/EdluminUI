@@ -33,7 +33,6 @@ export const SubPreferencesEditPage: React.FC<Props> = props => {
         </Typography>
         <Filters
           {...{
-            userId,
             orgId,
             setOrgId,
             orgName,

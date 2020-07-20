@@ -19,13 +19,11 @@ export const SubPreferencesPage: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
 
-  const userAccess = useMyUserAccess();
-  const user = userAccess?.me?.user;
+  const user = useMyUserAccess()?.me?.user;
   if (!user) {
     return <></>;
   }
   const userId = user.id;
-  console.log(user);
   const orgInfo: OrgInfo[] = (
     user.orgUsers?.filter(
       (ou): ou is OrgUser => ou?.isReplacementEmployee ?? false

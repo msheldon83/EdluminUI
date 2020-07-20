@@ -4,12 +4,11 @@ import { Input } from "ui/components/form/input";
 import { Grid, makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useQueryBundle } from "graphql/hooks";
-import { GetUserById } from "../graphql/get-user-by-id.gen";
+import { useMyUserAccess } from "reference-data/my-user-access";
 import { useIsMobile } from "hooks";
 import { IsoSelectOne, IsoOptionType } from "ui/components/form/iso-select";
 
 type Props = {
-  userId: string;
   orgId: string;
   setOrgId: (id: string) => void;
   orgName: string;
@@ -21,7 +20,6 @@ type Props = {
 };
 
 export const Filters: React.FC<Props> = ({
-  userId,
   orgId,
   setOrgId,
   orgName,
@@ -35,44 +33,56 @@ export const Filters: React.FC<Props> = ({
   const classes = useStyles();
   const isMobile = useIsMobile();
 
-  const getUser = useQueryBundle(GetUserById, {
-    variables: { id: userId },
-  });
-  const orgOptions: IsoOptionType<[string, string]>[] = [
-    { value: ["", ""] as [string, string], label: "Select a district" },
-  ].concat(
-    getUser.state === "LOADING"
-      ? []
-      : compact(getUser?.data?.user?.byId?.allOrgUsers ?? [])
-          .filter(ou => ou.isReplacementEmployee)
-          .map(ou => ({
-            value: [ou.organization.id, ou.id],
-            label: ou.organization.name,
-          }))
-  );
+  const user = useMyUserAccess()?.me?.user;
+  const orgOptions: IsoOptionType<[string, string]>[] = compact(
+    user?.orgUsers ?? []
+  )
+    .filter(ou => ou.isReplacementEmployee)
+    .map(ou => ({
+      value: [ou.organization.id, ou.id],
+      label: ou.organization.name,
+    }));
+  React.useEffect(() => {
+    if (orgOptions.length == 1) {
+      const {
+        value: [orgId, orgUserId],
+        label: orgName,
+      } = orgOptions[0];
+      setOrgId(orgId);
+      setOrgName(orgName);
+      setOrgUserId(orgUserId);
+    }
+  }, [orgOptions, setOrgId, setOrgName, setOrgUserId]);
 
   return (
     <Grid container>
-      <Grid
-        item
-        xs={isMobile ? 12 : 3}
-        className={isMobile ? classes.mobileTopFilter : classes.filter}
-      >
-        <IsoSelectOne
-          label={t("District")}
-          options={orgOptions}
-          value={[orgId, orgUserId]}
-          iso={{
-            to: (s: string) => s.split(",") as [string, string],
-            from: (t: [string, string]) => t.join(","),
-          }}
-          onChange={({ value: [oId, oUId], label: oName }) => {
-            setOrgId(oId);
-            setOrgName(oName);
-            setOrgUserId(oUId);
-          }}
-        />
-      </Grid>
+      {orgOptions.length !== 1 && (
+        <Grid
+          item
+          xs={isMobile ? 12 : 3}
+          className={isMobile ? classes.mobileTopFilter : classes.filter}
+        >
+          <IsoSelectOne
+            label={t("District")}
+            options={[
+              {
+                value: ["", ""] as [string, string],
+                label: "Select a district",
+              },
+            ].concat(orgOptions)}
+            value={[orgId, orgUserId]}
+            iso={{
+              to: (s: string) => s.split(",") as [string, string],
+              from: (t: [string, string]) => t.join(","),
+            }}
+            onChange={({ value: [orgId, orgUserId], label: orgName }) => {
+              setOrgId(orgId);
+              setOrgName(orgName);
+              setOrgUserId(orgUserId);
+            }}
+          />
+        </Grid>
+      )}
       <Grid
         item
         xs={isMobile ? 12 : 3}
