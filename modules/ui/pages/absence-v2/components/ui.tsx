@@ -379,7 +379,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       if (
         accountingCodeValue &&
         (accountingCodeValue.type !== "multiple-allocations" ||
-          accountingCodeValue.allocations.length > 0)
+          accountingCodeValue.allocations.filter(a => a.selection).length > 0)
       ) {
         dispatch({
           action: "setAccountingCodesOnAllCustomVacancyDetails",
@@ -464,31 +464,24 @@ export const AbsenceUI: React.FC<Props> = props => {
             is: true,
             then: yup.string().required(t("Required")),
           }),
+          accountingCodeAllocations: yup.object().test({
+            name: "accountingCodeAllocationsCheck",
+            test: function test(value: AccountingCodeValue) {
+              const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
+                value
+              );
 
-          // Notes To Approver if notes are required
-          // Accounting Code Allocations
+              const error = validateAccountingCodeAllocations(
+                accountingCodeAllocations ?? [],
+                t
+              );
+              if (!error) {
+                return true;
+              }
 
-          // accountingCodeAllocations: yup.object().test({
-          //   name: "accountingCodeAllocationsCheck",
-          //   test: function test(value: AbsenceFormData) {
-          //     const accountingCodeAllocations =
-          //       value.accountingCodeAllocations;
-
-          //     const error = validateAccountingCodeAllocations(
-          //       accountingCodeAllocations ?? [],
-          //       t
-          //     );
-          //     if (!error) {
-          //       return true;
-          //     }
-
-          //     return new yup.ValidationError(
-          //       error,
-          //       null,
-          //       `${this.path}.accountingCodeAllocations`
-          //     );
-          //   },
-          // })
+              return new yup.ValidationError(error, null, this.path);
+            },
+          }),
         })}
         onSubmit={async (data, e) => {
           await save(data);
