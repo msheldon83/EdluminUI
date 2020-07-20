@@ -6,10 +6,25 @@ const natString = fc.nat().map(n => n.toString());
 
 const withUniqueIds: <T>(
   generator: (id: string) => fc.Arbitrary<T>,
+  // This prefix is to ensure that we don't accidentally have,
+  // say, two schools with the same id.
+  prefix: string,
   min?: number,
   max?: number
-) => fc.Arbitrary<T[]> = (generator, min = 0, max = 10) =>
-  fc.set(natString, min, max).chain(ids => fc.genericTuple(ids.map(generator)));
+) => fc.Arbitrary<T[]> = (generator, prefix, min = 0, max = 10) =>
+  // Generate a set of unique id strings...
+  fc
+    .set(natString, min, max)
+    // then use those ids
+    .chain(ids =>
+      // genericTuple makes an array of arbitraries ((Arbitrary<T>)[])
+      // into an arbitrary that makes arrays (Arbitrary<T[]>)
+      // This lets us generate one output for each id.
+      fc.genericTuple(
+        // map generator onto the ids, prefixing them with, er, prefix.
+        ids.map(id => generator(`${prefix}-${id}`))
+      )
+    );
 
 const arbitrarySchool = (constantPreference?: "favorite" | "hidden") => (
   id: string
@@ -31,7 +46,7 @@ const arbitrarySchoolGroup = (constantPreference?: "favorite" | "hidden") => (
   fc.record({
     id: fc.constant(id),
     name: fc.string(),
-    schools: withUniqueIds(arbitrarySchool(constantPreference), 1, 10),
+    schools: withUniqueIds(arbitrarySchool(constantPreference), id, 1, 10),
   });
 
 const arbitraryDistrict = (constantPreference?: "favorite" | "hidden") => (
@@ -43,14 +58,15 @@ const arbitraryDistrict = (constantPreference?: "favorite" | "hidden") => (
     orgUserId: fc.string(),
     schoolGroups: withUniqueIds(
       arbitrarySchoolGroup(constantPreference),
+      id,
       1,
       10
     ),
   });
 
 const arbitraryGroupedDistricts: fc.Arbitrary<Grouped<District>> = fc.record({
-  favorites: withUniqueIds(arbitraryDistrict("favorite")),
-  hidden: withUniqueIds(arbitraryDistrict("hidden")),
+  favorites: withUniqueIds(arbitraryDistrict("favorite"), ""),
+  hidden: withUniqueIds(arbitraryDistrict("hidden"), ""),
 });
 
 // General fn to check if two layers are equal up to reordering,
@@ -82,7 +98,7 @@ const checkDistricts = (districts1: District[], districts2: District[]) =>
 describe("groupDistricts", () => {
   it("when provided only favorite or hidden schools, partitions them (no elements dropped or added)", () => {
     fc.assert(
-      fc.property(withUniqueIds(arbitraryDistrict()), districts => {
+      fc.property(withUniqueIds(arbitraryDistrict(), ""), districts => {
         const grouped = groupDistricts(districts);
         const rejoined = joinGroupedDistricts(grouped);
         // Here to keep eslint appeased
