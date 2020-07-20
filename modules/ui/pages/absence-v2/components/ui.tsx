@@ -514,6 +514,7 @@ export const AbsenceUI: React.FC<Props> = props => {
             "state.customizedVacanciesInput",
             state.customizedVacanciesInput
           );
+          console.log("formIsDirty", dirty);
 
           return (
             <>
