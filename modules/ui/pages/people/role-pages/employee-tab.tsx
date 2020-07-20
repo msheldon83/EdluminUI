@@ -8,15 +8,11 @@ import {
   EmployeeInput,
   PermissionEnum,
   NeedsReplacement,
-  CommentUpdateInput,
   DiscussionSubjectType,
-  CommentCreateInput,
+  ObjectType,
 } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
 import { SaveEmployee } from "../graphql/employee/save-employee.gen";
-import { CreateComment } from "../graphql/create-comment.gen";
-import { UpdateComment } from "../graphql/update-comment.gen";
-import { DeleteComment } from "../graphql/delete-comment.gen";
 import { UpcomingAbsences } from "../components/employee/upcoming-absences";
 import { RemainingBalances } from "ui/pages/employee-pto-balances/components/remaining-balances";
 import { Position } from "../components/employee/position";
@@ -49,24 +45,6 @@ export const EmployeeTab: React.FC<Props> = props => {
   const params = useRouteParams(PersonViewRoute);
 
   const [updateEmployee] = useMutationBundle(SaveEmployee, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [updateComment] = useMutationBundle(UpdateComment, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [addComment] = useMutationBundle(CreateComment, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [deleteComment] = useMutationBundle(DeleteComment, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -111,35 +89,7 @@ export const EmployeeTab: React.FC<Props> = props => {
     await getEmployee.refetch();
   };
 
-  const onAddComment = async (comment: CommentCreateInput) => {
-    const result = await addComment({
-      variables: {
-        comment: comment,
-      },
-    });
-
-    if (result.data != null || result.data != undefined) {
-      await getEmployee.refetch();
-      return true;
-    }
-    return false;
-  };
-
-  const onEditComment = async (comment: CommentUpdateInput) => {
-    await updateComment({
-      variables: {
-        comment: comment,
-      },
-    });
-    await getEmployee.refetch();
-  };
-
-  const onDeleteComment = async (id: string) => {
-    await deleteComment({
-      variables: {
-        commentId: id,
-      },
-    });
+  const refetchQuery = async () => {
     await getEmployee.refetch();
   };
 
@@ -160,13 +110,12 @@ export const EmployeeTab: React.FC<Props> = props => {
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
       <Comments
-        onAddComment={onAddComment}
+        refetchQuery={refetchQuery}
         staffingOrgId={staffingOrgId}
         comments={orgUser.employee.comments ?? []}
         userId={orgUser.userId ?? ""}
         discussionSubjectType={DiscussionSubjectType.Employee}
-        onEditComment={onEditComment}
-        onDeleteComment={onDeleteComment}
+        objectType={ObjectType.User}
         orgId={params.organizationId}
       />
       <Position

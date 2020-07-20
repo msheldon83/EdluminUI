@@ -30,7 +30,7 @@ export const OrgRelationshipSelect: React.FC<Props> = props => {
 
   const orgOptions = useMemo(() => {
     const delgateTo = orgRelationships.filter(
-      l => l.relationshipType === OrganizationRelationshipType.Services
+      l => l.relationshipType === OrganizationRelationshipType.DelegatesTo
     );
     const options =
       delgateTo

@@ -6,6 +6,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import clsx from "clsx";
 import { Comment, CommentUpdateInput } from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
+import { format, parseISO } from "date-fns";
 
 type Props = {
   comment: Comment;
@@ -24,9 +25,9 @@ export const CommentView: React.FC<Props> = props => {
 
   const [payload, setPayload] = useState<string>(comment.payload ?? "");
 
-  const createdLocal = formatAMPM(
-    new Date(comment.createdLocal).toLocaleDateString(),
-    new Date(comment.createdLocal)
+  const createdLocal = format(
+    parseISO(comment.createdLocal),
+    "M/d/yyyy h:mm a"
   );
 
   const name = () => {
@@ -36,7 +37,7 @@ export const CommentView: React.FC<Props> = props => {
     } else if (comment.actingUser.id != comment.actualUser.id) {
       name = `${comment.actingUser.firstName} ${
         comment.actingUser.lastName
-      } ${t("impersonated by")} ${comment.actualUser.firstName} ${
+      } ${t("on behalf of ")} ${comment.actualUser.firstName} ${
         comment.actualUser.lastName
       }}`;
     } else {
@@ -188,14 +189,3 @@ const useStyles = makeStyles(theme => ({
     fontStyle: "italic",
   },
 }));
-
-const formatAMPM = (date: string, time: Date) => {
-  let hours = time.getHours();
-  const minutes = time.getMinutes();
-  const ampm = hours >= 12 ? "pm" : "am";
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  const newMin = minutes < 10 ? "0" + minutes.toString() : minutes;
-  const strTime = hours.toString() + ":" + newMin.toString() + " " + ampm;
-  return date + " " + strTime;
-};

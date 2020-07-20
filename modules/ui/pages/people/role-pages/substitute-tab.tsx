@@ -7,15 +7,11 @@ import {
   SubstituteInput,
   PermissionEnum,
   OrganizationRelationshipType,
-  CommentCreateInput,
-  CommentUpdateInput,
   DiscussionSubjectType,
+  ObjectType,
 } from "graphql/server-types.gen";
 import { GetSubstituteById } from "../graphql/substitute/get-substitute-by-id.gen";
 import { SaveSubstitute } from "../graphql/substitute/save-substitute.gen";
-import { CreateComment } from "../graphql/create-comment.gen";
-import { UpdateComment } from "../graphql/update-comment.gen";
-import { DeleteComment } from "../graphql/delete-comment.gen";
 import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPayInformation } from "../components/substitute/pay-information";
 import { useOrganization } from "reference-data/organization";
@@ -57,24 +53,6 @@ export const SubstituteTab: React.FC<Props> = props => {
   const params = useRouteParams(PersonViewRoute);
 
   const [updateSubstitute] = useMutationBundle(SaveSubstitute, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [updateComment] = useMutationBundle(UpdateComment, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [addComment] = useMutationBundle(CreateComment, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [deleteComment] = useMutationBundle(DeleteComment, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -147,35 +125,7 @@ export const SubstituteTab: React.FC<Props> = props => {
     await getSubstitute.refetch();
   };
 
-  const onAddComment = async (comment: CommentCreateInput) => {
-    const result = await addComment({
-      variables: {
-        comment: comment,
-      },
-    });
-
-    if (result.data != null || result.data != undefined) {
-      await getSubstitute.refetch();
-      return true;
-    }
-    return false;
-  };
-
-  const onEditComment = async (comment: CommentUpdateInput) => {
-    await updateComment({
-      variables: {
-        comment: comment,
-      },
-    });
-    await getSubstitute.refetch();
-  };
-
-  const onDeleteComment = async (id: string) => {
-    await deleteComment({
-      variables: {
-        commentId: id,
-      },
-    });
+  const refetchQuery = async () => {
     await getSubstitute.refetch();
   };
 
@@ -196,13 +146,12 @@ export const SubstituteTab: React.FC<Props> = props => {
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
       <Comments
-        onAddComment={onAddComment}
+        refetchQuery={refetchQuery}
         staffingOrgId={staffingOrgId}
         comments={orgUser.substitute.comments ?? []}
         userId={orgUser.userId ?? ""}
         discussionSubjectType={DiscussionSubjectType.Substitute}
-        onEditComment={onEditComment}
-        onDeleteComment={onDeleteComment}
+        objectType={ObjectType.User}
         orgId={params.organizationId}
       />
       <SubPositionsAttributes

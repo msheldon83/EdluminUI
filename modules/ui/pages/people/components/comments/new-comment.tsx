@@ -14,6 +14,7 @@ import { makeStyles } from "@material-ui/styles";
 type Props = {
   setNewCommentVisible: React.Dispatch<React.SetStateAction<boolean>>;
   userId: string;
+  objectType: ObjectType;
   discussionSubjectType: DiscussionSubjectType;
   orgId: string;
   staffingOrgId?: string | null;
@@ -35,6 +36,7 @@ export const NewComment: React.FC<Props> = props => {
     discussionSubjectType,
     userId,
     staffingOrgId,
+    objectType,
   } = props;
 
   return (
@@ -94,13 +96,11 @@ export const NewComment: React.FC<Props> = props => {
                   const addComment: CommentCreateInput = {
                     discussionSubjectType: discussionSubjectType,
                     objectKey: userId,
-                    objectType: ObjectType.User,
+                    objectType: objectType,
                     orgId: orgId ?? "",
                     payload: payload,
                     hasShadow: selectedOrgId === undefined ? true : false,
                   };
-
-                  console.log(addComment);
 
                   const result = await onAddComment(addComment);
                   if (result) {

@@ -2,8 +2,14 @@ import * as React from "react";
 import { Grid } from "@material-ui/core";
 import { CommentView } from "./comment-view";
 import { NewComment } from "./new-comment";
+import { useMutationBundle } from "graphql/hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import { ShowErrors } from "ui/components/error-helpers";
 import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
+import { CreateComment } from "../../graphql/create-comment.gen";
+import { UpdateComment } from "../../graphql/update-comment.gen";
+import { DeleteComment } from "../../graphql/delete-comment.gen";
 import { useState } from "react";
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
@@ -13,38 +19,88 @@ import {
   CommentUpdateInput,
   CommentCreateInput,
   DiscussionSubjectType,
+  ObjectType,
 } from "graphql/server-types.gen";
 
 type Props = {
   orgId: string;
+  objectType: ObjectType;
   discussionSubjectType: DiscussionSubjectType;
   userId: string;
-  onEditComment: (editComment: CommentUpdateInput) => void;
-  onAddComment: (addComment: CommentCreateInput) => Promise<boolean>;
-  onDeleteComment: (id: string) => void;
   staffingOrgId?: string | null;
   comments?: any[];
+  refetchQuery: () => Promise<void>;
 };
 
 export const Comments: React.FC<Props> = props => {
   const { t } = useTranslation();
+  const { openSnackbar } = useSnackbar();
   const classes = useStyles();
 
   const {
     comments,
-    onEditComment,
-    onAddComment,
     orgId,
-    onDeleteComment,
     discussionSubjectType,
     userId,
     staffingOrgId,
+    objectType,
+    refetchQuery,
   } = props;
 
   const [newCommentVisible, setNewCommentVisible] = useState<boolean>(false);
   const [truncatedComments, setTruncatedComments] = useState<boolean>(true);
 
   const commentLength = comments?.length ?? 0;
+
+  const [updateComment] = useMutationBundle(UpdateComment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [addComment] = useMutationBundle(CreateComment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [deleteComment] = useMutationBundle(DeleteComment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const onAddComment = async (comment: CommentCreateInput) => {
+    const result = await addComment({
+      variables: {
+        comment: comment,
+      },
+    });
+
+    if (result.data != null || result.data != undefined) {
+      await refetchQuery();
+      return true;
+    }
+    return false;
+  };
+
+  const onEditComment = async (comment: CommentUpdateInput) => {
+    await updateComment({
+      variables: {
+        comment: comment,
+      },
+    });
+    await refetchQuery();
+  };
+
+  const onDeleteComment = async (id: string) => {
+    await deleteComment({
+      variables: {
+        commentId: id,
+      },
+    });
+    await refetchQuery();
+  };
 
   return (
     <Section className={classes.positionRelative}>
@@ -62,6 +118,7 @@ export const Comments: React.FC<Props> = props => {
             setNewCommentVisible={setNewCommentVisible}
             onAddComment={onAddComment}
             userId={userId}
+            objectType={objectType}
             discussionSubjectType={discussionSubjectType}
             orgId={orgId}
             staffingOrgId={staffingOrgId}
