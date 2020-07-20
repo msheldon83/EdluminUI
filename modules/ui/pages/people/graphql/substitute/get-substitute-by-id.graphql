@@ -45,6 +45,23 @@ query GetSubstituteById(
           payload
           createdLocal
           hasBeenEdited
+          actualUser {
+            id
+            firstName
+            lastName
+          }
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actingOrgUser {
+            id
+            organization {
+              id
+              name
+            }
+          }
           discussion {
             id
           }
