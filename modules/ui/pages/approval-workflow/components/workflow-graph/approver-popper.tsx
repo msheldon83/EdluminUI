@@ -58,6 +58,7 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     }
   }, [selectedStep, step.stepId]);
 
+  // We need to only show Approver Groups in the select that haven't been used yet
   const approverGroupIdsToFilterOut = compact(
     props.steps
       .filter(x => !x.deleted)
@@ -75,6 +76,24 @@ export const AddUpdateApprover: React.FC<Props> = props => {
     const updatedStep = updatedSteps.find(x => x.stepId === step.stepId);
     if (updatedStep) setStep(updatedStep);
     setNewSteps(updatedSteps.filter(x => x.stepId !== step.stepId));
+  };
+
+  const handleSubmit = (data: ApprovalWorkflowStepInput) => {
+    // If this is a new step being added as the default route of another step,
+    // we need to update the source step's default transition
+    const previousStep = props.steps.find(
+      x => x.stepId === props.previousStepId
+    );
+    if (!props.steps.find(x => x.stepId === data.stepId) && previousStep) {
+      previousStep.onApproval[previousStep.onApproval.length - 1].goto =
+        data.stepId;
+      props.onSave([data, previousStep]);
+    } else {
+      // Handle updating the selected step and adding any new steps created by adding conditions
+      newSteps.length > 0
+        ? props.onSave([...newSteps, data])
+        : props.onSave([data]);
+    }
   };
 
   return conditionOpen ? (
@@ -110,9 +129,7 @@ export const AddUpdateApprover: React.FC<Props> = props => {
             }),
           })}
           onSubmit={data => {
-            newSteps.length > 0
-              ? props.onSave([...newSteps, data])
-              : props.onSave([data]);
+            handleSubmit(data);
             props.onClose();
           }}
         >

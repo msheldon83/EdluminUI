@@ -122,6 +122,8 @@ export const ConditionPopper: React.FC<Props> = props => {
     }
   }, [transition, workflowType]);
 
+  // To prevent loops backwards in the workflow, we figure out the path through the workflow
+  // for any reasonIds, then filter out those Approver Groups so they can't be selected
   const determineApproverGroupIdsToFilterOut = (reasonIds?: string[]) => {
     const path = determinePathThroughAbsVacWorkflow(
       steps,
@@ -217,7 +219,8 @@ export const ConditionPopper: React.FC<Props> = props => {
                     "is"
                   )}`}</div>
                   <div className={classes.selectContainer}>
-                    {workflowType === ApprovalWorkflowType.Absence ? (
+                    {// TODO: Figure out which Absence/Vacancy reasons have been used to this point in the workflow and only show those so we don't end up with unusable paths.
+                    workflowType === ApprovalWorkflowType.Absence ? (
                       <AbsenceReasonSelect
                         orgId={props.orgId}
                         includeAllOption={false}
