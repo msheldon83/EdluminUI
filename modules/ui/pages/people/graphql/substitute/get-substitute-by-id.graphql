@@ -40,10 +40,14 @@ query GetSubstituteById($id: ID!) {
         }
         attributes {
           id
+          changedUtc
+          createdUtc
+          deletedUtc
           endorsement {
             id
             name
             expires
+            expired
           }
           expirationDate
         }
