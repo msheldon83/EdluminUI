@@ -131,7 +131,9 @@ export const EditAbsence: React.FC<{}> = props => {
     return <></>;
   }
 
-  if (!absenceQuery.data.absence?.byId) {
+  // We shouldn't get an Absence if its been deleted, but just in
+  // case we do receive one from the server
+  if (!absence || absence.isDeleted) {
     return <DeletedDataIndex absenceId={absenceId} />;
   }
 
