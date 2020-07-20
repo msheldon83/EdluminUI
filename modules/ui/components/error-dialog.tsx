@@ -4,10 +4,10 @@ import {
   DialogTitle,
   DialogContent,
   Dialog,
+  Typography,
 } from "@material-ui/core";
 import { ApolloError } from "apollo-client";
 import { Button } from "@material-ui/core";
-import { TFunction } from "i18next";
 import { TranslateAbsenceErrorCodeToMessage } from "ui/components/absence/helpers";
 import { useTranslation } from "react-i18next";
 import { SectionHeader } from "ui/components/section-header";
@@ -69,7 +69,7 @@ export const ErrorDialog: React.FC<Props> = props => {
             {m}
           </div>
         ))}
-        <div className={classes.padding}>
+        <div className={classes.actions}>
           <Button size="small" variant="outlined" onClick={() => onClose()}>
             {warningsOnly ? t("Cancel") : t("Okay")}
           </Button>
@@ -94,18 +94,19 @@ export const ErrorDialog: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   header: {
-    color: theme.customColors.darkRed,
+    marginBottom: 0,
   },
   message: {
     wordWrap: "break-word",
-    paddingBottom: "4px",
-    paddingTop: "4px",
+    paddingBottom: theme.spacing(2),
   },
   buttonPadding: {
-    marginLeft: "15px",
+    marginLeft: theme.spacing(2),
   },
-  padding: {
-    paddingTop: "10px",
-    paddingBottom: "10px",
+  actions: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    width: "100%",
+    textAlign: "right",
   },
 }));
