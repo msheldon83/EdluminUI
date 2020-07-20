@@ -1,0 +1,16 @@
+mutation UpdatePreferenceFilter($userId: ID!, $rowVersion: String!, $preferenceFilter: PreferenceFilter!) {
+  user {
+    update (
+      user: {
+        id: $userId
+        rowVersion: $rowVersion
+        preferences: {
+          preferenceFilter: $preferenceFilter
+        }
+      }
+    ){
+      id
+      rowVersion
+    }
+  }
+}

@@ -1,11 +1,12 @@
 import { Isomorphism } from "@atomic-object/lenses";
+import { PreferenceFilter } from "graphql/server-types.gen";
 
 export const FilterQueryParamDefaults: SubHomeFilters = {
   orgIds: "",
   positionTypeIds: "",
   locationIds: "",
   times: "",
-  showNonPreferredJobs: "false",
+  preferenceFilter: "SHOW_FAVORITES_AND_DEFAULT",
 };
 
 export type SubHomeFilters = {
@@ -13,18 +14,14 @@ export type SubHomeFilters = {
   positionTypeIds: string;
   locationIds: string;
   times: string;
-  showNonPreferredJobs: string;
+  preferenceFilter: string;
 };
 
 type SubHomeFilterQueryParams = Omit<
   SubHomeFilters,
-  | "orgIds"
-  | "positionTypeIds"
-  | "locationIds"
-  | "times"
-  | "showNonPreferredJobs"
+  "orgIds" | "positionTypeIds" | "locationIds" | "times" | "preferenceFilter"
 > & {
-  showNonPreferredJobs: boolean | undefined;
+  preferenceFilter: PreferenceFilter;
 } & SubHomeQueryFilters;
 
 export type SubHomeQueryFilters = {
@@ -32,7 +29,7 @@ export type SubHomeQueryFilters = {
   locationIds: string[];
   positionTypeIds: string[];
   times: string[];
-  showNonPreferredJobs: boolean | undefined;
+  preferenceFilter: PreferenceFilter;
 };
 
 export const FilterParams: Isomorphism<
@@ -60,7 +57,9 @@ const to = (o: SubHomeFilters): SubHomeQueryFilters => {
     locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
     orgIds: o.orgIds === "" ? [] : o.orgIds.split(","),
     times: o.times.split(","),
-    showNonPreferredJobs: stringToBool(o.showNonPreferredJobs),
+    preferenceFilter: ensureIsFilter(o.preferenceFilter)
+      ? o.preferenceFilter
+      : PreferenceFilter.Invalid,
   };
 };
 
@@ -70,28 +69,9 @@ const from = (o: SubHomeQueryFilters) => {
     locationIds: o.locationIds.join(","),
     positionTypeIds: o.positionTypeIds.join(","),
     times: o.times.join(","),
-    showNonPreferredJobs: boolToString(o.showNonPreferredJobs),
+    preferenceFilter: o.preferenceFilter,
   };
 };
 
-export const stringToBool = (s: string): boolean | undefined => {
-  switch (s) {
-    case "true":
-      return true;
-    case "false":
-      return false;
-    case "":
-    default:
-      return undefined;
-  }
-};
-const boolToString = (b: boolean | undefined): "true" | "false" | "" => {
-  switch (b) {
-    case true:
-      return "true";
-    case false:
-      return "false";
-    case undefined:
-      return "";
-  }
-};
+const ensureIsFilter = (s: string): s is PreferenceFilter =>
+  Object.keys(PreferenceFilter).includes(s);

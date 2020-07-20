@@ -201,7 +201,7 @@ export const AvailableAssignments: React.FC<Props> = props => {
             </div>
           )}
 
-          {showFilters && <Filters />}
+          {showFilters && <Filters userId={userId ?? ""} />}
           <div>
             <Divider className={classes.header} />
             {getVacancies.state === "LOADING" ? (
