@@ -23,6 +23,7 @@ type Props = {
     name: string;
   }[];
   steps: ApprovalWorkflowStepInput[];
+  newSteps: ApprovalWorkflowStepInput[];
   transitions: ApprovalWorkflowTransitionInput[];
   onUpdate: (onApproval: ApprovalWorkflowTransitionInput[]) => void;
   onEditTransition: (nextStepId?: string | null) => void;
@@ -44,8 +45,10 @@ export const AbsVacTransitions: React.FC<Props> = props => {
     props.workflowType
   ) as AbsVacTransition[];
 
+  const allSteps = props.steps.concat(props.newSteps);
+
   const findApproverGroupName = (stepId?: string | null) => {
-    const nextStep = props.steps.find(s => s.stepId === stepId);
+    const nextStep = allSteps.find(s => s.stepId === stepId);
     const approverGroupName = nextStep?.approverGroupHeaderId
       ? props.approverGroups.find(x => x.id === nextStep.approverGroupHeaderId)
           ?.name

@@ -160,16 +160,21 @@ export const createNewStep = (
   steps: ApprovalWorkflowStepInput[],
   nextStepId?: string | null,
   previousStepId?: string,
-  approverGroupHeaderId?: string
+  approverGroupHeaderId?: string,
+  additionalSteps?: ApprovalWorkflowStepInput[]
 ) => {
-  const ids = steps.map(s => Number(s.stepId));
-  const nextId = (Math.max(...ids) + 1).toString();
+  const ids = new Set([
+    ...steps.map(s => Number(s.stepId)),
+    ...(additionalSteps?.map(s => Number(s.stepId)) ?? []),
+    Number(previousStepId),
+  ]);
+  const nextId = Math.max(...ids) + 1;
 
   const previousStep = steps.find(x => x.stepId === previousStepId);
   const nextStep = steps.find(x => x.stepId === nextStepId);
 
   return {
-    stepId: nextId,
+    stepId: nextId.toString(),
     approverGroupHeaderId: approverGroupHeaderId ? approverGroupHeaderId : null,
     isFirstStep: false,
     isLastStep: false,

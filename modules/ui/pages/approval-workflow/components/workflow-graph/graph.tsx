@@ -160,6 +160,16 @@ export const StepsGraph: React.FC<Props> = props => {
     stepsForUpdate.forEach(step => {
       const stepIndex = steps.findIndex(x => x.stepId === step.stepId);
       if (stepIndex === -1) {
+        if (
+          steps.find(
+            x =>
+              !x.deleted &&
+              x.xPosition === step.xPosition &&
+              x.yPosition === step.yPosition
+          )
+        ) {
+          step.yPosition = +step.yPosition - 200;
+        }
         steps.push(step);
       } else {
         steps[stepIndex] = step;
@@ -193,13 +203,14 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
+  // Order is important here
   const handleClosePopper = () => {
-    setElAnchor(null);
     setSelectedNode(null);
-    setConditionOpen(false);
-    setApproverOpen(false);
     setSelectedEdge(undefined);
     setSelectedStep(null);
+    setConditionOpen(false);
+    setApproverOpen(false);
+    setElAnchor(null);
   };
 
   const handleRemoveStep = () => {
@@ -308,7 +319,6 @@ export const StepsGraph: React.FC<Props> = props => {
                   onSave={handleUpdateSteps}
                   steps={steps}
                   selectedStep={selectedStep}
-                  previousStepId={selectedEdge?.source}
                   nextStepId={selectedEdge?.target}
                 />
               </>

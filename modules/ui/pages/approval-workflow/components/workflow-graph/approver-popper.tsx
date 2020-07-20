@@ -73,9 +73,22 @@ export const AddUpdateApprover: React.FC<Props> = props => {
   );
 
   const onSaveConditionUpdate = (updatedSteps: ApprovalWorkflowStepInput[]) => {
+    // Determine if the current step on this component was updated as part of the condition update
     const updatedStep = updatedSteps.find(x => x.stepId === step.stepId);
-    if (updatedStep) setStep(updatedStep);
-    setNewSteps(updatedSteps.filter(x => x.stepId !== step.stepId));
+
+    if (updatedStep) step.onApproval = updatedStep.onApproval;
+
+    // Make sure if there are any new/updated steps waiting to be saved that we updated them correctly
+    updatedSteps
+      .filter(x => x.stepId !== step.stepId)
+      .forEach(step => {
+        const stepIndex = newSteps.findIndex(x => x.stepId === step.stepId);
+        if (stepIndex === -1) {
+          newSteps.push(step);
+        } else {
+          newSteps[stepIndex] = step;
+        }
+      });
   };
 
   const handleSubmit = (data: ApprovalWorkflowStepInput) => {
@@ -104,8 +117,8 @@ export const AddUpdateApprover: React.FC<Props> = props => {
       onSave={onSaveConditionUpdate}
       steps={props.steps}
       selectedStep={step}
-      previousStepId={step.stepId}
       nextStepId={nextStepId}
+      newSteps={newSteps}
     />
   ) : (
     <div className={classes.popper}>
@@ -147,6 +160,7 @@ export const AddUpdateApprover: React.FC<Props> = props => {
                     }
                     setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
                       if (ids && ids.length > 0) {
+                        step.approverGroupHeaderId = ids[0];
                         setFieldValue("approverGroupHeaderId", ids[0]);
                       } else {
                         setFieldValue("approverGroupHeaderId", null);
@@ -163,13 +177,15 @@ export const AddUpdateApprover: React.FC<Props> = props => {
                 reasons={props.reasons}
                 steps={props.steps.concat(newSteps)}
                 transitions={values.onApproval}
-                onUpdate={(onApproval: ApprovalWorkflowTransitionInput[]) =>
-                  setFieldValue("onApproval", onApproval)
-                }
+                onUpdate={(onApproval: ApprovalWorkflowTransitionInput[]) => {
+                  setFieldValue("onApproval", onApproval);
+                  step.onApproval = onApproval;
+                }}
                 onEditTransition={(nextStepId?: string | null) => {
                   setNextStepId(nextStepId);
                   setConditionOpen(true);
                 }}
+                newSteps={newSteps}
               />
               <TextButton
                 onClick={() => {
@@ -186,9 +202,7 @@ export const AddUpdateApprover: React.FC<Props> = props => {
                   onClick={submitForm}
                   className={classes.button}
                 >
-                  {step.approverGroupHeaderId || firstStep
-                    ? t("Update")
-                    : t("Add")}
+                  {selectedStep || firstStep ? t("Update") : t("Add")}
                 </Button>
                 {props.onRemove && !values.isFirstStep && (
                   <Button

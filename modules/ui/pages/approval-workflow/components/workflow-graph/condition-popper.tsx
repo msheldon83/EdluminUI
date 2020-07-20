@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   makeStyles,
   Button,
@@ -37,8 +37,8 @@ type Props = {
   onRemove?: () => void;
   steps: ApprovalWorkflowStepInput[];
   selectedStep?: ApprovalWorkflowStepInput | null;
-  previousStepId?: string;
   nextStepId?: string | null;
+  newSteps?: ApprovalWorkflowStepInput[];
 };
 
 export const ConditionPopper: React.FC<Props> = props => {
@@ -48,9 +48,7 @@ export const ConditionPopper: React.FC<Props> = props => {
   const { selectedStep, workflowType, steps, nextStepId } = props;
 
   const [step, setStep] = useState<ApprovalWorkflowStepInput>(
-    selectedStep
-      ? selectedStep
-      : createNewStep(props.steps, props.nextStepId, props.previousStepId)
+    selectedStep ?? createNewStep(steps)
   );
 
   const [transition, setTransition] = useState<
@@ -62,7 +60,7 @@ export const ConditionPopper: React.FC<Props> = props => {
         criteria: null,
         args: null,
       },
-      props.workflowType
+      workflowType
     )
   );
 
@@ -122,12 +120,10 @@ export const ConditionPopper: React.FC<Props> = props => {
     }
   }, [transition, workflowType]);
 
-  // To prevent loops backwards in the workflow, we figure out the path through the workflow
-  // for any reasonIds, then filter out those Approver Groups so they can't be selected
   const determineApproverGroupIdsToFilterOut = (reasonIds?: string[]) => {
     const path = determinePathThroughAbsVacWorkflow(
       steps,
-      props.workflowType,
+      workflowType,
       reasonIds,
       step.stepId
     );
@@ -171,7 +167,8 @@ export const ConditionPopper: React.FC<Props> = props => {
                 steps,
                 step.onApproval.find(x => !x.criteria)?.goto,
                 step.stepId,
-                data.approverGroupHeaderId
+                data.approverGroupHeaderId,
+                props.newSteps
               );
               nextGoto = newStep.stepId;
             }
@@ -219,8 +216,7 @@ export const ConditionPopper: React.FC<Props> = props => {
                     "is"
                   )}`}</div>
                   <div className={classes.selectContainer}>
-                    {// TODO: Figure out which Absence/Vacancy reasons have been used to this point in the workflow and only show those so we don't end up with unusable paths.
-                    workflowType === ApprovalWorkflowType.Absence ? (
+                    {workflowType === ApprovalWorkflowType.Absence ? (
                       <AbsenceReasonSelect
                         orgId={props.orgId}
                         includeAllOption={false}
@@ -250,7 +246,7 @@ export const ConditionPopper: React.FC<Props> = props => {
                   selectedApproverGroupHeaderIds={
                     values.approverGroupHeaderId
                       ? [values.approverGroupHeaderId]
-                      : undefined
+                      : ["0"]
                   }
                   setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
                     if (ids && ids.length > 0) {
@@ -287,9 +283,9 @@ export const ConditionPopper: React.FC<Props> = props => {
                   onClick={submitForm}
                   className={classes.button}
                 >
-                  {props.nextStepId ? t("Update") : t("Add")}
+                  {nextStepId ? t("Update") : t("Add")}
                 </Button>
-                {props.nextStepId && (
+                {nextStepId && (
                   <Button
                     variant="outlined"
                     onClick={props.onRemove}
