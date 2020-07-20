@@ -85,7 +85,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
         ...absenceInput!,
         ignoreWarnings: true,
       },
-      ignoreAbsenceId: absenceId ?? undefined
+      ignoreAbsenceId: absenceId ?? undefined,
     },
     skip: !absenceInput,
     fetchPolicy: "network-only",

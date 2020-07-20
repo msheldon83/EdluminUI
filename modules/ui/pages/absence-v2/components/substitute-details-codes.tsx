@@ -136,7 +136,9 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
                 }}
                 onChange={value => {
                   setFieldValue("payCodeId", value.value, !!errors.payCodeId);
-                  onOverallCodeChanges({ payCodeId: !value.value ? null : value.value.toString() });
+                  onOverallCodeChanges({
+                    payCodeId: !value.value ? null : value.value.toString(),
+                  });
                 }}
                 options={payCodeOptions}
                 multiple={false}
