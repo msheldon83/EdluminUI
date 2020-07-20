@@ -245,19 +245,14 @@ export const determinePathThroughAbsVacWorkflow = (
     if (reasonIds && reasonIds.length > 0 && transitions.length > 1) {
       nextStepId = transitions.find((transition: any) => {
         if (transition.criteria) {
-          if (workflowType === ApprovalWorkflowType.Absence) {
-            const criteria = transition.criteria as AbsenceTransitionCriteria;
-            if (reasonIds.some(r => criteria.absenceReasonIds?.includes(r))) {
-              return true;
-            }
-          } else {
-            const criteria = transition.criteria as VacancyTransitionCriteria;
-            if (reasonIds.some(r => criteria.vacancyReasonIds?.includes(r))) {
-              return true;
-            }
-          }
+          return reasonsInCriteria(
+            transition.criteria,
+            workflowType,
+            reasonIds
+          );
         }
-        return false;
+        // If we have reached the default transition, then it is in the workflow
+        return true;
       })?.goto;
     }
 
@@ -265,4 +260,28 @@ export const determinePathThroughAbsVacWorkflow = (
   }
 
   return pathSteps;
+};
+
+export const reasonsInCriteria = (
+  criteria: any,
+  workflowType: ApprovalWorkflowType,
+  reasonIds: string[]
+) => {
+  if (typeof criteria === "string") criteria = JSON.parse(criteria);
+
+  if (workflowType === ApprovalWorkflowType.Absence) {
+    const parsedCriteria = criteria as AbsenceTransitionCriteria;
+    if (reasonIds.some(r => parsedCriteria.absenceReasonIds?.includes(r))) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    const parsedCriteria = criteria as VacancyTransitionCriteria;
+    if (reasonIds.some(r => parsedCriteria.vacancyReasonIds?.includes(r))) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 };

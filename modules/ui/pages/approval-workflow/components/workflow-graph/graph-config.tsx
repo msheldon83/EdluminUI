@@ -102,6 +102,13 @@ export const GraphConfig: any = {
       shapeId: "#emptyEdge",
       shape: <symbol viewBox="0 0 0 0" id="emptyEdge" key="0" />,
     },
+    hiddenEmptyEdge: {
+      // Edge edge that is hidden when testing
+      shapeId: "#hiddenEmptyEdge",
+      shape: (
+        <symbol viewBox="0 0 0 0" id="hiddenEmptyEdge" key="0" fill="#050039" />
+      ),
+    },
     addEdge: {
       // Edge to include and add groups button
       shapeId: "#addEdge",

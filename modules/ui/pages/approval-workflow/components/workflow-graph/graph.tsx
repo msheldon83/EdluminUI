@@ -20,13 +20,14 @@ type Props = {
   orgId: string;
   workflowType: ApprovalWorkflowType;
   setSteps: (steps: ApprovalWorkflowStepInput[]) => void;
+  testReasonId?: string;
 };
 
 export const StepsGraph: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { steps, setSteps, workflowType } = props;
+  const { steps, setSteps, workflowType, testReasonId } = props;
 
   const absenceReasons = useAbsenceReasons(props.orgId);
   const vacancyReasons = useVacancyReasons(props.orgId);
@@ -45,18 +46,20 @@ export const StepsGraph: React.FC<Props> = props => {
 
   const approverGroups = useApproverGroups(props.orgId);
 
-  const nodes = useMemo(() => convertStepsToNodes(steps, approverGroups, t), [
-    approverGroups,
-    steps,
-    t,
-  ]);
+  const nodes = useMemo(
+    () =>
+      convertStepsToNodes(workflowType, steps, approverGroups, t, testReasonId),
+    [approverGroups, steps, t, testReasonId, workflowType]
+  );
   const edges = useMemo(
     () =>
       convertStepsToEdges(
+        workflowType,
         steps,
-        approverGroups.map(x => x.id)
+        approverGroups.map(x => x.id),
+        testReasonId
       ),
-    [steps, approverGroups]
+    [workflowType, steps, approverGroups, testReasonId]
   );
 
   const selected = {};
