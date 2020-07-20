@@ -29,7 +29,7 @@ type Props = {
   userId: string;
   staffingOrgId?: string | null;
   comments?: any[];
-  refetchQuery: () => Promise<void>;
+  refetchQuery: () => void;
 };
 
 export const Comments: React.FC<Props> = props => {
@@ -78,7 +78,7 @@ export const Comments: React.FC<Props> = props => {
     });
 
     if (result.data != null || result.data != undefined) {
-      await refetchQuery();
+      refetchQuery();
       return true;
     }
     return false;
@@ -90,7 +90,7 @@ export const Comments: React.FC<Props> = props => {
         comment: comment,
       },
     });
-    await refetchQuery();
+    refetchQuery();
   };
 
   const onDeleteComment = async (id: string) => {
@@ -99,7 +99,7 @@ export const Comments: React.FC<Props> = props => {
         commentId: id,
       },
     });
-    await refetchQuery();
+    refetchQuery();
   };
 
   return (

@@ -125,8 +125,8 @@ export const SubstituteTab: React.FC<Props> = props => {
     await getSubstitute.refetch();
   };
 
-  const refetchQuery = async () => {
-    await getSubstitute.refetch();
+  const refetchQuery = () => {
+    getSubstitute.refetch();
   };
 
   return (

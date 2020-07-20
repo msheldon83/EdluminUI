@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Grid, TextField, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import clsx from "clsx";
 import { Comment, CommentUpdateInput } from "graphql/server-types.gen";
@@ -29,6 +29,11 @@ export const CommentView: React.FC<Props> = props => {
     parseISO(comment.createdLocal),
     "M/d/yyyy h:mm a"
   );
+
+  useEffect(() => {
+    setShowEdit(false);
+    setPayload(comment.payload ?? "");
+  }, [setShowEdit, setPayload, comment]);
 
   const name = () => {
     let name;
