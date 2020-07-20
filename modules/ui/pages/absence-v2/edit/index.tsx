@@ -11,6 +11,7 @@ import {
   AbsenceCreateInput,
   Absence,
   AbsenceUpdateInput,
+  DayPart,
 } from "graphql/server-types.gen";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 import {
@@ -28,6 +29,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { DeletedDataIndex } from "./deleted-data-index";
 import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete-absence-vacancy-dialog";
 import { UpdateAbsence } from "../graphql/update-absence.gen";
+import { startOfDay, parseISO, startOfMonth } from "date-fns";
 
 export const EditAbsence: React.FC<{}> = props => {
   const { organizationId, absenceId } = useRouteParams(AdminEditAbsenceRouteV2);
@@ -40,27 +42,20 @@ export const EditAbsence: React.FC<{}> = props => {
     { error: ApolloError | null; confirmed: boolean } | undefined
   >();
 
-  const absence = useQueryBundle(GetAbsence, {
+  const absenceQuery = useQueryBundle(GetAbsence, {
     variables: {
       id: absenceId,
     },
   });
 
   const [updateAbsence] = useMutationBundle(UpdateAbsence, {
-    onError: error => {
+    onError: error =>
       setSaveErrorsInfo({
         error,
         confirmed: false,
       }),
-    },
     refetchQueries: ["GetAbsence"],
   });
-
-  const employee = React.useMemo(() => {
-    if (absence.state === "DONE") {
-      return absence.data.absence?.byId?.employee;
-    }
-  }, [absence]);
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
     onError: error => {
@@ -89,14 +84,49 @@ export const EditAbsence: React.FC<{}> = props => {
       });
       //goBack();
     }
-  }, [deleteAbsence, absenceId, openSnackbar, t ]); //goBack
+  }, [deleteAbsence, absenceId, openSnackbar, t]); //goBack
 
-  if (absence.state !== "DONE" && absence.state !== "UPDATING") {
+  const absence: Absence | null | undefined = React.useMemo(() => {
+    return absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING"
+      ? undefined
+      : (absenceQuery.data.absence?.byId as Absence);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [absenceQuery.state]);
+
+  const employee = absence?.employee;
+  const vacancies = compact(absence?.vacancies ?? []);
+  const vacancy = vacancies[0];
+  const position = vacancy?.position;
+
+  const absenceDetails = React.useMemo(() => {
+    return compact(absence?.details).map(d => {
+      return {
+        id: d.id,
+        date: startOfDay(parseISO(d.startDate)),
+        dayPart: d.dayPartId ?? undefined,
+        hourlyStartTime:
+          d.dayPartId === DayPart.Hourly
+            ? parseISO(d.startTimeLocal)
+            : undefined,
+        hourlyEndTime:
+          d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
+        absenceReasonId: d.reasonUsages
+          ? d.reasonUsages[0]?.absenceReasonId
+          : undefined,
+      };
+    });
+  }, [absence?.details]);
+
+  if (absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING") {
     return <></>;
   }
 
-  if (!absence.data.absence?.byId) {
+  if (!absenceQuery.data.absence?.byId) {
     return <DeletedDataIndex absenceId={absenceId} />;
+  }
+
+  if (!absence || !employee) {
+    return <></>;
   }
 
   return (
@@ -118,28 +148,48 @@ export const EditAbsence: React.FC<{}> = props => {
           locationIds: compact(employee.locations?.map(l => l?.id)),
         }}
         position={
-          employee.primaryPosition
+          position
             ? {
-                id: employee.primaryPosition.id,
+                id: position.id,
                 needsReplacement:
-                  employee.primaryPosition.needsReplacement ??
-                  NeedsReplacement.No,
-                title: employee.primaryPosition.title,
-                positionTypeId:
-                  employee.primaryPosition.positionTypeId ?? undefined,
-                defaultPayCodeId:
-                  employee.primaryPosition.positionType?.payCodeId ?? undefined,
-                defaultAccountingCodeAllocations: defaultAccountingCodeAllocations,
+                  position.needsReplacement ?? NeedsReplacement.No,
+                title: position.title,
+                positionTypeId: position.positionTypeId ?? undefined,
+                // defaultPayCodeId:
+                //   employee.primaryPosition.positionType?.payCodeId ?? undefined,
+                defaultAccountingCodeAllocations: noAllocation(),
               }
             : undefined
         }
-        initialAbsenceData={{
-          details: [],
-          needsReplacement:
-            employee.primaryPosition?.needsReplacement === NeedsReplacement.Yes,
-          accountingCodeAllocations: defaultAccountingCodeAllocations,
-          payCodeId:
-            employee.primaryPosition?.positionType?.payCodeId ?? undefined,
+        initialAbsenceFormData={{
+          id: absence?.id,
+          details: absenceDetails,
+          notesToApprover: absence?.notesToApprover ?? undefined,
+          adminOnlyNotes: absence?.adminOnlyNotes ?? undefined,
+          needsReplacement: !!vacancy,
+          notesToReplacement: vacancy?.notesToReplacement ?? undefined,
+          accountingCodeAllocations: noAllocation(),
+          // payCodeId:
+          //   employee.primaryPosition?.positionType?.payCodeId ?? undefined,
+        }}
+        initialAbsenceState={() => {
+          const absenceDates = absenceDetails.map(d => d.date);
+          const viewingCalendarMonth =
+            absenceDates.length > 0
+              ? startOfMonth(absenceDates[0])
+              : startOfMonth(new Date());
+          return {
+            absenceId: absence?.id,
+            absenceRowVersion: absence?.rowVersion,
+            employeeId: employee.id,
+            organizationId: organizationId,
+            positionId: position?.id ?? "0",
+            viewingCalendarMonth,
+            absenceDates,
+            vacancySummaryDetailsToAssign: [],
+            isClosed: false,
+            closedDates: [],
+          };
         }}
         saveAbsence={async data => {
           const result = await updateAbsence({

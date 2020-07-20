@@ -18,6 +18,7 @@ import {
 } from "ui/components/form/accounting-code-dropdown";
 import { CreateAbsence } from "../graphql/create.gen";
 import { ApolloError } from "apollo-client";
+import { startOfMonth } from "date-fns";
 
 export const AdminCreateAbsence: React.FC<{}> = props => {
   const { organizationId, employeeId } = useRouteParams(
@@ -94,13 +95,25 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
             }
           : undefined
       }
-      initialAbsenceData={{
+      initialAbsenceFormData={{
         details: [],
         needsReplacement:
           employee.primaryPosition?.needsReplacement === NeedsReplacement.Yes,
         accountingCodeAllocations: defaultAccountingCodeAllocations,
         payCodeId:
           employee.primaryPosition?.positionType?.payCodeId ?? undefined,
+      }}
+      initialAbsenceState={() => {
+        return {
+          employeeId: employee.id,
+          organizationId: organizationId,
+          positionId: employee.primaryPosition?.id ?? "0",
+          viewingCalendarMonth: startOfMonth(new Date()),
+          absenceDates: [],
+          vacancySummaryDetailsToAssign: [],
+          isClosed: false,
+          closedDates: [],
+        };
       }}
       saveAbsence={async data => {
         const result = await createAbsence({

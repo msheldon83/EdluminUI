@@ -21,6 +21,7 @@ import { AbsenceDays } from "./absence-days";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 
 type Props = {
+  absenceId?: string;
   employeeId: string;
   organizationId: string;
   actingAsEmployee: boolean;
@@ -41,6 +42,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     AbsenceFormData
   >();
   const {
+    absenceId,
     employeeId,
     organizationId,
     actingAsEmployee,
@@ -64,6 +66,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         ...absenceInput!,
         ignoreWarnings: true,
       },
+      ignoreAbsenceId: absenceId ?? undefined
     },
     skip: !absenceInput,
     // fetchPolicy: "no-cache",

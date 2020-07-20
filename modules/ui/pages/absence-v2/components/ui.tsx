@@ -77,7 +77,8 @@ type Props = {
     defaultPayCodeId?: string;
     defaultAccountingCodeAllocations: AccountingCodeValue;
   };
-  initialAbsenceData: AbsenceFormData;
+  initialAbsenceFormData: AbsenceFormData;
+  initialAbsenceState: () => AbsenceState;
   saveAbsence: (
     data: AbsenceCreateInput | AbsenceUpdateInput
   ) => Promise<Absence>;
@@ -96,7 +97,8 @@ export const AbsenceUI: React.FC<Props> = props => {
     organizationId,
     employee,
     position,
-    initialAbsenceData,
+    initialAbsenceFormData,
+    initialAbsenceState,
     saveAbsence,
     deleteAbsence,
     saveErrorsInfo,
@@ -104,27 +106,10 @@ export const AbsenceUI: React.FC<Props> = props => {
   } = props;
   const [absence, setAbsence] = React.useState<Absence | undefined>();
 
-  const initialState = (props: Props): AbsenceState => {
-    const absenceDates = initialAbsenceData.details.map(d => d.date);
-    const viewingCalendarMonth =
-      absenceDates.length > 0
-        ? startOfMonth(absenceDates[0])
-        : startOfMonth(new Date());
-    return {
-      employeeId: employee.id,
-      organizationId: organizationId,
-      positionId: position?.id ?? "0",
-      viewingCalendarMonth,
-      absenceDates,
-      closedDates: [],
-      vacancySummaryDetailsToAssign: [],
-    };
-  };
-
   const [state, dispatch] = React.useReducer(
     absenceReducer,
     props,
-    initialState
+    initialAbsenceState
   );
   const isCreate = !state.absenceId;
 
@@ -450,7 +435,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         withoutHeading
       />
       <Formik
-        initialValues={initialAbsenceData}
+        initialValues={initialAbsenceFormData}
         validationSchema={yup.object().shape({
           details: yup.array().of(
             yup.object().shape({
@@ -536,24 +521,21 @@ export const AbsenceUI: React.FC<Props> = props => {
                 {step === "absence" && (
                   <>
                     <ErrorDialog
-open={
-  !!(
-    saveErrorsInfo?.error && !saveErrorsInfo?.confirmed
-  )
-}
-title={
-  isCreate
-    ? t("There was an issue creating the absence")
-    : t("There was an issue saving the absence")
-}
-warningsOnlyTitle={t(
-  "Hmm, we found a possible issue. Would you like to continue?"
-)}
-apolloErrors={saveErrorsInfo?.error ?? null}
-onClose={onErrorsConfirmed}
-continueAction={async () => await save(values, true)}
-
-/>
+                      open={
+                        !!(saveErrorsInfo?.error && !saveErrorsInfo?.confirmed)
+                      }
+                      title={
+                        isCreate
+                          ? t("There was an issue creating the absence")
+                          : t("There was an issue saving the absence")
+                      }
+                      warningsOnlyTitle={t(
+                        "Hmm, we found a possible issue. Would you like to continue?"
+                      )}
+                      apolloErrors={saveErrorsInfo?.error ?? null}
+                      onClose={onErrorsConfirmed}
+                      continueAction={async () => await save(values, true)}
+                    />
                     <AbsenceVacancyHeader
                       pageHeader={
                         isCreate ? t("Create absence") : t("Edit absence")
@@ -568,6 +550,7 @@ continueAction={async () => await save(values, true)}
                       <Grid container spacing={2}>
                         <Grid item md={5}>
                           <AbsenceDetails
+                            absenceId={state.absenceId}
                             organizationId={organizationId}
                             employeeId={employee.id}
                             actingAsEmployee={actingAsEmployee}
@@ -617,7 +600,7 @@ continueAction={async () => await save(values, true)}
                         </Grid>
                         <Grid item md={6}>
                           <SubstituteDetails
-                            isCreate={isCreate}
+                            absenceId={state.absenceId}
                             organizationId={organizationId}
                             actingAsEmployee={actingAsEmployee}
                             needsReplacement={
@@ -827,7 +810,7 @@ const buildAbsenceInput = (
   if (!dates) return null;
 
   let absence: AbsenceCreateInput | AbsenceUpdateInput;
-  if (!state.absenceId) {
+  if (!state.absenceId || forProjections) {
     absence = {
       orgId: state.organizationId,
       employeeId: state.employeeId,

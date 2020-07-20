@@ -3,8 +3,8 @@ import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { getDateRangeDisplayText, convertStringToDate } from "helpers/date";
 import { DeletedData } from "ui/components/deleted-data";
-import { GetDeleteAbsenceInfo } from "./graphql/get-deleted-absence-info.gen";
-import { NotFound } from "../not-found";
+import { NotFound } from "ui/pages/not-found";
+import { GetDeleteAbsenceInfo } from "../graphql/get-deleted-absence-info.gen";
 
 type Props = {
   absenceId: string;

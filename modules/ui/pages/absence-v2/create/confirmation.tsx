@@ -4,19 +4,17 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import { Section } from "ui/components/section";
-import {
-  AdminSelectEmployeeForCreateAbsenceRoute,
-  EmployeeCreateAbsenceRoute,
-} from "ui/routes/create-absence";
+import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { EmployeeChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
-import {
-  AdminEditAbsenceRoute,
-  EmployeeEditAbsenceRoute,
-} from "ui/routes/edit-absence";
+import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
 import { useMemo } from "react";
 import { Step } from "helpers/step-params";
 import { AbsenceView } from "../components/absence-view";
+import {
+  AdminSelectEmployeeForCreateAbsenceRouteV2,
+  AdminEditAbsenceRouteV2,
+} from "ui/routes/absence-v2";
 
 type Props = {
   orgId: string;
@@ -34,7 +32,7 @@ export const Confirmation: React.FC<Props> = props => {
   const params = useRouteParams(
     actingAsEmployee
       ? EmployeeCreateAbsenceRoute
-      : AdminSelectEmployeeForCreateAbsenceRoute
+      : AdminSelectEmployeeForCreateAbsenceRouteV2
   );
 
   React.useEffect(() => {
@@ -52,7 +50,7 @@ export const Confirmation: React.FC<Props> = props => {
           ...params,
           absenceId: absence.id,
         })
-      : AdminEditAbsenceRoute.generate({
+      : AdminEditAbsenceRouteV2.generate({
           ...params,
           organizationId: orgId,
           absenceId: absence.id,
@@ -63,7 +61,7 @@ export const Confirmation: React.FC<Props> = props => {
   const createNewUrl = useMemo(() => {
     const url = actingAsEmployee
       ? EmployeeCreateAbsenceRoute.generate(params)
-      : AdminSelectEmployeeForCreateAbsenceRoute.generate({
+      : AdminSelectEmployeeForCreateAbsenceRouteV2.generate({
           ...params,
           organizationId: orgId,
         });

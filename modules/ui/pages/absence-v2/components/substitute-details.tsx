@@ -40,7 +40,7 @@ import {
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 type Props = {
-  isCreate: boolean;
+  absenceId?: string;
   organizationId: string;
   actingAsEmployee: boolean;
   needsReplacement: NeedsReplacement;
@@ -63,7 +63,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const {
-    isCreate,
+    absenceId,
     organizationId,
     actingAsEmployee,
     needsReplacement,
@@ -85,6 +85,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
         ...absenceInput!,
         ignoreWarnings: true,
       },
+      ignoreAbsenceId: absenceId ?? undefined
     },
     skip: !absenceInput,
     fetchPolicy: "network-only",
@@ -284,7 +285,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
                 startTime: secondsSinceMidnight(d.startTimeLocal.toISOString()),
               };
             })}
-            buttonText={isCreate ? t("Pre-arrange") : t("Assign")}
+            buttonText={absenceId ? t("Assign") : t("Pre-arrange")}
             disableAssign={false}
             onClick={(detailIds, dates) => {
               const detailsToAssign = vacancySummaryDetails.filter(
@@ -310,7 +311,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     );
   }, [
     assignmentsByDate,
-    isCreate,
+    absenceId,
     onAssignSubClick,
     onEditSubDetailsClick,
     t,
