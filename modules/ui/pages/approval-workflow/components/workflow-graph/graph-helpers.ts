@@ -117,6 +117,9 @@ const determineEdgeType = (
     const sourceStepIndex = path.findIndex(x => x.stepId === sourceStepId);
     const targetStepIndex = path.findIndex(x => x.stepId === targetStepId);
 
+    // Determine if the source and target steps are adjacent to each other in the path.
+    // In the case that both are in the path array, but not adjacent to each other, then
+    // this reason should have the empty edge
     if (
       sourceStepIndex >= 0 &&
       targetStepIndex >= 0 &&
