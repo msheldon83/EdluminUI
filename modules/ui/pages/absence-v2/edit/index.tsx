@@ -5,7 +5,7 @@ import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { AbsenceUI } from "../components/ui";
 import { NotFound } from "ui/pages/not-found";
 import { GetEmployee } from "../graphql/get-employee.gen";
-import { compact } from "lodash-es";
+import { compact, flatMap } from "lodash-es";
 import {
   NeedsReplacement,
   AbsenceCreateInput,
@@ -117,6 +117,16 @@ export const EditAbsence: React.FC<{}> = props => {
     });
   }, [absence?.details]);
 
+  const notesToApproverRequired = React.useMemo(() => {
+    const allReasons = compact(
+      flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
+    );
+    const isRequired = allReasons.find(
+      a => a.absenceReason?.requireNotesToAdmin
+    );
+    return !!isRequired;
+  }, [absence?.details]);
+
   if (absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING") {
     return <></>;
   }
@@ -168,6 +178,7 @@ export const EditAbsence: React.FC<{}> = props => {
           adminOnlyNotes: absence?.adminOnlyNotes ?? undefined,
           needsReplacement: !!vacancy,
           notesToReplacement: vacancy?.notesToReplacement ?? undefined,
+          requireNotesToApprover: notesToApproverRequired,
           accountingCodeAllocations: noAllocation(),
           // payCodeId:
           //   employee.primaryPosition?.positionType?.payCodeId ?? undefined,
