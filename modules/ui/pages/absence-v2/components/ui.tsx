@@ -58,6 +58,7 @@ import { VacancyDetail } from "ui/components/absence/types";
 import { convertStringToDate } from "helpers/date";
 import { Confirmation } from "../create/confirmation";
 import { ApolloError } from "apollo-client";
+import { ErrorDialog } from "ui/components/error-dialog";
 
 type Props = {
   organizationId: string;
@@ -534,6 +535,25 @@ export const AbsenceUI: React.FC<Props> = props => {
               <form id="absence-form" onSubmit={handleSubmit}>
                 {step === "absence" && (
                   <>
+                    <ErrorDialog
+open={
+  !!(
+    saveErrorsInfo?.error && !saveErrorsInfo?.confirmed
+  )
+}
+title={
+  isCreate
+    ? t("There was an issue creating the absence")
+    : t("There was an issue saving the absence")
+}
+warningsOnlyTitle={t(
+  "Hmm, we found a possible issue. Would you like to continue?"
+)}
+apolloErrors={saveErrorsInfo?.error ?? null}
+onClose={onErrorsConfirmed}
+continueAction={async () => await save(values, true)}
+
+/>
                     <AbsenceVacancyHeader
                       pageHeader={
                         isCreate ? t("Create absence") : t("Edit absence")
@@ -545,24 +565,6 @@ export const AbsenceUI: React.FC<Props> = props => {
                       }
                     />
                     <Section className={classes.content}>
-                      <ErrorBanner
-                        errorBannerOpen={
-                          !!(
-                            saveErrorsInfo?.error && !saveErrorsInfo?.confirmed
-                          )
-                        }
-                        title={
-                          isCreate
-                            ? t("There was an issue creating the absence")
-                            : t("There was an issue saving the absence")
-                        }
-                        warningsOnlyTitle={t(
-                          "Hmm, we found a possible issue. Would you like to continue?"
-                        )}
-                        apolloErrors={saveErrorsInfo?.error ?? null}
-                        onClose={onErrorsConfirmed}
-                        continueAction={async () => await save(values, true)}
-                      />
                       <Grid container spacing={2}>
                         <Grid item md={5}>
                           <AbsenceDetails
