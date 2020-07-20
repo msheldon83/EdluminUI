@@ -20,7 +20,13 @@ export const AbsenceDays: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { errors, setFieldValue } = useFormikContext<any>();
-  const { organizationId, employeeId, positionTypeId, onTimeChange, details = [] } = props;
+  const {
+    organizationId,
+    employeeId,
+    positionTypeId,
+    onTimeChange,
+    details = [],
+  } = props;
 
   const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
     organizationId,
@@ -108,7 +114,8 @@ export const AbsenceDays: React.FC<Props> = props => {
                   for (let index = 0; index < details.length; index++) {
                     setFieldValue(
                       `details[${index}].absenceReasonId`,
-                      absenceReasonId
+                      absenceReasonId,
+                      !!reasonError
                     );
                   }
                 } else {
@@ -124,15 +131,21 @@ export const AbsenceDays: React.FC<Props> = props => {
                 if (i === 0 && sameTimes && details.length > 1) {
                   // Apply the same times to all details
                   for (let index = 0; index < details.length; index++) {
-                    setFieldValue(`details[${index}].dayPart`, dayPart);
+                    setFieldValue(
+                      `details[${index}].dayPart`,
+                      dayPart,
+                      !!dayPartError
+                    );
                     if (dayPart === DayPart.Hourly) {
                       setFieldValue(
                         `details[${index}].hourlyStartTime`,
-                        hourlyStartTime
+                        hourlyStartTime,
+                        !!hourlyStartTimeError
                       );
                       setFieldValue(
                         `details[${index}].hourlyEndTime`,
-                        hourlyEndTime
+                        hourlyEndTime,
+                        !!hourlyEndTimeError
                       );
                     }
                   }
