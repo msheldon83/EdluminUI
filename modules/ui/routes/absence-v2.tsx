@@ -64,3 +64,22 @@ export const SelectEmployeeForCreateAbsenceLoaderV2 = asyncComponent({
 //   },
 //   name: "Create Absence Confirmation",
 // });
+
+// Edit
+export const AdminEditAbsenceRouteV2 = defineSubRoute(
+  AdminChromeRoute,
+  "absence/v2/edit/:absenceId",
+  ["absenceId"]
+);
+
+export const AdminEditAbsenceLoaderV2 = asyncComponent({
+  async resolve() {
+    return (await import("ui/pages/absence-v2/edit")).EditAbsence;
+  },
+});
+
+// export const EmployeeEditAbsenceRoute = defineSubRoute(
+//   EmployeeChromeRoute,
+//   "/absence/edit/:absenceId",
+//   ["absenceId"]
+// );

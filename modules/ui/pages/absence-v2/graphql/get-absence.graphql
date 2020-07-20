@@ -1,0 +1,196 @@
+query GetAbsence($id: ID!) {
+  absence {
+    byId(id: $id) {
+      id
+      isClosed
+      rowVersion
+      approvalState {
+        id
+        canApprove
+        approvalStatusId
+        approvalWorkflowId
+        approvalWorkflow {
+          id
+          steps {
+            stepId
+            deleted
+            isFirstStep
+            isLastStep
+            approverGroupHeaderId
+            approverGroupHeader {
+              id
+              name
+            }
+            onApproval {
+              goto
+              criteria
+            }
+          }
+        }
+        currentStepId
+        pendingApproverGroupHeaderName
+        deniedApproverGroupHeaderName
+        approvedApproverGroupHeaderNames
+        nextSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
+        completedSteps {
+          stepId
+          approverGroupHeader {
+            id
+            name
+          }
+        }
+        comments {
+          id
+          commentIsPublic
+        }
+      }
+      closedDetails {
+        id
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        reasonUsages {
+          id
+          hourlyAmount
+          dailyAmount
+          sequence
+          absenceReasonId
+          absenceReason {
+            id
+            name
+            requireNotesToAdmin
+          }
+        }
+        dayPartId
+        dayPortion
+      }
+      details {
+        id
+        actualDuration
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        dayPartId
+        dayPortion
+        isClosed
+        reasonUsages {
+          id
+          hourlyAmount
+          dailyAmount
+          sequence
+          absenceReasonId
+          absenceReason {
+            id
+            name
+            requireNotesToAdmin
+          }
+        }
+      }
+      employeeId
+      locationIds
+      organization {
+        id
+      }
+      startDate
+      endDate
+      startTimeLocal
+      endTimeLocal
+      notesToApprover
+      adminOnlyNotes
+      numDays
+      totalDuration
+      totalDayPortion
+      employee {
+        id
+        firstName
+        lastName
+        locations {
+          id
+        }
+        primaryPositionId
+        primaryPosition {
+          id
+          title
+          positionType {
+            id
+          }
+        }
+        absenceReasonBalances {
+          id
+          absenceReasonId
+        }
+      }
+      vacancies {
+        id
+        startDate
+        endDate
+        startTimeLocal
+        endTimeLocal
+        numDays
+        rowVersion
+        notesToReplacement
+        positionId
+        position {
+          id
+          positionTypeId
+          title
+          needsReplacement
+        }
+        details {
+          id
+          isClosed
+          startDate
+          endDate
+          startTimeLocal
+          endTimeLocal
+          locationId
+          location {
+            id
+            name
+          }
+          payCodeId
+          assignment {
+            id
+            rowVersion
+            employee {
+              id
+              firstName
+              lastName
+              email
+            }
+          }
+          accountingCodeAllocations {
+            id
+            accountingCodeId
+            accountingCode {
+              id
+              name
+              description
+              externalId
+            }
+            allocation
+          }
+        }
+        absenceId
+        absence {
+          startDate
+          endDate
+          details {
+            startDate
+            endDate
+            startTimeLocal
+            endTimeLocal
+          }
+        }
+      }
+    }
+  }
+}
