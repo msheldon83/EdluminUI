@@ -59,6 +59,7 @@ import { convertStringToDate } from "helpers/date";
 import { Confirmation } from "../create/confirmation";
 import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
+import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 
 type Props = {
   organizationId: string;
@@ -85,6 +86,7 @@ type Props = {
   saveErrorsInfo: { error: ApolloError | null; confirmed: boolean } | undefined;
   onErrorsConfirmed: () => void;
   deleteAbsence?: () => void;
+  refetchAbsence?: () => Promise<void>;
 };
 
 export const AbsenceUI: React.FC<Props> = props => {
@@ -103,6 +105,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     deleteAbsence,
     saveErrorsInfo,
     onErrorsConfirmed,
+    refetchAbsence,
   } = props;
   const [absence, setAbsence] = React.useState<Absence | undefined>();
 
@@ -151,12 +154,12 @@ export const AbsenceUI: React.FC<Props> = props => {
             permissions,
             isSysAdmin,
             orgId,
-            actingAsEmployee ? "employee" : "admin"
-            //props.approvalStatus
+            actingAsEmployee ? "employee" : "admin",
+            state.approvalState?.approvalStatusId
           )
       );
     },
-    [actingAsEmployee, canDoFn, isCreate]
+    [actingAsEmployee, canDoFn, isCreate, state.approvalState?.approvalStatusId]
   );
 
   const onProjectedVacanciesChange = React.useCallback(
@@ -539,7 +542,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                     />
                     <AbsenceVacancyHeader
                       pageHeader={
-                        isCreate ? t("Create absence") : t("Edit absence")
+                        isCreate
+                          ? t("Create absence")
+                          : `${t("Edit absence")} #${state.absenceId}`
                       }
                       subHeader={
                         !actingAsEmployee
@@ -547,6 +552,20 @@ export const AbsenceUI: React.FC<Props> = props => {
                           : undefined
                       }
                     />
+
+                    {state.approvalState && (
+                      <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+                        <ApprovalState
+                          orgId={organizationId}
+                          approvalState={state.approvalState}
+                          actingAsEmployee={actingAsEmployee}
+                          isTrueVacancy={false}
+                          absenceId={state.absenceId}
+                          onChange={refetchAbsence}
+                        />
+                      </Can>
+                    )}
+
                     <Section className={classes.content}>
                       <Grid container spacing={2}>
                         <Grid item md={5}>

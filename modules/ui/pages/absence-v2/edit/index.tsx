@@ -202,6 +202,7 @@ export const EditAbsence: React.FC<{}> = props => {
             vacancySummaryDetailsToAssign: [],
             isClosed: false,
             closedDates: [],
+            approvalState: absence?.approvalState,
           };
         }}
         saveAbsence={async data => {
@@ -218,6 +219,9 @@ export const EditAbsence: React.FC<{}> = props => {
           setSaveErrorsInfo({ error: null, confirmed: true })
         }
         deleteAbsence={onClickDelete}
+        refetchAbsence={async () => {
+          await absenceQuery.refetch();
+        }}
       />
     </>
   );
