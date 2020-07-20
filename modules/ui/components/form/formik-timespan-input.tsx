@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import * as React from "react";
+import { useState, useEffect } from "react";
 import { Grid, makeStyles, Typography, Tooltip } from "@material-ui/core";
 import {
   Period,
@@ -18,6 +19,7 @@ type Props = Omit<
   "name" | "label" | "onChange" | "onValidTime"
 > & {
   index: number;
+  scheduleIndex: number;
   permitReversedTimes: boolean;
   validationMessage?: string | undefined;
   errors: FormikErrors<{ schedules: Schedule[] }>;
@@ -42,8 +44,8 @@ export const FormikTimespanInput: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
-  const [startTimeField, _] = useField(props.startTimeName);
-  const [endTimeField, _] = useField(props.endTimeName);
+  const [startTimeField] = useField(props.startTimeName);
+  const [endTimeField] = useField(props.endTimeName);
 
   const [showWarning, setShowWarning] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
@@ -91,9 +93,10 @@ export const FormikTimespanInput: React.FC<Props> = props => {
         return;
       }
 
-      var timesReversed = isBefore(parseISO(endTime), parseISO(startTime));
+      const timesReversed = isBefore(parseISO(endTime), parseISO(startTime));
       setShowWarning(timesReversed);
-    }
+    },
+    [startTimeField.value, endTimeField.value]
   );
 
   const renderReversedTimesInfo = () => {
@@ -111,7 +114,7 @@ export const FormikTimespanInput: React.FC<Props> = props => {
 
             <Tooltip
               title={
-                <div className={classes.tooltip}>
+                <div>
                   {t(
                     "In the times you entered, the end time is earlier than the start time.  Click to confirm this is intentional, or correct the times if not."
                   )}
@@ -150,7 +153,7 @@ export const FormikTimespanInput: React.FC<Props> = props => {
           name={props.endTimeName}
           inputStatus={endTimeError ? "error" : "default"}
           earliestTime={
-            props.permitReversedTimes ? undefined : props.period.startTime
+            props.permitReversedTimes ? undefined : props.period.startTime!
           }
           validationMessage={endTimeError}
         />

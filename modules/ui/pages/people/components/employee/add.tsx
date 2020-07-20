@@ -235,6 +235,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
               : "",
             startPeriodId: i?.startPeriod?.id,
             endPeriodId: i?.endPeriod?.id,
+            overMidnightConfirmed: false,
           })) ?? [buildNewPeriod(true)],
         }))}
         onSave={async (position: PositionInput) => {
