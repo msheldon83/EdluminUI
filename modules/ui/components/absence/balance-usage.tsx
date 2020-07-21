@@ -83,11 +83,11 @@ export const BalanceUsage: React.FC<Props> = props => {
   }, [employeeBalances, usages]);
 
   const usageAmount: usageAmountData = useMemo(() => {
-    if (!usages || usages.length < 1) return null;
+    if (!usages || usages.length < 1 || !balance) return null;
 
-    if (!balance) return null;
-
-    const name = balance.absenceReason?.name ?? "";
+    const name = balance.absenceReasonId
+      ? balance.absenceReason?.name ?? ""
+      : balance.absenceReasonCategory?.name ?? "";
     const trackingType = balance.absenceReasonTrackingTypeId;
     const amount = usages.reduce((m, v) => {
       const a =
@@ -96,42 +96,22 @@ export const BalanceUsage: React.FC<Props> = props => {
           : v.dailyAmount;
       return m + a;
     }, 0);
-    const negativeWarning =
-      (balance.usedBalance as number) + amount > balance.initialBalance &&
-      !balance.absenceReason?.allowNegativeBalance;
+
+    const balanceIsNegative =
+      (balance.usedBalance as number) + amount > balance.initialBalance;
+    const reasonAllowsNegatives =
+      balance.absenceReason?.allowNegativeBalance ?? false;
+    const categoryAllowsNegatives =
+      balance.absenceReasonCategory?.allowNegativeBalance ?? false;
+    let negativeWarning = balanceIsNegative;
+    if (negativeWarning && balance.absenceReasonId)
+      negativeWarning = !reasonAllowsNegatives;
+    if (negativeWarning && balance.absenceReasonCategoryId)
+      negativeWarning = !categoryAllowsNegatives;
+
     const remainingBalance = balance.netBalance - amount;
     return { name, trackingType, amount, negativeWarning, remainingBalance };
   }, [balance, usages]);
-
-  const categoryUsageAmount: usageAmountData = useMemo(() => {
-    if (!usages || usages.length < 1 || !usageAmount) return null;
-
-    if (!balance) return null;
-
-    const categoryBalance = balance.absenceReason?.category
-      ? employeeBalances.find(
-          x => x.absenceReasonCategoryId === balance.absenceReason?.category?.id
-        )
-      : null;
-
-    if (!categoryBalance) return null;
-
-    const name = categoryBalance.absenceReasonCategory?.name ?? "";
-    const trackingType = categoryBalance.absenceReasonTrackingTypeId;
-    const amount = usages.reduce((m, v) => {
-      const a =
-        trackingType === AbsenceReasonTrackingTypeId.Hourly
-          ? v.hourlyAmount
-          : v.dailyAmount;
-      return m + a;
-    }, 0);
-    const negativeWarning =
-      (categoryBalance.usedBalance as number) + amount >
-        categoryBalance.initialBalance &&
-      !categoryBalance.absenceReasonCategory?.allowNegativeBalance;
-    const remainingBalance = categoryBalance.netBalance - amount;
-    return { name, trackingType, amount, negativeWarning, remainingBalance };
-  }, [balance, usages, employeeBalances, usageAmount]);
 
   const calculateBalanceUsageText = React.useCallback(
     (usageAmount: usageAmountData) => {
@@ -176,21 +156,6 @@ export const BalanceUsage: React.FC<Props> = props => {
             </div>
           </div>
           {usageAmount?.negativeWarning && (
-            <div className={classes.warningText}>
-              {t("This will result in a negative balance.")}
-            </div>
-          )}
-        </>
-      )}
-      {categoryUsageAmount && (
-        <>
-          <div className={classes.usageTextContainer}>
-            <InfoIcon color="primary" />
-            <div className={classes.usageText}>
-              {calculateBalanceUsageText(categoryUsageAmount)}
-            </div>
-          </div>
-          {categoryUsageAmount?.negativeWarning && (
             <div className={classes.warningText}>
               {t("This will result in a negative balance.")}
             </div>
