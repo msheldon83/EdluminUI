@@ -53,11 +53,6 @@ steps:
     displayName: "dev production build"
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
-  - script: |
-      cp web.config ./dist/web.config
-    displayName: "copy web.config"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
   - task: OctopusPack@4
     displayName: "Package for Octopus"
     inputs:

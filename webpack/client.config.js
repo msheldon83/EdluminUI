@@ -148,6 +148,7 @@ module.exports = {
       { from: "scripts/new-relic.js" },
       { from: "static" },
       { from: "config/config.json" },
+      { from: "config/web.config" },
     ]),
 
     // Define global letiables in the client to instrument behavior.
