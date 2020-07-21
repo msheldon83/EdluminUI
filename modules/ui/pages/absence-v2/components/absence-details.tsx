@@ -1,12 +1,12 @@
 import * as React from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { AbsenceFormData } from "../types";
-import { startOfDay, min, format } from "date-fns";
+import { AbsenceFormData, AbsenceDetail } from "../types";
+import { startOfDay, min, format, isSameDay } from "date-fns";
 import { useFormikContext } from "formik";
 import { NoteField } from "ui/components/absence/absence-details/notes-field";
 import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-calendar";
-import { compact, flatMap, intersection } from "lodash-es";
+import { compact, flatMap, intersection, sortBy } from "lodash-es";
 import { AbsenceCreateInput } from "graphql/server-types.gen";
 import { GetProjectedAbsenceUsage } from "../graphql/get-projected-absence-usage.gen";
 import { useQueryBundle } from "graphql/hooks";
@@ -49,6 +49,28 @@ export const AbsenceDetails: React.FC<Props> = props => {
     onTimeChange,
     closedDates = [],
   } = props;
+
+  // Letting the absenceDates from state be the source of record as to what
+  // dates are selected. This is due to the fact that the calendar toggles a single
+  // date at a time and when multiples are selected via a drag and drop we can't
+  // reliably call setFieldValue in Formik for each date without losing some.
+  // This adds or removes dates from "details" based on the dates in state.
+  React.useEffect(() => {
+    let updatedDetails = [
+      ...values.details.filter(d =>
+        absenceDates.find(a => isSameDay(a, d.date))
+      ),
+    ];
+    const daysToAdd = absenceDates.filter(
+      a => !values.details.find(d => isSameDay(a, d.date))
+    );
+    updatedDetails = sortBy(
+      [...updatedDetails, ...daysToAdd.map(d => copyDetail(d, updatedDetails))],
+      d => d.date
+    );
+    setFieldValue("details", updatedDetails, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [absenceDates]);
 
   const [negativeBalanceWarning, setNegativeBalanceWarning] = React.useState(
     false
@@ -218,3 +240,21 @@ const useStyles = makeStyles(theme => ({
     borderRadius: theme.typography.pxToRem(4),
   },
 }));
+
+// When the User adds a new date selection copy the details
+// from the first AbsenceDetail if we have one already
+const copyDetail = (
+  date: Date,
+  existingDetails: AbsenceDetail[]
+): AbsenceDetail => {
+  if (!existingDetails || existingDetails.length === 0) {
+    return { date };
+  }
+
+  const firstDetail = existingDetails[0];
+  return {
+    ...firstDetail,
+    id: undefined,
+    date: date,
+  };
+};

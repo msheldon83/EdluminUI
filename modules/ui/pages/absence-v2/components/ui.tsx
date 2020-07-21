@@ -584,34 +584,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                             employeeId={employee.id}
                             actingAsEmployee={actingAsEmployee}
                             absenceDates={state.absenceDates}
-                            onToggleAbsenceDate={d => {
-                              dispatch({ action: "toggleDate", date: d });
-                              // Update the details in the form
-                              const exists = values.details.find(x =>
-                                isSameDay(x.date, d)
-                              );
-                              if (exists) {
-                                setFieldValue(
-                                  "details",
-                                  values.details.filter(
-                                    x => !isSameDay(x.date, d)
-                                  ),
-                                  false
-                                );
-                              } else {
-                                setFieldValue(
-                                  "details",
-                                  sortBy(
-                                    [
-                                      ...values.details,
-                                      copyDetail(d, values.details),
-                                    ],
-                                    d => d.date
-                                  ),
-                                  false
-                                );
-                              }
-                            }}
+                            onToggleAbsenceDate={d =>
+                              dispatch({ action: "toggleDate", date: d })
+                            }
                             closedDates={[]}
                             currentMonth={state.viewingCalendarMonth}
                             onSwitchMonth={(d: Date) =>
@@ -828,24 +803,6 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(4),
   },
 }));
-
-// When the User adds a new date selection copy the details
-// from the first AbsenceDetail if we have one already
-const copyDetail = (
-  date: Date,
-  existingDetails: AbsenceDetail[]
-): AbsenceDetail => {
-  if (!existingDetails || existingDetails.length === 0) {
-    return { date };
-  }
-
-  const firstDetail = existingDetails[0];
-  return {
-    ...firstDetail,
-    id: undefined,
-    date: date,
-  };
-};
 
 const buildAbsenceInput = (
   formValues: AbsenceFormData,
