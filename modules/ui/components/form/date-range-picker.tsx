@@ -9,8 +9,6 @@ import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import isBefore from "date-fns/isBefore";
 import isAfter from "date-fns/isAfter";
 import isWithinInterval from "date-fns/isWithinInterval";
-import maxOfDates from "date-fns/max";
-import minOfDates from "date-fns/min";
 import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
 import { DateInput } from "./date-input";
@@ -21,7 +19,7 @@ import {
   PresetRange,
   DateRange,
 } from "./hooks/use-preset-date-ranges";
-import { isAfterDate } from "helpers/date";
+import { isAfterDate, maxOfDates, minOfDates } from "helpers/date";
 
 export type DateRangePickerProps = {
   startDate?: Date;
@@ -69,49 +67,10 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     PresetRange | undefined
   >(getPresetByDates(startDate, endDate));
 
-  const resetSelectedPreset = React.useCallback(() => {
-    if (typeof startDateInput == "string" || typeof endDateInput === "string") {
-      return;
-    }
-
-    const preset = getPresetByDates(startDateInput, endDateInput);
-
-    if (!preset) {
-      return setSelectedPreset(undefined);
-    }
-
-    if (preset?.value === selectedPreset?.value) {
-      return;
-    }
-
-    setSelectedPreset(preset);
-  }, [endDateInput, startDateInput, getPresetByDates, selectedPreset?.value]);
-
-  // Make sure that if a preset is selected it shows when the popover is closed then repoened
-  React.useEffect(() => resetSelectedPreset(), [
-    resetSelectedPreset,
-    startDateInput,
-    endDateInput,
-  ]);
-
-  const handleMonthChange = (month: Date) => setStartMonth(month);
-
-  const clearRange = () => {
-    setSelectedDates([]);
-    setHighlightedDates([]);
-
-    setStartDateInput("");
-    setEndDateInput("");
-  };
-
-  const restartRange = (date: Date) => setRange({ start: date, end: date });
-
-  const constrainedDates = React.useCallback(
-    (start: Date, end: Date) => {
-      const constrainedStart = minimumDate
-        ? maxOfDates([start, minimumDate])
-        : start;
-      const constrainedEnd = maximumDate ? minOfDates([end, maximumDate]) : end;
+  const constrainedDates = React.useMemo(
+    () => (start: Date, end: Date) => {
+      const constrainedStart = maxOfDates([start, minimumDate]);
+      const constrainedEnd = minOfDates([end, maximumDate]);
 
       return [constrainedStart, constrainedEnd];
     },
@@ -177,9 +136,54 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     ]
   );
 
+  const resetSelectedPreset = React.useCallback(() => {
+    if (typeof startDateInput == "string" || typeof endDateInput === "string") {
+      return;
+    }
+
+    const preset = getPresetByDates(startDateInput, endDateInput);
+
+    if (!preset) {
+      return setSelectedPreset(undefined);
+    }
+
+    if (preset?.value === selectedPreset?.value) {
+      return;
+    }
+
+    setSelectedPreset(preset);
+  }, [endDateInput, startDateInput, getPresetByDates, selectedPreset?.value]);
+
+  // Make sure that if a preset is selected it shows when the popover is closed then repoened
+  React.useEffect(() => resetSelectedPreset(), [
+    resetSelectedPreset,
+    startDateInput,
+    endDateInput,
+  ]);
+
+  // Keeps things in sync with date ranges from the parent
+  React.useEffect(() => {
+    if (startDate !== undefined && endDate !== undefined) {
+      setRange({ start: startDate, end: endDate }, true);
+    }
+  }, [startDate, endDate, setRange, constrainedDates]);
+
+  const handleMonthChange = (month: Date) => setStartMonth(month);
+
+  const clearRange = () => {
+    setSelectedDates([]);
+    setHighlightedDates([]);
+
+    setStartDateInput("");
+    setEndDateInput("");
+  };
+
+  const restartRange = (date: Date) => setRange({ start: date, end: date });
+
   const handleDateClick = (date: Date) => {
     // Any change to the calendar should reset the preset dropdown
     resetSelectedPreset();
+
     setHighlightedDates([]);
 
     const start = selectedDates[0]?.date;
@@ -224,6 +228,11 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
   };
 
   const handleDateHover = (date: Date) => {
+    // When there is no start date, there's no need to create a highlighted range.
+    if (!startDate) {
+      return;
+    }
+
     const start = selectedDates[0]?.date;
     const dateIsBefore = start !== undefined && isBefore(date, start);
     const hasRange = selectedDates.length > 1;

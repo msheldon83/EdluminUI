@@ -250,14 +250,30 @@ export const getContiguousDateIntervals = (
   return intervals;
 };
 
+/*
+  NOTE: we are using custom min/max functions instead of date-fn's because we need the date
+  to keep the reference to the date object and date-fn's doesn't do that. It creates a copy
+  which causes all sorts of weird things when React tries to do a shallow comparison of the
+  dates.
+*/
 export const maxOfDates = (dates: Array<Date | undefined>) => {
-  const actualDates = dates.filter(date => date !== undefined);
-  return max(actualDates);
+  const actualDates = dates.filter(date => date !== undefined) as Date[];
+
+  const [maxDate] = actualDates.sort(
+    (a: Date, b: Date) => b.getTime() - a.getTime()
+  );
+
+  return maxDate;
 };
 
 export const minOfDates = (dates: Array<Date | undefined>) => {
-  const actualDates = dates.filter(date => date !== undefined);
-  return min(actualDates);
+  const actualDates = dates.filter(date => date !== undefined) as Date[];
+
+  const [minDate] = actualDates.sort(
+    (a: Date, b: Date) => a.getTime() - b.getTime()
+  );
+
+  return minDate;
 };
 
 export const sortDates = (date1: Date, date2: Date) => {
