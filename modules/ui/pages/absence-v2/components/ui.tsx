@@ -188,8 +188,6 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const onCancelAssignment = React.useCallback(
     async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]) => {
-      console.log("cancelling", vacancyDetailIds, vacancyDetailDates);
-
       // Get all of the matching details
       const vacancyDetails =
         state.customizedVacanciesInput ?? state.projectedVacancyDetails;
@@ -443,7 +441,6 @@ export const AbsenceUI: React.FC<Props> = props => {
       }
 
       const absence = await saveAbsence(absenceInput);
-      console.log(absence);
       if (!absence) {
         return;
       }
@@ -530,11 +527,6 @@ export const AbsenceUI: React.FC<Props> = props => {
             disabledDates,
             true
           ) as AbsenceCreateInput;
-          console.log("inputForProjectedCalls", inputForProjectedCalls);
-          console.log(
-            "state.customizedVacanciesInput",
-            state.customizedVacanciesInput
-          );
 
           return (
             <>
