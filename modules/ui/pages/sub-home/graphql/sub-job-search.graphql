@@ -5,7 +5,7 @@ query SubJobSearch(
   $positionTypeIds: [ID]
   $limit: Int
   $offset: Int
-  $showNonPreferredJobs: Boolean
+  #$showNonPreferredJobs: Boolean
 ) {
   vacancy {
     subJobSearch(
@@ -15,7 +15,7 @@ query SubJobSearch(
       positionTypeIds: $positionTypeIds
       limit: $limit
       offset: $offset
-      showNonPreferredJobs: $showNonPreferredJobs
+      showNonPreferredJobs: true
     ) {
       offset
       limit
@@ -23,6 +23,7 @@ query SubJobSearch(
       totalCount
       results {
         unavailableToWork
+        locationPreferenceId
         vacancy {
           id
           orgId

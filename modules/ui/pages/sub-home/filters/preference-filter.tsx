@@ -25,22 +25,25 @@ export const PreferenceFilter: React.FC<Props> = ({
     { label: t("All (ignore preferences)"), value: "SHOW_ALL" },
   ];
 
-  const getPreferenceFilter = useQueryBundle(GetPreferenceFilter);
+  const getPreferenceFilter = useQueryBundle(GetPreferenceFilter, {
+    variables: { userId },
+  });
   const getPreferenceQueryData =
     getPreferenceFilter.state === "LOADING"
       ? undefined
       : getPreferenceFilter.data.user?.byId;
+
   React.useEffect(() => {
     if (getPreferenceQueryData) {
       const newRowVersion = getPreferenceQueryData.rowVersion;
       updateRowVersion(newRowVersion);
       const newPreferenceFilter =
         getPreferenceQueryData.preferences?.preferenceFilter;
-      if (newPreferenceFilter) {
+      if (newPreferenceFilter && newPreferenceFilter !== preferenceFilter) {
         updateFilters({ preferenceFilter: newPreferenceFilter });
       }
     }
-  }, [getPreferenceQueryData, updateFilters]);
+  }, [getPreferenceQueryData, updateFilters, preferenceFilter, rowVersion]);
 
   const [updatePreferenceFilter] = useMutationBundle(UpdatePreferenceFilter, {
     refetchQueries: ["GetPreferenceFilter"],
@@ -50,7 +53,9 @@ export const PreferenceFilter: React.FC<Props> = ({
     const preferenceFilter: PreferenceFilterEnum =
       typeof value === "number" ||
       value === "INVALID" ||
-      !Object.keys(PreferenceFilter).includes(value)
+      !Object.values(PreferenceFilterEnum).includes(
+        value as PreferenceFilterEnum
+      )
         ? ("SHOW_FAVORITES_AND_DEFAULT" as PreferenceFilterEnum)
         : (value as PreferenceFilterEnum);
     updateFilters({ preferenceFilter });

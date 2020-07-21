@@ -9,8 +9,12 @@ import {
 import { FilterList } from "@material-ui/icons";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { parseISO, isBefore } from "date-fns";
-import { useMutationBundle, usePagedQueryBundle } from "graphql/hooks";
-import { PermissionEnum } from "graphql/server-types.gen";
+import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import {
+  PersonalPreference,
+  PermissionEnum,
+  PreferenceFilter,
+} from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
@@ -67,11 +71,16 @@ export const AvailableAssignments: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-  const [filters] = useQueryParamIso(FilterQueryParams);
+  const [{ preferenceFilter, ...filters }] = useQueryParamIso(
+    FilterQueryParams
+  );
 
-  const [getVacancies, pagination] = usePagedQueryBundle(
+  const isPersonalPreference = (s: string): s is PersonalPreference =>
+    Object.keys(PersonalPreference).includes(s);
+
+  const getVacancies = useQueryBundle(
     SubJobSearch,
-    r => r.vacancy?.subJobSearch?.totalCount,
+    //r => r.vacancy?.subJobSearch?.totalCount,
     {
       variables: {
         ...filters,
@@ -89,10 +98,28 @@ export const AvailableAssignments: React.FC<Props> = props => {
     [getVacancies]
   );
 
+  const preferenceMatchesFilter = React.useCallback(
+    (result: PersonalPreference | null) => {
+      switch (preferenceFilter) {
+        case PreferenceFilter.ShowFavorites:
+          return result === PersonalPreference.Favorite;
+        case PreferenceFilter.ShowFavoritesAndDefault:
+          return result === PersonalPreference.Favorite || result === null;
+        default:
+          return true;
+      }
+    },
+    [preferenceFilter]
+  );
+
   const sortedVacancies = useMemo(
     () =>
       vacancies
-        .filter(x => !dismissedAssignments.includes(x?.vacancy.id ?? ""))
+        .filter(
+          x =>
+            !dismissedAssignments.includes(x?.vacancy.id ?? "") &&
+            preferenceMatchesFilter(x?.locationPreferenceId ?? null)
+        )
         .sort((a, b) =>
           isBefore(
             parseISO(a?.vacancy.startTimeLocal),
@@ -101,7 +128,7 @@ export const AvailableAssignments: React.FC<Props> = props => {
             ? -1
             : 1
         ),
-    [vacancies, dismissedAssignments]
+    [vacancies, dismissedAssignments, preferenceMatchesFilter]
   );
   const onRefreshVacancies = async () => await getVacancies.refetch();
 

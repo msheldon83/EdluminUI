@@ -57,9 +57,7 @@ const to = (o: SubHomeFilters): SubHomeQueryFilters => {
     locationIds: o.locationIds === "" ? [] : o.locationIds.split(","),
     orgIds: o.orgIds === "" ? [] : o.orgIds.split(","),
     times: o.times.split(","),
-    preferenceFilter: ensureIsFilter(o.preferenceFilter)
-      ? o.preferenceFilter
-      : PreferenceFilter.Invalid,
+    preferenceFilter: getFilter(o.preferenceFilter),
   };
 };
 
@@ -73,5 +71,7 @@ const from = (o: SubHomeQueryFilters) => {
   };
 };
 
-const ensureIsFilter = (s: string): s is PreferenceFilter =>
-  Object.keys(PreferenceFilter).includes(s);
+const getFilter = (stringValue: string): PreferenceFilter =>
+  (Object.values(PreferenceFilter) as PreferenceFilter[]).find(
+    v => v == stringValue
+  ) ?? PreferenceFilter.Invalid;
