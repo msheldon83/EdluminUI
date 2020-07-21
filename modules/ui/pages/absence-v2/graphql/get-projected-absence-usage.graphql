@@ -7,9 +7,13 @@ query GetProjectedAbsenceUsage(
       details {
         reasonUsages {
           sequence
-          amount
-          absenceReasonTrackingTypeId
+          hourlyAmount
+          dailyAmount
           absenceReasonId
+          absenceReason {
+            id
+            absenceReasonCategoryId
+          }
         }
       }
     }
