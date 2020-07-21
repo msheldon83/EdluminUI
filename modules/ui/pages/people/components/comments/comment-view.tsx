@@ -39,7 +39,7 @@ export const CommentView: React.FC<Props> = props => {
     return comment.actingUser.id != comment.actualUser.id
       ? `${comment.actualUser.firstName} ${comment.actualUser.lastName} ${t(
           "on behalf of "
-        )} ${comment.actingUser.firstName} ${comment.actingUser.lastName}}`
+        )} ${comment.actingUser.firstName} ${comment.actingUser.lastName}`
       : `${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
   };
 
