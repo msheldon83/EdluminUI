@@ -1577,7 +1577,6 @@ type Comment implements ModelObjectInterface & OrgObjectInterface {
 input CommentCreateInput {
   orgId: ID!
   payload: String!
-  discussionId: ID
   discussionSubjectType: DiscussionSubjectType!
   hasShadow: Boolean
   objectKey: ID!
@@ -2703,6 +2702,7 @@ enum EventType {
   USER_DEVICE_CREATED
   USER_DEVICE_UPDATED
   USER_DEVICE_DELETED
+  USERS_MERGED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -3659,6 +3659,7 @@ type OrganizationRelationshipQueries {
   byId(id: ID!): OrganizationRelationship
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrganizationRelationship]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrganizationRelationship
+  orgUserOrganizationRelationships(userId: ID!, staffingOrgId: ID!): [OrganizationRelationship]
 }
 
 enum OrganizationRelationshipType {
@@ -6213,6 +6214,9 @@ type SubJobSearch {
   _info: [ReturnMessage]
   vacancy: Vacancy!
   unavailableToWork: Boolean!
+  employeePreferenceId: PersonalPreference
+  positionTypePreferenceId: PersonalPreference
+  locationPreferenceId: PersonalPreference
 }
 
 enum SubscriptionItemType {
@@ -7023,6 +7027,10 @@ type VacancySubSearchQueryResult {
   visibleAtUtc: DateTime
   isFavoriteEmployee: Boolean!
   isFavoritePositionType: Boolean!
+  isFavoriteLocation: Boolean!
+  employeePreferenceId: PersonalPreference
+  positionTypePreferenceId: PersonalPreference
+  locationPreferenceId: PersonalPreference
 }
 
 input VacancyUpdateInput {

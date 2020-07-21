@@ -7,11 +7,15 @@ import {
   SubstituteInput,
   PermissionEnum,
   OrganizationRelationshipType,
+  DiscussionSubjectType,
+  ObjectType,
 } from "graphql/server-types.gen";
 import { GetSubstituteById } from "../graphql/substitute/get-substitute-by-id.gen";
 import { SaveSubstitute } from "../graphql/substitute/save-substitute.gen";
 import { SubstitutePools } from "../components/substitute/substitute-pools";
 import { SubPayInformation } from "../components/substitute/pay-information";
+import { useOrganization } from "reference-data/organization";
+import { useOrganizationRelationships } from "reference-data/organization-relationships";
 import { SubPositionsAttributes } from "../components/substitute/sub-positions-attributes";
 import { OrganizationList } from "../components/substitute/org-list";
 import { Information } from "../components/information";
@@ -22,6 +26,7 @@ import { useMemo } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
+import { Comments } from "../components/comments/index";
 import { useHistory } from "react-router";
 import { useIsAdmin } from "reference-data/is-admin";
 import {
@@ -30,7 +35,6 @@ import {
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
-import { GetOrganizationRelationships } from "../graphql/get-org-relationships.gen";
 import { useCanDo } from "ui/components/auth/can";
 import { canEditSub } from "helpers/permissions";
 
@@ -47,27 +51,31 @@ export const SubstituteTab: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
+
   const [updateSubstitute] = useMutationBundle(SaveSubstitute, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
 
-  const getSubstitute = useQueryBundle(GetSubstituteById, {
-    variables: { id: props.orgUserId },
-  });
+  const getOrgRelationships = useOrganizationRelationships(
+    params.organizationId
+  );
 
-  const getOrgRelationships = useQueryBundle(GetOrganizationRelationships, {
-    variables: { orgId: params.organizationId },
+  const getOrganization = useOrganization(params.organizationId);
+  const includeRelatedOrgs = getOrganization?.isStaffingProvider;
+  const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
+
+  const showRelatedOrgs = getOrgRelationships?.find(
+    x => x?.relationshipType === OrganizationRelationshipType.Services
+  )
+    ? true
+    : false;
+
+  const getSubstitute = useQueryBundle(GetSubstituteById, {
+    variables: { id: props.orgUserId, includeRelatedOrgs: showRelatedOrgs },
+    skip: includeRelatedOrgs === undefined,
   });
-  const showRelatedOrgs =
-    getOrgRelationships.state === "LOADING"
-      ? false
-      : getOrgRelationships?.data?.organizationRelationship?.all?.find(
-          x => x?.relationshipType === OrganizationRelationshipType.Services
-        )
-      ? true
-      : false;
 
   const getPayCodes = usePayCodes(params.organizationId);
   const payCodeOptions = useMemo(
@@ -117,6 +125,10 @@ export const SubstituteTab: React.FC<Props> = props => {
     await getSubstitute.refetch();
   };
 
+  const refetchQuery = () => {
+    getSubstitute.refetch();
+  };
+
   return (
     <>
       <Information
@@ -132,6 +144,15 @@ export const SubstituteTab: React.FC<Props> = props => {
         editPermissions={[PermissionEnum.SubstituteSave]}
         onSubmit={onUpdateSubstitute}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
+      />
+      <Comments
+        refetchQuery={refetchQuery}
+        staffingOrgId={staffingOrgId}
+        comments={orgUser.substitute.comments ?? []}
+        userId={orgUser.userId ?? ""}
+        discussionSubjectType={DiscussionSubjectType.Substitute}
+        objectType={ObjectType.User}
+        orgId={params.organizationId}
       />
       <SubPositionsAttributes
         editing={props.editing}
