@@ -34,14 +34,14 @@ export const DateInput = React.forwardRef((props: DateInputProps, ref) => {
   ) => {
     let date = createDate(value);
 
+    onChange(date);
+    onBlur(e);
+
     if (isValid(date)) {
       onValidDate(date);
     } else {
       date = value;
     }
-
-    onBlur(e);
-    onChange(date);
   };
 
   const formattedValue = formatDateIfPossible(value, dateFormat);
