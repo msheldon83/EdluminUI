@@ -6,20 +6,19 @@ import { useTranslation } from "react-i18next";
 import { makeStyles, Popper, Fade, ClickAwayListener } from "@material-ui/core";
 import { GraphConfig, NODE_KEY } from "./graph-config";
 import { convertStepsToNodes, convertStepsToEdges } from "./graph-helpers";
-import { AddUpdateApprover } from "./approver-popper";
+import { AddUpdateApprover } from "./components/approver-popper";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { breakLabel } from "./text-helper";
 import { ApprovalWorkflowType } from "graphql/server-types.gen";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useVacancyReasons } from "reference-data/vacancy-reasons";
-import { ConditionPopper } from "./condition-popper";
+import { ConditionPopper } from "./components/condition-popper";
 import { compact, flatMap } from "lodash-es";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
   orgId: string;
   workflowType: ApprovalWorkflowType;
-  setSteps: (steps: ApprovalWorkflowStepInput[]) => void;
   testReasonId?: string;
 };
 
@@ -27,7 +26,7 @@ export const StepsGraph: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { steps, setSteps, workflowType, testReasonId } = props;
+  const { steps, workflowType, testReasonId } = props;
 
   const absenceReasons = useAbsenceReasons(props.orgId);
   const vacancyReasons = useVacancyReasons(props.orgId);
@@ -80,6 +79,7 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
+  // This is called when we move a node
   const onUpdateNode = (node: INode) => {
     const stepIndex = steps.findIndex(x => x.stepId == node.id);
     steps[stepIndex].xPosition = node.x;
@@ -100,6 +100,7 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
+  // This function is necessary to change the text of the node to the name of the approver group
   const renderNodeText = (
     data: any,
     id: string | number,
@@ -112,6 +113,7 @@ export const StepsGraph: React.FC<Props> = props => {
         </text>
       );
     } else {
+      // Since SVG doesn't have the ability to word wrap, we break the name into lines, then figure out the positioning to center the text
       const label = breakLabel(data.title, 25);
       return (
         <text
@@ -149,10 +151,21 @@ export const StepsGraph: React.FC<Props> = props => {
     isEdgeSelected: boolean
   ) => {
     // This is to override the styles for the line
+    // TODO: Figure out how to rerender the edges during testing
     if (edgeContainer.querySelector(".edge")) {
-      edgeContainer
-        .querySelector(".edge")
-        .classList.replace("edge", classes.customEdge);
+      if (edge.type === "hiddenEmptyEdge") {
+        edgeContainer
+          .querySelector(".edge")
+          .classList.replace("edge", classes.hiddenEdge);
+      } else if (edge.type !== "hiddenEmptyEdge" && testReasonId) {
+        edgeContainer
+          .querySelector(".edge")
+          .classList.replace("edge", classes.testEdge);
+      } else {
+        edgeContainer
+          .querySelector(".edge")
+          .classList.replace("edge", classes.customEdge);
+      }
     }
   };
 
@@ -160,6 +173,7 @@ export const StepsGraph: React.FC<Props> = props => {
     stepsForUpdate.forEach(step => {
       const stepIndex = steps.findIndex(x => x.stepId === step.stepId);
       if (stepIndex === -1) {
+        // If this is a new step add it and check to make sure its positioning doesn't overlap another node
         if (
           steps.find(
             x =>
@@ -203,7 +217,8 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
-  // Order is important here
+  // Order is important here to avoid updating a component that is no longer mounted
+  // We are clearing out everything that was selected with the anchor element for the popper being last
   const handleClosePopper = () => {
     setSelectedNode(null);
     setSelectedEdge(undefined);
@@ -220,6 +235,8 @@ export const StepsGraph: React.FC<Props> = props => {
       const defaultGoto = steps[stepIndex].onApproval.find(x => !x.criteria)
         ?.goto;
 
+      // Iterate over all the non-deleted steps and check all transitions to see if the step being removed was referenced
+      // and set the goto to the default goto of the step being removed
       steps
         .filter(
           x =>
@@ -236,7 +253,7 @@ export const StepsGraph: React.FC<Props> = props => {
   };
 
   return (
-    <div className={classes.graphBox}>
+    <div id="graph" className={classes.graphBox}>
       <GraphView
         nodeKey={NODE_KEY}
         nodes={nodes}
@@ -348,6 +365,17 @@ const useStyles = makeStyles(theme => ({
   customEdge: {
     stroke: theme.customColors.black,
     strokeWidth: "1px",
+    color: theme.customColors.white,
+    cursor: "pointer",
+  },
+  hiddenEdge: {
+    stroke: "#050039",
+    strokeWidth: "1px",
+    color: theme.customColors.white,
+  },
+  testEdge: {
+    stroke: theme.customColors.black,
+    strokeWidth: "2px",
     color: theme.customColors.white,
     cursor: "pointer",
   },

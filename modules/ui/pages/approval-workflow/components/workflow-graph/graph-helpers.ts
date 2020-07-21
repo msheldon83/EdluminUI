@@ -4,10 +4,7 @@ import {
 } from "graphql/server-types.gen";
 import i18next = require("i18next");
 import { flatMap, compact } from "lodash-es";
-import {
-  determinePathThroughAbsVacWorkflow,
-  reasonsInCriteria,
-} from "../../types";
+import { determinePathThroughAbsVacWorkflow } from "./types";
 
 export const convertStepsToNodes = (
   workflowType: ApprovalWorkflowType,
@@ -144,20 +141,4 @@ const determineEdgeType = (
   } else {
     return "addEdge";
   }
-};
-
-export const getNextId = (steps: ApprovalWorkflowStepInput[]) => {
-  const ids = steps.map(s => Number(s.stepId));
-  const nextId = Math.max(...ids) + 1;
-  return nextId.toString();
-};
-
-const findNextNode: any = (
-  step: ApprovalWorkflowStepInput,
-  steps: ApprovalWorkflowStepInput[]
-) => {
-  if (!step.deleted) return step;
-
-  const nextStep = steps.find(x => x.stepId === step.onApproval[0].goto);
-  return findNextNode(nextStep, steps);
 };

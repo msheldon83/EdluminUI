@@ -4,14 +4,14 @@ import { makeStyles, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { ApproverGroupSelect } from "ui/components/domain-selects/approver-group-select/approver-group-select";
 import { Section } from "ui/components/section";
-import { createNewStep } from "../../types";
+import { createNewStep } from "../types";
 import {
   ApprovalWorkflowStepInput,
   ApprovalWorkflowType,
   ApprovalWorkflowTransitionInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
-import { AbsVacTransitions } from "./components/abs-vac-transitions";
+import { AbsVacTransitions } from "./abs-vac-transitions";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { ConditionPopper } from "./condition-popper";

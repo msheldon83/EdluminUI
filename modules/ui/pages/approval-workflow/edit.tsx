@@ -29,7 +29,7 @@ import { Can } from "ui/components/auth/can";
 import { BasicInfo } from "./components/create/basic-info";
 import { compact } from "lodash-es";
 import { WorkflowReturnLink } from "./components/return-link";
-import { buildCleanStepInput } from "./types";
+import { buildCleanStepInput } from "./components/workflow-graph/types";
 import { TestHeader } from "./components/test-header";
 
 type Props = {};
@@ -207,7 +207,6 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
         </div>
         <StepsGraph
           steps={steps}
-          setSteps={setSteps}
           orgId={params.organizationId}
           workflowType={approvalWorkflow.approvalWorkflowTypeId}
           testReasonId={testReasonId}
@@ -223,13 +222,15 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
               {t("Test")}
             </Button>
           </Grid>
-          <Can do={[PermissionEnum.ApprovalSettingsSave]}>
-            <Grid item>
-              <Button variant="contained" onClick={() => handleUpdateSteps()}>
-                {t("Save")}
-              </Button>
-            </Grid>
-          </Can>
+          {!editing && (
+            <Can do={[PermissionEnum.ApprovalSettingsSave]}>
+              <Grid item>
+                <Button variant="contained" onClick={() => handleUpdateSteps()}>
+                  {t("Save")}
+                </Button>
+              </Grid>
+            </Can>
+          )}
         </Grid>
       </Section>
     </>

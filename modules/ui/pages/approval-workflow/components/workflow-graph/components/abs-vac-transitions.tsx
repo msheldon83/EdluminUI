@@ -11,7 +11,7 @@ import {
   convertTransitionsToInput,
   AbsenceTransitionCriteria,
   VacancyTransitionCriteria,
-} from "../../../types";
+} from "../types";
 import { Cancel } from "@material-ui/icons";
 import { TextButton } from "ui/components/text-button";
 
@@ -91,7 +91,13 @@ export const AbsVacTransitions: React.FC<Props> = props => {
       </Grid>
       {parsedTransitions.map((tr, i) => {
         return (
-          <Grid container spacing={1} key={i} className={classes.rowContainer}>
+          <Grid
+            container
+            spacing={1}
+            key={i}
+            className={classes.rowContainer}
+            alignItems={"center"}
+          >
             <Grid item xs={9}>
               <TextButton
                 onClick={() => props.onEditTransition(tr.goto)}
@@ -122,6 +128,7 @@ export const AbsVacTransitions: React.FC<Props> = props => {
                   key="close"
                   aria-label="close"
                   color="inherit"
+                  className={classes.removeButton}
                   onClick={() => {
                     if (parsedTransitions[i].criteria) {
                       parsedTransitions.splice(i, 1);
@@ -164,5 +171,9 @@ const useStyles = makeStyles(theme => ({
   route: {
     color: "#050039",
     textDecorationLine: "underline",
+    justifyContent: "flex-start",
+  },
+  removeButton: {
+    padding: theme.spacing(0),
   },
 }));

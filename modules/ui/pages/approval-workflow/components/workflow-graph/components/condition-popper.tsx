@@ -18,7 +18,7 @@ import {
   AbsenceTransition,
   VacancyTransition,
   determinePathThroughAbsVacWorkflow,
-} from "../../types";
+} from "../types";
 import {
   ApprovalWorkflowStepInput,
   ApprovalWorkflowType,
@@ -101,7 +101,7 @@ export const ConditionPopper: React.FC<Props> = props => {
     if (transition.goto) {
       const nextStep = steps.find(x => x.stepId === transition.goto);
       if (nextStep?.isLastStep) {
-        setApproverGroupId("0");
+        setApproverGroupId("0"); // This will resolve to (Approved) in the dropdown
       } else {
         setApproverGroupId(nextStep?.approverGroupHeaderId ?? undefined);
       }
@@ -120,6 +120,7 @@ export const ConditionPopper: React.FC<Props> = props => {
     }
   }, [transition, workflowType]);
 
+  // We need to filter out approver groups that have been used previously in the path so we don't create loops
   const determineApproverGroupIdsToFilterOut = (reasonIds?: string[]) => {
     const path = determinePathThroughAbsVacWorkflow(
       steps,
