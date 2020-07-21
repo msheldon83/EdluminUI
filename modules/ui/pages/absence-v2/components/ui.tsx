@@ -463,6 +463,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       />
       <Formik
         initialValues={initialAbsenceFormData}
+        enableReinitialize={true}
         validationSchema={yup.object().shape({
           details: yup.array().of(
             yup.object().shape({
@@ -738,6 +739,14 @@ export const AbsenceUI: React.FC<Props> = props => {
                     absence={absence}
                     setStep={setStep}
                     actingAsEmployee={actingAsEmployee}
+                    resetForm={() => {
+                      // Really important for when an Employee has created an Absence and then clicks
+                      // Create New from the Confirmation screen. Their initial form data doesn't change
+                      // so we want to make sure everything is set back to an initial state for the
+                      // next Absence to be created
+                      resetForm();
+                      dispatch({ action: "resetToInitialState", initialState: initialAbsenceState() });
+                    }}
                   />
                 )}
               </form>
