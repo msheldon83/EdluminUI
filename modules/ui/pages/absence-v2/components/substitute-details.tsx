@@ -106,6 +106,13 @@ export const SubstituteDetails: React.FC<Props> = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [getProjectedVacancies.state]
   );
+  const projectVacanciesLoading = React.useMemo(
+    () =>
+      absenceInput &&
+      (getProjectedVacancies.state === "LOADING" ||
+        getProjectedVacancies.state === "UPDATING"),
+    [absenceInput, getProjectedVacancies.state]
+  );
 
   React.useEffect(() => {
     if (projectedVacancies.length > 0) {
@@ -290,7 +297,11 @@ export const SubstituteDetails: React.FC<Props> = props => {
           }}
           showPayCodes={false}
           showAccountingCodes={false}
-          noDaysChosenText={t("Select a Date, Reason, and Times...")}
+          noDaysChosenText={
+            projectVacanciesLoading
+              ? t("Loading...")
+              : t("Select a Date, Reason, and Times...")
+          }
           isAbsence={true}
           absenceActions={absenceActions}
           footerActions={footerActions}

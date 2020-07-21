@@ -399,6 +399,29 @@ export const AbsenceUI: React.FC<Props> = props => {
     []
   );
 
+  // Due to the way the AssignSub component is structured and it being
+  // used across Absence V1, Vacancy, and now Absence V2, it expects to 
+  // have a list of Vacancies given to it for Absence Create/Edit so have
+  // to adhere to that until we get rid of Absence V1
+  const vacanciesToAssign = React.useMemo(() => {
+    if (!state.projectedVacancies) {
+      return undefined;
+    }
+
+    const datesToAssign = state.vacancySummaryDetailsToAssign.map(
+      vsd => vsd.date
+    );
+    const vacanciesWithFilteredDetails = state.projectedVacancies.map(v => {
+      return {
+        ...v,
+        details: v.details.filter(vd =>
+          datesToAssign.find(d => isSameDay(d, parseISO(vd.startTimeLocal)))
+        ),
+      };
+    });
+    return vacanciesWithFilteredDetails;
+  }, [state.projectedVacancies, state.vacancySummaryDetailsToAssign]);
+
   const save = React.useCallback(
     async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
       let absenceInput = buildAbsenceInput(
@@ -714,7 +737,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                     positionName={position?.title}
                     vacancySummaryDetails={state.vacancySummaryDetailsToAssign}
                     useVacancySummaryDetails={true}
-                    vacancies={state.projectedVacancies}
+                    vacancies={vacanciesToAssign}
                   />
                 )}
                 {step === "confirmation" && (

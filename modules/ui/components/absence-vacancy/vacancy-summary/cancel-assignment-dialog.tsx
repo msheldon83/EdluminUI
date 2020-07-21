@@ -61,10 +61,7 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
       []
     );
 
-    await onCancelAssignment(
-      compact(vacancyDetailIds),
-      compact(assignmentWithDetails.dates)
-    );
+    await onCancelAssignment(compact(vacancyDetailIds), compact(selectedDates));
     onClose();
   }, [assignmentWithDetails, selectedDates, onCancelAssignment, onClose]);
 
