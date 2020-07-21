@@ -75,7 +75,7 @@ type Props = {
     title: string;
     positionTypeId?: string;
     defaultPayCodeId?: string;
-    defaultAccountingCodeAllocations: AccountingCodeValue;
+    defaultAccountingCodeAllocations?: AccountingCodeValue;
   };
   initialAbsenceFormData: AbsenceFormData;
   initialAbsenceState: () => AbsenceState;

@@ -370,8 +370,11 @@ import {
   AdminCreateAbsenceRouteV2,
   SelectEmployeeForCreateAbsenceLoaderV2,
   AdminSelectEmployeeForCreateAbsenceRouteV2,
-  AdminEditAbsenceLoaderV2,
   AdminEditAbsenceRouteV2,
+  EmployeeCreateAbsenceLoaderV2,
+  EmployeeCreateAbsenceRouteV2,
+  EmployeeEditAbsenceRouteV2,
+  EditAbsenceLoaderV2,
 } from "./routes/absence-v2";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -452,12 +455,21 @@ export const App = hot(function() {
                                 component={CreateAbsenceConfirmationLoader}
                                 path={CreateAbsenceConfirmationRoute.path}
                               />
+                              
                               <Route
                                 component={EmployeeCreateAbsenceLoader}
                                 path={EmployeeCreateAbsenceRoute.path}
                               />
                               <Route path={EmployeeEditAbsenceRoute.path}>
                                 <AdminEditAbsenceLoader actingAsEmployee />
+                              </Route>
+                              <Route
+                                component={EmployeeCreateAbsenceLoaderV2}
+                                path={EmployeeCreateAbsenceRouteV2.path}
+                                devFeatureOnly={true}
+                              />
+                              <Route path={EmployeeEditAbsenceRouteV2.path} devFeatureOnly={true}>
+                                <EditAbsenceLoaderV2 actingAsEmployee />
                               </Route>
 
                               <ProtectedRoute
@@ -723,7 +735,7 @@ export const App = hot(function() {
                                     />
 
                                     <ProtectedRoute
-                                      component={AdminEditAbsenceLoaderV2}
+                                      component={EditAbsenceLoaderV2}
                                       path={AdminEditAbsenceRouteV2.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacView]}
