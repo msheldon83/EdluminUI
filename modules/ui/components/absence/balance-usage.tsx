@@ -23,6 +23,7 @@ export type AbsenceReasonUsageData = {
   hourlyAmount: number;
   dailyAmount: number;
   absenceReasonId: string;
+  absenceReason?: { absenceReasonCategoryId?: string | null } | null;
 };
 
 type usageAmountData = {
@@ -72,7 +73,11 @@ export const BalanceUsage: React.FC<Props> = props => {
   const balance = useMemo(() => {
     return usages && usages.length > 0
       ? employeeBalances.find(
-          x => x.absenceReason?.id === usages[0].absenceReasonId
+          x =>
+            x.absenceReason?.id === usages[0].absenceReasonId ||
+            (x.absenceReasonCategoryId &&
+              x.absenceReasonCategoryId ===
+                usages[0].absenceReason?.absenceReasonCategoryId)
         )
       : null;
   }, [employeeBalances, usages]);
