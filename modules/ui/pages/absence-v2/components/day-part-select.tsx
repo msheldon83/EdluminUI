@@ -1,11 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import {
-  FormControlLabel,
-  Grid,
-  makeStyles,
-  RadioGroup,
-  Radio,
-} from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 import { isValid, format, parseISO } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import {
@@ -37,6 +30,7 @@ export type Props = {
   organizationId: string;
   employeeId: string;
   disabled?: boolean;
+  includeHourly?: boolean;
   timeError?: {
     dayPartError?: string | undefined;
     hourlyStartTimeError?: string | undefined;
@@ -54,13 +48,14 @@ export const DayPartSelect: React.FC<Props> = props => {
     date,
     value,
     disabled,
+    includeHourly,
     timeError,
   } = props;
 
   const featureFlags = useOrgFeatureFlags(organizationId);
   const dayPartOptions = useMemo(
-    () => featureFlagsToDayPartOptions(featureFlags),
-    [featureFlags]
+    () => featureFlagsToDayPartOptions(featureFlags, includeHourly),
+    [featureFlags, includeHourly]
   );
 
   const getEmployeeScheduleTimes = useQueryBundle(GetEmployeeScheduleTimes, {
@@ -108,24 +103,19 @@ export const DayPartSelect: React.FC<Props> = props => {
     }
   }, [getEmployeeScheduleTimes]);
 
-  // useEffect(() => {
-  //   if (
-  //     !value?.part &&
-  //     dayPartOptions &&
-  //     dayPartOptions[0] &&
-  //     dayPartChangeCallback
-  //   ) {
-  //     // Default the Day Part selection to the first one
-  //     //dayPartChangeCallback({ part: dayPartOptions[0] });
-  //   }
-  // }, [dayPartOptions]);
+  useEffect(() => {
+    if (!value?.part && dayPartOptions && dayPartOptions[0]) {
+      // Default the Day Part selection to the first one
+      onDayPartChange({ part: dayPartOptions[0] });
+    }
+  }, [dayPartOptions, onDayPartChange, value?.part]);
 
   const [incompleteStartTime, setIncompleteStartTime] = useState<string>();
   const [incompleteEndTime, setIncompleteEndTime] = useState<string>();
 
   const setStartTime = useCallback(
     (t: string, valid: boolean) => {
-      if (value?.part === DayPart.Hourly) {
+      if (value && value?.part === DayPart.Hourly) {
         const parsed = parseISO(t);
         if (valid || t === "")
           onDayPartChange({
@@ -135,12 +125,12 @@ export const DayPartSelect: React.FC<Props> = props => {
         setIncompleteStartTime(valid ? undefined : t);
       }
     },
-    [value]
+    [onDayPartChange, value]
   );
 
   const setEndTime = useCallback(
     (t: string, valid: boolean) => {
-      if (value?.part === DayPart.Hourly) {
+      if (value && value?.part === DayPart.Hourly) {
         if (valid || t === "")
           onDayPartChange({
             ...value,
@@ -149,7 +139,7 @@ export const DayPartSelect: React.FC<Props> = props => {
         setIncompleteEndTime(valid ? undefined : t);
       }
     },
-    [value]
+    [onDayPartChange, value]
   );
 
   const options: OptionType[] = useMemo(() => {
@@ -163,7 +153,7 @@ export const DayPartSelect: React.FC<Props> = props => {
         label: label,
       };
     });
-  }, [dayPartOptions]);
+  }, [dayPartOptions, employeeScheduleTimes]);
 
   return (
     <div className={classes.container}>
@@ -231,7 +221,8 @@ export const DayPartSelect: React.FC<Props> = props => {
 };
 
 const featureFlagsToDayPartOptions = (
-  featureFlags: FeatureFlag[]
+  featureFlags: FeatureFlag[],
+  includeHourly?: boolean
 ): DayPart[] => {
   const dayPartOptions: DayPart[] = [];
   // Day Part options have to be in a specific order
@@ -252,7 +243,7 @@ const featureFlagsToDayPartOptions = (
   }
 
   // Add Hourly last
-  if (featureFlags.includes(FeatureFlag.HourlyAbsences)) {
+  if (featureFlags.includes(FeatureFlag.HourlyAbsences) || includeHourly) {
     dayPartOptions.push(DayPart.Hourly);
   }
 
