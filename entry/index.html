@@ -8,7 +8,17 @@
       content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
     />
     <script type="text/javascript" src="/new-relic.js"></script>
-    <script type="text/javascript" src="/environment.js"></script>
+    <script type="text/javascript">
+      fetch("/config.json")
+        .then(res => res.json())
+        .then(out => {
+          window.Config = out.config;
+          window.process = out.env;
+          window.__DEV__ = out.env.NODE_ENV === "development";
+          window.__TEST__ = false;
+        })
+        .catch(err => console.error(err));
+    </script>
     <script
       id="ze-snippet"
       src="https://static.zdassets.com/ekr/snippet.js?key=87f7ef57-6c2a-4421-b76d-d98d34cfd58a"

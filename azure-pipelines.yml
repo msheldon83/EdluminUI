@@ -59,51 +59,7 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - task: OctopusPack@4
-    displayName: "Dev Package for Octopus"
-    inputs:
-      PackageId: "Edlumin.UI"
-      PackageVersion: $(Build.BuildNumber)-dev
-      SourcePath: "./dist"
-      OutputPath: $(Build.ArtifactStagingDirectory)
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - task: OctopusPush@4
-    displayName: "Push dev packages to Octopus"
-    inputs:
-      OctoConnectedServiceName: "Octopus Deploy"
-      Space: "Default"
-      Replace: true
-      Package: |
-        $(Build.ArtifactStagingDirectory)/Edlumin.UI.$(Build.BuildNumber)-dev.nupkg
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - task: OctopusCreateRelease@4
-    displayName: "Create Dev Release"
-    inputs:
-      OctoConnectedServiceName: "Octopus Deploy"
-      Space: "Default"
-      ProjectName: "Edlumin Frontend"
-      ReleaseNumber: $(Build.BuildNumber)-dev
-      Channel: "Development"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - script: |
-      mv -f ./config/production.js.prod ./config/production.js
-    displayName: "set prod variables"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - script: |
-      yarn production-build
-    displayName: "production build"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - script: |
-      cp web.config ./dist/web.config
-    displayName: "copy web.config"
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  - task: OctopusPack@4
-    displayName: "Prod Package for Octopus"
+    displayName: "Package for Octopus"
     inputs:
       PackageId: "Edlumin.UI"
       PackageVersion: $(Build.BuildNumber)
@@ -112,7 +68,7 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - task: OctopusPush@4
-    displayName: "Push prod packages to Octopus"
+    displayName: "Push packages to Octopus"
     inputs:
       OctoConnectedServiceName: "Octopus Deploy"
       Space: "Default"
@@ -122,11 +78,11 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   - task: OctopusCreateRelease@4
-    displayName: "Create Prod Release"
+    displayName: "Create Release"
     inputs:
       OctoConnectedServiceName: "Octopus Deploy"
       Space: "Default"
       ProjectName: "Edlumin Frontend"
       ReleaseNumber: $(Build.BuildNumber)
-      Channel: "Production"
+      Channel: "Default"
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))

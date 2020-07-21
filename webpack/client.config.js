@@ -147,7 +147,7 @@ module.exports = {
     new CopyPlugin([
       { from: "scripts/new-relic.js" },
       { from: "static" },
-      { from: "config/environment.js" },
+      { from: "config/config.json" },
     ]),
 
     // Define global letiables in the client to instrument behavior.
@@ -163,9 +163,7 @@ module.exports = {
       in QA and production builds
     */
     new HtmlWebpackPlugin({
-      template: config.get("development")
-        ? "./entry/index.development.tmp.html"
-        : "./entry/index.production.tmp.html",
+      template: "./entry/index.html",
       inject: "body",
     }),
 
