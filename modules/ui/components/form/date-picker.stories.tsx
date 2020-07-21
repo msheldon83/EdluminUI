@@ -16,6 +16,9 @@ export default {
   title: "Forms/Date Picker",
 };
 
+const minimumDate = addDays(endOfYesterday(), -15);
+const maximumDate = addDays(endOfTomorrow(), 15);
+
 const customDate = (name: string, defaultValue?: Date): Date => {
   const value = date(name, defaultValue);
 
@@ -35,8 +38,8 @@ export const DateRangePickerStory = () => {
         contained={boolean("contained", false)}
         startDate={startDate}
         endDate={endDate}
-        minimumDate={customDate("minimumDate", new Date("6-10-20"))}
-        maximumDate={customDate("maximumDate", new Date("8-1-20"))}
+        minimumDate={minimumDate}
+        maximumDate={maximumDate}
         onDateRangeSelected={(start, end) => {
           action("onDateRangeSelected")({
             start,
@@ -72,6 +75,7 @@ export const DateRangePickerPopoverStory = () => {
             start,
             end,
           });
+
           setStartDate(start);
           setEndDate(end);
         }}

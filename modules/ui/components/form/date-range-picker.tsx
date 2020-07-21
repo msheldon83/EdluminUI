@@ -17,7 +17,13 @@ import {
   PresetRange,
   DateRange,
 } from "./hooks/use-preset-date-ranges";
-import { maxOfDates, minOfDates, eachDayOfInterval } from "helpers/date";
+import {
+  maxOfDates,
+  minOfDates,
+  eachDayOfInterval,
+  isBeforeOrEqual,
+  isAfterDate,
+} from "helpers/date";
 
 export type DateRangePickerProps = {
   startDate?: Date;
@@ -30,7 +36,7 @@ export type DateRangePickerProps = {
   contained?: boolean;
 };
 
-export const DateRangePicker = (props: DateRangePickerProps) => {
+export const DateRangePicker = React.memo((props: DateRangePickerProps) => {
   const classes = useStyles();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -297,12 +303,24 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
     [classes.contained]: contained,
   });
 
+  const filteredPresetDateRanges = React.useMemo(() => {
+    return presetDateRanges.filter(preset => {
+      const { start, end } = preset.range();
+      const rangeIsBeforeMinDate =
+        isAfterDate(minimumDate, start) && isAfterDate(minimumDate, end);
+      const rangeIsAfterMaxDate =
+        isAfterDate(start, maximumDate) && isAfterDate(end, maximumDate);
+
+      return !rangeIsBeforeMinDate && !rangeIsAfterMaxDate;
+    });
+  }, [presetDateRanges, minimumDate, maximumDate]);
+
   return (
     <div className={containerClasses}>
       <div className={classes.dateRangeSelectContainer}>
         <Select
           value={selectedPreset}
-          options={presetDateRanges}
+          options={filteredPresetDateRanges}
           label={t("Date Range")}
           multiple={false}
           onChange={handlePresetChange}
@@ -368,7 +386,7 @@ export const DateRangePicker = (props: DateRangePickerProps) => {
       </div>
     </div>
   );
-};
+});
 
 const useStyles = makeStyles(theme => ({
   contained: {
