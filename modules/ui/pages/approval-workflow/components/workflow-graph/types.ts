@@ -239,8 +239,6 @@ export const determinePathThroughAbsVacWorkflow = (
   let step = steps.filter(x => !x.deleted).find(x => x.isFirstStep);
 
   while (step && step.stepId !== upToStepId) {
-    pathSteps.push(step);
-
     const transitions = convertTransitionsFromInput(
       step.onApproval,
       workflowType
@@ -262,6 +260,7 @@ export const determinePathThroughAbsVacWorkflow = (
     }
 
     step = steps.find(x => x.stepId === nextStepId);
+    if (step) pathSteps.push(step);
   }
 
   return pathSteps;

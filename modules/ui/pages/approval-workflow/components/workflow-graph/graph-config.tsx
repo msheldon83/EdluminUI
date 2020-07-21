@@ -118,8 +118,8 @@ export const GraphConfig: any = {
             <text
               textAnchor="middle"
               fill="#FFFFFF"
-              y={26}
-              x={15}
+              y="26"
+              x="15"
               fontWeight={500}
               fontSize={"35px"}
             >
@@ -139,8 +139,8 @@ export const GraphConfig: any = {
             <text
               textAnchor="middle"
               fill="#262c36"
-              y={22}
-              x={15}
+              y="22"
+              x="15"
               fontWeight={500}
               fontSize={"20px"}
             >

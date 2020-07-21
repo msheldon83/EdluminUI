@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   makeStyles,
   Button,
@@ -28,6 +28,8 @@ import { AbsenceReasonSelect } from "ui/components/reference-selects/absence-rea
 import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-reason-select";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { useVacancyReasons } from "reference-data/vacancy-reasons";
 
 type Props = {
   orgId: string;
@@ -129,11 +131,44 @@ export const ConditionPopper: React.FC<Props> = props => {
       step.stepId
     );
     const ids = compact(path.map(x => x.approverGroupHeaderId));
-    if (step.approverGroupHeaderId) {
-      ids.push(step.approverGroupHeaderId);
-    }
     return ids;
   };
+
+  const absenceReasons = useAbsenceReasons(props.orgId);
+  const vacancyReasons = useVacancyReasons(props.orgId);
+
+  // We want to include only reasons that would be able to get to this step
+  const reasonIdsToInclude = useMemo(() => {
+    const reasonIds: string[] = [];
+    if (workflowType === ApprovalWorkflowType.Absence) {
+      absenceReasons.forEach(a => {
+        const path = determinePathThroughAbsVacWorkflow(
+          steps,
+          workflowType,
+          [a.id],
+          step.stepId
+        );
+        if (path.find(x => x.stepId === step.stepId)) {
+          reasonIds.push(a.id);
+        }
+      });
+    } else {
+      vacancyReasons.forEach(v => {
+        const path = determinePathThroughAbsVacWorkflow(
+          steps,
+          workflowType,
+          [v.id],
+          step.stepId
+        );
+        if (path.find(x => x.stepId === step.stepId)) {
+          reasonIds.push(v.id);
+        }
+      });
+    }
+
+    console.log(reasonIds);
+    return reasonIds;
+  }, [absenceReasons, step.stepId, steps, vacancyReasons, workflowType]);
 
   return (
     <div className={classes.popper}>
@@ -224,6 +259,7 @@ export const ConditionPopper: React.FC<Props> = props => {
                         selectedAbsenceReasonIds={values.reasonIds}
                         setSelectedAbsenceReasonIds={setReasonIds}
                         errorMessage={errors.reasonIds}
+                        idsToInclude={reasonIdsToInclude}
                       />
                     ) : workflowType === ApprovalWorkflowType.Vacancy ? (
                       <VacancyReasonSelect
@@ -232,6 +268,7 @@ export const ConditionPopper: React.FC<Props> = props => {
                         selectedVacancyReasonIds={values.reasonIds}
                         setSelectedVacancyReasonIds={setReasonIds}
                         errorMessage={errors.reasonIds}
+                        idsToInclude={reasonIdsToInclude}
                       />
                     ) : (
                       <></>

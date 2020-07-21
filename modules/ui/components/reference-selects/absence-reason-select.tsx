@@ -12,6 +12,7 @@ type Props = {
   label?: string;
   multiple?: boolean;
   errorMessage?: string;
+  idsToInclude?: string[];
 };
 
 export const AbsenceReasonSelect: React.FC<Props> = props => {
@@ -24,6 +25,7 @@ export const AbsenceReasonSelect: React.FC<Props> = props => {
     includeAllOption = true,
     multiple = true,
     errorMessage,
+    idsToInclude,
   } = props;
 
   let absenceReasonOptions = useAbsenceReasonOptions(orgId);
@@ -33,6 +35,12 @@ export const AbsenceReasonSelect: React.FC<Props> = props => {
       a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
     );
     absenceReasonOptions.unshift({ label: t("(All)"), value: "0" });
+  }
+
+  if (idsToInclude) {
+    absenceReasonOptions = absenceReasonOptions.filter(x =>
+      idsToInclude.includes(x.value)
+    );
   }
 
   const selectedAbsenceReasons = absenceReasonOptions.filter(

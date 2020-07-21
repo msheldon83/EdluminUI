@@ -1,7 +1,13 @@
 // Custom word break function since SVG doesn't support word breaks
 export const breakLabel = (label: string, maxCharacters: number) => {
   const result = [] as string[];
-  const splitLabel = label.split(" ");
+  let splitLabel = [] as string[];
+
+  if (label && label.includes(" ")) {
+    splitLabel = label.split(" ");
+  } else {
+    return [label];
+  }
 
   let lineCount = 0;
   let line = "";
