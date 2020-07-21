@@ -1,5 +1,8 @@
 import * as React from "react";
-import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
+import {
+  AccountingCodeValue,
+  noAllocation,
+} from "ui/components/form/accounting-code-dropdown";
 import {
   NeedsReplacement,
   PermissionEnum,
@@ -11,7 +14,6 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
-import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { AbsenceState, absenceReducer } from "../state";
 import { PageTitle } from "ui/components/page-title";
 import * as yup from "yup";
@@ -22,19 +24,18 @@ import { Formik } from "formik";
 import {
   validateAccountingCodeAllocations,
   mapAccountingCodeValueToAccountingCodeAllocations,
+  allAccountingCodeValuesAreEqual,
 } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
 import { makeStyles, Grid, Typography, Button } from "@material-ui/core";
 import { AbsenceDetails } from "./absence-details";
 import {
-  startOfMonth,
   isSameDay,
   format,
   isBefore,
   startOfDay,
   min,
-  isEqual,
   parseISO,
 } from "date-fns";
 import { SubstituteDetails } from "./substitute-details";
@@ -43,15 +44,13 @@ import { Can, useCanDo } from "ui/components/auth/can";
 import {
   getAbsenceDates,
   getCannotCreateAbsenceDates,
-  vacancyDetailsHaveDifferentAccountingCodeSelections,
-  vacancyDetailsHaveDifferentPayCodeSelections,
+  payCodeIdsAreTheSame,
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, sortBy } from "lodash-es";
+import { some, sortBy, compact } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
-import { ErrorBanner } from "ui/components/error-banner";
 import { AssignSub } from "ui/components/assign-sub";
 import { EditVacancies } from "ui/pages/create-absence/edit-vacancies";
 import { VacancyDetail } from "ui/components/absence/types";
@@ -733,7 +732,34 @@ export const AbsenceUI: React.FC<Props> = props => {
                   positionName={position?.title}
                   onCancel={() => setStep("absence")}
                   details={state.projectedVacancyDetails ?? []}
-                  onChangedVacancies={onChangedVacancies}
+                  onChangedVacancies={vacancyDetails => {
+                    onChangedVacancies(vacancyDetails);
+                    // If our Vacancy Details have changed so that they all share the same
+                    // accounting code selections, then we want to reflect that in the Accounting Code
+                    // dropdown shown in the Substitute Details section and we'll set that value in the form here
+                    if (
+                      allAccountingCodeValuesAreEqual(
+                        compact(
+                          vacancyDetails.map(vd => vd.accountingCodeAllocations)
+                        )
+                      )
+                    ) {
+                      setFieldValue(
+                        "accountingCodeAllocations",
+                        vacancyDetails[0].accountingCodeAllocations ??
+                          noAllocation()
+                      );
+                    }
+                    // Similarly, we also want to make sure the Pay Code selection shown in the Substitute Details section
+                    // matches the Vacancy Details if they all have the same selection.
+                    if (
+                      payCodeIdsAreTheSame(
+                        vacancyDetails.map(vd => vd.payCodeId)
+                      )
+                    ) {
+                      setFieldValue("payCodeId", vacancyDetails[0].payCodeId);
+                    }
+                  }}
                   employeeId={employee.id}
                   setStep={setStep}
                   disabledDates={disabledDates}

@@ -24,7 +24,7 @@ import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { compact, groupBy } from "lodash-es";
+import { compact } from "lodash-es";
 import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { SubstituteDetailsCodes } from "./substitute-details-codes";
 import { Can } from "ui/components/auth/can";
@@ -32,12 +32,9 @@ import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
 import { secondsSinceMidnight } from "helpers/time";
 import { isSameDay } from "date-fns";
-import {
-  accountingCodeAllocationsAreTheSame,
-  mapAccountingCodeAllocationsToAccountingCodeValue,
-  accountingCodeValuesAreEqual,
-} from "helpers/accounting-code-allocations";
+import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
+import { payCodeIdsAreTheSame } from "ui/components/absence/helpers";
 
 type Props = {
   absenceId?: string;
@@ -147,61 +144,11 @@ export const SubstituteDetails: React.FC<Props> = props => {
   }, [vacancySummaryDetails]);
 
   const detailsHaveDifferentPayCodes = React.useMemo(() => {
-    const payCodeIdToCompare = vacancySummaryDetails[0]?.payCodeId;
-
-    for (let i = 0; i < vacancySummaryDetails.length; i++) {
-      const d = vacancySummaryDetails[i];
-      const detailPayCodeId = d?.payCodeId ?? null;
-
-      if (!detailPayCodeId && !payCodeIdToCompare) {
-        // Both values are falsy so they are the same
-        continue;
-      }
-
-      if (detailPayCodeId !== payCodeIdToCompare) {
-        return true;
-      }
-    }
-
-    return false;
+    const codesAreTheSame = payCodeIdsAreTheSame(
+      vacancySummaryDetails.map(vsd => vsd.payCodeId)
+    );
+    return !codesAreTheSame;
   }, [vacancySummaryDetails]);
-
-  // Keep the accounting code allocations and pay code selections
-  // on the Absence view in sync with changes potentially happening
-  // via the Edit Sub Details view. No dependencies on values.accountingCodeAllocations
-  // or values.payCodeId, because we only really want this to fire when the details
-  // are updated and when they no longer have different selections
-  React.useEffect(() => {
-    if (vacancySummaryDetails.length === 0) {
-      return;
-    }
-
-    if (!detailsHaveDifferentAccountingCodes) {
-      const newAccountingCodeValue = mapAccountingCodeAllocationsToAccountingCodeValue(
-        vacancySummaryDetails[0].accountingCodeAllocations
-      );
-      if (
-        !accountingCodeValuesAreEqual(
-          values.accountingCodeAllocations,
-          newAccountingCodeValue
-        )
-      ) {
-        setFieldValue("accountingCodeAllocations", newAccountingCodeValue);
-      }
-    }
-
-    if (
-      !detailsHaveDifferentPayCodes &&
-      values.payCodeId !== vacancySummaryDetails[0].payCodeId
-    ) {
-      setFieldValue("payCodeId", vacancySummaryDetails[0].payCodeId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    detailsHaveDifferentAccountingCodes,
-    detailsHaveDifferentPayCodes,
-    vacancySummaryDetails,
-  ]);
 
   const needsReplacementDisplay: JSX.Element = React.useMemo(() => {
     return (
@@ -341,12 +288,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
           setNotesForSubstitute={(notes: string) => {
             setFieldValue("notesToReplacement", notes);
           }}
-          showPayCodes={
-            detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes
-          }
-          showAccountingCodes={
-            detailsHaveDifferentAccountingCodes || detailsHaveDifferentPayCodes
-          }
+          showPayCodes={false}
+          showAccountingCodes={false}
           noDaysChosenText={t("Select a Date, Reason, and Times...")}
           isAbsence={true}
           absenceActions={absenceActions}
