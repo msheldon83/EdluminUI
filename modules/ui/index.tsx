@@ -727,6 +727,7 @@ export const App = hot(function() {
                                       path={AdminEditAbsenceRouteV2.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacView]}
+                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={AdminEditAbsenceLoader}
@@ -747,6 +748,7 @@ export const App = hot(function() {
                                       path={AdminCreateAbsenceRouteV2.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacSave]}
+                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={CreateAbsenceLoader}
@@ -763,6 +765,7 @@ export const App = hot(function() {
                                       }
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacSave]}
+                                      devFeatureOnly={true}
                                     />
 
                                     <ProtectedRoute
