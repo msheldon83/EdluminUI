@@ -211,3 +211,21 @@ export const accountingCodeValuesAreEqual = (
 
   return false;
 };
+
+export const allAccountingCodeValuesAreEqual = (
+  values: AccountingCodeValue[]
+) => {
+  if (values.length === 0) {
+    return true;
+  }
+
+  const toCompare = values[0];
+  for (let index = 0; index < values.length; index++) {
+    const element = values[index];
+    if (!accountingCodeValuesAreEqual(element, toCompare)) {
+      return false;
+    }
+  }
+
+  return true;
+};
