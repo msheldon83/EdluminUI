@@ -59,6 +59,7 @@ import { Confirmation } from "../create/confirmation";
 import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
+import { Prompt, useRouteMatch } from "react-router";
 
 type Props = {
   organizationId: string;
@@ -92,6 +93,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const canDoFn = useCanDo();
+  const match = useRouteMatch();
   const [step, setStep] = useQueryParamIso(StepParams);
   const {
     actingAsEmployee,
@@ -531,6 +533,28 @@ export const AbsenceUI: React.FC<Props> = props => {
           return (
             <>
               <form id="absence-form" onSubmit={handleSubmit}>
+                <Prompt
+                  message={location => {
+                    if (
+                      match.url === location.pathname ||
+                      (absence?.id && step === "confirmation") ||
+                      !dirty
+                    ) {
+                      // We're not actually leaving the route
+                      // OR the Absence has just been created and we're on the Confirmation screen
+                      // OR we don't have any pending changes
+                      return true;
+                    }
+
+                    const createPrefix = t(
+                      "You have not created your absence yet."
+                    );
+                    const msg = t(
+                      "Click DISCARD CHANGES to leave this page and lose all unsaved changes."
+                    );
+                    return isCreate ? `${createPrefix} ${msg}` : msg;
+                  }}
+                />
                 {step === "absence" && (
                   <>
                     <ErrorDialog
