@@ -48,7 +48,7 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, sortBy, compact, uniq } from "lodash-es";
+import { some, compact, uniq } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";

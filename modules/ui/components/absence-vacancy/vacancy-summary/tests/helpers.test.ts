@@ -11,6 +11,7 @@ import {
   VacancySummaryDetailByAssignmentAndDate,
 } from "../types";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
+import { isSameDay } from "date-fns";
 
 describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
   it("Basic Vacancy - single day - no assignments", () => {
@@ -284,6 +285,9 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails,
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -320,6 +324,9 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails,
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -354,6 +361,9 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails,
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -402,6 +412,9 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails,
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -438,6 +451,11 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails.filter(vsd =>
+          isSameDay(vsd.date, new Date("2020-03-17T04:00:00.000Z"))
+        ),
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
       {
         dates: [new Date("2020-03-18T04:00:00.000Z")],
@@ -465,6 +483,11 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails.filter(vsd =>
+          isSameDay(vsd.date, new Date("2020-03-18T04:00:00.000Z"))
+        ),
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -515,6 +538,9 @@ describe("buildAssignmentGroups", () => {
             ],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails,
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -567,6 +593,9 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails,
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -603,6 +632,11 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails.filter(vsd =>
+          isSameDay(vsd.date, new Date("2020-03-16T04:00:00.000Z"))
+        ),
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
       {
         dates: [new Date("2020-03-17T04:00:00.000Z")],
@@ -626,6 +660,11 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails.filter(vsd =>
+          isSameDay(vsd.date, new Date("2020-03-17T04:00:00.000Z"))
+        ),
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
       {
         dates: [new Date("2020-03-18T04:00:00.000Z")],
@@ -653,6 +692,11 @@ describe("buildAssignmentGroups", () => {
             accountingCodeAllocations: [],
           },
         ],
+        vacancySummaryDetails: vacancySummaryDetails.filter(vsd =>
+          isSameDay(vsd.date, new Date("2020-03-18T04:00:00.000Z"))
+        ),
+        absenceStartTime: undefined,
+        absenceEndTime: undefined,
       },
     ]);
   });
@@ -1066,23 +1110,24 @@ describe("vacancySummaryDetailsAreEqual", () => {
 
 describe("convertToAssignmentWithDetails", () => {
   it("Single Detail - mapped correctly", () => {
+    const vacancySummaryDetails = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "2",
+        date: new Date("3/23/2020"),
+        startTimeLocal: new Date("2020-03-23T10:00:00.000"),
+        endTimeLocal: new Date("2020-03-23T17:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        accountingCodeAllocations: [],
+      },
+    ];
     const summaryDetailsByAssignmentAndDate: VacancySummaryDetailByAssignmentAndDate = {
       assignmentId: undefined,
       employeeId: undefined,
       date: new Date("3/23/2020"),
       startDateAndTimeLocal: new Date("2020-03-23T10:00:00.000"),
-      details: [
-        {
-          vacancyId: "1",
-          vacancyDetailId: "2",
-          date: new Date("3/23/2020"),
-          startTimeLocal: new Date("2020-03-23T10:00:00.000"),
-          endTimeLocal: new Date("2020-03-23T17:00:00.000"),
-          locationId: "1000",
-          locationName: "Haven Elementary School",
-          accountingCodeAllocations: [],
-        },
-      ],
+      details: vacancySummaryDetails,
     };
 
     const result = convertToAssignmentWithDetails(
@@ -1110,55 +1155,59 @@ describe("convertToAssignmentWithDetails", () => {
           accountingCodeAllocations: [],
         },
       ],
+      vacancySummaryDetails: vacancySummaryDetails,
+      absenceStartTime: undefined,
+      absenceEndTime: undefined,
     });
   });
 
   it("Multiple Details - mapped correctly", () => {
+    const vacancySummaryDetails = [
+      {
+        vacancyId: "1",
+        vacancyDetailId: "2",
+        date: new Date("3/23/2020"),
+        startTimeLocal: new Date("2020-03-23T10:00:00.000"),
+        endTimeLocal: new Date("2020-03-23T12:00:00.000"),
+        locationId: "1000",
+        locationName: "Haven Elementary School",
+        accountingCodeAllocations: [],
+        assignment: {
+          id: "2000",
+          rowVersion: "3425254",
+          employee: {
+            id: "3000",
+            firstName: "John",
+            lastName: "Smith",
+          },
+        },
+      },
+      {
+        vacancyId: "1",
+        vacancyDetailId: "3",
+        date: new Date("3/23/2020"),
+        startTimeLocal: new Date("2020-03-23T12:00:00.000"),
+        endTimeLocal: new Date("2020-03-23T17:00:00.000"),
+        locationId: "1001",
+        locationName: "Adventure Middle School",
+        accountingCodeAllocations: [],
+        assignment: {
+          id: "2000",
+          rowVersion: "3425254",
+          employee: {
+            id: "3000",
+            firstName: "John",
+            lastName: "Smith",
+          },
+        },
+      },
+    ];
     const summaryDetailsByAssignmentAndDate: VacancySummaryDetailByAssignmentAndDate = {
       assignmentId: "2000",
       employeeId: "3000",
       date: new Date("3/23/2020"),
       startDateAndTimeLocal: new Date("2020-03-23T10:00:00.000"),
-      details: [
-        {
-          vacancyId: "1",
-          vacancyDetailId: "2",
-          date: new Date("3/23/2020"),
-          startTimeLocal: new Date("2020-03-23T10:00:00.000"),
-          endTimeLocal: new Date("2020-03-23T12:00:00.000"),
-          locationId: "1000",
-          locationName: "Haven Elementary School",
-          accountingCodeAllocations: [],
-          assignment: {
-            id: "2000",
-            rowVersion: "3425254",
-            employee: {
-              id: "3000",
-              firstName: "John",
-              lastName: "Smith",
-            },
-          },
-        },
-        {
-          vacancyId: "1",
-          vacancyDetailId: "3",
-          date: new Date("3/23/2020"),
-          startTimeLocal: new Date("2020-03-23T12:00:00.000"),
-          endTimeLocal: new Date("2020-03-23T17:00:00.000"),
-          locationId: "1001",
-          locationName: "Adventure Middle School",
-          accountingCodeAllocations: [],
-          assignment: {
-            id: "2000",
-            rowVersion: "3425254",
-            employee: {
-              id: "3000",
-              firstName: "John",
-              lastName: "Smith",
-            },
-          },
-        },
-      ],
+      details: vacancySummaryDetails,
     };
 
     const result = convertToAssignmentWithDetails(
@@ -1203,6 +1252,9 @@ describe("convertToAssignmentWithDetails", () => {
           accountingCodeAllocations: [],
         },
       ],
+      vacancySummaryDetails: vacancySummaryDetails,
+      absenceStartTime: undefined,
+      absenceEndTime: undefined,
     });
   });
 });
