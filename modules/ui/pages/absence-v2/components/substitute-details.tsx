@@ -42,7 +42,8 @@ type Props = {
   actingAsEmployee: boolean;
   needsReplacement: NeedsReplacement;
   locationIds?: string[];
-  absenceInput: AbsenceCreateInput | null;
+  projectionInput: AbsenceCreateInput | null;
+  absenceDates: Date[];
   onAssignSubClick: (
     vacancySummaryDetailsToAssign: VacancySummaryDetail[]
   ) => void;
@@ -64,7 +65,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
     organizationId,
     actingAsEmployee,
     needsReplacement,
-    absenceInput,
+    projectionInput,
+    absenceDates,
     onAssignSubClick,
     onCancelAssignment,
     onEditSubDetailsClick,
@@ -79,13 +81,13 @@ export const SubstituteDetails: React.FC<Props> = props => {
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
       absence: {
-        ...absenceInput!,
+        ...projectionInput!,
         ignoreWarnings: true,
       },
       ignoreAbsenceId: absenceId ?? undefined,
     },
-    skip: !absenceInput,
-    fetchPolicy: "network-only",
+    skip: !projectionInput,
+    //fetchPolicy: "network-only",
     onError: error => {
       ShowErrors(error, snackbar.openSnackbar);
     },
@@ -108,10 +110,10 @@ export const SubstituteDetails: React.FC<Props> = props => {
   );
   const projectVacanciesLoading = React.useMemo(
     () =>
-      absenceInput &&
+      projectionInput &&
       (getProjectedVacancies.state === "LOADING" ||
         getProjectedVacancies.state === "UPDATING"),
-    [absenceInput, getProjectedVacancies.state]
+    [projectionInput, getProjectedVacancies.state]
   );
 
   React.useEffect(() => {
@@ -127,6 +129,12 @@ export const SubstituteDetails: React.FC<Props> = props => {
     VacancySummaryDetail[]
   >([]);
   React.useEffect(() => {
+    if (absenceDates.length === 0) {
+      // No dates are currently selected so clear
+      // out the Vacancy Summary Details
+      setVacancySummaryDetails([]);
+    }
+
     if (
       getProjectedVacancies.state !== "LOADING" &&
       getProjectedVacancies.state !== "UPDATING"
@@ -140,7 +148,12 @@ export const SubstituteDetails: React.FC<Props> = props => {
           : []
       );
     }
-  }, [getProjectedVacancies.state, projectedVacancies, assignmentsByDate]);
+  }, [
+    getProjectedVacancies.state,
+    projectedVacancies,
+    assignmentsByDate,
+    absenceDates,
+  ]);
 
   const detailsHaveDifferentAccountingCodes = React.useMemo(() => {
     const codesAreTheSame = accountingCodeAllocationsAreTheSame(
@@ -333,43 +346,5 @@ const useStyles = makeStyles(theme => ({
     }`,
     padding: theme.spacing(2),
   },
-  actionButton: {
-    marginRight: theme.spacing(2),
-  },
-
   substituteDetailsTitle: { paddingBottom: theme.typography.pxToRem(3) },
-  substituteDetailsSubtitle: { paddingBottom: theme.typography.pxToRem(1) },
-  subDetailsContainer: {
-    marginTop: theme.spacing(2),
-    border: `${theme.typography.pxToRem(1)} solid ${
-      theme.customColors.medLightGray
-    }`,
-    borderRadius: theme.typography.pxToRem(4),
-  },
-  notesSection: {
-    paddingTop: theme.spacing(3),
-  },
-  usageTextContainer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    margin: `${theme.spacing(2)}px 0`,
-  },
-  usageText: {
-    marginLeft: theme.spacing(1),
-  },
-  dayPartIcon: {
-    height: theme.spacing(3),
-  },
-  monthSwitcher: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  closedDayBanner: {
-    marginTop: theme.typography.pxToRem(5),
-    backgroundColor: theme.customColors.yellow1,
-    padding: theme.typography.pxToRem(10),
-    borderRadius: theme.typography.pxToRem(4),
-  },
 }));

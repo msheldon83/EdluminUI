@@ -113,7 +113,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     props,
     initialAbsenceState
   );
-  const isCreate = !state.absenceId;
+  const isCreate = React.useMemo(() => !state.absenceId, [state.absenceId]);
 
   // Ensure the User is not able to select dates that are invalid
   // for the current Employee
@@ -125,7 +125,6 @@ export const AbsenceUI: React.FC<Props> = props => {
     () => getCannotCreateAbsenceDates(disabledDatesObjs),
     [disabledDatesObjs]
   );
-
   React.useEffect(() => {
     const conflictingDates = disabledDates.filter(dis =>
       some(state.absenceDates, ad => isSameDay(ad, dis))
@@ -209,7 +208,23 @@ export const AbsenceUI: React.FC<Props> = props => {
         return;
       }
 
-      if (!isCreate) {
+      if (isCreate) {
+        dispatch({
+          action: "updateAssignments",
+          assignments: detailsToCancelAssignmentsFor.map(d => {
+            return {
+              startTimeLocal: parseISO(d.startTime),
+              vacancyDetailId: d.vacancyDetailId,
+              employee: {
+                id: d.assignmentEmployeeId ?? "",
+                firstName: d.assignmentEmployeeFirstName ?? "",
+                lastName: d.assignmentEmployeeLastName ?? "",
+              },
+            };
+          }),
+          add: false,
+        });
+      } else {
         // TODO: When I tackle Edit, then actually cancel a live Assignment
         // // Get all of the Assignment Ids and Row Versions to Cancel
         // const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
@@ -256,22 +271,6 @@ export const AbsenceUI: React.FC<Props> = props => {
         //       });
         //   }
         // }
-      } else {
-        dispatch({
-          action: "updateAssignments",
-          assignments: detailsToCancelAssignmentsFor.map(d => {
-            return {
-              startTimeLocal: parseISO(d.startTime),
-              vacancyDetailId: d.vacancyDetailId,
-              employee: {
-                id: d.assignmentEmployeeId ?? "",
-                firstName: d.assignmentEmployeeFirstName ?? "",
-                lastName: d.assignmentEmployeeLastName ?? "",
-              },
-            };
-          }),
-          add: false,
-        });
       }
     },
     [isCreate, state.customizedVacanciesInput, state.projectedVacancyDetails]
@@ -305,7 +304,23 @@ export const AbsenceUI: React.FC<Props> = props => {
         return;
       }
 
-      if (!isCreate) {
+      if (isCreate) {
+        dispatch({
+          action: "updateAssignments",
+          assignments: detailsToAssign.map(d => {
+            return {
+              startTimeLocal: parseISO(d.startTime),
+              vacancyDetailId: d.vacancyDetailId,
+              employee: {
+                id: replacementEmployeeId,
+                firstName: replacementEmployeeFirstName,
+                lastName: replacementEmployeeLastName,
+              },
+            };
+          }),
+          add: true,
+        });
+      } else {
         // TODO: When I tackle Edit, then actually assign a Sub on demand
         // // Cancel any existing assignments on these Details
         // await onCancelAssignment(vacancyDetailIds);
@@ -343,22 +358,6 @@ export const AbsenceUI: React.FC<Props> = props => {
         //     }),
         //   });
         // }
-      } else {
-        dispatch({
-          action: "updateAssignments",
-          assignments: detailsToAssign.map(d => {
-            return {
-              startTimeLocal: parseISO(d.startTime),
-              vacancyDetailId: d.vacancyDetailId,
-              employee: {
-                id: replacementEmployeeId,
-                firstName: replacementEmployeeFirstName,
-                lastName: replacementEmployeeLastName,
-              },
-            };
-          }),
-          add: true,
-        });
       }
 
       setStep("absence");
@@ -398,7 +397,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   );
 
   // Due to the way the AssignSub component is structured and it being
-  // used across Absence V1, Vacancy, and now Absence V2, it expects to 
+  // used across Absence V1, Vacancy, and now Absence V2, it expects to
   // have a list of Vacancies given to it for Absence Create/Edit so have
   // to adhere to that until we get rid of Absence V1
   const vacanciesToAssign = React.useMemo(() => {
@@ -420,6 +419,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     return vacanciesWithFilteredDetails;
   }, [state.projectedVacancies, state.vacancySummaryDetailsToAssign]);
 
+  // Ultimately create or update the Absence
   const save = React.useCallback(
     async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
       let absenceInput = buildAbsenceInput(
@@ -617,7 +617,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             onSwitchMonth={(d: Date) =>
                               dispatch({ action: "switchMonth", month: d })
                             }
-                            absenceInput={inputForProjectedCalls}
+                            projectionInput={inputForProjectedCalls}
                             positionTypeId={position?.positionTypeId}
                             onTimeChange={() => {
                               dispatch({
@@ -635,7 +635,8 @@ export const AbsenceUI: React.FC<Props> = props => {
                             needsReplacement={
                               position?.needsReplacement ?? NeedsReplacement.No
                             }
-                            absenceInput={inputForProjectedCalls}
+                            projectionInput={inputForProjectedCalls}
+                            absenceDates={state.absenceDates}
                             onAssignSubClick={vacancySummaryDetailsToAssign => {
                               dispatch({
                                 action: "setVacancySummaryDetailsToAssign",

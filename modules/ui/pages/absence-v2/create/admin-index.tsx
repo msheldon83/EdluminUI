@@ -41,33 +41,41 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
       }),
   });
 
+  const employee = React.useMemo(() => {
+    if (employeeInfo.state !== "DONE") {
+      return undefined;
+    }
+
+    return employeeInfo.data.employee?.byId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [employeeInfo.state]);
+
+  const defaultAccountingCodeAllocations: AccountingCodeValue = React.useMemo(() => {
+    return employee?.primaryPosition?.accountingCodeAllocations
+      ? mapAccountingCodeAllocationsToAccountingCodeValue(
+          compact(
+            employee.primaryPosition.accountingCodeAllocations?.map(a => {
+              if (!a) {
+                return null;
+              }
+
+              return {
+                accountingCodeId: a.accountingCodeId,
+                accountingCodeName: a.accountingCode?.name,
+                allocation: a.allocation,
+              };
+            })
+          )
+        )
+      : noAllocation();
+  }, [employee?.primaryPosition?.accountingCodeAllocations]);
+
   if (employeeInfo.state !== "DONE") {
     return <></>;
   }
-  if (!employeeInfo.data.employee?.byId) {
+  if (!employee) {
     return <NotFound />;
   }
-
-  const employee = employeeInfo.data.employee.byId;
-
-  const defaultAccountingCodeAllocations: AccountingCodeValue = employee
-    .primaryPosition?.accountingCodeAllocations
-    ? mapAccountingCodeAllocationsToAccountingCodeValue(
-        compact(
-          employee.primaryPosition.accountingCodeAllocations?.map(a => {
-            if (!a) {
-              return null;
-            }
-
-            return {
-              accountingCodeId: a.accountingCodeId,
-              accountingCodeName: a.accountingCode?.name,
-              allocation: a.allocation,
-            };
-          })
-        )
-      )
-    : noAllocation();
 
   return (
     <AbsenceUI

@@ -237,9 +237,6 @@ const useStyles = makeStyles(theme => ({
     }`,
     borderRadius: theme.typography.pxToRem(4),
   },
-  absenceReasonDetails: {
-    fontWeight: "bold",
-  },
   dates: {
     marginTop: theme.spacing(2),
   },

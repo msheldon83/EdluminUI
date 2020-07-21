@@ -2,7 +2,6 @@ import * as React from "react";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useTranslation } from "react-i18next";
-import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { Grid, Typography, makeStyles } from "@material-ui/core";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";
