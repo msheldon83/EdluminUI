@@ -48,7 +48,7 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, sortBy, compact } from "lodash-es";
+import { some, sortBy, compact, uniq } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -910,6 +910,12 @@ const buildAbsenceInput = (
       prearrangedReplacementEmployeeId: v.assignmentEmployeeId,
     })) ?? undefined;
 
+  const prearrangedReplacementEmployeeIdForEntireVacancy =
+    vDetails &&
+    uniq(vDetails.map(vd => vd.prearrangedReplacementEmployeeId)).length === 1
+      ? vDetails[0]?.prearrangedReplacementEmployeeId
+      : undefined;
+
   // Populate the Vacancies on the Absence
   absence = {
     ...absence,
@@ -936,6 +942,7 @@ const buildAbsenceInput = (
           hasEditedDetails || !formValues.payCodeId
             ? undefined
             : formValues.payCodeId,
+        prearrangedReplacementEmployeeId: prearrangedReplacementEmployeeIdForEntireVacancy,
       },
     ],
   };
