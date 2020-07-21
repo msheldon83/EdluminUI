@@ -24,6 +24,7 @@ import {
   isBeforeOrEqual,
   isAfterDate,
 } from "helpers/date";
+import { useIsMount } from "hooks/use-is-mount";
 
 export type DateRangePickerProps = {
   startDate?: Date;
@@ -166,11 +167,18 @@ export const DateRangePicker = React.memo((props: DateRangePickerProps) => {
   ]);
 
   // Keeps things in sync with date ranges from the parent
+  const isMount = useIsMount();
   React.useEffect(() => {
     if (startDate !== undefined && endDate !== undefined) {
-      setRange({ start: startDate, end: endDate }, true);
+      /*
+        This sets the range, but doesn't force the month view to scroll to the first
+        visible date unless it's the initial mounting of the component. On the initial
+        mount of the component, the already selected dates should be made visible. But,
+        if the user needs to scroll to other months, it shouldn't force dates to be visible.
+      */
+      setRange({ start: startDate, end: endDate }, !isMount);
     }
-  }, [startDate, endDate, setRange, constrainedDates]);
+  }, [startDate, endDate, setRange, constrainedDates, isMount]);
 
   const handleMonthChange = (month: Date) => setStartMonth(month);
 
