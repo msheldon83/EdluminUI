@@ -115,6 +115,8 @@ export const AbsenceUI: React.FC<Props> = props => {
   );
   const isCreate = !state.absenceId;
 
+  // Ensure the User is not able to select dates that are invalid
+  // for the current Employee
   const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
     state.viewingCalendarMonth
@@ -173,8 +175,6 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
-      console.log(vacancyDetails);
-
       setStep("absence");
       dispatch({
         action: "setVacanciesInput",
@@ -188,6 +188,8 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const onCancelAssignment = React.useCallback(
     async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]) => {
+      console.log("cancelling", vacancyDetailIds, vacancyDetailDates);
+
       // Get all of the matching details
       const vacancyDetails =
         state.customizedVacanciesInput ?? state.projectedVacancyDetails;
@@ -209,9 +211,8 @@ export const AbsenceUI: React.FC<Props> = props => {
         return;
       }
 
-      //const updatedDetails = [...vacancy.details];
-      const localDetailIdsToClearAssignmentsOn: string[] = [];
       if (!isCreate) {
+        // TODO: When I tackle Edit, then actually cancel a live Assignment
         // // Get all of the Assignment Ids and Row Versions to Cancel
         // const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
         //   (accumulator: CancelVacancyAssignmentInput[], detail) => {
@@ -301,14 +302,13 @@ export const AbsenceUI: React.FC<Props> = props => {
             )
           );
 
-      console.log(detailsToAssign);
-
       if (!detailsToAssign || detailsToAssign.length === 0) {
         setStep("absence");
         return;
       }
 
       if (!isCreate) {
+        // TODO: When I tackle Edit, then actually assign a Sub on demand
         // // Cancel any existing assignments on these Details
         // await onCancelAssignment(vacancyDetailIds);
         // // Create an Assignment for these Details
@@ -373,6 +373,9 @@ export const AbsenceUI: React.FC<Props> = props => {
     ]
   );
 
+  // Because we allow Users to change the Accounting Code and Pay Code from the Absence
+  // Details view, this allows us to cascade that change down to all of the customized
+  // Vacancy Details.
   const onOverallCodeChanges = React.useCallback(
     (accountingCodeValue?: AccountingCodeValue, payCodeId?: string | null) => {
       if (
@@ -509,7 +512,6 @@ export const AbsenceUI: React.FC<Props> = props => {
             "state.customizedVacanciesInput",
             state.customizedVacanciesInput
           );
-          console.log("formIsDirty", dirty);
 
           return (
             <>
@@ -778,9 +780,6 @@ export const AbsenceUI: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  subtitle: {
-    fontSize: theme.typography.pxToRem(24),
-  },
   content: {
     marginTop: theme.spacing(3),
   },
@@ -814,6 +813,8 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+// When the User adds a new date selection copy the details
+// from the first AbsenceDetail if we have one already
 const copyDetail = (
   date: Date,
   existingDetails: AbsenceDetail[]
@@ -873,6 +874,8 @@ const buildAbsenceInput = (
   const vacancyDetails =
     state.customizedVacanciesInput ?? state.projectedVacancyDetails;
 
+  // Build Vacancy Details in case we want to tell the server to use our Details
+  // instead of it coming up with its own
   const vDetails =
     vacancyDetails?.map(v => ({
       date: v.date,
