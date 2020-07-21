@@ -125,6 +125,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
       currentSelectedReasons
     );
     const isRequired = overlap.length > 0;
+    if (!values.requireNotesToApprover && !isRequired) {
+      // Bail out early if the current value and our calculated
+      // value are both falsy
+      return;
+    }
+
     if (values.requireNotesToApprover !== isRequired) {
       setFieldValue("requireNotesToApprover", isRequired);
     }
