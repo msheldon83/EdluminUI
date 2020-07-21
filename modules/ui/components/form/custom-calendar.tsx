@@ -17,7 +17,7 @@ import startOfMonth from "date-fns/startOfMonth";
 import startOfWeek from "date-fns/startOfWeek";
 import isBefore from "date-fns/isBefore";
 import isAfter from "date-fns/isAfter";
-import { inDateInterval, sortDates } from "helpers/date";
+import { inDateInterval, sortDates, isBeforeOrEqual } from "helpers/date";
 import * as React from "react";
 
 export type CustomDate = {
@@ -133,7 +133,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
 
   const dateOutOfRange = React.useCallback(
     (date: Date) => {
-      if (minimumDate && isBefore(date, minimumDate)) {
+      if (minimumDate && isBeforeOrEqual(date, minimumDate)) {
         return true;
       }
 

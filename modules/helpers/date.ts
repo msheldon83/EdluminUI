@@ -16,8 +16,8 @@ import {
   differenceInCalendarDays,
   isSameDay,
   differenceInMinutes,
-  max,
-  min,
+  isBefore,
+  eachDayOfInterval as dateFnsEachDayOfInterval,
 } from "date-fns";
 import { useMemo } from "react";
 import { differenceWith } from "lodash-es";
@@ -248,6 +248,25 @@ export const getContiguousDateIntervals = (
   }
 
   return intervals;
+};
+
+export const isBeforeOrEqual = (date1: Date, date2: Date) => {
+  return isBefore(date1, addDays(date2, -1));
+};
+
+export const eachDayOfInterval = ({
+  start,
+  end,
+}: {
+  start: Date;
+  end: Date;
+}) => {
+  // date-fns throws an error if start and end are the same dates. This works around that
+  if (isSameDay(start, end)) {
+    return [start];
+  }
+
+  return dateFnsEachDayOfInterval({ start, end });
 };
 
 /*

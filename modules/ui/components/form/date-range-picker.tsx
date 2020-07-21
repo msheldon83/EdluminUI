@@ -3,9 +3,7 @@ import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 import addMonth from "date-fns/addMonths";
-import eachDayOfInterval from "date-fns/eachDayOfInterval";
 import isBefore from "date-fns/isBefore";
 import isAfter from "date-fns/isAfter";
 import isWithinInterval from "date-fns/isWithinInterval";
@@ -19,7 +17,7 @@ import {
   PresetRange,
   DateRange,
 } from "./hooks/use-preset-date-ranges";
-import { isAfterDate, maxOfDates, minOfDates } from "helpers/date";
+import { maxOfDates, minOfDates, eachDayOfInterval } from "helpers/date";
 
 export type DateRangePickerProps = {
   startDate?: Date;
