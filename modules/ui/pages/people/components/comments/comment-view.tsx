@@ -36,18 +36,11 @@ export const CommentView: React.FC<Props> = props => {
   }, [setShowEdit, setPayload, comment]);
 
   const name = () => {
-    let name;
-    if (comment.actingUser.id != comment.actualUser.id) {
-      name = `${comment.actualUser.firstName} ${
-        comment.actualUser.lastName
-      } ${t("on behalf of ")} ${comment.actingUser.firstName} ${
-        comment.actingUser.lastName
-      }}`;
-    } else {
-      name = `${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
-    }
-
-    return name;
+    return comment.actingUser.id != comment.actualUser.id
+      ? `${comment.actualUser.firstName} ${comment.actualUser.lastName} ${t(
+          "on behalf of "
+        )} ${comment.actingUser.firstName} ${comment.actingUser.lastName}}`
+      : `${comment.actingUser.firstName} ${comment.actingUser.lastName}`;
   };
 
   return (
