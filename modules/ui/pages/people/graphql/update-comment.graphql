@@ -1,0 +1,9 @@
+mutation UpdateComment($comment: CommentUpdateInput!) {
+  comment {
+    update(comment: $comment) {
+      id
+      payload
+      hasBeenEdited
+    }
+  }
+}
