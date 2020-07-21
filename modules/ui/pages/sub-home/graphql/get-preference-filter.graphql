@@ -4,7 +4,7 @@ query GetPreferenceFilter($userId: ID!) {
       id
       rowVersion
       preferences {
-        preferenceFilter
+        subJobPreferenceFilter
       }
     }
   }

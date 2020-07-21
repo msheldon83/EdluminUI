@@ -1,11 +1,11 @@
-mutation UpdatePreferenceFilter($userId: ID!, $rowVersion: String!, $preferenceFilter: PreferenceFilter!) {
+mutation UpdatePreferenceFilter($userId: ID!, $rowVersion: String!, $subJobPreferenceFilter: PreferenceFilter!) {
   user {
     update (
       user: {
         id: $userId
         rowVersion: $rowVersion
         preferences: {
-          preferenceFilter: $preferenceFilter
+          subJobPreferenceFilter: $subJobPreferenceFilter
         }
       }
     ){

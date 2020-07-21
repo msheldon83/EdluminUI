@@ -38,7 +38,7 @@ export const PreferenceFilter: React.FC<Props> = ({
       const newRowVersion = getPreferenceQueryData.rowVersion;
       updateRowVersion(newRowVersion);
       const newPreferenceFilter =
-        getPreferenceQueryData.preferences?.preferenceFilter;
+        getPreferenceQueryData.preferences?.subJobPreferenceFilter;
       if (newPreferenceFilter && newPreferenceFilter !== preferenceFilter) {
         updateFilters({ preferenceFilter: newPreferenceFilter });
       }
@@ -63,7 +63,7 @@ export const PreferenceFilter: React.FC<Props> = ({
       variables: {
         userId,
         rowVersion,
-        preferenceFilter,
+        subJobPreferenceFilter: preferenceFilter,
       },
     });
   };

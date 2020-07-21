@@ -245,6 +245,7 @@ export const AvailableAssignments: React.FC<Props> = props => {
                   key={index}
                   onAccept={onAcceptVacancy}
                   viewingAsAdmin={props.viewingAsAdmin}
+                  isFavorite={x?.locationPreferenceId === PersonalPreference.Favorite}
                 />
               ))
             ) : (

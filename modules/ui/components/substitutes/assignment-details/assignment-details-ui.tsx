@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { DayIcon } from "ui/components/day-icon";
 import { parseISO, isEqual, format } from "date-fns";
 import { useMemo } from "react";
+import { Star } from "@material-ui/icons";
 
 type Props = {
   startDate: string;
@@ -67,6 +68,7 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
           <>
             <Typography variant="h6">{vacancyDates}</Typography>
             <Typography className={classes.lightText}>
+              <Star />
               {vacancyDaysOfWeek}
             </Typography>
           </>
@@ -75,6 +77,7 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
 
       <div className={classes.location}>
         <Typography className={classes.text}>
+          {}
           {locationNameText ?? t("Unknown")}
         </Typography>
         {props.organizationName && (

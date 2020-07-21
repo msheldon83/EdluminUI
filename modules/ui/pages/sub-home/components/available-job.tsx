@@ -54,6 +54,7 @@ type Props = {
   shadeRow: boolean;
   forSingleJob?: boolean;
   viewingAsAdmin?: boolean;
+  isFavorite?: boolean;
 };
 
 export const AvailableJob: React.FC<Props> = props => {

@@ -43,6 +43,7 @@ type AssignmentVacancy = {
 
 type Props = {
   vacancy: AssignmentVacancy;
+  isFavorite?: boolean;
 };
 
 export const AssignmentDetails: React.FC<Props> = props => {
