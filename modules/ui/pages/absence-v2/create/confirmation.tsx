@@ -4,16 +4,16 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useHistory } from "react-router-dom";
 import { Section } from "ui/components/section";
-import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { EmployeeChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
-import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
 import { useMemo } from "react";
 import { Step } from "helpers/step-params";
 import { AbsenceView } from "../components/absence-view";
 import {
   AdminSelectEmployeeForCreateAbsenceRouteV2,
   AdminEditAbsenceRouteV2,
+  EmployeeCreateAbsenceRouteV2,
+  EmployeeEditAbsenceRouteV2,
 } from "ui/routes/absence-v2";
 
 type Props = {
@@ -31,7 +31,7 @@ export const Confirmation: React.FC<Props> = props => {
 
   const params = useRouteParams(
     actingAsEmployee
-      ? EmployeeCreateAbsenceRoute
+      ? EmployeeCreateAbsenceRouteV2
       : AdminSelectEmployeeForCreateAbsenceRouteV2
   );
 
@@ -46,7 +46,7 @@ export const Confirmation: React.FC<Props> = props => {
     }
 
     const url = actingAsEmployee
-      ? EmployeeEditAbsenceRoute.generate({
+      ? EmployeeEditAbsenceRouteV2.generate({
           ...params,
           absenceId: absence.id,
         })
@@ -60,7 +60,7 @@ export const Confirmation: React.FC<Props> = props => {
 
   const createNewUrl = useMemo(() => {
     const url = actingAsEmployee
-      ? EmployeeCreateAbsenceRoute.generate(params)
+      ? EmployeeCreateAbsenceRouteV2.generate(params)
       : AdminSelectEmployeeForCreateAbsenceRouteV2.generate({
           ...params,
           organizationId: orgId,
