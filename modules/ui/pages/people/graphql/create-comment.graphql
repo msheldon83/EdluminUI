@@ -1,0 +1,9 @@
+mutation CreateComment($comment: CommentCreateInput!) {
+  comment {
+    create(comment: $comment) {
+      id
+      payload
+      hasBeenEdited
+    }
+  }
+}

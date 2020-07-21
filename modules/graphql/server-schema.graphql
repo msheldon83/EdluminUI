@@ -3977,22 +3977,9 @@ type OrganizationRelationshipMutations {
 
 type OrganizationRelationshipQueries {
   byId(id: ID!): OrganizationRelationship
-  all(
-    orgId: ID
-    orgIds: [ID]
-    sortBy: [SortDetailsInput]
-  ): [OrganizationRelationship]
-  paged(
-    orgId: ID
-    orgIds: [ID]
-    limit: Int
-    offset: Int
-    sortBy: [SortDetailsInput]
-  ): PagedOrganizationRelationship
-  orgUserOrganizationRelationships(
-    userId: ID!
-    staffingOrgId: ID!
-  ): [OrganizationRelationship]
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrganizationRelationship]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrganizationRelationship
+  orgUserOrganizationRelationships(userId: ID!, staffingOrgId: ID!): [OrganizationRelationship]
 }
 
 enum OrganizationRelationshipType {

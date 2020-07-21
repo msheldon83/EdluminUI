@@ -1,32 +1,25 @@
 import * as React from "react";
-import { Input } from "ui/components/form/input";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
-import {
-  useMutationBundle,
-  useQueryBundle,
-  HookQueryResult,
-} from "graphql/hooks";
+import { useQueryBundle, HookQueryResult } from "graphql/hooks";
 import {
   GetContractScheduleDates,
   GetContractScheduleDatesQuery,
   GetContractScheduleDatesQueryVariables,
 } from "../graphql/get-contract-schedule-dates.gen";
 import {
-  addDays,
-  isAfter,
   parseISO,
   startOfDay,
   isSameDay,
   addMonths,
   endOfMonth,
   format,
+  isEqual,
 } from "date-fns";
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import { CalendarDayType } from "graphql/server-types.gen";
-import { differenceWith } from "lodash-es";
+import { differenceWith, uniq } from "lodash-es";
 
 type Props = {
   contractId: string;
@@ -41,43 +34,67 @@ export const VacancyDateSelect: React.FC<Props> = props => {
   const classes = useStyles();
   const inputRef = React.useRef(null);
   const [calendarOpen, setCalendarOpen] = React.useState(false);
+  const [disabledDates, setDisabledDates] = React.useState<Date[]>([]);
+  const {
+    contractId,
+    vacancySelectedDates,
+    onSelectDates,
+    month,
+    onMonthChange,
+  } = props;
+
+  // If the contractId changes, then clear out the disabled dates we have in state
+  React.useEffect(() => {
+    setDisabledDates([]);
+  }, [contractId]);
 
   const getContractScheduleDates = useQueryBundle(GetContractScheduleDates, {
     variables: {
-      contractId: props.contractId,
-      fromDate: format(addMonths(props.month, -1), "yyyy-M-d"),
-      toDate: format(endOfMonth(addMonths(props.month, 2)), "yyyy-M-d"),
+      contractId: contractId,
+      fromDate: format(addMonths(month, -1), "yyyy-M-d"),
+      toDate: format(endOfMonth(addMonths(month, 2)), "yyyy-M-d"),
     },
   });
-  const disabledClass = `${classes.dateDisabled} dateDisabled`;
-  const disabledDates = useMemo(
-    () =>
-      computeDisabledDates(getContractScheduleDates).map(date => {
-        return {
-          date,
-          buttonProps: { className: disabledClass },
-        };
-      }),
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    [getContractScheduleDates]
-  );
+  React.useEffect(() => {
+    if (getContractScheduleDates.state === "DONE") {
+      const computedDisabledDates = computeDisabledDates(
+        getContractScheduleDates
+      );
+      setDisabledDates(current => {
+        const datesToAdd = computedDisabledDates.filter(
+          cdd => !current.find(c => isEqual(c, cdd))
+        );
+        return [...current, ...datesToAdd];
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getContractScheduleDates.state]);
 
-  const selectedClass = `${classes.selectedAbsenceDate} selectedAbsenceDate`;
   const customSelectedVacancyDates = useMemo(
     () =>
-      props.vacancySelectedDates.map(date => {
+      vacancySelectedDates.map(date => {
         return {
           date,
-          buttonProps: { className: selectedClass },
+          buttonProps: {
+            className: `${classes.selectedAbsenceDate} selectedAbsenceDate`,
+          },
         };
       }),
-    [props.vacancySelectedDates, selectedClass]
+    [vacancySelectedDates, classes.selectedAbsenceDate]
   );
 
   const customDates = useMemo(
-    () => disabledDates.concat(customSelectedVacancyDates),
+    () =>
+      disabledDates
+        .map(date => {
+          return {
+            date,
+            buttonProps: { className: `${classes.dateDisabled} dateDisabled` },
+          };
+        })
+        .concat(customSelectedVacancyDates),
 
-    [customSelectedVacancyDates, disabledDates]
+    [classes.dateDisabled, customSelectedVacancyDates, disabledDates]
   );
 
   const handleArrowClick = (e: React.MouseEvent) => {
@@ -103,9 +120,9 @@ export const VacancyDateSelect: React.FC<Props> = props => {
     const datesSelected = dates.length > 1 ? restOfDates : [initialDate];
     // Remove any disabled dates from the list
     const validDates = differenceWith(datesSelected, disabledDates, (a, b) =>
-      isSameDay(a, b.date)
+      isSameDay(a, b)
     );
-    props.onSelectDates(validDates);
+    onSelectDates(validDates);
   };
 
   return (
@@ -117,8 +134,8 @@ export const VacancyDateSelect: React.FC<Props> = props => {
           previousMonthNavigation={true}
           nextMonthNavigation={true}
           onSelectDates={handleSelectDates}
-          month={props.month}
-          onMonthChange={props.onMonthChange}
+          month={month}
+          onMonthChange={onMonthChange}
         />
       </div>
     </>

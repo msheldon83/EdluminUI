@@ -114,7 +114,7 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
         openDialog,
         t("There was an issue creating the absence"),
         t("Hmm, we found a possible issue. Would you like to continue?"),
-        async () => await quickCreateAbsence(),
+        async () => await quickCreateAbsence(true),
         t,
         TranslateAbsenceErrorCodeToMessage
       );
@@ -196,17 +196,11 @@ export const QuickAbsenceCreate: React.FC<Props> = props => {
     disabledDates
   );
 
-  const quickCreateAbsence = async () => {
-    // if (ignoreWarnings) {
-    //   absenceCreateInput = {
-    //     ...absenceCreateInput,
-    //     ignoreWarnings: true,
-    //   };
-    // }
+  const quickCreateAbsence = async (ignoreWarnings?: boolean) => {
     if (!absenceCreateInput) return;
     const result = await createAbsenceMutation({
       variables: {
-        absence: absenceCreateInput,
+        absence: { ...absenceCreateInput, ignoreWarnings },
       },
     });
 
