@@ -5,8 +5,6 @@ mutation AddOrChangeSubLocationGroupPreference($orgUserId: ID!, $orgId: ID!, $lo
       employeeId: $orgUserId
       locationGroupId: $locationGroupId
       preferenceId: $preferenceId
-    }) {
-      id
-    }
+    })
   }
 }
