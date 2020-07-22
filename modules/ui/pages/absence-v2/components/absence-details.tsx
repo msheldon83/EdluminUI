@@ -10,9 +10,9 @@ import { compact, flatMap, intersection, sortBy } from "lodash-es";
 import { AbsenceCreateInput } from "graphql/server-types.gen";
 import { GetProjectedAbsenceUsage } from "../graphql/get-projected-absence-usage.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { BalanceUsage } from "ui/components/absence/balance-usage";
 import { AbsenceDays } from "./absence-days";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { BalanceUsage } from "./balance-usage";
 
 type Props = {
   absenceId?: string;
@@ -160,14 +160,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
           </Grid>
         )} */}
 
-      {/* <BalanceUsage
+      <BalanceUsage
         orgId={organizationId}
         employeeId={employeeId}
         startDate={startOfDay(min(absenceDates))}
         actingAsEmployee={actingAsEmployee}
         usages={absenceBalanceUsages}
         setNegativeBalanceWarning={setNegativeBalanceWarning}
-      /> */}
+      />
 
       <div>
         <AbsenceDays
