@@ -102,8 +102,8 @@ describe("groupDistricts", () => {
         districts => {
           const grouped = groupDistricts(districts);
           // Here to keep eslint appeased
-          expect(grouped.favorites.length).not.toEqual(0);
-          expect(grouped.hidden.length).not.toEqual(0);
+          expect(grouped.favorites.length).toEqual(0);
+          expect(grouped.hidden.length).toEqual(0);
         }
       )
     );
