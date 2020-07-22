@@ -185,6 +185,13 @@ export const AbsenceUI: React.FC<Props> = props => {
     [setStep]
   );
 
+  // If any of the Absence Reasons chosen result in a negative balance warning,
+  // we will prevent being able to save the balance until that warning is addressed
+  // by changing the reasons selected or the amount of the balance being used
+  const [negativeBalanceWarning, setNegativeBalanceWarning] = React.useState(
+    false
+  );
+
   // --- Handling of Sub pre-arrange, assignment, or removal ------
 
   const onCancelAssignment = React.useCallback(
@@ -625,6 +632,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 input: undefined,
                               });
                             }}
+                            setNegativeBalanceWarning={setNegativeBalanceWarning}
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -705,7 +713,8 @@ export const AbsenceUI: React.FC<Props> = props => {
                               className={classes.saveButton}
                               disabled={
                                 !dirty ||
-                                //negativeBalanceWarning ||
+                                isSubmitting ||
+                                negativeBalanceWarning ||
                                 state.isClosed
                               }
                             >

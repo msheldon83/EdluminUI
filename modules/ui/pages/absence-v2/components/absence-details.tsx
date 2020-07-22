@@ -27,6 +27,7 @@ type Props = {
   projectionInput: AbsenceCreateInput | null;
   positionTypeId?: string;
   onTimeChange: () => void;
+  setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -47,6 +48,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     positionTypeId,
     absenceDates,
     onTimeChange,
+    setNegativeBalanceWarning,
     closedDates = [],
   } = props;
 
@@ -71,10 +73,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     setFieldValue("details", updatedDetails, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [absenceDates]);
-
-  const [negativeBalanceWarning, setNegativeBalanceWarning] = React.useState(
-    false
-  );
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
