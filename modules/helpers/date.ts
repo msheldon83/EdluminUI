@@ -16,6 +16,8 @@ import {
   differenceInCalendarDays,
   isSameDay,
   differenceInMinutes,
+  isBefore,
+  eachDayOfInterval as dateFnsEachDayOfInterval,
 } from "date-fns";
 import { useMemo } from "react";
 import { differenceWith } from "lodash-es";
@@ -246,6 +248,51 @@ export const getContiguousDateIntervals = (
   }
 
   return intervals;
+};
+
+export const isBeforeOrEqual = (date1: Date, date2: Date) => {
+  return isBefore(date1, addDays(date2, -1));
+};
+
+export const eachDayOfInterval = ({
+  start,
+  end,
+}: {
+  start: Date;
+  end: Date;
+}) => {
+  // date-fns throws an error if start and end are the same dates. This works around that
+  if (isSameDay(start, end)) {
+    return [start];
+  }
+
+  return dateFnsEachDayOfInterval({ start, end });
+};
+
+/*
+  NOTE: we are using custom min/max functions instead of date-fn's because we need the date
+  to keep the reference to the date object and date-fn's doesn't do that. It creates a copy
+  which causes all sorts of weird things when React tries to do a shallow comparison of the
+  dates.
+*/
+export const maxOfDates = (dates: Array<Date | undefined>) => {
+  const actualDates = dates.filter(date => date !== undefined) as Date[];
+
+  const [maxDate] = actualDates.sort(
+    (a: Date, b: Date) => b.getTime() - a.getTime()
+  );
+
+  return maxDate;
+};
+
+export const minOfDates = (dates: Array<Date | undefined>) => {
+  const actualDates = dates.filter(date => date !== undefined) as Date[];
+
+  const [minDate] = actualDates.sort(
+    (a: Date, b: Date) => a.getTime() - b.getTime()
+  );
+
+  return minDate;
 };
 
 export const sortDates = (date1: Date, date2: Date) => {
