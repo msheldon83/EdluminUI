@@ -1,0 +1,21 @@
+query GetProjectedAbsenceUsage(
+  $absence: AbsenceCreateInput!
+  $ignoreAbsenceId: ID
+) {
+  absence {
+    projectedAbsence(absence: $absence, ignoreAbsenceId: $ignoreAbsenceId) {
+      details {
+        reasonUsages {
+          sequence
+          hourlyAmount
+          dailyAmount
+          absenceReasonId
+          absenceReason {
+            id
+            absenceReasonCategoryId
+          }
+        }
+      }
+    }
+  }
+}

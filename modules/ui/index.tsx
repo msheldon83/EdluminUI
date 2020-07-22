@@ -365,6 +365,14 @@ import {
   DataImportColumnDefinitionsLoader,
 } from "./routes/data-import";
 import { RoleContextProvider } from "core/role-context";
+import {
+  CreateAbsenceLoaderV2,
+  AdminCreateAbsenceRouteV2,
+  SelectEmployeeForCreateAbsenceLoaderV2,
+  AdminSelectEmployeeForCreateAbsenceRouteV2,
+  AdminEditAbsenceLoaderV2,
+  AdminEditAbsenceRouteV2,
+} from "./routes/absence-v2";
 
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
@@ -713,17 +721,34 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[PermissionEnum.DataImport]}
                                     />
+
+                                    <ProtectedRoute
+                                      component={AdminEditAbsenceLoaderV2}
+                                      path={AdminEditAbsenceRouteV2.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacView]}
+                                      devFeatureOnly={true}
+                                    />
                                     <ProtectedRoute
                                       component={AdminEditAbsenceLoader}
                                       path={AdminEditAbsenceRoute.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacView]}
                                     />
+
                                     <ProtectedRoute
                                       component={AbsenceActivityLogLoader}
                                       path={AbsenceActivityLogRoute.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacView]}
+                                    />
+
+                                    <ProtectedRoute
+                                      component={CreateAbsenceLoaderV2}
+                                      path={AdminCreateAbsenceRouteV2.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacSave]}
+                                      devFeatureOnly={true}
                                     />
                                     <ProtectedRoute
                                       component={CreateAbsenceLoader}
@@ -731,6 +756,18 @@ export const App = hot(function() {
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacSave]}
                                     />
+                                    <ProtectedRoute
+                                      component={
+                                        SelectEmployeeForCreateAbsenceLoaderV2
+                                      }
+                                      path={
+                                        AdminSelectEmployeeForCreateAbsenceRouteV2.path
+                                      }
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.AbsVacSave]}
+                                      devFeatureOnly={true}
+                                    />
+
                                     <ProtectedRoute
                                       component={VacancyCreateLoader}
                                       path={VacancyCreateRoute.path}

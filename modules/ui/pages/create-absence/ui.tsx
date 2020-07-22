@@ -478,7 +478,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
                   "Hmm, we found a possible issue. Would you like to continue?"
                 )}
                 apolloErrors={absenceErrors}
-                setErrorBannerOpen={setErrorBannerOpen}
+                onClose={() => setErrorBannerOpen(false)}
                 continueAction={async () => await create(formValues, true)}
               />
               <AbsenceDetails

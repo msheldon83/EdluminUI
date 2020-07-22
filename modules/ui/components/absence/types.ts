@@ -1,15 +1,5 @@
 import { AccountingCodeValue } from "../form/accounting-code-dropdown";
 
-type AssignmentInfo = {
-  assignmentId?: string;
-  assignmentRowVersion?: string;
-  assignmentStartDateTime?: string;
-  assignmentEmployeeId?: string;
-  assignmentEmployeeFirstName?: string;
-  assignmentEmployeeLastName?: string;
-  assignmentEmployeeEmail?: string;
-};
-
 export type VacancyDetail = {
   vacancyDetailId: string | undefined;
   date: string;
@@ -27,3 +17,13 @@ export type VacancyDetail = {
 export type AssignmentOnDate = {
   date: string;
 } & AssignmentInfo;
+
+type AssignmentInfo = {
+  assignmentId?: string;
+  assignmentRowVersion?: string;
+  assignmentStartDateTime?: string;
+  assignmentEmployeeId?: string;
+  assignmentEmployeeFirstName?: string;
+  assignmentEmployeeLastName?: string;
+  assignmentEmployeeEmail?: string;
+};
