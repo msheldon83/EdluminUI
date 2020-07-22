@@ -1,11 +1,12 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Typography } from "@material-ui/core";
-import { PageTitle } from "ui/components/page-title";
+import { LinkHeader } from "ui/components/link-headers/base";
 import { Section } from "ui/components/section";
 import { Filters } from "./components/filters";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { SubPreferencesEditUI } from "./edit-ui";
+import { SubPreferencesRoute } from "ui/routes/sub-preferences";
 
 type Props = {};
 
@@ -26,11 +27,12 @@ export const SubPreferencesEditPage: React.FC<Props> = props => {
 
   return (
     <>
-      <PageTitle title={t("School Preferences")} />
+      <LinkHeader
+        title={t("Edit School Preferences")}
+        to={SubPreferencesRoute.generate({})}
+        linkText={t("Done editing")}
+      />
       <Section>
-        <Typography variant="h5">
-          {search ? `"${search}"` : t("All Schools")}
-        </Typography>
         <Filters
           {...{
             orgId,

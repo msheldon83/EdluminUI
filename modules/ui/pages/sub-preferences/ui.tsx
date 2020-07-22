@@ -98,24 +98,29 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
             direction="column"
             className={classes.column}
           >
-            <Typography variant="h4">{t("Favorites")}</Typography>
-            {groups.favorites.map(d => (
-              <React.Fragment key={d.id}>
-                <Typography variant="h5" className={classes.districtName}>
-                  {d.name}
-                </Typography>
-                {d.schoolGroups.map(g => (
-                  <ViewGroup
-                    key={g.id}
-                    group={g}
-                    allActionName={t("Remove all")}
-                    actionName={t("Remove")}
-                    setGroupToDefault={deleteGroup(d.orgUserId, d.id, g.id)}
-                    setSchoolToDefault={deleteOne(d.orgUserId, d.id)}
-                  />
-                ))}
-              </React.Fragment>
-            ))}
+            <Typography variant="h4">
+              {groups.favorites.length == 0
+                ? t("No Favorite Schools")
+                : t("Favorites")}
+            </Typography>
+            {groups.favorites.length > 0 &&
+              groups.favorites.map(d => (
+                <React.Fragment key={d.id}>
+                  <Typography variant="h5" className={classes.districtName}>
+                    {d.name}
+                  </Typography>
+                  {d.schoolGroups.map(g => (
+                    <ViewGroup
+                      key={g.id}
+                      group={g}
+                      allActionName={t("Remove all")}
+                      actionName={t("Remove")}
+                      setGroupToDefault={deleteGroup(d.orgUserId, d.id, g.id)}
+                      setSchoolToDefault={deleteOne(d.orgUserId, d.id)}
+                    />
+                  ))}
+                </React.Fragment>
+              ))}
           </Grid>
           <Grid
             item
@@ -124,24 +129,27 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
             direction="column"
             className={classes.column}
           >
-            <Typography variant="h4">{t("Hidden")}</Typography>
-            {groups.hidden.map(d => (
-              <React.Fragment key={d.id}>
-                <Typography variant="h5" className={classes.districtName}>
-                  {d.name}
-                </Typography>
-                {d.schoolGroups.map(g => (
-                  <ViewGroup
-                    key={g.id}
-                    group={g}
-                    allActionName={t("Unhide all")}
-                    actionName={t("Unhide")}
-                    setGroupToDefault={deleteGroup(d.orgUserId, d.id, g.id)}
-                    setSchoolToDefault={deleteOne(d.orgUserId, d.id)}
-                  />
-                ))}
-              </React.Fragment>
-            ))}
+            <Typography variant="h4">
+              {groups.hidden.length == 0 ? t("No Hidden Schools") : t("Hidden")}
+            </Typography>
+            {groups.hidden.length > 0 &&
+              groups.hidden.map(d => (
+                <React.Fragment key={d.id}>
+                  <Typography variant="h5" className={classes.districtName}>
+                    {d.name}
+                  </Typography>
+                  {d.schoolGroups.map(g => (
+                    <ViewGroup
+                      key={g.id}
+                      group={g}
+                      allActionName={t("Unhide all")}
+                      actionName={t("Unhide")}
+                      setGroupToDefault={deleteGroup(d.orgUserId, d.id, g.id)}
+                      setSchoolToDefault={deleteOne(d.orgUserId, d.id)}
+                    />
+                  ))}
+                </React.Fragment>
+              ))}
           </Grid>
         </>
       )}

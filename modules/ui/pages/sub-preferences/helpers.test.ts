@@ -26,38 +26,34 @@ const withUniqueIds: <T>(
       )
     );
 
-const arbitrarySchool = (constantPreference?: "favorite" | "hidden") => (
-  id: string
-): fc.Arbitrary<School> =>
+const arbitrarySchool = (
+  constantPreferences: ("favorite" | "hidden" | "default")[]
+) => (id: string): fc.Arbitrary<School> =>
   fc.record({
     id: fc.constant(id),
     name: fc.string(),
     // If constantPreference is defined, just use that, rather than picking randomly
-    preference: constantPreference
-      ? fc.constant(constantPreference)
-      : // Not "default", since those would be dropped from upcoming tests
-        // Easier to test some invariants when all schools are one or the other
-        fc.constantFrom("favorite", "hidden"),
+    preference: fc.constantFrom(...constantPreferences),
   });
 
-const arbitrarySchoolGroup = (constantPreference?: "favorite" | "hidden") => (
-  id: string
-): fc.Arbitrary<SchoolGroup> =>
+const arbitrarySchoolGroup = (
+  constantPreferences: ("favorite" | "hidden" | "default")[]
+) => (id: string): fc.Arbitrary<SchoolGroup> =>
   fc.record({
     id: fc.constant(id),
     name: fc.string(),
-    schools: withUniqueIds(arbitrarySchool(constantPreference), id, 1, 10),
+    schools: withUniqueIds(arbitrarySchool(constantPreferences), id, 1, 10),
   });
 
-const arbitraryDistrict = (constantPreference?: "favorite" | "hidden") => (
-  id: string
-): fc.Arbitrary<District> =>
+const arbitraryDistrict = (
+  constantPreferences: ("favorite" | "hidden" | "default")[]
+) => (id: string): fc.Arbitrary<District> =>
   fc.record({
     id: fc.constant(id),
     name: fc.string(),
     orgUserId: fc.string(),
     schoolGroups: withUniqueIds(
-      arbitrarySchoolGroup(constantPreference),
+      arbitrarySchoolGroup(constantPreferences),
       id,
       1,
       10
@@ -68,8 +64,8 @@ const arbitraryGroupedDistricts: fc.Arbitrary<{
   favorites: District[];
   hidden: District[];
 }> = fc.record({
-  favorites: withUniqueIds(arbitraryDistrict("favorite"), ""),
-  hidden: withUniqueIds(arbitraryDistrict("hidden"), ""),
+  favorites: withUniqueIds(arbitraryDistrict(["favorite"]), ""),
+  hidden: withUniqueIds(arbitraryDistrict(["hidden"]), ""),
 });
 
 // General fn to check if two layers are equal up to reordering,
@@ -99,15 +95,31 @@ const checkDistricts = (districts1: District[], districts2: District[]) =>
   });
 
 describe("groupDistricts", () => {
+  it("when provided only default schools, drops all of them", () => {
+    fc.assert(
+      fc.property(
+        withUniqueIds(arbitraryDistrict(["default"]), ""),
+        districts => {
+          const grouped = groupDistricts(districts);
+          // Here to keep eslint appeased
+          expect(grouped.favorites.length).not.toEqual(0);
+          expect(grouped.hidden.length).not.toEqual(0);
+        }
+      )
+    );
+  });
   it("when provided only favorite or hidden schools, partitions them (no elements dropped or added)", () => {
     fc.assert(
-      fc.property(withUniqueIds(arbitraryDistrict(), ""), districts => {
-        const grouped = groupDistricts(districts);
-        const rejoined = joinGroupedDistricts(grouped);
-        // Here to keep eslint appeased
-        expect(rejoined.length).not.toBeUndefined();
-        checkDistricts(districts, rejoined);
-      })
+      fc.property(
+        withUniqueIds(arbitraryDistrict(["favorite", "hidden"]), ""),
+        districts => {
+          const grouped = groupDistricts(districts);
+          const rejoined = joinGroupedDistricts(grouped);
+          // Here to keep eslint appeased
+          expect(rejoined).not.toBeUndefined();
+          checkDistricts(districts, rejoined);
+        }
+      )
     );
   });
   it("reconstructs grouped districts", () => {
@@ -116,7 +128,7 @@ describe("groupDistricts", () => {
         const joined = joinGroupedDistricts(grouped);
         const regrouped = groupDistricts(joined);
         // Here to keep eslint appeased
-        expect(joined.length).not.toBeUndefined();
+        expect(joined).not.toBeUndefined();
         checkDistricts(grouped.favorites, regrouped.favorites);
         checkDistricts(grouped.hidden, regrouped.hidden);
       })
