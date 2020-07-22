@@ -30,8 +30,8 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
   search,
 }) => {
   const { t } = useTranslation();
+  // Not cache-first, since the preferences might well change on the view page
   const getPreferences = useQueryBundle(GetSubPreferences, {
-    fetchPolicy: "cache-first",
     variables: { userId, orgId },
     skip: orgId.length == 0,
   });
@@ -39,7 +39,7 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
     getPreferences.state === "LOADING"
       ? "LOADING"
       : compact(
-          getPreferences.data.employee?.employeeLocationPreferences ?? []
+          getPreferences.data.orgUser?.substituteLocationPreferences ?? []
         );
 
   const getLocationGroups = useQueryBundle(GetLocationGroups, {

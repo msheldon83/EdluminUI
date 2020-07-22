@@ -2510,7 +2510,6 @@ type EmployeeQueries {
   employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
-  employeeLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 input EmployeeRejectVacancyInput {
@@ -3940,6 +3939,7 @@ type OrgUserQueries {
   lastLoginById(id: ID!): OrgUserLastLogin
   verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
   suggestedAdminsForApproverGroups(locationId: ID, orgId: ID!): [OrgUser]
+  substituteLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -6279,6 +6279,7 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
   comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
+  substituteLocationPreferences: [EmployeeLocationPreference]
 }
 
 input SubstituteAttributeInput {

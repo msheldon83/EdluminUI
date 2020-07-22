@@ -22,8 +22,8 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
   const classes = useStyles();
   const isMobile = useIsMobile();
 
+  // Not cache-first, since the preferences might well change on the edit page
   const getPreferences = useQueryBundle(GetSubPreferences, {
-    fetchPolicy: "cache-first",
     variables: { userId },
     skip: orgInfo.length == 0,
   });
@@ -31,7 +31,7 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
     getPreferences.state === "LOADING"
       ? "LOADING"
       : compact(
-          getPreferences.data.employee?.employeeLocationPreferences ?? []
+          getPreferences.data.orgUser?.substituteLocationPreferences ?? []
         );
 
   const getLocationGroups = useQueryBundle(GetLocationGroups, {
@@ -47,10 +47,13 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
           locations: compact(g.locations ?? []),
         }));
 
-  const groups =
-    preferences === "LOADING" || locationGroups === "LOADING"
-      ? "LOADING"
-      : groupDistricts(makeDistricts(orgInfo, locationGroups, preferences));
+  const groups = React.useMemo(
+    () =>
+      preferences === "LOADING" || locationGroups === "LOADING"
+        ? "LOADING"
+        : groupDistricts(makeDistricts(orgInfo, locationGroups, preferences)),
+    [preferences, locationGroups, orgInfo]
+  );
   const [removeOne] = useMutationBundle(RemoveSubLocationPreference, {
     refetchQueries: ["GetSubPreferences"],
   });
