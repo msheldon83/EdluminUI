@@ -87,7 +87,10 @@ export const AvailableJob: React.FC<Props> = props => {
         >
           <div className={classes.container}>
             <div className={classes.infoContainer}>
-              <AssignmentDetails vacancy={vacancy} />
+              <AssignmentDetails
+                vacancy={vacancy}
+                isFavorite={props.isFavorite}
+              />
             </div>
 
             <div className={classes.actionContainer}>

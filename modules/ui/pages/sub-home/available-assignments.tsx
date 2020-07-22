@@ -9,7 +9,7 @@ import {
 import { FilterList } from "@material-ui/icons";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { parseISO, isBefore } from "date-fns";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useMutationBundle, usePagedQueryBundle } from "graphql/hooks";
 import {
   PersonalPreference,
   PermissionEnum,
@@ -78,13 +78,15 @@ export const AvailableAssignments: React.FC<Props> = props => {
   const isPersonalPreference = (s: string): s is PersonalPreference =>
     Object.keys(PersonalPreference).includes(s);
 
-  const getVacancies = useQueryBundle(
+  const [getVacancies] = usePagedQueryBundle(
     SubJobSearch,
-    //r => r.vacancy?.subJobSearch?.totalCount,
+    r => r.vacancy?.subJobSearch?.totalCount,
     {
       variables: {
         ...filters,
         id: userId ?? "",
+        limit: 2000000000,
+        showNonPreferredJobs: preferenceFilter === PreferenceFilter.ShowAll,
       },
       skip: !userId,
     }
@@ -245,7 +247,9 @@ export const AvailableAssignments: React.FC<Props> = props => {
                   key={index}
                   onAccept={onAcceptVacancy}
                   viewingAsAdmin={props.viewingAsAdmin}
-                  isFavorite={x?.locationPreferenceId === PersonalPreference.Favorite}
+                  isFavorite={
+                    x?.locationPreferenceId === PersonalPreference.Favorite
+                  }
                 />
               ))
             ) : (

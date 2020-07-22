@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography, Grid } from "@material-ui/core";
 import { formatIsoDateIfPossible } from "helpers/date";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -18,6 +18,7 @@ type Props = {
   employeeName: string;
   dayPortion: number;
   payInfoLabel: string;
+  isFavorite?: boolean;
 } /* If there are various times within the vacancy, we
   do not want to give false information. However, we still need
   a startTime to determine which day icon to use.
@@ -68,7 +69,6 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
           <>
             <Typography variant="h6">{vacancyDates}</Typography>
             <Typography className={classes.lightText}>
-              <Star />
               {vacancyDaysOfWeek}
             </Typography>
           </>
@@ -76,10 +76,12 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
       </div>
 
       <div className={classes.location}>
-        <Typography className={classes.text}>
-          {}
-          {locationNameText ?? t("Unknown")}
-        </Typography>
+        <Grid container alignItems="center">
+          <Star className={classes.star} />
+          <Typography className={classes.text}>
+            {locationNameText ?? t("Unknown")}
+          </Typography>
+        </Grid>
         {props.organizationName && (
           <Typography className={classes.subText}>
             {props.organizationName}
@@ -114,6 +116,11 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
 };
 
 export const useStyles = makeStyles(theme => ({
+  star: {
+    fontSize: theme.typography.pxToRem(14),
+    marginRight: theme.spacing(1),
+    color: theme.customColors.primary,
+  },
   text: {
     fontSize: theme.typography.pxToRem(14),
   },

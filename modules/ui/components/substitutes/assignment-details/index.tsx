@@ -95,6 +95,7 @@ export const AssignmentDetails: React.FC<Props> = props => {
       endDate={vacancy.endDate}
       locationNames={locationNames}
       positionName={vacancy.position?.title ?? ""}
+      isFavorite={props.isFavorite}
     />
   );
 };

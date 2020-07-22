@@ -1,5 +1,14 @@
-import { Grid, FormControlLabel, Checkbox } from "@material-ui/core";
+import {
+  Grid,
+  FormControlLabel,
+  Checkbox,
+  IconButton,
+  makeStyles,
+} from "@material-ui/core";
+import { InputLabel } from "ui/components/form/input";
+import { HelpOutline } from "@material-ui/icons";
 import { useQueryParamIso } from "hooks/query-params";
+import { useHistory } from "react-router";
 import * as React from "react";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
 import { useTranslation } from "react-i18next";
@@ -18,6 +27,8 @@ export const PreferenceFilter: React.FC<Props> = ({
   const { t } = useTranslation();
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
   const [rowVersion, updateRowVersion] = React.useState<string>("");
+  const history = useHistory();
+  const classes = useStyles();
 
   const preferenceOptions: OptionType[] = [
     { label: t("Favorites Only"), value: "SHOW_FAVORITES" },
@@ -71,7 +82,22 @@ export const PreferenceFilter: React.FC<Props> = ({
   return (
     <Grid item xs={12} sm={6} md={3} lg={3}>
       <Select
-        label={t("Show")}
+        label={t("Preferences")}
+        labelComponent={({ htmlFor }: { htmlFor?: string }) => (
+          <Grid container>
+            <InputLabel htmlFor={htmlFor}>{t("Preferences")}</InputLabel>
+            {false && "Commented out until we have a help page to go to" && (
+              <IconButton
+                onClick={() =>
+                  history.push({ pathname: "https://duckduckgo.com" })
+                }
+                className={classes.iconButton}
+              >
+                <HelpOutline className={classes.icon} />
+              </IconButton>
+            )}
+          </Grid>
+        )}
         onChange={onChangePreference}
         value={preferenceOptions.find(o => o.value == preferenceFilter)}
         options={preferenceOptions}
@@ -81,3 +107,13 @@ export const PreferenceFilter: React.FC<Props> = ({
     </Grid>
   );
 };
+const useStyles = makeStyles(theme => ({
+  iconButton: {
+    padding: 0,
+    paddingLeft: theme.spacing(1),
+    marginBottom: theme.spacing(0.4),
+  },
+  icon: {
+    fontSize: theme.typography.pxToRem(14),
+  },
+}));
