@@ -37,12 +37,14 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { useCanDo } from "ui/components/auth/can";
 import { canEditSub } from "helpers/permissions";
+import { SubSchoolPreferences } from "../components/substitute/school-preferences";
 
 type Props = {
   editing: string | null;
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   selectedRole: OrgUserRole;
   orgUserId: string;
+  userId: string;
 };
 
 export const SubstituteTab: React.FC<Props> = props => {
@@ -73,7 +75,10 @@ export const SubstituteTab: React.FC<Props> = props => {
     : false;
 
   const getSubstitute = useQueryBundle(GetSubstituteById, {
-    variables: { id: props.orgUserId, includeRelatedOrgs: showRelatedOrgs },
+    variables: {
+      id: props.orgUserId,
+      includeRelatedOrgs: showRelatedOrgs,
+    },
     skip: includeRelatedOrgs === undefined,
   });
 
@@ -166,6 +171,11 @@ export const SubstituteTab: React.FC<Props> = props => {
           }) ?? []
         }
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
+      />
+      <SubSchoolPreferences
+        subSchoolPreferences={
+          orgUser.substitute.substituteLocationPreferences ?? []
+        }
       />
       <SubPayInformation
         editing={props.editing}
