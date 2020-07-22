@@ -10,6 +10,10 @@ query GetProjectedAbsenceUsage(
           hourlyAmount
           dailyAmount
           absenceReasonId
+          absenceReason {
+            id
+            absenceReasonCategoryId
+          }
         }
       }
     }
