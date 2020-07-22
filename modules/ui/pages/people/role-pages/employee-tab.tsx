@@ -8,6 +8,8 @@ import {
   EmployeeInput,
   PermissionEnum,
   NeedsReplacement,
+  DiscussionSubjectType,
+  ObjectType,
 } from "graphql/server-types.gen";
 import { GetEmployeeById } from "../graphql/employee/get-employee-by-id.gen";
 import { SaveEmployee } from "../graphql/employee/save-employee.gen";
@@ -16,7 +18,9 @@ import { RemainingBalances } from "ui/pages/employee-pto-balances/components/rem
 import { Position } from "../components/employee/position";
 import { ReplacementCriteria } from "../components/employee/replacement-criteria";
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
+import { useOrganization } from "reference-data/organization";
 import { Information } from "../components/information";
+import { Comments } from "../components/comments/index";
 import {
   EmployeeSubstitutePreferenceRoute,
   PersonViewRoute,
@@ -46,8 +50,16 @@ export const EmployeeTab: React.FC<Props> = props => {
     },
   });
 
+  const getOrganization = useOrganization(params.organizationId);
+  const includeRelatedOrgs = getOrganization?.isStaffingProvider;
+  const staffingOrgId = includeRelatedOrgs ? params.organizationId : undefined;
+
   const getEmployee = useQueryBundle(GetEmployeeById, {
-    variables: { id: props.orgUserId },
+    variables: {
+      id: props.orgUserId,
+      includeRelatedOrgs: includeRelatedOrgs,
+    },
+    skip: includeRelatedOrgs === undefined,
   });
 
   const currentSchoolYear = useCurrentSchoolYear(params.organizationId);
@@ -77,6 +89,10 @@ export const EmployeeTab: React.FC<Props> = props => {
     await getEmployee.refetch();
   };
 
+  const refetchQuery = async () => {
+    await getEmployee.refetch();
+  };
+
   return (
     <>
       <Information
@@ -92,6 +108,15 @@ export const EmployeeTab: React.FC<Props> = props => {
         editPermissions={[PermissionEnum.EmployeeSave]}
         onSubmit={onUpdateEmployee}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
+      />
+      <Comments
+        refetchQuery={refetchQuery}
+        staffingOrgId={staffingOrgId}
+        comments={orgUser.employee.comments ?? []}
+        userId={orgUser.userId ?? ""}
+        discussionSubjectType={DiscussionSubjectType.Employee}
+        objectType={ObjectType.User}
+        orgId={params.organizationId}
       />
       <Position
         editing={props.editing}

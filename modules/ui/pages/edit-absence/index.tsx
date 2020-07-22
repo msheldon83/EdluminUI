@@ -314,6 +314,9 @@ export const EditAbsence: React.FC<Props> = props => {
             hourlyAmount: u.hourlyAmount,
             dailyAmount: u.dailyAmount,
             absenceReasonId: u.absenceReasonId,
+            absenceReason: {
+              absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
+            },
           },
         ];
       }

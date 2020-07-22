@@ -4,10 +4,12 @@ import {
   DateDetail,
   VacancySummaryDetailByAssignmentAndDate,
 } from "./types";
-import { format, isEqual as isDateEqual } from "date-fns";
+import { format, isEqual as isDateEqual, parseISO, isSameDay } from "date-fns";
 import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
+import { Vacancy } from "graphql/server-types.gen";
+import { AssignmentOnDate } from "ui/pages/absence-v2/types";
 
 export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   vacancy: VacancyDetailsFormData
@@ -53,6 +55,76 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
     };
   });
   return summaryDetails;
+};
+
+export const convertVacancyToVacancySummaryDetails = (
+  vacancy: Vacancy,
+  assignmentsByDate?: AssignmentOnDate[] | undefined
+): VacancySummaryDetail[] => {
+  const absenceDetails = vacancy?.absence?.details;
+  return vacancy.details?.map(vd => {
+    // Find a matching Absence Detail record if available
+    const absenceDetail = absenceDetails?.find(
+      ad => ad?.startDate === vd?.startDate
+    );
+
+    // Find a matching assignment from assignmentsByStartTime if we
+    // don't already have one on the VacancyDetail record itself
+    const assignmentOnDate = assignmentsByDate?.find(
+      a =>
+        (vd.id && a.vacancyDetailId === vd.id) ||
+        isSameDay(a.startTimeLocal, parseISO(vd.startTimeLocal))
+    );
+
+    return {
+      vacancyId: vacancy.id,
+      vacancyDetailId: vd.id,
+      date: parseISO(vd.startDate),
+      startTimeLocal: parseISO(vd.startTimeLocal),
+      endTimeLocal: parseISO(vd.endTimeLocal),
+      locationId: vd.locationId,
+      locationName: vd.location?.name ?? "",
+      assignment:
+        vd.assignment || assignmentOnDate
+          ? {
+              id: vd.assignment?.id ?? assignmentOnDate?.assignmentId,
+              rowVersion:
+                vd.assignment?.rowVersion ??
+                assignmentOnDate?.assignmentRowVersion,
+              employee:
+                vd.assignment?.employee || assignmentOnDate?.employee
+                  ? {
+                      id:
+                        vd.assignment?.employee?.id ??
+                        assignmentOnDate!.employee.id,
+                      firstName:
+                        vd.assignment?.employee?.firstName ??
+                        assignmentOnDate!.employee.firstName,
+                      lastName:
+                        vd.assignment?.employee?.lastName ??
+                        assignmentOnDate!.employee.lastName,
+                    }
+                  : undefined,
+            }
+          : undefined,
+      payCodeId: vd.payCodeId ?? undefined,
+      payCodeName: vd.payCode?.name,
+      accountingCodeAllocations:
+        vd.accountingCodeAllocations?.map(a => {
+          return {
+            accountingCodeId: a.accountingCodeId,
+            accountingCodeName: a.accountingCode?.name,
+            allocation: a.allocation,
+          };
+        }) ?? [],
+      absenceStartTimeLocal: absenceDetail?.startTimeLocal
+        ? parseISO(absenceDetail.startTimeLocal)
+        : undefined,
+      absenceEndTimeLocal: absenceDetail?.endTimeLocal
+        ? parseISO(absenceDetail.endTimeLocal)
+        : undefined,
+    };
+  });
 };
 
 export const buildAssignmentGroups = (
@@ -135,6 +207,9 @@ export const buildAssignmentGroups = (
               ...assignmentAndDateGroupItem.details.map(d => d.vacancyDetailId),
             ],
           });
+          lastGroup.vacancySummaryDetails.push(
+            ...assignmentAndDateGroupItem.details
+          );
         } else {
           // Details are different so we need to add a new group
           groupAccumulator.push(
@@ -238,6 +313,7 @@ export const convertToAssignmentWithDetails = (
         ],
       },
     ],
+    vacancySummaryDetails: summaryDetailsByAssignmentAndDate.details,
     details: summaryDetailsByAssignmentAndDate.details.map(d => {
       return {
         startTime: format(d.startTimeLocal, "h:mm a"),
@@ -249,6 +325,20 @@ export const convertToAssignmentWithDetails = (
         accountingCodeAllocations: d.accountingCodeAllocations,
       };
     }),
+    absenceStartTime: summaryDetailsByAssignmentAndDate.details[0]
+      .absenceStartTimeLocal
+      ? format(
+          summaryDetailsByAssignmentAndDate.details[0].absenceStartTimeLocal,
+          "h:mm a"
+        )
+      : undefined,
+    absenceEndTime: summaryDetailsByAssignmentAndDate.details[0]
+      .absenceEndTimeLocal
+      ? format(
+          summaryDetailsByAssignmentAndDate.details[0].absenceEndTimeLocal,
+          "h:mm a"
+        )
+      : undefined,
   };
   return assignmentWithDetails;
 };

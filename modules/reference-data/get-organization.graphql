@@ -1,0 +1,9 @@
+query GetOrganization($orgId: ID!) {
+  organization {
+    byId(id: $orgId) {
+      id
+      name
+      isStaffingProvider
+    }
+  }
+}
