@@ -166,8 +166,7 @@ export const ConditionPopper: React.FC<Props> = props => {
       });
     }
 
-    console.log(reasonIds);
-    return reasonIds;
+    return reasonIds.length > 0 ? reasonIds : undefined;
   }, [absenceReasons, step.stepId, steps, vacancyReasons, workflowType]);
 
   return (
