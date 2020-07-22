@@ -131,15 +131,17 @@ export const BalanceUsage: React.FC<Props> = props => {
           AbsenceReasonTrackingTypeId.Hourly
             ? u.hourlyAmount
             : u.dailyAmount;
+        const totalAmount = (match?.amount ?? 0) + amount;
         const balanceIsNegative =
-          (balance.usedBalance as number) + amount > balance.initialBalance;
+          (balance.usedBalance as number) + totalAmount >
+          balance.initialBalance;
         const negativeBalanceAllowed =
           (balance.absenceReasonId
             ? balance.absenceReason?.allowNegativeBalance
             : balance.absenceReasonCategory?.allowNegativeBalance) ?? false;
 
         if (match) {
-          match.amount = match.amount + amount;
+          match.amount = totalAmount;
           match.remainingBalance = match.remainingBalance - amount;
           match.negativeWarning = balanceIsNegative && !negativeBalanceAllowed;
         } else {
@@ -188,6 +190,7 @@ export const BalanceUsage: React.FC<Props> = props => {
   );
 
   // If the balance goes negative and the user is an employee, set the warning state
+  // so they are prevented from saving the Absence until they get rid of the warning
   const setNegativeBalanceWarning = props.setNegativeBalanceWarning;
   useEffect(() => {
     if (usageAmounts.find(u => u?.negativeWarning)) {
@@ -246,6 +249,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.darkRed,
     fontWeight: "bold",
     fontSize: theme.typography.pxToRem(14),
+    marginTop: theme.spacing(),
   },
   reasonHeaderContainer: {
     background: "#F0F0F0",
