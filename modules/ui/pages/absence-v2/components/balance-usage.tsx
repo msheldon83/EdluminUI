@@ -34,7 +34,7 @@ type UsageAmountData = {
   remainingBalance: number;
   absenceReasonId: string | null | undefined;
   absenceReasonCategoryId: string | null | undefined;
-} | null;
+};
 
 export const BalanceUsage: React.FC<Props> = props => {
   const classes = useStyles();
@@ -81,6 +81,7 @@ export const BalanceUsage: React.FC<Props> = props => {
         : [],
     [usages]
   );
+
   const balances = useMemo(() => {
     return usages && usages.length > 0
       ? employeeBalances.filter(
@@ -109,9 +110,10 @@ export const BalanceUsage: React.FC<Props> = props => {
       (accumulator: UsageAmountData[], u: AbsenceReasonUsageData) => {
         const balance = balances.find(
           b =>
-            b.absenceReasonId === u.absenceReasonId ||
-            b.absenceReasonCategoryId ===
-              u.absenceReason?.absenceReasonCategoryId
+            (b.absenceReasonId && b.absenceReasonId === u.absenceReasonId) ||
+            (b.absenceReasonCategoryId &&
+              b.absenceReasonCategoryId ===
+                u.absenceReason?.absenceReasonCategoryId)
         );
         if (!balance) {
           return accumulator;
@@ -119,8 +121,10 @@ export const BalanceUsage: React.FC<Props> = props => {
 
         const match = accumulator.find(
           a =>
-            a?.absenceReasonId === balance.absenceReasonId ||
-            a.absenceReasonCategoryId === balance.absenceReasonCategoryId
+            (a.absenceReasonId &&
+              a.absenceReasonId === balance.absenceReasonId) ||
+            (a.absenceReasonCategoryId &&
+              a.absenceReasonCategoryId === balance.absenceReasonCategoryId)
         );
         const amount =
           balance.absenceReasonTrackingTypeId ===
@@ -158,29 +162,29 @@ export const BalanceUsage: React.FC<Props> = props => {
       []
     );
 
-    return calculatedUsages;
+    return compact(calculatedUsages);
   }, [balances, usages]);
 
-  const calculateBalanceUsageText = React.useCallback(
+  const getUsedAndRemainingText = React.useCallback(
     (usageAmount: UsageAmountData) => {
       if (!usageAmount || !usageAmount.trackingType) return null;
-      const { name, trackingType, amount, remainingBalance } = usageAmount;
+      const { trackingType, amount, remainingBalance } = usageAmount;
       const unitText = {
         INVALID: null,
-        DAILY: ["day", "days"],
-        HOURLY: ["hour", "hours"],
+        DAILY: [t("day"), t("days")],
+        HOURLY: [t("hour"), t("hours")],
       }[trackingType];
 
       if (!unitText) return null;
-      return `${t("Uses")} ${round(amount, 2)} ${t(
+      const usedText = `${round(amount, 2)} ${t(
         unitText[Number(amount !== 1)]
-      )} ${t("of")} ${
-        actingAsEmployee ? t("your") : t("employee's")
-      } ${name} ${t("balance leaving")} ${round(remainingBalance, 2)} ${t(
+      )}`;
+      const remainingText = `${round(remainingBalance, 2)} ${t(
         unitText[Number(remainingBalance !== 1)]
       )}`;
+      return [usedText, remainingText];
     },
-    [t, actingAsEmployee]
+    [t]
   );
 
   // If the balance goes negative and the user is an employee, set the warning state
@@ -193,26 +197,40 @@ export const BalanceUsage: React.FC<Props> = props => {
     }
   }, [usageAmounts, setNegativeBalanceWarning, actingAsEmployee]);
 
+  const hasNegativeBalance = useMemo(() => {
+    return !!usageAmounts.find(u => u?.negativeWarning);
+  }, [usageAmounts]);
+
   return (
     <>
-      {usageAmounts &&
-        usageAmounts.map(ua => {
-          return (
-            <>
-              <div className={classes.usageTextContainer}>
-                <InfoIcon color="primary" />
-                <div className={classes.usageText}>
-                  {calculateBalanceUsageText(ua)}
-                </div>
+      {usageAmounts && usageAmounts.length > 0 && (
+        <div>
+          <div className={classes.reasonHeaderContainer}>
+            <div className={classes.reason}>
+              <InfoIcon color="primary" />
+              <div className={classes.reasonText}>{t("Balance")}</div>
+            </div>
+            <div className={classes.used}>{t("Used")}</div>
+            <div className={classes.remaining}>{t("Remaining")}</div>
+          </div>
+          {usageAmounts.map((ua, i) => {
+            const [usedText, remainingText] = getUsedAndRemainingText(ua) ?? [];
+
+            return (
+              <div key={i} className={classes.reasonRowContainer}>
+                <div className={classes.reason}>{ua.name}</div>
+                <div className={classes.used}>{usedText}</div>
+                <div className={classes.remaining}>{remainingText}</div>
               </div>
-              {ua?.negativeWarning && (
-                <div className={classes.warningText}>
-                  {t("This will result in a negative balance.")}
-                </div>
-              )}
-            </>
-          );
-        })}
+            );
+          })}
+          {hasNegativeBalance && (
+            <div className={classes.warningText}>
+              {t("This will result in a negative balance.")}
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 };
@@ -224,12 +242,39 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     margin: `${theme.spacing(2)}px 0`,
   },
-  usageText: {
-    marginLeft: theme.spacing(1),
-  },
   warningText: {
     color: theme.customColors.darkRed,
     fontWeight: "bold",
     fontSize: theme.typography.pxToRem(14),
+  },
+  reasonHeaderContainer: {
+    background: "#F0F0F0",
+    border: "1px solid #E5E5E5",
+    padding: theme.spacing(1),
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    marginTop: theme.spacing(),
+    fontWeight: "bold",
+  },
+  reasonRowContainer: {
+    borderBottom: "1px solid #E5E5E5",
+    padding: theme.spacing(1),
+    display: "flex",
+    width: "100%",
+  },
+  reason: {
+    width: "50%",
+    display: "flex",
+    alignItems: "center",
+  },
+  reasonText: {
+    marginLeft: theme.spacing(),
+  },
+  used: {
+    width: "25%",
+  },
+  remaining: {
+    width: "25%",
   },
 }));
