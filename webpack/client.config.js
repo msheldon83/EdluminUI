@@ -147,7 +147,8 @@ module.exports = {
     new CopyPlugin([
       { from: "scripts/new-relic.js" },
       { from: "static" },
-      { from: "config/config.json" },
+      { from: "config/environment.js" },
+      { from: "config/environment.js.tmp" },
       { from: "config/web.config" },
     ]),
 
