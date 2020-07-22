@@ -7,7 +7,7 @@ import { useAllSchoolYears } from "reference-data/school-years";
 import { isBefore, isAfter, parseISO } from "date-fns";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { compact, round } from "lodash-es";
+import { compact, round, sortBy } from "lodash-es";
 import { AbsenceReasonTrackingTypeId } from "graphql/server-types.gen";
 
 type Props = {
@@ -164,7 +164,7 @@ export const BalanceUsage: React.FC<Props> = props => {
       []
     );
 
-    return compact(calculatedUsages);
+    return sortBy(compact(calculatedUsages), u => u.name);
   }, [balances, usages]);
 
   const getUsedAndRemainingText = React.useCallback(
