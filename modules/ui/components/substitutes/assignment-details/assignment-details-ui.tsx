@@ -77,7 +77,7 @@ export const AssignmentDetailsUI: React.FC<Props> = props => {
 
       <div className={classes.location}>
         <Grid container alignItems="center">
-          <Star className={classes.star} />
+          {props.isFavorite && <Star className={classes.star} />}
           <Typography className={classes.text}>
             {locationNameText ?? t("Unknown")}
           </Typography>
