@@ -202,6 +202,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
         <span className={classes.multiCodeDeleteButton}>
           <IconButton
             aria-label="delete"
+            role="button"
             disableFocusRipple
             size="small"
             onClick={() => removeAllocation(allocation.id)}
