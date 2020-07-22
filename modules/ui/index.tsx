@@ -1037,6 +1037,7 @@ export const App = hot(function() {
                                         PermissionEnum.ScheduleSettingsView,
                                         PermissionEnum.AbsVacSettingsView,
                                         PermissionEnum.FinanceSettingsView,
+                                        PermissionEnum.ApprovalSettingsView,
                                       ]}
                                     />
                                     <ProtectedRoute
