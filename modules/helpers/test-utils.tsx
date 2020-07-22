@@ -3,6 +3,7 @@ import { ThemeProvider } from "@material-ui/styles";
 import { CssBaseline } from "@material-ui/core";
 import { render, RenderOptions } from "@testing-library/react";
 import { EdluminTheme } from "ui/styles/mui-theme";
+import "../../entry/i18n";
 import * as clsx from "clsx";
 
 type UiRenderOptions = Omit<RenderOptions, "queries">;
