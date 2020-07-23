@@ -321,12 +321,15 @@ export const Schedule: React.FC<Props> = props => {
                               Get the travel duration from the previous 2 periods to use for the
                               new period
                             */
-                            const targePeriodIndex = values.periods.length - 2;
-                            const previousTravelDuration = travelDurationFromPeriods(
-                              values.periods,
-                              values.periods[targePeriodIndex],
-                              targePeriodIndex
-                            );
+                            const targetPeriodIndex = values.periods.length - 2;
+                            const previousTravelDuration =
+                              targetPeriodIndex < 0
+                                ? 0
+                                : travelDurationFromPeriods(
+                                    values.periods,
+                                    values.periods[targetPeriodIndex],
+                                    targetPeriodIndex
+                                  );
 
                             const updatedPeriods = AddPeriod(
                               values.periods,
