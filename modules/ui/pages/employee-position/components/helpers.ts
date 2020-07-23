@@ -9,6 +9,7 @@ export type Period = {
   startPeriodId?: string | null | undefined;
   endPeriodId?: string | null | undefined;
   allDay?: boolean;
+  overMidnightConfirmed: boolean;
 };
 
 export type Schedule = {
@@ -33,6 +34,7 @@ export const buildNewPeriod = (allDay: boolean): Period => {
     locationGroupId: "",
     bellScheduleId: null,
     allDay: allDay,
+    overMidnightConfirmed: false,
   };
 };
 
