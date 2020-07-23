@@ -185,9 +185,9 @@ export const AbsenceUI: React.FC<Props> = props => {
     [setStep]
   );
 
-  // If any of the Absence Reasons chosen result in a negative balance warning,
+  // When "actingAsEmployee", if any of the Absence Reasons chosen result in a negative balance warning,
   // we will prevent being able to save the balance until that warning is addressed
-  // by changing the reasons selected or the amount of the balance being used
+  // by either changing the reasons selected or the amount of the balance being used
   const [negativeBalanceWarning, setNegativeBalanceWarning] = React.useState(
     false
   );
