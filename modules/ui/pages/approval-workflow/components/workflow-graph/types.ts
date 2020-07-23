@@ -6,6 +6,7 @@ import {
   ApprovalWorkflowType,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
+import { cloneDeep } from "lodash-es";
 
 // Transition helpers
 
@@ -233,12 +234,20 @@ export const determinePathThroughAbsVacWorkflow = (
   steps: ApprovalWorkflowStepInput[],
   workflowType: ApprovalWorkflowType,
   reasonIds?: string[],
-  upToStepId?: string
+  upToStep?: ApprovalWorkflowStepInput,
+  newSteps?: ApprovalWorkflowStepInput[]
 ) => {
-  const pathSteps = [] as ApprovalWorkflowStepInput[];
-  let step = steps.filter(x => !x.deleted).find(x => x.isFirstStep);
+  const allSteps = cloneDeep(steps);
+  if (upToStep && !allSteps.find(s => s.stepId === upToStep.stepId))
+    allSteps.push(upToStep);
+  if (newSteps) allSteps.concat(newSteps);
+  console.log(allSteps);
 
-  while (step && step.stepId !== upToStepId) {
+  const pathSteps = [] as ApprovalWorkflowStepInput[];
+  let step = allSteps.filter(x => !x.deleted).find(x => x.isFirstStep);
+  pathSteps.push(step!);
+
+  while (step && step.stepId !== upToStep?.stepId) {
     const transitions = convertTransitionsFromInput(
       step.onApproval,
       workflowType
@@ -259,7 +268,7 @@ export const determinePathThroughAbsVacWorkflow = (
       })?.goto;
     }
 
-    step = steps.find(x => x.stepId === nextStepId);
+    step = allSteps.find(x => x.stepId === nextStepId);
     if (step) pathSteps.push(step);
   }
 

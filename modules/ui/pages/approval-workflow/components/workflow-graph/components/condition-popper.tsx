@@ -47,7 +47,7 @@ export const ConditionPopper: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { selectedStep, workflowType, steps, nextStepId } = props;
+  const { selectedStep, workflowType, steps, nextStepId, newSteps } = props;
 
   const [step, setStep] = useState<ApprovalWorkflowStepInput>(
     selectedStep ?? createNewStep(steps)
@@ -128,7 +128,7 @@ export const ConditionPopper: React.FC<Props> = props => {
       steps,
       workflowType,
       reasonIds,
-      step.stepId
+      step
     );
     const ids = compact(path.map(x => x.approverGroupHeaderId));
     return ids;
@@ -146,8 +146,13 @@ export const ConditionPopper: React.FC<Props> = props => {
           steps,
           workflowType,
           [a.id],
-          step.stepId
+          step
         );
+        if (a.id === "1226") {
+          console.log(step);
+          console.log(path);
+        }
+
         if (path.find(x => x.stepId === step.stepId)) {
           reasonIds.push(a.id);
         }
@@ -158,7 +163,7 @@ export const ConditionPopper: React.FC<Props> = props => {
           steps,
           workflowType,
           [v.id],
-          step.stepId
+          step
         );
         if (path.find(x => x.stepId === step.stepId)) {
           reasonIds.push(v.id);
@@ -167,7 +172,7 @@ export const ConditionPopper: React.FC<Props> = props => {
     }
 
     return reasonIds.length > 0 ? reasonIds : undefined;
-  }, [absenceReasons, step.stepId, steps, vacancyReasons, workflowType]);
+  }, [absenceReasons, step, steps, vacancyReasons, workflowType]);
 
   return (
     <div className={classes.popper}>
@@ -283,7 +288,7 @@ export const ConditionPopper: React.FC<Props> = props => {
                   selectedApproverGroupHeaderIds={
                     values.approverGroupHeaderId
                       ? [values.approverGroupHeaderId]
-                      : ["0"]
+                      : undefined
                   }
                   setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
                     if (ids && ids.length > 0) {
