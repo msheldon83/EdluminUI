@@ -148,7 +148,7 @@ module.exports = {
       { from: "scripts/new-relic.js" },
       { from: "static" },
       { from: "config/environment.js" },
-      { from: "config/environment.js.tmp" },
+      { from: "config/environment.js.template" },
       { from: "config/web.config" },
     ]),
 
