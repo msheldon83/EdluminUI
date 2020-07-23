@@ -11,32 +11,33 @@ import { NumberInput } from "./number-input";
 import { TextButton } from "ui/components/text-button";
 import { FormHelperText } from "@material-ui/core";
 
-export type AllocationDropdownProps = {
-  value?: AllocationCodeValue;
+export type AllocationDropdownProps<T = any> = {
+  value?: AllocationCodeValue<T>;
   placeholder?: string;
   multipleAllocationPlaceholder?: string;
   label?: string;
   options: OptionType[];
-  onChange: (value: AllocationCodeValue) => void;
+  onChange: (value: AllocationCodeValue<T>) => void;
   showLabel?: boolean;
   disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string;
 };
 
-export type AllocationCodeValue =
+export type AllocationCodeValue<T = any> =
   | { type: "no-allocation"; selection: undefined }
   | { type: "single-allocation"; selection?: OptionType }
   | {
       type: "multiple-allocations";
       selection?: OptionType;
-      allocations: Allocation[];
+      allocations: Allocation<T>[];
     };
 
-type Allocation = {
+type Allocation<T = any> = {
   id: number;
   selection?: OptionType;
   percentage?: number;
+  allocationUnit?: T;
 };
 
 /*
@@ -175,7 +176,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
   };
   const mainDropdownOptions = [multipleAllocationsOptionType].concat(options);
 
-  const renderMultiCodeRow = memoize((allocation: Allocation) => {
+  const renderAllocationRow = memoize((allocation: Allocation) => {
     return (
       <>
         <Select
@@ -193,7 +194,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
           className={classes.multiCodeInput}
           endAdornment="%"
           onChange={percentage => {
-            updateAllocation({ ...allocation, percentage: percentage });
+            updateAllocation({ ...allocation, percentage });
           }}
           value={allocation.percentage}
           maxLength={2}
@@ -250,7 +251,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
               {value?.allocations.map(allocation => {
                 return (
                   <li key={allocation.id.toString()}>
-                    {renderMultiCodeRow(allocation)}
+                    {renderAllocationRow(allocation)}
                   </li>
                 );
               })}
