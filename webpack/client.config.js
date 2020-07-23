@@ -152,17 +152,8 @@ module.exports = {
       { from: "config/web.config" },
     ]),
 
-    // Define global letiables in the client to instrument behavior.
-    new webpack.DefinePlugin(
-      config.get("development") ? {} : temporaryProductionEnv
-    ),
-
     /*
-    Process index.html and insert script and stylesheet tags for us.
-
-    Temporarily there are 2 different index files because of how the
-    environment is loaded. This will change when we have the environment file
-      in QA and production builds
+    Process index.html and insert script and stylesheet tags for us including config script
     */
     new HtmlWebpackPlugin({
       template: "./entry/index.html",
