@@ -461,12 +461,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   const hasFilledVacancies = absenceDetails.some(d => d.isFilled);
   const hasVerifiedAssignments = absenceDetails.some(d => d.verifiedAtUtc);
 
-  const canDeleteAbsence = (
-    permissions: OrgUserPermissions[],
-    isSysAdmin: boolean,
-    orgId?: string,
-    forRole?: Role | null | undefined
-  ) =>
+  const canDeleteAbsence =
     actingAsEmployee && absence
       ? isAfter(absence.startTimeLocal, new Date()) &&
         !hasFilledVacancies &&
