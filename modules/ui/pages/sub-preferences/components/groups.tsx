@@ -29,7 +29,7 @@ export const ViewGroup: React.FC<ViewGroupProps> = ({
         className={classes.header}
         alignItems="center"
       >
-        <Typography variant="h6">{group.name}</Typography>
+        <Typography className={classes.headerText}>{group.name}</Typography>
         <Link onClick={() => setGroupToDefault(group.id)}>{allActionName}</Link>
       </Grid>
       {group.schools.map((school, i) => (
@@ -42,7 +42,10 @@ export const ViewGroup: React.FC<ViewGroupProps> = ({
           key={school.id}
         >
           <Typography>{school.name}</Typography>
-          <Link onClick={() => setSchoolToDefault(school.id)}>
+          <Link
+            onClick={() => setSchoolToDefault(school.id)}
+            className={classes.bodyLink}
+          >
             {actionName}
           </Link>
         </Grid>
@@ -79,7 +82,7 @@ export const EditGroup: React.FC<EditGroupProps> = ({
         className={classes.header}
         alignItems="center"
       >
-        <Typography variant="h6">{group.name}</Typography>
+        <Typography className={classes.headerText}>{group.name}</Typography>
         <Grid item container xs={6} justify="flex-end">
           {!isMobile && (
             <Typography className={classes.text}>{t("Mark all as")}</Typography>
@@ -152,6 +155,10 @@ const useStyles = makeStyles(theme => ({
     padding: `${theme.spacing(1.5)}px ${theme.spacing(2)}px`,
     border: "1px solid #E5E5E5",
   },
+  headerText: {
+    fontSize: "14px",
+    fontWeight: 600,
+  },
   oddRow: {
     padding: theme.spacing(2),
     backgroundColor: "#F8F8F8",
@@ -164,6 +171,11 @@ const useStyles = makeStyles(theme => ({
   group: {
     paddingBottom: theme.spacing(2),
   },
+  bodyLink: {
+    color: "#9E9E9E",
+    textDecorationLine: "underline",
+    cursor: "pointer",
+  },
 }));
 
 const useEditStyles = makeStyles(theme => ({
@@ -171,6 +183,10 @@ const useEditStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.lightSlate,
     padding: `${theme.spacing(1.5)}px ${theme.spacing(2)}px`,
     border: "1px solid #E5E5E5",
+  },
+  headerText: {
+    fontSize: "14px",
+    fontWeight: 600,
   },
   oddRow: {
     padding: theme.spacing(2),
@@ -192,6 +208,7 @@ const useEditStyles = makeStyles(theme => ({
   },
   bodyLink: {
     color: "#9E9E9E",
+    textDecorationLine: "underline",
     padding: theme.spacing(1),
   },
 }));

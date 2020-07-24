@@ -11,6 +11,7 @@ import { RemoveSubLocationPreference } from "./graphql/remove-sub-location-prefe
 import { GetSubPreferences } from "./graphql/get-sub-preferences.gen";
 import { GetLocationGroups } from "./graphql/get-location-groups.gen";
 import { makeDistricts, groupDistricts } from "./helpers";
+import clsx from "clsx";
 
 type Props = {
   userId: string;
@@ -89,9 +90,11 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
   return (
     <Grid container>
       {preferences.length == 0 ? (
-        <Typography variant="h4">{t("No preferences set")}</Typography>
+        <Typography className={classes.h2}>
+          {t("No preferences set")}
+        </Typography>
       ) : groups === "LOADING" ? (
-        <Typography variant="h4">{t("Loading...")}</Typography>
+        <Typography className={classes.h2}>{t("Loading...")}</Typography>
       ) : (
         <>
           <Grid
@@ -101,7 +104,7 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
             direction="column"
             className={classes.column}
           >
-            <Typography variant="h4">
+            <Typography className={classes.h2}>
               {groups.favorites.length == 0
                 ? t("No Favorite Schools")
                 : t("Favorites")}
@@ -109,7 +112,9 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
             {groups.favorites.length > 0 &&
               groups.favorites.map(d => (
                 <React.Fragment key={d.id}>
-                  <Typography variant="h5" className={classes.districtName}>
+                  <Typography
+                    className={clsx(classes.districtName, classes.h5)}
+                  >
                     {d.name}
                   </Typography>
                   {d.schoolGroups.map(g => (
@@ -132,13 +137,15 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
             direction="column"
             className={classes.column}
           >
-            <Typography variant="h4">
+            <Typography className={classes.h2}>
               {groups.hidden.length == 0 ? t("No Hidden Schools") : t("Hidden")}
             </Typography>
             {groups.hidden.length > 0 &&
               groups.hidden.map(d => (
                 <React.Fragment key={d.id}>
-                  <Typography variant="h5" className={classes.districtName}>
+                  <Typography
+                    className={clsx(classes.districtName, classes.h5)}
+                  >
                     {d.name}
                   </Typography>
                   {d.schoolGroups.map(g => (
@@ -161,6 +168,18 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
 };
 
 const useStyles = makeStyles(theme => ({
+  h2: {
+    //fontFamily: "Inter",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    fontSize: "24px",
+  },
+  h5: {
+    //fontFamily: "Inter",
+    fontStyle: "normal",
+    fontWeight: 600,
+    fontSize: "16px",
+  },
   districtName: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(2),

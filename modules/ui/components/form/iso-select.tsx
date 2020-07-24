@@ -69,15 +69,14 @@ export function IsoSelectOne<RawType extends string | number, InterpretedType>(
 ) {
   const { options, value, onChange, onSort, iso: baseIso } = props;
   const optionIso = optionTypeIsomorphism(baseIso);
+  const currentOption = options.find(o => isEqual(o.value, value));
 
   return (
     <SelectNew
       {...props}
       multiple={false}
       options={options.map(optionIso.from)}
-      value={optionIso.from(
-        options.find(o => isEqual(o.value, value)) ?? options[0]
-      )}
+      value={currentOption ? optionIso.from(currentOption) : undefined}
       onChange={
         onChange ? rawValue => onChange(optionIso.to(rawValue)) : undefined
       }

@@ -63,13 +63,9 @@ export const Filters: React.FC<Props> = ({
           className={isMobile ? classes.mobileTopFilter : classes.filter}
         >
           <IsoSelectOne
+            placeholder={t("Select a district")}
             label={t("District")}
-            options={[
-              {
-                value: ["", ""] as [string, string],
-                label: "Select a district",
-              },
-            ].concat(orgOptions)}
+            options={orgOptions}
             value={[orgId, orgUserId]}
             iso={{
               to: (s: string) => s.split(",") as [string, string],
@@ -80,6 +76,7 @@ export const Filters: React.FC<Props> = ({
               setOrgName(orgName);
               setOrgUserId(orgUserId);
             }}
+            withResetValue={false}
           />
         </Grid>
       )}

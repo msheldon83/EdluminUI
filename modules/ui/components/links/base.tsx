@@ -147,4 +147,7 @@ const useStyles = makeStyles(theme => ({
   black: {
     color: theme.customColors.black,
   },
+  grey: {
+    color: theme.customColors.edluminSubText,
+  },
 }));

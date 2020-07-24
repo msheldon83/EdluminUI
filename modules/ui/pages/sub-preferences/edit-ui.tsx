@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetSubPreferences } from "./graphql/get-sub-preferences.gen";
 import { GetLocationGroups } from "./graphql/get-location-groups.gen";
@@ -30,6 +30,7 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
   search,
 }) => {
   const { t } = useTranslation();
+  const classes = useStyles();
   // Not cache-first, since the preferences might well change on the view page
   const getPreferences = useQueryBundle(GetSubPreferences, {
     variables: { userId, orgId },
@@ -62,7 +63,7 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
           [{ orgId, orgName, orgUserId }],
           locationGroups,
           preferences
-        )[0];
+        )[0] ?? "LOADING";
 
   const filteredGroups =
     district === "LOADING"
@@ -148,9 +149,11 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
   return (
     <>
       {orgId.length == 0 ? (
-        <Typography variant="h4">{t("No district selected")}</Typography>
+        <Typography className={classes.h2}>
+          {t("No district selected")}
+        </Typography>
       ) : filteredGroups === "LOADING" ? (
-        <Typography variant="h4">{t("Loading...")}</Typography>
+        <Typography className={classes.h2}>{t("Loading...")}</Typography>
       ) : (
         filteredGroups.map(group => (
           <EditGroup
@@ -166,3 +169,12 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
     </>
   );
 };
+
+const useStyles = makeStyles(theme => ({
+  h2: {
+    //fontFamily: "Inter",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    fontSize: "24px",
+  },
+}));
