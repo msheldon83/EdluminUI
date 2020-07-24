@@ -175,6 +175,6 @@ const useStyles = makeStyles(theme => ({
     //fontFamily: "Inter",
     fontStyle: "normal",
     fontWeight: "normal",
-    fontSize: "24px",
+    fontSize: theme.typography.pxToRem(24),
   },
 }));

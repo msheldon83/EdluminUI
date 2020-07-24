@@ -3,6 +3,7 @@ import { Button, Grid, Link, Typography, makeStyles } from "@material-ui/core";
 import { useIsMobile } from "hooks";
 import { useTranslation } from "react-i18next";
 import { District, SchoolGroup, School } from "../types";
+import clsx from "clsx";
 
 export type ViewGroupProps = {
   group: SchoolGroup;
@@ -30,7 +31,12 @@ export const ViewGroup: React.FC<ViewGroupProps> = ({
         alignItems="center"
       >
         <Typography className={classes.headerText}>{group.name}</Typography>
-        <Link onClick={() => setGroupToDefault(group.id)}>{allActionName}</Link>
+        <Link
+          onClick={() => setGroupToDefault(group.id)}
+          className={classes.headerLink}
+        >
+          {allActionName}
+        </Link>
       </Grid>
       {group.schools.map((school, i) => (
         <Grid
@@ -82,8 +88,12 @@ export const EditGroup: React.FC<EditGroupProps> = ({
         className={classes.header}
         alignItems="center"
       >
-        <Typography className={classes.headerText}>{group.name}</Typography>
-        <Grid item container xs={6} justify="flex-end">
+        <Grid item xs={isMobile ? 4 : 6}>
+          <Typography className={clsx(classes.headerText, classes.mobileName)}>
+            {group.name}
+          </Typography>
+        </Grid>
+        <Grid item container xs={isMobile ? 8 : 6} justify="flex-end">
           {!isMobile && (
             <Typography className={classes.text}>{t("Mark all as")}</Typography>
           )}
@@ -113,8 +123,12 @@ export const EditGroup: React.FC<EditGroupProps> = ({
           className={i % 2 ? classes.oddRow : classes.evenRow}
           alignItems="center"
         >
-          <Typography>{name}</Typography>
-          <Grid item container xs={6} justify="flex-end">
+          <Grid item xs={isMobile ? 4 : 6}>
+            <Typography className={isMobile ? classes.mobileName : undefined}>
+              {name}
+            </Typography>
+          </Grid>
+          <Grid item container xs={isMobile ? 8 : 6} justify="flex-end">
             {preference == "favorite" ? (
               <Typography className={classes.text}>{t("Favorite")}</Typography>
             ) : (
@@ -156,7 +170,7 @@ const useStyles = makeStyles(theme => ({
     border: "1px solid #E5E5E5",
   },
   headerText: {
-    fontSize: "14px",
+    fontSize: theme.typography.pxToRem(14),
     fontWeight: 600,
   },
   oddRow: {
@@ -170,6 +184,9 @@ const useStyles = makeStyles(theme => ({
   },
   group: {
     paddingBottom: theme.spacing(2),
+  },
+  headerLink: {
+    cursor: "pointer",
   },
   bodyLink: {
     color: "#9E9E9E",
@@ -185,7 +202,7 @@ const useEditStyles = makeStyles(theme => ({
     border: "1px solid #E5E5E5",
   },
   headerText: {
-    fontSize: "14px",
+    fontSize: theme.typography.pxToRem(14),
     fontWeight: 600,
   },
   oddRow: {
@@ -202,6 +219,7 @@ const useEditStyles = makeStyles(theme => ({
   },
   headerLink: {
     padding: theme.spacing(1),
+    cursor: "pointer",
   },
   text: {
     padding: theme.spacing(1),
@@ -209,6 +227,12 @@ const useEditStyles = makeStyles(theme => ({
   bodyLink: {
     color: "#9E9E9E",
     textDecorationLine: "underline",
+    cursor: "pointer",
     padding: theme.spacing(1),
+  },
+  mobileName: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
 }));

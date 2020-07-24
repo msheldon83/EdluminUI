@@ -172,13 +172,13 @@ const useStyles = makeStyles(theme => ({
     //fontFamily: "Inter",
     fontStyle: "normal",
     fontWeight: "normal",
-    fontSize: "24px",
+    fontSize: theme.typography.pxToRem(24),
   },
   h5: {
     //fontFamily: "Inter",
     fontStyle: "normal",
     fontWeight: 600,
-    fontSize: "16px",
+    fontSize: theme.typography.pxToRem(16),
   },
   districtName: {
     paddingTop: theme.spacing(4),

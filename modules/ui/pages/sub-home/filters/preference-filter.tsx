@@ -102,6 +102,7 @@ export const PreferenceFilter: React.FC<Props> = ({
         value={preferenceOptions.find(o => o.value == preferenceFilter)}
         options={preferenceOptions}
         multiple={false}
+        withResetValue={false}
         placeholder={t("Search for schools")}
       />
     </Grid>

@@ -54,7 +54,7 @@ export const SubPreferencesPage: React.FC<Props> = props => {
         <Typography variant="h1">{t("School Preferences")}</Typography>
         {!isMobile && EditButton}
       </Grid>
-      <Section>
+      <Section className={isMobile ? classes.mobileSection : undefined}>
         <SubPreferencesUI userId={userId} orgInfo={orgInfo} />
       </Section>
       {isMobile && (
@@ -80,5 +80,8 @@ const useStyles = makeStyles(theme => ({
   },
   mobileHeader: {
     marginBottom: theme.spacing(2),
+  },
+  mobileSection: {
+    margin: 0,
   },
 }));
