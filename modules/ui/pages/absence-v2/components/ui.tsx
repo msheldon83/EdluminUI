@@ -49,7 +49,7 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, compact, uniq } from "lodash-es";
+import { some, compact, uniq, flatMap } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -67,6 +67,7 @@ import { CancelAssignment } from "../graphql/cancel-assignment.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
+import { AbsenceReasonUsageData } from "./balance-usage";
 
 type Props = {
   organizationId: string;
@@ -94,6 +95,8 @@ type Props = {
   onErrorsConfirmed: () => void;
   deleteAbsence?: () => void;
   refetchAbsence?: () => Promise<void>;
+  initialVacancyDetails?: VacancyDetail[];
+  initialAbsenceUsageData?: AbsenceReasonUsageData[];
 };
 
 export const AbsenceUI: React.FC<Props> = props => {
@@ -115,10 +118,15 @@ export const AbsenceUI: React.FC<Props> = props => {
     saveErrorsInfo,
     onErrorsConfirmed,
     refetchAbsence,
+    initialVacancyDetails,
+    initialAbsenceUsageData,
   } = props;
-  
+
   const [absence, setAbsence] = React.useState<Absence | undefined>();
-  const [vacancySummaryDetailsToAssign, setVacancySummaryDetailsToAssign] = React.useState<VacancySummaryDetail[]>([]);
+  const [
+    vacancySummaryDetailsToAssign,
+    setVacancySummaryDetailsToAssign,
+  ] = React.useState<VacancySummaryDetail[]>([]);
 
   const [state, dispatch] = React.useReducer(
     absenceReducer,
@@ -202,6 +210,15 @@ export const AbsenceUI: React.FC<Props> = props => {
     false
   );
 
+  // Only use state.projectedVacancyDetails if on Edit and data has changed
+  const vacancyDetails = React.useMemo(() => {
+    return (
+      state.customizedVacanciesInput ||
+      state.projectedVacancyDetails ||
+      initialVacancyDetails
+    );
+  }, []);
+
   // --- Handling of Sub pre-arrange, assignment, or removal ------
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
@@ -249,6 +266,8 @@ export const AbsenceUI: React.FC<Props> = props => {
           addRemoveOrUpdate: "remove",
         });
       } else {
+        console.log("cancelling", vacancyDetailIds, vacancyDetailDates);
+
         // Get all of the Assignment Ids and Row Versions to Cancel
         const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
           (accumulator: CancelVacancyAssignmentInput[], detail) => {
@@ -256,7 +275,9 @@ export const AbsenceUI: React.FC<Props> = props => {
               a => a.assignmentId === detail.assignmentId
             );
             if (matchingAssignment) {
-              matchingAssignment.vacancyDetailIds?.push(detail.vacancyDetailId!);
+              matchingAssignment.vacancyDetailIds?.push(
+                detail.vacancyDetailId!
+              );
             } else {
               accumulator.push({
                 assignmentId: detail.assignmentId ?? "",
@@ -269,38 +290,56 @@ export const AbsenceUI: React.FC<Props> = props => {
           []
         );
 
-        const localDetailIdsToClearAssignmentsOn: string[] = [];
+        let assignmentsByDate = [...(state.assignmentsByDate ?? [])];
         for (let index = 0; index < assignmentsToCancel.length; index++) {
-          const a = assignmentsToCancel[index];
+          const toCancel = assignmentsToCancel[index];
           const result = await cancelAssignment({
             variables: {
-              assignment: a,
+              assignment: toCancel,
             },
           });
           if (result?.data) {
-            if (a.vacancyDetailIds) {
-              localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
-            }
             // Possible we just cancelled part of an assignment
             // which would result in a new RowVersion for that assignment object
-            updatedDetails
-              .filter(
-                d =>
-                  d.assignment?.id &&
-                  d.assignment?.id ===
-                    result?.data?.assignment?.cancelAssignment?.id
-              )
-              .forEach(d => {
-                if (d.assignment) {
-                  d.assignment.rowVersion =
-                    result.data?.assignment?.cancelAssignment?.rowVersion;
-                }
-              });
+            assignmentsByDate
+              .filter(a => {
+                a.assignmentId &&
+                  a.assignmentId ===
+                    result?.data?.assignment?.cancelAssignment?.id;
+              })
+              .forEach(
+                a =>
+                  (a.assignmentRowVersion =
+                    result.data?.assignment?.cancelAssignment?.rowVersion)
+              );
+
+            if (toCancel.vacancyDetailIds) {
+              // Remove any assignments whose vacancyDetailId was included
+              assignmentsByDate = assignmentsByDate.filter(
+                a =>
+                  a.vacancyDetailId &&
+                  toCancel.vacancyDetailIds?.includes(a.vacancyDetailId)
+              );
+            }
           }
         }
+
+        // Update the assignment info stored in state
+        dispatch({
+          action: "updateAssignments",
+          assignments: assignmentsByDate,
+          addRemoveOrUpdate: "update",
+        });
       }
     },
-    [isCreate, state.customizedVacanciesInput, state.projectedVacancyDetails]
+    [
+      absence,
+      cancelAssignment,
+      isCreate,
+      state.assignmentsByDate,
+      state.customizedVacanciesInput,
+      state.projectedVacancyDetails,
+    ]
   );
 
   const [assignVacancy] = useMutationBundle(AssignVacancy, {
@@ -438,9 +477,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       return undefined;
     }
 
-    const datesToAssign = vacancySummaryDetailsToAssign.map(
-      vsd => vsd.date
-    );
+    const datesToAssign = vacancySummaryDetailsToAssign.map(vsd => vsd.date);
     const vacanciesWithFilteredDetails = state.projectedVacancies.map(v => {
       return {
         ...v,
@@ -480,6 +517,45 @@ export const AbsenceUI: React.FC<Props> = props => {
 
       setAbsence(absence);
       if (isCreate) {
+        // We need to get the Assignment Id and Row Version from
+        // the newly created Absence info in order to allow the User
+        // to cancel any Assignments
+        const assignments = compact(
+          flatMap(
+            absence.vacancies?.map(v =>
+              v?.details?.map(vd => {
+                if (!vd.assignment) {
+                  return null;
+                }
+
+                return {
+                  detail: vd,
+                  assignment: vd.assignment,
+                };
+              })
+            )
+          )
+        );
+
+        dispatch({
+          action: "updateAssignments",
+          assignments: assignments.map(a => {
+            return {
+              assignmentId: a.assignment.id,
+              assignmentRowVersion: a.assignment.rowVersion,
+              startTimeLocal: parseISO(a.detail.startTimeLocal),
+              vacancyDetailId: a.detail.id,
+              employee: {
+                id: a.assignment.employeeId,
+                firstName: a.assignment.employee?.firstName ?? "",
+                lastName: a.assignment.employee?.lastName ?? "",
+              },
+            };
+          }),
+          addRemoveOrUpdate: "update",
+        });
+
+        // Show the User the confirmation screen
         setStep("confirmation");
       }
     },
@@ -656,7 +732,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 input: undefined,
                               });
                             }}
-                            setNegativeBalanceWarning={setNegativeBalanceWarning}
+                            setNegativeBalanceWarning={
+                              setNegativeBalanceWarning
+                            }
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -670,7 +748,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                             projectionInput={inputForProjectedCalls}
                             absenceDates={state.absenceDates}
                             onAssignSubClick={vacancySummaryDetailsToAssign => {
-                              setVacancySummaryDetailsToAssign(vacancySummaryDetailsToAssign);
+                              setVacancySummaryDetailsToAssign(
+                                vacancySummaryDetailsToAssign
+                              );
                               setStep("preAssignSub");
                             }}
                             onCancelAssignment={onCancelAssignment}
@@ -718,7 +798,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                               onClick={() => {
                                 // reset the form and the state
                                 resetForm();
-                                dispatch({ action: "resetToInitialState", initialState: initialAbsenceState() });
+                                dispatch({
+                                  action: "resetToInitialState",
+                                  initialState: initialAbsenceState(),
+                                });
                               }}
                               variant="outlined"
                               className={classes.cancelButton}
@@ -777,7 +860,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                       // so we want to make sure everything is set back to an initial state for the
                       // next Absence to be created
                       resetForm();
-                      dispatch({ action: "resetToInitialState", initialState: initialAbsenceState() });
+                      dispatch({
+                        action: "resetToInitialState",
+                        initialState: initialAbsenceState(),
+                      });
                     }}
                   />
                 )}
@@ -914,17 +1000,25 @@ const buildAbsenceInput = (
 
   // Build Vacancy Details in case we want to tell the server to use our Details
   // instead of it coming up with its own
-  const vDetails =
-    vacancyDetails?.map(v => {
-      // If creating, look to see if we're trying to prearrange anyone for this detail
-      const assignment = !state.absenceId ? state.assignmentsByDate?.find(a => (v.vacancyDetailId && a.vacancyDetailId === v.vacancyDetailId)
-      || (!v.vacancyDetailId && isSameDay(a.startTimeLocal, startOfDay(parseISO(v.date))))) : undefined;
+  const vDetails = vacancyDetails?.map(v => {
+    // If creating, look to see if we're trying to prearrange anyone for this detail
+    const assignment = !state.absenceId
+      ? state.assignmentsByDate?.find(
+          a =>
+            (v.vacancyDetailId && a.vacancyDetailId === v.vacancyDetailId) ||
+            (!v.vacancyDetailId &&
+              isSameDay(a.startTimeLocal, startOfDay(parseISO(v.date))))
+        )
+      : undefined;
 
-      return {
+    return (
+      {
         date: v.date,
         locationId: v.locationId,
         startTime: secondsSinceMidnight(
-          parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
+          parseTimeFromString(
+            format(convertStringToDate(v.startTime)!, "h:mm a")
+          )
         ),
         endTime: secondsSinceMidnight(
           parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
@@ -936,7 +1030,8 @@ const buildAbsenceInput = (
         ),
         prearrangedReplacementEmployeeId: assignment?.employee?.id,
       } ?? undefined
-    });
+    );
+  });
 
   // I think we can get away from prearranging for the whole thing now and just do it on the detail
   // const prearrangedReplacementEmployeeIdForEntireVacancy =

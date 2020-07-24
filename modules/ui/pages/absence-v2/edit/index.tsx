@@ -120,6 +120,43 @@ export const EditAbsence: React.FC<Props> = props => {
     });
   }, [absence?.details]);
 
+  const assignmentsByDate = React.useMemo(() => {
+    if (!absence || !absence?.vacancies) {
+      return [];
+    }
+    
+    const assignments = compact(
+      flatMap(
+        absence?.vacancies?.map(v =>
+          v?.details?.map(vd => {
+            if (!vd.assignment) {
+              return null;
+            }
+  
+            return {
+              detail: vd,
+              assignment: vd.assignment,
+            };
+          })
+        )
+      ?? [])
+    );
+    
+    return assignments.map(a => {
+      return {
+        assignmentId: a.assignment.id,
+        assignmentRowVersion: a.assignment.rowVersion,
+        startTimeLocal: parseISO(a.detail.startTimeLocal),
+        vacancyDetailId: a.detail.id,
+        employee: {
+          id: a.assignment.employeeId,
+          firstName: a.assignment.employee?.firstName ?? "",
+          lastName: a.assignment.employee?.lastName ?? "",
+        },
+      };
+    })
+  }, [absence]);
+
   const notesToApproverRequired = React.useMemo(() => {
     const allReasons = compact(
       flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
@@ -170,9 +207,6 @@ export const EditAbsence: React.FC<Props> = props => {
                   position.needsReplacement ?? NeedsReplacement.No,
                 title: position.title,
                 positionTypeId: position.positionTypeId ?? undefined,
-                // defaultPayCodeId:
-                //   employee.primaryPosition.positionType?.payCodeId ?? undefined,
-                defaultAccountingCodeAllocations: noAllocation(),
               }
             : undefined
         }
@@ -184,9 +218,6 @@ export const EditAbsence: React.FC<Props> = props => {
           needsReplacement: !!vacancy,
           notesToReplacement: vacancy?.notesToReplacement ?? undefined,
           requireNotesToApprover: notesToApproverRequired,
-          accountingCodeAllocations: noAllocation(),
-          // payCodeId:
-          //   employee.primaryPosition?.positionType?.payCodeId ?? undefined,
         }}
         initialAbsenceState={() => {
           const absenceDates = absenceDetails.map(d => d.date);
@@ -205,6 +236,7 @@ export const EditAbsence: React.FC<Props> = props => {
             isClosed: false,
             closedDates: [],
             approvalState: absence?.approvalState,
+            assignmentsByDate: assignmentsByDate
           };
         }}
         saveAbsence={async data => {
