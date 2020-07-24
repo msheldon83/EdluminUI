@@ -237,7 +237,7 @@ export const AvailableAssignments: React.FC<Props> = props => {
               <Typography variant="h5">
                 {t("Loading available assignments")}
               </Typography>
-            ) : vacancies.length > 0 ? (
+            ) : sortedVacancies.length > 0 ? (
               sortedVacancies.map((x, index) => (
                 <AvailableJob
                   vacancy={x?.vacancy}
@@ -253,9 +253,17 @@ export const AvailableAssignments: React.FC<Props> = props => {
                 />
               ))
             ) : (
-              <Typography variant="h5">
-                {t("No assignments available")}
-              </Typography>
+              <Grid container direction="column" alignItems="center">
+                <Typography variant="h5">
+                  {t("No assignments available")}
+                </Typography>
+                <Typography variant="h6">
+                  {filters.locationIds.length == 0 &&
+                  preferenceFilter == PreferenceFilter.ShowAll
+                    ? t("Try checking back later")
+                    : t("Try changing your filters, or checking back later")}
+                </Typography>
+              </Grid>
             )}
           </div>
         </Section>
