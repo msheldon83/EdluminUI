@@ -19,6 +19,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 type Props = {
   className?: string;
   onClick?: () => void;
+  onClose: () => void;
 };
 
 export const MyProfileMenuLink: React.FC<Props> = props => {
@@ -80,12 +81,20 @@ export const OrganizationContactMenuLink: React.FC<Props> = props => {
   );
 };
 
+const showFeedbackMenuLink = () => {
+  const userAccess = useMyUserAccess();
+  const orgUsers = userAccess?.me?.user?.orgUsers;
+  if (!orgUsers) return false;
+  return (
+    orgUsers.filter(function(orgUser) {
+      return orgUser?.administrator?.isSuperUser;
+    }).length > 0
+  );
+};
+
 export const FeedbackMenuLink: React.FC<Props> = props => {
-  // const userAccess = useMyUserAccess();
-  // if (!userAccess?.me) return (<></>);
-
-  // userAccess.me.user?.allOrgUsers
-
+  const authorized = showFeedbackMenuLink();
+  if (!authorized) return <></>;
   const orgId = getOrgIdFromRoute();
   if (!orgId) return <></>;
   const { t } = useTranslation();
@@ -97,6 +106,7 @@ export const FeedbackMenuLink: React.FC<Props> = props => {
       title={t("Ideas")}
       icon={<CannyIcon className={classes.rotated} />}
       route={AdminFeedbackRoute.generate({ organizationId: orgId! })}
+      onClick={props.onClose}
       {...props}
     />
   );
