@@ -1,4 +1,4 @@
-import { makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography, Grid } from "@material-ui/core";
 import * as React from "react";
 import { DateDetails } from "./types";
 import { DateDetailItem } from "./date-detail-item";
@@ -30,12 +30,12 @@ export const DateGroup: React.FC<Props> = props => {
           )}
         </Typography>
       </div>
-      <div>
+      <Grid container>
         {showAbsenceTimes && (
-          <div>{`${dateDetails.absenceStartTime ??
-            ""} - ${dateDetails.absenceEndTime ?? ""}`}</div>
+          <Grid item xs={4}>{`${dateDetails.absenceStartTime ??
+            ""} - ${dateDetails.absenceEndTime ?? ""}`}</Grid>
         )}
-        <div>
+        <Grid item xs={showAbsenceTimes ? 8 : 12}>
           {dateDetails.details.map((d, i) => {
             return (
               <DateDetailItem
@@ -47,8 +47,8 @@ export const DateGroup: React.FC<Props> = props => {
               />
             );
           })}
-        </div>
-      </div>
+        </Grid>
+      </Grid>
     </div>
   );
 };
@@ -58,7 +58,7 @@ export const useStyles = makeStyles(theme => ({
     width: "100%",
     paddingBottom: theme.spacing(),
     paddingRight: theme.spacing(2),
-    paddingLeft: theme.spacing(8),
+    paddingLeft: theme.spacing(2),
   },
   dateGroupHeader: {
     paddingTop: theme.spacing(2),

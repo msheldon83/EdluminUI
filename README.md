@@ -110,7 +110,9 @@ Jest knows to look for any file containing a segment in the name similar to `.te
 
 #### How are UI components tested?
 
-Here is a basic example of what a UI component test would look like.
+Here is a basic example of what a UI component test would look like. The React testing library we are using is [React Testing Library](https://testing-library.com/docs/react-testing-library/intro).
+
+Most components will use the Queries returned from React Testing Library's `render()` function --> https://testing-library.com/docs/dom-testing-library/api-queries
 
 ```typescript
 import * as React from "react";

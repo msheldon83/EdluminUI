@@ -1,38 +1,32 @@
 import * as React from "react";
-import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { Button } from "@material-ui/core";
 import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canAssignSub } from "helpers/permissions";
-import { VacancyDetailsFormData, VacancyDetailItem } from "../helpers/types";
 import { endOfTomorrow, min, setSeconds, isToday, isFuture } from "date-fns";
-import { VacancyActions } from "ui/pages/vacancy/state";
-import { VacancyStep } from "helpers/step-params";
+import { compact } from "lodash-es";
 
 type Props = {
-  vacancy: VacancyDetailsFormData;
-  vacancyExists: boolean;
-  dirty: boolean;
+  details: {
+    id: string | undefined;
+    date: Date;
+    startTime: number;
+  }[];
+  buttonText: string;
+  onClick: (detailIds: string[], dates: Date[]) => void;
   disableAssign: boolean;
-  isSubmitting: boolean;
-  dispatch: React.Dispatch<VacancyActions>;
-  setStep: (newT: VacancyStep) => void;
 };
 
 export const FilteredAssignmentButton: React.FC<Props> = ({
-  vacancy,
-  vacancyExists,
-  dirty,
+  details,
+  buttonText,
   disableAssign,
-  isSubmitting,
-  dispatch,
-  setStep,
+  onClick,
 }) => {
   const classes = useStyles();
-  const { t } = useTranslation();
 
-  const futureDetails = vacancy.details.filter(d => {
+  const futureDetails = details.filter(d => {
     const startDateTime = setSeconds(d.date, d.startTime);
     return isToday(startDateTime) || isFuture(startDateTime);
   });
@@ -44,7 +38,7 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
     forRole?: Role | null | undefined
   ) =>
     canAssignSub(
-      vacancy.details.reduce(
+      details.reduce(
         (acc, detail) => min([acc, setSeconds(detail.date, detail.startTime)]),
         endOfTomorrow()
       ),
@@ -69,33 +63,34 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
       forRole
     );
 
-  const PreArrangeButton: React.FC<{ details: VacancyDetailItem[] }> = ({
-    details,
+  const PreArrangeButton: React.FC<{ detailIds: string[]; dates: Date[] }> = ({
+    detailIds,
+    dates,
   }) => (
     <Button
       variant="outlined"
-      disabled={vacancyExists ? dirty : disableAssign || isSubmitting}
+      disabled={disableAssign}
       className={classes.preArrangeButton}
-      onClick={() => {
-        dispatch({
-          action: "setVacancyDetailIdsToAssign",
-          vacancyDetailIdsToAssign: details.map(d => d.id ?? ""),
-        });
-        setStep("preAssignSub");
-      }}
+      onClick={() => onClick(detailIds, dates)}
     >
-      {!vacancyExists ? t("Pre-arrange") : t("Assign")}
+      {buttonText}
     </Button>
   );
 
   return (
     <>
       <Can do={allDetailPerms}>
-        <PreArrangeButton details={vacancy.details} />
+        <PreArrangeButton
+          detailIds={compact(details.map(d => d.id))}
+          dates={details.map(d => d.date)}
+        />
       </Can>
       <Can not do={allDetailPerms}>
         <Can do={futureDetailPerms}>
-          <PreArrangeButton details={futureDetails} />
+          <PreArrangeButton
+            detailIds={compact(futureDetails.map(d => d.id))}
+            dates={futureDetails.map(d => d.date)}
+          />
         </Can>
       </Can>
     </>

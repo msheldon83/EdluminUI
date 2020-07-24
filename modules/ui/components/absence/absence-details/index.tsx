@@ -332,7 +332,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
             isSubmitted={props.isSubmitted}
             initialAbsenceCreation={props.initialAbsenceCreation}
             value={values.notesToApprover}
-            validationMessage={errors.notesToApprover}
+            validationMessage={errors.notesToApprover?.message}
             required={requireAdminNotes}
           />
         </div>

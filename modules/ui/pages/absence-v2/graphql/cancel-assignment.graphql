@@ -1,0 +1,9 @@
+mutation CancelAssignment($assignment: CancelVacancyAssignmentInput!) {
+  assignment {
+    cancelAssignment(cancelRequest: $assignment) {
+      id
+      rowVersion
+      cancelledAtUtc
+    }
+  }
+}

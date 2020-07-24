@@ -3,7 +3,7 @@ import { compact } from "lodash-es";
 import { GetAbsenceReasons } from "./get-absence-reasons.gen";
 import { useMemo } from "react";
 
-export function useAbsenceReasons(orgId: string) {
+export function useAbsenceReasons(orgId: string, positionTypeId?: string) {
   const absenceReasons = useQueryBundle(GetAbsenceReasons, {
     fetchPolicy: "cache-first",
     variables: { orgId },
@@ -14,10 +14,17 @@ export function useAbsenceReasons(orgId: string) {
       absenceReasons.state === "DONE" &&
       absenceReasons.data.orgRef_AbsenceReason
     ) {
-      return compact(absenceReasons.data.orgRef_AbsenceReason.all) ?? [];
+      const reasons =
+        compact(absenceReasons.data.orgRef_AbsenceReason.all) ?? [];
+      return positionTypeId
+        ? reasons.filter(
+            r =>
+              r.positionTypeIds.includes(positionTypeId) || r.allPositionTypes
+          )
+        : reasons;
     }
     return [];
-  }, [absenceReasons]);
+  }, [absenceReasons, positionTypeId]);
 }
 
 export function useAbsenceReasonOptions(
@@ -25,15 +32,10 @@ export function useAbsenceReasonOptions(
   additionalOptions?: { label: string; value: string }[],
   positionTypeId?: string
 ) {
-  const absenceReasons = useAbsenceReasons(orgId);
-  const filteredReasons = positionTypeId
-    ? absenceReasons.filter(
-        ar => ar.positionTypeIds.includes(positionTypeId) || ar.allPositionTypes
-      )
-    : absenceReasons;
+  const absenceReasons = useAbsenceReasons(orgId, positionTypeId);
   const absenceReasonOptions = useMemo(
-    () => filteredReasons.map(r => ({ label: r.name, value: r.id })),
-    [filteredReasons]
+    () => absenceReasons.map(r => ({ label: r.name, value: r.id })),
+    [absenceReasons]
   );
   if (additionalOptions && additionalOptions.length > 0) {
     additionalOptions.forEach(x => {
@@ -50,19 +52,14 @@ export function useAbsenceReasonOptionsWithCategories(
   additionalOptions?: { label: string; value: string }[],
   positionTypeId?: string
 ) {
-  const absenceReasons = useAbsenceReasons(orgId);
-  const filteredReasons = positionTypeId
-    ? absenceReasons.filter(
-        ar => ar.positionTypeIds.includes(positionTypeId) || ar.allPositionTypes
-      )
-    : absenceReasons;
+  const absenceReasons = useAbsenceReasons(orgId, positionTypeId);
   const absenceReasonOptions = useMemo(
     () =>
-      filteredReasons.map(r => ({
+      absenceReasons.map(r => ({
         label: r.category ? `${r.name} (${r.category.name})` : r.name,
         value: r.id,
       })),
-    [filteredReasons]
+    [absenceReasons]
   );
   if (additionalOptions && additionalOptions.length > 0) {
     additionalOptions.forEach(x => {
