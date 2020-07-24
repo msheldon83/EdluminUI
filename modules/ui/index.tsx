@@ -373,7 +373,7 @@ import {
   AdminEditAbsenceLoaderV2,
   AdminEditAbsenceRouteV2,
 } from "./routes/absence-v2";
-
+import { AdminFeedbackRoute, FeedbackLoader } from "./routes/feedback";
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
 
 export const App = hot(function() {
@@ -1552,6 +1552,11 @@ export const App = hot(function() {
                                     <ProtectedRoute
                                       component={AnalyticsReportsLoader}
                                       path={AnalyticsReportsRoute.path}
+                                      role={"admin"}
+                                    />
+                                    <ProtectedRoute
+                                      component={FeedbackLoader}
+                                      path={AdminFeedbackRoute.path}
                                       role={"admin"}
                                     />
                                     {/* This must be the last route in the list as it will handle paths that aren't found*/}

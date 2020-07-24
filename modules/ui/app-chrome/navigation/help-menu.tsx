@@ -7,6 +7,7 @@ import * as React from "react";
 import {
   HelpMenuLink,
   OrganizationContactMenuLink,
+  FeedbackMenuLink,
 } from "../custom-menu-links";
 
 type Props = {
@@ -45,6 +46,7 @@ export const HelpMenu: React.FC<Props> = props => {
             className={classes.userMenuLink}
           />
         )}
+        <FeedbackMenuLink />
       </MenuList>
     </Menu>
   );

@@ -11,6 +11,10 @@ import { AppChromeRoute } from "ui/routes/app-chrome";
 import { OrganizationContactInfoRoute } from "ui/routes/organizations";
 import { useRouteParams } from "ui/routes/definition";
 import { getOrgIdFromRoute } from "core/org-context";
+import CannyIcon from "@material-ui/icons/WbIncandescentOutlined";
+import { makeStyles } from "@material-ui/core";
+import { AdminFeedbackRoute } from "ui/routes/feedback";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 type Props = {
   className?: string;
@@ -75,3 +79,34 @@ export const OrganizationContactMenuLink: React.FC<Props> = props => {
     />
   );
 };
+
+export const FeedbackMenuLink: React.FC<Props> = props => {
+  // const userAccess = useMyUserAccess();
+  // if (!userAccess?.me) return (<></>);
+
+  // userAccess.me.user?.allOrgUsers
+
+  const orgId = getOrgIdFromRoute();
+  if (!orgId) return <></>;
+  const { t } = useTranslation();
+  const classes = useStyles();
+  const params = useRouteParams(AppChromeRoute);
+  return (
+    <MenuLink
+      className={classes.menulink}
+      title={t("Ideas")}
+      icon={<CannyIcon className={classes.rotated} />}
+      route={AdminFeedbackRoute.generate({ organizationId: orgId! })}
+      {...props}
+    />
+  );
+};
+
+const useStyles = makeStyles(theme => ({
+  rotated: {
+    transform: "rotate(180deg)",
+  },
+  menulink: {
+    color: theme.customColors.darkGray,
+  },
+}));
