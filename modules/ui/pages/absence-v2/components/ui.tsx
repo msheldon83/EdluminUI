@@ -60,6 +60,7 @@ import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { Prompt, useRouteMatch } from "react-router";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 
 type Props = {
   organizationId: string;
@@ -108,7 +109,9 @@ export const AbsenceUI: React.FC<Props> = props => {
     onErrorsConfirmed,
     refetchAbsence,
   } = props;
+  
   const [absence, setAbsence] = React.useState<Absence | undefined>();
+  const [vacancySummaryDetailsToAssign, setVacancySummaryDetailsToAssign] = React.useState<VacancySummaryDetail[]>([]);
 
   const [state, dispatch] = React.useReducer(
     absenceReducer,
@@ -414,7 +417,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       return undefined;
     }
 
-    const datesToAssign = state.vacancySummaryDetailsToAssign.map(
+    const datesToAssign = vacancySummaryDetailsToAssign.map(
       vsd => vsd.date
     );
     const vacanciesWithFilteredDetails = state.projectedVacancies.map(v => {
@@ -426,7 +429,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       };
     });
     return vacanciesWithFilteredDetails;
-  }, [state.projectedVacancies, state.vacancySummaryDetailsToAssign]);
+  }, [state.projectedVacancies, vacancySummaryDetailsToAssign]);
 
   // Ultimately create or update the Absence
   const save = React.useCallback(
@@ -646,10 +649,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             projectionInput={inputForProjectedCalls}
                             absenceDates={state.absenceDates}
                             onAssignSubClick={vacancySummaryDetailsToAssign => {
-                              dispatch({
-                                action: "setVacancySummaryDetailsToAssign",
-                                vacancySummaryDetailsToAssign,
-                              });
+                              setVacancySummaryDetailsToAssign(vacancySummaryDetailsToAssign);
                               setStep("preAssignSub");
                             }}
                             onCancelAssignment={onCancelAssignment}
@@ -737,7 +737,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                     employeeId={employee.id}
                     positionId={position?.id}
                     positionName={position?.title}
-                    vacancySummaryDetails={state.vacancySummaryDetailsToAssign}
+                    vacancySummaryDetails={vacancySummaryDetailsToAssign}
                     useVacancySummaryDetails={true}
                     vacancies={vacanciesToAssign}
                   />

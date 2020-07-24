@@ -118,7 +118,6 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
           positionId: employee.primaryPosition?.id ?? "0",
           viewingCalendarMonth: startOfMonth(new Date()),
           absenceDates: [],
-          vacancySummaryDetailsToAssign: [],
           isClosed: false,
           closedDates: [],
         };

@@ -202,7 +202,6 @@ export const EditAbsence: React.FC<Props> = props => {
             positionId: position?.id ?? "0",
             viewingCalendarMonth,
             absenceDates,
-            vacancySummaryDetailsToAssign: [],
             isClosed: false,
             closedDates: [],
             approvalState: absence?.approvalState,

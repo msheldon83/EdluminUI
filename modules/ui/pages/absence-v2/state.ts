@@ -2,7 +2,6 @@ import { isSameDay, startOfDay, isEqual, parseISO } from "date-fns";
 import { differenceWith, filter, find, sortBy } from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
-import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { Vacancy, ApprovalStatus, Maybe } from "graphql/server-types.gen";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 import { AssignmentOnDate } from "./types";
@@ -22,7 +21,6 @@ export type AbsenceState = {
   customizedVacanciesInput?: VacancyDetail[];
   projectedVacancies?: Vacancy[];
   projectedVacancyDetails?: VacancyDetail[];
-  vacancySummaryDetailsToAssign: VacancySummaryDetail[];
   assignmentsByDate?: AssignmentOnDate[];
   approvalState?: {
     id: string;
@@ -60,10 +58,6 @@ export type AbsenceActions =
   | { action: "removeAbsenceDates"; dates: Date[] }
   | { action: "resetAfterSave" }
   | { action: "resetToInitialState"; initialState: AbsenceState }
-  | {
-      action: "setVacancySummaryDetailsToAssign";
-      vacancySummaryDetailsToAssign: VacancySummaryDetail[];
-    }
   | {
       action: "updateAssignments";
       assignments: AssignmentOnDate[];
@@ -138,12 +132,6 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
     }
     case "resetToInitialState": {
       return action.initialState;
-    }
-    case "setVacancySummaryDetailsToAssign": {
-      return {
-        ...prev,
-        vacancySummaryDetailsToAssign: action.vacancySummaryDetailsToAssign,
-      };
     }
     case "setProjectedVacancies": {
       return {
