@@ -38,6 +38,7 @@ export type EmployeeAbsenceAssignment = {
   name: string;
   phoneNumber?: string | null | undefined;
   allDates: Date[];
+  verifiedAtUtc?: Date;
 };
 
 export type ContractDate = {

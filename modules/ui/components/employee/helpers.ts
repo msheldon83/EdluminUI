@@ -119,6 +119,7 @@ const buildAssignments = (
     }`,
     phoneNumber: sortedDetails[0].assignment!.employee!.formattedPhone,
     allDates: [],
+    verifiedAtUtc: sortedDetails[0].verifiedAtUtc,
   };
   sortedDetails.forEach(d => {
     if (d.assignment?.employeeId !== currentAssignment.employeeId) {
@@ -131,6 +132,7 @@ const buildAssignments = (
         }`,
         phoneNumber: d.assignment!.employee!.formattedPhone,
         allDates: [],
+        verifiedAtUtc: d.verifiedAtUtc,
       };
     }
 

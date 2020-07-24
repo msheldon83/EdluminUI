@@ -12,6 +12,7 @@ import {
   AbsenceDetailCreateInput,
   Absence,
   Vacancy,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { AbsenceState, absenceReducer } from "../state";
@@ -33,6 +34,7 @@ import { AbsenceDetails } from "./absence-details";
 import {
   isSameDay,
   format,
+  isAfter,
   isBefore,
   startOfDay,
   min,
@@ -48,7 +50,7 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, compact, uniq } from "lodash-es";
+import { some, compact, uniq, flatMap } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -453,6 +455,26 @@ export const AbsenceUI: React.FC<Props> = props => {
     [disabledDates, isCreate, saveAbsence, setStep, state]
   );
 
+  const absenceDetails = absence?.vacancies
+    ? flatMap(compact(absence.vacancies), v => compact(v.details))
+    : [];
+  const hasFilledVacancies = absenceDetails.some(d => d.isFilled);
+  const hasVerifiedAssignments = absenceDetails.some(d => d.verifiedAtUtc);
+
+  const canDeleteAbsence = (
+    permissions: OrgUserPermissions[],
+    isSysAdmin: boolean,
+    orgId?: string,
+    forRole?: Role | null | undefined
+  ) =>
+    actingAsEmployee && absence
+      ? isAfter(absence.startTimeLocal, new Date()) &&
+        !hasFilledVacancies &&
+        absence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
+        absence.approvalStatus !== ApprovalStatus.Approved &&
+        !hasVerifiedAssignments
+      : true;
+
   return (
     <>
       <PageTitle
@@ -648,7 +670,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               </Typography>
                             )}
                           </div>
-                          {deleteAbsence && !dirty && (
+                          {deleteAbsence && canDeleteAbsence && !dirty && (
                             <Can do={[PermissionEnum.AbsVacDelete]}>
                               <Button
                                 onClick={() => deleteAbsence()}
