@@ -12,6 +12,7 @@ import {
   AbsenceDetailCreateInput,
   Absence,
   Vacancy,
+  CancelVacancyAssignmentInput,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { AbsenceState, absenceReducer } from "../state";
@@ -19,7 +20,7 @@ import { PageTitle } from "ui/components/page-title";
 import * as yup from "yup";
 import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
-import { AbsenceFormData, AbsenceDetail } from "../types";
+import { AbsenceFormData, AbsenceDetail, AssignmentOnDate } from "../types";
 import { Formik } from "formik";
 import {
   validateAccountingCodeAllocations,
@@ -60,7 +61,12 @@ import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { Prompt, useRouteMatch } from "react-router";
+import { useSnackbar } from "hooks/use-snackbar";
+import { useMutationBundle } from "graphql/hooks";
+import { CancelAssignment } from "../graphql/cancel-assignment.gen";
+import { ShowErrors } from "ui/components/error-helpers";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
+import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 
 type Props = {
   organizationId: string;
@@ -95,6 +101,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const canDoFn = useCanDo();
   const match = useRouteMatch();
+  const { openSnackbar } = useSnackbar();
   const [step, setStep] = useQueryParamIso(StepParams);
   const {
     actingAsEmployee,
@@ -196,6 +203,11 @@ export const AbsenceUI: React.FC<Props> = props => {
   );
 
   // --- Handling of Sub pre-arrange, assignment, or removal ------
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const onCancelAssignment = React.useCallback(
     async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]) => {
@@ -220,7 +232,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         return;
       }
 
-      if (isCreate) {
+      if (isCreate && !absence) {
         dispatch({
           action: "updateAssignments",
           assignments: detailsToCancelAssignmentsFor.map(d => {
@@ -234,59 +246,68 @@ export const AbsenceUI: React.FC<Props> = props => {
               },
             };
           }),
-          add: false,
+          addRemoveOrUpdate: "remove",
         });
       } else {
-        // TODO: When I tackle Edit, then actually cancel a live Assignment
-        // // Get all of the Assignment Ids and Row Versions to Cancel
-        // const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
-        //   (accumulator: CancelVacancyAssignmentInput[], detail) => {
-        //     const matchingAssignment = accumulator.find(
-        //       a => a.assignmentId === detail.assignment?.id
-        //     );
-        //     if (matchingAssignment) {
-        //       matchingAssignment.vacancyDetailIds?.push(detail.id!);
-        //     } else {
-        //       accumulator.push({
-        //         assignmentId: detail.assignment?.id ?? "",
-        //         rowVersion: detail.assignment?.rowVersion ?? "",
-        //         vacancyDetailIds: [detail.id!],
-        //       });
-        //     }
-        //     return accumulator;
-        //   },
-        //   []
-        // );
-        // for (let index = 0; index < assignmentsToCancel.length; index++) {
-        //   const a = assignmentsToCancel[index];
-        //   const result = await cancelAssignment({
-        //     variables: {
-        //       assignment: a,
-        //     },
-        //   });
-        //   if (result?.data) {
-        //     if (a.vacancyDetailIds) {
-        //       localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
-        //     }
-        //     updatedDetails
-        //       .filter(
-        //         d =>
-        //           d.assignment?.id &&
-        //           d.assignment?.id ===
-        //             result?.data?.assignment?.cancelAssignment?.id
-        //       )
-        //       .forEach(d => {
-        //         if (d.assignment) {
-        //           d.assignment.rowVersion =
-        //             result.data?.assignment?.cancelAssignment?.rowVersion;
-        //         }
-        //       });
-        //   }
-        // }
+        // Get all of the Assignment Ids and Row Versions to Cancel
+        const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
+          (accumulator: CancelVacancyAssignmentInput[], detail) => {
+            const matchingAssignment = accumulator.find(
+              a => a.assignmentId === detail.assignmentId
+            );
+            if (matchingAssignment) {
+              matchingAssignment.vacancyDetailIds?.push(detail.vacancyDetailId!);
+            } else {
+              accumulator.push({
+                assignmentId: detail.assignmentId ?? "",
+                rowVersion: detail.assignmentRowVersion ?? "",
+                vacancyDetailIds: [detail.vacancyDetailId!],
+              });
+            }
+            return accumulator;
+          },
+          []
+        );
+
+        const localDetailIdsToClearAssignmentsOn: string[] = [];
+        for (let index = 0; index < assignmentsToCancel.length; index++) {
+          const a = assignmentsToCancel[index];
+          const result = await cancelAssignment({
+            variables: {
+              assignment: a,
+            },
+          });
+          if (result?.data) {
+            if (a.vacancyDetailIds) {
+              localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
+            }
+            // Possible we just cancelled part of an assignment
+            // which would result in a new RowVersion for that assignment object
+            updatedDetails
+              .filter(
+                d =>
+                  d.assignment?.id &&
+                  d.assignment?.id ===
+                    result?.data?.assignment?.cancelAssignment?.id
+              )
+              .forEach(d => {
+                if (d.assignment) {
+                  d.assignment.rowVersion =
+                    result.data?.assignment?.cancelAssignment?.rowVersion;
+                }
+              });
+          }
+        }
       }
     },
     [isCreate, state.customizedVacanciesInput, state.projectedVacancyDetails]
   );
+
+  const [assignVacancy] = useMutationBundle(AssignVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const onAssignSub = React.useCallback(
     async (
@@ -330,7 +351,7 @@ export const AbsenceUI: React.FC<Props> = props => {
               },
             };
           }),
-          add: true,
+          addRemoveOrUpdate: "add",
         });
       } else {
         // TODO: When I tackle Edit, then actually assign a Sub on demand
@@ -697,6 +718,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               onClick={() => {
                                 // reset the form and the state
                                 resetForm();
+                                dispatch({ action: "resetToInitialState", initialState: initialAbsenceState() });
                               }}
                               variant="outlined"
                               className={classes.cancelButton}
@@ -748,6 +770,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                     absence={absence}
                     setStep={setStep}
                     actingAsEmployee={actingAsEmployee}
+                    onCancelAssignment={onCancelAssignment}
                     resetForm={() => {
                       // Really important for when an Employee has created an Absence and then clicks
                       // Create New from the Confirmation screen. Their initial form data doesn't change
@@ -892,28 +915,35 @@ const buildAbsenceInput = (
   // Build Vacancy Details in case we want to tell the server to use our Details
   // instead of it coming up with its own
   const vDetails =
-    vacancyDetails?.map(v => ({
-      date: v.date,
-      locationId: v.locationId,
-      startTime: secondsSinceMidnight(
-        parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
-      ),
-      endTime: secondsSinceMidnight(
-        parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
-      ),
-      payCodeId: v.payCodeId ?? null,
-      accountingCodeAllocations: mapAccountingCodeValueToAccountingCodeAllocations(
-        v.accountingCodeAllocations,
-        true
-      ),
-      prearrangedReplacementEmployeeId: v.assignmentEmployeeId,
-    })) ?? undefined;
+    vacancyDetails?.map(v => {
+      // If creating, look to see if we're trying to prearrange anyone for this detail
+      const assignment = !state.absenceId ? state.assignmentsByDate?.find(a => (v.vacancyDetailId && a.vacancyDetailId === v.vacancyDetailId)
+      || (!v.vacancyDetailId && isSameDay(a.startTimeLocal, startOfDay(parseISO(v.date))))) : undefined;
 
-  const prearrangedReplacementEmployeeIdForEntireVacancy =
-    vDetails &&
-    uniq(vDetails.map(vd => vd.prearrangedReplacementEmployeeId)).length === 1
-      ? vDetails[0]?.prearrangedReplacementEmployeeId
-      : undefined;
+      return {
+        date: v.date,
+        locationId: v.locationId,
+        startTime: secondsSinceMidnight(
+          parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
+        ),
+        endTime: secondsSinceMidnight(
+          parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
+        ),
+        payCodeId: v.payCodeId ?? null,
+        accountingCodeAllocations: mapAccountingCodeValueToAccountingCodeAllocations(
+          v.accountingCodeAllocations,
+          true
+        ),
+        prearrangedReplacementEmployeeId: assignment?.employee?.id,
+      } ?? undefined
+    });
+
+  // I think we can get away from prearranging for the whole thing now and just do it on the detail
+  // const prearrangedReplacementEmployeeIdForEntireVacancy =
+  //   vDetails &&
+  //   uniq(vDetails.map(vd => vd.prearrangedReplacementEmployeeId)).length === 1
+  //     ? vDetails[0]?.prearrangedReplacementEmployeeId
+  //     : undefined;
 
   // Populate the Vacancies on the Absence
   absence = {
@@ -941,7 +971,7 @@ const buildAbsenceInput = (
           hasEditedDetails || !formValues.payCodeId
             ? undefined
             : formValues.payCodeId,
-        prearrangedReplacementEmployeeId: prearrangedReplacementEmployeeIdForEntireVacancy,
+        //prearrangedReplacementEmployeeId: prearrangedReplacementEmployeeIdForEntireVacancy,
       },
     ],
   };

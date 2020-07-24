@@ -22,13 +22,24 @@ type Props = {
   actingAsEmployee?: boolean;
   setStep?: (s: Step) => void;
   resetForm?: () => void;
+  onCancelAssignment?: (
+    vacancyDetailIds: string[],
+    vacancyDetailDates?: Date[]
+  ) => Promise<void>;
 };
 
 export const Confirmation: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
-  const { absence, actingAsEmployee, orgId, setStep, resetForm } = props;
+  const {
+    absence,
+    actingAsEmployee,
+    orgId,
+    setStep,
+    resetForm,
+    onCancelAssignment,
+  } = props;
 
   const params = useRouteParams(
     actingAsEmployee
@@ -104,6 +115,7 @@ export const Confirmation: React.FC<Props> = props => {
             absence={absence}
             actingAsEmployee={actingAsEmployee}
             goToEdit={() => history.push(editUrl)}
+            onCancelAssignment={onCancelAssignment}
           />
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
