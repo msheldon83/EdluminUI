@@ -35,56 +35,69 @@ type Props = {
   orgId: string;
   workflowType: ApprovalWorkflowType;
   onClose: () => void;
-  onSave: (steps: ApprovalWorkflowStepInput[]) => void;
-  onRemove?: () => void;
+  onSave?: (steps: ApprovalWorkflowStepInput[]) => void;
   steps: ApprovalWorkflowStepInput[];
-  selectedStep?: ApprovalWorkflowStepInput | null;
+  selectedStepId: string;
   nextStepId?: string | null;
-  newSteps?: ApprovalWorkflowStepInput[];
+};
+
+type ConditionValues = {
+  approverGroupHeaderId?: string;
+  args?: { makeAvailableToFill?: boolean };
+  reasonIds?: string[];
 };
 
 export const ConditionPopper: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { selectedStep, workflowType, steps, nextStepId, newSteps } = props;
+  const { selectedStepId, workflowType, steps, nextStepId } = props;
 
-  const [step, setStep] = useState<ApprovalWorkflowStepInput>(
-    selectedStep ?? createNewStep(steps)
+  const [initialFormData, setInitialFormData] = useState<ConditionValues>({});
+
+  const stepIndex = steps.findIndex(x => x.stepId === selectedStepId);
+  const transitionIndex = steps[stepIndex]?.onApproval.findIndex(
+    x => x.goto === nextStepId
   );
-
-  const [transition, setTransition] = useState<
-    AbsenceTransition | VacancyTransition
-  >(
-    convertTransitionFromInput(
-      step.onApproval.find(x => x.goto == nextStepId) ?? {
-        goto: nextStepId,
-        criteria: null,
-        args: null,
-      },
-      workflowType
-    )
-  );
-
-  const defaultTransition = step.onApproval[step.onApproval.length - 1];
-  const transitionIsDefault = defaultTransition.goto === transition.goto;
-  const transitionIndex = step.onApproval.findIndex(x => x.goto === nextStepId);
+  const transitionIsDefault =
+    steps[stepIndex]?.onApproval[steps[stepIndex]?.onApproval.length - 1]
+      ?.goto === steps[stepIndex]?.onApproval[transitionIndex]?.goto;
 
   useEffect(() => {
-    if (selectedStep && selectedStep.stepId !== step.stepId) {
-      setStep(selectedStep);
-      setTransition(
-        convertTransitionFromInput(
-          step.onApproval.find(x => x.goto == nextStepId) ?? {
-            goto: nextStepId,
-            criteria: null,
-            args: null,
-          },
-          workflowType
-        )
+    const initialValues: ConditionValues = {};
+
+    if (transitionIndex > -1 && stepIndex > -1) {
+      const transition = convertTransitionFromInput(
+        steps[stepIndex].onApproval[transitionIndex],
+        workflowType
       );
+
+      if (transition.goto) {
+        const nextStep = steps.find(x => x.stepId === transition.goto);
+        if (nextStep?.isLastStep) {
+          initialValues.approverGroupHeaderId = "0"; // This will resolve to (Approved) in the dropdown
+        } else {
+          initialValues.approverGroupHeaderId =
+            nextStep?.approverGroupHeaderId ?? undefined;
+        }
+      }
+
+      if (transition.criteria) {
+        if (workflowType === ApprovalWorkflowType.Absence) {
+          const criteria = transition.criteria as AbsenceTransitionCriteria;
+          initialValues.reasonIds = compact(criteria.absenceReasonIds) ?? [];
+        } else if (workflowType === ApprovalWorkflowType.Vacancy) {
+          const criteria = transition.criteria as VacancyTransitionCriteria;
+          initialValues.reasonIds = compact(criteria.vacancyReasonIds) ?? [];
+        }
+      }
+
+      if (transition.args) {
+        initialValues.args = transition.args;
+      }
     }
-  }, [nextStepId, selectedStep, step.onApproval, step.stepId, workflowType]);
+    setInitialFormData(initialValues);
+  }, [stepIndex, steps, transitionIndex, workflowType, selectedStepId]);
 
   const conditionLabel =
     workflowType === ApprovalWorkflowType.Absence
@@ -93,42 +106,13 @@ export const ConditionPopper: React.FC<Props> = props => {
       ? t("Vacancy Reason")
       : t("Condition");
 
-  const [approverGroupId, setApproverGroupId] = useState<string | undefined>(
-    undefined
-  );
-
-  const [reasonIds, setReasonIds] = useState<string[] | undefined>(undefined);
-
-  useEffect(() => {
-    if (transition.goto) {
-      const nextStep = steps.find(x => x.stepId === transition.goto);
-      if (nextStep?.isLastStep) {
-        setApproverGroupId("0"); // This will resolve to (Approved) in the dropdown
-      } else {
-        setApproverGroupId(nextStep?.approverGroupHeaderId ?? undefined);
-      }
-    }
-  }, [transition.goto, steps]);
-
-  useEffect(() => {
-    if (transition.criteria) {
-      if (workflowType === ApprovalWorkflowType.Absence) {
-        const criteria = transition.criteria as AbsenceTransitionCriteria;
-        setReasonIds(compact(criteria.absenceReasonIds) ?? []);
-      } else if (workflowType === ApprovalWorkflowType.Vacancy) {
-        const criteria = transition.criteria as VacancyTransitionCriteria;
-        setReasonIds(compact(criteria.vacancyReasonIds) ?? []);
-      }
-    }
-  }, [transition, workflowType]);
-
   // We need to filter out approver groups that have been used previously in the path so we don't create loops
   const determineApproverGroupIdsToFilterOut = (reasonIds?: string[]) => {
     const path = determinePathThroughAbsVacWorkflow(
       steps,
       workflowType,
       reasonIds,
-      step
+      selectedStepId
     );
     const ids = compact(path.map(x => x.approverGroupHeaderId));
     return ids;
@@ -146,14 +130,9 @@ export const ConditionPopper: React.FC<Props> = props => {
           steps,
           workflowType,
           [a.id],
-          step
+          selectedStepId
         );
-        if (a.id === "1226") {
-          console.log(step);
-          console.log(path);
-        }
-
-        if (path.find(x => x.stepId === step.stepId)) {
+        if (path.find(x => x.stepId === selectedStepId)) {
           reasonIds.push(a.id);
         }
       });
@@ -163,190 +142,206 @@ export const ConditionPopper: React.FC<Props> = props => {
           steps,
           workflowType,
           [v.id],
-          step
+          selectedStepId
         );
-        if (path.find(x => x.stepId === step.stepId)) {
+        if (path.find(x => x.stepId === selectedStepId)) {
           reasonIds.push(v.id);
         }
       });
     }
 
     return reasonIds.length > 0 ? reasonIds : undefined;
-  }, [absenceReasons, step, steps, vacancyReasons, workflowType]);
+  }, [absenceReasons, steps, selectedStepId, vacancyReasons, workflowType]);
+
+  const handleRemove = () => {
+    steps[stepIndex].onApproval.splice(transitionIndex, 1);
+    // Only the graph page supplies the onSave, so call it to remove the transition from the graph
+    if (props.onSave) {
+      props.onSave(steps);
+    }
+    props.onClose();
+  };
 
   return (
     <div className={classes.popper}>
       <Section>
-        <Formik
-          enableReinitialize
-          initialValues={{
-            approverGroupHeaderId: approverGroupId,
-            args: { makeAvailableToFill: transition.args?.makeAvailableToFill },
-            reasonIds: reasonIds,
-          }}
-          validationSchema={Yup.object().shape({
-            approverGroupHeaderId: Yup.string()
-              .nullable()
-              .required(t("An approver group is required")),
-            reasonIds: Yup.array(Yup.string())
-              .nullable()
-              .required(t("A reason is required")),
-          })}
-          onSubmit={data => {
-            let nextGoto = steps.find(x => {
-              if (data.approverGroupHeaderId === "0") {
-                return x.isLastStep;
-              } else {
-                return x.approverGroupHeaderId == data.approverGroupHeaderId;
-              }
-            })?.stepId;
-
-            let newStep = undefined as ApprovalWorkflowStepInput | undefined;
-            if (nextGoto === undefined) {
-              newStep = createNewStep(
-                steps,
-                step.onApproval.find(x => !x.criteria)?.goto,
-                step.stepId,
-                data.approverGroupHeaderId,
-                props.newSteps
-              );
-              nextGoto = newStep.stepId;
-            }
-            const newTransition =
-              workflowType === ApprovalWorkflowType.Absence
-                ? ({
-                    goto: nextGoto,
-                    args: data.args,
-                    criteria: reasonIds
-                      ? { absenceReasonIds: reasonIds }
-                      : null,
-                  } as AbsenceTransition)
-                : ({
-                    goto: nextGoto,
-                    args: data.args,
-                    criteria: reasonIds
-                      ? { vacancyReasonIds: reasonIds }
-                      : null,
-                  } as VacancyTransition);
-            const transitionInput = convertTransitionToInput(newTransition);
-            if (transitionIndex === -1) {
-              step.onApproval.unshift(transitionInput);
-            } else {
-              step.onApproval[transitionIndex] = transitionInput;
-            }
-            newStep ? props.onSave([newStep, step]) : props.onSave([step]);
-            props.onClose();
-          }}
-        >
-          {({ handleSubmit, submitForm, setFieldValue, values, errors }) => (
-            <form onSubmit={handleSubmit}>
-              <div className={classes.labelText}>
-                {t("When approved and...")}
-              </div>
-              {transitionIsDefault ? (
-                <div className={classes.subLabelText}>
-                  {t("No other conditions are met ")}
-                  <span className={classes.defaultText}>
-                    {t("(default transition)")}
-                  </span>
-                </div>
-              ) : (
-                <>
-                  <div className={classes.labelText}>{`${conditionLabel} ${t(
-                    "is"
-                  )}`}</div>
-                  <div className={classes.selectContainer}>
-                    {workflowType === ApprovalWorkflowType.Absence ? (
-                      <AbsenceReasonSelect
-                        orgId={props.orgId}
-                        includeAllOption={false}
-                        selectedAbsenceReasonIds={values.reasonIds}
-                        setSelectedAbsenceReasonIds={setReasonIds}
-                        errorMessage={errors.reasonIds}
-                        idsToInclude={reasonIdsToInclude}
-                      />
-                    ) : workflowType === ApprovalWorkflowType.Vacancy ? (
-                      <VacancyReasonSelect
-                        orgId={props.orgId}
-                        includeAllOption={false}
-                        selectedVacancyReasonIds={values.reasonIds}
-                        setSelectedVacancyReasonIds={setReasonIds}
-                        errorMessage={errors.reasonIds}
-                        idsToInclude={reasonIdsToInclude}
-                      />
-                    ) : (
-                      <></>
-                    )}
-                  </div>
-                </>
-              )}
-              <div className={classes.labelText}>{t("Route to:")}</div>
-              <div className={classes.selectContainer}>
-                <ApproverGroupSelect
-                  orgId={props.orgId}
-                  multiple={false}
-                  selectedApproverGroupHeaderIds={
-                    values.approverGroupHeaderId
-                      ? [values.approverGroupHeaderId]
-                      : undefined
-                  }
-                  setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
-                    if (ids && ids.length > 0) {
-                      setFieldValue("approverGroupHeaderId", ids[0]);
-                    } else {
-                      setFieldValue("approverGroupHeaderId", null);
-                    }
-                  }}
-                  idsToFilterOut={determineApproverGroupIdsToFilterOut(
-                    values.reasonIds
-                  )}
-                  addApprovedOption={true}
-                  errorMessage={errors.approverGroupHeaderId}
-                />
-              </div>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={values.args?.makeAvailableToFill ?? false}
-                    onChange={(e, checked) =>
-                      setFieldValue("args", {
-                        makeAvailableToFill: !values.args?.makeAvailableToFill,
-                      })
-                    }
-                    value={values.args?.makeAvailableToFill ?? false}
-                    color="primary"
-                  />
+        {stepIndex > -1 && (
+          <Formik
+            enableReinitialize
+            initialValues={initialFormData}
+            validationSchema={Yup.object().shape({
+              approverGroupHeaderId: Yup.string()
+                .nullable()
+                .required(t("An approver group is required")),
+              reasonIds: Yup.array(Yup.string())
+                .nullable()
+                .required(t("A reason is required")),
+            })}
+            onSubmit={data => {
+              let nextGoto = steps.find(x => {
+                if (data.approverGroupHeaderId === "0") {
+                  return x.isLastStep;
+                } else {
+                  return x.approverGroupHeaderId == data.approverGroupHeaderId;
                 }
-                label={t("Release to be filled")}
-              />
-              <div className={classes.buttonContainer}>
-                <Button
-                  variant="contained"
-                  onClick={submitForm}
-                  className={classes.button}
-                >
-                  {nextStepId ? t("Update") : t("Add")}
-                </Button>
-                {nextStepId && (
+              })?.stepId;
+
+              let newStep = undefined as ApprovalWorkflowStepInput | undefined;
+              if (nextGoto === undefined) {
+                newStep = createNewStep(
+                  steps,
+                  steps[stepIndex].onApproval.find(x => !x.criteria)?.goto,
+                  steps[stepIndex].stepId,
+                  data.approverGroupHeaderId
+                );
+                nextGoto = newStep.stepId;
+                steps.push(newStep);
+              }
+              const newTransition =
+                workflowType === ApprovalWorkflowType.Absence
+                  ? ({
+                      goto: nextGoto,
+                      args: data.args,
+                      criteria: data.reasonIds
+                        ? { absenceReasonIds: data.reasonIds }
+                        : null,
+                    } as AbsenceTransition)
+                  : ({
+                      goto: nextGoto,
+                      args: data.args,
+                      criteria: data.reasonIds
+                        ? { vacancyReasonIds: data.reasonIds }
+                        : null,
+                    } as VacancyTransition);
+
+              const transitionInput = convertTransitionToInput(newTransition);
+              if (transitionIndex === -1) {
+                steps[stepIndex].onApproval.unshift(transitionInput);
+              } else {
+                steps[stepIndex].onApproval[transitionIndex] = transitionInput;
+              }
+
+              // onSave is only provided from the Graph edit component when the user clicks the yellow if to edit a condition directly.
+              // When getting here from the step edit dialog, we will be modifying the array directly and that dialog will handle updating the graph
+              if (props.onSave) props.onSave(steps);
+              props.onClose();
+            }}
+          >
+            {({ handleSubmit, submitForm, setFieldValue, values, errors }) => (
+              <form onSubmit={handleSubmit}>
+                <div className={classes.labelText}>
+                  {t("When approved and...")}
+                </div>
+                {transitionIsDefault ? (
+                  <div className={classes.subLabelText}>
+                    {t("No other conditions are met ")}
+                    <span className={classes.defaultText}>
+                      {t("(default transition)")}
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className={classes.labelText}>{`${conditionLabel} ${t(
+                      "is"
+                    )}`}</div>
+                    <div className={classes.selectContainer}>
+                      {workflowType === ApprovalWorkflowType.Absence ? (
+                        <AbsenceReasonSelect
+                          orgId={props.orgId}
+                          includeAllOption={false}
+                          selectedAbsenceReasonIds={values.reasonIds}
+                          setSelectedAbsenceReasonIds={(ids?: string[]) =>
+                            setFieldValue("reasonIds", ids)
+                          }
+                          errorMessage={errors.reasonIds}
+                          idsToInclude={reasonIdsToInclude}
+                        />
+                      ) : workflowType === ApprovalWorkflowType.Vacancy ? (
+                        <VacancyReasonSelect
+                          orgId={props.orgId}
+                          includeAllOption={false}
+                          selectedVacancyReasonIds={values.reasonIds}
+                          setSelectedVacancyReasonIds={(ids?: string[]) =>
+                            setFieldValue("reasonIds", ids)
+                          }
+                          errorMessage={errors.reasonIds}
+                          idsToInclude={reasonIdsToInclude}
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                  </>
+                )}
+                <div className={classes.labelText}>{t("Route to:")}</div>
+                <div className={classes.selectContainer}>
+                  <ApproverGroupSelect
+                    orgId={props.orgId}
+                    multiple={false}
+                    selectedApproverGroupHeaderIds={
+                      values.approverGroupHeaderId
+                        ? [values.approverGroupHeaderId]
+                        : undefined
+                    }
+                    setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
+                      if (ids && ids.length > 0) {
+                        setFieldValue("approverGroupHeaderId", ids[0]);
+                      } else {
+                        setFieldValue("approverGroupHeaderId", null);
+                      }
+                    }}
+                    idsToFilterOut={determineApproverGroupIdsToFilterOut(
+                      values.reasonIds
+                    )}
+                    addApprovedOption={true}
+                    errorMessage={errors.approverGroupHeaderId}
+                  />
+                </div>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={values.args?.makeAvailableToFill ?? false}
+                      onChange={(e, checked) =>
+                        setFieldValue("args", {
+                          makeAvailableToFill: !values.args
+                            ?.makeAvailableToFill,
+                        })
+                      }
+                      value={values.args?.makeAvailableToFill ?? false}
+                      color="primary"
+                    />
+                  }
+                  label={t("Release to be filled")}
+                />
+                <div className={classes.buttonContainer}>
                   <Button
-                    variant="outlined"
-                    onClick={props.onRemove}
+                    variant="contained"
+                    onClick={submitForm}
                     className={classes.button}
                   >
-                    {t("Remove")}
+                    {nextStepId ? t("Update") : t("Add")}
                   </Button>
-                )}
-                <Button
-                  variant="text"
-                  onClick={() => props.onClose()}
-                  className={classes.button}
-                >
-                  {t("Cancel")}
-                </Button>
-              </div>
-            </form>
-          )}
-        </Formik>
+                  {!transitionIsDefault && transitionIndex > -1 && (
+                    <Button
+                      variant="outlined"
+                      onClick={handleRemove}
+                      className={classes.button}
+                    >
+                      {t("Remove")}
+                    </Button>
+                  )}
+                  <Button
+                    variant="text"
+                    onClick={() => props.onClose()}
+                    className={classes.button}
+                  >
+                    {t("Cancel")}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </Formik>
+        )}
       </Section>
     </div>
   );

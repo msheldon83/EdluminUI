@@ -23,7 +23,8 @@ type Props = {
   onClose: () => void;
   onSave: (steps: ApprovalWorkflowStepInput[]) => void;
   onRemove?: () => void;
-  steps: ApprovalWorkflowStepInput[];
+  originalSteps: ApprovalWorkflowStepInput[];
+  modifiedSteps: ApprovalWorkflowStepInput[];
   selectedStep?: ApprovalWorkflowStepInput | null;
   approverGroups: { id: string; name: string }[];
   reasons: {
@@ -38,192 +39,190 @@ export const AddUpdateApprover: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const [conditionOpen, setConditionOpen] = useState(false);
-  const [nextStepId, setNextStepId] = useState(props.nextStepId);
+  const {
+    selectedStep,
+    originalSteps,
+    modifiedSteps,
+    nextStepId,
+    previousStepId,
+  } = props;
 
-  const { selectedStep } = props;
+  const [conditionOpen, setConditionOpen] = useState(false);
+  const [gotoStepId, setGotoStepId] = useState(nextStepId);
+
   const firstStep = selectedStep?.isFirstStep;
 
-  const [newSteps, setNewSteps] = useState<ApprovalWorkflowStepInput[]>([]);
-  const [step, setStep] = useState<ApprovalWorkflowStepInput>(
+  const [initialFormValues, setInitialFormValues] = useState<
+    ApprovalWorkflowStepInput
+  >(
     selectedStep
       ? selectedStep
-      : createNewStep(props.steps, props.nextStepId, props.previousStepId)
+      : createNewStep(originalSteps, nextStepId, previousStepId)
   );
 
   useEffect(() => {
-    if (selectedStep && selectedStep.stepId !== step.stepId) {
-      setStep(selectedStep);
-      setNewSteps([]);
+    if (selectedStep && selectedStep.stepId !== initialFormValues.stepId) {
+      setInitialFormValues(selectedStep);
+    } else if (
+      !selectedStep &&
+      !modifiedSteps.find(x => x.stepId === initialFormValues.stepId)
+    ) {
+      const newStep = createNewStep(originalSteps, nextStepId, previousStepId);
+      setInitialFormValues(newStep);
+      modifiedSteps.push(newStep);
+
+      // If this is a new step being added as the default route of another step,
+      // we need to update the source step's default transition
+      const previousStepIndex = modifiedSteps.findIndex(
+        x => x.stepId === previousStepId
+      );
+      if (previousStepIndex > -1) {
+        modifiedSteps[previousStepIndex].onApproval[
+          modifiedSteps[previousStepIndex].onApproval.length - 1
+        ].goto = newStep.stepId;
+      }
     }
-  }, [selectedStep, step.stepId]);
+  }, [
+    initialFormValues,
+    modifiedSteps,
+    nextStepId,
+    originalSteps,
+    previousStepId,
+    selectedStep,
+  ]);
 
   // We need to only show Approver Groups in the select that haven't been used yet
   const approverGroupIdsToFilterOut = compact(
-    props.steps
+    modifiedSteps
       .filter(x => !x.deleted)
       .map(x => {
         if (
-          !step ||
-          (step && step.approverGroupHeaderId != x.approverGroupHeaderId)
+          initialFormValues.approverGroupHeaderId != x.approverGroupHeaderId
         ) {
           return x.approverGroupHeaderId;
         }
       })
   );
 
-  const onSaveConditionUpdate = (updatedSteps: ApprovalWorkflowStepInput[]) => {
-    // Determine if the current step on this component was updated as part of the condition update
-    const updatedStep = updatedSteps.find(x => x.stepId === step.stepId);
-
-    if (updatedStep) step.onApproval = updatedStep.onApproval;
-
-    // Make sure if there are any new/updated steps waiting to be saved that we updated them correctly
-    updatedSteps
-      .filter(x => x.stepId !== step.stepId)
-      .forEach(step => {
-        const stepIndex = newSteps.findIndex(x => x.stepId === step.stepId);
-        if (stepIndex === -1) {
-          newSteps.push(step);
-        } else {
-          newSteps[stepIndex] = step;
-        }
-      });
-  };
-
-  const handleSubmit = (data: ApprovalWorkflowStepInput) => {
-    // If this is a new step being added as the default route of another step,
-    // we need to update the source step's default transition
-    const previousStep = props.steps.find(
-      x => x.stepId === props.previousStepId
-    );
-    if (!props.steps.find(x => x.stepId === data.stepId) && previousStep) {
-      previousStep.onApproval[previousStep.onApproval.length - 1].goto =
-        data.stepId;
-      props.onSave([data, previousStep]);
-    } else {
-      // Handle updating the selected step and adding any new steps created by adding conditions
-      newSteps.length > 0
-        ? props.onSave([...newSteps, data])
-        : props.onSave([data]);
-    }
-  };
+  const stepIndex = modifiedSteps.findIndex(
+    x => x.stepId === initialFormValues.stepId
+  );
 
   return conditionOpen ? (
     <ConditionPopper
       orgId={props.orgId}
       workflowType={props.workflowType}
       onClose={() => setConditionOpen(false)}
-      onSave={onSaveConditionUpdate}
-      steps={props.steps}
-      selectedStep={step}
-      nextStepId={nextStepId}
-      newSteps={newSteps}
+      steps={modifiedSteps}
+      selectedStepId={initialFormValues.stepId}
+      nextStepId={gotoStepId}
     />
   ) : (
     <div className={classes.popper}>
       <Section>
-        <div className={classes.labelText}>
-          {firstStep
-            ? t("When workflow starts...")
-            : t("Wait for approval from")}
-        </div>
-        <Formik
-          enableReinitialize
-          initialValues={step}
-          validationSchema={Yup.object().shape({
-            isFirstStep: Yup.boolean(),
-            approverGroupHeaderId: Yup.string().when("isFirstStep", {
-              is: true,
-              then: Yup.string().nullable(),
-              otherwise: Yup.string()
-                .nullable()
-                .required(t("An approver group is required")),
-            }),
-          })}
-          onSubmit={data => {
-            handleSubmit(data);
-            props.onClose();
-          }}
-        >
-          {({ handleSubmit, submitForm, setFieldValue, values, errors }) => (
-            <form onSubmit={handleSubmit}>
-              {!firstStep && (
-                <div className={classes.selectContainer}>
-                  <ApproverGroupSelect
-                    orgId={props.orgId}
-                    multiple={false}
-                    selectedApproverGroupHeaderIds={
-                      values.approverGroupHeaderId
-                        ? [values.approverGroupHeaderId]
-                        : undefined
-                    }
-                    setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
-                      if (ids && ids.length > 0) {
-                        step.approverGroupHeaderId = ids[0];
-                        setFieldValue("approverGroupHeaderId", ids[0]);
-                      } else {
-                        setFieldValue("approverGroupHeaderId", null);
-                      }
-                    }}
-                    idsToFilterOut={approverGroupIdsToFilterOut}
-                    errorMessage={errors.approverGroupHeaderId}
-                  />
+        {stepIndex > -1 && (
+          <Formik
+            enableReinitialize
+            initialValues={initialFormValues}
+            validationSchema={Yup.object().shape({
+              isFirstStep: Yup.boolean(),
+              approverGroupHeaderId: Yup.string().when("isFirstStep", {
+                is: true,
+                then: Yup.string().nullable(),
+                otherwise: Yup.string()
+                  .nullable()
+                  .required(t("An approver group is required")),
+              }),
+            })}
+            onSubmit={data => {
+              props.onSave(modifiedSteps);
+              props.onClose();
+            }}
+          >
+            {({ handleSubmit, submitForm, setFieldValue, values, errors }) => (
+              <form onSubmit={handleSubmit}>
+                <div className={classes.labelText}>
+                  {firstStep
+                    ? t("When workflow starts...")
+                    : t("Wait for approval from")}
                 </div>
-              )}
-              <AbsVacTransitions
-                workflowType={props.workflowType}
-                approverGroups={props.approverGroups}
-                reasons={props.reasons}
-                steps={props.steps.concat(newSteps)}
-                transitions={values.onApproval}
-                onUpdate={(onApproval: ApprovalWorkflowTransitionInput[]) => {
-                  setFieldValue("onApproval", onApproval);
-                  step.onApproval = onApproval;
-                }}
-                onEditTransition={(nextStepId?: string | null) => {
-                  setNextStepId(nextStepId);
-                  setConditionOpen(true);
-                }}
-                newSteps={newSteps}
-              />
-              <TextButton
-                onClick={() => {
-                  setNextStepId(undefined);
-                  setConditionOpen(true);
-                }}
-                className={classes.addRoute}
-              >
-                {t("Add route")}
-              </TextButton>
-              <div className={classes.buttonContainer}>
-                <Button
-                  variant="contained"
-                  onClick={submitForm}
-                  className={classes.button}
+                {!firstStep && (
+                  <div className={classes.selectContainer}>
+                    <ApproverGroupSelect
+                      orgId={props.orgId}
+                      multiple={false}
+                      selectedApproverGroupHeaderIds={
+                        values.approverGroupHeaderId
+                          ? [values.approverGroupHeaderId]
+                          : undefined
+                      }
+                      setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
+                        if (ids && ids.length > 0) {
+                          modifiedSteps[stepIndex].approverGroupHeaderId =
+                            ids[0];
+                          setFieldValue("approverGroupHeaderId", ids[0]);
+                        } else {
+                          setFieldValue("approverGroupHeaderId", null);
+                        }
+                      }}
+                      idsToFilterOut={approverGroupIdsToFilterOut}
+                      errorMessage={errors.approverGroupHeaderId}
+                    />
+                  </div>
+                )}
+                <AbsVacTransitions
+                  workflowType={props.workflowType}
+                  approverGroups={props.approverGroups}
+                  reasons={props.reasons}
+                  steps={modifiedSteps}
+                  transitions={modifiedSteps[stepIndex].onApproval}
+                  onUpdate={(onApproval: ApprovalWorkflowTransitionInput[]) => {
+                    setFieldValue("onApproval", onApproval);
+                    modifiedSteps[stepIndex].onApproval = onApproval;
+                  }}
+                  onEditTransition={(stepId?: string | null) => {
+                    setGotoStepId(stepId);
+                    setConditionOpen(true);
+                  }}
+                />
+                <TextButton
+                  onClick={() => {
+                    setGotoStepId(undefined);
+                    setConditionOpen(true);
+                  }}
+                  className={classes.addRoute}
                 >
-                  {selectedStep || firstStep ? t("Update") : t("Add")}
-                </Button>
-                {props.onRemove && !values.isFirstStep && (
+                  {t("Add route")}
+                </TextButton>
+                <div className={classes.buttonContainer}>
                   <Button
-                    variant="outlined"
-                    onClick={props.onRemove}
+                    variant="contained"
+                    onClick={submitForm}
                     className={classes.button}
                   >
-                    {t("Remove")}
+                    {selectedStep || firstStep ? t("Update") : t("Add")}
                   </Button>
-                )}
-                <Button
-                  variant="text"
-                  onClick={() => props.onClose()}
-                  className={classes.button}
-                >
-                  {t("Close")}
-                </Button>
-              </div>
-            </form>
-          )}
-        </Formik>
+                  {props.onRemove && !values.isFirstStep && (
+                    <Button
+                      variant="outlined"
+                      onClick={props.onRemove}
+                      className={classes.button}
+                    >
+                      {t("Remove")}
+                    </Button>
+                  )}
+                  <Button
+                    variant="text"
+                    onClick={() => props.onClose()}
+                    className={classes.button}
+                  >
+                    {t("Close")}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </Formik>
+        )}
       </Section>
     </div>
   );

@@ -13,7 +13,7 @@ import { ApprovalWorkflowType } from "graphql/server-types.gen";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { useVacancyReasons } from "reference-data/vacancy-reasons";
 import { ConditionPopper } from "./components/condition-popper";
-import { compact, flatMap } from "lodash-es";
+import { compact, flatMap, cloneDeep } from "lodash-es";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
@@ -38,7 +38,7 @@ export const StepsGraph: React.FC<Props> = props => {
   const [selectedEdge, setSelectedEdge] = useState<IEdge | undefined>(
     undefined
   );
-  const [selectedNode, setSelectedNode] = useState<INode | null>(null);
+
   const [selectedStep, setSelectedStep] = useState<
     ApprovalWorkflowStepInput | null | undefined
   >(null);
@@ -72,10 +72,9 @@ export const StepsGraph: React.FC<Props> = props => {
       const nodeId = `node-${node.id}-container`;
       const nodeElement = document.getElementById(nodeId);
       setElAnchor(nodeElement);
-      setSelectedNode(node);
-      setApproverOpen(true);
       const step = steps.find(x => x.stepId == node.id);
       setSelectedStep(step);
+      setApproverOpen(true);
     }
   };
 
@@ -169,8 +168,8 @@ export const StepsGraph: React.FC<Props> = props => {
     }
   };
 
-  const handleUpdateSteps = (stepsForUpdate: ApprovalWorkflowStepInput[]) => {
-    stepsForUpdate.forEach(step => {
+  const handleUpdateSteps = (modifiedSteps: ApprovalWorkflowStepInput[]) => {
+    modifiedSteps.forEach(step => {
       const stepIndex = steps.findIndex(x => x.stepId === step.stepId);
       if (stepIndex === -1) {
         // If this is a new step add it and check to make sure its positioning doesn't overlap another node
@@ -220,7 +219,6 @@ export const StepsGraph: React.FC<Props> = props => {
   // Order is important here to avoid updating a component that is no longer mounted
   // We are clearing out everything that was selected with the anchor element for the popper being last
   const handleClosePopper = () => {
-    setSelectedNode(null);
     setSelectedEdge(undefined);
     setSelectedStep(null);
     setConditionOpen(false);
@@ -236,16 +234,26 @@ export const StepsGraph: React.FC<Props> = props => {
         ?.goto;
 
       // Iterate over all the non-deleted steps and check all transitions to see if the step being removed was referenced
-      // and set the goto to the default goto of the step being removed
+      // and if any transitions referenced the step set their goto to the default goto of the removed step if the default on the step doesn't already equal the default goto
+      // otherwise remove the transition and just update the default transition
       steps
         .filter(
           x =>
             !x.deleted && x.onApproval.some(x => x.goto === selectedStep.stepId)
         )
         .forEach(x => {
-          x.onApproval.forEach(a => {
-            if (a.goto === selectedStep.stepId) a.goto = defaultGoto;
-          });
+          for (let i = x.onApproval.length - 1; i >= 0; i--) {
+            if (x.onApproval[i].goto === selectedStep.stepId) {
+              if (
+                i !== x.onApproval.length - 1 &&
+                x.onApproval[x.onApproval.length - 1].goto === defaultGoto
+              ) {
+                x.onApproval.splice(i, 1);
+              } else {
+                x.onApproval[i].goto = defaultGoto;
+              }
+            }
+          }
         });
 
       handleClosePopper();
@@ -296,7 +304,8 @@ export const StepsGraph: React.FC<Props> = props => {
                   onClose={() => handleClosePopper()}
                   onSave={handleUpdateSteps}
                   onRemove={selectedStep ? handleRemoveStep : undefined}
-                  steps={steps}
+                  originalSteps={steps}
+                  modifiedSteps={cloneDeep(steps)}
                   approverGroups={approverGroups}
                   selectedStep={selectedStep}
                   reasons={
@@ -334,8 +343,8 @@ export const StepsGraph: React.FC<Props> = props => {
                   orgId={props.orgId}
                   onClose={() => handleClosePopper()}
                   onSave={handleUpdateSteps}
-                  steps={steps}
-                  selectedStep={selectedStep}
+                  steps={cloneDeep(steps)}
+                  selectedStepId={selectedStep?.stepId ?? ""}
                   nextStepId={selectedEdge?.target}
                 />
               </>

@@ -6,7 +6,6 @@ import {
   ApprovalWorkflowType,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
-import { cloneDeep } from "lodash-es";
 
 // Transition helpers
 
@@ -161,21 +160,16 @@ export const createNewStep = (
   steps: ApprovalWorkflowStepInput[],
   nextStepId?: string | null,
   previousStepId?: string,
-  approverGroupHeaderId?: string,
-  additionalSteps?: ApprovalWorkflowStepInput[]
+  approverGroupHeaderId?: string
 ) => {
-  const ids = new Set([
-    ...steps.map(s => Number(s.stepId)),
-    ...(additionalSteps?.map(s => Number(s.stepId)) ?? []),
-    Number(previousStepId),
-  ]);
-  const nextId = Math.max(...ids) + 1;
+  const ids = steps.map(s => Number(s.stepId));
+  const nextId = (Math.max(...ids) + 1).toString();
 
   const previousStep = steps.find(x => x.stepId === previousStepId);
   const nextStep = steps.find(x => x.stepId === nextStepId);
 
   return {
-    stepId: nextId.toString(),
+    stepId: nextId,
     approverGroupHeaderId: approverGroupHeaderId ? approverGroupHeaderId : null,
     isFirstStep: false,
     isLastStep: false,
@@ -229,25 +223,17 @@ export const initialSteps: ApprovalWorkflowStepInput[] = [
 ];
 
 // Path through workflow
-
 export const determinePathThroughAbsVacWorkflow = (
   steps: ApprovalWorkflowStepInput[],
   workflowType: ApprovalWorkflowType,
   reasonIds?: string[],
-  upToStep?: ApprovalWorkflowStepInput,
-  newSteps?: ApprovalWorkflowStepInput[]
+  upToStepId?: string
 ) => {
-  const allSteps = cloneDeep(steps);
-  if (upToStep && !allSteps.find(s => s.stepId === upToStep.stepId))
-    allSteps.push(upToStep);
-  if (newSteps) allSteps.concat(newSteps);
-  console.log(allSteps);
-
   const pathSteps = [] as ApprovalWorkflowStepInput[];
-  let step = allSteps.filter(x => !x.deleted).find(x => x.isFirstStep);
+  let step = steps.filter(x => !x.deleted).find(x => x.isFirstStep);
   pathSteps.push(step!);
 
-  while (step && step.stepId !== upToStep?.stepId) {
+  while (step && step.stepId !== upToStepId) {
     const transitions = convertTransitionsFromInput(
       step.onApproval,
       workflowType
@@ -268,7 +254,7 @@ export const determinePathThroughAbsVacWorkflow = (
       })?.goto;
     }
 
-    step = allSteps.find(x => x.stepId === nextStepId);
+    step = steps.find(x => x.stepId === nextStepId);
     if (step) pathSteps.push(step);
   }
 
