@@ -28,6 +28,7 @@ type Props = {
   positionTypeId?: string;
   onTimeChange: () => void;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
+  initialUsageData?: AbsenceReasonUsageData[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -49,6 +50,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     absenceDates,
     onTimeChange,
     setNegativeBalanceWarning,
+    initialUsageData,
     closedDates = [],
   } = props;
 
@@ -165,6 +167,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         actingAsEmployee={actingAsEmployee}
         usages={absenceBalanceUsages}
         setNegativeBalanceWarning={setNegativeBalanceWarning}
+        initialUsageData={initialUsageData}
       />
 
       <div>
