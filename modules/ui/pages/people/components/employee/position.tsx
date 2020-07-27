@@ -174,7 +174,7 @@ export const Position: React.FC<Props> = props => {
                             className={classes.timeField}
                           >{`${formattedStartTime} - ${formattedEndTime}`}</div>
                           <div>{`@ ${locationName} (${item.bellSchedule?.name ??
-                            "Custom"})`}</div>
+                            t("Custom")})`}</div>
                         </div>
                       );
                     });
