@@ -89,14 +89,12 @@ export const IndexPage: React.FunctionComponent = props => {
             })}
           />
         )
+      ) : roles.isSystemAdministrator && impersonatingUserId ? (
+        <Redirect
+          to={UserViewRoute.generate({ userId: impersonatingUserId })}
+        />
       ) : roles.isSystemAdministrator || (roles.isAdmin && roles.multiOrgs) ? (
-        impersonatingUserId ? (
-          <Redirect
-            to={UserViewRoute.generate({ userId: impersonatingUserId })}
-          />
-        ) : (
-          <Redirect to={AdminRootChromeRoute.generate({})} />
-        )
+        <Redirect to={AdminRootChromeRoute.generate({})} />
       ) : roles.isAdmin && !roles.multiOrgs ? (
         <Redirect
           to={AdminHomeRoute.generate({
