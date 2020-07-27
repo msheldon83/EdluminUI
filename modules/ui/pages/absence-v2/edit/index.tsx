@@ -256,6 +256,7 @@ export const EditAbsence: React.FC<Props> = props => {
         refetchAbsence={async () => {
           await absenceQuery.refetch();
         }}
+        absence={absence}
       />
     </>
   );

@@ -273,9 +273,9 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
   }
 };
 
-const projectVacancyDetailsFromVacancies = (
+export const projectVacancyDetailsFromVacancies = (
   vacancies: Partial<Vacancy | null>[] | null | undefined,
-  assignmentsByDate: AssignmentOnDate[] | undefined
+  assignmentsByDate?: AssignmentOnDate[] | undefined
 ): VacancyDetail[] => {
   if (!vacancies || vacancies.length < 1) {
     return [];

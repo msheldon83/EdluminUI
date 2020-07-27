@@ -15,7 +15,7 @@ import {
   CancelVacancyAssignmentInput,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
-import { AbsenceState, absenceReducer } from "../state";
+import { AbsenceState, absenceReducer, projectVacancyDetailsFromVacancies } from "../state";
 import { PageTitle } from "ui/components/page-title";
 import * as yup from "yup";
 import { StepParams } from "helpers/step-params";
@@ -49,7 +49,7 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, compact, uniq, flatMap } from "lodash-es";
+import { some, compact, uniq, flatMap, isNil } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -95,8 +95,7 @@ type Props = {
   onErrorsConfirmed: () => void;
   deleteAbsence?: () => void;
   refetchAbsence?: () => Promise<void>;
-  initialVacancyDetails?: VacancyDetail[];
-  initialAbsenceUsageData?: AbsenceReasonUsageData[];
+  absence?: Absence;
 };
 
 export const AbsenceUI: React.FC<Props> = props => {
@@ -118,11 +117,17 @@ export const AbsenceUI: React.FC<Props> = props => {
     saveErrorsInfo,
     onErrorsConfirmed,
     refetchAbsence,
-    initialVacancyDetails,
-    initialAbsenceUsageData,
+    absence
   } = props;
 
-  const [absence, setAbsence] = React.useState<Absence | undefined>();
+  const [localAbsence, setLocalAbsence] = React.useState<Absence | undefined>(absence);
+  React.useEffect(() => {
+    // Since there are conditions in the Edit workflow where we allow sub components
+    // to refetch the Absence, it is possible for us to get an update Absence prop
+    // coming into this component and we want to account for that
+    setLocalAbsence(absence);
+  }, [absence]);
+
   const [
     vacancySummaryDetailsToAssign,
     setVacancySummaryDetailsToAssign,
@@ -210,6 +215,46 @@ export const AbsenceUI: React.FC<Props> = props => {
     false
   );
 
+  // If we have an existing Absence, determine what the initial Vacancy Details are
+  // so that we can use that information until the User explicitly modifies their
+  // selections or the Substitute Details directly
+  const initialVacancyDetails = React.useMemo(() => {
+    if (!localAbsence) {
+      return undefined;
+    }
+
+    const vacancyDetails = projectVacancyDetailsFromVacancies(localAbsence.vacancies);
+    console.log(vacancyDetails);
+    return vacancyDetails;
+  }, [localAbsence]);
+
+  // If we have an existing Absence, determine what the initial Absence Reason Usage
+  // is so that we can accurately determine how changes to the Absence Details would
+  // affect the usage without double counting anything
+  const initialAbsenceReasonUsageData = React.useMemo(() => {
+    if (!localAbsence || !localAbsence.details) {
+      return undefined;
+    }
+    
+    const details = localAbsence.details;
+    const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
+    const usageData: AbsenceReasonUsageData[] = compact(usages.map(u => {
+      if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
+        return null;
+      }
+
+      return {
+        hourlyAmount: u.hourlyAmount,
+        dailyAmount: u.dailyAmount,
+        absenceReasonId: u.absenceReasonId,
+        absenceReason: {
+          absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
+        },
+      };
+    }));
+    return usageData;
+  }, [localAbsence]);
+
   // Only use state.projectedVacancyDetails if on Edit and data has changed
   const vacancyDetails = React.useMemo(() => {
     return (
@@ -249,7 +294,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         return;
       }
 
-      if (isCreate && !absence) {
+      if (isCreate && !localAbsence) {
         dispatch({
           action: "updateAssignments",
           assignments: detailsToCancelAssignmentsFor.map(d => {
@@ -333,7 +378,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       }
     },
     [
-      absence,
+      localAbsence,
       cancelAssignment,
       isCreate,
       state.assignmentsByDate,
@@ -510,19 +555,19 @@ export const AbsenceUI: React.FC<Props> = props => {
         };
       }
 
-      const absence = await saveAbsence(absenceInput);
-      if (!absence) {
+      const updatedAbsence = await saveAbsence(absenceInput);
+      if (!updatedAbsence) {
         return;
       }
 
-      setAbsence(absence);
+      setLocalAbsence(updatedAbsence);
       if (isCreate) {
         // We need to get the Assignment Id and Row Version from
         // the newly created Absence info in order to allow the User
         // to cancel any Assignments
         const assignments = compact(
           flatMap(
-            absence.vacancies?.map(v =>
+            updatedAbsence.vacancies?.map(v =>
               v?.details?.map(vd => {
                 if (!vd.assignment) {
                   return null;
@@ -645,7 +690,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                   message={location => {
                     if (
                       match.url === location.pathname ||
-                      (absence?.id && step === "confirmation") ||
+                      (localAbsence?.id && step === "confirmation") ||
                       !dirty
                     ) {
                       // We're not actually leaving the route
@@ -735,6 +780,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             setNegativeBalanceWarning={
                               setNegativeBalanceWarning
                             }
+                            initialUsageData={initialAbsenceReasonUsageData}
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -850,7 +896,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                 {step === "confirmation" && (
                   <Confirmation
                     orgId={organizationId}
-                    absence={absence}
+                    absence={localAbsence}
                     setStep={setStep}
                     actingAsEmployee={actingAsEmployee}
                     onCancelAssignment={onCancelAssignment}
