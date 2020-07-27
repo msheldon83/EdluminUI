@@ -125,29 +125,33 @@ export const ConditionPopper: React.FC<Props> = props => {
   const reasonIdsToInclude = useMemo(() => {
     const reasonIds: string[] = [];
     if (workflowType === ApprovalWorkflowType.Absence) {
-      absenceReasons.forEach(a => {
-        const path = determinePathThroughAbsVacWorkflow(
-          steps,
-          workflowType,
-          [a.id],
-          selectedStepId
-        );
-        if (path.find(x => x.stepId === selectedStepId)) {
-          reasonIds.push(a.id);
-        }
-      });
+      absenceReasons
+        .filter(x => x.requiresApproval)
+        .forEach(a => {
+          const path = determinePathThroughAbsVacWorkflow(
+            steps,
+            workflowType,
+            [a.id],
+            selectedStepId
+          );
+          if (path.find(x => x.stepId === selectedStepId)) {
+            reasonIds.push(a.id);
+          }
+        });
     } else {
-      vacancyReasons.forEach(v => {
-        const path = determinePathThroughAbsVacWorkflow(
-          steps,
-          workflowType,
-          [v.id],
-          selectedStepId
-        );
-        if (path.find(x => x.stepId === selectedStepId)) {
-          reasonIds.push(v.id);
-        }
-      });
+      vacancyReasons
+        .filter(x => x.requiresApproval)
+        .forEach(v => {
+          const path = determinePathThroughAbsVacWorkflow(
+            steps,
+            workflowType,
+            [v.id],
+            selectedStepId
+          );
+          if (path.find(x => x.stepId === selectedStepId)) {
+            reasonIds.push(v.id);
+          }
+        });
     }
 
     return reasonIds.length > 0 ? reasonIds : undefined;
