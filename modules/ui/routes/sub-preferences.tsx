@@ -9,9 +9,24 @@ export const SubPreferencesRoute = defineSubRoute(
 
 export const SubPreferencesLoader = asyncComponent({
   resolve: async () => {
-    const SubPreferences = (await import("ui/pages/sub-preferences/index"))
-      .SubPreferences;
-    return SubPreferences;
+    const SubPreferencesPage = (await import("ui/pages/sub-preferences/index"))
+      .SubPreferencesPage;
+    return SubPreferencesPage;
   },
   name: "SubPreferences",
+});
+
+export const SubPreferencesEditRoute = defineSubRoute(
+  SubPreferencesRoute,
+  "/edit"
+);
+
+export const SubPreferencesEditLoader = asyncComponent({
+  resolve: async () => {
+    const SubPreferencesEditPage = (
+      await import("ui/pages/sub-preferences/edit")
+    ).SubPreferencesEditPage;
+    return SubPreferencesEditPage;
+  },
+  name: "SubPreferencesEdit",
 });

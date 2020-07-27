@@ -7,8 +7,11 @@ import OutlinedInput, {
   OutlinedInputProps,
 } from "@material-ui/core/OutlinedInput";
 
+export type LabelComponent = React.FC<Omit<InputLabelProps, "children">>;
+
 export type InputProps = Omit<OutlinedInputProps, "labelWidth"> & {
   label?: string; // optional for now, but in the future should be required
+  labelComponent?: LabelComponent;
   withSpacing?: boolean;
   InputComponent?: React.ElementType;
   inputComponentProps?: Record<string, any>;
@@ -21,6 +24,7 @@ export type InputProps = Omit<OutlinedInputProps, "labelWidth"> & {
 export const Input = React.forwardRef((props: InputProps, ref) => {
   const {
     label,
+    labelComponent,
     InputComponent,
     inputComponentProps = {},
     className = "",
@@ -52,10 +56,14 @@ export const Input = React.forwardRef((props: InputProps, ref) => {
 
   return (
     <FormControl className={classNames} error={isError}>
-      {label && (
+      {labelComponent ? (
+        labelComponent({ htmlFor: id, error: isError })
+      ) : label ? (
         <InputLabel htmlFor={id} error={isError}>
           {label}
         </InputLabel>
+      ) : (
+        undefined
       )}
       {InputComponent ? (
         <InputComponent

@@ -72,7 +72,7 @@ export const AppChrome: React.FunctionComponent = props => {
                     <DialogProvider>
                       <div />
                       <div
-                        className={classes.contentView}
+                        className={classes.mobileContentView}
                         style={{ maxWidth: appConfig.contentWidth }}
                       >
                         <ErrorBoundary>
@@ -255,6 +255,16 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     marginTop: theme.spacing(3),
     padding: theme.spacing(0, 3, 4, 3),
+    "@media print": {
+      padding: 0,
+      fontSize: theme.typography.pxToRem(11),
+      overflowY: "hidden",
+    },
+  },
+
+  mobileContentView: {
+    flexGrow: 1,
+    marginTop: theme.spacing(3),
     "@media print": {
       padding: 0,
       fontSize: theme.typography.pxToRem(11),
