@@ -1,9 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Grid, makeStyles, Button, Typography } from "@material-ui/core";
-import { Formik } from "formik";
-import { TextField as FormTextField } from "ui/components/form/text-field";
-import { PageTitle } from "ui/components/page-title";
+import { Grid, makeStyles, Button } from "@material-ui/core";
 import { PageHeader } from "ui/components/page-header";
 import { Section } from "ui/components/section";
 import { useState, useEffect } from "react";
@@ -32,7 +29,8 @@ import { Can } from "ui/components/auth/can";
 import { BasicInfo } from "./components/create/basic-info";
 import { compact } from "lodash-es";
 import { WorkflowReturnLink } from "./components/return-link";
-import { buildCleanStepInput } from "./types";
+import { buildCleanStepInput } from "./components/workflow-graph/types";
+import { TestHeader } from "./components/test-header";
 
 type Props = {};
 
@@ -49,6 +47,10 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
 
   const [editing, setEditing] = useState<string | null>(null);
   const [steps, setSteps] = useState<ApprovalWorkflowStepInput[]>([]);
+  const [showTestHeader, setShowTestHeader] = useState(false);
+  const [testReasonId, setTestReasonId] = useState<string | undefined>(
+    undefined
+  );
 
   const [deleteApprovalWorkflow] = useMutationBundle(DeleteApprovalWorkflow, {
     onError: error => {
@@ -191,11 +193,23 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
             saveLabel={t("Save")}
             approvalWorkflowId={params.approvalWorkflowId}
           />
+          <TestHeader
+            open={showTestHeader}
+            orgId={params.organizationId}
+            workflowType={approvalWorkflow.approvalWorkflowTypeId}
+            onClose={() => {
+              setShowTestHeader(false);
+              setTestReasonId(undefined);
+            }}
+            reasonId={testReasonId}
+            setReasonId={setTestReasonId}
+          />
         </div>
         <StepsGraph
           steps={steps}
-          setSteps={setSteps}
           orgId={params.organizationId}
+          workflowType={approvalWorkflow.approvalWorkflowTypeId}
+          testReasonId={testReasonId}
         />
         <Grid
           container
@@ -203,20 +217,20 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
           spacing={2}
           className={classes.buttonContainer}
         >
-          {/*
           <Grid item>
-            <Button variant="outlined" onClick={() => {}}>
+            <Button variant="outlined" onClick={() => setShowTestHeader(true)}>
               {t("Test")}
             </Button>
           </Grid>
-          */}
-          <Can do={[PermissionEnum.ApprovalSettingsSave]}>
-            <Grid item>
-              <Button variant="contained" onClick={() => handleUpdateSteps()}>
-                {t("Save")}
-              </Button>
-            </Grid>
-          </Can>
+          {!editing && (
+            <Can do={[PermissionEnum.ApprovalSettingsSave]}>
+              <Grid item>
+                <Button variant="contained" onClick={() => handleUpdateSteps()}>
+                  {t("Save")}
+                </Button>
+              </Grid>
+            </Can>
+          )}
         </Grid>
       </Section>
     </>

@@ -16,7 +16,7 @@ import {
 import {
   buildAbsenceUsagesJsonString,
   AbsenceWorkflowUsage,
-} from "../../types";
+} from "../workflow-graph/types";
 import { compact, flatMap } from "lodash-es";
 import { usePositionTypes } from "reference-data/position-types";
 import { useOrgUsers } from "ui/components/domain-selects/org-user-select/org-users";
@@ -147,17 +147,29 @@ export const AbsenceBasicInfo: React.FC<Props> = props => {
         </Grid>
       ) : (
         <Grid item xs={12}>
-          <div className={classes.text}>{`${t("For employees")}: ${
-            isAllOthers
-              ? t("All non-specified")
-              : employeeIds.length === 0
-              ? t("None")
-              : allEmployees
-                  .filter(x => employeeIds.includes(x.id))
-                  .sort(fullNameSort)
-                  .map(x => `${x.firstName} ${x.lastName}`)
-                  .join(", ")
-          }`}</div>
+          <div className={classes.container}>
+            <div className={classes.text}>{`${t("For employees")}: ${
+              isAllOthers
+                ? t("All non-specified")
+                : employeeIds.length === 0
+                ? t("None")
+                : allEmployees
+                    .filter(x => employeeIds.includes(x.id))
+                    .sort(fullNameSort)
+                    .map(x => `${x.firstName} ${x.lastName}`)
+                    .join(", ")
+            }`}</div>
+            {props.editable && (
+              <Can do={[PermissionEnum.ApprovalSettingsSave]}>
+                <Edit
+                  className={classes.editIcon}
+                  onClick={() => {
+                    props.setEditing!("usage-info");
+                  }}
+                />
+              </Can>
+            )}
+          </div>
         </Grid>
       )}
       {props.editing && !existingAllOthersUsage && (

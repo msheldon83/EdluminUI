@@ -11,6 +11,8 @@ type Props = {
   includeAllOption?: boolean;
   label?: string;
   multiple?: boolean;
+  errorMessage?: string;
+  idsToInclude?: string[];
 };
 
 export const VacancyReasonSelect: React.FC<Props> = props => {
@@ -22,6 +24,8 @@ export const VacancyReasonSelect: React.FC<Props> = props => {
     setSelectedVacancyReasonIds,
     includeAllOption = true,
     multiple = true,
+    errorMessage,
+    idsToInclude,
   } = props;
 
   let vacancyReasonOptions = useVacancyReasonOptions(orgId);
@@ -31,6 +35,12 @@ export const VacancyReasonSelect: React.FC<Props> = props => {
       a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1
     );
     vacancyReasonOptions.unshift({ label: t("(All)"), value: "0" });
+  }
+
+  if (idsToInclude) {
+    vacancyReasonOptions = vacancyReasonOptions.filter(x =>
+      idsToInclude.includes(x.value)
+    );
   }
 
   const selectedVacancyReasons = vacancyReasonOptions.filter(
@@ -71,6 +81,8 @@ export const VacancyReasonSelect: React.FC<Props> = props => {
           : undefined
       }
       doSort={!includeAllOption}
+      inputStatus={errorMessage ? "error" : "default"}
+      validationMessage={errorMessage}
     />
   );
 };
