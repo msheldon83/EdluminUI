@@ -15,7 +15,11 @@ import {
   CancelVacancyAssignmentInput,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
-import { AbsenceState, absenceReducer, projectVacancyDetailsFromVacancies } from "../state";
+import {
+  AbsenceState,
+  absenceReducer,
+  projectVacancyDetailsFromVacancies,
+} from "../state";
 import { PageTitle } from "ui/components/page-title";
 import * as yup from "yup";
 import { StepParams } from "helpers/step-params";
@@ -49,7 +53,7 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, compact, uniq, flatMap, isNil } from "lodash-es";
+import { some, compact, uniq, flatMap, isNil, isEqual } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -117,10 +121,12 @@ export const AbsenceUI: React.FC<Props> = props => {
     saveErrorsInfo,
     onErrorsConfirmed,
     refetchAbsence,
-    absence
+    absence,
   } = props;
 
-  const [localAbsence, setLocalAbsence] = React.useState<Absence | undefined>(absence);
+  const [localAbsence, setLocalAbsence] = React.useState<Absence | undefined>(
+    absence
+  );
   React.useEffect(() => {
     // Since there are conditions in the Edit workflow where we allow sub components
     // to refetch the Absence, it is possible for us to get an update Absence prop
@@ -223,7 +229,9 @@ export const AbsenceUI: React.FC<Props> = props => {
       return undefined;
     }
 
-    const vacancyDetails = projectVacancyDetailsFromVacancies(localAbsence.vacancies);
+    const vacancyDetails = projectVacancyDetailsFromVacancies(
+      localAbsence.vacancies
+    );
     console.log(vacancyDetails);
     return vacancyDetails;
   }, [localAbsence]);
@@ -235,34 +243,27 @@ export const AbsenceUI: React.FC<Props> = props => {
     if (!localAbsence || !localAbsence.details) {
       return undefined;
     }
-    
+
     const details = localAbsence.details;
     const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
-    const usageData: AbsenceReasonUsageData[] = compact(usages.map(u => {
-      if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
-        return null;
-      }
+    const usageData: AbsenceReasonUsageData[] = compact(
+      usages.map(u => {
+        if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
+          return null;
+        }
 
-      return {
-        hourlyAmount: u.hourlyAmount,
-        dailyAmount: u.dailyAmount,
-        absenceReasonId: u.absenceReasonId,
-        absenceReason: {
-          absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
-        },
-      };
-    }));
+        return {
+          hourlyAmount: u.hourlyAmount,
+          dailyAmount: u.dailyAmount,
+          absenceReasonId: u.absenceReasonId,
+          absenceReason: {
+            absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
+          },
+        };
+      })
+    );
     return usageData;
   }, [localAbsence]);
-
-  // Only use state.projectedVacancyDetails if on Edit and data has changed
-  const vacancyDetails = React.useMemo(() => {
-    return (
-      state.customizedVacanciesInput ||
-      state.projectedVacancyDetails ||
-      initialVacancyDetails
-    );
-  }, []);
 
   // --- Handling of Sub pre-arrange, assignment, or removal ------
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
@@ -537,9 +538,15 @@ export const AbsenceUI: React.FC<Props> = props => {
   // Ultimately create or update the Absence
   const save = React.useCallback(
     async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
+      const vacancyDetails =
+        state.customizedVacanciesInput ??
+        state.projectedVacancyDetails ??
+        initialVacancyDetails;
+
       let absenceInput = buildAbsenceInput(
         formValues,
         state,
+        vacancyDetails ?? [],
         disabledDates,
         false
       );
@@ -604,7 +611,14 @@ export const AbsenceUI: React.FC<Props> = props => {
         setStep("confirmation");
       }
     },
-    [disabledDates, isCreate, saveAbsence, setStep, state]
+    [
+      disabledDates,
+      isCreate,
+      saveAbsence,
+      setStep,
+      state,
+      initialVacancyDetails,
+    ]
   );
 
   return (
@@ -676,9 +690,28 @@ export const AbsenceUI: React.FC<Props> = props => {
           initialValues,
           errors,
         }) => {
+          const unsavedAbsenceDetailChanges =
+            !isEqual(initialAbsenceFormData.details, values.details) ||
+            initialAbsenceFormData.needsReplacement !== values.needsReplacement;
+          console.log(
+            "unsavedAbsenceDetailChanges",
+            unsavedAbsenceDetailChanges
+          );
+
+          const vacancyDetails =
+            state.customizedVacanciesInput ||
+            ((unsavedAbsenceDetailChanges || isCreate) &&
+              state.projectedVacancyDetails) ||
+            initialVacancyDetails;
+          console.log("vacancyDetails", vacancyDetails);
+
+          const formIsDirty =
+            dirty || !isEqual(initialVacancyDetails, vacancyDetails);
+
           const inputForProjectedCalls = buildAbsenceInput(
             values,
             state,
+            vacancyDetails ?? [],
             disabledDates,
             true
           ) as AbsenceCreateInput;
@@ -691,7 +724,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                     if (
                       match.url === location.pathname ||
                       (localAbsence?.id && step === "confirmation") ||
-                      !dirty
+                      !formIsDirty
                     ) {
                       // We're not actually leaving the route
                       // OR the Absence has just been created and we're on the Confirmation screen
@@ -814,6 +847,14 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 payCodeId
                               )
                             }
+                            disableReplacementInteractions={
+                              !isCreate && unsavedAbsenceDetailChanges
+                            }
+                            vacanciesOverride={
+                              unsavedAbsenceDetailChanges || isCreate
+                                ? undefined
+                                : compact(localAbsence?.vacancies)
+                            }
                           />
                         </Grid>
                       </Grid>
@@ -822,13 +863,13 @@ export const AbsenceUI: React.FC<Props> = props => {
                       <Grid item xs={12} className={classes.contentFooter}>
                         <div className={classes.actionButtons}>
                           <div className={classes.unsavedText}>
-                            {(dirty || isCreate) && (
+                            {(formIsDirty || isCreate) && (
                               <Typography>
                                 {t("This page has unsaved changes")}
                               </Typography>
                             )}
                           </div>
-                          {deleteAbsence && !dirty && (
+                          {deleteAbsence && !formIsDirty && (
                             <Can do={[PermissionEnum.AbsVacDelete]}>
                               <Button
                                 onClick={() => deleteAbsence()}
@@ -839,7 +880,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               </Button>
                             </Can>
                           )}
-                          {!isCreate && dirty && !state.isClosed && (
+                          {!isCreate && formIsDirty && !state.isClosed && (
                             <Button
                               onClick={() => {
                                 // reset the form and the state
@@ -851,7 +892,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               }}
                               variant="outlined"
                               className={classes.cancelButton}
-                              disabled={!dirty}
+                              disabled={!formIsDirty}
                             >
                               {t("Discard Changes")}
                             </Button>
@@ -863,7 +904,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               variant="contained"
                               className={classes.saveButton}
                               disabled={
-                                !dirty ||
+                                !formIsDirty ||
                                 isSubmitting ||
                                 negativeBalanceWarning ||
                                 state.isClosed
@@ -1004,6 +1045,7 @@ const useStyles = makeStyles(theme => ({
 const buildAbsenceInput = (
   formValues: AbsenceFormData,
   state: AbsenceState,
+  vacancyDetails: VacancyDetail[],
   disabledDates: Date[],
   forProjections: boolean
 ): AbsenceCreateInput | AbsenceUpdateInput | null => {
@@ -1041,8 +1083,6 @@ const buildAbsenceInput = (
   };
 
   const hasEditedDetails = !!state.customizedVacanciesInput;
-  const vacancyDetails =
-    state.customizedVacanciesInput ?? state.projectedVacancyDetails;
 
   // Build Vacancy Details in case we want to tell the server to use our Details
   // instead of it coming up with its own

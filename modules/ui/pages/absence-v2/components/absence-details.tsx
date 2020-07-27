@@ -12,7 +12,7 @@ import { GetProjectedAbsenceUsage } from "../graphql/get-projected-absence-usage
 import { useQueryBundle } from "graphql/hooks";
 import { AbsenceDays } from "./absence-days";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { BalanceUsage } from "./balance-usage";
+import { BalanceUsage, AbsenceReasonUsageData } from "./balance-usage";
 
 type Props = {
   absenceId?: string;
