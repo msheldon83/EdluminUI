@@ -31,11 +31,14 @@ import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete
 import { UpdateAbsence } from "../graphql/update-absence.gen";
 import { startOfDay, parseISO, startOfMonth } from "date-fns";
 
-export const EditAbsence: React.FC<{}> = props => {
+type Props = { actingAsEmployee?: boolean };
+
+export const EditAbsence: React.FC<Props> = props => {
   const { organizationId, absenceId } = useRouteParams(AdminEditAbsenceRouteV2);
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
+  const { actingAsEmployee = false } = props;
 
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = React.useState(false);
   const [saveErrorsInfo, setSaveErrorsInfo] = React.useState<
@@ -152,7 +155,7 @@ export const EditAbsence: React.FC<{}> = props => {
       />
       <AbsenceUI
         organizationId={organizationId}
-        actingAsEmployee={false}
+        actingAsEmployee={actingAsEmployee}
         employee={{
           id: employee.id,
           firstName: employee.firstName,

@@ -9,7 +9,7 @@ export type AbsenceFormData = {
   needsReplacement: boolean;
   notesToReplacement?: string;
   payCodeId?: string;
-  accountingCodeAllocations: AccountingCodeValue;
+  accountingCodeAllocations?: AccountingCodeValue;
   requireNotesToApprover?: boolean;
 };
 

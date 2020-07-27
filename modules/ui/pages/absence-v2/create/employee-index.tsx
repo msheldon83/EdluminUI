@@ -1,34 +1,19 @@
 import * as React from "react";
-import { useRouteParams } from "ui/routes/definition";
-import { AdminCreateAbsenceRouteV2 } from "ui/routes/absence-v2";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useMutationBundle } from "graphql/hooks";
 import { AbsenceUI } from "../components/ui";
-import { NotFound } from "ui/pages/not-found";
-import { GetEmployee } from "../graphql/get-employee.gen";
 import { compact } from "lodash-es";
 import {
   NeedsReplacement,
   AbsenceCreateInput,
   Absence,
 } from "graphql/server-types.gen";
-import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
-import {
-  noAllocation,
-  AccountingCodeValue,
-} from "ui/components/form/accounting-code-dropdown";
 import { CreateAbsence } from "../graphql/create.gen";
 import { ApolloError } from "apollo-client";
 import { startOfMonth } from "date-fns";
+import { useGetEmployee } from "reference-data/employee";
 
-export const AdminCreateAbsence: React.FC<{}> = props => {
-  const { organizationId, employeeId } = useRouteParams(
-    AdminCreateAbsenceRouteV2
-  );
-  const employeeInfo = useQueryBundle(GetEmployee, {
-    variables: {
-      employeeId: employeeId,
-    },
-  });
+export const EmployeeCreateAbsence: React.FC<{}> = props => {
+  const employee = useGetEmployee();
 
   const [createErrorsInfo, setCreateErrorsInfo] = React.useState<
     { error: ApolloError | null; confirmed: boolean } | undefined
@@ -41,46 +26,18 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
       }),
   });
 
-  const employee = React.useMemo(() => {
-    if (employeeInfo.state !== "DONE") {
-      return undefined;
-    }
-
-    return employeeInfo.data.orgUser?.byId?.employee;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employeeInfo.state]);
-
-  const defaultAccountingCodeAllocations: AccountingCodeValue = React.useMemo(() => {
-    return employee?.primaryPosition?.accountingCodeAllocations
-      ? mapAccountingCodeAllocationsToAccountingCodeValue(
-          compact(
-            employee.primaryPosition.accountingCodeAllocations?.map(a => {
-              if (!a) {
-                return null;
-              }
-
-              return {
-                accountingCodeId: a.accountingCodeId,
-                accountingCodeName: a.accountingCode?.name,
-                allocation: a.allocation,
-              };
-            })
-          )
-        )
-      : noAllocation();
-  }, [employee?.primaryPosition?.accountingCodeAllocations]);
-
-  if (employeeInfo.state !== "DONE") {
-    return <></>;
-  }
+  // Our route definition for this page will ensure whomever gets here is an
+  // Employee somewhere in their list of Org Users so our "!employee" check here is
+  // just a way of waiting until the GraphQL Query in useGetEmployee has finished
+  // processing before we move on with rendering the AbsenceUI
   if (!employee) {
-    return <NotFound />;
+    return <></>;
   }
 
   return (
     <AbsenceUI
-      organizationId={organizationId}
-      actingAsEmployee={false}
+      organizationId={employee.orgId}
+      actingAsEmployee={true}
       employee={{
         id: employee.id,
         firstName: employee.firstName,
@@ -97,9 +54,6 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
               title: employee.primaryPosition.title,
               positionTypeId:
                 employee.primaryPosition.positionTypeId ?? undefined,
-              defaultPayCodeId:
-                employee.primaryPosition.positionType?.payCodeId ?? undefined,
-              defaultAccountingCodeAllocations: defaultAccountingCodeAllocations,
             }
           : undefined
       }
@@ -107,14 +61,11 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
         details: [],
         needsReplacement:
           employee.primaryPosition?.needsReplacement === NeedsReplacement.Yes,
-        accountingCodeAllocations: defaultAccountingCodeAllocations,
-        payCodeId:
-          employee.primaryPosition?.positionType?.payCodeId ?? undefined,
       }}
       initialAbsenceState={() => {
         return {
           employeeId: employee.id,
-          organizationId: organizationId,
+          organizationId: employee.orgId,
           positionId: employee.primaryPosition?.id ?? "0",
           viewingCalendarMonth: startOfMonth(new Date()),
           absenceDates: [],

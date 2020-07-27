@@ -59,6 +59,7 @@ import { Confirmation } from "../create/confirmation";
 import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
+import { Prompt, useRouteMatch } from "react-router";
 
 type Props = {
   organizationId: string;
@@ -75,7 +76,7 @@ type Props = {
     title: string;
     positionTypeId?: string;
     defaultPayCodeId?: string;
-    defaultAccountingCodeAllocations: AccountingCodeValue;
+    defaultAccountingCodeAllocations?: AccountingCodeValue;
   };
   initialAbsenceFormData: AbsenceFormData;
   initialAbsenceState: () => AbsenceState;
@@ -92,6 +93,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const canDoFn = useCanDo();
+  const match = useRouteMatch();
   const [step, setStep] = useQueryParamIso(StepParams);
   const {
     actingAsEmployee,
@@ -181,6 +183,13 @@ export const AbsenceUI: React.FC<Props> = props => {
       });
     },
     [setStep]
+  );
+
+  // When "actingAsEmployee", if any of the Absence Reasons chosen result in a negative balance warning,
+  // we will prevent being able to save the balance until that warning is addressed
+  // by either changing the reasons selected or the amount of the balance being used
+  const [negativeBalanceWarning, setNegativeBalanceWarning] = React.useState(
+    false
   );
 
   // --- Handling of Sub pre-arrange, assignment, or removal ------
@@ -461,6 +470,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       />
       <Formik
         initialValues={initialAbsenceFormData}
+        enableReinitialize={true}
         validationSchema={yup.object().shape({
           details: yup.array().of(
             yup.object().shape({
@@ -531,6 +541,28 @@ export const AbsenceUI: React.FC<Props> = props => {
           return (
             <>
               <form id="absence-form" onSubmit={handleSubmit}>
+                <Prompt
+                  message={location => {
+                    if (
+                      match.url === location.pathname ||
+                      (absence?.id && step === "confirmation") ||
+                      !dirty
+                    ) {
+                      // We're not actually leaving the route
+                      // OR the Absence has just been created and we're on the Confirmation screen
+                      // OR we don't have any pending changes
+                      return true;
+                    }
+
+                    const createPrefix = t(
+                      "You have not created your absence yet."
+                    );
+                    const msg = t(
+                      "Click DISCARD CHANGES to leave this page and lose all unsaved changes."
+                    );
+                    return isCreate ? `${createPrefix} ${msg}` : msg;
+                  }}
+                />
                 {step === "absence" && (
                   <>
                     <ErrorDialog
@@ -600,6 +632,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 input: undefined,
                               });
                             }}
+                            setNegativeBalanceWarning={setNegativeBalanceWarning}
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -680,7 +713,8 @@ export const AbsenceUI: React.FC<Props> = props => {
                               className={classes.saveButton}
                               disabled={
                                 !dirty ||
-                                //negativeBalanceWarning ||
+                                isSubmitting ||
+                                negativeBalanceWarning ||
                                 state.isClosed
                               }
                             >
@@ -714,6 +748,14 @@ export const AbsenceUI: React.FC<Props> = props => {
                     absence={absence}
                     setStep={setStep}
                     actingAsEmployee={actingAsEmployee}
+                    resetForm={() => {
+                      // Really important for when an Employee has created an Absence and then clicks
+                      // Create New from the Confirmation screen. Their initial form data doesn't change
+                      // so we want to make sure everything is set back to an initial state for the
+                      // next Absence to be created
+                      resetForm();
+                      dispatch({ action: "resetToInitialState", initialState: initialAbsenceState() });
+                    }}
                   />
                 )}
               </form>
