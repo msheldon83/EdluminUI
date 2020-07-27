@@ -5,52 +5,60 @@ import { ApprovalWorkflowStepInput } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { makeStyles, Popper, Fade, ClickAwayListener } from "@material-ui/core";
 import { GraphConfig, NODE_KEY } from "./graph-config";
-import {
-  convertStepsToNodes,
-  convertStepsToEdges,
-  getNextId,
-} from "./graph-helpers";
-import { AddUpdateApprover } from "./approver-popper";
+import { convertStepsToNodes, convertStepsToEdges } from "./graph-helpers";
+import { AddUpdateApprover } from "./components/approver-popper";
 import { useApproverGroups } from "ui/components/domain-selects/approver-group-select/approver-groups";
 import { breakLabel } from "./text-helper";
+import { ApprovalWorkflowType } from "graphql/server-types.gen";
+import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { useVacancyReasons } from "reference-data/vacancy-reasons";
+import { ConditionPopper } from "./components/condition-popper";
+import { compact, flatMap, cloneDeep } from "lodash-es";
 
 type Props = {
   steps: ApprovalWorkflowStepInput[];
   orgId: string;
-  setSteps: (steps: ApprovalWorkflowStepInput[]) => void;
+  workflowType: ApprovalWorkflowType;
+  testReasonId?: string;
 };
 
 export const StepsGraph: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { steps, setSteps } = props;
+  const { steps, workflowType, testReasonId } = props;
+
+  const absenceReasons = useAbsenceReasons(props.orgId);
+  const vacancyReasons = useVacancyReasons(props.orgId);
 
   const [elAnchor, setElAnchor] = useState<null | HTMLElement>(null);
   const [conditionOpen, setConditionOpen] = useState(false);
+  const [approverOpen, setApproverOpen] = useState(false);
 
   const [selectedEdge, setSelectedEdge] = useState<IEdge | undefined>(
     undefined
   );
-  const [selectedNode, setSelectedNode] = useState<INode | null>(null);
+
   const [selectedStep, setSelectedStep] = useState<
     ApprovalWorkflowStepInput | null | undefined
   >(null);
 
   const approverGroups = useApproverGroups(props.orgId);
 
-  const nodes = useMemo(() => convertStepsToNodes(steps, approverGroups, t), [
-    approverGroups,
-    steps,
-    t,
-  ]);
+  const nodes = useMemo(
+    () =>
+      convertStepsToNodes(workflowType, steps, approverGroups, t, testReasonId),
+    [approverGroups, steps, t, testReasonId, workflowType]
+  );
   const edges = useMemo(
     () =>
       convertStepsToEdges(
+        workflowType,
         steps,
-        approverGroups.map(x => x.id)
+        approverGroups.map(x => x.id),
+        testReasonId
       ),
-    [steps, approverGroups]
+    [workflowType, steps, approverGroups, testReasonId]
   );
 
   const selected = {};
@@ -64,13 +72,13 @@ export const StepsGraph: React.FC<Props> = props => {
       const nodeId = `node-${node.id}-container`;
       const nodeElement = document.getElementById(nodeId);
       setElAnchor(nodeElement);
-      setSelectedNode(node);
-      setConditionOpen(true);
       const step = steps.find(x => x.stepId == node.id);
       setSelectedStep(step);
+      setApproverOpen(true);
     }
   };
 
+  // This is called when we move a node
   const onUpdateNode = (node: INode) => {
     const stepIndex = steps.findIndex(x => x.stepId == node.id);
     steps[stepIndex].xPosition = node.x;
@@ -78,15 +86,20 @@ export const StepsGraph: React.FC<Props> = props => {
   };
 
   const onSelectEdge = (edge: IEdge) => {
+    const edgeId = `edge-${edge.source}-${edge.target}-container`;
+    const edgeElement = document.getElementById(edgeId);
+    setElAnchor(edgeElement);
     if (edge.type === "addEdge") {
-      const edgeId = `edge-${edge.source}-${edge.target}-container`;
-      const edgeElement = document.getElementById(edgeId);
-      setElAnchor(edgeElement);
       setSelectedEdge(edge);
+      setApproverOpen(true);
+    } else if (edge.type === "ifEdge") {
+      setSelectedEdge(edge);
+      setSelectedStep(steps.find(x => x.stepId === edge.source));
       setConditionOpen(true);
     }
   };
 
+  // This function is necessary to change the text of the node to the name of the approver group
   const renderNodeText = (
     data: any,
     id: string | number,
@@ -99,6 +112,7 @@ export const StepsGraph: React.FC<Props> = props => {
         </text>
       );
     } else {
+      // Since SVG doesn't have the ability to word wrap, we break the name into lines, then figure out the positioning to center the text
       const label = breakLabel(data.title, 25);
       return (
         <text
@@ -136,66 +150,80 @@ export const StepsGraph: React.FC<Props> = props => {
     isEdgeSelected: boolean
   ) => {
     // This is to override the styles for the line
+    // TODO: Figure out how to rerender the edges during testing
     if (edgeContainer.querySelector(".edge")) {
-      edgeContainer
-        .querySelector(".edge")
-        .classList.replace("edge", classes.customEdge);
+      if (edge.type === "hiddenEmptyEdge") {
+        edgeContainer
+          .querySelector(".edge")
+          .classList.replace("edge", classes.hiddenEdge);
+      } else if (edge.type !== "hiddenEmptyEdge" && testReasonId) {
+        edgeContainer
+          .querySelector(".edge")
+          .classList.replace("edge", classes.testEdge);
+      } else {
+        edgeContainer
+          .querySelector(".edge")
+          .classList.replace("edge", classes.customEdge);
+      }
     }
   };
 
-  const handleAddCondition = (
-    groupId: string,
-    args?: string,
-    criteria?: string
-  ) => {
-    const nextId = getNextId(steps);
-    const sourceIndex = steps.findIndex(x => x.stepId == selectedEdge?.source);
-    const sourceStep = steps[sourceIndex];
-    const targetIndex = steps.findIndex(x => x.stepId == selectedEdge?.target);
-    const targetStep = steps[targetIndex];
-    const sourceOnApprovalIndex = steps[sourceIndex].onApproval?.findIndex(
-      (x: any) => x?.goto == selectedEdge?.target
-    );
-    steps[sourceIndex].onApproval[sourceOnApprovalIndex].goto = nextId;
-
-    steps.push({
-      stepId: nextId,
-      approverGroupHeaderId: groupId,
-      isFirstStep: false,
-      isLastStep: false,
-      deleted: false,
-      onApproval: [{ goto: selectedEdge?.target, args, criteria }],
-      yPosition: sourceStep.yPosition,
-      xPosition:
-        (sourceStep.xPosition as number) +
-        (targetStep.xPosition - sourceStep.xPosition) / 2,
+  const handleUpdateSteps = (modifiedSteps: ApprovalWorkflowStepInput[]) => {
+    modifiedSteps.forEach(step => {
+      const stepIndex = steps.findIndex(x => x.stepId === step.stepId);
+      if (stepIndex === -1) {
+        // If this is a new step add it and check to make sure its positioning doesn't overlap another node
+        if (
+          steps.find(
+            x =>
+              !x.deleted &&
+              x.xPosition === step.xPosition &&
+              x.yPosition === step.yPosition
+          )
+        ) {
+          step.yPosition = +step.yPosition - 200;
+        }
+        steps.push(step);
+      } else {
+        steps[stepIndex] = step;
+      }
     });
-  };
 
-  const handleUpdateCondition = (
-    stepId?: string,
-    groupId?: string,
-    args?: string,
-    criteria?: string
-  ) => {
-    if (!stepId && groupId) {
-      handleAddCondition(groupId, args, criteria);
-    } else {
-      const stepIndex = steps.findIndex(x => x.stepId == stepId);
-      steps[stepIndex].approverGroupHeaderId = groupId ?? null;
-      steps[stepIndex].onApproval[0].args = args; // TODO: This will need to handle multiple conditions when we start doing IFs
-      steps[stepIndex].onApproval[0].criteria = criteria;
+    // If removing a criteria caused an orphaned path, remove any orphaned steps
+    let allGotos = flatMap(
+      compact(
+        steps.filter(x => !x.deleted).map(x => x.onApproval.map(y => y.goto))
+      )
+    );
+    let orphanedStep = steps
+      .filter(x => !x.deleted)
+      .find(x => !allGotos.includes(x.stepId) && !x.isFirstStep);
+    while (orphanedStep) {
+      allGotos = flatMap(
+        compact(
+          steps.filter(x => !x.deleted).map(x => x.onApproval.map(y => y.goto))
+        )
+      );
+      orphanedStep = steps
+        .filter(x => !x.deleted)
+        .find(x => !allGotos.includes(x.stepId) && !x.isFirstStep);
+      if (orphanedStep !== undefined) {
+        const orphanedStepIndex = steps.findIndex(
+          x => x.stepId === orphanedStep?.stepId
+        );
+        steps[orphanedStepIndex].deleted = true;
+      }
     }
-
-    handleClosePopper();
   };
 
+  // Order is important here to avoid updating a component that is no longer mounted
+  // We are clearing out everything that was selected with the anchor element for the popper being last
   const handleClosePopper = () => {
-    setElAnchor(null);
-    setSelectedNode(null);
-    setConditionOpen(false);
     setSelectedEdge(undefined);
     setSelectedStep(null);
+    setConditionOpen(false);
+    setApproverOpen(false);
+    setElAnchor(null);
   };
 
   const handleRemoveStep = () => {
@@ -205,16 +233,26 @@ export const StepsGraph: React.FC<Props> = props => {
       const defaultGoto = steps[stepIndex].onApproval.find(x => !x.criteria)
         ?.goto;
 
+      // Iterate over all the non-deleted steps and check all transitions to see if the step being removed was referenced
+      // and if any transitions referenced the step set their goto to the default goto of the removed step if the default on the step doesn't already equal the default goto
+      // otherwise remove the transition and just update the default transition
       steps
         .filter(
           x =>
-            !x.deleted &&
-            x.onApproval.find(x => !x.criteria)?.goto === selectedStep.stepId
+            !x.deleted && x.onApproval.some(x => x.goto === selectedStep.stepId)
         )
         .forEach(x => {
-          const defaultTransition = x.onApproval.find(x => !x.criteria);
-          if (defaultTransition) {
-            defaultTransition.goto = defaultGoto;
+          for (let i = x.onApproval.length - 1; i >= 0; i--) {
+            if (x.onApproval[i].goto === selectedStep.stepId) {
+              if (
+                i !== x.onApproval.length - 1 &&
+                x.onApproval[x.onApproval.length - 1].goto === defaultGoto
+              ) {
+                x.onApproval.splice(i, 1);
+              } else {
+                x.onApproval[i].goto = defaultGoto;
+              }
+            }
           }
         });
 
@@ -223,7 +261,7 @@ export const StepsGraph: React.FC<Props> = props => {
   };
 
   return (
-    <div className={classes.graphBox}>
+    <div id="graph" className={classes.graphBox}>
       <GraphView
         nodeKey={NODE_KEY}
         nodes={nodes}
@@ -247,7 +285,7 @@ export const StepsGraph: React.FC<Props> = props => {
       />
       <Popper
         transition
-        open={conditionOpen}
+        open={approverOpen}
         anchorEl={elAnchor}
         placement="top"
       >
@@ -262,13 +300,52 @@ export const StepsGraph: React.FC<Props> = props => {
               <>
                 <AddUpdateApprover
                   orgId={props.orgId}
+                  workflowType={workflowType}
                   onClose={() => handleClosePopper()}
-                  onSave={handleUpdateCondition}
-                  steps={steps}
-                  approverGroups={approverGroups}
-                  myStep={selectedStep}
-                  defaultGotoStepId={selectedEdge?.target ?? ""}
+                  onSave={handleUpdateSteps}
                   onRemove={selectedStep ? handleRemoveStep : undefined}
+                  originalSteps={steps}
+                  modifiedSteps={cloneDeep(steps)}
+                  approverGroups={approverGroups}
+                  selectedStep={selectedStep}
+                  reasons={
+                    workflowType === ApprovalWorkflowType.Absence
+                      ? absenceReasons
+                      : workflowType === ApprovalWorkflowType.Vacancy
+                      ? vacancyReasons
+                      : []
+                  }
+                  previousStepId={selectedEdge?.source}
+                  nextStepId={selectedEdge?.target}
+                />
+              </>
+            </ClickAwayListener>
+          </Fade>
+        )}
+      </Popper>
+      <Popper
+        transition
+        open={conditionOpen}
+        anchorEl={elAnchor}
+        placement="top"
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={150}>
+            <ClickAwayListener
+              mouseEvent="onMouseDown"
+              onClickAway={() => {
+                handleClosePopper();
+              }}
+            >
+              <>
+                <ConditionPopper
+                  workflowType={workflowType}
+                  orgId={props.orgId}
+                  onClose={() => handleClosePopper()}
+                  onSave={handleUpdateSteps}
+                  steps={cloneDeep(steps)}
+                  selectedStepId={selectedStep?.stepId ?? ""}
+                  nextStepId={selectedEdge?.target}
                 />
               </>
             </ClickAwayListener>
@@ -297,6 +374,17 @@ const useStyles = makeStyles(theme => ({
   customEdge: {
     stroke: theme.customColors.black,
     strokeWidth: "1px",
+    color: theme.customColors.white,
+    cursor: "pointer",
+  },
+  hiddenEdge: {
+    stroke: "#050039",
+    strokeWidth: "1px",
+    color: theme.customColors.white,
+  },
+  testEdge: {
+    stroke: theme.customColors.black,
+    strokeWidth: "2px",
     color: theme.customColors.white,
     cursor: "pointer",
   },

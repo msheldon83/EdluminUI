@@ -281,7 +281,7 @@ export const PTOBalancesNavLink: React.FC<Props> = props => {
   );
 };
 
-export const SubPreferencesNavLink: React.FC<Props> = props => {
+export const EmpSubPreferencesNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
     <Can do={canViewEmpSubPrefNavLink}>
@@ -291,6 +291,13 @@ export const SubPreferencesNavLink: React.FC<Props> = props => {
         {...props}
       />
     </Can>
+  );
+};
+
+export const SubPreferencesNavLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  return (
+    <NavLink title={t("Sub Preferences")} icon={<SettingsIcon />} {...props} />
   );
 };
 

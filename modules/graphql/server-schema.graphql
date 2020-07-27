@@ -2434,6 +2434,13 @@ input EmployeeInterestInVacancyInput {
   overrideNonPreferredWarning: Boolean
 }
 
+input EmployeeLocationGroupPreferenceInput {
+  orgId: ID!
+  employeeId: ID!
+  locationGroupId: ID!
+  preferenceId: PersonalPreference!
+}
+
 type EmployeeLocationPreference implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -2468,6 +2475,8 @@ type EmployeeMutations {
   removeEndorsement(employeeId: ID!, endorsementId: ID!): Employee
   addOrChangeLocationPreference(locationPreference: EmployeeLocationPreferenceInput!): EmployeeLocationPreference
   removeLocationPreference(orgId: ID!, employeeId: ID!, locationId: ID!): Boolean
+  addOrChangeLocationGroupPreference(locationGroupPreference: EmployeeLocationGroupPreferenceInput!): Boolean
+  removeLocationGroupPreference(orgId: ID!, employeeId: ID!, locationGroupId: ID!): Boolean
 }
 
 type EmployeeQualifiedResult {
@@ -2501,7 +2510,6 @@ type EmployeeQueries {
   employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
-  employeeLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 input EmployeeRejectVacancyInput {
@@ -3931,6 +3939,7 @@ type OrgUserQueries {
   lastLoginById(id: ID!): OrgUserLastLogin
   verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
   suggestedAdminsForApproverGroups(locationId: ID, orgId: ID!): [OrgUser]
+  substituteLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -5225,6 +5234,13 @@ input PositionTypeUpdateInput {
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
+enum PreferenceFilter {
+  INVALID
+  SHOW_FAVORITES
+  SHOW_FAVORITES_AND_DEFAULT
+  SHOW_ALL
+}
+
 type QualifiedEmployeeCounts {
   _info: [ReturnMessage]
   nameMask: String!
@@ -6263,6 +6279,7 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
   comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
+  substituteLocationPreferences: [EmployeeLocationPreference]
 }
 
 input SubstituteAttributeInput {
@@ -6529,10 +6546,12 @@ type UserMutations {
 type UserPreferences {
   _info: [ReturnMessage]
   notificationPreferences: [NotificationPreference!]!
+  subJobPreferenceFilter: PreferenceFilter!
 }
 
 input UserPreferencesInput {
   notificationPreferences: [NotificationPreferenceInput]
+  subJobPreferenceFilter: PreferenceFilter
 }
 
 type UserQueries {

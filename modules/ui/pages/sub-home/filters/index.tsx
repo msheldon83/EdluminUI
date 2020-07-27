@@ -12,9 +12,9 @@ import { SchoolFilter } from "./school-filter";
 import { DistrictFilter } from "./org-filter";
 import { PositionTypeFilter } from "./position-type-filter";
 import { TimeFilter } from "./time-filter";
-import { PreferredFilter } from "./preferred-filter";
+import { PreferenceFilter } from "./preference-filter";
 
-type Props = { className?: string };
+type Props = { userId: string; className?: string };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -35,7 +35,7 @@ export const Filters: React.FC<Props> = props => {
       <PositionTypeFilter {...filters} positionTypeLabel={t("Position type")} />
       <TimeFilter {...filters} timeLabel={t("Time")} />
       */}
-      <PreferredFilter {...filters} />
+      <PreferenceFilter userId={props.userId} {...filters} />
     </Grid>
   );
 };

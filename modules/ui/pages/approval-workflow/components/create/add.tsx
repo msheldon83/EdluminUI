@@ -19,7 +19,7 @@ import {
 } from "ui/routes/approval-workflow";
 import { useHistory } from "react-router";
 import { BasicInfo, editableSections } from "./basic-info";
-import { initialSteps } from "../../types";
+import { initialSteps } from "../workflow-graph/types";
 import { WorkflowSteps } from "./workflow-steps";
 import { Section } from "ui/components/section";
 import { cloneDeep } from "lodash-es";

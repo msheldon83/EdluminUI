@@ -7,12 +7,13 @@ import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import Chip from "@material-ui/core/Chip";
 import { TextButton } from "ui/components/text-button";
 import FormHelperText from "@material-ui/core/FormHelperText";
-import { Input } from "./input";
+import { Input, LabelComponent } from "./input";
 import { useMemo } from "react";
 import { ErrorMessage } from "formik";
 
 export type SelectProps<T extends boolean> = {
   label?: string;
+  labelComponent?: LabelComponent;
   placeholder?: string;
   multiple: T;
   options: Array<OptionType>;
@@ -262,6 +263,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
             inputRef={inputRef}
             disabled={disabled}
             label={label}
+            labelComponent={props.labelComponent}
             name={name}
             placeholder={placeholder}
             error={inputStatus === "error"}

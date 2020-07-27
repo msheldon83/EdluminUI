@@ -48,9 +48,7 @@ export const WorkflowSteps: React.FC<Props> = props => {
                 <StepsGraph
                   steps={values.steps}
                   orgId={props.orgId}
-                  setSteps={(steps: ApprovalWorkflowStepInput[]) =>
-                    setFieldValue("steps", steps)
-                  }
+                  workflowType={props.workflowType}
                 />
               </Grid>
             </Grid>

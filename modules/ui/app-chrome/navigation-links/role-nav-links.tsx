@@ -31,6 +31,7 @@ import {
   PTOBalancesNavLink,
   SchoolsNavLink,
   SecurityNavLink,
+  EmpSubPreferencesNavLink,
   SubPreferencesNavLink,
   MobileSearchNavLink,
   DataManagementNavLink,
@@ -105,7 +106,7 @@ export const EmployeeNavLinks: React.FC<Props> = props => {
         navBarExpanded={props.navBarExpanded}
         route={EmployeePtoBalanceRoute.generate(params)}
       />
-      <SubPreferencesNavLink
+      <EmpSubPreferencesNavLink
         onClick={props.onClick}
         navBarExpanded={props.navBarExpanded}
         route={EmployeeSubPreferenceRoute.generate(params)}

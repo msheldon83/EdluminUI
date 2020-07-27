@@ -26,12 +26,14 @@ export type LinkOptions = {
 
 type Props = {
   permissions?: CanDo;
-  to: {
-    pathname: string;
-    hash?: string;
-    search?: string;
-    state?: any;
-  };
+  to:
+    | string
+    | {
+        pathname: string;
+        hash?: string;
+        search?: string;
+        state?: any;
+      };
 } & LinkOptions;
 
 // new URL() passes all props as defined, but that causes issues with Link
@@ -144,5 +146,8 @@ const useStyles = makeStyles(theme => ({
   },
   black: {
     color: theme.customColors.black,
+  },
+  grey: {
+    color: theme.customColors.edluminSubText,
   },
 }));
