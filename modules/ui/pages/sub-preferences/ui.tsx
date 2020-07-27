@@ -88,7 +88,7 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
   };
 
   return (
-    <Grid container>
+    <Grid container spacing={2}>
       {preferences.length == 0 ? (
         <Typography className={classes.h2}>
           {t("No preferences set")}
@@ -97,13 +97,7 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
         <Typography className={classes.h2}>{t("Loading...")}</Typography>
       ) : (
         <>
-          <Grid
-            item
-            container
-            xs={isMobile ? 12 : 6}
-            direction="column"
-            className={classes.column}
-          >
+          <Grid item container xs={isMobile ? 12 : 6} direction="column">
             <Typography className={classes.h2}>
               {groups.favorites.length == 0
                 ? t("No Favorite Schools")
@@ -130,13 +124,7 @@ export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
                 </React.Fragment>
               ))}
           </Grid>
-          <Grid
-            item
-            container
-            xs={isMobile ? 12 : 6}
-            direction="column"
-            className={classes.column}
-          >
+          <Grid item container xs={isMobile ? 12 : 6} direction="column">
             <Typography className={classes.h2}>
               {groups.hidden.length == 0 ? t("No Hidden Schools") : t("Hidden")}
             </Typography>
@@ -186,8 +174,5 @@ const useStyles = makeStyles(theme => ({
     "&:first-child": {
       paddingTop: theme.spacing(3),
     },
-  },
-  column: {
-    padding: theme.spacing(3),
   },
 }));
