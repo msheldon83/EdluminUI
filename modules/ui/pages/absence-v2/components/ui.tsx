@@ -623,18 +623,18 @@ export const AbsenceUI: React.FC<Props> = props => {
     ]
   );
 
-  const absenceDetails = absence?.vacancies
-    ? flatMap(compact(absence.vacancies), v => compact(v.details))
+  const allVacancyDetails = localAbsence?.vacancies
+    ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
     : [];
-  const hasFilledVacancies = absenceDetails.some(d => d.isFilled);
-  const hasVerifiedAssignments = absenceDetails.some(d => d.verifiedAtUtc);
+  const hasFilledVacancies = allVacancyDetails.some(d => d.isFilled);
+  const hasVerifiedAssignments = allVacancyDetails.some(d => d.verifiedAtUtc);
 
   const canDeleteAbsence =
-    actingAsEmployee && absence
-      ? isAfter(absence.startTimeLocal, new Date()) &&
+    actingAsEmployee && localAbsence
+      ? isAfter(localAbsence.startTimeLocal, new Date()) &&
         !hasFilledVacancies &&
-        absence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
-        absence.approvalStatus !== ApprovalStatus.Approved &&
+        localAbsence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
+        localAbsence.approvalStatus !== ApprovalStatus.Approved &&
         !hasVerifiedAssignments
       : true;
 
