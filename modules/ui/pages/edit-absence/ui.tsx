@@ -117,6 +117,7 @@ type Props = {
     preventAbsenceRefetch?: boolean
   ) => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
+  canDeleteAbsence: boolean;
   onDelete: () => void;
   returnUrl?: string;
   assignmentsByDate: AssignmentOnDate[];
@@ -758,7 +759,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               returnUrl={props.returnUrl}
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
-              onDelete={props.onDelete}
+              onDelete={props.canDeleteAbsence ? props.onDelete : undefined}
               onCancel={onClickReset}
               onAssignSubClick={onAssignSubClick}
               isFormDirty={

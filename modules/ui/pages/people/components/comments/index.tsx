@@ -7,6 +7,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { Section } from "ui/components/section";
 import { useTranslation } from "react-i18next";
+import { Can } from "ui/components/auth/can";
 import { CreateComment } from "../../graphql/create-comment.gen";
 import { UpdateComment } from "../../graphql/update-comment.gen";
 import { DeleteComment } from "../../graphql/delete-comment.gen";
@@ -20,6 +21,7 @@ import {
   CommentCreateInput,
   DiscussionSubjectType,
   ObjectType,
+  PermissionEnum,
 } from "graphql/server-types.gen";
 
 type Props = {
@@ -51,6 +53,11 @@ export const Comments: React.FC<Props> = props => {
   const [truncatedComments, setTruncatedComments] = useState<boolean>(true);
 
   const commentLength = comments?.length ?? 0;
+
+  const permsissionEnum =
+    discussionSubjectType === DiscussionSubjectType.Substitute
+      ? [PermissionEnum.SubstituteSave]
+      : [PermissionEnum.EmployeeSave];
 
   const [updateComment] = useMutationBundle(UpdateComment, {
     onError: error => {
@@ -131,6 +138,8 @@ export const Comments: React.FC<Props> = props => {
         ) : (
           comments?.map((c, i) => (
             <CommentView
+              orgId={orgId}
+              permissions={permsissionEnum}
               comment={c}
               onEditComment={onEditComment}
               onDeleteComment={onDeleteComment}
@@ -181,19 +190,21 @@ export const Comments: React.FC<Props> = props => {
             )}
           </>
         )}
-        {!newCommentVisible && (
-          <TextButton
-            className={clsx({
-              [classes.inline]: true,
-              [classes.paddingTop]: true,
-            })}
-            onClick={() => {
-              setNewCommentVisible(true);
-            }}
-          >
-            <span className={classes.link}>{t("Add comment")}</span>
-          </TextButton>
-        )}
+        <Can do={permsissionEnum} orgId={props.orgId}>
+          {!newCommentVisible && (
+            <TextButton
+              className={clsx({
+                [classes.inline]: true,
+                [classes.paddingTop]: true,
+              })}
+              onClick={() => {
+                setNewCommentVisible(true);
+              }}
+            >
+              <span className={classes.link}>{t("Add comment")}</span>
+            </TextButton>
+          )}
+        </Can>
       </Grid>
     </Section>
   );

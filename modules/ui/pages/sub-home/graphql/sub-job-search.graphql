@@ -23,6 +23,7 @@ query SubJobSearch(
       totalCount
       results {
         unavailableToWork
+        locationPreferenceId
         vacancy {
           id
           orgId

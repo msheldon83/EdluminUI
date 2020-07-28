@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Grid, makeStyles, Typography } from "@material-ui/core";
-import { addDays, format } from "date-fns";
+import { addDays, format, isToday } from "date-fns";
 import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { useQueryBundle } from "graphql/hooks";
@@ -46,6 +46,9 @@ export const VerifiedDailyFooter: React.FC<Props> = ({ orgId }) => {
     if (newDate) searchParams.set("date", format(newDate, "P"));
     return { pathname, search: searchParams.toString() };
   };
+  const tommorowClass = isToday(filters.date)
+    ? classes.hiddenTomorrow
+    : undefined;
 
   return (
     <Grid
@@ -72,6 +75,8 @@ export const VerifiedDailyFooter: React.FC<Props> = ({ orgId }) => {
         </Grid>
         <Grid item className={classes.cell}>
           <BaseLink
+            linkClass={tommorowClass}
+            textClass={tommorowClass}
             to={routeWithSearch(
               VerifyDailyRoute.generate(params),
               addDays(filters.date, 1)
@@ -92,5 +97,8 @@ const useStyles = makeStyles(theme => ({
   cell: {
     paddingLeft: theme.spacing(3),
     paddingRight: theme.spacing(3),
+  },
+  hiddenTomorrow: {
+    visibility: "hidden",
   },
 }));

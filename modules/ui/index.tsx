@@ -260,6 +260,8 @@ import { SubHomeLoader, SubHomeRoute } from "./routes/sub-home";
 import {
   SubPreferencesLoader,
   SubPreferencesRoute,
+  SubPreferencesEditLoader,
+  SubPreferencesEditRoute,
 } from "./routes/sub-preferences";
 import {
   SubSpecificOpportunityLoader,
@@ -370,8 +372,11 @@ import {
   AdminCreateAbsenceRouteV2,
   SelectEmployeeForCreateAbsenceLoaderV2,
   AdminSelectEmployeeForCreateAbsenceRouteV2,
-  AdminEditAbsenceLoaderV2,
   AdminEditAbsenceRouteV2,
+  EmployeeCreateAbsenceLoaderV2,
+  EmployeeCreateAbsenceRouteV2,
+  EmployeeEditAbsenceRouteV2,
+  EditAbsenceLoaderV2,
 } from "./routes/absence-v2";
 import { AdminFeedbackRoute, FeedbackLoader } from "./routes/feedback";
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -452,12 +457,21 @@ export const App = hot(function() {
                                 component={CreateAbsenceConfirmationLoader}
                                 path={CreateAbsenceConfirmationRoute.path}
                               />
+                              
                               <Route
                                 component={EmployeeCreateAbsenceLoader}
                                 path={EmployeeCreateAbsenceRoute.path}
                               />
                               <Route path={EmployeeEditAbsenceRoute.path}>
                                 <AdminEditAbsenceLoader actingAsEmployee />
+                              </Route>
+                              <Route
+                                component={EmployeeCreateAbsenceLoaderV2}
+                                path={EmployeeCreateAbsenceRouteV2.path}
+                                devFeatureOnly={true}
+                              />
+                              <Route path={EmployeeEditAbsenceRouteV2.path} devFeatureOnly={true}>
+                                <EditAbsenceLoaderV2 actingAsEmployee />
                               </Route>
 
                               <ProtectedRoute
@@ -538,6 +552,10 @@ export const App = hot(function() {
                                 <SubScheduleLoader view="list" />
                               </Route>
                               <Route
+                                component={SubPreferencesEditLoader}
+                                path={SubPreferencesEditRoute.path}
+                              />
+                              <Route
                                 component={SubPreferencesLoader}
                                 path={SubPreferencesRoute.path}
                               />
@@ -553,8 +571,8 @@ export const App = hot(function() {
                                 path={SubMobileSearchRoute.path}
                                 component={SubstituteMobileSearchLoader}
                               />
-                              {/* The following two routes must be the last two in this switch.  
-                              This first will match exactly and send the substitute to the home page.  
+                              {/* The following two routes must be the last two in this switch.
+                              This first will match exactly and send the substitute to the home page.
                               The second will send any unfound routes to the not found page.*/}
                               <Route
                                 exact
@@ -723,7 +741,7 @@ export const App = hot(function() {
                                     />
 
                                     <ProtectedRoute
-                                      component={AdminEditAbsenceLoaderV2}
+                                      component={EditAbsenceLoaderV2}
                                       path={AdminEditAbsenceRouteV2.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacView]}

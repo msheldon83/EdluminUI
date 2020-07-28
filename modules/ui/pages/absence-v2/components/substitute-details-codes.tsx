@@ -16,7 +16,6 @@ import { SelectNew } from "ui/components/form/select-new";
 
 type Props = {
   organizationId: string;
-  actingAsEmployee: boolean;
   locationIds?: string[];
   detailsHaveDifferentAccountingCodes: boolean;
   detailsHaveDifferentPayCodes: boolean;
@@ -31,7 +30,6 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
   const { t } = useTranslation();
   const {
     organizationId,
-    actingAsEmployee,
     locationIds,
     detailsHaveDifferentAccountingCodes,
     detailsHaveDifferentPayCodes,
@@ -56,9 +54,14 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
   );
   const hasPayCodeOptions = !!(payCodeOptions && payCodeOptions.length);
 
+  if (!hasAccountingCodeOptions && !hasPayCodeOptions) {
+    // Nothing to show to the User
+    return null;
+  }
+
   return (
     <Grid item container spacing={4}>
-      {!actingAsEmployee && hasAccountingCodeOptions && (
+      {hasAccountingCodeOptions && (
         <Can do={[PermissionEnum.AbsVacSaveAccountCode]}>
           <Grid
             item
@@ -97,7 +100,7 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
                 }
                 validationMessage={
                   errors.accountingCodeAllocations
-                    ? (errors.accountingCodeAllocations as string)
+                    ? errors.accountingCodeAllocations
                     : undefined
                 }
               />
@@ -105,7 +108,7 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
           </Grid>
         </Can>
       )}
-      {!actingAsEmployee && hasPayCodeOptions && (
+      {hasPayCodeOptions && (
         <Can do={[PermissionEnum.AbsVacSavePayCode]}>
           <Grid
             item

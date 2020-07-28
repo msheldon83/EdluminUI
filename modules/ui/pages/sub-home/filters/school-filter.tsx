@@ -1,4 +1,5 @@
 import { Grid } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
@@ -12,6 +13,7 @@ type Props = {
 
 // TODO We might need to convert this to a search box if we think the list of schools will be too large
 export const SchoolFilter: React.FC<Props> = props => {
+  const { t } = useTranslation();
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
 
   const locations = useLocations();
@@ -35,17 +37,15 @@ export const SchoolFilter: React.FC<Props> = props => {
   );
 
   return (
-    <>
-      <Grid item xs={12} sm={6} md={3} lg={3}>
-        <Select
-          label={props.locationLabel}
-          onChange={onChangeLocations}
-          value={value}
-          options={locationOptions}
-          multiple={true}
-          placeholder="Search for schools"
-        />
-      </Grid>
-    </>
+    <Grid item xs={12} sm={6} md={3} lg={3}>
+      <Select
+        label={props.locationLabel}
+        onChange={onChangeLocations}
+        value={value}
+        options={locationOptions}
+        multiple={true}
+        placeholder={t("Search for schools")}
+      />
+    </Grid>
   );
 };

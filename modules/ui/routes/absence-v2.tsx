@@ -30,13 +30,13 @@ export const CreateAbsenceLoaderV2 = asyncComponent({
   name: "Create Absence",
 });
 
-// export const EmployeeCreateAbsenceLoader = asyncComponent({
-//   async resolve() {
-//     return (await import("ui/pages/create-absence/employee"))
-//       .EmployeeCreateAbsence;
-//   },
-//   name: "Employee Create Absence",
-// });
+export const EmployeeCreateAbsenceLoaderV2 = asyncComponent({
+  async resolve() {
+    return (await import("ui/pages/absence-v2/create/employee-index"))
+      .EmployeeCreateAbsence;
+  },
+  name: "Employee Create Absence",
+});
 
 export const SelectEmployeeForCreateAbsenceLoaderV2 = asyncComponent({
   async resolve() {
@@ -72,14 +72,14 @@ export const AdminEditAbsenceRouteV2 = defineSubRoute(
   ["absenceId"]
 );
 
-export const AdminEditAbsenceLoaderV2 = asyncComponent({
+export const EmployeeEditAbsenceRouteV2 = defineSubRoute(
+  EmployeeChromeRoute,
+  "/absence/v2/edit/:absenceId",
+  ["absenceId"]
+);
+
+export const EditAbsenceLoaderV2 = asyncComponent({
   async resolve() {
     return (await import("ui/pages/absence-v2/edit")).EditAbsence;
   },
 });
-
-// export const EmployeeEditAbsenceRoute = defineSubRoute(
-//   EmployeeChromeRoute,
-//   "/absence/edit/:absenceId",
-//   ["absenceId"]
-// );

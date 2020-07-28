@@ -46,7 +46,7 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
       return undefined;
     }
 
-    return employeeInfo.data.employee?.byId;
+    return employeeInfo.data.orgUser?.byId?.employee;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeInfo.state]);
 
