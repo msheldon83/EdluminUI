@@ -175,7 +175,7 @@ export const useStyles = makeStyles(theme => ({
     display: "flex",
     padding: theme.spacing(2),
     justifyContent: "space-between",
-    alignItems: "right",
+    alignItems: "center",
     width: "100%",
   },
   divider: {
@@ -200,7 +200,7 @@ export const useStyles = makeStyles(theme => ({
   actions: {
     width: theme.typography.pxToRem(220),
     flexWrap: "wrap",
-    textAlign: "center",
+    textAlign: "right",
   },
   reassignButton: {
     marginRight: theme.typography.pxToRem(5),
