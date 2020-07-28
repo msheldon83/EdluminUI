@@ -335,6 +335,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
           absenceActions={absenceActions}
           footerActions={footerActions}
           disableAssignmentActions={disableReplacementInteractions}
+          allowRemoval={!absenceId}
         />
       )}
       {!values.needsReplacement && (

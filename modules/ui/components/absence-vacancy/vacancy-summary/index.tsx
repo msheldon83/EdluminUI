@@ -26,6 +26,7 @@ type Props = {
   isAbsence?: boolean;
   absenceActions?: JSX.Element;
   footerActions?: JSX.Element;
+  allowRemoval?: boolean;
 };
 
 export const VacancySummary: React.FC<Props> = props => {
@@ -46,6 +47,7 @@ export const VacancySummary: React.FC<Props> = props => {
     absenceActions = null,
     footerActions = null,
     noDaysChosenText = t("No days chosen"),
+    allowRemoval = false,
   } = props;
 
   const assignmentGroups = useMemo(() => {
@@ -107,6 +109,7 @@ export const VacancySummary: React.FC<Props> = props => {
             showPayCodes={showPayCodes}
             showAccountingCodes={showAccountingCodes}
             readOnly={props.readOnly ?? false}
+            allowRemoval={allowRemoval}
           />
         ))}
       </div>

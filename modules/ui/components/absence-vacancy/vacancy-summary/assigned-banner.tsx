@@ -21,6 +21,7 @@ type Props = {
   ) => Promise<boolean>;
   disableActions?: boolean;
   readOnly: boolean;
+  allowRemoval?: boolean;
 };
 
 export const AssignedBanner: React.FC<Props> = props => {
@@ -36,6 +37,7 @@ export const AssignedBanner: React.FC<Props> = props => {
     onReassignClick,
     onCancelAssignment,
     disableActions = false,
+    allowRemoval = false,
   } = props;
 
   const isExistingAssignment = !!assignmentWithDetails.assignment?.id;
@@ -138,15 +140,19 @@ export const AssignedBanner: React.FC<Props> = props => {
                 isSysAdmin: boolean,
                 orgId?: string,
                 forRole?: Role | null | undefined
-              ) =>
-                canRemoveSub(
+              ) => {
+                if (allowRemoval) {
+                  return true;
+                }
+
+                return canRemoveSub(
                   assignmentStartTime,
                   permissions,
                   isSysAdmin,
                   orgId,
                   forRole
-                )
-              }
+                );
+              }}
             >
               <Button
                 disabled={disableActions}
@@ -169,7 +175,7 @@ export const useStyles = makeStyles(theme => ({
     display: "flex",
     padding: theme.spacing(2),
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "right",
     width: "100%",
   },
   divider: {
