@@ -137,6 +137,7 @@ query GetEmployeeById(
               }
               bellSchedule {
                 id
+                name
               }
             }
           }

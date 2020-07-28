@@ -209,10 +209,9 @@ export const SubstituteDetails: React.FC<Props> = props => {
     return (
       <>
         {needsReplacementDisplay}
-        {values.needsReplacement && (
+        {values.needsReplacement && !actingAsEmployee && (
           <SubstituteDetailsCodes
             organizationId={organizationId}
-            actingAsEmployee={actingAsEmployee}
             locationIds={locationIds}
             detailsHaveDifferentAccountingCodes={
               detailsHaveDifferentAccountingCodes

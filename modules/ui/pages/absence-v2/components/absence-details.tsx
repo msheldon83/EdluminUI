@@ -10,9 +10,9 @@ import { compact, flatMap, intersection, sortBy } from "lodash-es";
 import { AbsenceCreateInput } from "graphql/server-types.gen";
 import { GetProjectedAbsenceUsage } from "../graphql/get-projected-absence-usage.gen";
 import { useQueryBundle } from "graphql/hooks";
-import { BalanceUsage } from "ui/components/absence/balance-usage";
 import { AbsenceDays } from "./absence-days";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
+import { BalanceUsage } from "./balance-usage";
 
 type Props = {
   absenceId?: string;
@@ -27,6 +27,7 @@ type Props = {
   projectionInput: AbsenceCreateInput | null;
   positionTypeId?: string;
   onTimeChange: () => void;
+  setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -47,6 +48,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     positionTypeId,
     absenceDates,
     onTimeChange,
+    setNegativeBalanceWarning,
     closedDates = [],
   } = props;
 
@@ -71,10 +73,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     setFieldValue("details", updatedDetails, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [absenceDates]);
-
-  const [negativeBalanceWarning, setNegativeBalanceWarning] = React.useState(
-    false
-  );
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
@@ -125,6 +123,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
       currentSelectedReasons
     );
     const isRequired = overlap.length > 0;
+    if (!values.requireNotesToApprover && !isRequired) {
+      // Bail out early if the current value and our calculated
+      // value are both falsy
+      return;
+    }
+
     if (values.requireNotesToApprover !== isRequired) {
       setFieldValue("requireNotesToApprover", isRequired);
     }
@@ -154,14 +158,14 @@ export const AbsenceDetails: React.FC<Props> = props => {
           </Grid>
         )} */}
 
-      {/* <BalanceUsage
+      <BalanceUsage
         orgId={organizationId}
         employeeId={employeeId}
         startDate={startOfDay(min(absenceDates))}
         actingAsEmployee={actingAsEmployee}
         usages={absenceBalanceUsages}
         setNegativeBalanceWarning={setNegativeBalanceWarning}
-      /> */}
+      />
 
       <div>
         <AbsenceDays

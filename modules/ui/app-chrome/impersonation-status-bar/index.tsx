@@ -29,6 +29,9 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     const impersonatingOrgUserId = sessionStorage.getItem(
       Config.impersonation.actingOrgUserIdKey
     );
+    const impersonatingUserId = sessionStorage.getItem(
+      Config.impersonation.actingUserIdKey
+    );
 
     sessionStorage.removeItem(Config.impersonation.actingUserIdKey);
     sessionStorage.removeItem(Config.impersonation.actingOrgUserIdKey);
@@ -40,6 +43,8 @@ export const ImpersonationStatusBar: React.FC<Props> = props => {
     window.location.href =
       impersonatingOrgId && impersonatingOrgUserId
         ? `/?impersonatingOrgId=${impersonatingOrgId}&impersonatingOrgUserId=${impersonatingOrgUserId}`
+        : impersonatingUserId
+        ? `/?impersonatingUserId=${impersonatingUserId}`
         : "/";
   }, []);
 
