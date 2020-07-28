@@ -3,22 +3,14 @@ import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRouteV2 } from "ui/routes/absence-v2";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { AbsenceUI } from "../components/ui";
-import { NotFound } from "ui/pages/not-found";
-import { GetEmployee } from "../graphql/get-employee.gen";
-import { compact, flatMap } from "lodash-es";
+import { compact, flatMap, uniq } from "lodash-es";
 import {
   NeedsReplacement,
-  AbsenceCreateInput,
   Absence,
   AbsenceUpdateInput,
   DayPart,
 } from "graphql/server-types.gen";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
-import {
-  noAllocation,
-  AccountingCodeValue,
-} from "ui/components/form/accounting-code-dropdown";
-import { CreateAbsence } from "../graphql/create.gen";
 import { ApolloError } from "apollo-client";
 import { GetAbsence } from "../graphql/get-absence.gen";
 import { useTranslation } from "react-i18next";
@@ -30,6 +22,8 @@ import { DeletedDataIndex } from "./deleted-data-index";
 import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete-absence-vacancy-dialog";
 import { UpdateAbsence } from "../graphql/update-absence.gen";
 import { startOfDay, parseISO, startOfMonth } from "date-fns";
+import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { AdminHomeRoute } from "ui/routes/admin-home";
 
 type Props = { actingAsEmployee?: boolean };
 
@@ -69,6 +63,19 @@ export const EditAbsence: React.FC<Props> = props => {
   const onClickDelete = React.useCallback(() => setDeleteDialogIsOpen(true), [
     setDeleteDialogIsOpen,
   ]);
+
+  const goBack = React.useCallback(() => {
+    if (document.referrer === "") {
+      history.push(
+        actingAsEmployee
+          ? EmployeeHomeRoute.generate({})
+          : AdminHomeRoute.generate({ organizationId })
+      );
+    } else {
+      history.goBack();
+    }
+  }, [history, organizationId, actingAsEmployee]);
+
   const onDeleteAbsence = React.useCallback(async () => {
     const result = await deleteAbsence({
       variables: {
@@ -85,9 +92,9 @@ export const EditAbsence: React.FC<Props> = props => {
         status: "success",
         autoHideDuration: 5000,
       });
-      //goBack();
+      goBack();
     }
-  }, [deleteAbsence, absenceId, openSnackbar, t]); //goBack
+  }, [deleteAbsence, absenceId, openSnackbar, t, goBack]);
 
   const absence: Absence | null | undefined = React.useMemo(() => {
     return absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING"
@@ -181,13 +188,23 @@ export const EditAbsence: React.FC<Props> = props => {
     return <></>;
   }
 
-  const accountingCodeAllocations = compact(vacancy?.details)[0]?.accountingCodeAllocations?.map(a => {
+  const accountingCodeAllocations = compact(
+    vacancy?.details
+  )[0]?.accountingCodeAllocations?.map(a => {
     return {
       accountingCodeId: a.accountingCodeId,
       accountingCodeName: a.accountingCode?.name,
-      allocation: a.allocation
-    }
-  })
+      allocation: a.allocation,
+    };
+  });
+
+  const replacementEmployeeNames = uniq(
+    compact(
+      assignmentsByDate.map(a =>
+        a.employee ? `${a.employee.firstName} ${a.employee.lastName}` : null
+      )
+    )
+  );
 
   return (
     <>
@@ -196,7 +213,7 @@ export const EditAbsence: React.FC<Props> = props => {
         onDelete={onDeleteAbsence}
         onClose={() => setDeleteDialogIsOpen(false)}
         open={deleteDialogIsOpen}
-        //replacementEmployeeName={replacementEmployeeName}
+        replacementEmployeeNames={replacementEmployeeNames}
       />
       <AbsenceUI
         organizationId={organizationId}
@@ -231,7 +248,7 @@ export const EditAbsence: React.FC<Props> = props => {
             : undefined,
           accountingCodeAllocations: vacancy?.details
             ? mapAccountingCodeAllocationsToAccountingCodeValue(
-              accountingCodeAllocations ?? undefined
+                accountingCodeAllocations ?? undefined
               )
             : undefined,
         }}
