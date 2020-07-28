@@ -124,7 +124,7 @@ export const EditAbsence: React.FC<Props> = props => {
     if (!absence || !absence?.vacancies) {
       return [];
     }
-    
+
     const assignments = compact(
       flatMap(
         absence?.vacancies?.map(v =>
@@ -132,16 +132,16 @@ export const EditAbsence: React.FC<Props> = props => {
             if (!vd.assignment) {
               return null;
             }
-  
+
             return {
               detail: vd,
               assignment: vd.assignment,
             };
           })
-        )
-      ?? [])
+        ) ?? []
+      )
     );
-    
+
     return assignments.map(a => {
       return {
         assignmentId: a.assignment.id,
@@ -154,7 +154,7 @@ export const EditAbsence: React.FC<Props> = props => {
           lastName: a.assignment.employee?.lastName ?? "",
         },
       };
-    })
+    });
   }, [absence]);
 
   const notesToApproverRequired = React.useMemo(() => {
@@ -180,6 +180,14 @@ export const EditAbsence: React.FC<Props> = props => {
   if (!absence || !employee) {
     return <></>;
   }
+
+  const accountingCodeAllocations = compact(vacancy?.details)[0]?.accountingCodeAllocations?.map(a => {
+    return {
+      accountingCodeId: a.accountingCodeId,
+      accountingCodeName: a.accountingCode?.name,
+      allocation: a.allocation
+    }
+  })
 
   return (
     <>
@@ -218,6 +226,14 @@ export const EditAbsence: React.FC<Props> = props => {
           needsReplacement: !!vacancy,
           notesToReplacement: vacancy?.notesToReplacement ?? undefined,
           requireNotesToApprover: notesToApproverRequired,
+          payCodeId: vacancy?.details
+            ? vacancy?.details[0]?.payCodeId ?? undefined
+            : undefined,
+          accountingCodeAllocations: vacancy?.details
+            ? mapAccountingCodeAllocationsToAccountingCodeValue(
+              accountingCodeAllocations ?? undefined
+              )
+            : undefined,
         }}
         initialAbsenceState={() => {
           const absenceDates = absenceDetails.map(d => d.date);
@@ -236,7 +252,7 @@ export const EditAbsence: React.FC<Props> = props => {
             isClosed: false,
             closedDates: [],
             approvalState: absence?.approvalState,
-            assignmentsByDate: assignmentsByDate
+            assignmentsByDate: assignmentsByDate,
           };
         }}
         saveAbsence={async data => {
