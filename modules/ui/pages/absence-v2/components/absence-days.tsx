@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { FormControlLabel, Checkbox, makeStyles } from "@material-ui/core";
 import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
+import { SelectNew } from "ui/components/form/select-new";
 
 type Props = {
   details: AbsenceDetail[];
@@ -78,6 +79,31 @@ export const AbsenceDays: React.FC<Props> = props => {
 
   return (
     <>
+      {details.length === 0 && (
+        <div>
+          <div className={classes.placeholderSelectionSpacing}>
+            {t("Please select one or more dates above")}
+          </div>
+          <div className={classes.placeholderSelectionSpacing}>
+            <SelectNew
+              label={t("Reason")}
+              value={undefined}
+              multiple={false}
+              disabled={true}
+              options={[]}
+            />
+          </div>
+          <div className={classes.placeholderSelectionSpacing}>
+            <SelectNew
+              label={t("Times")}
+              value={undefined}
+              multiple={false}
+              disabled={true}
+              options={[]}
+            />
+          </div>
+        </div>
+      )}
       {details.map((ad, i) => {
         if (allDetailsAreTheSame && i > 0) {
           return <React.Fragment key={ad.id ?? format(ad.date, "P")} />;
@@ -227,6 +253,9 @@ const useStyles = makeStyles(theme => ({
   sameOptions: {
     display: "flex",
     justifyContent: "space-between",
+  },
+  placeholderSelectionSpacing: {
+    marginTop: theme.spacing(),
   },
 }));
 
