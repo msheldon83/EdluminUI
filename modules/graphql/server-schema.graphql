@@ -687,6 +687,7 @@ type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface 
   active: Boolean!
   name: String!
   definition: String!
+  query: String
   fileNameFormat: String
   fileFormat: FileFormat
   path: String!

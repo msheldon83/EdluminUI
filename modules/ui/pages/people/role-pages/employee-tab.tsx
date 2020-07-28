@@ -20,13 +20,13 @@ import { ReplacementCriteria } from "../components/employee/replacement-criteria
 import { SubstitutePrefCard } from "ui/components/sub-pools/subpref-card";
 import { useOrganization } from "reference-data/organization";
 import { Information } from "../components/information";
+import { canEditEmployee } from "helpers/permissions";
 import { Comments } from "../components/comments/index";
 import {
   EmployeeSubstitutePreferenceRoute,
   PersonViewRoute,
 } from "ui/routes/people";
 import { useRouteParams } from "ui/routes/definition";
-import { canEditEmployee } from "helpers/permissions";
 import { useCanDo } from "ui/components/auth/can";
 import { compact } from "lodash-es";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
@@ -109,6 +109,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         onSubmit={onUpdateEmployee}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
+
       <Comments
         refetchQuery={refetchQuery}
         staffingOrgId={staffingOrgId}
@@ -118,6 +119,7 @@ export const EmployeeTab: React.FC<Props> = props => {
         objectType={ObjectType.User}
         orgId={params.organizationId}
       />
+
       <Position
         editing={props.editing}
         editable={canEditThisEmployee}

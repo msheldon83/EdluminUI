@@ -4,16 +4,23 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import EditIcon from "@material-ui/icons/Edit";
 import clsx from "clsx";
-import { Comment, CommentUpdateInput } from "graphql/server-types.gen";
+import {
+  Comment,
+  CommentUpdateInput,
+  PermissionEnum,
+} from "graphql/server-types.gen";
 import { makeStyles } from "@material-ui/styles";
 import { format, parseISO } from "date-fns";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
+  orgId: string;
   comment: Comment;
   onEditComment: (editComment: CommentUpdateInput) => void;
   onDeleteComment: (id: string) => void;
   newCommentVisible: boolean;
   iterationCount: number;
+  permissions: PermissionEnum[];
 };
 
 export const CommentView: React.FC<Props> = props => {
@@ -136,18 +143,20 @@ export const CommentView: React.FC<Props> = props => {
               <div className={classes.edited}>{t("(edited)")}</div>
             )}
           </Grid>
-          <Grid item xs={1}>
-            {!newCommentVisible && (
-              <div
-                className={classes.iconHover}
-                onClick={() => {
-                  setShowEdit(!showEdit);
-                }}
-              >
-                <EditIcon className={classes.icon} />
-              </div>
-            )}
-          </Grid>
+          <Can do={props.permissions} orgId={props.orgId}>
+            <Grid item xs={1}>
+              {!newCommentVisible && (
+                <div
+                  className={classes.iconHover}
+                  onClick={() => {
+                    setShowEdit(!showEdit);
+                  }}
+                >
+                  <EditIcon className={classes.icon} />
+                </div>
+              )}
+            </Grid>
+          </Can>
         </>
       )}
     </Grid>
