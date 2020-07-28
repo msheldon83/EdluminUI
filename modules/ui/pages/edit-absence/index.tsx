@@ -366,7 +366,9 @@ export const EditAbsence: React.FC<Props> = props => {
         onDelete={onDeleteAbsence}
         onClose={() => setDeleteDialogIsOpen(false)}
         open={deleteDialogIsOpen}
-        replacementEmployeeName={replacementEmployeeName}
+        replacementEmployeeNames={
+          replacementEmployeeName ? [replacementEmployeeName] : undefined
+        }
       />
 
       <EditAbsenceUI
