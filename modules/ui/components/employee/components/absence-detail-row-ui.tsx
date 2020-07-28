@@ -32,7 +32,11 @@ export const AbsenceDetailRowUI: React.FC<Props> = props => {
   const [assignmentsExpanded, setAssignmentsExpanded] = useState(false);
 
   const canCancel = props.actingAsEmployee
-    ? isAfter(props.absence.startTimeLocal, new Date())
+    ? isAfter(props.absence.startTimeLocal, new Date()) &&
+      !props.absence.isFilled &&
+      props.absence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
+      props.absence.approvalStatus !== ApprovalStatus.Approved &&
+      props.absence.assignments.every(a => !a.verifiedAtUtc)
     : true;
 
   return (

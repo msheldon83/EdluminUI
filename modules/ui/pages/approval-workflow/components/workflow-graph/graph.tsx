@@ -20,13 +20,14 @@ type Props = {
   orgId: string;
   workflowType: ApprovalWorkflowType;
   testReasonId?: string;
+  setStepsDirty: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const StepsGraph: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { steps, workflowType, testReasonId } = props;
+  const { steps, workflowType, testReasonId, setStepsDirty } = props;
 
   const absenceReasons = useAbsenceReasons(props.orgId);
   const vacancyReasons = useVacancyReasons(props.orgId);
@@ -83,6 +84,7 @@ export const StepsGraph: React.FC<Props> = props => {
     const stepIndex = steps.findIndex(x => x.stepId == node.id);
     steps[stepIndex].xPosition = node.x;
     steps[stepIndex].yPosition = node.y;
+    setStepsDirty(true);
   };
 
   const onSelectEdge = (edge: IEdge) => {
@@ -214,6 +216,8 @@ export const StepsGraph: React.FC<Props> = props => {
         steps[orphanedStepIndex].deleted = true;
       }
     }
+
+    setStepsDirty(true);
   };
 
   // Order is important here to avoid updating a component that is no longer mounted
@@ -257,6 +261,7 @@ export const StepsGraph: React.FC<Props> = props => {
         });
 
       handleClosePopper();
+      setStepsDirty(true);
     }
   };
 

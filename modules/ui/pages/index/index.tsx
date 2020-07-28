@@ -9,6 +9,7 @@ import { useHistory } from "react-router";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { PersonViewRoute } from "ui/routes/people";
+import { UserViewRoute } from "ui/routes/users";
 
 export const IndexPage: React.FunctionComponent = props => {
   const history = useHistory();
@@ -45,6 +46,7 @@ export const IndexPage: React.FunctionComponent = props => {
 
   let impersonatingOrgId: string | undefined = undefined;
   let impersonatingOrgUserId: string | undefined = undefined;
+  let impersonatingUserId: string | undefined = undefined;
 
   if (history.location.search) {
     // These are being passed in the querystring instead of location.state due to
@@ -55,6 +57,8 @@ export const IndexPage: React.FunctionComponent = props => {
       impersonatingOrgId = searchParams.get("impersonatingOrgId") ?? undefined;
       impersonatingOrgUserId =
         searchParams.get("impersonatingOrgUserId") ?? undefined;
+      impersonatingUserId =
+        searchParams.get("impersonatingUserId") ?? undefined;
     } catch (e) {
       // All browsers currently support URLSearchParams except for
       // Internet Explorer. Since we're supporting Edge and not that,
@@ -85,6 +89,10 @@ export const IndexPage: React.FunctionComponent = props => {
             })}
           />
         )
+      ) : roles.isSystemAdministrator && impersonatingUserId ? (
+        <Redirect
+          to={UserViewRoute.generate({ userId: impersonatingUserId })}
+        />
       ) : roles.isSystemAdministrator || (roles.isAdmin && roles.multiOrgs) ? (
         <Redirect to={AdminRootChromeRoute.generate({})} />
       ) : roles.isAdmin && !roles.multiOrgs ? (

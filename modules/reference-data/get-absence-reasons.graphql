@@ -16,6 +16,7 @@ query GetAbsenceReasons($orgId: ID) {
       }
       positionTypeIds
       allPositionTypes
+      requiresApproval
     }
   }
 }

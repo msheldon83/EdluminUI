@@ -13,6 +13,7 @@ import {
   Absence,
   Vacancy,
   CancelVacancyAssignmentInput,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import {
@@ -38,6 +39,7 @@ import { AbsenceDetails } from "./absence-details";
 import {
   isSameDay,
   format,
+  isAfter,
   isBefore,
   startOfDay,
   min,
@@ -621,6 +623,21 @@ export const AbsenceUI: React.FC<Props> = props => {
     ]
   );
 
+  const absenceDetails = absence?.vacancies
+    ? flatMap(compact(absence.vacancies), v => compact(v.details))
+    : [];
+  const hasFilledVacancies = absenceDetails.some(d => d.isFilled);
+  const hasVerifiedAssignments = absenceDetails.some(d => d.verifiedAtUtc);
+
+  const canDeleteAbsence =
+    actingAsEmployee && absence
+      ? isAfter(absence.startTimeLocal, new Date()) &&
+        !hasFilledVacancies &&
+        absence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
+        absence.approvalStatus !== ApprovalStatus.Approved &&
+        !hasVerifiedAssignments
+      : true;
+
   return (
     <>
       <PageTitle
@@ -869,7 +886,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               </Typography>
                             )}
                           </div>
-                          {deleteAbsence && !formIsDirty && (
+                          {deleteAbsence && canDeleteAbsence && !formIsDirty && (
                             <Can do={[PermissionEnum.AbsVacDelete]}>
                               <Button
                                 onClick={() => deleteAbsence()}
