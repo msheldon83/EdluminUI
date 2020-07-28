@@ -152,20 +152,30 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
         </div>
       </div>
 
-      {showingDetails && (
+      {showingDetails && !"Need UX for mobile" && (
         <Collapse in={showingDetails}>
           <div className={classes.group}>
             <div className={classes.item}>
               <div>
                 {props.highlighted || inSwapMode ? (
-                  props.detail.location?.name
+                  props.detail.locations?.length ? (
+                    props.detail.locations[0].name
+                  ) : (
+                    undefined
+                  )
                 ) : (
                   <LocationLink
-                    locationId={props.detail.location?.id}
+                    locationId={
+                      props.detail.locations?.length
+                        ? props.detail.locations[0].id
+                        : undefined
+                    }
                     linkClass={classes.action}
                     textClass={condClosed}
                   >
-                    {props.detail.location?.name}
+                    {props.detail.locations?.length
+                      ? props.detail.locations[0].id
+                      : undefined}
                   </LocationLink>
                 )}
               </div>
