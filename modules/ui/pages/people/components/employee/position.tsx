@@ -83,7 +83,9 @@ export const Position: React.FC<Props> = props => {
       ? props.accountingCodeAllocations
           ?.map(
             ac =>
-              `${ac?.accountingCode?.name} (${(ac?.allocation ?? 0) * 100}%)`
+              `${ac?.accountingCode?.name} (${(
+                (ac?.allocation ?? 0) * 100
+              ).toFixed(2)}%)`
           )
           .join(", ") ?? t("None defined")
       : props.accountingCodeAllocations[0]?.accountingCode?.name ??
