@@ -47,7 +47,7 @@ type Props = {
   onAssignSubClick: (
     vacancySummaryDetailsToAssign: VacancySummaryDetail[]
   ) => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
+  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<boolean>;
   onEditSubDetailsClick: () => void;
   onProjectedVacanciesChange: (vacancies: Vacancy[]) => void;
   onOverallCodeChanges: (details: {

@@ -283,7 +283,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   });
 
   const onCancelAssignment = React.useCallback(
-    async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]) => {
+    async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]): Promise<boolean> => {
       // Get all of the matching details
       const vacancyDetails =
         state.customizedVacanciesInput ?? state.projectedVacancyDetails;
@@ -302,7 +302,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         !detailsToCancelAssignmentsFor ||
         detailsToCancelAssignmentsFor.length === 0
       ) {
-        return;
+        return true;
       }
 
       if (isCreate && !localAbsence) {
@@ -321,6 +321,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           }),
           addRemoveOrUpdate: "remove",
         });
+        return true;
       } else {
         console.log("cancelling", vacancyDetailIds, vacancyDetailDates);
 
@@ -347,6 +348,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         );
 
         let assignmentsByDate = [...(state.assignmentsByDate ?? [])];
+        let allCancellationsSuccessful = true;
         for (let index = 0; index < assignmentsToCancel.length; index++) {
           const toCancel = assignmentsToCancel[index];
           const result = await cancelAssignment({
@@ -377,7 +379,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                   toCancel.vacancyDetailIds?.includes(a.vacancyDetailId)
               );
             }
-          }
+          } else {
+            allCancellationsSuccessful = false;
+          }           
         }
 
         // Update the assignment info stored in state
@@ -386,6 +390,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           assignments: assignmentsByDate,
           addRemoveOrUpdate: "update",
         });
+        return allCancellationsSuccessful;
       }
     },
     [

@@ -366,7 +366,7 @@ export const AssignSub: React.FC<Props> = props => {
                 <VacancySummary
                   vacancySummaryDetails={vacancySummaryDetails}
                   onAssignClick={async () => {}}
-                  onCancelAssignment={async () => {}}
+                  onCancelAssignment={async () => true}
                   detailsOnly={true}
                   divRef={vacancyDetailsRef}
                   showAccountingCodes={accountingCodes.length > 0}

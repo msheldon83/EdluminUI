@@ -15,7 +15,7 @@ type Props = {
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   disableActions?: boolean;
   detailsOnly?: boolean;
   readOnly: boolean;

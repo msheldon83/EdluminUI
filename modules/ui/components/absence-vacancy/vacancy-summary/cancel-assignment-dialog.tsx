@@ -27,7 +27,7 @@ type Props = {
   onCancelAssignment: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
 };
 
 export const CancelAssignmentDialog: React.FC<Props> = props => {

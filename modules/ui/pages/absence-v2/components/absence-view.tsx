@@ -30,7 +30,7 @@ type Props = {
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
 };
 
 export const AbsenceView: React.FC<Props> = props => {

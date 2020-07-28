@@ -17,7 +17,7 @@ type Props = {
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
   divRef?: React.RefObject<HTMLDivElement>;

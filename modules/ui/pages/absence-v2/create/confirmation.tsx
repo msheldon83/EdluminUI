@@ -25,7 +25,7 @@ type Props = {
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
 };
 
 export const Confirmation: React.FC<Props> = props => {
