@@ -11,33 +11,41 @@ import { NumberInput } from "./number-input";
 import { TextButton } from "ui/components/text-button";
 import { FormHelperText } from "@material-ui/core";
 
-export type AllocationDropdownProps<T = any> = {
-  value?: AllocationCodeValue<T>;
+export type AllocationDropdownProps = {
+  value?: AllocationCodeValue;
   placeholder?: string;
   multipleAllocationPlaceholder?: string;
   label?: string;
   options: OptionType[];
-  onChange: (value: AllocationCodeValue<T>) => void;
+  onChange: (value: AllocationCodeValue) => void;
   showLabel?: boolean;
   disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string;
+  renderAllocationAmount?: (
+    props: RenderAllocationAmountArgs
+  ) => React.ReactElement;
 };
 
-export type AllocationCodeValue<T = any> =
+export type RenderAllocationAmountArgs = {
+  disabled: boolean | undefined;
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+};
+
+export type AllocationCodeValue =
   | { type: "no-allocation"; selection: undefined }
   | { type: "single-allocation"; selection?: OptionType }
   | {
       type: "multiple-allocations";
       selection?: OptionType;
-      allocations: Allocation<T>[];
+      allocations: Allocation[];
     };
 
-type Allocation<T = any> = {
+type Allocation = {
   id: number;
   selection?: OptionType;
-  percentage?: number;
-  allocationUnit?: T;
+  amount?: number;
 };
 
 /*
@@ -89,6 +97,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
     inputStatus = "default",
     placeholder,
     multipleAllocationPlaceholder,
+    renderAllocationAmount,
   } = props;
 
   const classes = useStyles();
@@ -190,28 +199,24 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
           withResetValue={false}
           onChange={selection => updateAllocation({ ...allocation, selection })}
         />
-        <NumberInput
-          className={classes.multiCodeInput}
-          endAdornment="%"
-          onChange={percentage => {
-            updateAllocation({ ...allocation, percentage });
-          }}
-          value={allocation.percentage}
-          maxLength={2}
+        {renderAllocationAmount &&
+          renderAllocationAmount({
+            disabled,
+            value: allocation.amount,
+            onChange(amount) {
+              updateAllocation({ ...allocation, amount });
+            },
+          })}
+        <IconButton
+          aria-label="delete"
+          role="button"
+          disableFocusRipple
+          size="small"
+          onClick={() => removeAllocation(allocation.id)}
           disabled={disabled}
-        />
-        <span className={classes.multiCodeDeleteButton}>
-          <IconButton
-            aria-label="delete"
-            role="button"
-            disableFocusRipple
-            size="small"
-            onClick={() => removeAllocation(allocation.id)}
-            disabled={disabled}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </span>
+        >
+          <DeleteIcon />
+        </IconButton>
       </>
     );
   });
@@ -301,15 +306,12 @@ const useStyles = makeStyles(theme => ({
   multiCodeList: {
     listStyle: "none",
     margin: 0,
-    padding: `${theme.typography.pxToRem(
-      theme.spacing(1.5)
-    )} ${theme.typography.pxToRem(theme.spacing(1))} ${theme.typography.pxToRem(
-      theme.spacing(1)
-    )}`,
+    padding: `${theme.typography.pxToRem(theme.spacing(1.5))}`,
 
     "& li": {
       alignItems: "center",
       display: "flex",
+      justifyContent: "flex-start",
       marginBottom: theme.spacing(1),
     },
 
@@ -321,18 +323,12 @@ const useStyles = makeStyles(theme => ({
     flex: "1 0 auto",
     marginRight: theme.spacing(1),
   },
-  multiCodeInput: {
-    width: theme.spacing(8),
-  },
-  multiCodeDeleteButton: {
-    paddingLeft: theme.spacing(1),
-  },
   alloctionButtons: {
     padding: `0 ${theme.typography.pxToRem(
-      theme.spacing(1)
-    )} ${theme.typography.pxToRem(theme.spacing(1))} ${theme.typography.pxToRem(
-      theme.spacing(1)
-    )}`,
+      theme.spacing(1.5)
+    )} ${theme.typography.pxToRem(
+      theme.spacing(1.5)
+    )} ${theme.typography.pxToRem(theme.spacing(1.5))}`,
   },
   addAllocationButton: {
     color: theme.messages.default,

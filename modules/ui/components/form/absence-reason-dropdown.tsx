@@ -5,7 +5,9 @@ import {
   AllocationDropdown,
   AllocationDropdownProps,
   AllocationCodeValue,
+  RenderAllocationAmountArgs,
 } from "./allocation-dropdown";
+import { NumberInput } from "ui/components/form/number-input";
 
 type AbsenceReasonDropdownProps = AllocationDropdownProps & {};
 
@@ -21,8 +23,31 @@ export const AbsenceReasonDropdown = (props: AbsenceReasonDropdownProps) => {
       multipleAllocationPlaceholder={t("Select reason")}
       placeholder={t("Select code")}
       label={t("Reason")}
+      renderAllocationAmount={(allocationProps: RenderAllocationAmountArgs) => {
+        return (
+          <>
+            <NumberInput
+              {...allocationProps}
+              className={classes.amountColumn}
+              endAdornment="hrs"
+              maxLength={2}
+            />
+            <NumberInput
+              {...allocationProps}
+              className={classes.amountColumn}
+              endAdornment="days"
+              maxLength={2}
+            />
+          </>
+        );
+      }}
     />
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  amountColumn: {
+    marginRight: theme.spacing(1),
+    width: theme.spacing(9),
+  },
+}));
