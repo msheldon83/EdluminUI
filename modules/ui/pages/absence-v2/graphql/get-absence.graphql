@@ -182,6 +182,8 @@ query GetAbsence($id: ID!) {
             }
             allocation
           }
+          isFilled
+          verifiedAtUtc
         }
         absenceId
         absence {
@@ -195,6 +197,7 @@ query GetAbsence($id: ID!) {
           }
         }
       }
+      approvalStatus
     }
   }
 }

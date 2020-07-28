@@ -85,6 +85,8 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
             }
             allocation
           }
+          isFilled
+          verifiedAtUtc
         }
         absence {
           startDate
@@ -97,6 +99,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
           }
         }
       }
+      approvalStatus
     }
   }
 }

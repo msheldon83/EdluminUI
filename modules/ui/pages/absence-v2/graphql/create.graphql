@@ -89,6 +89,8 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
             }
             allocation
           }
+          isFilled
+          verifiedAtUtc
         }
         absence {
           startDate
@@ -101,6 +103,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
           }
         }
       }
+      approvalStatus
       createdUtc
       changedUtc
     }
