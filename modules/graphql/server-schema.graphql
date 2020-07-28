@@ -596,6 +596,9 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
+  firstName: String!
+  middleName: String
+  lastName: String!
   dateOfBirth: Date
   address1: String
   address2: String
@@ -604,12 +607,9 @@ type Administrator implements ModelObjectInterface & OrgObjectInterface & Domain
   postalCode: String
   country: CountryCode
   active: Boolean!
-  email: String!
-  phoneNumber: String
-  formattedPhone: String
-  firstName: String!
-  middleName: String
-  lastName: String!
+  email: Boolean
+  phoneNumber: Boolean
+  formattedPhone: Boolean
   isSuperUser: Boolean!
   permissionSet: PermissionSet
   permissions: [PermissionEnum]
@@ -2319,6 +2319,9 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  firstName: String!
+  middleName: String
+  lastName: String!
   dateOfBirth: Date
   address1: String
   address2: String
@@ -2327,12 +2330,9 @@ type Employee implements ModelObjectInterface & OrgObjectInterface {
   postalCode: String
   country: CountryCode
   active: Boolean!
-  email: String!
+  email: String
   phoneNumber: String
   formattedPhone: String
-  firstName: String!
-  middleName: String
-  lastName: String!
   rowVersion: String
   isShadowEmployee: Boolean!
   shadowEmployeeId: ID
@@ -2498,9 +2498,9 @@ type EmployeeQualifiedResult {
 }
 
 type EmployeeQueries {
-  byId(id: ID!): Employee
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], contractedOn: DateTime): [Employee]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractedOn: DateTime): PagedEmployee
+  byId(id: ID!): Employee
   employeePositionSchedule(id: ID!, fromDate: Date!, toDate: Date!): [PositionScheduleDate]
   employeeContractSchedule(id: ID!, fromDate: Date!, toDate: Date!): [ContractDate]
   employeeAbsenceSchedule(id: ID!, fromDate: Date!, toDate: Date!, showDenied: Boolean): [Absence]
@@ -2510,6 +2510,7 @@ type EmployeeQueries {
   employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
+  employeeLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 input EmployeeRejectVacancyInput {
@@ -3841,6 +3842,10 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   deletedLocal: DateTime
   externalId: String
   rowVersion: String!
+  firstName: String!
+  middleName: String
+  lastName: String!
+  secondaryIdentifier: String
   dateOfBirth: Date
   address1: String
   address2: String
@@ -3852,10 +3857,6 @@ type OrgUser implements ModelObjectInterface & OrgObjectInterface & DomainObject
   email: String
   phoneNumber: String
   formattedPhone: String
-  firstName: String!
-  middleName: String
-  lastName: String!
-  secondaryIdentifier: String
   employeeDiscussionId: ID
   replacementEmployeeDiscussionId: ID
   userId: ID
@@ -6252,6 +6253,9 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   createdLocal: DateTime
   changedLocal: DateTime
   deletedLocal: DateTime
+  firstName: String!
+  middleName: String
+  lastName: String!
   dateOfBirth: Date
   address1: String
   address2: String
@@ -6263,9 +6267,6 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   email: String
   phoneNumber: String
   formattedPhone: String
-  firstName: String!
-  middleName: String
-  lastName: String!
   rowVersion: String
   isShadowEmployee: Boolean!
   shadowEmployeeId: ID

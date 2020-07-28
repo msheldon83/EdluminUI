@@ -25,6 +25,7 @@ import { usePayCodes } from "reference-data/pay-codes";
 import { useMemo } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { Section } from "ui/components/section";
+import { Can } from "ui/components/auth/can";
 import { useTranslation } from "react-i18next";
 import { Comments } from "../components/comments/index";
 import { useHistory } from "react-router";
@@ -145,15 +146,17 @@ export const SubstituteTab: React.FC<Props> = props => {
         onSubmit={onUpdateSubstitute}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
       />
-      <Comments
-        refetchQuery={refetchQuery}
-        staffingOrgId={staffingOrgId}
-        comments={orgUser.substitute.comments ?? []}
-        userId={orgUser.userId ?? ""}
-        discussionSubjectType={DiscussionSubjectType.Substitute}
-        objectType={ObjectType.User}
-        orgId={params.organizationId}
-      />
+      <Can do={[PermissionEnum.SubstituteView]} orgId={params.organizationId}>
+        <Comments
+          refetchQuery={refetchQuery}
+          staffingOrgId={staffingOrgId}
+          comments={orgUser.substitute.comments ?? []}
+          userId={orgUser.userId ?? ""}
+          discussionSubjectType={DiscussionSubjectType.Substitute}
+          objectType={ObjectType.User}
+          orgId={params.organizationId}
+        />
+      </Can>
       <SubPositionsAttributes
         editing={props.editing}
         editable={canEditThisSub}
