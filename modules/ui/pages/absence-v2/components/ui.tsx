@@ -25,7 +25,7 @@ import { PageTitle } from "ui/components/page-title";
 import * as yup from "yup";
 import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
-import { AbsenceFormData, AbsenceDetail, AssignmentOnDate } from "../types";
+import { AbsenceFormData, AbsenceDetail } from "../types";
 import { Formik } from "formik";
 import {
   validateAccountingCodeAllocations,
@@ -55,9 +55,9 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, compact, uniq, flatMap, isNil, isEqual } from "lodash-es";
+import { some, compact, flatMap, isNil, isEqual } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { canEditAbsVac } from "helpers/permissions";
+import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
 import { EditVacancies } from "ui/pages/create-absence/edit-vacancies";
 import { VacancyDetail } from "ui/components/absence/types";
@@ -74,6 +74,12 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { AbsenceReasonUsageData } from "./balance-usage";
+import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
+import { ActionMenu, Option } from "ui/components/action-menu";
+import { useHistory } from "react-router";
+import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
+import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   organizationId: string;
@@ -109,6 +115,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const canDoFn = useCanDo();
   const match = useRouteMatch();
+  const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const [step, setStep] = useQueryParamIso(StepParams);
   const {
@@ -126,6 +133,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     absence,
   } = props;
 
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = React.useState(false);
   const [localAbsence, setLocalAbsence] = React.useState<Absence | undefined>(
     absence
   );
@@ -570,6 +578,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       }
 
       setLocalAbsence(updatedAbsence);
+      dispatch({ action: "resetAfterSave" });
       if (isCreate) {
         // We need to get the Assignment Id and Row Version from
         // the newly created Absence info in order to allow the User
@@ -622,6 +631,56 @@ export const AbsenceUI: React.FC<Props> = props => {
       initialVacancyDetails,
     ]
   );
+
+  const actionMenuOptions = React.useMemo(() => {
+    const options: Option[] = [
+      {
+        name: t("Activity Log"),
+        onClick: () => {
+          history.push(
+            AbsenceActivityLogRoute.generate({
+              organizationId: organizationId,
+              absenceId: localAbsence?.id ?? "",
+            })
+          );
+        },
+        permissions: (
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+          canViewAbsVacActivityLog(
+            permissions,
+            isSysAdmin,
+            !actingAsEmployee,
+            orgId
+          ),
+      },
+    ];
+    const vacancies = compact(localAbsence?.vacancies ?? []);
+    if (vacancies.length > 0) {
+      options.push({
+        name: t("Notification Log"),
+        onClick: () => {
+          history.push(
+            AbsenceVacancyNotificationLogRoute.generate({
+              organizationId: organizationId,
+              vacancyId: vacancies[0].id ?? "",
+            })
+          );
+        },
+        permissions: [PermissionEnum.AbsVacViewNotificationLog],
+      });
+    }
+    return options;
+  }, [
+    actingAsEmployee,
+    history,
+    localAbsence?.id,
+    localAbsence?.vacancies,
+    organizationId,
+    t,
+  ]);
 
   const allVacancyDetails = localAbsence?.vacancies
     ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
@@ -736,6 +795,18 @@ export const AbsenceUI: React.FC<Props> = props => {
           return (
             <>
               <form id="absence-form" onSubmit={handleSubmit}>
+                <DiscardChangesDialog
+                  onCancel={() => {
+                    resetForm();
+                    dispatch({
+                      action: "resetToInitialState",
+                      initialState: initialAbsenceState(),
+                    });
+                    setCancelDialogIsOpen(false);
+                  }}
+                  onClose={() => setCancelDialogIsOpen(false)}
+                  open={cancelDialogIsOpen}
+                />
                 <Prompt
                   message={location => {
                     if (
@@ -776,18 +847,35 @@ export const AbsenceUI: React.FC<Props> = props => {
                       onClose={onErrorsConfirmed}
                       continueAction={async () => await save(values, true)}
                     />
-                    <AbsenceVacancyHeader
-                      pageHeader={
-                        isCreate
-                          ? t("Create absence")
-                          : `${t("Edit absence")} #${state.absenceId}`
-                      }
-                      subHeader={
-                        !actingAsEmployee
-                          ? `${employee.firstName} ${employee.lastName}`
-                          : undefined
-                      }
-                    />
+                    <div className={classes.titleContainer}>
+                      <AbsenceVacancyHeader
+                        pageHeader={
+                          isCreate
+                            ? t("Create absence")
+                            : `${t("Edit absence")} #${state.absenceId}`
+                        }
+                        subHeader={
+                          !actingAsEmployee ? (
+                            <EmployeeLink
+                              orgUserId={employee?.id ?? ""}
+                              color="black"
+                            >
+                              {`${employee.firstName} ${employee.lastName}`}
+                            </EmployeeLink>
+                          ) : (
+                            undefined
+                          )
+                        }
+                      />
+                      {!isCreate && (
+                        <div className={classes.headerMenu}>
+                          <ActionMenu
+                            className={classes.actionMenu}
+                            options={actionMenuOptions}
+                          />
+                        </div>
+                      )}
+                    </div>
 
                     {state.approvalState && (
                       <Can do={[PermissionEnum.AbsVacApprovalsView]}>
@@ -899,14 +987,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                           )}
                           {!isCreate && formIsDirty && !state.isClosed && (
                             <Button
-                              onClick={() => {
-                                // reset the form and the state
-                                resetForm();
-                                dispatch({
-                                  action: "resetToInitialState",
-                                  initialState: initialAbsenceState(),
-                                });
-                              }}
+                              onClick={() => setCancelDialogIsOpen(true)}
                               variant="outlined"
                               className={classes.cancelButton}
                               disabled={!formIsDirty}
@@ -1026,6 +1107,23 @@ export const AbsenceUI: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  titleContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignText: "center",
+    justifyContent: "space-between",
+  },
+  headerMenu: {
+    marginTop: "30px",
+    display: "flex",
+    flexDirection: "column",
+    alignText: "center",
+    justifyContent: "space-between",
+  },
+  actionMenu: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
   content: {
     marginTop: theme.spacing(3),
   },

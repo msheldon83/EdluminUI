@@ -77,7 +77,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     onOverallCodeChanges,
     assignmentsByDate,
     vacanciesOverride,
-    disableReplacementInteractions = false
+    disableReplacementInteractions = false,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
   const snackbar = useSnackbar();
@@ -168,7 +168,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     projectedVacancies,
     assignmentsByDate,
     absenceDates,
-    vacanciesOverride
+    vacanciesOverride,
   ]);
 
   const detailsHaveDifferentAccountingCodes = React.useMemo(() => {
@@ -267,7 +267,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
                 startTime: secondsSinceMidnight(d.startTimeLocal.toISOString()),
               };
             })}
-            buttonText={absenceId ? t("Assign") : t("Pre-arrange")}
+            buttonText={absenceId ? t("Assign Sub") : t("Pre-arrange")}
             disableAssign={disableReplacementInteractions}
             onClick={(detailIds, dates) => {
               const detailsToAssign = vacancySummaryDetails.filter(
@@ -298,7 +298,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     onEditSubDetailsClick,
     t,
     vacancySummaryDetails,
-    disableReplacementInteractions
+    disableReplacementInteractions,
   ]);
 
   return (
