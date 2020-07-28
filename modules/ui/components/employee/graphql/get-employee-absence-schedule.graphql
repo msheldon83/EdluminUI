@@ -59,6 +59,7 @@ query GetEmployeeAbsenceSchedule(
               formattedPhone
             }
           }
+          verifiedAtUtc
         }
       }
     }

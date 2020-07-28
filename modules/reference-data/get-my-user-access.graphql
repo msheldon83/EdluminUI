@@ -49,9 +49,13 @@ query GetMyUserAccess {
               id
               title
               needsReplacement
+              positionTypeId
               positionType {
                 id
               }
+            }
+            locations {
+              id
             }
             permissions
             createdUtc

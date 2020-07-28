@@ -45,6 +45,9 @@ type Props = {
     | {
         daysOfTheWeek: DayOfWeek[];
         items: {
+          bellSchedule?: {
+            name: string;
+          } | null;
           endTime?: number | null | undefined;
           startTime?: number | null | undefined;
           location: {
@@ -170,7 +173,8 @@ export const Position: React.FC<Props> = props => {
                           <div
                             className={classes.timeField}
                           >{`${formattedStartTime} - ${formattedEndTime}`}</div>
-                          <div>{locationName}</div>
+                          <div>{`@ ${locationName} (${item.bellSchedule?.name ??
+                            t("Custom")})`}</div>
                         </div>
                       );
                     });

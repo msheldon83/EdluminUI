@@ -1,0 +1,11 @@
+query GetPreferenceFilter($userId: ID!) {
+  user {
+    byId(id: $userId) {
+      id
+      rowVersion
+      preferences {
+        subJobPreferenceFilter
+      }
+    }
+  }
+}

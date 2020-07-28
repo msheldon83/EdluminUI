@@ -604,3 +604,27 @@ export const vacancyDetailsHaveDifferentPayCodeSelections = (
 
   return false;
 };
+
+export const payCodeIdsAreTheSame = (
+  payCodeIds: (string | null | undefined)[]
+) => {
+  if (payCodeIds.length === 0) {
+    return true;
+  }
+
+  const toCompare = payCodeIds[0];
+  for (let i = 0; i < payCodeIds.length; i++) {
+    const element = payCodeIds[i];
+
+    if (!element && !toCompare) {
+      // Both values are falsy so they are the same
+      continue;
+    }
+
+    if (element !== toCompare) {
+      return false;
+    }
+  }
+
+  return true;
+};

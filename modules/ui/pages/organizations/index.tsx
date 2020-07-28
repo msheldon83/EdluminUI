@@ -37,6 +37,7 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import { PaginationControls } from "ui/components/pagination-controls";
+import { useMyUserAccess } from "reference-data/my-user-access";
 
 type Props = { redirectIfOneOrg?: boolean };
 
@@ -47,6 +48,8 @@ export const OrganizationsPage: React.FC<Props> = props => {
   const history = useHistory();
   const userParams = useRouteParams(UsersRoute);
   const orgParams = useRouteParams(OrganizationAddRoute);
+
+  const myUserAccess = useMyUserAccess();
 
   const [
     searchText,
@@ -83,31 +86,44 @@ export const OrganizationsPage: React.FC<Props> = props => {
 
   const organizations = useMemo(() => {
     if (
-      getOrganizations.state === "DONE" ||
+      (myUserAccess?.me?.user?.orgUsers && getOrganizations.state === "DONE") ||
       getOrganizations.state === "UPDATING"
     ) {
-      return compact(getOrganizations?.data?.organization?.paged?.results);
+      const adminInOrgIds = compact(
+        myUserAccess?.me?.user?.orgUsers?.filter(x => x && x.isAdmin)
+      ).map(x => x.orgId);
+
+      if (myUserAccess?.isSysAdmin)
+        return compact(getOrganizations?.data?.organization?.paged?.results);
+
+      return compact(
+        getOrganizations?.data?.organization?.paged?.results
+      ).filter(x => adminInOrgIds.includes(x.id));
     }
     return [];
-  }, [getOrganizations]);
+  }, [getOrganizations, myUserAccess]);
 
   if (
     getOrganizations.state === "LOADING" ||
-    !getOrganizations.data.organization?.paged?.results
+    !getOrganizations.data.organization?.paged?.results ||
+    !myUserAccess?.me?.user?.orgUsers
   ) {
     return <></>;
   }
 
-  const organizationsCount = pagination.totalCount;
+  const adminInOrgs = compact(
+    myUserAccess.me.user.orgUsers.filter(x => x && x.isAdmin)
+  );
 
   if (
-    organizationsCount === 1 &&
+    !myUserAccess.isSysAdmin &&
+    organizations.length === 1 &&
     props.redirectIfOneOrg &&
     (searchText == undefined || searchText == "")
   ) {
     return (
       <Redirect
-        to={AdminHomeRoute.generate({ organizationId: organizations[0].id })}
+        to={AdminHomeRoute.generate({ organizationId: adminInOrgs[0].orgId })}
       />
     );
   }
@@ -156,7 +172,7 @@ export const OrganizationsPage: React.FC<Props> = props => {
             <TableHead>
               <TableRow>
                 <TableCell colSpan={3} className={classes.recordCount}>
-                  <Typography variant="h5">{`${organizationsCount} ${t(
+                  <Typography variant="h5">{`${pagination.totalCount} ${t(
                     "Records"
                   )}`}</Typography>
                 </TableCell>

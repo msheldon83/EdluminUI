@@ -1,0 +1,12 @@
+mutation AddOrChangeSubLocationPreference($orgUserId: ID!, $orgId: ID!, $locationId: ID!, $preferenceId: PersonalPreference!) {
+  employee {
+    addOrChangeLocationPreference(locationPreference: {
+      orgId: $orgId
+      employeeId: $orgUserId
+      locationId: $locationId
+      preferenceId: $preferenceId
+    }) {
+      id
+    }
+  }
+}

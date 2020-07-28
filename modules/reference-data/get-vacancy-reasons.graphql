@@ -3,6 +3,7 @@ query GetVacancyReasons($orgId: ID!) {
     all(orgId: $orgId) {
       id
       name
+      requiresApproval
     }
   }
 }

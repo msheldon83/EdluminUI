@@ -10,7 +10,7 @@ import { PositionTypeSelect } from "ui/components/reference-selects/position-typ
 import {
   buildVacancyUsagesJsonString,
   VacancyWorkflowUsage,
-} from "../../types";
+} from "../workflow-graph/types";
 import { PermissionEnum, ApprovalWorkflowType } from "graphql/server-types.gen";
 import { compact, flatMap } from "lodash-es";
 import { usePositionTypes } from "reference-data/position-types";
