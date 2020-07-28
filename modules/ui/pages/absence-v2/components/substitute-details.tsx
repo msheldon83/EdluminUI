@@ -48,6 +48,7 @@ type Props = {
     vacancySummaryDetailsToAssign: VacancySummaryDetail[]
   ) => void;
   onCancelAssignment: (vacancyDetailIds: string[]) => Promise<boolean>;
+  canEditSubDetails: boolean;
   onEditSubDetailsClick: () => void;
   onProjectedVacanciesChange: (vacancies: Vacancy[]) => void;
   onOverallCodeChanges: (details: {
@@ -71,6 +72,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     absenceDates,
     onAssignSubClick,
     onCancelAssignment,
+    canEditSubDetails,
     onEditSubDetailsClick,
     locationIds,
     onProjectedVacanciesChange,
@@ -283,7 +285,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
           <Button
             variant="outlined"
             onClick={onEditSubDetailsClick}
-            //disabled={props.disableEditingDatesAndTimes}
+            disabled={!canEditSubDetails}
           >
             <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
             <MobileOnly>{t("Edit Details")}</MobileOnly>
@@ -292,13 +294,14 @@ export const SubstituteDetails: React.FC<Props> = props => {
       </div>
     );
   }, [
+    vacancySummaryDetails,
     assignmentsByDate,
     absenceId,
-    onAssignSubClick,
-    onEditSubDetailsClick,
     t,
-    vacancySummaryDetails,
     disableReplacementInteractions,
+    onEditSubDetailsClick,
+    canEditSubDetails,
+    onAssignSubClick,
   ]);
 
   return (

@@ -44,6 +44,7 @@ import {
   startOfDay,
   min,
   parseISO,
+  isPast,
 } from "date-fns";
 import { SubstituteDetails } from "./substitute-details";
 import { ContentFooter } from "ui/components/content-footer";
@@ -283,7 +284,10 @@ export const AbsenceUI: React.FC<Props> = props => {
   });
 
   const onCancelAssignment = React.useCallback(
-    async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]): Promise<boolean> => {
+    async (
+      vacancyDetailIds?: string[],
+      vacancyDetailDates?: Date[]
+    ): Promise<boolean> => {
       // Get all of the matching details
       const vacancyDetails =
         state.customizedVacanciesInput ?? state.projectedVacancyDetails;
@@ -381,7 +385,7 @@ export const AbsenceUI: React.FC<Props> = props => {
             }
           } else {
             allCancellationsSuccessful = false;
-          }           
+          }
         }
 
         // Update the assignment info stored in state
@@ -702,6 +706,12 @@ export const AbsenceUI: React.FC<Props> = props => {
         !hasVerifiedAssignments
       : true;
 
+  const canEditDatesAndTimes=
+        isCreate ||
+        !actingAsEmployee ||
+        (!hasFilledVacancies &&
+          !some(state.absenceDates, isPast));
+
   return (
     <>
       <PageTitle
@@ -924,6 +934,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               setNegativeBalanceWarning
                             }
                             initialUsageData={initialAbsenceReasonUsageData}
+                            canEditDatesAndTimes={canEditDatesAndTimes}
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -965,6 +976,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 ? undefined
                                 : compact(localAbsence?.vacancies)
                             }
+                            canEditSubDetails={canEditDatesAndTimes}
                           />
                         </Grid>
                       </Grid>

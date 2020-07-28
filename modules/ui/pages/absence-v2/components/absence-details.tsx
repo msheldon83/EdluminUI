@@ -27,8 +27,9 @@ type Props = {
   projectionInput: AbsenceCreateInput | null;
   positionTypeId?: string;
   onTimeChange: () => void;
+  canEditDatesAndTimes: boolean;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
-  initialUsageData?: AbsenceReasonUsageData[];
+  initialUsageData?: AbsenceReasonUsageData[];  
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -49,6 +50,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     positionTypeId,
     absenceDates,
     onTimeChange,
+    canEditDatesAndTimes,
     setNegativeBalanceWarning,
     initialUsageData,
     closedDates = [],
@@ -147,7 +149,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
           employeeId={employeeId}
           currentMonth={currentMonth}
           onMonthChange={onSwitchMonth}
-          onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
+          onSelectDates={dates => {
+            if (canEditDatesAndTimes) {
+              dates.forEach(onToggleAbsenceDate)
+            }
+          }}
         />
       </div>
 
@@ -177,6 +183,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           employeeId={employeeId}
           positionTypeId={positionTypeId}
           onTimeChange={onTimeChange}
+          canEditTimes={canEditDatesAndTimes}
         />
       </div>
 

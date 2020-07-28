@@ -177,6 +177,7 @@ export const DayPartSelect: React.FC<Props> = props => {
         withResetValue={false}
         aria-label="dayPart"
         className={classes.dayPart}
+        disabled={disabled}
       />
 
       {value?.part === DayPart.Hourly && (
