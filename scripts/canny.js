@@ -24,18 +24,3 @@
         : w.addEventListener("load", l, !1);
   }
 })(window, document, "canny-jssdk", "script");
-
-/*
-  Canny("identify", {
-    appID: "5f0905e0f546fd44d827e2f1",
-    user: {
-      companies: [
-        { id: 1, name: "name 1" },
-        { id: 2, name: "name 2" },
-      ],
-      email: "test@example.org",
-      id: "999",
-      name: "Name in JS",
-    },
-  });
-  */

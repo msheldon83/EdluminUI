@@ -1,5 +1,5 @@
 query GetCannyToken {
-  user {
+  userAccess {
     cannyToken
   }
 }
