@@ -27,9 +27,7 @@ query getCalendarChanges(
           id
           name
           calendarDayTypeId
-          workDayScheduleVariantType {
-            id
-          }
+          workDayScheduleVariantTypeId
         }
         startDate
         endDate
