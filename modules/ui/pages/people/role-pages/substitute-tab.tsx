@@ -145,8 +145,7 @@ export const SubstituteTab: React.FC<Props> = props => {
         editPermissions={[PermissionEnum.SubstituteSave]}
         onSubmit={onUpdateSubstitute}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
-      />
-      <Can do={[PermissionEnum.SubstituteView]} orgId={params.organizationId}>
+      /> 
         <Comments
           refetchQuery={refetchQuery}
           staffingOrgId={staffingOrgId}
@@ -155,8 +154,7 @@ export const SubstituteTab: React.FC<Props> = props => {
           discussionSubjectType={DiscussionSubjectType.Substitute}
           objectType={ObjectType.User}
           orgId={params.organizationId}
-        />
-      </Can>
+        />   
       <SubPositionsAttributes
         editing={props.editing}
         editable={canEditThisSub}
