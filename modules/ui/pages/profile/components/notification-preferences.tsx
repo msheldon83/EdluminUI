@@ -21,6 +21,7 @@ type Props = {
   notificationPreferences: NotificationPreferenceInput[];
   setFieldValue: Function;
   submitForm: () => Promise<any>;
+  formDirty: boolean;
 };
 
 export const NotificationPreferences: React.FC<Props> = props => {
@@ -86,7 +87,11 @@ export const NotificationPreferences: React.FC<Props> = props => {
           );
         })}
         <div className={classes.button}>
-          <Button onClick={props.submitForm} variant="contained">
+          <Button
+            onClick={props.submitForm}
+            variant="contained"
+            disabled={!props.formDirty}
+          >
             {t("Save")}
           </Button>
         </div>

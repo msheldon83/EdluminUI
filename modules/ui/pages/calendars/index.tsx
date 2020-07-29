@@ -388,7 +388,8 @@ export const Calendars: React.FC<Props> = props => {
       searchable: false,
       render: (o: GetCalendarChanges.Results) => {
         return o.calendarChangeReason?.calendarDayTypeId !==
-          CalendarDayType.InstructionalDay
+          CalendarDayType.InstructionalDay ||
+          !o.calendarChangeReason?.workDayScheduleVariantTypeId
           ? CalendarDayTypes?.find(
               e =>
                 e.enumValue.toString() ==
@@ -397,7 +398,7 @@ export const Calendars: React.FC<Props> = props => {
           : orgWorkDayScheduleVariantTypes?.find(
               e =>
                 e.id.toString() ==
-                o.calendarChangeReason?.workDayScheduleVariantType?.id
+                o.calendarChangeReason?.workDayScheduleVariantTypeId
             )?.name;
       },
       sorting: false,
