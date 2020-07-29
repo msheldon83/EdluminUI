@@ -380,7 +380,7 @@ export const AbsenceUI: React.FC<Props> = props => {
               assignmentsByDate = assignmentsByDate.filter(
                 a =>
                   a.vacancyDetailId &&
-                  toCancel.vacancyDetailIds?.includes(a.vacancyDetailId)
+                  !toCancel.vacancyDetailIds?.includes(a.vacancyDetailId)
               );
             }
           } else {
@@ -1049,6 +1049,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                     vacancySummaryDetails={vacancySummaryDetailsToAssign}
                     useVacancySummaryDetails={true}
                     existingVacancy={!!vacancyId}
+                    selectButtonText={!isCreate ? t("Assign") : undefined}
                     vacancies={!vacancyId ? vacanciesToAssign : undefined}
                     vacancyId={vacancyId}
                     vacancyDetailIdsToAssign={
