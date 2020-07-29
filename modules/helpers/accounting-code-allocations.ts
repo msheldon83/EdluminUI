@@ -126,7 +126,7 @@ export const mapAccountingCodeAllocationsToAccountingCodeValue = (
           label: a.accountingCodeName ?? "",
           value: a.accountingCodeId,
         },
-        percentage: a.allocation ? Math.floor(a.allocation * 100) : undefined,
+        amount: a.allocation ? Math.floor(a.allocation * 100) : undefined,
       };
     })
   );
