@@ -23,10 +23,8 @@ import { Can } from "ui/components/auth/can";
 import { dayPartToLabel } from "ui/components/absence/helpers";
 
 type Props = {
-  orgId: string;
   absence: Absence;
   actingAsEmployee?: boolean;
-  goToEdit?: () => void;
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
@@ -36,13 +34,7 @@ type Props = {
 export const AbsenceView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const {
-    orgId,
-    absence,
-    actingAsEmployee,
-    goToEdit,
-    onCancelAssignment,
-  } = props;
+  const { absence, actingAsEmployee, onCancelAssignment } = props;
 
   const absenceDates = useMemo(
     () =>

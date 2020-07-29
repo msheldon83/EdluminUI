@@ -305,62 +305,45 @@ export const AbsenceUI: React.FC<Props> = props => {
       vacancyDetailIds?: string[],
       vacancyDetailDates?: Date[]
     ): Promise<boolean> => {
-      // Get all of the matching details
-      const vacancyDetails =
-        state.customizedVacanciesInput ?? state.projectedVacancyDetails;
-      const detailsToCancelAssignmentsFor =
+      // Get all of the matching assignments
+      const assignments =
         vacancyDetailIds && vacancyDetailIds.length > 0
-          ? vacancyDetails?.filter(d =>
-              vacancyDetailIds.find(i => i === d.vacancyDetailId)
+          ? (state.assignmentsByDate ?? []).filter(a =>
+              vacancyDetailIds.includes(a.vacancyDetailId ?? "")
             )
-          : vacancyDetails?.filter(d =>
+          : (state.assignmentsByDate ?? []).filter(a =>
               vacancyDetailDates?.find(date =>
-                isSameDay(date, new Date(d.startTime))
+                isSameDay(date, a.startTimeLocal)
               )
             );
 
-      if (
-        !detailsToCancelAssignmentsFor ||
-        detailsToCancelAssignmentsFor.length === 0
-      ) {
+      if (!assignments || assignments.length === 0) {
         return true;
       }
 
       if (isCreate && !localAbsence) {
         dispatch({
           action: "updateAssignments",
-          assignments: detailsToCancelAssignmentsFor.map(d => {
-            return {
-              startTimeLocal: parseISO(d.startTime),
-              vacancyDetailId: d.vacancyDetailId,
-              employee: {
-                id: d.assignmentEmployeeId ?? "",
-                firstName: d.assignmentEmployeeFirstName ?? "",
-                lastName: d.assignmentEmployeeLastName ?? "",
-              },
-            };
-          }),
+          assignments: assignments,
           addRemoveOrUpdate: "remove",
         });
         return true;
       } else {
-        console.log("cancelling", vacancyDetailIds, vacancyDetailDates);
-
         // Get all of the Assignment Ids and Row Versions to Cancel
-        const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
-          (accumulator: CancelVacancyAssignmentInput[], detail) => {
+        const assignmentsToCancel: CancelVacancyAssignmentInput[] = assignments.reduce(
+          (accumulator: CancelVacancyAssignmentInput[], assignment) => {
             const matchingAssignment = accumulator.find(
-              a => a.assignmentId === detail.assignmentId
+              a => a.assignmentId === assignment.assignmentId
             );
             if (matchingAssignment) {
               matchingAssignment.vacancyDetailIds?.push(
-                detail.vacancyDetailId!
+                assignment.vacancyDetailId!
               );
             } else {
               accumulator.push({
-                assignmentId: detail.assignmentId ?? "",
-                rowVersion: detail.assignmentRowVersion ?? "",
-                vacancyDetailIds: [detail.vacancyDetailId!],
+                assignmentId: assignment.assignmentId ?? "",
+                rowVersion: assignment.assignmentRowVersion ?? "",
+                vacancyDetailIds: [assignment.vacancyDetailId!],
               });
             }
             return accumulator;
@@ -411,17 +394,11 @@ export const AbsenceUI: React.FC<Props> = props => {
           assignments: assignmentsByDate,
           addRemoveOrUpdate: "update",
         });
+        console.log(assignmentsByDate);
         return allCancellationsSuccessful;
       }
     },
-    [
-      localAbsence,
-      cancelAssignment,
-      isCreate,
-      state.assignmentsByDate,
-      state.customizedVacanciesInput,
-      state.projectedVacancyDetails,
-    ]
+    [localAbsence, cancelAssignment, isCreate, state.assignmentsByDate]
   );
 
   const [assignVacancy] = useMutationBundle(AssignVacancy, {
@@ -708,6 +685,9 @@ export const AbsenceUI: React.FC<Props> = props => {
     t,
   ]);
 
+  const vacancyId = localAbsence?.vacancies
+    ? localAbsence?.vacancies[0]?.id
+    : undefined;
   const allVacancyDetails = localAbsence?.vacancies
     ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
     : [];
@@ -968,6 +948,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             projectionInput={inputForProjectedCalls}
                             absenceDates={state.absenceDates}
                             onAssignSubClick={vacancySummaryDetailsToAssign => {
+                              console.log(vacancySummaryDetailsToAssign);
                               setVacancySummaryDetailsToAssign(
                                 vacancySummaryDetailsToAssign
                               );
@@ -1067,7 +1048,18 @@ export const AbsenceUI: React.FC<Props> = props => {
                     positionName={position?.title}
                     vacancySummaryDetails={vacancySummaryDetailsToAssign}
                     useVacancySummaryDetails={true}
-                    vacancies={vacanciesToAssign}
+                    existingVacancy={!!vacancyId}
+                    vacancies={!vacancyId ? vacanciesToAssign : undefined}
+                    vacancyId={vacancyId}
+                    vacancyDetailIdsToAssign={
+                      vacancyId
+                        ? compact(
+                            vacancySummaryDetailsToAssign.map(
+                              v => v.vacancyDetailId
+                            )
+                          )
+                        : undefined
+                    }
                   />
                 )}
                 {step === "confirmation" && (

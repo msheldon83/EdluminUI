@@ -6,7 +6,6 @@ import { Link, useHistory } from "react-router-dom";
 import { Section } from "ui/components/section";
 import { useRouteParams } from "ui/routes/definition";
 import { EmployeeChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
-import { useMemo } from "react";
 import { Step } from "helpers/step-params";
 import { AbsenceView } from "../components/absence-view";
 import {
@@ -15,6 +14,7 @@ import {
   EmployeeCreateAbsenceRouteV2,
   EmployeeEditAbsenceRouteV2,
 } from "ui/routes/absence-v2";
+import { compact, flatMap } from "lodash-es";
 
 type Props = {
   orgId: string;
@@ -52,7 +52,7 @@ export const Confirmation: React.FC<Props> = props => {
     if (container) container.scrollTop = 0;
   }, []);
 
-  const editUrl = useMemo(() => {
+  const editUrl = React.useMemo(() => {
     if (!absence) {
       return "";
     }
@@ -70,7 +70,7 @@ export const Confirmation: React.FC<Props> = props => {
     return url;
   }, [params, absence, actingAsEmployee, orgId]);
 
-  const createNewUrl = useMemo(() => {
+  const createNewUrl = React.useMemo(() => {
     const url = actingAsEmployee
       ? EmployeeCreateAbsenceRouteV2.generate(params)
       : AdminSelectEmployeeForCreateAbsenceRouteV2.generate({
@@ -80,7 +80,7 @@ export const Confirmation: React.FC<Props> = props => {
     return url;
   }, [actingAsEmployee, orgId, params]);
 
-  const homeUrl = useMemo(() => {
+  const homeUrl = React.useMemo(() => {
     const url = actingAsEmployee
       ? EmployeeChromeRoute.generate(params)
       : AdminChromeRoute.generate({
@@ -111,11 +111,40 @@ export const Confirmation: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={12} container>
           <AbsenceView
-            orgId={orgId}
             absence={absence}
             actingAsEmployee={actingAsEmployee}
-            goToEdit={() => history.push(editUrl)}
-            onCancelAssignment={onCancelAssignment}
+            onCancelAssignment={
+              onCancelAssignment
+                ? async (
+                    vacancyDetailIds: string[],
+                    vacancyDetailDates?: Date[]
+                  ) => {
+                    const isSuccess = await onCancelAssignment(
+                      vacancyDetailIds,
+                      vacancyDetailDates
+                    );
+                    if (
+                      isSuccess &&
+                      vacancyDetailIds &&
+                      vacancyDetailIds.length > 0
+                    ) {
+                      // If Sub was only removed from part of the Assignment, then we'll
+                      // redirect the User directly to the Edit view of the Absence
+                      const allVacancyDetailIds = flatMap(
+                        compact(absence.vacancies ?? []).map(v =>
+                          v.details.map(d => d.id)
+                        )
+                      );
+                      if (
+                        vacancyDetailIds.length !== allVacancyDetailIds.length
+                      ) {
+                        history.push(editUrl);
+                      }
+                    }
+                    return isSuccess;
+                  }
+                : undefined
+            }
           />
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
