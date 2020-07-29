@@ -38,6 +38,7 @@ type Props = {
   setFieldValue: Function;
   submitForm: () => Promise<any>;
   onResetPassword: () => Promise<any>;
+  formDirty: boolean;
 };
 
 export const ProfileBasicInfo: React.FC<Props> = props => {
@@ -249,7 +250,11 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
           )}
         </Grid>
         <div className={classes.button}>
-          <Button onClick={props.submitForm} variant="contained">
+          <Button
+            onClick={props.submitForm}
+            variant="contained"
+            disabled={!props.formDirty}
+          >
             {t("Save")}
           </Button>
         </div>

@@ -166,11 +166,11 @@ export const ProfilePage: React.FC<{}> = props => {
             preferences: {
               notificationPreferences: data.notificationPreferences
                 ? data.notificationPreferences.map(x => ({
-                  notificationReasonId: x.notificationReasonId,
-                  receiveEmailNotifications: x.receiveEmailNotifications,
-                  receiveInAppNotifications: x.receiveInAppNotifications,
-                  receiveSmsNotifications: x.receiveSmsNotifications,
-                }))
+                    notificationReasonId: x.notificationReasonId,
+                    receiveEmailNotifications: x.receiveEmailNotifications,
+                    receiveInAppNotifications: x.receiveInAppNotifications,
+                    receiveSmsNotifications: x.receiveSmsNotifications,
+                  }))
                 : undefined,
             },
           })
@@ -179,18 +179,19 @@ export const ProfilePage: React.FC<{}> = props => {
           firstName: yup.string().required(t("First name is required.")),
           lastName: yup.string().required(t("Last name is required.")),
           timeZoneId: yup.string().required(t("Time zone is required.")),
-          phone: yup.string()
-            .when('isSub',
-              {
-                is: (isSub) => { return isSubstitute; },
-                then: yup.string().required("Phone number is required.")
-              }
-            )
+          phone: yup
+            .string()
+            .when("isSub", {
+              is: isSub => {
+                return isSubstitute;
+              },
+              then: yup.string().required("Phone number is required."),
+            })
             .nullable()
             .matches(phoneRegExp, t("Phone number is not valid.")),
         })}
       >
-        {({ handleSubmit, submitForm, values, setFieldValue }) => (
+        {({ handleSubmit, submitForm, values, setFieldValue, dirty }) => (
           <form onSubmit={handleSubmit}>
             <ProfileBasicInfo
               user={myUser}
@@ -200,12 +201,14 @@ export const ProfilePage: React.FC<{}> = props => {
               setFieldValue={setFieldValue}
               onResetPassword={onResetPassword}
               submitForm={submitForm}
+              formDirty={dirty}
             />
             {!myUser?.isSystemAdministrator && (
               <NotificationPreferences
                 notificationPreferences={values.notificationPreferences}
                 setFieldValue={setFieldValue}
                 submitForm={submitForm}
+                formDirty={dirty}
               />
             )}
             {mobileDevices.length > 0 && (
