@@ -5,6 +5,7 @@ query GetAbsence($id: ID!) {
       isClosed
       rowVersion
       isDeleted
+      orgId
       approvalState {
         id
         canApprove

@@ -28,7 +28,9 @@ import { AdminHomeRoute } from "ui/routes/admin-home";
 type Props = { actingAsEmployee?: boolean };
 
 export const EditAbsence: React.FC<Props> = props => {
-  const { organizationId, absenceId } = useRouteParams(AdminEditAbsenceRouteV2);
+  const { organizationId: adminOrgId, absenceId } = useRouteParams(
+    AdminEditAbsenceRouteV2
+  );
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
@@ -69,12 +71,12 @@ export const EditAbsence: React.FC<Props> = props => {
       history.push(
         actingAsEmployee
           ? EmployeeHomeRoute.generate({})
-          : AdminHomeRoute.generate({ organizationId })
+          : AdminHomeRoute.generate({ organizationId: adminOrgId })
       );
     } else {
       history.goBack();
     }
-  }, [history, organizationId, actingAsEmployee]);
+  }, [history, adminOrgId, actingAsEmployee]);
 
   const onDeleteAbsence = React.useCallback(async () => {
     const result = await deleteAbsence({
@@ -205,6 +207,8 @@ export const EditAbsence: React.FC<Props> = props => {
       )
     )
   );
+
+  const organizationId = absence.orgId;
 
   return (
     <>

@@ -3,6 +3,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
     create(absence: $absence) {
       id
       rowVersion
+      orgId
       details {
         id
         actualDuration
