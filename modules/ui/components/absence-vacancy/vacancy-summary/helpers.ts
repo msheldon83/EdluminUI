@@ -128,7 +128,9 @@ export const convertVacancyToVacancySummaryDetails = (
 };
 
 export const buildAssignmentGroups = (
-  details: VacancySummaryDetail[]
+  details: VacancySummaryDetail[],
+  excludeAccountingCodesFromGrouping?: boolean,
+  excludePayCodesFromGrouping?: boolean
 ): AssignmentWithDetails[] => {
   // Sort the details by their start times
   const sortedDetails = details
@@ -193,7 +195,9 @@ export const buildAssignmentGroups = (
           lastGroup &&
           vacancySummaryDetailsAreEqual(
             lastGroup.details,
-            assignmentAndDateGroupItem.details
+            assignmentAndDateGroupItem.details,
+            excludeAccountingCodesFromGrouping,
+            excludePayCodesFromGrouping
           )
         ) {
           // All of our details match so we can add this day and detail ids to this group
@@ -234,7 +238,9 @@ export const buildAssignmentGroups = (
 
 export const vacancySummaryDetailsAreEqual = (
   assignmentDetails: DateDetail[],
-  vacancySummaryDetails: VacancySummaryDetail[]
+  vacancySummaryDetails: VacancySummaryDetail[],
+  excludeAccountingCodesFromGrouping?: boolean,
+  excludePayCodesFromGrouping?: boolean
 ): boolean => {
   if (assignmentDetails.length !== vacancySummaryDetails.length) {
     return false;
@@ -251,12 +257,18 @@ export const vacancySummaryDetailsAreEqual = (
       assignmentDetail.endTime !==
         format(vacancySummaryDetail.endTimeLocal, "h:mm a") ||
       assignmentDetail.locationId !== vacancySummaryDetail.locationId ||
-      assignmentDetail.payCodeId !== vacancySummaryDetail.payCodeId
+      (!excludePayCodesFromGrouping &&
+        assignmentDetail.payCodeId !== vacancySummaryDetail.payCodeId)
     ) {
       return false;
     }
 
     // Compare Accounting Code Allocations
+    if (excludeAccountingCodesFromGrouping) {
+      // We don't want to use the Accounting Code selections for grouping
+      // so no need to compare any of those details
+      return true;
+    }
 
     if (
       !assignmentDetail.accountingCodeAllocations?.length &&

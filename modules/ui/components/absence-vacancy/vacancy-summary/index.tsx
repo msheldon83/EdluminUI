@@ -55,9 +55,13 @@ export const VacancySummary: React.FC<Props> = props => {
       return [];
     }
 
-    const groups = buildAssignmentGroups(vacancySummaryDetails);
+    const groups = buildAssignmentGroups(
+      vacancySummaryDetails,
+      !showAccountingCodes,
+      !showPayCodes
+    );
     return groups;
-  }, [vacancySummaryDetails]);
+  }, [showAccountingCodes, showPayCodes, vacancySummaryDetails]);
 
   const isPartiallyFilled = useMemo(() => {
     if (!vacancySummaryDetails || vacancySummaryDetails.length === 0) {
