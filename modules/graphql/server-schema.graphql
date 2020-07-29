@@ -6461,6 +6461,7 @@ type UserAccess {
 
 type UserAccessQueries {
   me: UserAccess
+  cannyToken: String
 }
 
 enum UserAvailability {
@@ -6559,7 +6560,6 @@ type UserQueries {
   byId(id: ID!): User
   paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedUser
   pagedUserUnavailableTime(limit: Int, offset: Int, sortBy: [SortDetailsInput], userId: ID, fromDate: DateTime!, toDate: Date!): PagedUserUnavailableTime
-  cannyToken: String
 }
 
 type UserUnavailableTime implements ModelObjectInterface {
