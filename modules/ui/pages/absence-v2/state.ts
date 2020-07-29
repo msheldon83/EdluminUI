@@ -326,6 +326,7 @@ export const projectVacancyDetailsFromVacancies = (
           d?.assignment?.employee?.firstName ?? assignment?.employee?.firstName,
         assignmentEmployeeLastName:
           d?.assignment?.employee?.lastName ?? assignment?.employee?.lastName,
+        isClosed: d.isClosed ?? false,
       } as VacancyDetail;
     })
     .filter(

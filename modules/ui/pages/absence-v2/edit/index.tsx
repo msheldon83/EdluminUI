@@ -111,7 +111,11 @@ export const EditAbsence: React.FC<Props> = props => {
   const position = vacancy?.position;
 
   const absenceDetails = React.useMemo(() => {
-    return compact(absence?.details).map(d => {
+    const details = compact(absence?.details);
+    const closedDetails = compact(absence?.closedDetails);
+    const detailsToUse = details.length === 0 ? closedDetails : details;
+
+    return compact(detailsToUse).map(d => {
       return {
         id: d.id,
         date: startOfDay(parseISO(d.startDate)),
@@ -127,7 +131,7 @@ export const EditAbsence: React.FC<Props> = props => {
           : undefined,
       };
     });
-  }, [absence?.details]);
+  }, [absence?.closedDetails, absence?.details]);
 
   const assignmentsByDate = React.useMemo(() => {
     if (!absence || !absence?.vacancies) {
@@ -270,8 +274,12 @@ export const EditAbsence: React.FC<Props> = props => {
             positionId: position?.id ?? "0",
             viewingCalendarMonth,
             absenceDates,
-            isClosed: false,
-            closedDates: [],
+            isClosed: absence?.isClosed ?? false,
+            closedDates: absence?.closedDetails
+              ? compact(absence?.closedDetails)?.map(cd =>
+                  parseISO(cd.startDate)
+                )
+              : [],
             approvalState: absence?.approvalState,
             assignmentsByDate: assignmentsByDate,
           };

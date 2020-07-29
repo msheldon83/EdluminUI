@@ -919,7 +919,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             onToggleAbsenceDate={d =>
                               dispatch({ action: "toggleDate", date: d })
                             }
-                            closedDates={[]}
+                            closedDates={state.closedDates}
                             currentMonth={state.viewingCalendarMonth}
                             onSwitchMonth={(d: Date) =>
                               dispatch({ action: "switchMonth", month: d })
@@ -987,7 +987,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                       <Grid item xs={12} className={classes.contentFooter}>
                         <div className={classes.actionButtons}>
                           <div className={classes.unsavedText}>
-                            {(formIsDirty || isCreate) && (
+                            {(formIsDirty || isCreate) && !state.isClosed && (
                               <Typography>
                                 {t("This page has unsaved changes")}
                               </Typography>

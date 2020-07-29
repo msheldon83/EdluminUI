@@ -29,7 +29,7 @@ type Props = {
   onTimeChange: () => void;
   canEditDatesAndTimes: boolean;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
-  initialUsageData?: AbsenceReasonUsageData[];  
+  initialUsageData?: AbsenceReasonUsageData[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -151,20 +151,25 @@ export const AbsenceDetails: React.FC<Props> = props => {
           onMonthChange={onSwitchMonth}
           onSelectDates={dates => {
             if (canEditDatesAndTimes) {
-              dates.forEach(onToggleAbsenceDate)
+              dates.forEach(onToggleAbsenceDate);
             }
           }}
         />
       </div>
-
-      {/* {showClosedDatesBanner && (
-          <Grid className={classes.closedDayBanner} item xs={12}>
-            <Typography>
-              {t("The following days of this absence fall on a closed day:")}
-            </Typography>
-            {renderClosedDaysBanner}
-          </Grid>
-        )} */}
+      {closedDates.length > 0 && (
+        <div className={classes.closedDayBanner}>
+          <Typography>
+            {t("The following days of this absence fall on a closed day:")}
+          </Typography>
+          <ul>
+            {closedDates.map((c, i) => {
+              return (
+                <li key={`closed-${i}`}>{format(c, "EEE MMMM d, yyyy")}</li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       <BalanceUsage
         orgId={organizationId}
@@ -246,12 +251,12 @@ const useStyles = makeStyles(theme => ({
   notesSection: {
     paddingTop: theme.spacing(3),
   },
-
   closedDayBanner: {
     marginTop: theme.typography.pxToRem(5),
     backgroundColor: theme.customColors.yellow1,
     padding: theme.typography.pxToRem(10),
     borderRadius: theme.typography.pxToRem(4),
+    width: "100%",
   },
 }));
 
