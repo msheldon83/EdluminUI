@@ -24,6 +24,7 @@ import { UpdateAbsence } from "../graphql/update-absence.gen";
 import { startOfDay, parseISO, startOfMonth } from "date-fns";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
+import { projectVacancyDetailsFromVacancies } from "../state";
 
 type Props = { actingAsEmployee?: boolean };
 
@@ -269,6 +270,7 @@ export const EditAbsence: React.FC<Props> = props => {
           return {
             absenceId: absence?.id,
             absenceRowVersion: absence?.rowVersion,
+            vacancyId: vacancy?.id,
             employeeId: employee.id,
             organizationId: organizationId,
             positionId: position?.id ?? "0",
@@ -282,6 +284,9 @@ export const EditAbsence: React.FC<Props> = props => {
               : [],
             approvalState: absence?.approvalState,
             assignmentsByDate: assignmentsByDate,
+            initialVacancyDetails: absence?.vacancies
+              ? projectVacancyDetailsFromVacancies(absence.vacancies)
+              : undefined,
           };
         }}
         saveAbsence={async data => {

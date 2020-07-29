@@ -14,6 +14,7 @@ import {
   Vacancy,
   CancelVacancyAssignmentInput,
   ApprovalStatus,
+  Assignment,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import {
@@ -249,21 +250,6 @@ export const AbsenceUI: React.FC<Props> = props => {
     false
   );
 
-  // If we have an existing Absence, determine what the initial Vacancy Details are
-  // so that we can use that information until the User explicitly modifies their
-  // selections or the Substitute Details directly
-  const initialVacancyDetails = React.useMemo(() => {
-    if (!localAbsence) {
-      return undefined;
-    }
-
-    const vacancyDetails = projectVacancyDetailsFromVacancies(
-      localAbsence.vacancies
-    );
-    console.log(vacancyDetails);
-    return vacancyDetails;
-  }, [localAbsence]);
-
   // If we have an existing Absence, determine what the initial Absence Reason Usage
   // is so that we can accurately determine how changes to the Absence Details would
   // affect the usage without double counting anything
@@ -417,7 +403,9 @@ export const AbsenceUI: React.FC<Props> = props => {
       vacancyDetailDates?: Date[]
     ) => {
       const vacancyDetails =
-        state.customizedVacanciesInput ?? state.projectedVacancyDetails;
+        state.customizedVacanciesInput ??
+        state.projectedVacancyDetails ??
+        state.initialVacancyDetails;
 
       // Get all of the matching details
       const detailsToAssign = vacancyDetailIds
@@ -452,52 +440,56 @@ export const AbsenceUI: React.FC<Props> = props => {
           addRemoveOrUpdate: "add",
         });
       } else {
-        // TODO: When I tackle Edit, then actually assign a Sub on demand
-        // // Cancel any existing assignments on these Details
-        // await onCancelAssignment(vacancyDetailIds);
-        // // Create an Assignment for these Details
-        // const result = await assignVacancy({
-        //   variables: {
-        //     assignment: {
-        //       orgId: params.organizationId,
-        //       vacancyId: vacancy.id,
-        //       employeeId: replacementEmployeeId,
-        //       vacancyDetailIds: detailsToAssign.map(d => d.id!),
-        //     },
-        //   },
-        // });
-        // const assignment = result?.data?.vacancy?.assignVacancy as Assignment;
-        // if (assignment) {
-        //   setVacancy({
-        //     ...vacancy,
-        //     details: vacancy.details.map(d => {
-        //       if (!vacancyDetailIds?.find(i => d.id === i)) {
-        //         return d;
-        //       }
-        //       return {
-        //         ...d,
-        //         assignment: {
-        //           id: assignment.id,
-        //           rowVersion: assignment.rowVersion,
-        //           employee: {
-        //             id: replacementEmployeeId,
-        //             firstName: replacementEmployeeFirstName,
-        //             lastName: replacementEmployeeLastName,
-        //           },
-        //         },
-        //       };
-        //     }),
-        //   });
-        // }
+        // Cancel any existing assignments on these Details
+        await onCancelAssignment(vacancyDetailIds);
+        // Create an Assignment for these Details
+        const result = await assignVacancy({
+          variables: {
+            assignment: {
+              orgId: organizationId,
+              vacancyId: state.vacancyId ?? "",
+              employeeId: replacementEmployeeId,
+              vacancyDetailIds: compact(
+                detailsToAssign.map(d => d.vacancyDetailId)
+              ),
+            },
+          },
+        });
+        const assignment = result?.data?.vacancy?.assignVacancy as Assignment;
+        if (assignment) {
+          // Update the assignments information in state
+          dispatch({
+            action: "updateAssignments",
+            assignments: detailsToAssign.map(d => {
+              return {
+                startTimeLocal: parseISO(d.startTime),
+                vacancyDetailId: d.vacancyDetailId,
+                assignmentId: assignment.id,
+                assignmentRowVersion: assignment.rowVersion,
+                employee: {
+                  id: replacementEmployeeId,
+                  firstName: replacementEmployeeFirstName,
+                  lastName: replacementEmployeeLastName,
+                },
+              };
+            }),
+            addRemoveOrUpdate: "add",
+          });
+        }
       }
 
       setStep("absence");
     },
     [
+      assignVacancy,
       isCreate,
+      onCancelAssignment,
+      organizationId,
       setStep,
       state.customizedVacanciesInput,
+      state.initialVacancyDetails,
       state.projectedVacancyDetails,
+      state.vacancyId,
     ]
   );
 
@@ -554,7 +546,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       const vacancyDetails =
         state.customizedVacanciesInput ??
         state.projectedVacancyDetails ??
-        initialVacancyDetails;
+        state.initialVacancyDetails;
 
       let absenceInput = buildAbsenceInput(
         formValues,
@@ -625,14 +617,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         setStep("confirmation");
       }
     },
-    [
-      disabledDates,
-      isCreate,
-      saveAbsence,
-      setStep,
-      state,
-      initialVacancyDetails,
-    ]
+    [disabledDates, isCreate, saveAbsence, setStep, state]
   );
 
   const actionMenuOptions = React.useMemo(() => {
@@ -668,7 +653,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           history.push(
             AbsenceVacancyNotificationLogRoute.generate({
               organizationId: organizationId,
-              vacancyId: vacancies[0].id ?? "",
+              vacancyId: state.vacancyId ?? "",
             })
           );
         },
@@ -682,12 +667,10 @@ export const AbsenceUI: React.FC<Props> = props => {
     localAbsence?.id,
     localAbsence?.vacancies,
     organizationId,
+    state.vacancyId,
     t,
   ]);
 
-  const vacancyId = localAbsence?.vacancies
-    ? localAbsence?.vacancies[0]?.id
-    : undefined;
   const allVacancyDetails = localAbsence?.vacancies
     ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
     : [];
@@ -790,11 +773,11 @@ export const AbsenceUI: React.FC<Props> = props => {
             state.customizedVacanciesInput ||
             ((unsavedAbsenceDetailChanges || isCreate) &&
               state.projectedVacancyDetails) ||
-            initialVacancyDetails;
+            state.initialVacancyDetails;
           console.log("vacancyDetails", vacancyDetails);
 
           const formIsDirty =
-            dirty || !isEqual(initialVacancyDetails, vacancyDetails);
+            dirty || !isEqual(state.initialVacancyDetails, vacancyDetails);
 
           const inputForProjectedCalls = buildAbsenceInput(
             values,
@@ -1048,12 +1031,12 @@ export const AbsenceUI: React.FC<Props> = props => {
                     positionName={position?.title}
                     vacancySummaryDetails={vacancySummaryDetailsToAssign}
                     useVacancySummaryDetails={true}
-                    existingVacancy={!!vacancyId}
+                    existingVacancy={!!state.vacancyId}
                     selectButtonText={!isCreate ? t("Assign") : undefined}
-                    vacancies={!vacancyId ? vacanciesToAssign : undefined}
-                    vacancyId={vacancyId}
+                    vacancies={!state.vacancyId ? vacanciesToAssign : undefined}
+                    vacancyId={state.vacancyId}
                     vacancyDetailIdsToAssign={
-                      vacancyId
+                      state.vacancyId
                         ? compact(
                             vacancySummaryDetailsToAssign.map(
                               v => v.vacancyDetailId

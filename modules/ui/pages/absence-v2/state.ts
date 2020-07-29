@@ -16,11 +16,13 @@ export type AbsenceState = {
   absenceDates: Date[];
   absenceId?: string;
   absenceRowVersion?: string;
+  vacancyId?: string;
   isClosed?: boolean;
   closedDates: Date[];
-  customizedVacanciesInput?: VacancyDetail[];
   projectedVacancies?: Vacancy[];
   projectedVacancyDetails?: VacancyDetail[];
+  customizedVacanciesInput?: VacancyDetail[];
+  initialVacancyDetails?: VacancyDetail[];
   assignmentsByDate?: AssignmentOnDate[];
   approvalState?: {
     id: string;
