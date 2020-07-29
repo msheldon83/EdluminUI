@@ -37,6 +37,12 @@ import { Column } from "material-table";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { UserSmsLogRoute } from "ui/routes/sms-log";
 import { phoneRegExp } from "helpers/regexp";
+import { OrgLink } from "ui/components/links/orgs";
+import {
+  AdminLink,
+  EmployeeLink,
+  SubstituteLink,
+} from "ui/components/links/people";
 
 export const UserViewPage: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -232,8 +238,39 @@ export const UserViewPage: React.FC<{}> = props => {
       | "email"
     >
   >[] = [
-    { title: t("OrgUserId"), field: "id" },
-    { title: t("Org Id"), field: "organization.id" },
+    {
+      title: t("OrgUserId"),
+      render: rowData =>
+        rowData.isAdmin ? (
+          <AdminLink
+            orgId={rowData.organization.id}
+            orgUserId={rowData.id}
+          >
+            {rowData.id}
+          </AdminLink>
+        ) : rowData.isEmployee ? (
+          <EmployeeLink orgId={rowData.id} orgUserId={rowData.id}>
+            {rowData.id}
+          </EmployeeLink>
+        ) : rowData.isReplacementEmployee ? (
+          <SubstituteLink
+            orgId={rowData.organization.id}
+            orgUserId={rowData.id}
+          >
+            {rowData.id}
+          </SubstituteLink>
+        ) : (
+          <span>{rowData.id}</span>
+        ),
+    },
+    {
+      title: t("Org Id"),
+      render: rowData => (
+        <OrgLink orgId={rowData.organization.id}>
+          {rowData.organization.id}
+        </OrgLink>
+      ),
+    },
     { title: t("Org Name"), field: "organization.name" },
     {
       title: t("Name In Org"),
