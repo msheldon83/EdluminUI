@@ -56,7 +56,14 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, compact, flatMap, isNil, isEqual } from "lodash-es";
+import {
+  some,
+  compact,
+  flatMap,
+  isNil,
+  isEqual,
+  differenceWith,
+} from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -166,10 +173,17 @@ export const AbsenceUI: React.FC<Props> = props => {
       ? min(state.absenceDates)
       : undefined
   );
-  const disabledDates = React.useMemo(
-    () => getCannotCreateAbsenceDates(disabledDatesObjs),
-    [disabledDatesObjs]
-  );
+  const disabledDates = React.useMemo(() => {
+    // There's only going to be initial details when Editing an existing
+    // Absence, so for create this will just be an empty list
+    const existingAbsenceDays = initialAbsenceFormData.details.map(d => d.date);
+
+    return differenceWith(
+      getCannotCreateAbsenceDates(disabledDatesObjs),
+      existingAbsenceDays,
+      isSameDay
+    );
+  }, [disabledDatesObjs, initialAbsenceFormData.details]);
   React.useEffect(() => {
     const conflictingDates = disabledDates.filter(dis =>
       some(state.absenceDates, ad => isSameDay(ad, dis))
@@ -710,9 +724,10 @@ export const AbsenceUI: React.FC<Props> = props => {
       : true;
 
   const canEditDatesAndTimes =
-    isCreate ||
-    !actingAsEmployee ||
-    (!hasFilledVacancies && !some(state.absenceDates, isPast));
+    !state.isClosed &&
+    (isCreate ||
+      !actingAsEmployee ||
+      (!hasFilledVacancies && !some(state.absenceDates, isPast)));
 
   return (
     <>
@@ -936,7 +951,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                               setNegativeBalanceWarning
                             }
                             initialUsageData={initialAbsenceReasonUsageData}
+                            canEditReason={!state.isClosed}
                             canEditDatesAndTimes={canEditDatesAndTimes}
+                            isClosed={state.isClosed ?? false}
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -979,6 +996,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 : compact(localAbsence?.vacancies)
                             }
                             canEditSubDetails={canEditDatesAndTimes}
+                            isClosed={state.isClosed ?? false}
                           />
                         </Grid>
                       </Grid>

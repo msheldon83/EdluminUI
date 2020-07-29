@@ -44,6 +44,7 @@ type Props = {
   locationIds?: string[];
   projectionInput: AbsenceCreateInput | null;
   absenceDates: Date[];
+  isClosed: boolean;
   onAssignSubClick: (
     vacancySummaryDetailsToAssign: VacancySummaryDetail[]
   ) => void;
@@ -79,6 +80,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     onOverallCodeChanges,
     assignmentsByDate,
     vacanciesOverride,
+    isClosed,
     disableReplacementInteractions = false,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
@@ -92,7 +94,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
       },
       ignoreAbsenceId: absenceId ?? undefined,
     },
-    skip: !projectionInput || !!vacanciesOverride,
+    skip: !projectionInput || !!vacanciesOverride || isClosed,
     onError: error => {
       ShowErrors(error, snackbar.openSnackbar);
     },
@@ -202,6 +204,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
                   setFieldValue("needsReplacement", e.target.checked)
                 }
                 color="primary"
+                disabled={isClosed}
               />
             }
           />
@@ -221,6 +224,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     setFieldValue,
     t,
     values.needsReplacement,
+    isClosed,
   ]);
 
   const absenceActions: JSX.Element = React.useMemo(() => {

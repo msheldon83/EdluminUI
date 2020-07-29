@@ -21,12 +21,14 @@ type Props = {
   actingAsEmployee: boolean;
   onToggleAbsenceDate: (d: Date) => void;
   absenceDates: Date[];
+  isClosed: boolean;
   closedDates?: Date[];
   currentMonth: Date;
   onSwitchMonth: (month: Date) => void;
   projectionInput: AbsenceCreateInput | null;
   positionTypeId?: string;
   onTimeChange: () => void;
+  canEditReason: boolean;
   canEditDatesAndTimes: boolean;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
   initialUsageData?: AbsenceReasonUsageData[];
@@ -50,9 +52,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
     positionTypeId,
     absenceDates,
     onTimeChange,
+    canEditReason,
     canEditDatesAndTimes,
     setNegativeBalanceWarning,
     initialUsageData,
+    isClosed,
     closedDates = [],
   } = props;
 
@@ -86,7 +90,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
       },
       ignoreAbsenceId: absenceId ?? undefined,
     },
-    skip: !projectionInput,
+    skip: !projectionInput || isClosed,
     // fetchPolicy: "no-cache",
     onError: () => {
       // This shouldn't prevent the User from continuing on
@@ -188,6 +192,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           employeeId={employeeId}
           positionTypeId={positionTypeId}
           onTimeChange={onTimeChange}
+          canEditReason={canEditReason}
           canEditTimes={canEditDatesAndTimes}
         />
       </div>
