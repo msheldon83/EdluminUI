@@ -699,7 +699,7 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const canDeleteAbsence =
     actingAsEmployee && localAbsence
-      ? isAfter(localAbsence.startTimeLocal, new Date()) &&
+      ? isAfter(parseISO(localAbsence.startTimeLocal), new Date()) &&
         !hasFilledVacancies &&
         localAbsence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
         localAbsence.approvalStatus !== ApprovalStatus.Approved &&
