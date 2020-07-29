@@ -145,6 +145,7 @@ export const ProfilePage: React.FC<{}> = props => {
   return (
     <>
       <Formik
+        enableReinitialize
         initialValues={{
           firstName: myUser.firstName,
           lastName: myUser.lastName,
