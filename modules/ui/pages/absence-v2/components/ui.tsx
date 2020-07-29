@@ -844,7 +844,8 @@ export const AbsenceUI: React.FC<Props> = props => {
                     if (
                       match.url === location.pathname ||
                       (localAbsence?.id && step === "confirmation") ||
-                      !formIsDirty
+                      !formIsDirty ||
+                      state.isClosed
                     ) {
                       // We're not actually leaving the route
                       // OR the Absence has just been created and we're on the Confirmation screen
