@@ -99,7 +99,6 @@ export const FeedbackMenuLink: React.FC<Props> = props => {
   if (!orgId) return <></>;
   const { t } = useTranslation();
   const classes = useStyles();
-  const params = useRouteParams(AppChromeRoute);
   return (
     <MenuLink
       className={classes.menulink}

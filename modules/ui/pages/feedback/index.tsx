@@ -1,6 +1,4 @@
 import * as React from "react";
-import { getCannyToken } from "./canny-token";
-import { getOrgIdFromRoute } from "core/org-context";
 import { ErrorUI } from "../../components/error";
 import { useTranslation } from "react-i18next";
 import { UnauthorizedAdminRoleRoute } from "../../../ui/routes/unauthorized";
@@ -8,28 +6,36 @@ import { useQueryBundle } from "graphql/hooks";
 import { GetCannyToken } from "./graphql/get-canny-token.gen";
 import { Redirect } from "react-router-dom";
 import { useMyUserAccess } from "reference-data/my-user-access";
+import { useOrganizationId } from "core/org-context";
+import Typography from "@material-ui/core/Typography";
+import { ShowErrors } from "ui/components/error-helpers";
+import { useSnackbar } from "hooks/use-snackbar";
 
 type Props = {};
 
 export const Feedback: React.FC<Props> = props => {
   const { t } = useTranslation();
   const boardToken = "19363ddd-79d1-a5ca-a326-8f9bac3faa36";
+  const { openSnackbar } = useSnackbar();
 
-  const orgId = getOrgIdFromRoute();
+  const orgId = useOrganizationId();
   if (!orgId) return <></>; //todo:  something with some actual content here?
 
-  const showFeedbackMenuLink = () => {
-    const userAccess = useMyUserAccess();
+  const userAccess = useMyUserAccess();
+  const isSuperUserInAnyOrg = React.useMemo(() => {
     const orgUsers = userAccess?.me?.user?.orgUsers;
     if (!orgUsers) return false;
-    return (
+    return () => {
       orgUsers.filter(function(orgUser) {
         return orgUser?.administrator?.isSuperUser;
-      }).length > 0
-    );
-  };
+      }).length > 0;
+    };
+  }, [userAccess]);
 
-  if (!showFeedbackMenuLink) {
+  if (!userAccess) {
+    return "<></>";
+  }
+  if (!isSuperUserInAnyOrg) {
     return (
       <Redirect
         to={UnauthorizedAdminRoleRoute.generate({
@@ -42,6 +48,9 @@ export const Feedback: React.FC<Props> = props => {
   //  const ssoToken = getCannyToken();
 
   const getToken = useQueryBundle(GetCannyToken, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
     fetchPolicy: "network-only",
   });
 
@@ -52,11 +61,15 @@ export const Feedback: React.FC<Props> = props => {
     return null;
   }, [getToken.state]);
 
+  if (!ssoToken && getToken.state === "DONE") {
+    return <ErrorUI />;
+  }
+
   if (!ssoToken) {
     return <></>;
   }
 
-  const basePath = "/admin/" + orgId + "/feedback";
+  const basePath = `/admin/${orgId}/feedback`;
   try {
     Canny("render", {
       boardToken: boardToken,
@@ -64,17 +77,17 @@ export const Feedback: React.FC<Props> = props => {
       ssoToken: ssoToken,
     });
   } catch (e) {
-    console.log("cat error");
     return <ErrorUI />;
   }
 
   return (
     <>
-      <h4>
+      <Typography variant="h6">
         {t(
           "Have some feedback that you'd like to share with the team at Red Rover?  Feel free to post your idea here! We'd also love for you to vote and comment on ideas that you find compelling. We genuinely appreciate your partnership."
         )}
-      </h4>
+      </Typography>
+      <br />
       <div data-canny />
     </>
   );
