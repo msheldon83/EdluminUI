@@ -19,7 +19,6 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 type Props = {
   className?: string;
   onClick?: () => void;
-  onClose: () => void;
 };
 
 export const MyProfileMenuLink: React.FC<Props> = props => {
@@ -81,31 +80,34 @@ export const OrganizationContactMenuLink: React.FC<Props> = props => {
   );
 };
 
-const showFeedbackMenuLink = () => {
-  const userAccess = useMyUserAccess();
-  const orgUsers = userAccess?.me?.user?.orgUsers;
-  if (!orgUsers) return false;
-  return (
-    orgUsers.filter(function(orgUser) {
-      return orgUser?.administrator?.isSuperUser;
-    }).length > 0
-  );
-};
-
 export const FeedbackMenuLink: React.FC<Props> = props => {
-  const authorized = showFeedbackMenuLink();
-  if (!authorized) return <></>;
-  const orgId = getOrgIdFromRoute();
-  if (!orgId) return <></>;
   const { t } = useTranslation();
   const classes = useStyles();
+  const userAccess = useMyUserAccess();
+  const isSuperUserInAnyOrg = React.useMemo(() => {
+    const orgUsers = userAccess?.me?.user?.orgUsers;
+    if (!orgUsers) return false;
+    return () => {
+      orgUsers.filter(function(orgUser) {
+        return orgUser?.administrator?.isSuperUser;
+      }).length > 0;
+    };
+  }, [userAccess]);
+
+  if (!userAccess) {
+    return <></>;
+  }
+
+  if (!isSuperUserInAnyOrg) return <></>;
+
+  const orgId = getOrgIdFromRoute();
+  if (!orgId) return <></>;
+
   return (
     <MenuLink
-      className={classes.menulink}
       title={t("Ideas")}
       icon={<CannyIcon className={classes.rotated} />}
-      route={AdminFeedbackRoute.generate({ organizationId: orgId! })}
-      onClick={props.onClose}
+      route={AdminFeedbackRoute.generate({ organizationId: orgId })}
       {...props}
     />
   );
@@ -114,8 +116,5 @@ export const FeedbackMenuLink: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   rotated: {
     transform: "rotate(180deg)",
-  },
-  menulink: {
-    color: theme.customColors.darkGray,
   },
 }));

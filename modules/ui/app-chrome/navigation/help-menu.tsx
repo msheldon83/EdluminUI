@@ -46,7 +46,10 @@ export const HelpMenu: React.FC<Props> = props => {
             className={classes.userMenuLink}
           />
         )}
-        <FeedbackMenuLink />
+        <FeedbackMenuLink
+          onClick={props.onClose}
+          className={classes.userMenuLink}
+        />
       </MenuList>
     </Menu>
   );

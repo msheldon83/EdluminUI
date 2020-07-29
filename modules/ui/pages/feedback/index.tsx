@@ -33,7 +33,7 @@ export const Feedback: React.FC<Props> = props => {
   }, [userAccess]);
 
   if (!userAccess) {
-    return "<></>";
+    return <></>;
   }
   if (!isSuperUserInAnyOrg) {
     return (
@@ -44,8 +44,6 @@ export const Feedback: React.FC<Props> = props => {
       />
     );
   }
-
-  //  const ssoToken = getCannyToken();
 
   const getToken = useQueryBundle(GetCannyToken, {
     onError: error => {
@@ -71,7 +69,12 @@ export const Feedback: React.FC<Props> = props => {
 
   const basePath = `/admin/${orgId}/feedback`;
   try {
-    Canny("render", {
+    const canny = (window as any).Canny;
+    if (!canny) {
+      return <ErrorUI />;
+    }
+
+    canny("render", {
       boardToken: boardToken,
       basePath: basePath,
       ssoToken: ssoToken,
