@@ -40,7 +40,9 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
     return <></>;
   }
 
-  const detailClass = details.some(d => d.isClosed)
+  const detailClass = isMobile
+    ? classes.mobileDetail
+    : details.some(d => d.isClosed)
     ? classes.closedDetail
     : classes.detail;
 
@@ -95,11 +97,6 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   employeeSection: {
-    /*
-    paddingLeft: theme.spacing(5),
-    "@media print": {
-      paddingLeft: 0,
-    },*/
     gridArea: "employee",
   },
   locationSection: {
@@ -146,6 +143,29 @@ const useStyles = makeStyles(theme => ({
       / 72px   3fr      3fr    3fr            3fr            3fr            2fr           72px           48px
     `,
     columnGap: theme.spacing(1),
+  },
+  mobileDetail: {
+    paddingLeft: theme.spacing(1),
+    paddingTop: theme.spacing(2),
+    paddingRight: theme.spacing(1),
+    paddingBottom: theme.spacing(2),
+    [theme.breakpoints.down("sm")]: {
+      paddingLeft: 0,
+      paddingRight: 0,
+    },
+    "@media print": {
+      paddingLeft: theme.spacing(),
+      paddingTop: 0,
+      paddingRight: 0,
+      paddingBottom: 0,
+    },
+    display: "flex",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
+    [theme.breakpoints.down("sm")]: {
+      alignItems: "stretch",
+    },
   },
   detailHeader: {
     color: theme.customColors.edluminSubText,
