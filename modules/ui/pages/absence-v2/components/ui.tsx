@@ -161,7 +161,10 @@ export const AbsenceUI: React.FC<Props> = props => {
   // for the current Employee
   const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
-    state.viewingCalendarMonth
+    state.viewingCalendarMonth,
+    state.absenceDates && state.absenceDates.length > 0
+      ? min(state.absenceDates)
+      : undefined
   );
   const disabledDates = React.useMemo(
     () => getCannotCreateAbsenceDates(disabledDatesObjs),
@@ -706,11 +709,10 @@ export const AbsenceUI: React.FC<Props> = props => {
         !hasVerifiedAssignments
       : true;
 
-  const canEditDatesAndTimes=
-        isCreate ||
-        !actingAsEmployee ||
-        (!hasFilledVacancies &&
-          !some(state.absenceDates, isPast));
+  const canEditDatesAndTimes =
+    isCreate ||
+    !actingAsEmployee ||
+    (!hasFilledVacancies && !some(state.absenceDates, isPast));
 
   return (
     <>
