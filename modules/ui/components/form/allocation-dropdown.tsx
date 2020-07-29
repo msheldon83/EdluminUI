@@ -22,6 +22,15 @@ export type AllocationDropdownProps = {
   disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string;
+  renderAllocationAmount?: (
+    props: RenderAllocationAmountArgs
+  ) => React.ReactElement;
+};
+
+export type RenderAllocationAmountArgs = {
+  disabled: boolean | undefined;
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
 };
 
 export type AllocationCodeValue =
@@ -36,7 +45,7 @@ export type AllocationCodeValue =
 type Allocation = {
   id: number;
   selection?: OptionType;
-  percentage?: number;
+  amount?: number;
 };
 
 /*
@@ -88,6 +97,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
     inputStatus = "default",
     placeholder,
     multipleAllocationPlaceholder,
+    renderAllocationAmount,
   } = props;
 
   const classes = useStyles();
@@ -175,7 +185,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
   };
   const mainDropdownOptions = [multipleAllocationsOptionType].concat(options);
 
-  const renderMultiCodeRow = memoize((allocation: Allocation) => {
+  const renderAllocationRow = memoize((allocation: Allocation) => {
     return (
       <>
         <Select
@@ -189,28 +199,24 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
           withResetValue={false}
           onChange={selection => updateAllocation({ ...allocation, selection })}
         />
-        <NumberInput
-          className={classes.multiCodeInput}
-          endAdornment="%"
-          onChange={percentage => {
-            updateAllocation({ ...allocation, percentage: percentage });
-          }}
-          value={allocation.percentage}
-          maxLength={2}
+        {renderAllocationAmount &&
+          renderAllocationAmount({
+            disabled,
+            value: allocation.amount,
+            onChange(amount) {
+              updateAllocation({ ...allocation, amount });
+            },
+          })}
+        <IconButton
+          aria-label="delete"
+          role="button"
+          disableFocusRipple
+          size="small"
+          onClick={() => removeAllocation(allocation.id)}
           disabled={disabled}
-        />
-        <span className={classes.multiCodeDeleteButton}>
-          <IconButton
-            aria-label="delete"
-            role="button"
-            disableFocusRipple
-            size="small"
-            onClick={() => removeAllocation(allocation.id)}
-            disabled={disabled}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </span>
+        >
+          <DeleteIcon />
+        </IconButton>
       </>
     );
   });
@@ -250,7 +256,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
               {value?.allocations.map(allocation => {
                 return (
                   <li key={allocation.id.toString()}>
-                    {renderMultiCodeRow(allocation)}
+                    {renderAllocationRow(allocation)}
                   </li>
                 );
               })}
@@ -300,15 +306,12 @@ const useStyles = makeStyles(theme => ({
   multiCodeList: {
     listStyle: "none",
     margin: 0,
-    padding: `${theme.typography.pxToRem(
-      theme.spacing(1.5)
-    )} ${theme.typography.pxToRem(theme.spacing(1))} ${theme.typography.pxToRem(
-      theme.spacing(1)
-    )}`,
+    padding: `${theme.typography.pxToRem(theme.spacing(1.5))}`,
 
     "& li": {
       alignItems: "center",
       display: "flex",
+      justifyContent: "flex-start",
       marginBottom: theme.spacing(1),
     },
 
@@ -320,18 +323,12 @@ const useStyles = makeStyles(theme => ({
     flex: "1 0 auto",
     marginRight: theme.spacing(1),
   },
-  multiCodeInput: {
-    width: theme.spacing(8),
-  },
-  multiCodeDeleteButton: {
-    paddingLeft: theme.spacing(1),
-  },
   alloctionButtons: {
     padding: `0 ${theme.typography.pxToRem(
-      theme.spacing(1)
-    )} ${theme.typography.pxToRem(theme.spacing(1))} ${theme.typography.pxToRem(
-      theme.spacing(1)
-    )}`,
+      theme.spacing(1.5)
+    )} ${theme.typography.pxToRem(
+      theme.spacing(1.5)
+    )} ${theme.typography.pxToRem(theme.spacing(1.5))}`,
   },
   addAllocationButton: {
     color: theme.messages.default,
