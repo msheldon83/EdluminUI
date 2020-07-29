@@ -293,12 +293,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           value.allocations.filter(a => a.selection)
         );
 
-        if (selectedAccountingCodes.filter(a => !a.percentage).length > 0) {
+        if (selectedAccountingCodes.filter(a => !a.amount).length > 0) {
           // Missing percentages
           return `${t("Accounting codes missing allocation percentages")}`;
         }
 
-        if (sum(selectedAccountingCodes.map(a => a.percentage)) !== 100) {
+        if (sum(selectedAccountingCodes.map(a => a.amount)) !== 100) {
           // Allocations need to add up to 100%
           return `${t("Accounting code allocations do not total 100%")}`;
         }
