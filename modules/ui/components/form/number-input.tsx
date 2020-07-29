@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTheme } from "@material-ui/core/styles";
 import { Input, InputProps } from "./input";
 
 export type NumberInputProps = Omit<InputProps, "value" | "onChange"> & {
@@ -10,9 +11,12 @@ export type NumberInputProps = Omit<InputProps, "value" | "onChange"> & {
 export const NumberInput = (props: NumberInputProps) => {
   const { value, onChange, maxLength, ...inputProps } = props;
 
+  const theme = useTheme();
+
   return (
     <Input
       {...inputProps}
+      style={{ fontSize: theme.typography.pxToRem(14) }}
       value={value?.toString() ?? ""}
       onChange={e => {
         const numberRegex = /^[0-9\b]+$/;

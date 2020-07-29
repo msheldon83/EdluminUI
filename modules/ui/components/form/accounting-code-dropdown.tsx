@@ -5,12 +5,14 @@ import {
   AllocationDropdown,
   AllocationDropdownProps,
   AllocationCodeValue,
+  RenderAllocationAmountArgs,
 } from "./allocation-dropdown";
 export {
   singleAllocation,
   noAllocation,
   multipleAllocations,
 } from "./allocation-dropdown";
+import { NumberInput } from "ui/components/form/number-input";
 
 export type AccountingCodeValue = AllocationCodeValue;
 
@@ -26,8 +28,22 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
       multipleAllocationPlaceholder={t("Select accounting code")}
       placeholder={t("Select code")}
       label={t("Accounting code")}
+      renderAllocationAmount={(allocationProps: RenderAllocationAmountArgs) => {
+        return (
+          <NumberInput
+            {...allocationProps}
+            className={classes.multiCodeInput}
+            endAdornment="%"
+            maxLength={2}
+          />
+        );
+      }}
     />
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  multiCodeInput: {
+    width: theme.spacing(8),
+  },
+}));

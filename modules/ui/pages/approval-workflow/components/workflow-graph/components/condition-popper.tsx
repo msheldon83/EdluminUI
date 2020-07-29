@@ -182,13 +182,17 @@ export const ConditionPopper: React.FC<Props> = props => {
                 .required(t("A reason is required")),
             })}
             onSubmit={data => {
-              let nextGoto = steps.find(x => {
-                if (data.approverGroupHeaderId === "0") {
-                  return x.isLastStep;
-                } else {
-                  return x.approverGroupHeaderId == data.approverGroupHeaderId;
-                }
-              })?.stepId;
+              let nextGoto = steps
+                .filter(x => !x.deleted)
+                .find(x => {
+                  if (data.approverGroupHeaderId === "0") {
+                    return x.isLastStep;
+                  } else {
+                    return (
+                      x.approverGroupHeaderId == data.approverGroupHeaderId
+                    );
+                  }
+                })?.stepId;
 
               let newStep = undefined as ApprovalWorkflowStepInput | undefined;
               if (nextGoto === undefined) {

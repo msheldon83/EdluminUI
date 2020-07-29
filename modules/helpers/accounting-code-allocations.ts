@@ -80,7 +80,7 @@ export const mapAccountingCodeValueToAccountingCodeAllocations = (
       allocations = accountingCodeAllocations.allocations.map(a => {
         return {
           accountingCodeId: a.selection?.value?.toString() ?? "",
-          allocation: (a.percentage ?? 0) / 100,
+          allocation: (a.amount ?? 0) / 100,
           accountingCodeName: setName ? a.selection?.label : undefined,
         };
       });
@@ -126,7 +126,7 @@ export const mapAccountingCodeAllocationsToAccountingCodeValue = (
           label: a.accountingCodeName ?? "",
           value: a.accountingCodeId,
         },
-        percentage: a.allocation ? Math.floor(a.allocation * 100) : undefined,
+        amount: a.allocation ? Math.floor(a.allocation * 100) : undefined,
       };
     })
   );
@@ -179,13 +179,13 @@ export const accountingCodeValuesAreEqual = (
     const valueAllocations = value.allocations.map(a => {
       return {
         accountingCodeId: a.selection?.value,
-        allocation: a.percentage,
+        allocation: a.amount,
       };
     });
     const toCompareAllocations = toCompare.allocations.map(a => {
       return {
         accountingCodeId: a.selection?.value,
-        allocation: a.percentage,
+        allocation: a.amount,
       };
     });
 
