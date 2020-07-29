@@ -1,9 +1,10 @@
 import * as React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import { useTheme } from "@material-ui/core";
+import { Tooltip, Typography, useTheme } from "@material-ui/core";
 import useAutocomplete from "@material-ui/lab/useAutocomplete";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import InfoIcon from "@material-ui/icons/Info";
 import Chip from "@material-ui/core/Chip";
 import { TextButton } from "ui/components/text-button";
 import FormHelperText from "@material-ui/core/FormHelperText";
@@ -45,6 +46,7 @@ export type SelectProps<T extends boolean> = {
 export type OptionType = {
   label: string;
   value: string | number;
+  info?: React.ReactNode;
 };
 
 const TAG_CHIP_CONTAINER_HEIGHT = 36;
@@ -310,7 +312,14 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
                     className={itemClasses}
                     key={getOptionValue(option)}
                   >
-                    {option.label}
+                    <Typography className={classes.optionText}>
+                      {option.label}
+                    </Typography>
+                    {option.info && (
+                      <Tooltip title={option.info}>
+                        <InfoIcon className={classes.infoIcon} />
+                      </Tooltip>
+                    )}
                   </li>
                 );
               })}
@@ -427,6 +436,10 @@ const useStyles = makeStyles(theme => ({
     cursor: "pointer",
     zIndex: 200,
   },
+  infoIcon: {
+    color: theme.customColors.edluminSubText,
+    zIndex: 200,
+  },
   listbox: {
     backgroundColor: theme.palette.background.paper,
     border: `1px solid ${theme.palette.text.primary}`,
@@ -457,6 +470,9 @@ const useStyles = makeStyles(theme => ({
   optionItem: {
     paddingLeft: theme.spacing(1.5),
     paddingRight: theme.spacing(1.5),
+    alignItems: "center",
+    display: "inline-flex",
+    width: "100%",
 
     "&:hover": {
       backgroundColor: theme.background.hoverRow,
@@ -474,6 +490,9 @@ const useStyles = makeStyles(theme => ({
     '&[aria-selected="true"]': {
       color: theme.customColors.edluminSubText,
     },
+  },
+  optionText: {
+    width: "100%",
   },
   showAllButton: {
     position: "absolute",
