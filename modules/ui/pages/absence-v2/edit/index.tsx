@@ -296,6 +296,14 @@ export const EditAbsence: React.FC<Props> = props => {
             },
           });
           const absence = result?.data?.absence?.update as Absence;
+          if (absence) {
+            openSnackbar({
+              message: t("The absence has been updated"),
+              dismissable: true,
+              status: "success",
+              autoHideDuration: 5000,
+            });
+          }
           return absence;
         }}
         saveErrorsInfo={saveErrorsInfo}

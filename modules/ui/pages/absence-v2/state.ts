@@ -2,7 +2,7 @@ import { isSameDay, startOfDay, isEqual, parseISO } from "date-fns";
 import { differenceWith, filter, find, sortBy } from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
-import { Vacancy, ApprovalStatus, Maybe } from "graphql/server-types.gen";
+import { Vacancy, ApprovalStatus, Maybe, Absence } from "graphql/server-types.gen";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 import { AssignmentOnDate } from "./types";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
@@ -58,7 +58,7 @@ export type AbsenceActions =
       projectedVacancies: undefined | Vacancy[];
     }
   | { action: "removeAbsenceDates"; dates: Date[] }
-  | { action: "resetAfterSave" }
+  | { action: "resetAfterSave", updatedAbsence: Absence }
   | { action: "resetToInitialState"; initialState: AbsenceState }
   | {
       action: "updateAssignments";
@@ -130,7 +130,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       };
     }
     case "resetAfterSave": {
-      return { ...prev, customizedVacanciesInput: undefined };
+      return { ...prev, customizedVacanciesInput: undefined, absenceRowVersion: action.updatedAbsence?.rowVersion };
     }
     case "resetToInitialState": {
       return action.initialState;

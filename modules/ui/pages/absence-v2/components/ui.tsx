@@ -572,7 +572,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       }
 
       setLocalAbsence(updatedAbsence);
-      dispatch({ action: "resetAfterSave" });
+      dispatch({ action: "resetAfterSave", updatedAbsence });
       if (isCreate) {
         // We need to get the Assignment Id and Row Version from
         // the newly created Absence info in order to allow the User
@@ -1073,7 +1073,11 @@ export const AbsenceUI: React.FC<Props> = props => {
                   employeeName={`${employee.firstName} ${employee.lastName}`}
                   positionName={position?.title}
                   onCancel={() => setStep("absence")}
-                  details={state.projectedVacancyDetails ?? []}
+                  details={
+                    state.projectedVacancyDetails ??
+                    state.initialVacancyDetails ??
+                    []
+                  }
                   onChangedVacancies={vacancyDetails => {
                     onChangedVacancies(vacancyDetails);
                     // If our Vacancy Details have changed so that they all share the same
@@ -1237,11 +1241,13 @@ const buildAbsenceInput = (
         endTime: secondsSinceMidnight(
           parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
         ),
-        payCodeId: v.payCodeId ?? null,
-        accountingCodeAllocations: mapAccountingCodeValueToAccountingCodeAllocations(
-          v.accountingCodeAllocations,
-          true
-        ),
+        payCodeId: !hasEditedDetails ? undefined : v.payCodeId ?? null,
+        accountingCodeAllocations: !hasEditedDetails
+          ? undefined
+          : mapAccountingCodeValueToAccountingCodeAllocations(
+              v.accountingCodeAllocations,
+              true
+            ),
         prearrangedReplacementEmployeeId: assignment?.employee?.id,
       } ?? undefined
     );
@@ -1292,6 +1298,7 @@ const createAbsenceDetailInput = (
 ): AbsenceDetailCreateInput[] => {
   return details.map(d => {
     let detail: AbsenceDetailCreateInput = {
+      id: d.id,
       date: format(d.date, "P"),
       dayPartId: d.dayPart,
       reasons: [{ absenceReasonId: d.absenceReasonId }],
