@@ -380,7 +380,6 @@ export const AbsenceUI: React.FC<Props> = props => {
           assignments: assignmentsByDate,
           addRemoveOrUpdate: "update",
         });
-        console.log(assignmentsByDate);
         return allCancellationsSuccessful;
       }
     },
@@ -780,24 +779,38 @@ export const AbsenceUI: React.FC<Props> = props => {
           initialValues,
           errors,
         }) => {
+          // Not necessarily if any part of the form has changes, but do we have
+          // changes to the Absence that would prevent us from taking sub
+          // assignment actions and require the User to save before taking those actions
           const unsavedAbsenceDetailChanges =
             !isEqual(initialValues.details, values.details) ||
             initialAbsenceFormData.needsReplacement !== values.needsReplacement;
-          console.log(
-            "unsavedAbsenceDetailChanges",
-            unsavedAbsenceDetailChanges
-          );
 
+          // Complicated hierarchy to what vacancy details are the ones we want
+          // to consider when displaying information or taking action.
+          //  1. The "state.customizedVacanciesInput" always take precedence, because
+          //    their presence means the User went to Edit Sub Details and made explicit
+          //    changes to their Vacancy Details and we don't want to lose those
+          //  2. On Create, "state.projectedVacancyDetails" are all we got so use those. On Edit, we
+          //    only want to use them if the User has made some relevant changes to the Absence Details
+          //  3. Now we can use the "state.initialVacancyDetails". These only get populated on Edit and
+          //    will be updated everytime the User successfully saves the Absence
           const vacancyDetails =
             state.customizedVacanciesInput ||
             ((unsavedAbsenceDetailChanges || isCreate) &&
               state.projectedVacancyDetails) ||
             state.initialVacancyDetails;
-          console.log("vacancyDetails", vacancyDetails);
 
+          // Because the information from the Edit Sub Details screen is stored
+          // in state and not as a part of this form, we have to consider that when
+          // determining if the overall interface is currently dirty
           const formIsDirty =
             dirty || !isEqual(state.initialVacancyDetails, vacancyDetails);
 
+          // The object we send to the server when getting projected vacancies
+          // or projected absence usage is not the exact same as what we would send
+          // on a Create or Update call so we define a specific object for those
+          // projected queries and the components that house them to utilize
           const inputForProjectedCalls = buildAbsenceInput(
             values,
             state,
@@ -957,7 +970,6 @@ export const AbsenceUI: React.FC<Props> = props => {
                             projectionInput={inputForProjectedCalls}
                             absenceDates={state.absenceDates}
                             onAssignSubClick={vacancySummaryDetailsToAssign => {
-                              console.log(vacancySummaryDetailsToAssign);
                               setVacancySummaryDetailsToAssign(
                                 vacancySummaryDetailsToAssign
                               );
