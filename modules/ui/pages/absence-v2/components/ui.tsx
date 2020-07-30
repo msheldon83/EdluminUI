@@ -20,7 +20,6 @@ import { useTranslation } from "react-i18next";
 import {
   AbsenceState,
   absenceReducer,
-  projectVacancyDetailsFromVacancies,
 } from "../state";
 import { PageTitle } from "ui/components/page-title";
 import * as yup from "yup";
