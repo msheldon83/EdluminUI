@@ -2,7 +2,6 @@ import { DayPart } from "graphql/server-types.gen";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 
 export type AbsenceFormData = {
-  id?: string;
   details: AbsenceDetail[];
   notesToApprover?: string;
   adminOnlyNotes?: string;

@@ -32,6 +32,7 @@ import {
   validateAccountingCodeAllocations,
   mapAccountingCodeValueToAccountingCodeAllocations,
   allAccountingCodeValuesAreEqual,
+  mapAccountingCodeAllocationsToAccountingCodeValue,
 } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
@@ -541,7 +542,10 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   // Ultimately create or update the Absence
   const save = React.useCallback(
-    async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
+    async (
+      formValues: AbsenceFormData,
+      ignoreWarnings?: boolean
+    ): Promise<AbsenceFormData | undefined> => {
       const vacancyDetails =
         state.customizedVacanciesInput ??
         state.projectedVacancyDetails ??
@@ -614,9 +618,20 @@ export const AbsenceUI: React.FC<Props> = props => {
 
         // Show the User the confirmation screen
         setStep("confirmation");
+      } else {
+        openSnackbar({
+          message: t("The absence has been updated"),
+          dismissable: true,
+          status: "success",
+          autoHideDuration: 5000,
+        });
       }
+
+      // When editing an Absence, this will provide us with a
+      // fresh version of the form data that we can reset the form with
+      return buildFormData(updatedAbsence);
     },
-    [disabledDates, isCreate, saveAbsence, setStep, state]
+    [disabledDates, isCreate, openSnackbar, saveAbsence, setStep, state, t]
   );
 
   const actionMenuOptions = React.useMemo(() => {
@@ -745,7 +760,12 @@ export const AbsenceUI: React.FC<Props> = props => {
           }),
         })}
         onSubmit={async (data, e) => {
-          await save(data);
+          const formData = await save(data);
+          if (formData) {
+            e.resetForm({
+              values: formData,
+            });
+          }
         }}
       >
         {({
@@ -840,7 +860,14 @@ export const AbsenceUI: React.FC<Props> = props => {
                       )}
                       apolloErrors={saveErrorsInfo?.error ?? null}
                       onClose={onErrorsConfirmed}
-                      continueAction={async () => await save(values, true)}
+                      continueAction={async () => {
+                        const formData = await save(values, true);
+                        if (formData) {
+                          resetForm({
+                            values: formData,
+                          });
+                        }
+                      }}
                     />
                     <div className={classes.titleContainer}>
                       <AbsenceVacancyHeader
@@ -1211,7 +1238,7 @@ const buildAbsenceInput = (
     ...absence,
     notesToApprover: forProjections ? undefined : formValues.notesToApprover,
     adminOnlyNotes: forProjections ? undefined : formValues.adminOnlyNotes,
-    details: createAbsenceDetailInput(formValues.details),
+    details: createAbsenceDetailInput(formValues.details, forProjections),
   };
 
   const hasEditedDetails = !!state.customizedVacanciesInput;
@@ -1253,13 +1280,6 @@ const buildAbsenceInput = (
     );
   });
 
-  // I think we can get away from prearranging for the whole thing now and just do it on the detail
-  // const prearrangedReplacementEmployeeIdForEntireVacancy =
-  //   vDetails &&
-  //   uniq(vDetails.map(vd => vd.prearrangedReplacementEmployeeId)).length === 1
-  //     ? vDetails[0]?.prearrangedReplacementEmployeeId
-  //     : undefined;
-
   // Populate the Vacancies on the Absence
   absence = {
     ...absence,
@@ -1286,7 +1306,6 @@ const buildAbsenceInput = (
           hasEditedDetails || !formValues.payCodeId
             ? undefined
             : formValues.payCodeId,
-        //prearrangedReplacementEmployeeId: prearrangedReplacementEmployeeIdForEntireVacancy,
       },
     ],
   };
@@ -1294,11 +1313,12 @@ const buildAbsenceInput = (
 };
 
 const createAbsenceDetailInput = (
-  details: AbsenceDetail[]
+  details: AbsenceDetail[],
+  forProjections: boolean
 ): AbsenceDetailCreateInput[] => {
   return details.map(d => {
     let detail: AbsenceDetailCreateInput = {
-      id: d.id,
+      id: forProjections ? undefined : d.id,
       date: format(d.date, "P"),
       dayPartId: d.dayPart,
       reasons: [{ absenceReasonId: d.absenceReasonId }],
@@ -1331,4 +1351,66 @@ const hasIncompleteDetails = (details: AbsenceDetail[]): boolean => {
           isBefore(d.hourlyEndTime, d.hourlyStartTime)))
   );
   return !!incompleteDetail;
+};
+
+export const buildFormData = (absence: Absence): AbsenceFormData => {
+  // Figure out the details to put into the form
+  const details = compact(absence?.details);
+  const closedDetails = compact(absence?.closedDetails);
+  const detailsToUse = details.length === 0 ? closedDetails : details;
+  const formDetails = compact(detailsToUse).map(d => {
+    return {
+      id: d.id,
+      date: startOfDay(parseISO(d.startDate)),
+      dayPart: d.dayPartId ?? undefined,
+      hourlyStartTime:
+        d.dayPartId === DayPart.Hourly ? parseISO(d.startTimeLocal) : undefined,
+      hourlyEndTime:
+        d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
+      absenceReasonId: d.reasonUsages
+        ? d.reasonUsages[0]?.absenceReasonId
+        : undefined,
+    };
+  });
+
+  const vacancies = compact(absence?.vacancies ?? []);
+  const vacancy = vacancies[0];
+
+  // Figure out the overall accounting code allocations
+  // that would display on the Absence Details view
+  const accountingCodeAllocations = compact(
+    vacancy?.details
+  )[0]?.accountingCodeAllocations?.map(a => {
+    return {
+      accountingCodeId: a.accountingCodeId,
+      accountingCodeName: a.accountingCode?.name,
+      allocation: a.allocation,
+    };
+  });
+
+  // Figure out if the form needs to enforce
+  // Notes To Approver being required
+  const allReasons = compact(
+    flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
+  );
+  const notesToApproverRequired = allReasons.find(
+    a => a.absenceReason?.requireNotesToAdmin
+  );
+
+  return {
+    details: formDetails,
+    notesToApprover: absence?.notesToApprover ?? "",
+    adminOnlyNotes: absence?.adminOnlyNotes ?? "",
+    needsReplacement: !!vacancy,
+    notesToReplacement: vacancy?.notesToReplacement ?? "",
+    requireNotesToApprover: !!notesToApproverRequired,
+    payCodeId: vacancy?.details
+      ? vacancy?.details[0]?.payCodeId ?? undefined
+      : undefined,
+    accountingCodeAllocations: vacancy?.details
+      ? mapAccountingCodeAllocationsToAccountingCodeValue(
+          accountingCodeAllocations ?? undefined
+        )
+      : undefined,
+  };
 };

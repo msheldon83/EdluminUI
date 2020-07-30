@@ -213,7 +213,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           }
           name={"notesToApprover"}
           isSubmitted={!dirty}
-          initialAbsenceCreation={!values.id}
+          initialAbsenceCreation={!absenceId}
           value={values.notesToApprover}
           validationMessage={errors.notesToApprover}
           required={values.requireNotesToApprover}
@@ -229,15 +229,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
           <NoteField
             onChange={async e =>
-              setFieldValue(
-                "adminOnlyNotes",
-                e.target.value,
-                !!errors.notesToApprover
-              )
+              setFieldValue("adminOnlyNotes", e.target.value)
             }
             name={"adminOnlyNotes"}
             isSubmitted={!dirty}
-            initialAbsenceCreation={!values.id}
+            initialAbsenceCreation={!absenceId}
             value={values.adminOnlyNotes}
           />
         </div>

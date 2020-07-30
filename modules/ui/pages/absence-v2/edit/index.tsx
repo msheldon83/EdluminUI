@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRouteV2 } from "ui/routes/absence-v2";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { AbsenceUI } from "../components/ui";
+import { AbsenceUI, buildFormData } from "../components/ui";
 import { compact, flatMap, uniq } from "lodash-es";
 import {
   NeedsReplacement,
@@ -111,29 +111,6 @@ export const EditAbsence: React.FC<Props> = props => {
   const vacancy = vacancies[0];
   const position = vacancy?.position;
 
-  const absenceDetails = React.useMemo(() => {
-    const details = compact(absence?.details);
-    const closedDetails = compact(absence?.closedDetails);
-    const detailsToUse = details.length === 0 ? closedDetails : details;
-
-    return compact(detailsToUse).map(d => {
-      return {
-        id: d.id,
-        date: startOfDay(parseISO(d.startDate)),
-        dayPart: d.dayPartId ?? undefined,
-        hourlyStartTime:
-          d.dayPartId === DayPart.Hourly
-            ? parseISO(d.startTimeLocal)
-            : undefined,
-        hourlyEndTime:
-          d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
-        absenceReasonId: d.reasonUsages
-          ? d.reasonUsages[0]?.absenceReasonId
-          : undefined,
-      };
-    });
-  }, [absence?.closedDetails, absence?.details]);
-
   const assignmentsByDate = React.useMemo(() => {
     if (!absence || !absence?.vacancies) {
       return [];
@@ -171,15 +148,13 @@ export const EditAbsence: React.FC<Props> = props => {
     });
   }, [absence]);
 
-  const notesToApproverRequired = React.useMemo(() => {
-    const allReasons = compact(
-      flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
-    );
-    const isRequired = allReasons.find(
-      a => a.absenceReason?.requireNotesToAdmin
-    );
-    return !!isRequired;
-  }, [absence?.details]);
+  const initialFormData = React.useMemo(() => {
+    if (!absence) {
+      return null;
+    }
+
+    return buildFormData(absence);
+  }, [absence]);
 
   if (absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING") {
     return <></>;
@@ -191,19 +166,9 @@ export const EditAbsence: React.FC<Props> = props => {
     return <DeletedDataIndex absenceId={absenceId} />;
   }
 
-  if (!absence || !employee) {
+  if (!absence || !employee || !initialFormData) {
     return <></>;
   }
-
-  const accountingCodeAllocations = compact(
-    vacancy?.details
-  )[0]?.accountingCodeAllocations?.map(a => {
-    return {
-      accountingCodeId: a.accountingCodeId,
-      accountingCodeName: a.accountingCode?.name,
-      allocation: a.allocation,
-    };
-  });
 
   const replacementEmployeeNames = uniq(
     compact(
@@ -244,25 +209,9 @@ export const EditAbsence: React.FC<Props> = props => {
               }
             : undefined
         }
-        initialAbsenceFormData={{
-          id: absence?.id,
-          details: absenceDetails,
-          notesToApprover: absence?.notesToApprover ?? undefined,
-          adminOnlyNotes: absence?.adminOnlyNotes ?? undefined,
-          needsReplacement: !!vacancy,
-          notesToReplacement: vacancy?.notesToReplacement ?? undefined,
-          requireNotesToApprover: notesToApproverRequired,
-          payCodeId: vacancy?.details
-            ? vacancy?.details[0]?.payCodeId ?? undefined
-            : undefined,
-          accountingCodeAllocations: vacancy?.details
-            ? mapAccountingCodeAllocationsToAccountingCodeValue(
-                accountingCodeAllocations ?? undefined
-              )
-            : undefined,
-        }}
+        initialAbsenceFormData={initialFormData}
         initialAbsenceState={() => {
-          const absenceDates = absenceDetails.map(d => d.date);
+          const absenceDates = (initialFormData?.details ?? []).map(d => d.date);
           const viewingCalendarMonth =
             absenceDates.length > 0
               ? startOfMonth(absenceDates[0])
@@ -296,14 +245,6 @@ export const EditAbsence: React.FC<Props> = props => {
             },
           });
           const absence = result?.data?.absence?.update as Absence;
-          if (absence) {
-            openSnackbar({
-              message: t("The absence has been updated"),
-              dismissable: true,
-              status: "success",
-              autoHideDuration: 5000,
-            });
-          }
           return absence;
         }}
         saveErrorsInfo={saveErrorsInfo}
