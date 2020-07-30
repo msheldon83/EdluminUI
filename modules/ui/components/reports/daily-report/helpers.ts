@@ -11,7 +11,7 @@ import {
   AbsenceDr,
   ApprovalStatus,
 } from "graphql/server-types.gen";
-import { flatMap, groupBy, identity, keyBy, some, every } from "lodash-es";
+import { compact, flatMap, groupBy, some, every } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
 import { TFunction } from "i18next";
 import { GroupOption } from "./filters/filter-params";
@@ -79,10 +79,14 @@ export type Detail = {
     id: string;
     name: string;
   };
-  location?: {
+  locations?: {
     id?: string;
+    times?: {
+      startTime: string;
+      endTime: string;
+    };
     name: string;
-  };
+  }[];
   approvalStatus?: ApprovalStatus;
 };
 
@@ -133,14 +137,20 @@ export const MapDailyReportDetails = (
       return [];
     }
 
-    return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetailDr;
+    return compact(a.details).map(absenceDetail => {
       const matchingVacancyDetails = getMatchingVacancyDetailsV2(
         absenceDetail,
         a.vacancies
       );
       const assignment = matchingVacancyDetails[0]?.assignment;
-      const location = matchingVacancyDetails[0]?.location;
+      const locations = matchingVacancyDetails.map(d => ({
+        id: d.location.id,
+        name: d.location.name,
+        times: {
+          startTime: format(parseISO(d.startTimeLocal), "h:mm a"),
+          endTime: format(parseISO(d.endTimeLocal), "h:mm a"),
+        },
+      }));
 
       return {
         id: a.id,
@@ -176,14 +186,7 @@ export const MapDailyReportDetails = (
               phone: assignment.substitute.formattedPhone,
             }
           : undefined,
-        subTimes: !matchingVacancyDetails
-          ? []
-          : matchingVacancyDetails.map(mvd => {
-              return {
-                startTime: format(parseISO(mvd.startTimeLocal), "h:mm a"),
-                endTime: format(parseISO(mvd.endTimeLocal), "h:mm a"),
-              };
-            }),
+        subTimes: !matchingVacancyDetails ? [] : locations.map(l => l.times),
         assignmentId: assignment?.id,
         assignmentRowVersion: assignment?.rowVersion,
         position:
@@ -204,12 +207,7 @@ export const MapDailyReportDetails = (
                 name: a.vacancies[0].position.positionType.name,
               }
             : undefined,
-        location: location
-          ? {
-              id: location.id,
-              name: location.name,
-            }
-          : undefined,
+        locations,
         approvalStatus: a.approvalStatus ?? undefined,
       } as Detail;
     });
@@ -223,8 +221,7 @@ export const MapDailyReportDetails = (
       return [];
     }
 
-    return v.details.map(d => {
-      const vacancyDetail = d as VacancyDetailDr;
+    return compact(v.details).map(vacancyDetail => {
       return {
         id: v.id,
         detailId: vacancyDetail.id,
@@ -273,12 +270,24 @@ export const MapDailyReportDetails = (
               name: v.position?.positionType.name,
             }
           : undefined,
-        location: vacancyDetail.location
-          ? {
-              id: vacancyDetail.location.id,
-              name: vacancyDetail.location.name,
-            }
-          : undefined,
+        locations: vacancyDetail.location
+          ? [
+              {
+                id: vacancyDetail.location.id,
+                name: vacancyDetail.location.name,
+                times: {
+                  startTime: format(
+                    parseISO(vacancyDetail.startTimeLocal),
+                    "h:mm a"
+                  ),
+                  endTime: format(
+                    parseISO(vacancyDetail.endTimeLocal),
+                    "h:mm a"
+                  ),
+                },
+              },
+            ]
+          : [],
         approvalStatus: v.approvalStatus ?? undefined,
       } as Detail;
     });
@@ -291,13 +300,19 @@ export const MapDailyReportDetails = (
       return [];
     }
 
-    return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetailDr;
+    return compact(a.details).map(absenceDetail => {
       const matchingVacancyDetails = getMatchingVacancyDetailsV2(
         absenceDetail,
         a.vacancies
       );
-      const location = matchingVacancyDetails[0]?.location;
+      const locations = matchingVacancyDetails.map(d => ({
+        id: d.location.id,
+        name: d.location.name,
+        times: {
+          startTime: format(parseISO(d.startTimeLocal), "h:mm a"),
+          endTime: format(parseISO(d.endTimeLocal), "h:mm a"),
+        },
+      }));
 
       return {
         id: a.id,
@@ -325,14 +340,7 @@ export const MapDailyReportDetails = (
           a.createdLocal,
           "MMM d h:mm a"
         ),
-        subTimes: !matchingVacancyDetails
-          ? []
-          : matchingVacancyDetails.map(mvd => {
-              return {
-                startTime: format(parseISO(mvd.startTimeLocal), "h:mm a"),
-                endTime: format(parseISO(mvd.endTimeLocal), "h:mm a"),
-              };
-            }),
+        subTimes: !matchingVacancyDetails ? [] : locations.map(l => l.times),
         isMultiDay: a.isMultiDay,
         position:
           a.vacancies && a.vacancies[0] && a.vacancies[0].position
@@ -351,12 +359,7 @@ export const MapDailyReportDetails = (
                 name: a.vacancies[0].position.positionType.name,
               }
             : undefined,
-        location: location
-          ? {
-              id: location.id,
-              name: location.name,
-            }
-          : undefined,
+        locations,
         approvalStatus: a.approvalStatus ?? undefined,
       } as Detail;
     });
@@ -368,8 +371,7 @@ export const MapDailyReportDetails = (
     if (!v || !v.details) {
       return [];
     }
-    return v.details.map(d => {
-      const vacancyDetail = d as VacancyDetailDr;
+    return compact(v.details).map(vacancyDetail => {
       return {
         id: v.id,
         detailId: vacancyDetail.id,
@@ -407,12 +409,24 @@ export const MapDailyReportDetails = (
               name: v.position?.positionType.name,
             }
           : undefined,
-        location: vacancyDetail.location
-          ? {
-              id: vacancyDetail.location.id,
-              name: vacancyDetail.location.name,
-            }
-          : undefined,
+        locations: vacancyDetail.location
+          ? [
+              {
+                id: vacancyDetail.location.id,
+                name: vacancyDetail.location.name,
+                times: {
+                  startTime: format(
+                    parseISO(vacancyDetail.startTimeLocal),
+                    "h:mm a"
+                  ),
+                  endTime: format(
+                    parseISO(vacancyDetail.endTimeLocal),
+                    "h:mm a"
+                  ),
+                },
+              },
+            ]
+          : [],
         approvalStatus: v.approvalStatus ?? undefined,
       } as Detail;
     });
@@ -440,24 +454,11 @@ export const MapDailyReportDetails = (
       }
     }
 
-    // Determine the Location
-    let location: { id?: string; name: string } | undefined = undefined;
-    if (a.locations) {
-      if (a.locations.length === 1) {
-        location = {
-          id: a.locations[0]!.id,
-          name: a.locations[0]!.name,
-        };
-      } else if (a.locations.length > 1) {
-        location = {
-          name: `(${t("Multiple")})`,
-        };
-      }
-    }
+    const locations: { id?: string; name: string }[] = a.locations
+      ? compact(a.locations)
+      : [];
 
-    return a.details.map(d => {
-      const absenceDetail = d as AbsenceDetailDr;
-
+    return compact(a.details).map(absenceDetail => {
       return {
         id: a.id,
         detailId: absenceDetail.id,
@@ -485,7 +486,7 @@ export const MapDailyReportDetails = (
         isMultiDay: a.details && a.isMultiDay,
         position: positionType,
         positionType: positionType,
-        location: location,
+        locations,
         subTimes: [],
         approvalStatus: a.approvalStatus ?? undefined,
       } as Detail;
@@ -515,21 +516,11 @@ export const MapDailyReportDetails = (
     }
 
     // Determine the Location
-    let location: { id?: string; name: string } | undefined = undefined;
-    if (a.locations) {
-      if (a.locations.length === 1) {
-        location = {
-          id: a.locations[0]!.id,
-          name: a.locations[0]!.name,
-        };
-      } else if (a.locations.length > 1) {
-        location = {
-          name: `(${t("Multiple")})`,
-        };
-      }
-    }
+    const locations: { id?: string; name: string }[] = a.locations
+      ? compact(a.locations)
+      : [];
     if (a.__typename === "AbsenceDr") {
-      return a.details.map((d: any) => {
+      return compact(a.details).map((d: any) => {
         const absenceDetail = d as AbsenceDetailDr;
 
         return {
@@ -559,7 +550,7 @@ export const MapDailyReportDetails = (
           isMultiDay: a.isMultiDay,
           position: positionType,
           positionType: positionType,
-          location: location,
+          locations,
           subTimes: [],
           approvalStatus: a.approvalStatus ?? undefined,
         } as Detail;
@@ -607,12 +598,24 @@ export const MapDailyReportDetails = (
                 name: a.position?.positionType.name,
               }
             : undefined,
-          location: vacancyDetail.location
-            ? {
-                id: vacancyDetail.location.id,
-                name: vacancyDetail.location.name,
-              }
-            : undefined,
+          locations: vacancyDetail.location
+            ? [
+                {
+                  id: vacancyDetail.location.id,
+                  name: vacancyDetail.location.name,
+                  times: {
+                    startTime: format(
+                      parseISO(vacancyDetail.startTimeLocal),
+                      "h:mm a"
+                    ),
+                    endTime: format(
+                      parseISO(vacancyDetail.endTimeLocal),
+                      "h:mm a"
+                    ),
+                  },
+                },
+              ]
+            : [],
           approvalStatus: a.approvalStatus ?? undefined,
         } as Detail;
       });
@@ -892,7 +895,12 @@ export const groupDictionary: {
     labeller: k => (k == "undefined" ? "Undefined Position Type" : k),
   },
   school: {
-    grouper: d => d.location?.name,
+    grouper: d =>
+      d.locations?.length == 1
+        ? d.locations[0].name
+        : d.locations?.length
+        ? "Multiple Schools"
+        : undefined,
     labeller: k => (k == "undefined" ? "Undefined School" : k),
   },
 };
