@@ -6,18 +6,16 @@ import { makeStyles } from "@material-ui/core/styles";
 import DeleteIcon from "@material-ui/icons/Delete";
 import IconButton from "@material-ui/core/IconButton";
 import { SelectNew as Select, OptionType } from "./select-new";
-import { Input } from "./input";
-import { NumberInput } from "./number-input";
 import { TextButton } from "ui/components/text-button";
 import { FormHelperText } from "@material-ui/core";
 
-export type AllocationDropdownProps<T = any> = {
-  value?: AllocationCodeValue<T>;
+export type AllocationDropdownProps<ALLOCTION_TYPE = any> = {
+  value?: AllocationCodeValue<ALLOCTION_TYPE>;
   placeholder?: string;
   multipleAllocationPlaceholder?: string;
   label?: string;
   options: OptionType[];
-  onChange: (value: AllocationCodeValue<T>) => void;
+  onChange: (value: AllocationCodeValue<ALLOCTION_TYPE>) => void;
   showLabel?: boolean;
   disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
@@ -33,16 +31,16 @@ export type RenderAllocationAmountArgs = {
   onChange: (value: number | undefined) => void;
 };
 
-export type AllocationCodeValue<T = any> =
+export type AllocationCodeValue<ALLOCTION_TYPE = any> =
   | { type: "no-allocation"; selection: undefined }
   | { type: "single-allocation"; selection?: OptionType }
   | {
       type: "multiple-allocations";
       selection?: OptionType;
-      allocations: Allocation<T>[];
+      allocations: Allocation<ALLOCTION_TYPE>[];
     };
 
-type Allocation<T = any> = {
+type Allocation<ALLOCTION_TYPE = any> = {
   id: number;
   selection?: OptionType;
   amount?: number;
@@ -50,7 +48,7 @@ type Allocation<T = any> = {
     Used right now for absence reason being days or hours. Probably future uses. This type
     is optional
   */
-  allocationType?: T;
+  allocationType?: ALLOCTION_TYPE;
 };
 
 /*
@@ -77,10 +75,10 @@ export const singleAllocation = (
 });
 
 // Used when allocated to multiple codes
-export const multipleAllocations = <T,>(
-  allocations: Allocation[],
+export const multipleAllocations = <ALLOCATION_TYPE,>(
+  allocations: Allocation<ALLOCATION_TYPE>[],
   selection?: OptionType
-): AllocationCodeValue<T> => ({
+): AllocationCodeValue<ALLOCATION_TYPE> => ({
   type: "multiple-allocations",
   selection,
   allocations,
