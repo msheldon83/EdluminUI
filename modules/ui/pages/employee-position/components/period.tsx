@@ -126,9 +126,6 @@ export const PeriodUI: React.FC<Props> = props => {
         .sort((a, b) =>
           b?.standardPeriod?.startTime < a?.standardPeriod?.startTime ? 1 : -1
         )
-        .filter(
-          p => p?.standardPeriod?.startTime !== p?.standardPeriod?.endTime
-        )
         .map(p => ({
           label: `${p?.name} (${secondsToFormattedHourMinuteString(
             p?.standardPeriod?.startTime
@@ -143,9 +140,6 @@ export const PeriodUI: React.FC<Props> = props => {
       periods
         .sort((a, b) =>
           b?.standardPeriod?.endTime < a?.standardPeriod?.endTime ? 1 : -1
-        )
-        .filter(
-          p => p?.standardPeriod?.startTime !== p?.standardPeriod?.endTime
         )
         .map(p => ({
           label: `${p?.name} (${secondsToFormattedHourMinuteString(
