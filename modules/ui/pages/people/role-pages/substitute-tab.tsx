@@ -45,7 +45,6 @@ type Props = {
   setEditing: React.Dispatch<React.SetStateAction<string | null>>;
   selectedRole: OrgUserRole;
   orgUserId: string;
-  userId: string;
 };
 
 export const SubstituteTab: React.FC<Props> = props => {
@@ -150,16 +149,16 @@ export const SubstituteTab: React.FC<Props> = props => {
         editPermissions={[PermissionEnum.SubstituteSave]}
         onSubmit={onUpdateSubstitute}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
-      /> 
-        <Comments
-          refetchQuery={refetchQuery}
-          staffingOrgId={staffingOrgId}
-          comments={orgUser.substitute.comments ?? []}
-          userId={orgUser.userId ?? ""}
-          discussionSubjectType={DiscussionSubjectType.Substitute}
-          objectType={ObjectType.User}
-          orgId={params.organizationId}
-        />   
+      />
+      <Comments
+        refetchQuery={refetchQuery}
+        staffingOrgId={staffingOrgId}
+        comments={orgUser.substitute.comments ?? []}
+        userId={orgUser.userId ?? ""}
+        discussionSubjectType={DiscussionSubjectType.Substitute}
+        objectType={ObjectType.User}
+        orgId={params.organizationId}
+      />
       <SubPositionsAttributes
         editing={props.editing}
         editable={canEditThisSub}
