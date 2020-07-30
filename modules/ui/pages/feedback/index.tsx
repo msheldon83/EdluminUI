@@ -52,11 +52,11 @@ export const Feedback: React.FC<Props> = props => {
   });
 
   const ssoToken = React.useMemo(() => {
-    if (getToken.state === "DONE") {
-      return getToken?.data?.userAccess?.cannyToken;
+    if (getToken.state === "DONE" && getToken?.data?.userAccess?.cannyToken) {
+      return getToken.data?.userAccess?.cannyToken;
     }
     return null;
-  }, [getToken.state]);
+  }, [getToken]);
 
   if (!ssoToken && getToken.state === "DONE") {
     return <ErrorUI />;
