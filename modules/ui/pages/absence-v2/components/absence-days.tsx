@@ -13,6 +13,7 @@ type Props = {
   details: AbsenceDetail[];
   organizationId: string;
   employeeId: string;
+  travellingEmployee: boolean;
   positionTypeId?: string;
   onTimeChange: () => void;
   canEditReason: boolean;
@@ -34,6 +35,7 @@ export const AbsenceDays: React.FC<Props> = props => {
     sameReasonForAllDetails,
     canEditTimes,
     sameTimesForAllDetails,
+    travellingEmployee,
     details = [],
   } = props;
 
@@ -124,6 +126,7 @@ export const AbsenceDays: React.FC<Props> = props => {
             <AbsenceDay
               organizationId={organizationId}
               employeeId={employeeId}
+              travellingEmployee={travellingEmployee}
               detail={ad}
               absenceReasonOptions={absenceReasonOptions}
               canEditReason={canEditReason}

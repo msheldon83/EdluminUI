@@ -915,6 +915,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             canEditReason={!state.isClosed}
                             canEditDatesAndTimes={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
+                            travellingEmployee={employee.locationIds.length > 1}
                           />
                         </Grid>
                         <Grid item md={6}>

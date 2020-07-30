@@ -17,6 +17,7 @@ import { BalanceUsage, AbsenceReasonUsageData } from "./balance-usage";
 type Props = {
   absenceId?: string;
   employeeId: string;
+  travellingEmployee: boolean;
   organizationId: string;
   actingAsEmployee: boolean;
   onToggleAbsenceDate: (d: Date) => void;
@@ -57,6 +58,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     setNegativeBalanceWarning,
     initialUsageData,
     isClosed,
+    travellingEmployee,
     closedDates = [],
   } = props;
 
@@ -196,6 +198,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           sameReasonForAllDetails={values.sameReasonForAllDetails}
           canEditTimes={canEditDatesAndTimes}
           sameTimesForAllDetails={values.sameTimesForAllDetails}
+          travellingEmployee={travellingEmployee}
         />
       </div>
 
