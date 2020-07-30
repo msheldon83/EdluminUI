@@ -372,9 +372,11 @@ export const AssignSub: React.FC<Props> = props => {
                   detailsOnly={true}
                   divRef={vacancyDetailsRef}
                   showAccountingCodes={
-                    accountingCodes.length > 0 && !props.isForVacancy
+                    accountingCodes.length > 0 && (props.isForVacancy ?? false)
                   }
-                  showPayCodes={payCodes.length > 0 && !props.isForVacancy}
+                  showPayCodes={
+                    payCodes.length > 0 && (props.isForVacancy ?? false)
+                  }
                 />
               </div>
             </>
