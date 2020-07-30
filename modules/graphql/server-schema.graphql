@@ -6461,6 +6461,7 @@ type UserAccess {
 
 type UserAccessQueries {
   me: UserAccess
+  cannyToken: String
 }
 
 enum UserAvailability {
