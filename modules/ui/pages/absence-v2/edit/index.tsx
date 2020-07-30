@@ -222,7 +222,7 @@ export const EditAbsence: React.FC<Props> = props => {
             vacancyId: vacancy?.id,
             employeeId: employee.id,
             organizationId: organizationId,
-            positionId: position?.id ?? "0",
+            positionId: position?.id ?? "",
             viewingCalendarMonth,
             absenceDates,
             isClosed: absence?.isClosed ?? false,

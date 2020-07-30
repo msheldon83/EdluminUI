@@ -94,7 +94,11 @@ export const SubstituteDetails: React.FC<Props> = props => {
       },
       ignoreAbsenceId: absenceId ?? undefined,
     },
-    skip: !projectionInput || !!vacanciesOverride || isClosed,
+    skip:
+      !values.needsReplacement ||
+      !projectionInput ||
+      !!vacanciesOverride ||
+      isClosed,
     onError: error => {
       ShowErrors(error, snackbar.openSnackbar);
     },

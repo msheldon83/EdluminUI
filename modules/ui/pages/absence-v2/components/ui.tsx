@@ -1288,7 +1288,7 @@ const buildAbsenceInput = (
       */
     vacancies: [
       {
-        positionId: state.positionId,
+        positionId: state.positionId ?? undefined,
         useSuppliedDetails: hasEditedDetails && vDetails && vDetails.length > 0,
         needsReplacement: formValues.needsReplacement,
         notesToReplacement: forProjections
