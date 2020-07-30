@@ -1,5 +1,12 @@
-import { isSameDay, startOfDay, isEqual, parseISO } from "date-fns";
-import { differenceWith, filter, find, sortBy } from "lodash-es";
+import { isSameDay, startOfDay, parseISO } from "date-fns";
+import {
+  differenceWith,
+  filter,
+  find,
+  sortBy,
+  compact,
+  flatMap,
+} from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
 import {
@@ -135,6 +142,24 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       };
     }
     case "resetAfterSave": {
+      const allAssignments = compact(
+        flatMap(
+          action.updatedAbsence?.vacancies?.map(v =>
+            v?.details?.map(vd => {
+              if (!vd || !vd.assignment) {
+                return null;
+              }
+
+              return {
+                vacancyDetailId: vd.id,
+                startTimeLocal: parseISO(vd.startTimeLocal),
+                assignment: vd.assignment,
+              };
+            })
+          )
+        )
+      );
+
       return {
         ...prev,
         customizedVacanciesInput: undefined,
@@ -142,6 +167,19 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
         vacancyId: action.updatedAbsence?.vacancies
           ? action.updatedAbsence?.vacancies[0]?.id
           : undefined,
+        assignmentsByDate: allAssignments.map(a => {
+          return {
+            startTimeLocal: a.startTimeLocal,
+            vacancyDetailId: a.vacancyDetailId,
+            assignmentId: a.assignment.id,
+            assignmentRowVersion: a.assignment.rowVersion,
+            employee: {
+              id: a.assignment.employeeId,
+              firstName: a.assignment.employee?.firstName ?? "",
+              lastName: a.assignment.employee?.lastName ?? "",
+            },
+          };
+        }),
       };
     }
     case "resetToInitialState": {
@@ -159,13 +197,6 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
     }
     case "updateAssignments": {
       let assignments = [...(prev.assignmentsByDate ?? [])];
-      // const customizedVacancyDetails = prev.customizedVacanciesInput
-      //   ? [...prev.customizedVacanciesInput]
-      //   : undefined;
-      // const projectedVacancyDetails = prev.projectedVacancyDetails
-      //   ? [...prev.projectedVacancyDetails]
-      //   : undefined;
-
       switch (action.addRemoveOrUpdate) {
         case "add": {
           const incomingDates = action.assignments.map(a => a.startTimeLocal);
@@ -190,98 +221,9 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           break;
       }
 
-      // if (action.addRemoveOrUpdate ) {
-      //   const incomingDates = action.assignments.map(a => a.startTimeLocal);
-      //   assignments = [
-      //     ...assignments.filter(
-      //       a => !incomingDates.find(d => isSameDay(d, a.startTimeLocal))
-      //     ),
-      //     ...action.assignments,
-      //   ];
-
-      //   // assignments.forEach(a => {
-      //   //   // Set assignment info on any matching customized Vacancy Details
-      //   //   if (customizedVacancyDetails) {
-      //   //     const sameDayCustomizedDetails = (
-      //   //       customizedVacancyDetails ?? []
-      //   //     ).filter(cvd =>
-      //   //       isSameDay(a.startTimeLocal, startOfDay(parseISO(cvd.date)))
-      //   //     );
-      //   //     sameDayCustomizedDetails.forEach(d => {
-      //   //       d.assignmentId = a.assignmentId;
-      //   //       d.assignmentRowVersion = a.assignmentRowVersion;
-      //   //       d.assignmentStartDateTime = a.startTimeLocal?.toISOString();
-      //   //       d.assignmentEmployeeId = a.employee?.id;
-      //   //       d.assignmentEmployeeFirstName = a.employee?.firstName;
-      //   //       d.assignmentEmployeeLastName = a.employee?.lastName;
-      //   //     });
-      //   //   }
-
-      //   //   // Set assignment info on any matching projected Vacancy Details
-      //   //   if (projectedVacancyDetails) {
-      //   //     const sameDayDetails = (projectedVacancyDetails ?? []).filter(cvd =>
-      //   //       isSameDay(a.startTimeLocal, startOfDay(parseISO(cvd.date)))
-      //   //     );
-      //   //     sameDayDetails.forEach(d => {
-      //   //       d.assignmentId = a.assignmentId;
-      //   //       d.assignmentRowVersion = a.assignmentRowVersion;
-      //   //       d.assignmentStartDateTime = a.startTimeLocal?.toISOString();
-      //   //       d.assignmentEmployeeId = a.employee?.id;
-      //   //       d.assignmentEmployeeFirstName = a.employee?.firstName;
-      //   //       d.assignmentEmployeeLastName = a.employee?.lastName;
-      //   //     });
-      //   //   }
-      //   // });
-      // } else {
-      //   // Remove the specified assignments from the list
-      //   assignments = assignments.filter(
-      //     a =>
-      //       !action.assignments.find(x =>
-      //         isSameDay(x.startTimeLocal, a.startTimeLocal)
-      //       )
-      //   );
-
-      //   // Using the assignments from the Action since those are the ones being removed
-      //   // action.assignments.forEach(a => {
-      //   //   // Clear assignment info on any matching customized Vacancy Details
-      //   //   if (customizedVacancyDetails) {
-      //   //     const sameDayCustomizedDetails = (
-      //   //       customizedVacancyDetails ?? []
-      //   //     ).filter(cvd =>
-      //   //       isSameDay(a.startTimeLocal, startOfDay(parseISO(cvd.date)))
-      //   //     );
-      //   //     sameDayCustomizedDetails.forEach(d => {
-      //   //       d.assignmentId = undefined;
-      //   //       d.assignmentRowVersion = undefined;
-      //   //       d.assignmentStartDateTime = undefined;
-      //   //       d.assignmentEmployeeId = undefined;
-      //   //       d.assignmentEmployeeFirstName = undefined;
-      //   //       d.assignmentEmployeeLastName = undefined;
-      //   //     });
-      //   //   }
-
-      //   //   // Clear assignment info on any matching projected Vacancy Details
-      //   //   if (projectedVacancyDetails) {
-      //   //     const sameDayDetails = (projectedVacancyDetails ?? []).filter(cvd =>
-      //   //       isSameDay(a.startTimeLocal, startOfDay(parseISO(cvd.date)))
-      //   //     );
-      //   //     sameDayDetails.forEach(d => {
-      //   //       d.assignmentId = undefined;
-      //   //       d.assignmentRowVersion = undefined;
-      //   //       d.assignmentStartDateTime = undefined;
-      //   //       d.assignmentEmployeeId = undefined;
-      //   //       d.assignmentEmployeeFirstName = undefined;
-      //   //       d.assignmentEmployeeLastName = undefined;
-      //   //     });
-      //   //   }
-      //   // });
-      // }
-
       return {
         ...prev,
         assignmentsByDate: assignments,
-        //customizedVacanciesInput: customizedVacancyDetails,
-        //projectedVacancyDetails: projectedVacancyDetails,
       };
     }
   }
