@@ -39,7 +39,8 @@ export const EmployeeRosterReport: React.FC<{}> = () => {
         "PositionTypeId",
         "Active",
         "InvitationStatus",
-        "NeedsReplacement"
+        "NeedsReplacement",
+        "AccountingCodeId",
       ]}
       saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}
     />
