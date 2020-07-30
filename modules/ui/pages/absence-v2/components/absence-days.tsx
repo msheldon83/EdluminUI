@@ -16,7 +16,9 @@ type Props = {
   positionTypeId?: string;
   onTimeChange: () => void;
   canEditReason: boolean;
+  sameReasonForAllDetails: boolean;
   canEditTimes: boolean;
+  sameTimesForAllDetails: boolean;
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
@@ -29,7 +31,9 @@ export const AbsenceDays: React.FC<Props> = props => {
     positionTypeId,
     onTimeChange,
     canEditReason,
+    sameReasonForAllDetails,
     canEditTimes,
+    sameTimesForAllDetails,
     details = [],
   } = props;
 
@@ -37,13 +41,6 @@ export const AbsenceDays: React.FC<Props> = props => {
     organizationId,
     [],
     positionTypeId
-  );
-
-  const [sameReason, setSameReason] = React.useState(
-    detailsHaveTheSameReasons(details)
-  );
-  const [sameTimes, setSameTimes] = React.useState(
-    detailsHaveTheSameTimes(details)
   );
 
   const setAllReasonsTheSame = React.useCallback(() => {
@@ -76,10 +73,10 @@ export const AbsenceDays: React.FC<Props> = props => {
     );
   }, [details, setFieldValue]);
 
-  const allDetailsAreTheSame = React.useMemo(() => sameReason && sameTimes, [
-    sameReason,
-    sameTimes,
-  ]);
+  const allDetailsAreTheSame = React.useMemo(
+    () => sameReasonForAllDetails && sameTimesForAllDetails,
+    [sameReasonForAllDetails, sameTimesForAllDetails]
+  );
 
   return (
     <>
@@ -131,8 +128,8 @@ export const AbsenceDays: React.FC<Props> = props => {
               absenceReasonOptions={absenceReasonOptions}
               canEditReason={canEditReason}
               canEditTimes={canEditTimes}
-              showReason={i === 0 || !sameReason}
-              showDayPart={i === 0 || !sameTimes}
+              showReason={i === 0 || !sameReasonForAllDetails}
+              showDayPart={i === 0 || !sameTimesForAllDetails}
               subTitle={
                 details.length > 1 && !allDetailsAreTheSame
                   ? format(ad.date, "EEE, MMM d")
@@ -141,7 +138,7 @@ export const AbsenceDays: React.FC<Props> = props => {
                   : undefined
               }
               onReasonChange={absenceReasonId => {
-                if (i === 0 && sameReason && details.length > 1) {
+                if (i === 0 && sameReasonForAllDetails && details.length > 1) {
                   // Apply the same reason to all details
                   for (let index = 0; index < details.length; index++) {
                     setFieldValue(
@@ -160,7 +157,7 @@ export const AbsenceDays: React.FC<Props> = props => {
               }}
               reasonError={reasonError}
               onTimeChange={(dayPart, hourlyStartTime, hourlyEndTime) => {
-                if (i === 0 && sameTimes && details.length > 1) {
+                if (i === 0 && sameTimesForAllDetails && details.length > 1) {
                   // Apply the same times to all details
                   for (let index = 0; index < details.length; index++) {
                     setFieldValue(
@@ -218,10 +215,10 @@ export const AbsenceDays: React.FC<Props> = props => {
                   control={
                     <Checkbox
                       color="primary"
-                      checked={sameReason}
+                      checked={sameReasonForAllDetails}
                       onChange={e => {
                         const isChecked = e.target.checked;
-                        setSameReason(isChecked);
+                        setFieldValue("sameReasonForAllDetails", isChecked);
                         if (isChecked) {
                           setAllReasonsTheSame();
                         }
@@ -235,10 +232,10 @@ export const AbsenceDays: React.FC<Props> = props => {
                   control={
                     <Checkbox
                       color="primary"
-                      checked={sameTimes}
+                      checked={sameTimesForAllDetails}
                       onChange={e => {
                         const isChecked = e.target.checked;
-                        setSameTimes(isChecked);
+                        setFieldValue("sameTimesForAllDetails", isChecked);
                         if (isChecked) {
                           setAllTimesTheSame();
                         }
@@ -279,63 +276,4 @@ const getErrorMessage = (errors: any, fieldName: string, index: number) => {
 
   const errorMessage: string = detailError[fieldName];
   return errorMessage;
-};
-
-const detailsHaveTheSameReasons = (details: AbsenceDetail[]) => {
-  if (!details || details.length === 0) {
-    return true;
-  }
-
-  const absenceReasonIdToCompare = details[0].absenceReasonId;
-  for (let index = 0; index < details.length; index++) {
-    const absenceReasonId = details[index].absenceReasonId;
-    if (!absenceReasonId && !absenceReasonIdToCompare) {
-      continue;
-    }
-
-    if (absenceReasonId !== absenceReasonIdToCompare) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const detailsHaveTheSameTimes = (details: AbsenceDetail[]) => {
-  if (!details || details.length === 0) {
-    return true;
-  }
-
-  const timesToCompare = {
-    dayPart: details[0].dayPart,
-    hourlyStartTime: details[0].hourlyStartTime,
-    hourlyEndTime: details[0].hourlyEndTime,
-  };
-  for (let index = 0; index < details.length; index++) {
-    const times = {
-      dayPart: details[index].dayPart,
-      hourlyStartTime: details[index].hourlyStartTime,
-      hourlyEndTime: details[index].hourlyEndTime,
-    };
-    if (!times?.dayPart && !timesToCompare?.dayPart) {
-      continue;
-    }
-
-    if (times.dayPart !== timesToCompare.dayPart) {
-      return false;
-    }
-
-    // If Hourly, check if the start and end are the same
-    if (
-      times.dayPart === DayPart.Hourly &&
-      (times.hourlyStartTime?.toISOString() !==
-        timesToCompare.hourlyStartTime?.toISOString() ||
-        times.hourlyEndTime?.toISOString() !==
-          timesToCompare.hourlyEndTime?.toISOString())
-    ) {
-      return false;
-    }
-  }
-
-  return true;
 };

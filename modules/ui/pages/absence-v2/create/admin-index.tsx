@@ -110,6 +110,8 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
         accountingCodeAllocations: defaultAccountingCodeAllocations,
         payCodeId:
           employee.primaryPosition?.positionType?.payCodeId ?? undefined,
+        sameReasonForAllDetails: true,
+        sameTimesForAllDetails: true,
       }}
       initialAbsenceState={() => {
         return {

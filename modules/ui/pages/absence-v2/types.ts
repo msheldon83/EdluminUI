@@ -10,6 +10,8 @@ export type AbsenceFormData = {
   payCodeId?: string;
   accountingCodeAllocations?: AccountingCodeValue;
   requireNotesToApprover?: boolean;
+  sameReasonForAllDetails: boolean;
+  sameTimesForAllDetails: boolean;
 };
 
 export type AbsenceDetail = {

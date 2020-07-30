@@ -193,7 +193,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
           positionTypeId={positionTypeId}
           onTimeChange={onTimeChange}
           canEditReason={canEditReason}
+          sameReasonForAllDetails={values.sameReasonForAllDetails}
           canEditTimes={canEditDatesAndTimes}
+          sameTimesForAllDetails={values.sameTimesForAllDetails}
         />
       </div>
 
