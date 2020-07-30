@@ -982,7 +982,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                               !isCreate && unsavedAbsenceDetailChanges
                             }
                             vacanciesOverride={
-                              unsavedAbsenceDetailChanges || isCreate
+                              unsavedAbsenceDetailChanges ||
+                              isCreate ||
+                              state.customizedVacanciesInput
                                 ? undefined
                                 : compact(localAbsence?.vacancies)
                             }
@@ -1413,7 +1415,7 @@ export const buildFormData = (absence: Absence): AbsenceFormData => {
         )
       : undefined,
     sameReasonForAllDetails: detailsHaveTheSameReasons(formDetails),
-    sameTimesForAllDetails: detailsHaveTheSameTimes(formDetails)
+    sameTimesForAllDetails: detailsHaveTheSameTimes(formDetails),
   };
 };
 
