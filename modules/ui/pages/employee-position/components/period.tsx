@@ -17,28 +17,29 @@ import { Period, Schedule, GetError } from "./helpers";
 import { GetBellSchedulePeriods } from "../graphql/get-bell-schedule-periods.gen";
 import { FormikErrors } from "formik";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
+import { compact } from "lodash-es";
 
 export type BellSchedule = {
   id: string;
   name: string;
-  usages:
-    | Array<
-        | {
-            locationId?: string | null | undefined;
-            locationGroupId?: string | null | undefined;
-          }
-        | null
-        | undefined
-      >
-    | null
-    | undefined;
+  usages: {
+    locationId?: string | null | undefined;
+    locationGroupId?: string | null | undefined;
+  }[];
+  periods: {
+    name: string;
+    standardPeriod?: {
+      startTime: number;
+      endTime: number;
+    };
+  }[];
 };
 
 type Props = {
   index: number;
   scheduleIndex: number;
   locationOptions: OptionType[];
-  bellSchedules: Array<BellSchedule | null | undefined>;
+  bellSchedules: BellSchedule[];
   period: Period;
   lastPeriod: boolean;
   disableAllDay: boolean;
@@ -59,27 +60,55 @@ export const PeriodUI: React.FC<Props> = props => {
   const classes = useStyles();
   const index = props.index;
 
+  const bellSchedules = props.bellSchedules;
   const bellScheduleOptions: OptionType[] = useMemo(() => {
-    const bellSchedules = props.bellSchedules?.filter(x =>
-      x?.usages?.some(u => {
-        if (
-          u?.locationId === period.locationId ||
-          u?.locationGroupId === period.locationGroupId
-        ) {
-          return true;
-        }
+    const options: OptionType[] = bellSchedules
+      .filter(x =>
+        x?.usages?.some(
+          u =>
+            u?.locationId === period.locationId ||
+            u?.locationGroupId === period.locationGroupId
+        )
+      )
+      .map(p => {
+        const lines = compact(
+          p?.periods
+            .filter(
+              p =>
+                p.standardPeriod &&
+                p.standardPeriod.startTime != p.standardPeriod.endTime
+            )
+            .map(p =>
+              p.standardPeriod
+                ? `${p.name}: ${secondsToFormattedHourMinuteString(
+                    p.standardPeriod.startTime
+                  )} - ${secondsToFormattedHourMinuteString(
+                    p.standardPeriod.endTime
+                  )}`
+                : undefined
+            )
+        );
+        const info =
+          lines.length == 0 ? (
+            undefined
+          ) : (
+            <>
+              <Typography>{t("Standard Periods:")}</Typography>
+              {lines.map((l, i) => (
+                <Typography key={i}>{l}</Typography>
+              ))}
+            </>
+          );
+        return {
+          label: p?.name ?? "",
+          value: p?.id ?? "",
+          info,
+        };
       })
-    );
-
-    const options = bellSchedules
-      .map(p => ({
-        label: p?.name ?? "",
-        value: p?.id ?? "",
-      }))
       .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
     options.push({ label: t("Custom"), value: "custom" });
     return options;
-  }, [props.bellSchedules, t, period.locationId, period.locationGroupId]);
+  }, [bellSchedules, t, period.locationId, period.locationGroupId]);
 
   const getPeriods = useQueryBundle(GetBellSchedulePeriods, {
     variables: {
