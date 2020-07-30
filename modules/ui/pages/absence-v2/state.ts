@@ -163,6 +163,11 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       return {
         ...prev,
         customizedVacanciesInput: undefined,
+        projectedVacancies: undefined,
+        projectedVacancyDetails: undefined,
+        initialVacancyDetails: action.updatedAbsence?.vacancies
+          ? projectVacancyDetailsFromVacancies(action.updatedAbsence.vacancies)
+          : undefined,
         absenceRowVersion: action.updatedAbsence?.rowVersion,
         vacancyId: action.updatedAbsence?.vacancies
           ? action.updatedAbsence?.vacancies[0]?.id

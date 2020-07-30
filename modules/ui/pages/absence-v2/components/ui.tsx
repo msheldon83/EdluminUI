@@ -781,7 +781,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           errors,
         }) => {
           const unsavedAbsenceDetailChanges =
-            !isEqual(initialAbsenceFormData.details, values.details) ||
+            !isEqual(initialValues.details, values.details) ||
             initialAbsenceFormData.needsReplacement !== values.needsReplacement;
           console.log(
             "unsavedAbsenceDetailChanges",
@@ -1020,7 +1020,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               onClick={() => setCancelDialogIsOpen(true)}
                               variant="outlined"
                               className={classes.cancelButton}
-                              disabled={!formIsDirty}
+                              disabled={!formIsDirty || isSubmitting}
                             >
                               {t("Discard Changes")}
                             </Button>
