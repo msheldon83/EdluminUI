@@ -122,6 +122,7 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
           absenceDates: [],
           isClosed: false,
           closedDates: [],
+          assignmentsByDate: [],
         };
       }}
       saveAbsence={async data => {

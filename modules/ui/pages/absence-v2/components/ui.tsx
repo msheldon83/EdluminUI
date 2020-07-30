@@ -17,10 +17,7 @@ import {
   Assignment,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
-import {
-  AbsenceState,
-  absenceReducer,
-} from "../state";
+import { AbsenceState, absenceReducer } from "../state";
 import { PageTitle } from "ui/components/page-title";
 import * as yup from "yup";
 import { StepParams } from "helpers/step-params";
@@ -576,44 +573,6 @@ export const AbsenceUI: React.FC<Props> = props => {
       setLocalAbsence(updatedAbsence);
       dispatch({ action: "resetAfterSave", updatedAbsence });
       if (isCreate) {
-        // We need to get the Assignment Id and Row Version from
-        // the newly created Absence info in order to allow the User
-        // to cancel any Assignments
-        const assignments = compact(
-          flatMap(
-            updatedAbsence.vacancies?.map(v =>
-              v?.details?.map(vd => {
-                if (!vd.assignment) {
-                  return null;
-                }
-
-                return {
-                  detail: vd,
-                  assignment: vd.assignment,
-                };
-              })
-            )
-          )
-        );
-
-        dispatch({
-          action: "updateAssignments",
-          assignments: assignments.map(a => {
-            return {
-              assignmentId: a.assignment.id,
-              assignmentRowVersion: a.assignment.rowVersion,
-              startTimeLocal: parseISO(a.detail.startTimeLocal),
-              vacancyDetailId: a.detail.id,
-              employee: {
-                id: a.assignment.employeeId,
-                firstName: a.assignment.employee?.firstName ?? "",
-                lastName: a.assignment.employee?.lastName ?? "",
-              },
-            };
-          }),
-          addRemoveOrUpdate: "update",
-        });
-
         // Show the User the confirmation screen
         setStep("confirmation");
       } else {
@@ -1092,6 +1051,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                     setStep={setStep}
                     actingAsEmployee={actingAsEmployee}
                     onCancelAssignment={onCancelAssignment}
+                    assignmentsByDate={state.assignmentsByDate}
                     resetForm={() => {
                       // Really important for when an Employee has created an Absence and then clicks
                       // Create New from the Confirmation screen. Their initial form data doesn't change

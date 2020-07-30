@@ -56,7 +56,7 @@ type Props = {
     accountingCodeValue?: AccountingCodeValue;
     payCodeId?: string | null;
   }) => void;
-  assignmentsByDate?: AssignmentOnDate[] | undefined;
+  assignmentsByDate: AssignmentOnDate[];
   disableReplacementInteractions?: boolean;
   vacanciesOverride?: Vacancy[];
 };

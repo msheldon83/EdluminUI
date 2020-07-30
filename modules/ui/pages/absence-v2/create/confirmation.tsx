@@ -15,6 +15,7 @@ import {
   EmployeeEditAbsenceRouteV2,
 } from "ui/routes/absence-v2";
 import { compact, flatMap } from "lodash-es";
+import { AssignmentOnDate } from "../types";
 
 type Props = {
   orgId: string;
@@ -26,6 +27,7 @@ type Props = {
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
   ) => Promise<boolean>;
+  assignmentsByDate?: AssignmentOnDate[];
 };
 
 export const Confirmation: React.FC<Props> = props => {
@@ -39,6 +41,7 @@ export const Confirmation: React.FC<Props> = props => {
     setStep,
     resetForm,
     onCancelAssignment,
+    assignmentsByDate = []
   } = props;
 
   const params = useRouteParams(
@@ -113,6 +116,7 @@ export const Confirmation: React.FC<Props> = props => {
           <AbsenceView
             absence={absence}
             actingAsEmployee={actingAsEmployee}
+            assignmentsByDate={assignmentsByDate}
             onCancelAssignment={
               onCancelAssignment
                 ? async (

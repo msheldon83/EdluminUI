@@ -57,9 +57,15 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   return summaryDetails;
 };
 
+// The Assignments on the Vacancy > Vacancy Detail objects are going to be ignored
+// in favor of the information provided by assignmentsByDate. The reason for this is
+// that we often end up with a "vacancy" that is from the projected vacancies query
+// and would never contain assignment information. Because of this potential, we have
+// to keep track of the assignments separately so it's better to just always use that
+// instead of picking and choosing when we use assignmentsByDate or VacancyDetail
 export const convertVacancyToVacancySummaryDetails = (
   vacancy: Vacancy,
-  assignmentsByDate?: AssignmentOnDate[] | undefined
+  assignmentsByDate: AssignmentOnDate[]
 ): VacancySummaryDetail[] => {
   const absenceDetails = vacancy?.absence?.details;
   return vacancy.details?.map(vd => {
@@ -68,8 +74,8 @@ export const convertVacancyToVacancySummaryDetails = (
       ad => ad?.startDate === vd?.startDate
     );
 
-    // Find a matching assignment from assignmentsByStartTime if we
-    // don't already have one on the VacancyDetail record itself
+    // Find a matching assignment from assignmentsByDate by vacancyDetailId
+    // if we have it, otherwise by the same day comparison
     const assignmentOnDate = assignmentsByDate?.find(
       a =>
         (vd.id && a.vacancyDetailId === vd.id) ||
@@ -84,29 +90,17 @@ export const convertVacancyToVacancySummaryDetails = (
       endTimeLocal: parseISO(vd.endTimeLocal),
       locationId: vd.locationId,
       locationName: vd.location?.name ?? "",
-      assignment:
-        vd.assignment || assignmentOnDate
-          ? {
-              id: assignmentOnDate?.assignmentId ?? vd.assignment?.id,
-              rowVersion:
-                assignmentOnDate?.assignmentRowVersion ??
-                vd.assignment?.rowVersion,
-              employee:
-                vd.assignment?.employee || assignmentOnDate?.employee
-                  ? {
-                      id:
-                        assignmentOnDate?.employee?.id ??
-                        vd.assignment!.employee!.id,
-                      firstName:
-                        assignmentOnDate?.employee?.firstName ??
-                        vd.assignment!.employee!.firstName,
-                      lastName:
-                        assignmentOnDate?.employee?.lastName ??
-                        vd.assignment!.employee!.lastName,
-                    }
-                  : undefined,
-            }
-          : undefined,
+      assignment: assignmentOnDate
+        ? {
+            id: assignmentOnDate.assignmentId,
+            rowVersion: assignmentOnDate.assignmentRowVersion,
+            employee: {
+              id: assignmentOnDate.employee.id,
+              firstName: assignmentOnDate.employee.firstName,
+              lastName: assignmentOnDate.employee.lastName,
+            },
+          }
+        : undefined,
       payCodeId: vd.payCodeId ?? undefined,
       payCodeName: vd.payCode?.name,
       accountingCodeAllocations:

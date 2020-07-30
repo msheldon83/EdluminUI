@@ -73,6 +73,7 @@ export const EmployeeCreateAbsence: React.FC<{}> = props => {
           absenceDates: [],
           isClosed: false,
           closedDates: [],
+          assignmentsByDate: [],
         };
       }}
       saveAbsence={async data => {

@@ -35,7 +35,7 @@ export type AbsenceState = {
   projectedVacancyDetails?: VacancyDetail[];
   customizedVacanciesInput?: VacancyDetail[];
   initialVacancyDetails?: VacancyDetail[];
-  assignmentsByDate?: AssignmentOnDate[];
+  assignmentsByDate: AssignmentOnDate[];
   approvalState?: {
     id: string;
     canApprove: boolean;
