@@ -251,7 +251,8 @@ export const UserViewPage: React.FC<{}> = props => {
         ) : rowData.isEmployee ? (
           <EmployeeLink
             orgId={rowData.organization.id}
-            orgUserId={rowData.id}>
+            orgUserId={rowData.id}
+          >
             {rowData.id}
           </EmployeeLink>
         ) : rowData.isReplacementEmployee ? (
