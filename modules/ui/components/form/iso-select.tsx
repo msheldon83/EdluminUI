@@ -8,8 +8,7 @@ import {
 import { isEqual } from "lodash-es";
 
 // Equivalent of OptionType, but supports a generic type for value
-export type IsoOptionType<InterpretedType> = {
-  label: string;
+export type IsoOptionType<InterpretedType> = Omit<OptionType, "value"> & {
   value: InterpretedType;
 };
 
@@ -24,13 +23,10 @@ function optionTypeIsomorphism<
 ): Isomorphism<OptionType, IsoOptionType<InterpretedType>> {
   return {
     to: rawOption => ({
-      label: rawOption.label,
+      ...rawOption,
       value: baseIso.to(rawOption.value as RawType),
     }),
-    from: isoOption => ({
-      label: isoOption.label,
-      value: baseIso.from(isoOption.value),
-    }),
+    from: isoOption => ({ ...isoOption, value: baseIso.from(isoOption.value) }),
   };
 }
 
