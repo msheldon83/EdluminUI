@@ -19,17 +19,16 @@ export const Feedback: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
 
   const orgId = useOrganizationId();
-  if (!orgId) return <></>; //todo:  something with some actual content here?
 
   const userAccess = useMyUserAccess();
   const isSuperUserInAnyOrg = React.useMemo(() => {
     const orgUsers = userAccess?.me?.user?.orgUsers;
     if (!orgUsers) return false;
-    return () => {
+    return (
       orgUsers.filter(function(orgUser) {
         return orgUser?.administrator?.isSuperUser;
-      }).length > 0;
-    };
+      }).length > 0
+    );
   }, [userAccess]);
 
   if (!userAccess) {

@@ -87,11 +87,11 @@ export const FeedbackMenuLink: React.FC<Props> = props => {
   const isSuperUserInAnyOrg = React.useMemo(() => {
     const orgUsers = userAccess?.me?.user?.orgUsers;
     if (!orgUsers) return false;
-    return () => {
+    return (
       orgUsers.filter(function(orgUser) {
         return orgUser?.administrator?.isSuperUser;
-      }).length > 0;
-    };
+      }).length > 0
+    );
   }, [userAccess]);
 
   if (!userAccess) {
