@@ -349,17 +349,16 @@ export const AbsenceUI: React.FC<Props> = props => {
           if (result?.data) {
             // Possible we just cancelled part of an assignment
             // which would result in a new RowVersion for that assignment object
-            assignmentsByDate
-              .filter(a => {
+            assignmentsByDate.forEach(a => {
+              if (
                 a.assignmentId &&
-                  a.assignmentId ===
-                    result?.data?.assignment?.cancelAssignment?.id;
-              })
-              .forEach(
-                a =>
-                  (a.assignmentRowVersion =
-                    result.data?.assignment?.cancelAssignment?.rowVersion)
-              );
+                a.assignmentId ===
+                  result?.data?.assignment?.cancelAssignment?.id
+              ) {
+                a.assignmentRowVersion =
+                  result.data?.assignment?.cancelAssignment?.rowVersion;
+              }
+            });
 
             if (toCancel.vacancyDetailIds) {
               // Remove any assignments whose vacancyDetailId was included

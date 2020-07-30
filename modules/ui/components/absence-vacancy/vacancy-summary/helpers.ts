@@ -87,22 +87,22 @@ export const convertVacancyToVacancySummaryDetails = (
       assignment:
         vd.assignment || assignmentOnDate
           ? {
-              id: vd.assignment?.id ?? assignmentOnDate?.assignmentId,
+              id: assignmentOnDate?.assignmentId ?? vd.assignment?.id,
               rowVersion:
-                vd.assignment?.rowVersion ??
-                assignmentOnDate?.assignmentRowVersion,
+                assignmentOnDate?.assignmentRowVersion ??
+                vd.assignment?.rowVersion,
               employee:
                 vd.assignment?.employee || assignmentOnDate?.employee
                   ? {
                       id:
-                        vd.assignment?.employee?.id ??
-                        assignmentOnDate!.employee.id,
+                        assignmentOnDate?.employee?.id ??
+                        vd.assignment!.employee!.id,
                       firstName:
-                        vd.assignment?.employee?.firstName ??
-                        assignmentOnDate!.employee.firstName,
+                        assignmentOnDate?.employee?.firstName ??
+                        vd.assignment!.employee!.firstName,
                       lastName:
-                        vd.assignment?.employee?.lastName ??
-                        assignmentOnDate!.employee.lastName,
+                        assignmentOnDate?.employee?.lastName ??
+                        vd.assignment!.employee!.lastName,
                     }
                   : undefined,
             }
