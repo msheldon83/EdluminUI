@@ -96,17 +96,21 @@ const arbitraryDetailFields: Required<DetailSkeleton> = {
         ),
     })
   ),
-  location: optional(
-    fc.record({
-      id: optional(natString),
-      name: fc
-        .string()
-        // While __highly__ unlikely, we don't want the name to be "Undefined School" or "undefined",
-        // as both would mess with undefined locations. Easily handled, so might as well.
-        .map(n =>
-          ["Undefined School", "undefined"].includes(n) ? "Whadda the odds?" : n
-        ),
-    })
+  locations: optional(
+    fc.array(
+      fc.record({
+        id: optional(natString),
+        name: fc
+          .string()
+          // While __highly__ unlikely, we don't want the name to be "Undefined School", "undefined", or "Multiple Schools",
+          // as both would mess with undefined locations. Easily handled, so might as well.
+          .map(n =>
+            ["Undefined School", "undefined", "Multiple Schools"].includes(n)
+              ? "Whadda the odds?"
+              : n
+          ),
+      })
+    )
   ),
   approvalStatus: optional(
     fc.constantFrom(
@@ -137,7 +141,14 @@ const presetPositionTypes = fc.set(
 
 // Generate 1-4 different locations.
 const presetSchools = fc.set(
-  arbitraryDetailFields.location,
+  fc.record({
+    id: optional(natString),
+    name: fc
+      .string()
+      .map(n =>
+        ["Undefined School", "undefined"].includes(n) ? "Whadda the odds?" : n
+      ),
+  }),
   1,
   4,
   // The code expects unique names, so this function uses that as the set equality test.
@@ -283,7 +294,14 @@ describe("labelledGroupBy", () => {
             // We're making an array of...
             .array(
               //...arbitraryDetails, with their locations selected from the above,...
-              arbitraryDetail({ location: fc.constantFrom(...locations) }),
+              arbitraryDetail({
+                locations: fc.set(
+                  fc.constantFrom(...locations),
+                  1,
+                  4,
+                  (l1, l2) => l1.name == l2.name
+                ),
+              }),
               //...2 to 20 details long.
               2,
               20
@@ -305,18 +323,23 @@ describe("labelledGroupBy", () => {
 
           groups.forEach((group, ind) => {
             // Make sure nothing's gone wrong with the arbitrary.
-            let internal: string | undefined = undefined;
             if (group.label == "Undefined School") {
               expect(locations.map(l => typeof l)).toContain("undefined");
+            } else if (group.label == "Multiple Schools") {
+              expect(locations.length).toBeGreaterThan(1);
+              expect(group.details).not.toBeUndefined();
+              group.details!.forEach(detail => {
+                expect(detail.locations).not.toBeUndefined();
+                expect(detail.locations!.length).toBeGreaterThan(1);
+              });
             } else {
-              expect(locations.map(l => l?.name)).toContain(group.label);
-              internal = group.label;
+              expect(locations.map(l => l.name)).toContain(group.label);
+              expect(group.details).not.toBeUndefined();
+              group.details!.forEach(detail => {
+                expect(detail.locations).not.toBeUndefined();
+                expect(detail.locations![0].name).toBe(group.label);
+              });
             }
-
-            expect(group.details).not.toBeUndefined();
-            group.details!.forEach(detail => {
-              expect(detail.location?.name).toBe(internal);
-            });
           });
         }
       )
@@ -331,7 +354,12 @@ describe(subGroupBy, () => {
       return fc.array(
         arbitraryDetail({
           positionType: fc.constantFrom(...positionTypes),
-          location: fc.constantFrom(...schools),
+          locations: fc.set(
+            fc.constantFrom(...schools),
+            1,
+            4,
+            (l1, l2) => l1.name == l2.name
+          ),
         }),
         2,
         20

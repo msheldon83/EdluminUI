@@ -40,11 +40,17 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
     return <></>;
   }
 
+  const detailClass = isMobile
+    ? classes.mobileDetail
+    : details.some(d => d.isClosed)
+    ? classes.closedDetail
+    : classes.detail;
+
   const detailsDisplay = details.map((d, i) => {
-    const className = [
-      classes.detail,
-      i % 2 == 1 ? classes.shadedRow : undefined,
-    ].join(" ");
+    const className = clsx(
+      detailClass,
+      i % 2 == 1 ? classes.shadedRow : undefined
+    );
 
     return (
       <DailyReportDetail
@@ -59,26 +65,22 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
       />
     );
   });
-  const headerClasses = clsx({
-    [classes.detailHeader]: true,
-    [classes.mobileHeader]: isMobile,
-    [classes.detail]: !isMobile,
-  });
+  const headerClasses = clsx(
+    classes.detailHeader,
+    isMobile ? classes.mobileHeader : detailClass
+  );
 
   // Include a Header above all of the details if there are details
   return (
     <>
       <DesktopOnly>
         <div className={headerClasses}>
-          {hasClosedAbs && <div className={classes.closedSection}></div>}
           <div className={classes.employeeSection}>{t("Employee")}</div>
           <div className={classes.reasonSection}>{t("Reason")}</div>
           <div className={classes.locationSection}>{t("School")}</div>
           <div className={classes.date}>{t("Created")}</div>
           <div className={classes.substituteSection}>{t("Substitute")}</div>
           <div className={classes.confirmationNumber}>{t("Conf#")}</div>
-          <div className={classes.approvalChip}></div>
-          <div className={classes.actionColumn}></div>
         </div>
       </DesktopOnly>
       <MobileOnly>
@@ -95,40 +97,25 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   employeeSection: {
-    display: "flex",
-    flex: 7,
-    paddingLeft: theme.spacing(5),
-    "@media print": {
-      paddingLeft: 0,
-    },
+    gridArea: "employee",
   },
   locationSection: {
-    display: "flex",
-    flex: 7,
+    gridArea: "location",
   },
   closedSection: {
-    display: "flex",
-    flex: 2,
+    gridArea: "closed",
   },
   reasonSection: {
-    display: "flex",
-    flex: 4,
+    gridArea: "reason",
   },
   substituteSection: {
-    display: "flex",
-    flex: 6,
+    gridArea: "substitute",
   },
   date: {
-    flex: 4,
-  },
-  approvalChip: {
-    flex: 2,
+    gridArea: "date",
   },
   confirmationNumber: {
-    width: "120px",
-  },
-  actionColumn: {
-    width: theme.typography.pxToRem(85),
+    gridArea: "confirmation",
   },
   shadedRow: {
     background: theme.customColors.lightGray,
@@ -136,6 +123,28 @@ const useStyles = makeStyles(theme => ({
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
   detail: {
+    padding: theme.spacing(2),
+    display: "grid",
+    width: "100%",
+    gridTemplate: `
+      "closed employee reason location       date           substitute     confirmation   approval       action        " auto
+      ".      .        .      extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
+      / 48px   3fr      3fr    3fr            3fr            3fr            2fr           72px           48px
+    `,
+    columnGap: theme.spacing(1),
+  },
+  closedDetail: {
+    padding: theme.spacing(2),
+    display: "grid",
+    width: "100%",
+    gridTemplate: `
+      "closed employee reason location       date           substitute     confirmation   approval       action        " auto
+      ".      .        .      extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
+      / 72px   3fr      3fr    3fr            3fr            3fr            2fr           72px           48px
+    `,
+    columnGap: theme.spacing(1),
+  },
+  mobileDetail: {
     paddingLeft: theme.spacing(1),
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(1),
