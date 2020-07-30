@@ -152,7 +152,8 @@ export const MobileDailyReportDetailUI: React.FC<Props> = props => {
         </div>
       </div>
 
-      {showingDetails && "Need multi-locations UX for mobile" && (
+      {// TODO: Need multi-locations UX for mobile
+      showingDetails && (
         <Collapse in={showingDetails}>
           <div className={classes.group}>
             <div className={classes.item}>
