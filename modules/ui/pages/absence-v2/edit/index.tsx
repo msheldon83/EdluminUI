@@ -109,7 +109,7 @@ export const EditAbsence: React.FC<Props> = props => {
   const employee = absence?.employee;
   const vacancies = compact(absence?.vacancies ?? []);
   const vacancy = vacancies[0];
-  const position = vacancy?.position;
+  const position = vacancy?.position ?? employee?.primaryPosition;
 
   const assignmentsByDate = React.useMemo(() => {
     if (!absence || !absence?.vacancies) {
@@ -211,7 +211,9 @@ export const EditAbsence: React.FC<Props> = props => {
         }
         initialAbsenceFormData={initialFormData}
         initialAbsenceState={() => {
-          const absenceDates = (initialFormData?.details ?? []).map(d => d.date);
+          const absenceDates = (initialFormData?.details ?? []).map(
+            d => d.date
+          );
           const viewingCalendarMonth =
             absenceDates.length > 0
               ? startOfMonth(absenceDates[0])
