@@ -11,13 +11,13 @@ import { NumberInput } from "./number-input";
 import { TextButton } from "ui/components/text-button";
 import { FormHelperText } from "@material-ui/core";
 
-export type AllocationDropdownProps = {
-  value?: AllocationCodeValue;
+export type AllocationDropdownProps<T = any> = {
+  value?: AllocationCodeValue<T>;
   placeholder?: string;
   multipleAllocationPlaceholder?: string;
   label?: string;
   options: OptionType[];
-  onChange: (value: AllocationCodeValue) => void;
+  onChange: (value: AllocationCodeValue<T>) => void;
   showLabel?: boolean;
   disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
@@ -33,19 +33,24 @@ export type RenderAllocationAmountArgs = {
   onChange: (value: number | undefined) => void;
 };
 
-export type AllocationCodeValue =
+export type AllocationCodeValue<T = any> =
   | { type: "no-allocation"; selection: undefined }
   | { type: "single-allocation"; selection?: OptionType }
   | {
       type: "multiple-allocations";
       selection?: OptionType;
-      allocations: Allocation[];
+      allocations: Allocation<T>[];
     };
 
-type Allocation = {
+type Allocation<T = any> = {
   id: number;
   selection?: OptionType;
   amount?: number;
+  /*
+    Used right now for absence reason being days or hours. Probably future uses. This type
+    is optional
+  */
+  allocationType?: T;
 };
 
 /*
@@ -72,10 +77,10 @@ export const singleAllocation = (
 });
 
 // Used when allocated to multiple codes
-export const multipleAllocations = (
+export const multipleAllocations = <T,>(
   allocations: Allocation[],
   selection?: OptionType
-): AllocationCodeValue => ({
+): AllocationCodeValue<T> => ({
   type: "multiple-allocations",
   selection,
   allocations,
