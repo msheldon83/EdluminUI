@@ -1253,6 +1253,10 @@ const buildAbsenceInput = (
     );
   });
 
+  const notesToReplacement = forProjections
+    ? undefined
+    : formValues.notesToReplacement;
+
   // Populate the Vacancies on the Absence
   absence = {
     ...absence,
@@ -1262,11 +1266,12 @@ const buildAbsenceInput = (
     vacancies: [
       {
         positionId: state.positionId ?? undefined,
-        useSuppliedDetails: hasEditedDetails && vDetails && vDetails.length > 0,
+        useSuppliedDetails:
+          (hasEditedDetails || !!notesToReplacement) &&
+          vDetails &&
+          vDetails.length > 0,
         needsReplacement: formValues.needsReplacement,
-        notesToReplacement: forProjections
-          ? undefined
-          : formValues.notesToReplacement,
+        notesToReplacement: notesToReplacement,
         details: vDetails,
         accountingCodeAllocations:
           hasEditedDetails || !formValues.accountingCodeAllocations
