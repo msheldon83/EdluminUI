@@ -165,6 +165,7 @@ query GetAbsence($id: ID!) {
           assignment {
             id
             rowVersion
+            employeeId
             employee {
               id
               firstName

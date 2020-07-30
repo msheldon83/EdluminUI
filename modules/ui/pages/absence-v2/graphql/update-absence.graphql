@@ -69,6 +69,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
           assignment {
             id
             rowVersion
+            employeeId
             employee {
               id
               firstName
