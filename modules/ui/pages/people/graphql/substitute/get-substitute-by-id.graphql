@@ -37,6 +37,14 @@ query GetSubstituteById(
           id
           name
         }
+        substituteLocationPreferences {
+          id
+          preferenceId
+          location {
+            id
+            name
+          }
+        }
         comments(
           includeRelatedOrgs: $includeRelatedOrgs
           relatedOrgId: $relatedOrgId

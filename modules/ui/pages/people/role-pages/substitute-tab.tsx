@@ -38,6 +38,7 @@ import {
 import { useRouteParams } from "ui/routes/definition";
 import { useCanDo } from "ui/components/auth/can";
 import { canEditSub } from "helpers/permissions";
+import { SubSchoolPreferences } from "../components/substitute/school-preferences";
 
 type Props = {
   editing: string | null;
@@ -74,7 +75,10 @@ export const SubstituteTab: React.FC<Props> = props => {
     : false;
 
   const getSubstitute = useQueryBundle(GetSubstituteById, {
-    variables: { id: props.orgUserId, includeRelatedOrgs: showRelatedOrgs },
+    variables: {
+      id: props.orgUserId,
+      includeRelatedOrgs: showRelatedOrgs,
+    },
     skip: includeRelatedOrgs === undefined,
   });
 
@@ -145,16 +149,16 @@ export const SubstituteTab: React.FC<Props> = props => {
         editPermissions={[PermissionEnum.SubstituteSave]}
         onSubmit={onUpdateSubstitute}
         temporaryPassword={orgUser?.temporaryPassword ?? undefined}
-      /> 
-        <Comments
-          refetchQuery={refetchQuery}
-          staffingOrgId={staffingOrgId}
-          comments={orgUser.substitute.comments ?? []}
-          userId={orgUser.userId ?? ""}
-          discussionSubjectType={DiscussionSubjectType.Substitute}
-          objectType={ObjectType.User}
-          orgId={params.organizationId}
-        />   
+      />
+      <Comments
+        refetchQuery={refetchQuery}
+        staffingOrgId={staffingOrgId}
+        comments={orgUser.substitute.comments ?? []}
+        userId={orgUser.userId ?? ""}
+        discussionSubjectType={DiscussionSubjectType.Substitute}
+        objectType={ObjectType.User}
+        orgId={params.organizationId}
+      />
       <SubPositionsAttributes
         editing={props.editing}
         editable={canEditThisSub}
@@ -167,6 +171,11 @@ export const SubstituteTab: React.FC<Props> = props => {
           }) ?? []
         }
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
+      />
+      <SubSchoolPreferences
+        subSchoolPreferences={
+          orgUser.substitute.substituteLocationPreferences ?? []
+        }
       />
       <SubPayInformation
         editing={props.editing}
