@@ -143,11 +143,13 @@ const PeopleRow: React.FC<RowProps> = ({
     <TableRow className={classes.tableRow} onClick={toUserPage}>
       <Can do={[PermissionEnum.OrgUserInvite]}>
         <TableCell padding="checkbox">
-          <Checkbox
-            checked={selected}
-            onClick={event => event.stopPropagation()}
-            onChange={onSelectClick}
-          />
+          {!person.accountSetup && (
+            <Checkbox
+              checked={selected}
+              onClick={event => event.stopPropagation()}
+              onChange={onSelectClick}
+            />
+          )}
         </TableCell>
       </Can>
       <TableCell>
@@ -240,7 +242,11 @@ const BaseTable: React.FC<BaseProps> = ({
     );
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setSelected(event.target.checked ? data.map(n => n.id) : []);
+    setSelected(
+      event.target.checked
+        ? data.filter(d => !d.accountSetup).map(n => n.id)
+        : []
+    );
 
   return (
     <>
