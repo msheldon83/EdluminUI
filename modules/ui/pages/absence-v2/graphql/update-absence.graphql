@@ -18,7 +18,37 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
           dailyAmount
           sequence
           absenceReasonId
+          absenceReason {
+            id
+            name
+            requireNotesToAdmin
+            absenceReasonCategoryId
+            isDeleted
+          }
         }
+      }
+      closedDetails {
+        id
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        reasonUsages {
+          id
+          hourlyAmount
+          dailyAmount
+          sequence
+          absenceReasonId
+          absenceReason {
+            id
+            name
+            requireNotesToAdmin
+            absenceReasonCategoryId
+            isDeleted
+          }
+        }
+        dayPartId
+        dayPortion
       }
       employeeId
       organization {

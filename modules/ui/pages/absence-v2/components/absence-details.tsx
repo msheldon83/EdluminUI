@@ -33,6 +33,7 @@ type Props = {
   canEditDatesAndTimes: boolean;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
   initialUsageData?: AbsenceReasonUsageData[];
+  deletedAbsenceReasons?: { detailId: string; id: string; name: string; }[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -59,6 +60,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
     initialUsageData,
     isClosed,
     travellingEmployee,
+    deletedAbsenceReasons,
     closedDates = [],
   } = props;
 
@@ -199,6 +201,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           canEditTimes={canEditDatesAndTimes}
           sameTimesForAllDetails={values.sameTimesForAllDetails}
           travellingEmployee={travellingEmployee}
+          deletedAbsenceReasons={deletedAbsenceReasons}
         />
       </div>
 

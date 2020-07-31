@@ -20,6 +20,7 @@ type Props = {
   sameReasonForAllDetails: boolean;
   canEditTimes: boolean;
   sameTimesForAllDetails: boolean;
+  deletedAbsenceReasons?: { detailId: string; id: string; name: string; }[];
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
@@ -37,11 +38,12 @@ export const AbsenceDays: React.FC<Props> = props => {
     sameTimesForAllDetails,
     travellingEmployee,
     details = [],
+    deletedAbsenceReasons = []
   } = props;
 
   const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
     organizationId,
-    [],
+    undefined,
     positionTypeId
   );
 
@@ -79,6 +81,24 @@ export const AbsenceDays: React.FC<Props> = props => {
     () => sameReasonForAllDetails && sameTimesForAllDetails,
     [sameReasonForAllDetails, sameTimesForAllDetails]
   );
+
+  const getAbsenceReasonOptions = React.useCallback((detailId: string | undefined) => {
+    if (!detailId) {
+      return absenceReasonOptions;
+    }
+
+    // Look for a match in the list of deleted Reasons
+    const deletedReason = deletedAbsenceReasons.find(d => d.detailId === detailId);
+    if (!deletedReason) {
+      // No match, return normal list
+      return absenceReasonOptions;
+    }
+
+    return [
+      ...absenceReasonOptions,
+      { label: deletedReason.name, value: deletedReason.id }
+    ];
+  }, [absenceReasonOptions, deletedAbsenceReasons]);
 
   return (
     <>
@@ -128,7 +148,7 @@ export const AbsenceDays: React.FC<Props> = props => {
               employeeId={employeeId}
               travellingEmployee={travellingEmployee}
               detail={ad}
-              absenceReasonOptions={absenceReasonOptions}
+              absenceReasonOptions={getAbsenceReasonOptions(ad.id)}
               canEditReason={canEditReason}
               canEditTimes={canEditTimes}
               showReason={i === 0 || !sameReasonForAllDetails}

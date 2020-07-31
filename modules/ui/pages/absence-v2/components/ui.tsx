@@ -663,6 +663,31 @@ export const AbsenceUI: React.FC<Props> = props => {
       !actingAsEmployee ||
       (!hasFilledVacancies && !some(state.absenceDates, isPast)));
 
+  const deletedAbsenceReasons = React.useMemo(() => {
+    const allDetails = [
+      ...(localAbsence?.details ?? []),
+      ...(localAbsence?.closedDetails ?? []),
+    ];
+    const allDeletedReasons = compact(
+      flatMap(
+        allDetails.map(d =>
+          d?.reasonUsages?.map(ru => {
+            if (!ru?.absenceReason || !ru.absenceReason.isDeleted) {
+              return null;
+            }
+
+            return {
+              detailId: d.id,
+              id: ru.absenceReason.id,
+              name: ru.absenceReason.name,
+            };
+          })
+        )
+      )
+    );
+    return allDeletedReasons;
+  }, [localAbsence?.closedDetails, localAbsence?.details]);
+
   return (
     <>
       <PageTitle
@@ -916,6 +941,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             canEditDatesAndTimes={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
                             travellingEmployee={employee.locationIds.length > 1}
+                            deletedAbsenceReasons={deletedAbsenceReasons}
                           />
                         </Grid>
                         <Grid item md={6}>
