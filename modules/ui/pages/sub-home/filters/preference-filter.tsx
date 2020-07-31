@@ -1,10 +1,4 @@
-import {
-  Grid,
-  FormControlLabel,
-  Checkbox,
-  IconButton,
-  makeStyles,
-} from "@material-ui/core";
+import { Grid, IconButton, makeStyles } from "@material-ui/core";
 import { InputLabel } from "ui/components/form/input";
 import { HelpOutline } from "@material-ui/icons";
 import { useQueryParamIso } from "hooks/query-params";
@@ -18,11 +12,15 @@ import { PreferenceFilter as PreferenceFilterEnum } from "graphql/server-types.g
 import { GetPreferenceFilter } from "../graphql/get-preference-filter.gen";
 import { UpdatePreferenceFilter } from "../graphql/update-preference-filter.gen";
 
-type Props = { userId: string } & SubHomeQueryFilters;
+type Props = {
+  userId?: string;
+  viewingAsAdmin?: boolean;
+} & SubHomeQueryFilters;
 
 export const PreferenceFilter: React.FC<Props> = ({
   userId,
   preferenceFilter,
+  viewingAsAdmin,
 }) => {
   const { t } = useTranslation();
   const [_, updateFilters] = useQueryParamIso(FilterQueryParams);
@@ -38,6 +36,7 @@ export const PreferenceFilter: React.FC<Props> = ({
 
   const getPreferenceFilter = useQueryBundle(GetPreferenceFilter, {
     variables: { userId },
+    skip: viewingAsAdmin || !userId,
   });
   const getPreferenceQueryData =
     getPreferenceFilter.state === "LOADING"
@@ -70,13 +69,15 @@ export const PreferenceFilter: React.FC<Props> = ({
         ? ("SHOW_FAVORITES_AND_DEFAULT" as PreferenceFilterEnum)
         : (value as PreferenceFilterEnum);
     updateFilters({ preferenceFilter });
-    await updatePreferenceFilter({
-      variables: {
-        userId,
-        rowVersion,
-        subJobPreferenceFilter: preferenceFilter,
-      },
-    });
+    if (!viewingAsAdmin || !userId) {
+      await updatePreferenceFilter({
+        variables: {
+          userId: userId ?? "",
+          rowVersion,
+          subJobPreferenceFilter: preferenceFilter,
+        },
+      });
+    }
   };
 
   return (
