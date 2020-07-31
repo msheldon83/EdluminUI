@@ -117,7 +117,7 @@ const useStyles = makeStyles(theme => ({
   },
   subTitle: {
     fontWeight: "bold",
-    marginTop: theme.spacing(),
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(),
   },
 }));

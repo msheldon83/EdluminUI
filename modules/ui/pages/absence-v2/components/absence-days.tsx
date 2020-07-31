@@ -4,7 +4,12 @@ import { AbsenceDetail } from "../types";
 import { useFormikContext } from "formik";
 import { useAbsenceReasonOptionsWithCategories } from "reference-data/absence-reasons";
 import { format } from "date-fns";
-import { FormControlLabel, Checkbox, makeStyles } from "@material-ui/core";
+import {
+  FormControlLabel,
+  Checkbox,
+  makeStyles,
+  Divider,
+} from "@material-ui/core";
 import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
 import { SelectNew } from "ui/components/form/select-new";
@@ -20,7 +25,7 @@ type Props = {
   sameReasonForAllDetails: boolean;
   canEditTimes: boolean;
   sameTimesForAllDetails: boolean;
-  deletedAbsenceReasons?: { detailId: string; id: string; name: string; }[];
+  deletedAbsenceReasons?: { detailId: string; id: string; name: string }[];
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
@@ -38,7 +43,7 @@ export const AbsenceDays: React.FC<Props> = props => {
     sameTimesForAllDetails,
     travellingEmployee,
     details = [],
-    deletedAbsenceReasons = []
+    deletedAbsenceReasons = [],
   } = props;
 
   const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
@@ -82,23 +87,28 @@ export const AbsenceDays: React.FC<Props> = props => {
     [sameReasonForAllDetails, sameTimesForAllDetails]
   );
 
-  const getAbsenceReasonOptions = React.useCallback((detailId: string | undefined) => {
-    if (!detailId) {
-      return absenceReasonOptions;
-    }
+  const getAbsenceReasonOptions = React.useCallback(
+    (detailId: string | undefined) => {
+      if (!detailId) {
+        return absenceReasonOptions;
+      }
 
-    // Look for a match in the list of deleted Reasons
-    const deletedReason = deletedAbsenceReasons.find(d => d.detailId === detailId);
-    if (!deletedReason) {
-      // No match, return normal list
-      return absenceReasonOptions;
-    }
+      // Look for a match in the list of deleted Reasons
+      const deletedReason = deletedAbsenceReasons.find(
+        d => d.detailId === detailId
+      );
+      if (!deletedReason) {
+        // No match, return normal list
+        return absenceReasonOptions;
+      }
 
-    return [
-      ...absenceReasonOptions,
-      { label: deletedReason.name, value: deletedReason.id }
-    ];
-  }, [absenceReasonOptions, deletedAbsenceReasons]);
+      return [
+        ...absenceReasonOptions,
+        { label: deletedReason.name, value: deletedReason.id },
+      ];
+    },
+    [absenceReasonOptions, deletedAbsenceReasons]
+  );
 
   return (
     <>
@@ -270,6 +280,11 @@ export const AbsenceDays: React.FC<Props> = props => {
                 />
               </div>
             )}
+            {!allDetailsAreTheSame && (
+              <div className={classes.divider}>
+                <Divider />
+              </div>
+            )}
           </React.Fragment>
         );
       })}
@@ -284,6 +299,10 @@ const useStyles = makeStyles(theme => ({
   },
   placeholderSelectionSpacing: {
     marginTop: theme.spacing(),
+  },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(3),
   },
 }));
 
