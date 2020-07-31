@@ -2,6 +2,7 @@ query GetAbsence($id: ID!) {
   absence {
     byId(id: $id) {
       id
+      changedUtc
       isClosed
       rowVersion
       isDeleted

@@ -3,6 +3,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
     update(absence: $absence) {
       id
       rowVersion
+      changedUtc
       orgId
       details {
         id
