@@ -40,7 +40,14 @@ type UsageAmountData = {
 export const BalanceUsage: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { orgId, employeeId, usages, actingAsEmployee, startDate, initialUsageData } = props;
+  const {
+    orgId,
+    employeeId,
+    usages,
+    actingAsEmployee,
+    startDate,
+    initialUsageData,
+  } = props;
 
   const allSchoolYears = useAllSchoolYears(orgId);
   const schoolYearId = allSchoolYears.find(
@@ -165,8 +172,36 @@ export const BalanceUsage: React.FC<Props> = props => {
       []
     );
 
-    return sortBy(compact(calculatedUsages), u => u.name);
-  }, [balances, usages]);
+    const sortedUsages = sortBy(compact(calculatedUsages), u => u.name);
+    if (!initialUsageData) {
+      return sortedUsages;
+    }
+
+    // Offset any initialUsageData in the usages we are returning
+    sortedUsages.forEach(su => {
+      // Find any matching initialUsageData
+      const matchingUsages = initialUsageData.filter(
+        d =>
+          (su.absenceReasonId && su.absenceReasonId === d.absenceReasonId) ||
+          (su.absenceReasonCategoryId &&
+            su.absenceReasonCategoryId ===
+              d.absenceReason?.absenceReasonCategoryId)
+      );
+      matchingUsages.forEach(mu => {
+        const amount =
+          su.trackingType === AbsenceReasonTrackingTypeId.Hourly
+            ? mu.hourlyAmount
+            : mu.dailyAmount;
+
+        su.remainingBalance = su.remainingBalance + amount;
+        if (su.negativeWarning) {
+          su.negativeWarning = su.remainingBalance < 0;
+        }
+      });
+    });
+
+    return sortedUsages;
+  }, [balances, usages, initialUsageData]);
 
   const getUsedAndRemainingText = React.useCallback(
     (usageAmount: UsageAmountData) => {
