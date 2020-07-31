@@ -6,6 +6,7 @@ import {
   sortBy,
   compact,
   flatMap,
+  isNil,
 } from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
@@ -19,6 +20,7 @@ import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accou
 import { AssignmentOnDate } from "./types";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
+import { AbsenceReasonUsageData } from "./components/balance-usage";
 
 export type AbsenceState = {
   employeeId: string;
@@ -36,6 +38,7 @@ export type AbsenceState = {
   customizedVacanciesInput?: VacancyDetail[];
   initialVacancyDetails?: VacancyDetail[];
   assignmentsByDate: AssignmentOnDate[];
+  initialAbsenceReasonUsageData?: AbsenceReasonUsageData[];
   approvalState?: {
     id: string;
     canApprove: boolean;
@@ -185,6 +188,9 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
             },
           };
         }),
+        initialAbsenceReasonUsageData: getAbsenceReasonUsageData(
+          action.updatedAbsence
+        ),
       };
     }
     case "resetToInitialState": {
@@ -297,4 +303,28 @@ export const projectVacancyDetailsFromVacancies = (
         !!detail.startTime &&
         !!detail.endTime
     );
+};
+
+export const getAbsenceReasonUsageData = (
+  absence: Absence
+): AbsenceReasonUsageData[] => {
+  const details = absence.details;
+  const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
+  const usageData: AbsenceReasonUsageData[] = compact(
+    usages.map(u => {
+      if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
+        return null;
+      }
+
+      return {
+        hourlyAmount: u.hourlyAmount,
+        dailyAmount: u.dailyAmount,
+        absenceReasonId: u.absenceReasonId,
+        absenceReason: {
+          absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
+        },
+      };
+    })
+  );
+  return usageData;
 };

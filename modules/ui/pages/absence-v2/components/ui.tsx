@@ -247,35 +247,6 @@ export const AbsenceUI: React.FC<Props> = props => {
     false
   );
 
-  // If we have an existing Absence, determine what the initial Absence Reason Usage
-  // is so that we can accurately determine how changes to the Absence Details would
-  // affect the usage without double counting anything
-  const initialAbsenceReasonUsageData = React.useMemo(() => {
-    if (!localAbsence || !localAbsence.details) {
-      return undefined;
-    }
-
-    const details = localAbsence.details;
-    const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
-    const usageData: AbsenceReasonUsageData[] = compact(
-      usages.map(u => {
-        if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
-          return null;
-        }
-
-        return {
-          hourlyAmount: u.hourlyAmount,
-          dailyAmount: u.dailyAmount,
-          absenceReasonId: u.absenceReasonId,
-          absenceReason: {
-            absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
-          },
-        };
-      })
-    );
-    return usageData;
-  }, [localAbsence]);
-
   // --- Handling of Sub pre-arrange, assignment, or removal ------
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
@@ -936,7 +907,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             setNegativeBalanceWarning={
                               setNegativeBalanceWarning
                             }
-                            initialUsageData={initialAbsenceReasonUsageData}
+                            initialUsageData={state.initialAbsenceReasonUsageData}
                             canEditReason={!state.isClosed}
                             canEditDatesAndTimes={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
