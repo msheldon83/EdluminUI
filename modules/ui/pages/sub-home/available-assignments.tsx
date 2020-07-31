@@ -75,9 +75,6 @@ export const AvailableAssignments: React.FC<Props> = props => {
     FilterQueryParams
   );
 
-  const isPersonalPreference = (s: string): s is PersonalPreference =>
-    Object.keys(PersonalPreference).includes(s);
-
   const [getVacancies] = usePagedQueryBundle(
     SubJobSearch,
     r => r.vacancy?.subJobSearch?.totalCount,
@@ -230,7 +227,9 @@ export const AvailableAssignments: React.FC<Props> = props => {
             </div>
           )}
 
-          {showFilters && <Filters userId={userId ?? ""} />}
+          {showFilters && (
+            <Filters userId={userId} viewingAsAdmin={props.viewingAsAdmin} />
+          )}
           <div>
             <Divider className={classes.header} />
             {getVacancies.state === "LOADING" ? (
