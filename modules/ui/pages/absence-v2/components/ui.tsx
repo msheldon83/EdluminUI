@@ -870,7 +870,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             updateKey={localAbsence?.changedUtc ?? undefined}
                           />
                         </Grid>
-                        <Grid item md={6}>
+                        <Grid item md={7}>
                           <SubstituteDetails
                             absenceId={state.absenceId}
                             organizationId={organizationId}
