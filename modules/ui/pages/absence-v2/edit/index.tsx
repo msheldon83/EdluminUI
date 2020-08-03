@@ -24,7 +24,10 @@ import { UpdateAbsence } from "../graphql/update-absence.gen";
 import { startOfDay, parseISO, startOfMonth } from "date-fns";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
-import { projectVacancyDetailsFromVacancies } from "../state";
+import {
+  projectVacancyDetailsFromVacancies,
+  getAbsenceReasonUsageData,
+} from "../state";
 
 type Props = { actingAsEmployee?: boolean };
 
@@ -54,7 +57,6 @@ export const EditAbsence: React.FC<Props> = props => {
         error,
         confirmed: false,
       }),
-    refetchQueries: ["GetAbsence"],
   });
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
@@ -219,25 +221,26 @@ export const EditAbsence: React.FC<Props> = props => {
               ? startOfMonth(absenceDates[0])
               : startOfMonth(new Date());
           return {
-            absenceId: absence?.id,
-            absenceRowVersion: absence?.rowVersion,
+            absenceId: absence.id,
+            absenceRowVersion: absence.rowVersion,
             vacancyId: vacancy?.id,
             employeeId: employee.id,
             organizationId: organizationId,
             positionId: position?.id ?? "",
             viewingCalendarMonth,
             absenceDates,
-            isClosed: absence?.isClosed ?? false,
-            closedDates: absence?.closedDetails
-              ? compact(absence?.closedDetails)?.map(cd =>
+            isClosed: absence.isClosed,
+            closedDates: absence.closedDetails
+              ? compact(absence.closedDetails)?.map(cd =>
                   parseISO(cd.startDate)
                 )
               : [],
-            approvalState: absence?.approvalState,
+            approvalState: absence.approvalState,
             assignmentsByDate: assignmentsByDate,
-            initialVacancyDetails: absence?.vacancies
+            initialVacancyDetails: absence.vacancies
               ? projectVacancyDetailsFromVacancies(absence.vacancies)
               : undefined,
+            initialAbsenceReasonUsageData: getAbsenceReasonUsageData(absence),
           };
         }}
         saveAbsence={async data => {

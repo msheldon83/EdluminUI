@@ -247,35 +247,6 @@ export const AbsenceUI: React.FC<Props> = props => {
     false
   );
 
-  // If we have an existing Absence, determine what the initial Absence Reason Usage
-  // is so that we can accurately determine how changes to the Absence Details would
-  // affect the usage without double counting anything
-  const initialAbsenceReasonUsageData = React.useMemo(() => {
-    if (!localAbsence || !localAbsence.details) {
-      return undefined;
-    }
-
-    const details = localAbsence.details;
-    const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
-    const usageData: AbsenceReasonUsageData[] = compact(
-      usages.map(u => {
-        if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
-          return null;
-        }
-
-        return {
-          hourlyAmount: u.hourlyAmount,
-          dailyAmount: u.dailyAmount,
-          absenceReasonId: u.absenceReasonId,
-          absenceReason: {
-            absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
-          },
-        };
-      })
-    );
-    return usageData;
-  }, [localAbsence]);
-
   // --- Handling of Sub pre-arrange, assignment, or removal ------
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
@@ -663,6 +634,31 @@ export const AbsenceUI: React.FC<Props> = props => {
       !actingAsEmployee ||
       (!hasFilledVacancies && !some(state.absenceDates, isPast)));
 
+  const deletedAbsenceReasons = React.useMemo(() => {
+    const allDetails = [
+      ...(localAbsence?.details ?? []),
+      ...(localAbsence?.closedDetails ?? []),
+    ];
+    const allDeletedReasons = compact(
+      flatMap(
+        allDetails.map(d =>
+          d?.reasonUsages?.map(ru => {
+            if (!ru?.absenceReason || !ru.absenceReason.isDeleted) {
+              return null;
+            }
+
+            return {
+              detailId: d.id,
+              id: ru.absenceReason.id,
+              name: ru.absenceReason.name,
+            };
+          })
+        )
+      )
+    );
+    return allDeletedReasons;
+  }, [localAbsence?.closedDetails, localAbsence?.details]);
+
   return (
     <>
       <PageTitle
@@ -911,10 +907,13 @@ export const AbsenceUI: React.FC<Props> = props => {
                             setNegativeBalanceWarning={
                               setNegativeBalanceWarning
                             }
-                            initialUsageData={initialAbsenceReasonUsageData}
+                            initialUsageData={state.initialAbsenceReasonUsageData}
                             canEditReason={!state.isClosed}
                             canEditDatesAndTimes={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
+                            travellingEmployee={employee.locationIds.length > 1}
+                            deletedAbsenceReasons={deletedAbsenceReasons}
+                            updateKey={localAbsence?.changedUtc ?? undefined}
                           />
                         </Grid>
                         <Grid item md={6}>

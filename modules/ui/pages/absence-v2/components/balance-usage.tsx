@@ -2,7 +2,6 @@ import * as React from "react";
 import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { isBefore, isAfter, parseISO } from "date-fns";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
@@ -40,7 +39,14 @@ type UsageAmountData = {
 export const BalanceUsage: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { orgId, employeeId, usages, actingAsEmployee, startDate, initialUsageData } = props;
+  const {
+    orgId,
+    employeeId,
+    usages,
+    actingAsEmployee,
+    startDate,
+    initialUsageData,
+  } = props;
 
   const allSchoolYears = useAllSchoolYears(orgId);
   const schoolYearId = allSchoolYears.find(
@@ -165,8 +171,36 @@ export const BalanceUsage: React.FC<Props> = props => {
       []
     );
 
-    return sortBy(compact(calculatedUsages), u => u.name);
-  }, [balances, usages]);
+    const sortedUsages = sortBy(compact(calculatedUsages), u => u.name);
+    if (!initialUsageData) {
+      return sortedUsages;
+    }
+
+    // Offset any initialUsageData in the usages we are returning
+    sortedUsages.forEach(su => {
+      // Find any matching initialUsageData
+      const matchingUsages = initialUsageData.filter(
+        d =>
+          (su.absenceReasonId && su.absenceReasonId === d.absenceReasonId) ||
+          (su.absenceReasonCategoryId &&
+            su.absenceReasonCategoryId ===
+              d.absenceReason?.absenceReasonCategoryId)
+      );
+      matchingUsages.forEach(mu => {
+        const amount =
+          su.trackingType === AbsenceReasonTrackingTypeId.Hourly
+            ? mu.hourlyAmount
+            : mu.dailyAmount;
+
+        su.remainingBalance = su.remainingBalance + amount;
+        if (su.negativeWarning) {
+          su.negativeWarning = su.remainingBalance < 0;
+        }
+      });
+    });
+
+    return sortedUsages;
+  }, [balances, usages, initialUsageData]);
 
   const getUsedAndRemainingText = React.useCallback(
     (usageAmount: UsageAmountData) => {
@@ -210,10 +244,7 @@ export const BalanceUsage: React.FC<Props> = props => {
       {usageAmounts && usageAmounts.length > 0 && (
         <div>
           <div className={classes.reasonHeaderContainer}>
-            <div className={classes.reason}>
-              <InfoIcon color="primary" />
-              <div className={classes.reasonText}>{t("Balance")}</div>
-            </div>
+            <div className={classes.reason}>{t("Balance")}</div>
             <div className={classes.used}>{t("Used")}</div>
             <div className={classes.remaining}>{t("Remaining")}</div>
           </div>
@@ -272,9 +303,6 @@ const useStyles = makeStyles(theme => ({
     width: "50%",
     display: "flex",
     alignItems: "center",
-  },
-  reasonText: {
-    marginLeft: theme.spacing(),
   },
   used: {
     width: "25%",

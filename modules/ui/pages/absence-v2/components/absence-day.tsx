@@ -9,6 +9,7 @@ import { DayPartSelect, DayPartValue } from "./day-part-select";
 type Props = {
   organizationId: string;
   employeeId: string;
+  travellingEmployee: boolean;
   detail: AbsenceDetail;
   absenceReasonOptions: OptionType[];
   canEditReason: boolean;
@@ -47,6 +48,7 @@ export const AbsenceDay: React.FC<Props> = props => {
     onTimeChange,
     reasonError,
     timeError,
+    travellingEmployee,
   } = props;
 
   const dayPartValue = React.useMemo(() => {
@@ -101,6 +103,7 @@ export const AbsenceDay: React.FC<Props> = props => {
               }
             }}
             timeError={timeError}
+            includeHourly={travellingEmployee}
           />
         </div>
       )}
@@ -114,7 +117,7 @@ const useStyles = makeStyles(theme => ({
   },
   subTitle: {
     fontWeight: "bold",
-    marginTop: theme.spacing(),
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(),
   },
 }));

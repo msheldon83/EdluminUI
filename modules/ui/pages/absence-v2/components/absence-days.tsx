@@ -4,7 +4,12 @@ import { AbsenceDetail } from "../types";
 import { useFormikContext } from "formik";
 import { useAbsenceReasonOptionsWithCategories } from "reference-data/absence-reasons";
 import { format } from "date-fns";
-import { FormControlLabel, Checkbox, makeStyles } from "@material-ui/core";
+import {
+  FormControlLabel,
+  Checkbox,
+  makeStyles,
+  Divider,
+} from "@material-ui/core";
 import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
 import { SelectNew } from "ui/components/form/select-new";
@@ -13,12 +18,14 @@ type Props = {
   details: AbsenceDetail[];
   organizationId: string;
   employeeId: string;
+  travellingEmployee: boolean;
   positionTypeId?: string;
   onTimeChange: () => void;
   canEditReason: boolean;
   sameReasonForAllDetails: boolean;
   canEditTimes: boolean;
   sameTimesForAllDetails: boolean;
+  deletedAbsenceReasons?: { detailId: string; id: string; name: string }[];
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
@@ -34,12 +41,14 @@ export const AbsenceDays: React.FC<Props> = props => {
     sameReasonForAllDetails,
     canEditTimes,
     sameTimesForAllDetails,
+    travellingEmployee,
     details = [],
+    deletedAbsenceReasons = [],
   } = props;
 
   const absenceReasonOptions = useAbsenceReasonOptionsWithCategories(
     organizationId,
-    [],
+    undefined,
     positionTypeId
   );
 
@@ -76,6 +85,29 @@ export const AbsenceDays: React.FC<Props> = props => {
   const allDetailsAreTheSame = React.useMemo(
     () => sameReasonForAllDetails && sameTimesForAllDetails,
     [sameReasonForAllDetails, sameTimesForAllDetails]
+  );
+
+  const getAbsenceReasonOptions = React.useCallback(
+    (detailId: string | undefined) => {
+      if (!detailId) {
+        return absenceReasonOptions;
+      }
+
+      // Look for a match in the list of deleted Reasons
+      const deletedReason = deletedAbsenceReasons.find(
+        d => d.detailId === detailId
+      );
+      if (!deletedReason) {
+        // No match, return normal list
+        return absenceReasonOptions;
+      }
+
+      return [
+        ...absenceReasonOptions,
+        { label: deletedReason.name, value: deletedReason.id },
+      ];
+    },
+    [absenceReasonOptions, deletedAbsenceReasons]
   );
 
   return (
@@ -124,8 +156,9 @@ export const AbsenceDays: React.FC<Props> = props => {
             <AbsenceDay
               organizationId={organizationId}
               employeeId={employeeId}
+              travellingEmployee={travellingEmployee}
               detail={ad}
-              absenceReasonOptions={absenceReasonOptions}
+              absenceReasonOptions={getAbsenceReasonOptions(ad.id)}
               canEditReason={canEditReason}
               canEditTimes={canEditTimes}
               showReason={i === 0 || !sameReasonForAllDetails}
@@ -247,6 +280,11 @@ export const AbsenceDays: React.FC<Props> = props => {
                 />
               </div>
             )}
+            {!allDetailsAreTheSame && (
+              <div className={classes.divider}>
+                <Divider />
+              </div>
+            )}
           </React.Fragment>
         );
       })}
@@ -261,6 +299,10 @@ const useStyles = makeStyles(theme => ({
   },
   placeholderSelectionSpacing: {
     marginTop: theme.spacing(),
+  },
+  divider: {
+    color: theme.customColors.gray,
+    marginTop: theme.spacing(3),
   },
 }));
 
