@@ -1,0 +1,30 @@
+mutation RecalculateEmployeeBalances(
+  $recalculateEmployeeBalances: RecalculateEmployeeBalancesInput!
+) {
+  absenceReasonBalance {
+    recalculateEmployeeBalances(
+      recalculateEmployeeBalances: $recalculateEmployeeBalances
+    ) {
+      id
+      rowVersion
+      initialBalance
+      schoolYearId
+      absenceReasonId
+      absenceReason {
+        id
+        name
+      }
+      absenceReasonCategoryId
+      absenceReasonCategory {
+        id
+        name
+      }
+      balanceAsOf
+      employeeId
+      initialBalance
+      plannedBalance
+      usedBalance
+      unusedBalance
+    }
+  }
+}
