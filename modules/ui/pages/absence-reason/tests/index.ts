@@ -8,6 +8,7 @@ const absReasons = [
     expired: false,
     allowNegativeBalance: false,
     isRestricted: false,
+    requiresApproval: true,
   },
   {
     id: "2",
@@ -16,6 +17,7 @@ const absReasons = [
     expired: false,
     allowNegativeBalance: false,
     isRestricted: false,
+    requiresApproval: true,
   },
   {
     id: "3",
@@ -24,6 +26,7 @@ const absReasons = [
     expired: false,
     allowNegativeBalance: false,
     isRestricted: false,
+    requiresApproval: true,
   },
   {
     id: "4",
@@ -32,6 +35,7 @@ const absReasons = [
     expired: false,
     allowNegativeBalance: false,
     isRestricted: false,
+    requiresApproval: false,
   },
 ];
 
