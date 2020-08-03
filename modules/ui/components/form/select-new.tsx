@@ -1,7 +1,7 @@
 import * as React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import { Tooltip, Typography, useTheme } from "@material-ui/core";
+import { Tooltip, useTheme } from "@material-ui/core";
 import useAutocomplete from "@material-ui/lab/useAutocomplete";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 import InfoIcon from "@material-ui/icons/Info";
@@ -312,9 +312,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
                     className={itemClasses}
                     key={getOptionValue(option)}
                   >
-                    <Typography className={classes.optionText}>
-                      {option.label}
-                    </Typography>
+                    <div className={classes.optionText}>{option.label}</div>
                     {option.info && (
                       <Tooltip title={option.info}>
                         <InfoIcon className={classes.infoIcon} />
@@ -471,7 +469,7 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(1.5),
     paddingRight: theme.spacing(1.5),
     alignItems: "center",
-    display: "inline-flex",
+    display: "flex",
     width: "100%",
 
     "&:hover": {
