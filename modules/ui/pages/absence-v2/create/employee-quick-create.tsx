@@ -1,9 +1,8 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { NeedsReplacement, AbsenceCreateInput } from "graphql/server-types.gen";
-import { makeStyles } from "@material-ui/core";
+import { makeStyles, Button } from "@material-ui/core";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { AbsenceDetails } from "../components/absence-details";
 import { absenceReducer } from "../state";
 import { startOfMonth, min, isSameDay } from "date-fns";
@@ -19,10 +18,17 @@ import { ErrorDialog } from "ui/components/error-dialog";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { getCannotCreateAbsenceDates } from "ui/components/absence/helpers";
 import { some } from "lodash-es";
+import { NeedsReplacementCheckbox } from "../components/needs-replacement";
+import { TextButton } from "ui/components/text-button";
+import {
+  EmployeeCreateAbsenceConfirmationRouteV2,
+  EmployeeCreateAbsenceRouteV2,
+} from "ui/routes/absence-v2";
 
 type Props = {
   employeeId: string;
   locationIds: string[];
+  positionId?: string;
   positionTypeId?: string;
   organizationId: string;
   defaultReplacementNeeded?: NeedsReplacement | null;
@@ -35,6 +41,7 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
   const {
     employeeId,
     locationIds,
+    positionId,
     positionTypeId,
     organizationId,
     defaultReplacementNeeded,
@@ -50,7 +57,7 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
   const [state, dispatch] = React.useReducer(absenceReducer, {
     employeeId: employeeId,
     organizationId: organizationId,
-    positionId: employee.primaryPosition?.id ?? "0",
+    positionId: positionId ?? "0",
     viewingCalendarMonth: startOfMonth(new Date()),
     absenceDates: [],
     isClosed: false,
@@ -94,63 +101,53 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabledDates]);
 
-  const quickCreateAbsence = React.useCallback(async (
-    data: AbsenceFormData,
-    ignoreWarnings?: boolean
-  ) => {
-    // Build the create input
-    const absenceCreateInput = buildAbsenceInput(
-      data,
-      state,
-      [],
-      disabledDates,
-      true
-    ) as AbsenceCreateInput;
+  const quickCreateAbsence = React.useCallback(
+    async (data: AbsenceFormData, ignoreWarnings?: boolean) => {
+      // Build the create input
+      const absenceCreateInput = buildAbsenceInput(
+        data,
+        state,
+        [],
+        disabledDates,
+        true
+      ) as AbsenceCreateInput;
 
-    const result = await createAbsenceMutation({
-      variables: {
-        absence: { ...absenceCreateInput, ignoreWarnings },
-      },
-    });
+      const result = await createAbsenceMutation({
+        variables: {
+          absence: { ...absenceCreateInput, ignoreWarnings },
+        },
+      });
 
-    if (result?.data?.absence?.create) {
-      // Need a new confirmation route???
-      // history.push(        
-      //   CreateAbsenceConfirmationRoute.generate({
-      //     absenceId: result.data.absence.create.id,
-      //   })
-      // );
-    }
-  }, [createAbsenceMutation, disabledDates, state]);
+      if (result?.data?.absence?.create) {
+        history.push(
+          EmployeeCreateAbsenceConfirmationRouteV2.generate({
+            absenceId: result.data.absence.create.id,
+          })
+        );
+      }
+    },
+    [createAbsenceMutation, disabledDates, history, state]
+  );
+
+  const initialFormData: AbsenceFormData = {
+    details: [],
+    needsReplacement: defaultReplacementNeeded !== NeedsReplacement.No,
+    sameReasonForAllDetails: true,
+    sameTimesForAllDetails: true,
+    requireNotesToApprover: false,
+  };
 
   return (
     <Section>
-      <SectionHeader title={t("Create absence")} />
       <Formik
-        initialValues={{
-          details: [],
-          needsReplacement: defaultReplacementNeeded !== NeedsReplacement.No,
-          sameReasonForAllDetails: true,
-          sameTimesForAllDetails: true,
-        }}
+        initialValues={initialFormData}
         enableReinitialize={true}
         validationSchema={AbsenceFormValidationSchema(t)}
         onSubmit={async data => {
           await quickCreateAbsence(data);
         }}
       >
-        {({
-          values,
-          handleSubmit,
-          handleReset,
-          setFieldValue,
-          dirty,
-          isSubmitting,
-          resetForm,
-          touched,
-          initialValues,
-          errors,
-        }) => {
+        {({ values, handleSubmit, setFieldValue, dirty, isSubmitting }) => {
           const projectionInput = buildAbsenceInput(
             values,
             state,
@@ -159,25 +156,30 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
             true
           ) as AbsenceCreateInput;
 
+          // There are some conditions that prohibit an Employee from using
+          // the Quick Create option and instead they have to go to the full
+          // Absence Create screen. Those should be accounted for here so we
+          // can use additionalDetailsRequired to denote that scenario
+          const additionalDetailsRequired = values.requireNotesToApprover;
+
           return (
             <form id="absence-form" onSubmit={handleSubmit}>
               <ErrorDialog
-                open={
-                  !!(saveErrorsInfo?.error && !saveErrorsInfo?.confirmed)
-                }
-                title={
-                  t("There was an issue creating the absence")
-                }
+                open={!!(saveErrorsInfo?.error && !saveErrorsInfo?.confirmed)}
+                title={t("There was an issue creating the absence")}
                 warningsOnlyTitle={t(
                   "Hmm, we found a possible issue. Would you like to continue?"
                 )}
                 apolloErrors={saveErrorsInfo?.error ?? null}
-                onClose={() => setSaveErrorsInfo({ error: null, confirmed: true })}
+                onClose={() =>
+                  setSaveErrorsInfo({ error: null, confirmed: true })
+                }
                 continueAction={async () => {
                   await quickCreateAbsence(values, true);
                 }}
               />
               <AbsenceDetails
+                headerText={t("Create absence")}
                 organizationId={organizationId}
                 employeeId={employeeId}
                 actingAsEmployee={true}
@@ -201,7 +203,55 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
                 canEditReason={true}
                 canEditDatesAndTimes={true}
                 travellingEmployee={locationIds.length > 1}
+                isQuickCreate={true}
               />
+              <div className={classes.needsReplacement}>
+                <NeedsReplacementCheckbox
+                  actingAsEmployee={true}
+                  needsReplacement={
+                    defaultReplacementNeeded ?? NeedsReplacement.No
+                  }
+                  value={values.needsReplacement}
+                  onChange={checked =>
+                    setFieldValue("needsReplacement", checked)
+                  }
+                />
+              </div>
+              {additionalDetailsRequired && (
+                <div className={classes.blockCreateMessage}>
+                  {t(
+                    "More details are required to create this absence.  Click Add additional details."
+                  )}
+                </div>
+              )}
+              <div className={classes.buttons}>
+                <TextButton
+                  disabled={isSubmitting}
+                  className={classes.additionalButton}
+                  onClick={() =>
+                    history.push(
+                      EmployeeCreateAbsenceRouteV2.generate({}),
+                      {
+                        initialFormData: values
+                      }
+                    )
+                  }
+                >
+                  {t("Add additional details")}
+                </TextButton>
+                <Button
+                  disabled={
+                    !dirty ||
+                    isSubmitting ||
+                    negativeBalanceWarning ||
+                    values.requireNotesToApprover
+                  }
+                  variant="outlined"
+                  type="submit"
+                >
+                  {t("Quick Create")}
+                </Button>
+              </div>
             </form>
           );
         }}
@@ -210,4 +260,23 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
   );
 };
 
-const useStyles = makeStyles(theme => ({}));
+const useStyles = makeStyles(theme => ({
+  needsReplacement: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  buttons: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+  additionalButton: {
+    marginRight: theme.spacing(3),
+  },
+  blockCreateMessage: {
+    borderRadius: theme.typography.pxToRem(4),
+    backgroundColor: theme.palette.error.main,
+    color: theme.customColors.white,
+    padding: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+  },
+}));
