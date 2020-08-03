@@ -57,9 +57,15 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   return summaryDetails;
 };
 
+// The Assignments on the Vacancy > Vacancy Detail objects are going to be ignored
+// in favor of the information provided by assignmentsByDate. The reason for this is
+// that we often end up with a "vacancy" that is from the projected vacancies query
+// and would never contain assignment information. Because of this potential, we have
+// to keep track of the assignments separately so it's better to just always use that
+// instead of picking and choosing when we use assignmentsByDate or VacancyDetail
 export const convertVacancyToVacancySummaryDetails = (
   vacancy: Vacancy,
-  assignmentsByDate?: AssignmentOnDate[] | undefined
+  assignmentsByDate: AssignmentOnDate[]
 ): VacancySummaryDetail[] => {
   const absenceDetails = vacancy?.absence?.details;
   return vacancy.details?.map(vd => {
@@ -68,8 +74,8 @@ export const convertVacancyToVacancySummaryDetails = (
       ad => ad?.startDate === vd?.startDate
     );
 
-    // Find a matching assignment from assignmentsByStartTime if we
-    // don't already have one on the VacancyDetail record itself
+    // Find a matching assignment from assignmentsByDate by vacancyDetailId
+    // if we have it, otherwise by the same day comparison
     const assignmentOnDate = assignmentsByDate?.find(
       a =>
         (vd.id && a.vacancyDetailId === vd.id) ||
@@ -84,29 +90,17 @@ export const convertVacancyToVacancySummaryDetails = (
       endTimeLocal: parseISO(vd.endTimeLocal),
       locationId: vd.locationId,
       locationName: vd.location?.name ?? "",
-      assignment:
-        vd.assignment || assignmentOnDate
-          ? {
-              id: vd.assignment?.id ?? assignmentOnDate?.assignmentId,
-              rowVersion:
-                vd.assignment?.rowVersion ??
-                assignmentOnDate?.assignmentRowVersion,
-              employee:
-                vd.assignment?.employee || assignmentOnDate?.employee
-                  ? {
-                      id:
-                        vd.assignment?.employee?.id ??
-                        assignmentOnDate!.employee.id,
-                      firstName:
-                        vd.assignment?.employee?.firstName ??
-                        assignmentOnDate!.employee.firstName,
-                      lastName:
-                        vd.assignment?.employee?.lastName ??
-                        assignmentOnDate!.employee.lastName,
-                    }
-                  : undefined,
-            }
-          : undefined,
+      assignment: assignmentOnDate
+        ? {
+            id: assignmentOnDate.assignmentId,
+            rowVersion: assignmentOnDate.assignmentRowVersion,
+            employee: {
+              id: assignmentOnDate.employee.id,
+              firstName: assignmentOnDate.employee.firstName,
+              lastName: assignmentOnDate.employee.lastName,
+            },
+          }
+        : undefined,
       payCodeId: vd.payCodeId ?? undefined,
       payCodeName: vd.payCode?.name,
       accountingCodeAllocations:
@@ -128,7 +122,9 @@ export const convertVacancyToVacancySummaryDetails = (
 };
 
 export const buildAssignmentGroups = (
-  details: VacancySummaryDetail[]
+  details: VacancySummaryDetail[],
+  excludeAccountingCodesFromGrouping?: boolean,
+  excludePayCodesFromGrouping?: boolean
 ): AssignmentWithDetails[] => {
   // Sort the details by their start times
   const sortedDetails = details
@@ -193,7 +189,9 @@ export const buildAssignmentGroups = (
           lastGroup &&
           vacancySummaryDetailsAreEqual(
             lastGroup.details,
-            assignmentAndDateGroupItem.details
+            assignmentAndDateGroupItem.details,
+            excludeAccountingCodesFromGrouping,
+            excludePayCodesFromGrouping
           )
         ) {
           // All of our details match so we can add this day and detail ids to this group
@@ -234,7 +232,9 @@ export const buildAssignmentGroups = (
 
 export const vacancySummaryDetailsAreEqual = (
   assignmentDetails: DateDetail[],
-  vacancySummaryDetails: VacancySummaryDetail[]
+  vacancySummaryDetails: VacancySummaryDetail[],
+  excludeAccountingCodesFromGrouping?: boolean,
+  excludePayCodesFromGrouping?: boolean
 ): boolean => {
   if (assignmentDetails.length !== vacancySummaryDetails.length) {
     return false;
@@ -251,12 +251,18 @@ export const vacancySummaryDetailsAreEqual = (
       assignmentDetail.endTime !==
         format(vacancySummaryDetail.endTimeLocal, "h:mm a") ||
       assignmentDetail.locationId !== vacancySummaryDetail.locationId ||
-      assignmentDetail.payCodeId !== vacancySummaryDetail.payCodeId
+      (!excludePayCodesFromGrouping &&
+        assignmentDetail.payCodeId !== vacancySummaryDetail.payCodeId)
     ) {
       return false;
     }
 
     // Compare Accounting Code Allocations
+    if (excludeAccountingCodesFromGrouping) {
+      // We don't want to use the Accounting Code selections for grouping
+      // so no need to compare any of those details
+      return true;
+    }
 
     if (
       !assignmentDetail.accountingCodeAllocations?.length &&

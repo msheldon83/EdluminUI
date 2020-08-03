@@ -3,6 +3,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
     update(absence: $absence) {
       id
       rowVersion
+      orgId
       details {
         id
         actualDuration
@@ -68,6 +69,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
           assignment {
             id
             rowVersion
+            employeeId
             employee {
               id
               firstName
@@ -85,6 +87,8 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
             }
             allocation
           }
+          isFilled
+          verifiedAtUtc
         }
         absence {
           startDate
@@ -97,6 +101,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
           }
         }
       }
+      approvalStatus
     }
   }
 }

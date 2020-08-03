@@ -17,6 +17,7 @@ type Props = {
   usages: AbsenceReasonUsageData[] | null;
   actingAsEmployee?: boolean;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
+  initialUsageData?: AbsenceReasonUsageData[];
 };
 
 export type AbsenceReasonUsageData = {
@@ -39,7 +40,7 @@ type UsageAmountData = {
 export const BalanceUsage: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { orgId, employeeId, usages, actingAsEmployee, startDate } = props;
+  const { orgId, employeeId, usages, actingAsEmployee, startDate, initialUsageData } = props;
 
   const allSchoolYears = useAllSchoolYears(orgId);
   const schoolYearId = allSchoolYears.find(

@@ -44,17 +44,21 @@ type Props = {
   locationIds?: string[];
   projectionInput: AbsenceCreateInput | null;
   absenceDates: Date[];
+  isClosed: boolean;
   onAssignSubClick: (
     vacancySummaryDetailsToAssign: VacancySummaryDetail[]
   ) => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
+  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<boolean>;
+  canEditSubDetails: boolean;
   onEditSubDetailsClick: () => void;
   onProjectedVacanciesChange: (vacancies: Vacancy[]) => void;
   onOverallCodeChanges: (details: {
     accountingCodeValue?: AccountingCodeValue;
     payCodeId?: string | null;
   }) => void;
-  assignmentsByDate?: AssignmentOnDate[] | undefined;
+  assignmentsByDate: AssignmentOnDate[];
+  disableReplacementInteractions?: boolean;
+  vacanciesOverride?: Vacancy[];
 };
 
 export const SubstituteDetails: React.FC<Props> = props => {
@@ -69,11 +73,15 @@ export const SubstituteDetails: React.FC<Props> = props => {
     absenceDates,
     onAssignSubClick,
     onCancelAssignment,
+    canEditSubDetails,
     onEditSubDetailsClick,
     locationIds,
     onProjectedVacanciesChange,
     onOverallCodeChanges,
     assignmentsByDate,
+    vacanciesOverride,
+    isClosed,
+    disableReplacementInteractions = false,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
   const snackbar = useSnackbar();
@@ -86,8 +94,11 @@ export const SubstituteDetails: React.FC<Props> = props => {
       },
       ignoreAbsenceId: absenceId ?? undefined,
     },
-    skip: !projectionInput,
-    //fetchPolicy: "network-only",
+    skip:
+      !values.needsReplacement ||
+      !projectionInput ||
+      !!vacanciesOverride ||
+      isClosed,
     onError: error => {
       ShowErrors(error, snackbar.openSnackbar);
     },
@@ -135,6 +146,18 @@ export const SubstituteDetails: React.FC<Props> = props => {
       setVacancySummaryDetails([]);
     }
 
+    if (vacanciesOverride) {
+      setVacancySummaryDetails(
+        vacanciesOverride[0]
+          ? convertVacancyToVacancySummaryDetails(
+              vacanciesOverride[0],
+              assignmentsByDate
+            )
+          : []
+      );
+      return;
+    }
+
     if (
       getProjectedVacancies.state !== "LOADING" &&
       getProjectedVacancies.state !== "UPDATING"
@@ -153,6 +176,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     projectedVacancies,
     assignmentsByDate,
     absenceDates,
+    vacanciesOverride,
   ]);
 
   const detailsHaveDifferentAccountingCodes = React.useMemo(() => {
@@ -184,6 +208,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
                   setFieldValue("needsReplacement", e.target.checked)
                 }
                 color="primary"
+                disabled={isClosed}
               />
             }
           />
@@ -203,6 +228,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     setFieldValue,
     t,
     values.needsReplacement,
+    isClosed,
   ]);
 
   const absenceActions: JSX.Element = React.useMemo(() => {
@@ -251,8 +277,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
                 startTime: secondsSinceMidnight(d.startTimeLocal.toISOString()),
               };
             })}
-            buttonText={absenceId ? t("Assign") : t("Pre-arrange")}
-            disableAssign={false}
+            buttonText={absenceId ? t("Assign Sub") : t("Pre-arrange")}
+            disableAssign={disableReplacementInteractions}
             onClick={(detailIds, dates) => {
               const detailsToAssign = vacancySummaryDetails.filter(
                 d =>
@@ -267,7 +293,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
           <Button
             variant="outlined"
             onClick={onEditSubDetailsClick}
-            //disabled={props.disableEditingDatesAndTimes}
+            disabled={!canEditSubDetails}
           >
             <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
             <MobileOnly>{t("Edit Details")}</MobileOnly>
@@ -276,12 +302,14 @@ export const SubstituteDetails: React.FC<Props> = props => {
       </div>
     );
   }, [
+    vacancySummaryDetails,
     assignmentsByDate,
     absenceId,
-    onAssignSubClick,
-    onEditSubDetailsClick,
     t,
-    vacancySummaryDetails,
+    disableReplacementInteractions,
+    onEditSubDetailsClick,
+    canEditSubDetails,
+    onAssignSubClick,
   ]);
 
   return (
@@ -317,6 +345,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
           isAbsence={true}
           absenceActions={absenceActions}
           footerActions={footerActions}
+          disableAssignmentActions={disableReplacementInteractions}
+          allowRemoval={!absenceId}
         />
       )}
       {!values.needsReplacement && (

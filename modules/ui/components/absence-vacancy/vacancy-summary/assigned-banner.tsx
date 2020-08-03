@@ -18,9 +18,10 @@ type Props = {
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   disableActions?: boolean;
   readOnly: boolean;
+  allowRemoval?: boolean;
 };
 
 export const AssignedBanner: React.FC<Props> = props => {
@@ -36,6 +37,7 @@ export const AssignedBanner: React.FC<Props> = props => {
     onReassignClick,
     onCancelAssignment,
     disableActions = false,
+    allowRemoval = false,
   } = props;
 
   const isExistingAssignment = !!assignmentWithDetails.assignment?.id;
@@ -138,15 +140,19 @@ export const AssignedBanner: React.FC<Props> = props => {
                 isSysAdmin: boolean,
                 orgId?: string,
                 forRole?: Role | null | undefined
-              ) =>
-                canRemoveSub(
+              ) => {
+                if (allowRemoval) {
+                  return true;
+                }
+
+                return canRemoveSub(
                   assignmentStartTime,
                   permissions,
                   isSysAdmin,
                   orgId,
                   forRole
-                )
-              }
+                );
+              }}
             >
               <Button
                 disabled={disableActions}
@@ -194,7 +200,7 @@ export const useStyles = makeStyles(theme => ({
   actions: {
     width: theme.typography.pxToRem(220),
     flexWrap: "wrap",
-    textAlign: "center",
+    textAlign: "right",
   },
   reassignButton: {
     marginRight: theme.typography.pxToRem(5),

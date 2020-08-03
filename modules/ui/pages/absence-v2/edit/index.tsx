@@ -2,23 +2,15 @@ import * as React from "react";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRouteV2 } from "ui/routes/absence-v2";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { AbsenceUI } from "../components/ui";
-import { NotFound } from "ui/pages/not-found";
-import { GetEmployee } from "../graphql/get-employee.gen";
-import { compact, flatMap } from "lodash-es";
+import { AbsenceUI, buildFormData } from "../components/ui";
+import { compact, flatMap, uniq } from "lodash-es";
 import {
   NeedsReplacement,
-  AbsenceCreateInput,
   Absence,
   AbsenceUpdateInput,
   DayPart,
 } from "graphql/server-types.gen";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
-import {
-  noAllocation,
-  AccountingCodeValue,
-} from "ui/components/form/accounting-code-dropdown";
-import { CreateAbsence } from "../graphql/create.gen";
 import { ApolloError } from "apollo-client";
 import { GetAbsence } from "../graphql/get-absence.gen";
 import { useTranslation } from "react-i18next";
@@ -30,11 +22,16 @@ import { DeletedDataIndex } from "./deleted-data-index";
 import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete-absence-vacancy-dialog";
 import { UpdateAbsence } from "../graphql/update-absence.gen";
 import { startOfDay, parseISO, startOfMonth } from "date-fns";
+import { EmployeeHomeRoute } from "ui/routes/employee-home";
+import { AdminHomeRoute } from "ui/routes/admin-home";
+import { projectVacancyDetailsFromVacancies } from "../state";
 
 type Props = { actingAsEmployee?: boolean };
 
 export const EditAbsence: React.FC<Props> = props => {
-  const { organizationId, absenceId } = useRouteParams(AdminEditAbsenceRouteV2);
+  const { organizationId: adminOrgId, absenceId } = useRouteParams(
+    AdminEditAbsenceRouteV2
+  );
   const history = useHistory();
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
@@ -69,6 +66,19 @@ export const EditAbsence: React.FC<Props> = props => {
   const onClickDelete = React.useCallback(() => setDeleteDialogIsOpen(true), [
     setDeleteDialogIsOpen,
   ]);
+
+  const goBack = React.useCallback(() => {
+    if (document.referrer === "") {
+      history.push(
+        actingAsEmployee
+          ? EmployeeHomeRoute.generate({})
+          : AdminHomeRoute.generate({ organizationId: adminOrgId })
+      );
+    } else {
+      history.goBack();
+    }
+  }, [history, adminOrgId, actingAsEmployee]);
+
   const onDeleteAbsence = React.useCallback(async () => {
     const result = await deleteAbsence({
       variables: {
@@ -85,9 +95,9 @@ export const EditAbsence: React.FC<Props> = props => {
         status: "success",
         autoHideDuration: 5000,
       });
-      //goBack();
+      goBack();
     }
-  }, [deleteAbsence, absenceId, openSnackbar, t]); //goBack
+  }, [deleteAbsence, absenceId, openSnackbar, t, goBack]);
 
   const absence: Absence | null | undefined = React.useMemo(() => {
     return absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING"
@@ -99,36 +109,52 @@ export const EditAbsence: React.FC<Props> = props => {
   const employee = absence?.employee;
   const vacancies = compact(absence?.vacancies ?? []);
   const vacancy = vacancies[0];
-  const position = vacancy?.position;
+  const position = vacancy?.position ?? employee?.primaryPosition;
 
-  const absenceDetails = React.useMemo(() => {
-    return compact(absence?.details).map(d => {
+  const assignmentsByDate = React.useMemo(() => {
+    if (!absence || !absence?.vacancies) {
+      return [];
+    }
+
+    const assignments = compact(
+      flatMap(
+        absence?.vacancies?.map(v =>
+          v?.details?.map(vd => {
+            if (!vd.assignment) {
+              return null;
+            }
+
+            return {
+              detail: vd,
+              assignment: vd.assignment,
+            };
+          })
+        ) ?? []
+      )
+    );
+
+    return assignments.map(a => {
       return {
-        id: d.id,
-        date: startOfDay(parseISO(d.startDate)),
-        dayPart: d.dayPartId ?? undefined,
-        hourlyStartTime:
-          d.dayPartId === DayPart.Hourly
-            ? parseISO(d.startTimeLocal)
-            : undefined,
-        hourlyEndTime:
-          d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
-        absenceReasonId: d.reasonUsages
-          ? d.reasonUsages[0]?.absenceReasonId
-          : undefined,
+        assignmentId: a.assignment.id,
+        assignmentRowVersion: a.assignment.rowVersion,
+        startTimeLocal: parseISO(a.detail.startTimeLocal),
+        vacancyDetailId: a.detail.id,
+        employee: {
+          id: a.assignment.employeeId,
+          firstName: a.assignment.employee?.firstName ?? "",
+          lastName: a.assignment.employee?.lastName ?? "",
+        },
       };
     });
-  }, [absence?.details]);
+  }, [absence]);
 
-  const notesToApproverRequired = React.useMemo(() => {
-    const allReasons = compact(
-      flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
-    );
-    const isRequired = allReasons.find(
-      a => a.absenceReason?.requireNotesToAdmin
-    );
-    return !!isRequired;
-  }, [absence?.details]);
+  const initialFormData = React.useMemo(() => {
+    if (!absence) {
+      return null;
+    }
+
+    return buildFormData(absence);
+  }, [absence]);
 
   if (absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING") {
     return <></>;
@@ -140,9 +166,19 @@ export const EditAbsence: React.FC<Props> = props => {
     return <DeletedDataIndex absenceId={absenceId} />;
   }
 
-  if (!absence || !employee) {
+  if (!absence || !employee || !initialFormData) {
     return <></>;
   }
+
+  const replacementEmployeeNames = uniq(
+    compact(
+      assignmentsByDate.map(a =>
+        a.employee ? `${a.employee.firstName} ${a.employee.lastName}` : null
+      )
+    )
+  );
+
+  const organizationId = absence.orgId;
 
   return (
     <>
@@ -151,7 +187,7 @@ export const EditAbsence: React.FC<Props> = props => {
         onDelete={onDeleteAbsence}
         onClose={() => setDeleteDialogIsOpen(false)}
         open={deleteDialogIsOpen}
-        //replacementEmployeeName={replacementEmployeeName}
+        replacementEmployeeNames={replacementEmployeeNames}
       />
       <AbsenceUI
         organizationId={organizationId}
@@ -170,26 +206,14 @@ export const EditAbsence: React.FC<Props> = props => {
                   position.needsReplacement ?? NeedsReplacement.No,
                 title: position.title,
                 positionTypeId: position.positionTypeId ?? undefined,
-                // defaultPayCodeId:
-                //   employee.primaryPosition.positionType?.payCodeId ?? undefined,
-                defaultAccountingCodeAllocations: noAllocation(),
               }
             : undefined
         }
-        initialAbsenceFormData={{
-          id: absence?.id,
-          details: absenceDetails,
-          notesToApprover: absence?.notesToApprover ?? undefined,
-          adminOnlyNotes: absence?.adminOnlyNotes ?? undefined,
-          needsReplacement: !!vacancy,
-          notesToReplacement: vacancy?.notesToReplacement ?? undefined,
-          requireNotesToApprover: notesToApproverRequired,
-          accountingCodeAllocations: noAllocation(),
-          // payCodeId:
-          //   employee.primaryPosition?.positionType?.payCodeId ?? undefined,
-        }}
+        initialAbsenceFormData={initialFormData}
         initialAbsenceState={() => {
-          const absenceDates = absenceDetails.map(d => d.date);
+          const absenceDates = (initialFormData?.details ?? []).map(
+            d => d.date
+          );
           const viewingCalendarMonth =
             absenceDates.length > 0
               ? startOfMonth(absenceDates[0])
@@ -197,15 +221,23 @@ export const EditAbsence: React.FC<Props> = props => {
           return {
             absenceId: absence?.id,
             absenceRowVersion: absence?.rowVersion,
+            vacancyId: vacancy?.id,
             employeeId: employee.id,
             organizationId: organizationId,
-            positionId: position?.id ?? "0",
+            positionId: position?.id ?? "",
             viewingCalendarMonth,
             absenceDates,
-            vacancySummaryDetailsToAssign: [],
-            isClosed: false,
-            closedDates: [],
+            isClosed: absence?.isClosed ?? false,
+            closedDates: absence?.closedDetails
+              ? compact(absence?.closedDetails)?.map(cd =>
+                  parseISO(cd.startDate)
+                )
+              : [],
             approvalState: absence?.approvalState,
+            assignmentsByDate: assignmentsByDate,
+            initialVacancyDetails: absence?.vacancies
+              ? projectVacancyDetailsFromVacancies(absence.vacancies)
+              : undefined,
           };
         }}
         saveAbsence={async data => {
@@ -225,6 +257,7 @@ export const EditAbsence: React.FC<Props> = props => {
         refetchAbsence={async () => {
           await absenceQuery.refetch();
         }}
+        absence={absence}
       />
     </>
   );

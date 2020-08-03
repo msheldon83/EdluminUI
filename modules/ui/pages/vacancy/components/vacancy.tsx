@@ -303,7 +303,7 @@ export const VacancyUI: React.FC<Props> = props => {
   );
 
   const onCancelAssignment = React.useCallback(
-    async (vacancyDetailIds?: string[]) => {
+    async (vacancyDetailIds?: string[]): Promise<boolean> => {
       // Get all of the matching details
       const detailsToCancelAssignmentsFor = vacancyDetailIds
         ? vacancy.details.filter(
@@ -313,6 +313,7 @@ export const VacancyUI: React.FC<Props> = props => {
 
       const updatedDetails = [...vacancy.details];
       const localDetailIdsToClearAssignmentsOn: string[] = [];
+      let allCancellationsSuccessful = true;
       if (vacancy.id) {
         // Get all of the Assignment Ids and Row Versions to Cancel
         const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
@@ -358,12 +359,15 @@ export const VacancyUI: React.FC<Props> = props => {
                     result.data?.assignment?.cancelAssignment?.rowVersion;
                 }
               });
+          } else {
+            allCancellationsSuccessful = false;
           }
         }
       } else {
         localDetailIdsToClearAssignmentsOn.push(
           ...detailsToCancelAssignmentsFor.map(d => d.id!)
         );
+        allCancellationsSuccessful = true;
       }
 
       setVacancy({
@@ -379,6 +383,7 @@ export const VacancyUI: React.FC<Props> = props => {
           return d;
         }),
       });
+      return allCancellationsSuccessful;
     },
     [vacancy, cancelAssignment]
   );
@@ -501,7 +506,9 @@ export const VacancyUI: React.FC<Props> = props => {
                   {...{
                     details: vacancy.details,
                     buttonText: !vacancyExists ? t("Pre-arrange") : t("Assign"),
-                    disableAssign: isSubmitting || (vacancyExists ? formIsDirty : disableAssign),
+                    disableAssign:
+                      isSubmitting ||
+                      (vacancyExists ? formIsDirty : disableAssign),
                     onClick: (detailIds: string[]) => {
                       dispatch({
                         action: "setVacancyDetailIdsToAssign",

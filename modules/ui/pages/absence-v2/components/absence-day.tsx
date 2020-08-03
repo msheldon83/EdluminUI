@@ -11,6 +11,8 @@ type Props = {
   employeeId: string;
   detail: AbsenceDetail;
   absenceReasonOptions: OptionType[];
+  canEditReason: boolean;
+  canEditTimes: boolean;
   showReason: boolean;
   showDayPart: boolean;
   onReasonChange: (absenceReasonId: string) => void;
@@ -34,6 +36,8 @@ export const AbsenceDay: React.FC<Props> = props => {
   const {
     detail,
     absenceReasonOptions,
+    canEditReason,
+    canEditTimes,
     showReason,
     showDayPart,
     subTitle,
@@ -76,6 +80,7 @@ export const AbsenceDay: React.FC<Props> = props => {
           inputStatus={reasonError ? "error" : undefined}
           validationMessage={reasonError}
           withResetValue={false}
+          disabled={!canEditReason}
         />
       )}
       {showDayPart && (
@@ -85,6 +90,7 @@ export const AbsenceDay: React.FC<Props> = props => {
             date={detail.date}
             organizationId={organizationId}
             employeeId={employeeId}
+            disabled={!canEditTimes}
             onDayPartChange={value => {
               if (value?.part) {
                 onTimeChange(

@@ -21,27 +21,26 @@ import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
 import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { Can } from "ui/components/auth/can";
 import { dayPartToLabel } from "ui/components/absence/helpers";
+import { AssignmentOnDate } from "../types";
 
 type Props = {
-  orgId: string;
   absence: Absence;
   actingAsEmployee?: boolean;
-  goToEdit?: () => void;
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
+  assignmentsByDate?: AssignmentOnDate[];
 };
 
 export const AbsenceView: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const {
-    orgId,
     absence,
     actingAsEmployee,
-    goToEdit,
     onCancelAssignment,
+    assignmentsByDate = [],
   } = props;
 
   const absenceDates = useMemo(
@@ -55,9 +54,12 @@ export const AbsenceView: React.FC<Props> = props => {
       return [];
     }
 
-    const details = convertVacancyToVacancySummaryDetails(absence.vacancies[0]);
+    const details = convertVacancyToVacancySummaryDetails(
+      absence.vacancies[0],
+      assignmentsByDate
+    );
     return details;
-  }, [absence?.vacancies]);
+  }, [absence?.vacancies, assignmentsByDate]);
 
   const subDetailsAbsenceInfo = React.useMemo(() => {
     const payCode = getFirstPayCode(absence);

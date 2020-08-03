@@ -12,7 +12,9 @@ import {
   AbsenceDetailCreateInput,
   Absence,
   Vacancy,
+  CancelVacancyAssignmentInput,
   ApprovalStatus,
+  Assignment,
 } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { AbsenceState, absenceReducer } from "../state";
@@ -26,6 +28,7 @@ import {
   validateAccountingCodeAllocations,
   mapAccountingCodeValueToAccountingCodeAllocations,
   allAccountingCodeValuesAreEqual,
+  mapAccountingCodeAllocationsToAccountingCodeValue,
 } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
@@ -39,6 +42,7 @@ import {
   startOfDay,
   min,
   parseISO,
+  isPast,
 } from "date-fns";
 import { SubstituteDetails } from "./substitute-details";
 import { ContentFooter } from "ui/components/content-footer";
@@ -50,9 +54,16 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import { some, compact, uniq, flatMap } from "lodash-es";
+import {
+  some,
+  compact,
+  flatMap,
+  isNil,
+  isEqual,
+  differenceWith,
+} from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { canEditAbsVac } from "helpers/permissions";
+import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
 import { EditVacancies } from "ui/pages/create-absence/edit-vacancies";
 import { VacancyDetail } from "ui/components/absence/types";
@@ -62,6 +73,19 @@ import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
 import { ApprovalState } from "ui/components/absence-vacancy/approval-state/state-banner";
 import { Prompt, useRouteMatch } from "react-router";
+import { useSnackbar } from "hooks/use-snackbar";
+import { useMutationBundle } from "graphql/hooks";
+import { CancelAssignment } from "../graphql/cancel-assignment.gen";
+import { ShowErrors } from "ui/components/error-helpers";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
+import { AssignVacancy } from "../graphql/assign-vacancy.gen";
+import { AbsenceReasonUsageData } from "./balance-usage";
+import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
+import { ActionMenu, Option } from "ui/components/action-menu";
+import { useHistory } from "react-router";
+import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
+import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
+import { EmployeeLink } from "ui/components/links/people";
 
 type Props = {
   organizationId: string;
@@ -89,6 +113,7 @@ type Props = {
   onErrorsConfirmed: () => void;
   deleteAbsence?: () => void;
   refetchAbsence?: () => Promise<void>;
+  absence?: Absence;
 };
 
 export const AbsenceUI: React.FC<Props> = props => {
@@ -96,6 +121,8 @@ export const AbsenceUI: React.FC<Props> = props => {
   const classes = useStyles();
   const canDoFn = useCanDo();
   const match = useRouteMatch();
+  const history = useHistory();
+  const { openSnackbar } = useSnackbar();
   const [step, setStep] = useQueryParamIso(StepParams);
   const {
     actingAsEmployee,
@@ -109,8 +136,24 @@ export const AbsenceUI: React.FC<Props> = props => {
     saveErrorsInfo,
     onErrorsConfirmed,
     refetchAbsence,
+    absence,
   } = props;
-  const [absence, setAbsence] = React.useState<Absence | undefined>();
+
+  const [cancelDialogIsOpen, setCancelDialogIsOpen] = React.useState(false);
+  const [localAbsence, setLocalAbsence] = React.useState<Absence | undefined>(
+    absence
+  );
+  React.useEffect(() => {
+    // Since there are conditions in the Edit workflow where we allow sub components
+    // to refetch the Absence, it is possible for us to get an update Absence prop
+    // coming into this component and we want to account for that
+    setLocalAbsence(absence);
+  }, [absence]);
+
+  const [
+    vacancySummaryDetailsToAssign,
+    setVacancySummaryDetailsToAssign,
+  ] = React.useState<VacancySummaryDetail[]>([]);
 
   const [state, dispatch] = React.useReducer(
     absenceReducer,
@@ -123,12 +166,22 @@ export const AbsenceUI: React.FC<Props> = props => {
   // for the current Employee
   const disabledDatesObjs = useEmployeeDisabledDates(
     state.employeeId,
-    state.viewingCalendarMonth
+    state.viewingCalendarMonth,
+    state.absenceDates && state.absenceDates.length > 0
+      ? min(state.absenceDates)
+      : undefined
   );
-  const disabledDates = React.useMemo(
-    () => getCannotCreateAbsenceDates(disabledDatesObjs),
-    [disabledDatesObjs]
-  );
+  const disabledDates = React.useMemo(() => {
+    // There's only going to be initial details when Editing an existing
+    // Absence, so for create this will just be an empty list
+    const existingAbsenceDays = initialAbsenceFormData.details.map(d => d.date);
+
+    return differenceWith(
+      getCannotCreateAbsenceDates(disabledDatesObjs),
+      existingAbsenceDays,
+      isSameDay
+    );
+  }, [disabledDatesObjs, initialAbsenceFormData.details]);
   React.useEffect(() => {
     const conflictingDates = disabledDates.filter(dis =>
       some(state.absenceDates, ad => isSameDay(ad, dis))
@@ -194,98 +247,146 @@ export const AbsenceUI: React.FC<Props> = props => {
     false
   );
 
+  // If we have an existing Absence, determine what the initial Absence Reason Usage
+  // is so that we can accurately determine how changes to the Absence Details would
+  // affect the usage without double counting anything
+  const initialAbsenceReasonUsageData = React.useMemo(() => {
+    if (!localAbsence || !localAbsence.details) {
+      return undefined;
+    }
+
+    const details = localAbsence.details;
+    const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
+    const usageData: AbsenceReasonUsageData[] = compact(
+      usages.map(u => {
+        if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
+          return null;
+        }
+
+        return {
+          hourlyAmount: u.hourlyAmount,
+          dailyAmount: u.dailyAmount,
+          absenceReasonId: u.absenceReasonId,
+          absenceReason: {
+            absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
+          },
+        };
+      })
+    );
+    return usageData;
+  }, [localAbsence]);
+
   // --- Handling of Sub pre-arrange, assignment, or removal ------
+  const [cancelAssignment] = useMutationBundle(CancelAssignment, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const onCancelAssignment = React.useCallback(
-    async (vacancyDetailIds?: string[], vacancyDetailDates?: Date[]) => {
-      // Get all of the matching details
-      const vacancyDetails =
-        state.customizedVacanciesInput ?? state.projectedVacancyDetails;
-      const detailsToCancelAssignmentsFor =
+    async (
+      vacancyDetailIds?: string[],
+      vacancyDetailDates?: Date[]
+    ): Promise<boolean> => {
+      // Get all of the matching assignments
+      const assignments =
         vacancyDetailIds && vacancyDetailIds.length > 0
-          ? vacancyDetails?.filter(d =>
-              vacancyDetailIds.find(i => i === d.vacancyDetailId)
+          ? (state.assignmentsByDate ?? []).filter(a =>
+              vacancyDetailIds.includes(a.vacancyDetailId ?? "")
             )
-          : vacancyDetails?.filter(d =>
+          : (state.assignmentsByDate ?? []).filter(a =>
               vacancyDetailDates?.find(date =>
-                isSameDay(date, new Date(d.startTime))
+                isSameDay(date, a.startTimeLocal)
               )
             );
 
-      if (
-        !detailsToCancelAssignmentsFor ||
-        detailsToCancelAssignmentsFor.length === 0
-      ) {
-        return;
+      if (!assignments || assignments.length === 0) {
+        return true;
       }
 
-      if (isCreate) {
+      if (isCreate && !localAbsence) {
         dispatch({
           action: "updateAssignments",
-          assignments: detailsToCancelAssignmentsFor.map(d => {
-            return {
-              startTimeLocal: parseISO(d.startTime),
-              vacancyDetailId: d.vacancyDetailId,
-              employee: {
-                id: d.assignmentEmployeeId ?? "",
-                firstName: d.assignmentEmployeeFirstName ?? "",
-                lastName: d.assignmentEmployeeLastName ?? "",
-              },
-            };
-          }),
-          add: false,
+          assignments: assignments,
+          addRemoveOrUpdate: "remove",
         });
+        return true;
       } else {
-        // TODO: When I tackle Edit, then actually cancel a live Assignment
-        // // Get all of the Assignment Ids and Row Versions to Cancel
-        // const assignmentsToCancel: CancelVacancyAssignmentInput[] = detailsToCancelAssignmentsFor.reduce(
-        //   (accumulator: CancelVacancyAssignmentInput[], detail) => {
-        //     const matchingAssignment = accumulator.find(
-        //       a => a.assignmentId === detail.assignment?.id
-        //     );
-        //     if (matchingAssignment) {
-        //       matchingAssignment.vacancyDetailIds?.push(detail.id!);
-        //     } else {
-        //       accumulator.push({
-        //         assignmentId: detail.assignment?.id ?? "",
-        //         rowVersion: detail.assignment?.rowVersion ?? "",
-        //         vacancyDetailIds: [detail.id!],
-        //       });
-        //     }
-        //     return accumulator;
-        //   },
-        //   []
-        // );
-        // for (let index = 0; index < assignmentsToCancel.length; index++) {
-        //   const a = assignmentsToCancel[index];
-        //   const result = await cancelAssignment({
-        //     variables: {
-        //       assignment: a,
-        //     },
-        //   });
-        //   if (result?.data) {
-        //     if (a.vacancyDetailIds) {
-        //       localDetailIdsToClearAssignmentsOn.push(...a.vacancyDetailIds);
-        //     }
-        //     updatedDetails
-        //       .filter(
-        //         d =>
-        //           d.assignment?.id &&
-        //           d.assignment?.id ===
-        //             result?.data?.assignment?.cancelAssignment?.id
-        //       )
-        //       .forEach(d => {
-        //         if (d.assignment) {
-        //           d.assignment.rowVersion =
-        //             result.data?.assignment?.cancelAssignment?.rowVersion;
-        //         }
-        //       });
-        //   }
-        // }
+        // Get all of the Assignment Ids and Row Versions to Cancel
+        const assignmentsToCancel: CancelVacancyAssignmentInput[] = assignments.reduce(
+          (accumulator: CancelVacancyAssignmentInput[], assignment) => {
+            const matchingAssignment = accumulator.find(
+              a => a.assignmentId === assignment.assignmentId
+            );
+            if (matchingAssignment) {
+              matchingAssignment.vacancyDetailIds?.push(
+                assignment.vacancyDetailId!
+              );
+            } else {
+              accumulator.push({
+                assignmentId: assignment.assignmentId ?? "",
+                rowVersion: assignment.assignmentRowVersion ?? "",
+                vacancyDetailIds: [assignment.vacancyDetailId!],
+              });
+            }
+            return accumulator;
+          },
+          []
+        );
+
+        let assignmentsByDate = [...(state.assignmentsByDate ?? [])];
+        let allCancellationsSuccessful = true;
+        for (let index = 0; index < assignmentsToCancel.length; index++) {
+          const toCancel = assignmentsToCancel[index];
+          const result = await cancelAssignment({
+            variables: {
+              assignment: toCancel,
+            },
+          });
+          if (result?.data) {
+            // Possible we just cancelled part of an assignment
+            // which would result in a new RowVersion for that assignment object
+            assignmentsByDate.forEach(a => {
+              if (
+                a.assignmentId &&
+                a.assignmentId ===
+                  result?.data?.assignment?.cancelAssignment?.id
+              ) {
+                a.assignmentRowVersion =
+                  result.data?.assignment?.cancelAssignment?.rowVersion;
+              }
+            });
+
+            if (toCancel.vacancyDetailIds) {
+              // Remove any assignments whose vacancyDetailId was included
+              assignmentsByDate = assignmentsByDate.filter(
+                a =>
+                  a.vacancyDetailId &&
+                  !toCancel.vacancyDetailIds?.includes(a.vacancyDetailId)
+              );
+            }
+          } else {
+            allCancellationsSuccessful = false;
+          }
+        }
+
+        // Update the assignment info stored in state
+        dispatch({
+          action: "updateAssignments",
+          assignments: assignmentsByDate,
+          addRemoveOrUpdate: "update",
+        });
+        return allCancellationsSuccessful;
       }
     },
-    [isCreate, state.customizedVacanciesInput, state.projectedVacancyDetails]
+    [localAbsence, cancelAssignment, isCreate, state.assignmentsByDate]
   );
+
+  const [assignVacancy] = useMutationBundle(AssignVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const onAssignSub = React.useCallback(
     async (
@@ -297,7 +398,9 @@ export const AbsenceUI: React.FC<Props> = props => {
       vacancyDetailDates?: Date[]
     ) => {
       const vacancyDetails =
-        state.customizedVacanciesInput ?? state.projectedVacancyDetails;
+        state.customizedVacanciesInput ??
+        state.projectedVacancyDetails ??
+        state.initialVacancyDetails;
 
       // Get all of the matching details
       const detailsToAssign = vacancyDetailIds
@@ -329,55 +432,59 @@ export const AbsenceUI: React.FC<Props> = props => {
               },
             };
           }),
-          add: true,
+          addRemoveOrUpdate: "add",
         });
       } else {
-        // TODO: When I tackle Edit, then actually assign a Sub on demand
-        // // Cancel any existing assignments on these Details
-        // await onCancelAssignment(vacancyDetailIds);
-        // // Create an Assignment for these Details
-        // const result = await assignVacancy({
-        //   variables: {
-        //     assignment: {
-        //       orgId: params.organizationId,
-        //       vacancyId: vacancy.id,
-        //       employeeId: replacementEmployeeId,
-        //       vacancyDetailIds: detailsToAssign.map(d => d.id!),
-        //     },
-        //   },
-        // });
-        // const assignment = result?.data?.vacancy?.assignVacancy as Assignment;
-        // if (assignment) {
-        //   setVacancy({
-        //     ...vacancy,
-        //     details: vacancy.details.map(d => {
-        //       if (!vacancyDetailIds?.find(i => d.id === i)) {
-        //         return d;
-        //       }
-        //       return {
-        //         ...d,
-        //         assignment: {
-        //           id: assignment.id,
-        //           rowVersion: assignment.rowVersion,
-        //           employee: {
-        //             id: replacementEmployeeId,
-        //             firstName: replacementEmployeeFirstName,
-        //             lastName: replacementEmployeeLastName,
-        //           },
-        //         },
-        //       };
-        //     }),
-        //   });
-        // }
+        // Cancel any existing assignments on these Details
+        await onCancelAssignment(vacancyDetailIds);
+        // Create an Assignment for these Details
+        const result = await assignVacancy({
+          variables: {
+            assignment: {
+              orgId: organizationId,
+              vacancyId: state.vacancyId ?? "",
+              employeeId: replacementEmployeeId,
+              vacancyDetailIds: compact(
+                detailsToAssign.map(d => d.vacancyDetailId)
+              ),
+            },
+          },
+        });
+        const assignment = result?.data?.vacancy?.assignVacancy as Assignment;
+        if (assignment) {
+          // Update the assignments information in state
+          dispatch({
+            action: "updateAssignments",
+            assignments: detailsToAssign.map(d => {
+              return {
+                startTimeLocal: parseISO(d.startTime),
+                vacancyDetailId: d.vacancyDetailId,
+                assignmentId: assignment.id,
+                assignmentRowVersion: assignment.rowVersion,
+                employee: {
+                  id: replacementEmployeeId,
+                  firstName: replacementEmployeeFirstName,
+                  lastName: replacementEmployeeLastName,
+                },
+              };
+            }),
+            addRemoveOrUpdate: "add",
+          });
+        }
       }
 
       setStep("absence");
     },
     [
+      assignVacancy,
       isCreate,
+      onCancelAssignment,
+      organizationId,
       setStep,
       state.customizedVacanciesInput,
+      state.initialVacancyDetails,
       state.projectedVacancyDetails,
+      state.vacancyId,
     ]
   );
 
@@ -416,9 +523,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       return undefined;
     }
 
-    const datesToAssign = state.vacancySummaryDetailsToAssign.map(
-      vsd => vsd.date
-    );
+    const datesToAssign = vacancySummaryDetailsToAssign.map(vsd => vsd.date);
     const vacanciesWithFilteredDetails = state.projectedVacancies.map(v => {
       return {
         ...v,
@@ -428,14 +533,23 @@ export const AbsenceUI: React.FC<Props> = props => {
       };
     });
     return vacanciesWithFilteredDetails;
-  }, [state.projectedVacancies, state.vacancySummaryDetailsToAssign]);
+  }, [state.projectedVacancies, vacancySummaryDetailsToAssign]);
 
   // Ultimately create or update the Absence
   const save = React.useCallback(
-    async (formValues: AbsenceFormData, ignoreWarnings?: boolean) => {
+    async (
+      formValues: AbsenceFormData,
+      ignoreWarnings?: boolean
+    ): Promise<AbsenceFormData | undefined> => {
+      const vacancyDetails =
+        state.customizedVacanciesInput ??
+        state.projectedVacancyDetails ??
+        state.initialVacancyDetails;
+
       let absenceInput = buildAbsenceInput(
         formValues,
         state,
+        vacancyDetails ?? [],
         disabledDates,
         false
       );
@@ -451,33 +565,103 @@ export const AbsenceUI: React.FC<Props> = props => {
         };
       }
 
-      const absence = await saveAbsence(absenceInput);
-      if (!absence) {
+      const updatedAbsence = await saveAbsence(absenceInput);
+      if (!updatedAbsence) {
         return;
       }
 
-      setAbsence(absence);
+      setLocalAbsence(updatedAbsence);
+      dispatch({ action: "resetAfterSave", updatedAbsence });
       if (isCreate) {
+        // Show the User the confirmation screen
         setStep("confirmation");
+      } else {
+        openSnackbar({
+          message: t("The absence has been updated"),
+          dismissable: true,
+          status: "success",
+          autoHideDuration: 5000,
+        });
       }
+
+      // When editing an Absence, this will provide us with a
+      // fresh version of the form data that we can reset the form with
+      return buildFormData(updatedAbsence);
     },
-    [disabledDates, isCreate, saveAbsence, setStep, state]
+    [disabledDates, isCreate, openSnackbar, saveAbsence, setStep, state, t]
   );
 
-  const absenceDetails = absence?.vacancies
-    ? flatMap(compact(absence.vacancies), v => compact(v.details))
+  const actionMenuOptions = React.useMemo(() => {
+    const options: Option[] = [
+      {
+        name: t("Activity Log"),
+        onClick: () => {
+          history.push(
+            AbsenceActivityLogRoute.generate({
+              organizationId: organizationId,
+              absenceId: localAbsence?.id ?? "",
+            })
+          );
+        },
+        permissions: (
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string
+        ) =>
+          canViewAbsVacActivityLog(
+            permissions,
+            isSysAdmin,
+            !actingAsEmployee,
+            orgId
+          ),
+      },
+    ];
+    const vacancies = compact(localAbsence?.vacancies ?? []);
+    if (vacancies.length > 0) {
+      options.push({
+        name: t("Notification Log"),
+        onClick: () => {
+          history.push(
+            AbsenceVacancyNotificationLogRoute.generate({
+              organizationId: organizationId,
+              vacancyId: state.vacancyId ?? "",
+            })
+          );
+        },
+        permissions: [PermissionEnum.AbsVacViewNotificationLog],
+      });
+    }
+    return options;
+  }, [
+    actingAsEmployee,
+    history,
+    localAbsence?.id,
+    localAbsence?.vacancies,
+    organizationId,
+    state.vacancyId,
+    t,
+  ]);
+
+  const allVacancyDetails = localAbsence?.vacancies
+    ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
     : [];
-  const hasFilledVacancies = absenceDetails.some(d => d.isFilled);
-  const hasVerifiedAssignments = absenceDetails.some(d => d.verifiedAtUtc);
+  const hasFilledVacancies = allVacancyDetails.some(d => d.isFilled);
+  const hasVerifiedAssignments = allVacancyDetails.some(d => d.verifiedAtUtc);
 
   const canDeleteAbsence =
-    actingAsEmployee && absence
-      ? isAfter(absence.startTimeLocal, new Date()) &&
+    actingAsEmployee && localAbsence
+      ? isAfter(parseISO(localAbsence.startTimeLocal), new Date()) &&
         !hasFilledVacancies &&
-        absence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
-        absence.approvalStatus !== ApprovalStatus.Approved &&
+        localAbsence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
+        localAbsence.approvalStatus !== ApprovalStatus.Approved &&
         !hasVerifiedAssignments
       : true;
+
+  const canEditDatesAndTimes =
+    !state.isClosed &&
+    (isCreate ||
+      !actingAsEmployee ||
+      (!hasFilledVacancies && !some(state.absenceDates, isPast)));
 
   return (
     <>
@@ -533,7 +717,12 @@ export const AbsenceUI: React.FC<Props> = props => {
           }),
         })}
         onSubmit={async (data, e) => {
-          await save(data);
+          const formData = await save(data);
+          if (formData) {
+            e.resetForm({
+              values: formData,
+            });
+          }
         }}
       >
         {({
@@ -548,9 +737,42 @@ export const AbsenceUI: React.FC<Props> = props => {
           initialValues,
           errors,
         }) => {
+          // Not necessarily if any part of the form has changes, but do we have
+          // changes to the Absence that would prevent us from taking sub
+          // assignment actions and require the User to save before taking those actions
+          const unsavedAbsenceDetailChanges =
+            !isEqual(initialValues.details, values.details) ||
+            initialAbsenceFormData.needsReplacement !== values.needsReplacement;
+
+          // Complicated hierarchy to what vacancy details are the ones we want
+          // to consider when displaying information or taking action.
+          //  1. The "state.customizedVacanciesInput" always take precedence, because
+          //    their presence means the User went to Edit Sub Details and made explicit
+          //    changes to their Vacancy Details and we don't want to lose those
+          //  2. On Create, "state.projectedVacancyDetails" are all we got so use those. On Edit, we
+          //    only want to use them if the User has made some relevant changes to the Absence Details
+          //  3. Now we can use the "state.initialVacancyDetails". These only get populated on Edit and
+          //    will be updated everytime the User successfully saves the Absence
+          const vacancyDetails =
+            state.customizedVacanciesInput ||
+            ((unsavedAbsenceDetailChanges || isCreate) &&
+              state.projectedVacancyDetails) ||
+            state.initialVacancyDetails;
+
+          // Because the information from the Edit Sub Details screen is stored
+          // in state and not as a part of this form, we have to consider that when
+          // determining if the overall interface is currently dirty
+          const formIsDirty =
+            dirty || !isEqual(state.initialVacancyDetails, vacancyDetails);
+
+          // The object we send to the server when getting projected vacancies
+          // or projected absence usage is not the exact same as what we would send
+          // on a Create or Update call so we define a specific object for those
+          // projected queries and the components that house them to utilize
           const inputForProjectedCalls = buildAbsenceInput(
             values,
             state,
+            vacancyDetails ?? [],
             disabledDates,
             true
           ) as AbsenceCreateInput;
@@ -558,12 +780,25 @@ export const AbsenceUI: React.FC<Props> = props => {
           return (
             <>
               <form id="absence-form" onSubmit={handleSubmit}>
+                <DiscardChangesDialog
+                  onCancel={() => {
+                    resetForm();
+                    dispatch({
+                      action: "resetToInitialState",
+                      initialState: initialAbsenceState(),
+                    });
+                    setCancelDialogIsOpen(false);
+                  }}
+                  onClose={() => setCancelDialogIsOpen(false)}
+                  open={cancelDialogIsOpen}
+                />
                 <Prompt
                   message={location => {
                     if (
                       match.url === location.pathname ||
-                      (absence?.id && step === "confirmation") ||
-                      !dirty
+                      (localAbsence?.id && step === "confirmation") ||
+                      !formIsDirty ||
+                      state.isClosed
                     ) {
                       // We're not actually leaving the route
                       // OR the Absence has just been created and we're on the Confirmation screen
@@ -596,20 +831,44 @@ export const AbsenceUI: React.FC<Props> = props => {
                       )}
                       apolloErrors={saveErrorsInfo?.error ?? null}
                       onClose={onErrorsConfirmed}
-                      continueAction={async () => await save(values, true)}
+                      continueAction={async () => {
+                        const formData = await save(values, true);
+                        if (formData) {
+                          resetForm({
+                            values: formData,
+                          });
+                        }
+                      }}
                     />
-                    <AbsenceVacancyHeader
-                      pageHeader={
-                        isCreate
-                          ? t("Create absence")
-                          : `${t("Edit absence")} #${state.absenceId}`
-                      }
-                      subHeader={
-                        !actingAsEmployee
-                          ? `${employee.firstName} ${employee.lastName}`
-                          : undefined
-                      }
-                    />
+                    <div className={classes.titleContainer}>
+                      <AbsenceVacancyHeader
+                        pageHeader={
+                          isCreate
+                            ? t("Create absence")
+                            : `${t("Edit absence")} #${state.absenceId}`
+                        }
+                        subHeader={
+                          !actingAsEmployee ? (
+                            <EmployeeLink
+                              orgUserId={employee?.id ?? ""}
+                              color="black"
+                            >
+                              {`${employee.firstName} ${employee.lastName}`}
+                            </EmployeeLink>
+                          ) : (
+                            undefined
+                          )
+                        }
+                      />
+                      {!isCreate && (
+                        <div className={classes.headerMenu}>
+                          <ActionMenu
+                            className={classes.actionMenu}
+                            options={actionMenuOptions}
+                          />
+                        </div>
+                      )}
+                    </div>
 
                     {state.approvalState && (
                       <Can do={[PermissionEnum.AbsVacApprovalsView]}>
@@ -636,7 +895,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             onToggleAbsenceDate={d =>
                               dispatch({ action: "toggleDate", date: d })
                             }
-                            closedDates={[]}
+                            closedDates={state.closedDates}
                             currentMonth={state.viewingCalendarMonth}
                             onSwitchMonth={(d: Date) =>
                               dispatch({ action: "switchMonth", month: d })
@@ -649,7 +908,13 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 input: undefined,
                               });
                             }}
-                            setNegativeBalanceWarning={setNegativeBalanceWarning}
+                            setNegativeBalanceWarning={
+                              setNegativeBalanceWarning
+                            }
+                            initialUsageData={initialAbsenceReasonUsageData}
+                            canEditReason={!state.isClosed}
+                            canEditDatesAndTimes={canEditDatesAndTimes}
+                            isClosed={state.isClosed ?? false}
                           />
                         </Grid>
                         <Grid item md={6}>
@@ -663,10 +928,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                             projectionInput={inputForProjectedCalls}
                             absenceDates={state.absenceDates}
                             onAssignSubClick={vacancySummaryDetailsToAssign => {
-                              dispatch({
-                                action: "setVacancySummaryDetailsToAssign",
-                                vacancySummaryDetailsToAssign,
-                              });
+                              setVacancySummaryDetailsToAssign(
+                                vacancySummaryDetailsToAssign
+                              );
                               setStep("preAssignSub");
                             }}
                             onCancelAssignment={onCancelAssignment}
@@ -684,6 +948,18 @@ export const AbsenceUI: React.FC<Props> = props => {
                                 payCodeId
                               )
                             }
+                            disableReplacementInteractions={
+                              !isCreate && unsavedAbsenceDetailChanges
+                            }
+                            vacanciesOverride={
+                              unsavedAbsenceDetailChanges ||
+                              isCreate ||
+                              state.customizedVacanciesInput
+                                ? undefined
+                                : compact(localAbsence?.vacancies)
+                            }
+                            canEditSubDetails={canEditDatesAndTimes}
+                            isClosed={state.isClosed ?? false}
                           />
                         </Grid>
                       </Grid>
@@ -692,13 +968,13 @@ export const AbsenceUI: React.FC<Props> = props => {
                       <Grid item xs={12} className={classes.contentFooter}>
                         <div className={classes.actionButtons}>
                           <div className={classes.unsavedText}>
-                            {(dirty || isCreate) && (
+                            {(formIsDirty || isCreate) && !state.isClosed && (
                               <Typography>
                                 {t("This page has unsaved changes")}
                               </Typography>
                             )}
                           </div>
-                          {deleteAbsence && canDeleteAbsence && !dirty && (
+                          {deleteAbsence && canDeleteAbsence && !formIsDirty && (
                             <Can do={[PermissionEnum.AbsVacDelete]}>
                               <Button
                                 onClick={() => deleteAbsence()}
@@ -709,15 +985,12 @@ export const AbsenceUI: React.FC<Props> = props => {
                               </Button>
                             </Can>
                           )}
-                          {!isCreate && dirty && !state.isClosed && (
+                          {!isCreate && formIsDirty && !state.isClosed && (
                             <Button
-                              onClick={() => {
-                                // reset the form and the state
-                                resetForm();
-                              }}
+                              onClick={() => setCancelDialogIsOpen(true)}
                               variant="outlined"
                               className={classes.cancelButton}
-                              disabled={!dirty}
+                              disabled={!formIsDirty || isSubmitting}
                             >
                               {t("Discard Changes")}
                             </Button>
@@ -729,7 +1002,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               variant="contained"
                               className={classes.saveButton}
                               disabled={
-                                !dirty ||
+                                !formIsDirty ||
                                 isSubmitting ||
                                 negativeBalanceWarning ||
                                 state.isClosed
@@ -754,24 +1027,41 @@ export const AbsenceUI: React.FC<Props> = props => {
                     employeeId={employee.id}
                     positionId={position?.id}
                     positionName={position?.title}
-                    vacancySummaryDetails={state.vacancySummaryDetailsToAssign}
+                    vacancySummaryDetails={vacancySummaryDetailsToAssign}
                     useVacancySummaryDetails={true}
-                    vacancies={vacanciesToAssign}
+                    existingVacancy={!!state.vacancyId}
+                    selectButtonText={!isCreate ? t("Assign") : undefined}
+                    vacancies={!state.vacancyId ? vacanciesToAssign : undefined}
+                    vacancyId={state.vacancyId}
+                    vacancyDetailIdsToAssign={
+                      state.vacancyId
+                        ? compact(
+                            vacancySummaryDetailsToAssign.map(
+                              v => v.vacancyDetailId
+                            )
+                          )
+                        : undefined
+                    }
                   />
                 )}
                 {step === "confirmation" && (
                   <Confirmation
                     orgId={organizationId}
-                    absence={absence}
+                    absence={localAbsence}
                     setStep={setStep}
                     actingAsEmployee={actingAsEmployee}
+                    onCancelAssignment={onCancelAssignment}
+                    assignmentsByDate={state.assignmentsByDate}
                     resetForm={() => {
                       // Really important for when an Employee has created an Absence and then clicks
                       // Create New from the Confirmation screen. Their initial form data doesn't change
                       // so we want to make sure everything is set back to an initial state for the
                       // next Absence to be created
                       resetForm();
-                      dispatch({ action: "resetToInitialState", initialState: initialAbsenceState() });
+                      dispatch({
+                        action: "resetToInitialState",
+                        initialState: initialAbsenceState(),
+                      });
                     }}
                   />
                 )}
@@ -783,7 +1073,11 @@ export const AbsenceUI: React.FC<Props> = props => {
                   employeeName={`${employee.firstName} ${employee.lastName}`}
                   positionName={position?.title}
                   onCancel={() => setStep("absence")}
-                  details={state.projectedVacancyDetails ?? []}
+                  details={
+                    state.projectedVacancyDetails ??
+                    state.initialVacancyDetails ??
+                    []
+                  }
                   onChangedVacancies={vacancyDetails => {
                     onChangedVacancies(vacancyDetails);
                     // If our Vacancy Details have changed so that they all share the same
@@ -830,6 +1124,23 @@ export const AbsenceUI: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  titleContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignText: "center",
+    justifyContent: "space-between",
+  },
+  headerMenu: {
+    marginTop: "30px",
+    display: "flex",
+    flexDirection: "column",
+    alignText: "center",
+    justifyContent: "space-between",
+  },
+  actionMenu: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
   content: {
     marginTop: theme.spacing(3),
   },
@@ -866,6 +1177,7 @@ const useStyles = makeStyles(theme => ({
 const buildAbsenceInput = (
   formValues: AbsenceFormData,
   state: AbsenceState,
+  vacancyDetails: VacancyDetail[],
   disabledDates: Date[],
   forProjections: boolean
 ): AbsenceCreateInput | AbsenceUpdateInput | null => {
@@ -899,38 +1211,51 @@ const buildAbsenceInput = (
     ...absence,
     notesToApprover: forProjections ? undefined : formValues.notesToApprover,
     adminOnlyNotes: forProjections ? undefined : formValues.adminOnlyNotes,
-    details: createAbsenceDetailInput(formValues.details),
+    details: createAbsenceDetailInput(formValues.details, forProjections),
   };
 
   const hasEditedDetails = !!state.customizedVacanciesInput;
-  const vacancyDetails =
-    state.customizedVacanciesInput ?? state.projectedVacancyDetails;
 
   // Build Vacancy Details in case we want to tell the server to use our Details
   // instead of it coming up with its own
-  const vDetails =
-    vacancyDetails?.map(v => ({
-      date: v.date,
-      locationId: v.locationId,
-      startTime: secondsSinceMidnight(
-        parseTimeFromString(format(convertStringToDate(v.startTime)!, "h:mm a"))
-      ),
-      endTime: secondsSinceMidnight(
-        parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
-      ),
-      payCodeId: v.payCodeId ?? null,
-      accountingCodeAllocations: mapAccountingCodeValueToAccountingCodeAllocations(
-        v.accountingCodeAllocations,
-        true
-      ),
-      prearrangedReplacementEmployeeId: v.assignmentEmployeeId,
-    })) ?? undefined;
-
-  const prearrangedReplacementEmployeeIdForEntireVacancy =
-    vDetails &&
-    uniq(vDetails.map(vd => vd.prearrangedReplacementEmployeeId)).length === 1
-      ? vDetails[0]?.prearrangedReplacementEmployeeId
+  const vDetails = vacancyDetails?.map(v => {
+    // If creating, look to see if we're trying to prearrange anyone for this detail
+    const assignment = !state.absenceId
+      ? state.assignmentsByDate?.find(
+          a =>
+            (v.vacancyDetailId && a.vacancyDetailId === v.vacancyDetailId) ||
+            (!v.vacancyDetailId &&
+              isSameDay(a.startTimeLocal, startOfDay(parseISO(v.date))))
+        )
       : undefined;
+
+    return (
+      {
+        date: v.date,
+        locationId: v.locationId,
+        startTime: secondsSinceMidnight(
+          parseTimeFromString(
+            format(convertStringToDate(v.startTime)!, "h:mm a")
+          )
+        ),
+        endTime: secondsSinceMidnight(
+          parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
+        ),
+        payCodeId: !hasEditedDetails ? undefined : v.payCodeId ?? null,
+        accountingCodeAllocations: !hasEditedDetails
+          ? undefined
+          : mapAccountingCodeValueToAccountingCodeAllocations(
+              v.accountingCodeAllocations,
+              true
+            ),
+        prearrangedReplacementEmployeeId: assignment?.employee?.id,
+      } ?? undefined
+    );
+  });
+
+  const notesToReplacement = forProjections
+    ? undefined
+    : formValues.notesToReplacement;
 
   // Populate the Vacancies on the Absence
   absence = {
@@ -940,12 +1265,13 @@ const buildAbsenceInput = (
       */
     vacancies: [
       {
-        positionId: state.positionId,
-        useSuppliedDetails: hasEditedDetails && vDetails && vDetails.length > 0,
+        positionId: state.positionId ?? undefined,
+        useSuppliedDetails:
+          (hasEditedDetails || !!notesToReplacement) &&
+          vDetails &&
+          vDetails.length > 0,
         needsReplacement: formValues.needsReplacement,
-        notesToReplacement: forProjections
-          ? undefined
-          : formValues.notesToReplacement,
+        notesToReplacement: notesToReplacement,
         details: vDetails,
         accountingCodeAllocations:
           hasEditedDetails || !formValues.accountingCodeAllocations
@@ -958,7 +1284,6 @@ const buildAbsenceInput = (
           hasEditedDetails || !formValues.payCodeId
             ? undefined
             : formValues.payCodeId,
-        prearrangedReplacementEmployeeId: prearrangedReplacementEmployeeIdForEntireVacancy,
       },
     ],
   };
@@ -966,10 +1291,12 @@ const buildAbsenceInput = (
 };
 
 const createAbsenceDetailInput = (
-  details: AbsenceDetail[]
+  details: AbsenceDetail[],
+  forProjections: boolean
 ): AbsenceDetailCreateInput[] => {
   return details.map(d => {
     let detail: AbsenceDetailCreateInput = {
+      id: forProjections ? undefined : d.id,
       date: format(d.date, "P"),
       dayPartId: d.dayPart,
       reasons: [{ absenceReasonId: d.absenceReasonId }],
@@ -1002,4 +1329,127 @@ const hasIncompleteDetails = (details: AbsenceDetail[]): boolean => {
           isBefore(d.hourlyEndTime, d.hourlyStartTime)))
   );
   return !!incompleteDetail;
+};
+
+export const buildFormData = (absence: Absence): AbsenceFormData => {
+  // Figure out the details to put into the form
+  const details = compact(absence?.details);
+  const closedDetails = compact(absence?.closedDetails);
+  const detailsToUse = details.length === 0 ? closedDetails : details;
+  const formDetails = compact(detailsToUse).map(d => {
+    return {
+      id: d.id,
+      date: startOfDay(parseISO(d.startDate)),
+      dayPart: d.dayPartId ?? undefined,
+      hourlyStartTime:
+        d.dayPartId === DayPart.Hourly ? parseISO(d.startTimeLocal) : undefined,
+      hourlyEndTime:
+        d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
+      absenceReasonId: d.reasonUsages
+        ? d.reasonUsages[0]?.absenceReasonId
+        : undefined,
+    };
+  });
+
+  const vacancies = compact(absence?.vacancies ?? []);
+  const vacancy = vacancies[0];
+
+  // Figure out the overall accounting code allocations
+  // that would display on the Absence Details view
+  const accountingCodeAllocations = compact(
+    vacancy?.details
+  )[0]?.accountingCodeAllocations?.map(a => {
+    return {
+      accountingCodeId: a.accountingCodeId,
+      accountingCodeName: a.accountingCode?.name,
+      allocation: a.allocation,
+    };
+  });
+
+  // Figure out if the form needs to enforce
+  // Notes To Approver being required
+  const allReasons = compact(
+    flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
+  );
+  const notesToApproverRequired = allReasons.find(
+    a => a.absenceReason?.requireNotesToAdmin
+  );
+
+  return {
+    details: formDetails,
+    notesToApprover: absence?.notesToApprover ?? "",
+    adminOnlyNotes: absence?.adminOnlyNotes ?? "",
+    needsReplacement: !!vacancy,
+    notesToReplacement: vacancy?.notesToReplacement ?? "",
+    requireNotesToApprover: !!notesToApproverRequired,
+    payCodeId: vacancy?.details
+      ? vacancy?.details[0]?.payCodeId ?? undefined
+      : undefined,
+    accountingCodeAllocations: vacancy?.details
+      ? mapAccountingCodeAllocationsToAccountingCodeValue(
+          accountingCodeAllocations ?? undefined
+        )
+      : undefined,
+    sameReasonForAllDetails: detailsHaveTheSameReasons(formDetails),
+    sameTimesForAllDetails: detailsHaveTheSameTimes(formDetails),
+  };
+};
+
+const detailsHaveTheSameReasons = (details: AbsenceDetail[]) => {
+  if (!details || details.length === 0) {
+    return true;
+  }
+
+  const absenceReasonIdToCompare = details[0].absenceReasonId;
+  for (let index = 0; index < details.length; index++) {
+    const absenceReasonId = details[index].absenceReasonId;
+    if (!absenceReasonId && !absenceReasonIdToCompare) {
+      continue;
+    }
+
+    if (absenceReasonId !== absenceReasonIdToCompare) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const detailsHaveTheSameTimes = (details: AbsenceDetail[]) => {
+  if (!details || details.length === 0) {
+    return true;
+  }
+
+  const timesToCompare = {
+    dayPart: details[0].dayPart,
+    hourlyStartTime: details[0].hourlyStartTime,
+    hourlyEndTime: details[0].hourlyEndTime,
+  };
+  for (let index = 0; index < details.length; index++) {
+    const times = {
+      dayPart: details[index].dayPart,
+      hourlyStartTime: details[index].hourlyStartTime,
+      hourlyEndTime: details[index].hourlyEndTime,
+    };
+    if (!times?.dayPart && !timesToCompare?.dayPart) {
+      continue;
+    }
+
+    if (times.dayPart !== timesToCompare.dayPart) {
+      return false;
+    }
+
+    // If Hourly, check if the start and end are the same
+    if (
+      times.dayPart === DayPart.Hourly &&
+      (times.hourlyStartTime?.toISOString() !==
+        timesToCompare.hourlyStartTime?.toISOString() ||
+        times.hourlyEndTime?.toISOString() !==
+          timesToCompare.hourlyEndTime?.toISOString())
+    ) {
+      return false;
+    }
+  }
+
+  return true;
 };

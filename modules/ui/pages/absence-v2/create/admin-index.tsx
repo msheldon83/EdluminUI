@@ -110,6 +110,8 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
         accountingCodeAllocations: defaultAccountingCodeAllocations,
         payCodeId:
           employee.primaryPosition?.positionType?.payCodeId ?? undefined,
+        sameReasonForAllDetails: true,
+        sameTimesForAllDetails: true,
       }}
       initialAbsenceState={() => {
         return {
@@ -118,9 +120,9 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
           positionId: employee.primaryPosition?.id ?? "0",
           viewingCalendarMonth: startOfMonth(new Date()),
           absenceDates: [],
-          vacancySummaryDetailsToAssign: [],
           isClosed: false,
           closedDates: [],
+          assignmentsByDate: [],
         };
       }}
       saveAbsence={async data => {

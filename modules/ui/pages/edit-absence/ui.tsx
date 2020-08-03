@@ -60,7 +60,6 @@ import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAbsVacActivityLog } from "helpers/permissions";
@@ -78,6 +77,7 @@ import {
   mapAccountingCodeAllocationsToAccountingCodeValue,
   mapAccountingCodeValueToAccountingCodeAllocations,
 } from "helpers/accounting-code-allocations";
+import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
 
 type Props = {
   firstName: string;

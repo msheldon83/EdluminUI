@@ -132,7 +132,7 @@ export const AssignSub: React.FC<Props> = props => {
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 200;
+  const collapsedVacancyDetailsHeight = 225;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -155,6 +155,8 @@ export const AssignSub: React.FC<Props> = props => {
         orgId: props.orgId,
         vacancyId: props.vacancies
           ? props.vacancies[0]?.id ?? undefined
+          : props.vacancyId
+          ? props.vacancyId
           : undefined,
         vacancy:
           props.vacancies && !props.vacancies[0]?.id
@@ -366,11 +368,15 @@ export const AssignSub: React.FC<Props> = props => {
                 <VacancySummary
                   vacancySummaryDetails={vacancySummaryDetails}
                   onAssignClick={async () => {}}
-                  onCancelAssignment={async () => {}}
+                  onCancelAssignment={async () => true}
                   detailsOnly={true}
                   divRef={vacancyDetailsRef}
-                  showAccountingCodes={accountingCodes.length > 0}
-                  showPayCodes={payCodes.length > 0}
+                  showAccountingCodes={
+                    accountingCodes.length > 0 && (props.isForVacancy ?? false)
+                  }
+                  showPayCodes={
+                    payCodes.length > 0 && (props.isForVacancy ?? false)
+                  }
                 />
               </div>
             </>

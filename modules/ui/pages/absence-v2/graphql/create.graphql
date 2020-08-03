@@ -3,6 +3,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
     create(absence: $absence) {
       id
       rowVersion
+      orgId
       details {
         id
         actualDuration
@@ -72,6 +73,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
           assignment {
             id
             rowVersion
+            employeeId
             employee {
               id
               firstName
@@ -89,6 +91,8 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
             }
             allocation
           }
+          isFilled
+          verifiedAtUtc
         }
         absence {
           startDate
@@ -101,6 +105,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
           }
         }
       }
+      approvalStatus
       createdUtc
       changedUtc
     }

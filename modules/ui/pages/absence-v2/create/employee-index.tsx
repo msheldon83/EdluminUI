@@ -61,6 +61,8 @@ export const EmployeeCreateAbsence: React.FC<{}> = props => {
         details: [],
         needsReplacement:
           employee.primaryPosition?.needsReplacement === NeedsReplacement.Yes,
+        sameReasonForAllDetails: true,
+        sameTimesForAllDetails: true,
       }}
       initialAbsenceState={() => {
         return {
@@ -69,9 +71,9 @@ export const EmployeeCreateAbsence: React.FC<{}> = props => {
           positionId: employee.primaryPosition?.id ?? "0",
           viewingCalendarMonth: startOfMonth(new Date()),
           absenceDates: [],
-          vacancySummaryDetailsToAssign: [],
           isClosed: false,
           closedDates: [],
+          assignmentsByDate: [],
         };
       }}
       saveAbsence={async data => {

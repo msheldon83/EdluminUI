@@ -12,7 +12,7 @@ import { GetProjectedAbsenceUsage } from "../graphql/get-projected-absence-usage
 import { useQueryBundle } from "graphql/hooks";
 import { AbsenceDays } from "./absence-days";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
-import { BalanceUsage } from "./balance-usage";
+import { BalanceUsage, AbsenceReasonUsageData } from "./balance-usage";
 
 type Props = {
   absenceId?: string;
@@ -21,13 +21,17 @@ type Props = {
   actingAsEmployee: boolean;
   onToggleAbsenceDate: (d: Date) => void;
   absenceDates: Date[];
+  isClosed: boolean;
   closedDates?: Date[];
   currentMonth: Date;
   onSwitchMonth: (month: Date) => void;
   projectionInput: AbsenceCreateInput | null;
   positionTypeId?: string;
   onTimeChange: () => void;
+  canEditReason: boolean;
+  canEditDatesAndTimes: boolean;
   setNegativeBalanceWarning: React.Dispatch<React.SetStateAction<boolean>>;
+  initialUsageData?: AbsenceReasonUsageData[];
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -48,7 +52,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
     positionTypeId,
     absenceDates,
     onTimeChange,
+    canEditReason,
+    canEditDatesAndTimes,
     setNegativeBalanceWarning,
+    initialUsageData,
+    isClosed,
     closedDates = [],
   } = props;
 
@@ -82,7 +90,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
       },
       ignoreAbsenceId: absenceId ?? undefined,
     },
-    skip: !projectionInput,
+    skip: !projectionInput || isClosed,
     // fetchPolicy: "no-cache",
     onError: () => {
       // This shouldn't prevent the User from continuing on
@@ -145,18 +153,27 @@ export const AbsenceDetails: React.FC<Props> = props => {
           employeeId={employeeId}
           currentMonth={currentMonth}
           onMonthChange={onSwitchMonth}
-          onSelectDates={dates => dates.forEach(onToggleAbsenceDate)}
+          onSelectDates={dates => {
+            if (canEditDatesAndTimes) {
+              dates.forEach(onToggleAbsenceDate);
+            }
+          }}
         />
       </div>
-
-      {/* {showClosedDatesBanner && (
-          <Grid className={classes.closedDayBanner} item xs={12}>
-            <Typography>
-              {t("The following days of this absence fall on a closed day:")}
-            </Typography>
-            {renderClosedDaysBanner}
-          </Grid>
-        )} */}
+      {closedDates.length > 0 && (
+        <div className={classes.closedDayBanner}>
+          <Typography>
+            {t("The following days of this absence fall on a closed day:")}
+          </Typography>
+          <ul>
+            {closedDates.map((c, i) => {
+              return (
+                <li key={`closed-${i}`}>{format(c, "EEE MMMM d, yyyy")}</li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       <BalanceUsage
         orgId={organizationId}
@@ -165,6 +182,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
         actingAsEmployee={actingAsEmployee}
         usages={absenceBalanceUsages}
         setNegativeBalanceWarning={setNegativeBalanceWarning}
+        initialUsageData={initialUsageData}
       />
 
       <div>
@@ -174,6 +192,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
           employeeId={employeeId}
           positionTypeId={positionTypeId}
           onTimeChange={onTimeChange}
+          canEditReason={canEditReason}
+          sameReasonForAllDetails={values.sameReasonForAllDetails}
+          canEditTimes={canEditDatesAndTimes}
+          sameTimesForAllDetails={values.sameTimesForAllDetails}
         />
       </div>
 
@@ -193,7 +215,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           }
           name={"notesToApprover"}
           isSubmitted={!dirty}
-          initialAbsenceCreation={!values.id}
+          initialAbsenceCreation={!absenceId}
           value={values.notesToApprover}
           validationMessage={errors.notesToApprover}
           required={values.requireNotesToApprover}
@@ -209,15 +231,11 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
           <NoteField
             onChange={async e =>
-              setFieldValue(
-                "adminOnlyNotes",
-                e.target.value,
-                !!errors.notesToApprover
-              )
+              setFieldValue("adminOnlyNotes", e.target.value)
             }
             name={"adminOnlyNotes"}
             isSubmitted={!dirty}
-            initialAbsenceCreation={!values.id}
+            initialAbsenceCreation={!absenceId}
             value={values.adminOnlyNotes}
           />
         </div>
@@ -236,12 +254,12 @@ const useStyles = makeStyles(theme => ({
   notesSection: {
     paddingTop: theme.spacing(3),
   },
-
   closedDayBanner: {
     marginTop: theme.typography.pxToRem(5),
     backgroundColor: theme.customColors.yellow1,
     padding: theme.typography.pxToRem(10),
     borderRadius: theme.typography.pxToRem(4),
+    width: "100%",
   },
 }));
 

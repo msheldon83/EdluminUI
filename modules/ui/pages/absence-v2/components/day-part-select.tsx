@@ -18,6 +18,7 @@ import {
 } from "ui/components/absence/helpers";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { TimeInput } from "ui/components/form/time-input";
+import { compact } from "lodash-es";
 
 export type DayPartValue =
   | { part: Exclude<DayPart, DayPart.Hourly> | undefined }
@@ -143,16 +144,23 @@ export const DayPartSelect: React.FC<Props> = props => {
   );
 
   const options: OptionType[] = useMemo(() => {
-    return dayPartOptions.map(type => {
-      const timeDisplay = employeeScheduleTimes
-        ? dayPartToTimesLabel(type, employeeScheduleTimes) ?? ""
-        : "";
-      const label = `${dayPartToLabel(type)} ${timeDisplay}`;
-      return {
-        value: type,
-        label: label,
-      };
-    });
+    return compact(
+      dayPartOptions.map(type => {
+        const timeDisplay = employeeScheduleTimes
+          ? dayPartToTimesLabel(type, employeeScheduleTimes) ?? ""
+          : "";
+
+        if (!timeDisplay && type !== DayPart.Hourly) {
+          return null;
+        }
+
+        const label = `${dayPartToLabel(type)} ${timeDisplay}`;
+        return {
+          value: type,
+          label: label,
+        };
+      })
+    );
   }, [dayPartOptions, employeeScheduleTimes]);
 
   return (
@@ -177,6 +185,7 @@ export const DayPartSelect: React.FC<Props> = props => {
         withResetValue={false}
         aria-label="dayPart"
         className={classes.dayPart}
+        disabled={disabled}
       />
 
       {value?.part === DayPart.Hourly && (

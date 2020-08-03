@@ -17,7 +17,7 @@ type Props = {
   onCancelAssignment?: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
   divRef?: React.RefObject<HTMLDivElement>;
@@ -26,6 +26,7 @@ type Props = {
   isAbsence?: boolean;
   absenceActions?: JSX.Element;
   footerActions?: JSX.Element;
+  allowRemoval?: boolean;
 };
 
 export const VacancySummary: React.FC<Props> = props => {
@@ -46,6 +47,7 @@ export const VacancySummary: React.FC<Props> = props => {
     absenceActions = null,
     footerActions = null,
     noDaysChosenText = t("No days chosen"),
+    allowRemoval = false,
   } = props;
 
   const assignmentGroups = useMemo(() => {
@@ -53,9 +55,13 @@ export const VacancySummary: React.FC<Props> = props => {
       return [];
     }
 
-    const groups = buildAssignmentGroups(vacancySummaryDetails);
+    const groups = buildAssignmentGroups(
+      vacancySummaryDetails,
+      !showAccountingCodes,
+      !showPayCodes
+    );
     return groups;
-  }, [vacancySummaryDetails]);
+  }, [showAccountingCodes, showPayCodes, vacancySummaryDetails]);
 
   const isPartiallyFilled = useMemo(() => {
     if (!vacancySummaryDetails || vacancySummaryDetails.length === 0) {
@@ -107,6 +113,7 @@ export const VacancySummary: React.FC<Props> = props => {
             showPayCodes={showPayCodes}
             showAccountingCodes={showAccountingCodes}
             readOnly={props.readOnly ?? false}
+            allowRemoval={allowRemoval}
           />
         ))}
       </div>

@@ -5,6 +5,7 @@ query GetAbsence($id: ID!) {
       isClosed
       rowVersion
       isDeleted
+      orgId
       approvalState {
         id
         canApprove
@@ -164,6 +165,7 @@ query GetAbsence($id: ID!) {
           assignment {
             id
             rowVersion
+            employeeId
             employee {
               id
               firstName
@@ -182,6 +184,8 @@ query GetAbsence($id: ID!) {
             }
             allocation
           }
+          isFilled
+          verifiedAtUtc
         }
         absenceId
         absence {
@@ -195,6 +199,7 @@ query GetAbsence($id: ID!) {
           }
         }
       }
+      approvalStatus
     }
   }
 }
