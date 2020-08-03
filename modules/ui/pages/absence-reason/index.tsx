@@ -29,7 +29,6 @@ import { GetAllAbsenceReasonCategoriesWithinOrg } from "./graphql/get-absence-re
 import { mergeCatgoriesAndReasons } from "./helpers";
 import { GroupedCategory } from "./types";
 import { Check, Minimize } from "@material-ui/icons";
-import { getDisplayName } from "ui/components/enumHelpers";
 import clsx from "clsx";
 import { ImportDataMultiButton } from "ui/components/data-import/import-data-multi-button";
 
