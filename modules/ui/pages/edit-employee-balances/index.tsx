@@ -34,7 +34,9 @@ import {
 } from "reference-data/absence-reason-categories";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
-import { GetEmployee } from "ui/components/absence/graphql/get-employee.gen";
+import { RecalculateEmployeeBalances } from "./graphql/recalculate-balances.gen";
+import { Can } from "ui/components/auth/can";
+import { canViewAsSysAdmin } from "helpers/permissions";
 
 export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const { openSnackbar } = useSnackbar();
@@ -90,6 +92,33 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
   const onDeleteBalance = async (absenceReasonBalanceId: string) => {
     await deleteBalance({ variables: { absenceReasonBalanceId } });
     await getAbsenceReasonBalances.refetch();
+  };
+
+  const [recalculateBalances] = useMutationBundle(RecalculateEmployeeBalances, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const onRecalculateBalances = async () => {
+    const result = await recalculateBalances({
+      variables: {
+        recalculateEmployeeBalances: {
+          employeeId: params.orgUserId,
+          schoolYearId: schoolYearId,
+        },
+      },
+    });
+    if (result.data) {
+      openSnackbar({
+        message: (
+          <div>{t("This employee's balances have been recalculated")}</div>
+        ),
+        dismissable: true,
+        status: "info",
+      });
+      await getAbsenceReasonBalances.refetch();
+    }
   };
 
   const getEmployee = useQueryBundle(GetEmployeeById, {
@@ -194,6 +223,15 @@ export const EditEmployeePtoBalances: React.FC<{}> = () => {
             />
           </div>
           <div>
+            <Can do={canViewAsSysAdmin}>
+              <Button
+                variant="outlined"
+                onClick={onRecalculateBalances}
+                className={classes.recalculateButton}
+              >
+                {t("Recalculate")}
+              </Button>
+            </Can>
             <ImportDataButton
               orgId={params.organizationId}
               importType={DataImportType.AbsenceReasonBalance}
@@ -278,5 +316,8 @@ const useStyles = makeStyles(theme => ({
     alignItems: "flex-end",
     width: "100%",
     paddingBottom: theme.spacing(2),
+  },
+  recalculateButton: {
+    marginRight: theme.spacing(1),
   },
 }));
