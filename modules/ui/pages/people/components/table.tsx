@@ -82,14 +82,14 @@ const useToolbarStyles = makeStyles(theme => ({
 }));
 
 type HeadProps = {
-  rowCount: number;
+  notSetupUserCount: number;
   extraHeaders: string[];
   numberSelected: number;
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const PeopleTableHead: React.FC<HeadProps> = ({
-  rowCount,
+  notSetupUserCount,
   extraHeaders,
   numberSelected,
   onSelectAllClick,
@@ -102,8 +102,12 @@ const PeopleTableHead: React.FC<HeadProps> = ({
         <Can do={[PermissionEnum.OrgUserInvite]}>
           <TableCell padding="checkbox">
             <Checkbox
-              indeterminate={numberSelected > 0 && numberSelected < rowCount}
-              checked={rowCount > 0 && numberSelected === rowCount}
+              indeterminate={
+                numberSelected > 0 && numberSelected < notSetupUserCount
+              }
+              checked={
+                notSetupUserCount > 0 && numberSelected === notSetupUserCount
+              }
               onChange={onSelectAllClick}
               inputProps={{ "aria-label": t("select all people") }}
             />
@@ -143,11 +147,13 @@ const PeopleRow: React.FC<RowProps> = ({
     <TableRow className={classes.tableRow} onClick={toUserPage}>
       <Can do={[PermissionEnum.OrgUserInvite]}>
         <TableCell padding="checkbox">
-          <Checkbox
-            checked={selected}
-            onClick={event => event.stopPropagation()}
-            onChange={onSelectClick}
-          />
+          {!person.accountSetup && (
+            <Checkbox
+              checked={selected}
+              onClick={event => event.stopPropagation()}
+              onChange={onSelectClick}
+            />
+          )}
         </TableCell>
       </Can>
       <TableCell>
@@ -240,7 +246,11 @@ const BaseTable: React.FC<BaseProps> = ({
     );
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setSelected(event.target.checked ? data.map(n => n.id) : []);
+    setSelected(
+      event.target.checked
+        ? data.filter(d => !d.accountSetup).map(n => n.id)
+        : []
+    );
 
   return (
     <>
@@ -257,7 +267,7 @@ const BaseTable: React.FC<BaseProps> = ({
       <TableContainer>
         <Table>
           <PeopleTableHead
-            rowCount={data.length}
+            notSetupUserCount={data.filter(e => !e.accountSetup).length}
             numberSelected={selected.length}
             onSelectAllClick={handleSelectAllClick}
             extraHeaders={extraColumns.map(c => c.header)}

@@ -2,7 +2,6 @@ import * as React from "react";
 import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { isBefore, isAfter, parseISO } from "date-fns";
 import { GetAbsenceReasonBalances } from "ui/pages/employee-pto-balances/graphql/get-absencereasonbalances.gen";
@@ -245,10 +244,7 @@ export const BalanceUsage: React.FC<Props> = props => {
       {usageAmounts && usageAmounts.length > 0 && (
         <div>
           <div className={classes.reasonHeaderContainer}>
-            <div className={classes.reason}>
-              <InfoIcon color="primary" />
-              <div className={classes.reasonText}>{t("Balance")}</div>
-            </div>
+            <div className={classes.reason}>{t("Balance")}</div>
             <div className={classes.used}>{t("Used")}</div>
             <div className={classes.remaining}>{t("Remaining")}</div>
           </div>
@@ -307,9 +303,6 @@ const useStyles = makeStyles(theme => ({
     width: "50%",
     display: "flex",
     alignItems: "center",
-  },
-  reasonText: {
-    marginLeft: theme.spacing(),
   },
   used: {
     width: "25%",
