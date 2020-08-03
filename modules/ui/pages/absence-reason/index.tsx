@@ -30,6 +30,7 @@ import { mergeCatgoriesAndReasons } from "./helpers";
 import { GroupedCategory } from "./types";
 import { Check, Minimize } from "@material-ui/icons";
 import { getDisplayName } from "ui/components/enumHelpers";
+import clsx from "clsx";
 import { ImportDataMultiButton } from "ui/components/data-import/import-data-multi-button";
 
 export const AbsenceReason: React.FC<{}> = () => {
@@ -82,18 +83,9 @@ export const AbsenceReason: React.FC<{}> = () => {
           <Grid item xs={4}>
             {t(group.name)}
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={2}>
             {group.externalId}
           </Grid>
-          {group.allowNegativeBalance ? (
-            <Grid item xs={3} className={classes.negativeBalanceColCheck}>
-              <Check />
-            </Grid>
-          ) : (
-            <Grid item xs={3} className={classes.negativeBalanceColMin}>
-              <Minimize />
-            </Grid>
-          )}
         </Grid>
         {sortedChildren.map((c, x) => {
           return (
@@ -119,15 +111,27 @@ export const AbsenceReason: React.FC<{}> = () => {
               >
                 {c.name}
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={2}>
                 {c.externalId}
               </Grid>
-              {c.allowNegativeBalance ? (
-                <Grid item xs={3} className={classes.negativeBalanceColCheck}>
+              <Grid item xs={2}>
+                {c.code}
+              </Grid>
+              {c.isRestricted ? (
+                <Grid item xs={2} className={classes.columnCheck}>
                   <Check />
                 </Grid>
               ) : (
-                <Grid item xs={3} className={classes.negativeBalanceColMin}>
+                <Grid item xs={2} className={classes.columnMin}>
+                  <Minimize />
+                </Grid>
+              )}
+              {c.requiresApproval ? (
+                <Grid item xs={2} className={classes.columnCheck}>
+                  <Check />
+                </Grid>
+              ) : (
+                <Grid item xs={2} className={classes.columnMin}>
                   <Minimize />
                 </Grid>
               )}
@@ -237,11 +241,31 @@ export const AbsenceReason: React.FC<{}> = () => {
         <Grid item xs={4} className={classes.columnTitle}>
           {t("Name")}
         </Grid>
-        <Grid item xs={3} className={classes.columnTitle}>
+        <Grid item xs={2} className={classes.columnTitle}>
           {t("Identifier")}
         </Grid>
-        <Grid item xs={3} className={classes.columnTitle}>
-          {t("Allow Negative Balances")}
+        <Grid item xs={2} className={classes.columnTitle}>
+          {t("Code")}
+        </Grid>
+        <Grid
+          item
+          xs={2}
+          className={clsx({
+            [classes.columnTitle]: true,
+            [classes.titlePadding]: true,
+          })}
+        >
+          {t("Restricted")}
+        </Grid>
+        <Grid
+          item
+          xs={2}
+          className={clsx({
+            [classes.columnTitle]: true,
+            [classes.titlePadding]: true,
+          })}
+        >
+          {t("Approval")}
         </Grid>
       </Grid>
       <Grid item container>
@@ -327,13 +351,16 @@ const useStyles = makeStyles(theme => ({
   nameColumn: {
     paddingLeft: theme.typography.pxToRem(20),
   },
-  negativeBalanceColCheck: {
+  columnCheck: {
     paddingLeft: theme.typography.pxToRem(50),
     marginBottom: theme.typography.pxToRem(-5),
   },
-  negativeBalanceColMin: {
+  columnMin: {
     paddingLeft: theme.typography.pxToRem(50),
     marginTop: theme.typography.pxToRem(-8),
+  },
+  titlePadding: {
+    paddingLeft: theme.spacing(3),
   },
   trackingCol: {
     paddingLeft: theme.typography.pxToRem(3),

@@ -49,6 +49,7 @@ export const mergeCatgoriesAndReasons = (
     | "externalId"
     | "description"
     | "code"
+    | "requiresApproval"
     | "expired"
     | "isRestricted"
     | "requireNotesToAdmin"

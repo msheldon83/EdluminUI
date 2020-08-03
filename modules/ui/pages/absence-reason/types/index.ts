@@ -4,8 +4,11 @@ export type GroupedAbsenceReason = {
   name: string;
   isCategory?: boolean | null;
   absenceReasonTrackingTypeId?: string | null;
+  code?: string | null;
   allowNegativeBalance?: boolean | null;
   rowVersion: string;
+  isRestricted: boolean;
+  requiresApproval: boolean;
 };
 
 export type GroupedCategory = {
