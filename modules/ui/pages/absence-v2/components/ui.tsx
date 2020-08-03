@@ -678,14 +678,11 @@ export const AbsenceUI: React.FC<Props> = props => {
         {({
           values,
           handleSubmit,
-          handleReset,
           setFieldValue,
           dirty,
           isSubmitting,
           resetForm,
-          touched,
           initialValues,
-          errors,
         }) => {
           // Not necessarily if any part of the form has changes, but do we have
           // changes to the Absence that would prevent us from taking sub
@@ -713,7 +710,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           // in state and not as a part of this form, we have to consider that when
           // determining if the overall interface is currently dirty
           const formIsDirty =
-            dirty || !isEqual(state.initialVacancyDetails, vacancyDetails);
+            dirty || (isCreate && state.absenceDates.length > 0) || !isEqual(state.initialVacancyDetails, vacancyDetails);
 
           // The object we send to the server when getting projected vacancies
           // or projected absence usage is not the exact same as what we would send
