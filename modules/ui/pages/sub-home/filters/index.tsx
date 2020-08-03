@@ -1,9 +1,4 @@
-import {
-  Grid,
-  makeStyles,
-  FormControlLabel,
-  Checkbox,
-} from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +9,7 @@ import { PositionTypeFilter } from "./position-type-filter";
 import { TimeFilter } from "./time-filter";
 import { PreferenceFilter } from "./preference-filter";
 
-type Props = { userId: string; className?: string };
+type Props = { userId?: string; className?: string; viewingAsAdmin?: boolean };
 
 export const Filters: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -35,7 +30,11 @@ export const Filters: React.FC<Props> = props => {
       <PositionTypeFilter {...filters} positionTypeLabel={t("Position type")} />
       <TimeFilter {...filters} timeLabel={t("Time")} />
       */}
-      <PreferenceFilter userId={props.userId} {...filters} />
+      <PreferenceFilter
+        userId={props.userId}
+        {...filters}
+        viewingAsAdmin={props.viewingAsAdmin}
+      />
     </Grid>
   );
 };
