@@ -22,7 +22,7 @@ type Props = {
   actingAsEmployee: boolean;
   onToggleAbsenceDate: (d: Date) => void;
   absenceDates: Date[];
-  isClosed: boolean;
+  isClosed?: boolean;
   closedDates?: Date[];
   currentMonth: Date;
   onSwitchMonth: (month: Date) => void;
@@ -59,10 +59,10 @@ export const AbsenceDetails: React.FC<Props> = props => {
     canEditDatesAndTimes,
     setNegativeBalanceWarning,
     initialUsageData,
-    isClosed,
     travellingEmployee,
     deletedAbsenceReasons,
     updateKey,
+    isClosed = false,
     closedDates = [],
   } = props;
 

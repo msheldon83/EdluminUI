@@ -19,13 +19,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { AbsenceState, absenceReducer } from "../state";
 import { PageTitle } from "ui/components/page-title";
-import * as yup from "yup";
 import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
 import { AbsenceFormData, AbsenceDetail } from "../types";
 import { Formik } from "formik";
 import {
-  validateAccountingCodeAllocations,
   mapAccountingCodeValueToAccountingCodeAllocations,
   allAccountingCodeValuesAreEqual,
   mapAccountingCodeAllocationsToAccountingCodeValue,
@@ -58,7 +56,6 @@ import {
   some,
   compact,
   flatMap,
-  isNil,
   isEqual,
   differenceWith,
 } from "lodash-es";
@@ -79,13 +76,13 @@ import { CancelAssignment } from "../graphql/cancel-assignment.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
-import { AbsenceReasonUsageData } from "./balance-usage";
 import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
 import { ActionMenu, Option } from "ui/components/action-menu";
 import { useHistory } from "react-router";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
+import { AbsenceFormValidationSchema } from "../validation";
 
 type Props = {
   organizationId: string;
@@ -668,50 +665,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       <Formik
         initialValues={initialAbsenceFormData}
         enableReinitialize={true}
-        validationSchema={yup.object().shape({
-          details: yup.array().of(
-            yup.object().shape({
-              absenceReasonId: yup
-                .string()
-                .nullable()
-                .required(t("Required")),
-              dayPart: yup
-                .string()
-                .nullable()
-                .required(t("Required")),
-              hourlyStartTime: yup.string().when("dayPart", {
-                is: DayPart.Hourly,
-                then: yup.string().required(t("Required")),
-              }),
-              hourlyEndTime: yup.string().when("dayPart", {
-                is: DayPart.Hourly,
-                then: yup.string().required(t("Required")),
-              }),
-            })
-          ),
-          notesToApprover: yup.string().when("requireNotesToApprover", {
-            is: true,
-            then: yup.string().required(t("Required")),
-          }),
-          accountingCodeAllocations: yup.object().test({
-            name: "accountingCodeAllocationsCheck",
-            test: function test(value: AccountingCodeValue) {
-              const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
-                value
-              );
-
-              const error = validateAccountingCodeAllocations(
-                accountingCodeAllocations ?? [],
-                t
-              );
-              if (!error) {
-                return true;
-              }
-
-              return new yup.ValidationError(error, null, this.path);
-            },
-          }),
-        })}
+        validationSchema={AbsenceFormValidationSchema(t)}
         onSubmit={async (data, e) => {
           const formData = await save(data);
           if (formData) {
@@ -1173,7 +1127,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const buildAbsenceInput = (
+export const buildAbsenceInput = (
   formValues: AbsenceFormData,
   state: AbsenceState,
   vacancyDetails: VacancyDetail[],
