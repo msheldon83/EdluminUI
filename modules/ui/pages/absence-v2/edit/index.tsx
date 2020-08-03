@@ -8,9 +8,7 @@ import {
   NeedsReplacement,
   Absence,
   AbsenceUpdateInput,
-  DayPart,
 } from "graphql/server-types.gen";
-import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 import { ApolloError } from "apollo-client";
 import { GetAbsence } from "../graphql/get-absence.gen";
 import { useTranslation } from "react-i18next";
@@ -21,7 +19,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { DeletedDataIndex } from "./deleted-data-index";
 import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete-absence-vacancy-dialog";
 import { UpdateAbsence } from "../graphql/update-absence.gen";
-import { startOfDay, parseISO, startOfMonth } from "date-fns";
+import { parseISO, startOfMonth } from "date-fns";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import {
