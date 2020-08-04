@@ -6,31 +6,22 @@ import {
   AllocationDropdownProps,
   AllocationCodeValue,
   RenderAllocationAmountArgs,
-  NO_ALLOCATION,
-  SINGLE_ALLOCATION,
   MULTIPLE_ALLOCATIONS,
 } from "./allocation-dropdown";
 import { NumberInput } from "ui/components/form/number-input";
 
 type AbsenceReasonDropdownProps = AllocationDropdownProps & {
-  totalHours: number;
-  totalDays: number;
+  hoursInADay: number;
 };
 
 export type AbsenceReasonDropdownValue = AllocationCodeValue;
 
 export const AbsenceReasonDropdown = ({
-  totalHours,
-  totalDays,
+  hoursInADay,
   ...props
 }: AbsenceReasonDropdownProps) => {
   const classes = useStyles();
   const { t } = useTranslation();
-
-  // const { hoursDisabled, daysDisabled } = generateInputDisabledValues(
-  //   props.value?.type,
-  //   props.value?.selection?.descriptor
-  // );
 
   const amountInputVisibleness = () => {
     switch (props.value?.type) {
@@ -56,21 +47,20 @@ export const AbsenceReasonDropdown = ({
 
   const { hoursVisible, daysVisible } = amountInputVisibleness();
 
-  const amountInputValues = (
-    hoursDisabled: boolean,
-    daysDisabled: boolean,
-    amount?: number
-  ) => {
-    /*
-    TODO: determine how many hours in a day
+  const daysToHours = (days?: number) => {
+    if (days === undefined) {
+      return undefined;
+    }
 
-    For example:
+    return days * hoursInADay;
+  };
 
-    totals are
-    1.5 days --- 8 hours
+  const hoursToDays = (hours?: number) => {
+    if (hours === undefined) {
+      return undefined;
+    }
 
-    hours/days === how many hours in a day
-    */
+    return hours / hoursInADay;
   };
 
   return (
@@ -87,7 +77,7 @@ export const AbsenceReasonDropdown = ({
         const hoursDisabled = !selection || selection?.descriptor === "DAYS";
         const daysDisabled = !selection || selection?.descriptor === "HOURS";
 
-        console.log("value", value);
+        console.log("days value", hoursToDays(value));
 
         return (
           <>
@@ -104,7 +94,11 @@ export const AbsenceReasonDropdown = ({
             {daysVisible && (
               <NumberInput
                 {...allocationProps}
-                value={value}
+                onChange={days => {
+                  console.log(daysToHours(days));
+                  allocationProps.onChange(daysToHours(days));
+                }}
+                value={hoursToDays(value)}
                 className={classes.daysInput}
                 endAdornment={t("days")}
                 maxLength={2}
@@ -127,23 +121,3 @@ const useStyles = makeStyles(theme => ({
     width: theme.spacing(9.5),
   },
 }));
-
-// function generateInputDisabledValues(type?: string, descriptor?: string) {
-//   switch (type) {
-//     case SINGLE_ALLOCATION: {
-//       return {
-//         hoursDisabled: descriptor?.toLowerCase() === "hours",
-//         daysDisabled: descriptor?.toLowerCase() === "days",
-//       };
-//     }
-
-//     case MULTIPLE_ALLOCATIONS:
-//     case NO_ALLOCATION:
-//     default: {
-//       return {
-//         hoursDisabled: false,
-//         daysDisabled: false,
-//       };
-//     }
-//   }
-// }

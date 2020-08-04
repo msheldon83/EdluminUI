@@ -41,8 +41,7 @@ export const AbsenceReasonDropdownStory = () => {
         value={absenceReason}
         options={options}
         onChange={setAbsenceReason}
-        totalHours={0}
-        totalDays={0}
+        hoursInADay={8}
       />
     </div>
   );
