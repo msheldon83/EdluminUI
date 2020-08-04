@@ -53,6 +53,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
     middleName: null,
     lastName: "",
     externalId: null,
+    inviteImmediately: null,
     email: "",
     position: {
       positionType: {
@@ -150,7 +151,14 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       <AddBasicInfo
         orgId={params.organizationId}
         orgUser={employee}
-        onSubmit={(firstName, lastName, email, middleName, externalId) => {
+        onSubmit={(
+          firstName,
+          lastName,
+          email,
+          middleName,
+          externalId,
+          invite
+        ) => {
           setEmployee({
             ...employee,
             firstName: firstName,
@@ -158,6 +166,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
+            inviteImmediately: invite,
           });
           setStep(steps[1].stepNumber);
         }}

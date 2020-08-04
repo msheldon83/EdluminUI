@@ -49,6 +49,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     lastName: "",
     externalId: null,
     email: "",
+    inviteImmediately: true,
   });
   const [subAttributes, setSubAttributes] = React.useState<Attribute[]>([]);
 
@@ -117,7 +118,14 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       <AddBasicInfo
         orgId={params.organizationId}
         orgUser={substitute}
-        onSubmit={(firstName, lastName, email, middleName, externalId) => {
+        onSubmit={(
+          firstName,
+          lastName,
+          email,
+          middleName,
+          externalId,
+          inviteImmediately
+        ) => {
           setSubstitute({
             ...substitute,
             firstName: firstName,
@@ -125,6 +133,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
+            inviteImmediately: inviteImmediately,
           });
           goToNextStep();
         }}

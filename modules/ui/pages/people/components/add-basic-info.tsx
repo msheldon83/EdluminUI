@@ -1,8 +1,9 @@
-import { Grid } from "@material-ui/core";
+import { Grid, Checkbox, FormControlLabel } from "@material-ui/core";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { makeStyles } from "@material-ui/styles";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -22,13 +23,15 @@ type Props = {
     lastName?: string | null | undefined;
     externalId?: string | null | undefined;
     email?: string | null | undefined;
+    inviteImmediately?: boolean | null | undefined;
   };
   onSubmit: (
     firstName: string | null | undefined,
     lastName: string | null | undefined,
     email: string,
     middleName?: string | null | undefined,
-    externalId?: string | null | undefined
+    externalId?: string | null | undefined,
+    invite?: boolean | null | undefined
   ) => void;
   onCancel: () => void;
   onNameChange: (
@@ -41,6 +44,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
+  const classes = useStyles();
 
   const verifyExternalId = useImperativeQuery(VerifyExternalId);
   const onVerify = async (externalId: string) => {
@@ -63,6 +67,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
     lastName: props.orgUser.lastName,
     externalId: props.orgUser.externalId || "",
     email: props.orgUser.email || "",
+    inviteImmediately: true,
   };
 
   return (
@@ -84,6 +89,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
           email: Yup.string()
             .nullable()
             .required(t("Email is required")),
+          inviteImmediately: Yup.boolean().required(
+            t("Invitation selection required")
+          ),
         })}
         onSubmit={async (data: any) => {
           const verified = await onVerify(data.externalId);
@@ -93,13 +101,21 @@ export const AddBasicInfo: React.FC<Props> = props => {
               data.firstName,
               data.lastName,
               data.email,
+              data.inviteImmediately,
               data.middleName,
               data.externalId
             );
           }
         }}
       >
-        {({ handleSubmit, handleChange, submitForm, values, errors }) => (
+        {({
+          handleSubmit,
+          handleChange,
+          submitForm,
+          setFieldValue,
+          values,
+          errors,
+        }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={4} sm={2} lg={2}>
@@ -188,6 +204,21 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   }}
                 />
               </Grid>
+              <Grid item xs={12} sm={6} lg={6}>
+                <FormControlLabel
+                  className={classes.paddingTop}
+                  checked={values.inviteImmediately}
+                  control={
+                    <Checkbox
+                      onChange={e => {
+                        setFieldValue("inviteImmediately", e.target.checked);
+                      }}
+                      color="primary"
+                    />
+                  }
+                  label={t("Invite to Red Rover")}
+                />
+              </Grid>
             </Grid>
             <ActionButtons
               submit={{ text: t("Next"), execute: submitForm }}
@@ -199,3 +230,8 @@ export const AddBasicInfo: React.FC<Props> = props => {
     </Section>
   );
 };
+const useStyles = makeStyles(theme => ({
+  paddingTop: {
+    paddingTop: "10px",
+  },
+}));

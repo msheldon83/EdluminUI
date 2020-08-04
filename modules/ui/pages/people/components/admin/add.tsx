@@ -39,6 +39,7 @@ export const AdminAddPage: React.FC<{}> = props => {
     lastName: "",
     externalId: null,
     email: "",
+    inviteImmediately: null,
     accessControl: {
       allLocationIdsInScope: true,
       allPositionTypeIdsInScope: true,
@@ -99,7 +100,14 @@ export const AdminAddPage: React.FC<{}> = props => {
       <AddBasicInfo
         orgId={params.organizationId}
         orgUser={admin}
-        onSubmit={(firstName, lastName, email, middleName, externalId) => {
+        onSubmit={(
+          firstName,
+          lastName,
+          email,
+          middleName,
+          externalId,
+          inviteImmediately
+        ) => {
           setAdmin({
             ...admin,
             firstName: firstName,
@@ -107,6 +115,7 @@ export const AdminAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
+            inviteImmediately: inviteImmediately,
           });
           setStep(steps[1].stepNumber);
         }}
