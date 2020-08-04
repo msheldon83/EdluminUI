@@ -17,7 +17,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onDelete: () => void;
-  replacementEmployeeName?: string;
+  replacementEmployeeNames?: string[];
 };
 
 export const DeleteAbsenceVacancyDialog: React.FC<Props> = props => {
@@ -39,13 +39,28 @@ export const DeleteAbsenceVacancyDialog: React.FC<Props> = props => {
             ? t("Are you sure you would like to delete this absence?")
             : t("Are you sure you would like to delete this vacancy?")}
         </Typography>
-        {props.replacementEmployeeName && (
-          <Typography className={classes.removeSub}>
-            {t("The assignment filled by {{replacement}} will be cancelled.", {
-              replacement: props.replacementEmployeeName,
-            })}
-          </Typography>
-        )}
+        {props.replacementEmployeeNames &&
+          props.replacementEmployeeNames.length === 1 && (
+            <Typography className={classes.removeSub}>
+              {t(
+                "The assignment filled by {{replacement}} will be cancelled.",
+                {
+                  replacement: props.replacementEmployeeNames,
+                }
+              )}
+            </Typography>
+          )}
+        {props.replacementEmployeeNames &&
+          props.replacementEmployeeNames.length > 1 && (
+            <Typography className={classes.removeSub}>
+              {t(
+                "The assignments filled by {{replacement}} will be cancelled.",
+                {
+                  replacement: props.replacementEmployeeNames.join(", "),
+                }
+              )}
+            </Typography>
+          )}
       </DialogContent>
 
       <Divider className={classes.divider} />

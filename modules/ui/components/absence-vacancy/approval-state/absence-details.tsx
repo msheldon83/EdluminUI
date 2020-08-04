@@ -31,8 +31,8 @@ type Props = {
           startTimeLocal?: string | null;
           reasonUsages?:
             | Maybe<{
-                amount: number;
-                absenceReasonTrackingTypeId?: AbsenceReasonTrackingTypeId | null;
+                hourlyAmount: number;
+                dailyAmount: number;
                 absenceReasonId: string;
                 absenceReason?: {
                   name: string;
@@ -97,19 +97,6 @@ export const AbsenceDetails: React.FC<Props> = props => {
     return unitText[Number(amount !== 1)];
   };
 
-  const getRemainingBalanceText = (absenceReasonId: string) => {
-    const balance = employeeBalances.find(
-      x => x.absenceReasonId === absenceReasonId
-    );
-    return balance
-      ? `${round(balance?.unusedBalance, 2)} ${getUnitText(
-          balance?.absenceReasonTrackingTypeId ??
-            AbsenceReasonTrackingTypeId.Invalid,
-          balance?.unusedBalance
-        )}`
-      : t("Not tracked");
-  };
-
   const absenceReasons = useMemo(
     () =>
       absence
@@ -120,17 +107,47 @@ export const AbsenceDetails: React.FC<Props> = props => {
               ),
               r => r?.absenceReasonId
             )
-          ).map(([absenceReasonId, usages]) => ({
-            absenceReasonId: absenceReasonId,
-            absenceReasonTrackingTypeId: usages[0].absenceReasonTrackingTypeId,
-            absenceReasonName: usages[0].absenceReason?.name,
-            totalAmount: round(
-              usages.reduce((m, v) => m + +v.amount, 0),
+          ).map(([absenceReasonId, usages]) => {
+            const balance = employeeBalances.find(
+              x => x.absenceReasonId === absenceReasonId
+            );
+            const remainingBalance = round(balance?.unusedBalance, 2);
+            const totalHourlyUsage = round(
+              usages.reduce((m, v) => m + +v.hourlyAmount, 0),
               2
-            ),
-          }))
+            );
+            const totalDailyUsage = round(
+              usages.reduce((m, v) => m + +v.dailyAmount, 0),
+              2
+            );
+
+            return {
+              remainingBalanceText: remainingBalance
+                ? `${remainingBalance} ${getUnitText(
+                    balance?.absenceReasonTrackingTypeId ??
+                      AbsenceReasonTrackingTypeId.Invalid,
+                    remainingBalance
+                  )}`
+                : t("Not tracked"),
+              absenceReasonId: absenceReasonId,
+              absenceReasonName: usages[0].absenceReason?.name,
+              absenceReasonTrackingType: balance?.absenceReasonTrackingTypeId,
+              hourlyUsageText: remainingBalance
+                ? `${totalHourlyUsage} ${getUnitText(
+                    AbsenceReasonTrackingTypeId.Hourly,
+                    totalHourlyUsage
+                  )}`
+                : undefined,
+              dailyUsageText: remainingBalance
+                ? `${totalDailyUsage} ${getUnitText(
+                    AbsenceReasonTrackingTypeId.Daily,
+                    totalDailyUsage
+                  )}`
+                : undefined,
+            };
+          })
         : [],
-    [absence]
+    [absence, employeeBalances, t]
   );
 
   return (
@@ -163,15 +180,16 @@ export const AbsenceDetails: React.FC<Props> = props => {
             <div className={[classes.text, classes.reason].join(" ")}>
               {g.absenceReasonName}
             </div>
-            <div className={[classes.text, classes.used].join(" ")}>{`${
-              g.totalAmount
-            } ${getUnitText(
-              g.absenceReasonTrackingTypeId ??
-                AbsenceReasonTrackingTypeId.Invalid,
-              g.totalAmount
-            )}`}</div>
+            <div className={[classes.text, classes.used].join(" ")}>
+              {g.absenceReasonTrackingType === AbsenceReasonTrackingTypeId.Daily
+                ? g.dailyUsageText
+                : g.absenceReasonTrackingType ===
+                  AbsenceReasonTrackingTypeId.Hourly
+                ? g.hourlyUsageText
+                : ""}
+            </div>
             <div className={[classes.text, classes.remaining].join(" ")}>
-              {getRemainingBalanceText(g.absenceReasonId)}
+              {g.remainingBalanceText}
             </div>
           </div>
         );

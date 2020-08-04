@@ -1,9 +1,10 @@
-import { parseISO } from "date-fns";
+import { parseISO, isAfter } from "date-fns";
 import { isValid, startOfDay } from "date-fns/esm";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   NeedsReplacement,
   VacancyDetailAccountingCode,
+  ApprovalStatus,
 } from "graphql/server-types.gen";
 import { AbsenceReasonUsageData } from "ui/components/absence/balance-usage";
 import { compact, flatMap, isNil, sortBy, uniqBy } from "lodash-es";
@@ -314,6 +315,9 @@ export const EditAbsence: React.FC<Props> = props => {
             hourlyAmount: u.hourlyAmount,
             dailyAmount: u.dailyAmount,
             absenceReasonId: u.absenceReasonId,
+            absenceReason: {
+              absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
+            },
           },
         ];
       }
@@ -340,6 +344,20 @@ export const EditAbsence: React.FC<Props> = props => {
   if (!data || !employee || !detail || !reasonUsage) {
     return <></>;
   }
+  const absenceDetails = data?.vacancies
+    ? flatMap(compact(data.vacancies), v => compact(v.details))
+    : [];
+  const hasFilledVacancies = absenceDetails.some(d => d.isFilled);
+  const hasVerifiedAssignments = absenceDetails.some(d => d.verifiedAtUtc);
+
+  const canDeleteAbsence =
+    props.actingAsEmployee && data
+      ? isAfter(data.startTimeLocal, new Date()) &&
+        !hasFilledVacancies &&
+        data.approvalStatus !== ApprovalStatus.PartiallyApproved &&
+        data.approvalStatus !== ApprovalStatus.Approved &&
+        !hasVerifiedAssignments
+      : true;
 
   return (
     <>
@@ -348,7 +366,9 @@ export const EditAbsence: React.FC<Props> = props => {
         onDelete={onDeleteAbsence}
         onClose={() => setDeleteDialogIsOpen(false)}
         open={deleteDialogIsOpen}
-        replacementEmployeeName={replacementEmployeeName}
+        replacementEmployeeNames={
+          replacementEmployeeName ? [replacementEmployeeName] : undefined
+        }
       />
 
       <EditAbsenceUI
@@ -388,6 +408,7 @@ export const EditAbsence: React.FC<Props> = props => {
         endTimeLocal={detail.endTimeLocal}
         cancelAssignments={cancelAssignments}
         refetchAbsence={absence.refetch}
+        canDeleteAbsence={canDeleteAbsence}
         onDelete={onClickDelete}
         assignmentsByDate={assignmentsByDate}
         closedDates={data.closedDetails}

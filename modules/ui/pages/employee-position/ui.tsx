@@ -111,7 +111,9 @@ export const PositionEditUI: React.FC<Props> = props => {
   const getScheduledLocationIds = (schedules: Schedule[]) => {
     const scheduledLocationIds: Set<string> = new Set();
     (schedules ?? []).forEach(ps =>
-      ps.periods.forEach(p => scheduledLocationIds.add(p.locationId))
+      ps.periods.forEach(p => {
+        scheduledLocationIds.add(p.locationId);
+      })
     );
     return Array.from(scheduledLocationIds);
   };
@@ -133,7 +135,14 @@ export const PositionEditUI: React.FC<Props> = props => {
   });
   const bellSchedules =
     getBellSchedules.state != "LOADING"
-      ? getBellSchedules.data.workDaySchedule?.all ?? []
+      ? compact(getBellSchedules.data.workDaySchedule?.all).map(s => ({
+          ...s,
+          usages: compact(s.usages),
+          periods: compact(s.periods).map(p => ({
+            ...p,
+            standardPeriod: p.standardPeriod ?? undefined,
+          })),
+        })) ?? []
       : [];
 
   const needsReplacementOptions: OptionType[] = useMemo(
@@ -276,21 +285,25 @@ export const PositionEditUI: React.FC<Props> = props => {
                           }),
                       })
                       .test({
-                        name: "endBeforeStartCheck",
+                        name: "overMidnightConfirmed",
                         test: function test(value) {
+                          //allow for reversed time
                           if (
                             isBefore(
                               parseISO(value.endTime),
                               parseISO(value.startTime)
                             )
                           ) {
-                            return new yup.ValidationError(
-                              t("End Time before Start Time"),
-                              null,
-                              `${this.path}.endTime`
-                            );
+                            if (!value.overMidnightConfirmed) {
+                              //Would really enjoy displaying nothing, but it appears that the mechanism that
+                              //restricts submitting the form doesn't work when an empty message is returned.
+                              return new yup.ValidationError(
+                                t(`Confirmation required`),
+                                null,
+                                `${this.path}.endTime`
+                              );
+                            }
                           }
-
                           return true;
                         },
                       })
@@ -303,9 +316,6 @@ export const PositionEditUI: React.FC<Props> = props => {
             test: function test(value: {
               accountingCodeValue: AccountingCodeValue;
             }) {
-              if (value.accountingCodeValue?.selection?.value === undefined)
-                return true;
-
               const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
                 value.accountingCodeValue
               );
@@ -522,7 +532,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                         }
                       );
                       const disabledDaysOfWeek =
-                        flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? []) ??
+                        compact(flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? [])) ??
                         [];
 
                       return (
@@ -608,11 +618,11 @@ export const PositionEditUI: React.FC<Props> = props => {
                                 values.schedules[i].periods[
                                   index
                                 ].startPeriodId =
-                                  bellSchedule!.periods![0]!.id ?? undefined;
+                                  bellSchedule?.periods[0]?.id ?? undefined;
                                 values.schedules[i].periods[index].endPeriodId =
-                                  bellSchedule!.periods![
-                                    bellSchedule!.periods!.length - 1
-                                  ]!.id ?? undefined;
+                                  bellSchedule?.periods[
+                                    (bellSchedule?.periods.length ?? 0) - 1
+                                  ]?.id ?? undefined;
                                 values.schedules[i].periods[
                                   index
                                 ].startTime = null;
@@ -635,11 +645,11 @@ export const PositionEditUI: React.FC<Props> = props => {
                                       .bellScheduleId
                                 );
                                 values.schedules[i].periods[0].startPeriodId =
-                                  bellSchedule!.periods![0]!.id ?? undefined;
+                                  bellSchedule?.periods[0]?.id ?? undefined;
                                 values.schedules[i].periods[0].endPeriodId =
-                                  bellSchedule!.periods![
-                                    bellSchedule!.periods!.length - 1
-                                  ]!.id ?? undefined;
+                                  bellSchedule?.periods[
+                                    (bellSchedule?.periods.length ?? 0) - 1
+                                  ]?.id ?? undefined;
                                 values.schedules[i].periods[0].startTime = null;
                                 values.schedules[i].periods[0].endTime = null;
                               } else if (!allDay) {

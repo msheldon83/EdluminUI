@@ -12,10 +12,14 @@ type Props = {
   showAccountingCodes: boolean;
   showAbsenceTimes: boolean;
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
+  onCancelAssignment?: (
+    vacancyDetailIds: string[],
+    vacancyDetailDates?: Date[]
+  ) => Promise<boolean>;
   disableActions?: boolean;
   detailsOnly?: boolean;
   readOnly: boolean;
+  allowRemoval?: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
@@ -30,6 +34,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
     showAccountingCodes,
     disableActions = false,
     detailsOnly = false,
+    allowRemoval = false,
   } = props;
 
   const showUnfilledHeader =
@@ -70,6 +75,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
               onCancelAssignment={onCancelAssignment}
               disableActions={disableActions}
               readOnly={props.readOnly}
+              allowRemoval={allowRemoval}
             />
           )}
         </>

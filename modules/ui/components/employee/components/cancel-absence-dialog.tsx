@@ -43,7 +43,7 @@ export const CancelAbsenceDialog: React.FC<Props> = props => {
           onClick={props.onCancel}
           className={classes.cancel}
         >
-          {t("Cancel")}
+          {t("Yes, Cancel")}
         </ButtonDisableOnClick>
       </DialogActions>
     </Dialog>

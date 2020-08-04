@@ -1,18 +1,20 @@
 import * as React from "react";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
-import { useTheme } from "@material-ui/core";
+import { Tooltip, useTheme } from "@material-ui/core";
 import useAutocomplete from "@material-ui/lab/useAutocomplete";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import InfoIcon from "@material-ui/icons/Info";
 import Chip from "@material-ui/core/Chip";
 import { TextButton } from "ui/components/text-button";
 import FormHelperText from "@material-ui/core/FormHelperText";
-import { Input } from "./input";
+import { Input, LabelComponent } from "./input";
 import { useMemo } from "react";
 import { ErrorMessage } from "formik";
 
 export type SelectProps<T extends boolean> = {
   label?: string;
+  labelComponent?: LabelComponent;
   placeholder?: string;
   multiple: T;
   options: Array<OptionType>;
@@ -30,6 +32,9 @@ export type SelectProps<T extends boolean> = {
   fixedListBox?: boolean;
   readOnly?: boolean;
   inputClassName?: string;
+  renderInputValue?: (
+    value: T extends true ? Array<OptionType> : OptionType
+  ) => string | number;
 
   // This should never be used if it's a multi-select
   withResetValue?: T extends true ? false : boolean;
@@ -41,6 +46,7 @@ export type SelectProps<T extends boolean> = {
 export type OptionType = {
   label: string;
   value: string | number;
+  info?: React.ReactNode;
 };
 
 const TAG_CHIP_CONTAINER_HEIGHT = 36;
@@ -73,6 +79,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     doSort = true,
     readOnly = false,
     inputClassName = "",
+    renderInputValue,
     onSort = (a: OptionType, b: OptionType) =>
       a.label > b.label ? 1 : b.label > a.label ? -1 : 0,
     fixedListBox,
@@ -109,8 +116,9 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
   };
 
   const getOptionValue = (option: OptionType): string | number => option.value;
-  const getOptionSelected = (option: OptionType, value: OptionType) =>
-    getOptionValue(option) === getOptionValue(value);
+  const getOptionSelected = (option: OptionType, value: OptionType) => {
+    return getOptionValue(option) === getOptionValue(value);
+  };
 
   const optionsWithReset = withResetValue
     ? ([
@@ -148,6 +156,7 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     getOptionProps,
     groupedOptions,
     inputValue,
+    value: autoCompleteValue,
   } = useAutocomplete({
     id: `${label}-${Date.now()}`,
     getOptionSelected,
@@ -232,6 +241,16 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
     input?.dispatchEvent(new Event("focus"));
   };
 
+  /*
+    Keeping a selecting value and a typed value in sync is difficult. This makes sure
+    that the auto complete is always displaying the latest value correctly
+  */
+  const renderableValue = multiple
+    ? inputValue
+    : renderInputValue
+    ? renderInputValue(value as any)
+    : inputValue ?? (value as any)?.label ?? "";
+
   return (
     <div
       className={`${className} ${containerClasses}`}
@@ -242,10 +261,11 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
         <div className={classes.dropdownContainer}>
           <Input
             {...autocompleteInputProps}
-            value={value === undefined ? "" : inputValue}
+            value={renderableValue}
             inputRef={inputRef}
             disabled={disabled}
             label={label}
+            labelComponent={props.labelComponent}
             name={name}
             placeholder={placeholder}
             error={inputStatus === "error"}
@@ -292,7 +312,12 @@ export function SelectNew<T extends boolean>(props: SelectProps<T>) {
                     className={itemClasses}
                     key={getOptionValue(option)}
                   >
-                    {option.label}
+                    <div className={classes.optionText}>{option.label}</div>
+                    {option.info && (
+                      <Tooltip title={option.info}>
+                        <InfoIcon className={classes.infoIcon} />
+                      </Tooltip>
+                    )}
                   </li>
                 );
               })}
@@ -409,6 +434,10 @@ const useStyles = makeStyles(theme => ({
     cursor: "pointer",
     zIndex: 200,
   },
+  infoIcon: {
+    color: theme.customColors.edluminSubText,
+    zIndex: 200,
+  },
   listbox: {
     backgroundColor: theme.palette.background.paper,
     border: `1px solid ${theme.palette.text.primary}`,
@@ -439,6 +468,9 @@ const useStyles = makeStyles(theme => ({
   optionItem: {
     paddingLeft: theme.spacing(1.5),
     paddingRight: theme.spacing(1.5),
+    alignItems: "center",
+    display: "flex",
+    width: "100%",
 
     "&:hover": {
       backgroundColor: theme.background.hoverRow,
@@ -456,6 +488,9 @@ const useStyles = makeStyles(theme => ({
     '&[aria-selected="true"]': {
       color: theme.customColors.edluminSubText,
     },
+  },
+  optionText: {
+    width: "100%",
   },
   showAllButton: {
     position: "absolute",

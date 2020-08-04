@@ -687,6 +687,7 @@ type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface 
   active: Boolean!
   name: String!
   definition: String!
+  query: String
   fileNameFormat: String
   fileFormat: FileFormat
   path: String!
@@ -1577,7 +1578,6 @@ type Comment implements ModelObjectInterface & OrgObjectInterface {
 input CommentCreateInput {
   orgId: ID!
   payload: String!
-  discussionId: ID
   discussionSubjectType: DiscussionSubjectType!
   hasShadow: Boolean
   objectKey: ID!
@@ -2435,6 +2435,13 @@ input EmployeeInterestInVacancyInput {
   overrideNonPreferredWarning: Boolean
 }
 
+input EmployeeLocationGroupPreferenceInput {
+  orgId: ID!
+  employeeId: ID!
+  locationGroupId: ID!
+  preferenceId: PersonalPreference!
+}
+
 type EmployeeLocationPreference implements ModelObjectInterface & OrgObjectInterface {
   _info: [ReturnMessage]
   id: ID!
@@ -2469,6 +2476,8 @@ type EmployeeMutations {
   removeEndorsement(employeeId: ID!, endorsementId: ID!): Employee
   addOrChangeLocationPreference(locationPreference: EmployeeLocationPreferenceInput!): EmployeeLocationPreference
   removeLocationPreference(orgId: ID!, employeeId: ID!, locationId: ID!): Boolean
+  addOrChangeLocationGroupPreference(locationGroupPreference: EmployeeLocationGroupPreferenceInput!): Boolean
+  removeLocationGroupPreference(orgId: ID!, employeeId: ID!, locationGroupId: ID!): Boolean
 }
 
 type EmployeeQualifiedResult {
@@ -2502,7 +2511,6 @@ type EmployeeQueries {
   employeeSmsLogOnDate(id: ID!, onDate: Date!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogLocal(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
   employeeSmsLogUtc(id: ID!, fromTime: DateTime!, toTime: DateTime!, orgId: ID, limit: Int, offset: Int): PagedSmsMessageLog
-  employeeLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 input EmployeeRejectVacancyInput {
@@ -2703,6 +2711,7 @@ enum EventType {
   USER_DEVICE_CREATED
   USER_DEVICE_UPDATED
   USER_DEVICE_DELETED
+  USERS_MERGED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -3659,6 +3668,7 @@ type OrganizationRelationshipQueries {
   byId(id: ID!): OrganizationRelationship
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput]): [OrganizationRelationship]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput]): PagedOrganizationRelationship
+  orgUserOrganizationRelationships(userId: ID!, staffingOrgId: ID!): [OrganizationRelationship]
 }
 
 enum OrganizationRelationshipType {
@@ -3930,6 +3940,7 @@ type OrgUserQueries {
   lastLoginById(id: ID!): OrgUserLastLogin
   verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
   suggestedAdminsForApproverGroups(locationId: ID, orgId: ID!): [OrgUser]
+  substituteLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
 
 type OrgUserRelationship implements ModelObjectInterface & OrgObjectInterface {
@@ -5224,6 +5235,13 @@ input PositionTypeUpdateInput {
   absenceReasonTrackingTypeId: AbsenceReasonTrackingTypeId
 }
 
+enum PreferenceFilter {
+  INVALID
+  SHOW_FAVORITES
+  SHOW_FAVORITES_AND_DEFAULT
+  SHOW_ALL
+}
+
 type QualifiedEmployeeCounts {
   _info: [ReturnMessage]
   nameMask: String!
@@ -6213,6 +6231,9 @@ type SubJobSearch {
   _info: [ReturnMessage]
   vacancy: Vacancy!
   unavailableToWork: Boolean!
+  employeePreferenceId: PersonalPreference
+  positionTypePreferenceId: PersonalPreference
+  locationPreferenceId: PersonalPreference
 }
 
 enum SubscriptionItemType {
@@ -6259,6 +6280,7 @@ type Substitute implements ModelObjectInterface & OrgObjectInterface {
   qualifiedPositionTypes: [PositionType!]!
   substitutePoolMembership: SubstitutePoolMembership
   comments(includeRelatedOrgs: Boolean, relatedOrgId: ID): [Comment]
+  substituteLocationPreferences: [EmployeeLocationPreference]
 }
 
 input SubstituteAttributeInput {
@@ -6439,6 +6461,7 @@ type UserAccess {
 
 type UserAccessQueries {
   me: UserAccess
+  cannyToken: String
 }
 
 enum UserAvailability {
@@ -6525,10 +6548,12 @@ type UserMutations {
 type UserPreferences {
   _info: [ReturnMessage]
   notificationPreferences: [NotificationPreference!]!
+  subJobPreferenceFilter: PreferenceFilter!
 }
 
 input UserPreferencesInput {
   notificationPreferences: [NotificationPreferenceInput]
+  subJobPreferenceFilter: PreferenceFilter
 }
 
 type UserQueries {
@@ -7023,6 +7048,10 @@ type VacancySubSearchQueryResult {
   visibleAtUtc: DateTime
   isFavoriteEmployee: Boolean!
   isFavoritePositionType: Boolean!
+  isFavoriteLocation: Boolean!
+  employeePreferenceId: PersonalPreference
+  positionTypePreferenceId: PersonalPreference
+  locationPreferenceId: PersonalPreference
 }
 
 input VacancyUpdateInput {

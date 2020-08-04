@@ -1,0 +1,138 @@
+mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
+  absence {
+    update(absence: $absence) {
+      id
+      rowVersion
+      changedUtc
+      orgId
+      details {
+        id
+        actualDuration
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        dayPartId
+        reasonUsages {
+          id
+          hourlyAmount
+          dailyAmount
+          sequence
+          absenceReasonId
+          absenceReason {
+            id
+            name
+            requireNotesToAdmin
+            absenceReasonCategoryId
+            isDeleted
+          }
+        }
+      }
+      closedDetails {
+        id
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        reasonUsages {
+          id
+          hourlyAmount
+          dailyAmount
+          sequence
+          absenceReasonId
+          absenceReason {
+            id
+            name
+            requireNotesToAdmin
+            absenceReasonCategoryId
+            isDeleted
+          }
+        }
+        dayPartId
+        dayPortion
+      }
+      employeeId
+      organization {
+        id
+      }
+      startDate
+      endDate
+      startTimeLocal
+      endTimeLocal
+      notesToApprover
+      adminOnlyNotes
+      numDays
+      totalDuration
+      totalDayPortion
+      employee {
+        id
+        firstName
+        lastName
+      }
+      vacancies {
+        id
+        startDate
+        endDate
+        startTimeLocal
+        endTimeLocal
+        numDays
+        rowVersion
+        notesToReplacement
+        positionId
+        position {
+          id
+          positionTypeId
+          title
+          needsReplacement
+        }
+        details {
+          id
+          startDate
+          endDate
+          startTimeLocal
+          endTimeLocal
+          locationId
+          location {
+            id
+            name
+          }
+          payCodeId
+          assignment {
+            id
+            rowVersion
+            employeeId
+            employee {
+              id
+              firstName
+              lastName
+            }
+          }
+          accountingCodeAllocations {
+            id
+            accountingCodeId
+            accountingCode {
+              id
+              name
+              description
+              externalId
+            }
+            allocation
+          }
+          isFilled
+          verifiedAtUtc
+        }
+        absence {
+          startDate
+          endDate
+          details {
+            startDate
+            endDate
+            startTimeLocal
+            endTimeLocal
+          }
+        }
+      }
+      approvalStatus
+    }
+  }
+}

@@ -4,10 +4,12 @@ import {
   DateDetail,
   VacancySummaryDetailByAssignmentAndDate,
 } from "./types";
-import { format, isEqual as isDateEqual } from "date-fns";
+import { format, isEqual as isDateEqual, parseISO, isSameDay } from "date-fns";
 import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
+import { Vacancy } from "graphql/server-types.gen";
+import { AssignmentOnDate } from "ui/pages/absence-v2/types";
 
 export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   vacancy: VacancyDetailsFormData
@@ -55,8 +57,74 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   return summaryDetails;
 };
 
+// The Assignments on the Vacancy > Vacancy Detail objects are going to be ignored
+// in favor of the information provided by assignmentsByDate. The reason for this is
+// that we often end up with a "vacancy" that is from the projected vacancies query
+// and would never contain assignment information. Because of this potential, we have
+// to keep track of the assignments separately so it's better to just always use that
+// instead of picking and choosing when we use assignmentsByDate or VacancyDetail
+export const convertVacancyToVacancySummaryDetails = (
+  vacancy: Vacancy,
+  assignmentsByDate: AssignmentOnDate[]
+): VacancySummaryDetail[] => {
+  const absenceDetails = vacancy?.absence?.details;
+  return vacancy.details?.map(vd => {
+    // Find a matching Absence Detail record if available
+    const absenceDetail = absenceDetails?.find(
+      ad => ad?.startDate === vd?.startDate
+    );
+
+    // Find a matching assignment from assignmentsByDate by vacancyDetailId
+    // if we have it, otherwise by the same day comparison
+    const assignmentOnDate = assignmentsByDate?.find(
+      a =>
+        (vd.id && a.vacancyDetailId === vd.id) ||
+        isSameDay(a.startTimeLocal, parseISO(vd.startTimeLocal))
+    );
+
+    return {
+      vacancyId: vacancy.id,
+      vacancyDetailId: vd.id,
+      date: parseISO(vd.startDate),
+      startTimeLocal: parseISO(vd.startTimeLocal),
+      endTimeLocal: parseISO(vd.endTimeLocal),
+      locationId: vd.locationId,
+      locationName: vd.location?.name ?? "",
+      assignment: assignmentOnDate
+        ? {
+            id: assignmentOnDate.assignmentId,
+            rowVersion: assignmentOnDate.assignmentRowVersion,
+            employee: {
+              id: assignmentOnDate.employee.id,
+              firstName: assignmentOnDate.employee.firstName,
+              lastName: assignmentOnDate.employee.lastName,
+            },
+          }
+        : undefined,
+      payCodeId: vd.payCodeId ?? undefined,
+      payCodeName: vd.payCode?.name,
+      accountingCodeAllocations:
+        vd.accountingCodeAllocations?.map(a => {
+          return {
+            accountingCodeId: a.accountingCodeId,
+            accountingCodeName: a.accountingCode?.name,
+            allocation: a.allocation,
+          };
+        }) ?? [],
+      absenceStartTimeLocal: absenceDetail?.startTimeLocal
+        ? parseISO(absenceDetail.startTimeLocal)
+        : undefined,
+      absenceEndTimeLocal: absenceDetail?.endTimeLocal
+        ? parseISO(absenceDetail.endTimeLocal)
+        : undefined,
+    };
+  });
+};
+
 export const buildAssignmentGroups = (
-  details: VacancySummaryDetail[]
+  details: VacancySummaryDetail[],
+  excludeAccountingCodesFromGrouping?: boolean,
+  excludePayCodesFromGrouping?: boolean
 ): AssignmentWithDetails[] => {
   // Sort the details by their start times
   const sortedDetails = details
@@ -121,7 +189,9 @@ export const buildAssignmentGroups = (
           lastGroup &&
           vacancySummaryDetailsAreEqual(
             lastGroup.details,
-            assignmentAndDateGroupItem.details
+            assignmentAndDateGroupItem.details,
+            excludeAccountingCodesFromGrouping,
+            excludePayCodesFromGrouping
           )
         ) {
           // All of our details match so we can add this day and detail ids to this group
@@ -135,6 +205,9 @@ export const buildAssignmentGroups = (
               ...assignmentAndDateGroupItem.details.map(d => d.vacancyDetailId),
             ],
           });
+          lastGroup.vacancySummaryDetails.push(
+            ...assignmentAndDateGroupItem.details
+          );
         } else {
           // Details are different so we need to add a new group
           groupAccumulator.push(
@@ -159,7 +232,9 @@ export const buildAssignmentGroups = (
 
 export const vacancySummaryDetailsAreEqual = (
   assignmentDetails: DateDetail[],
-  vacancySummaryDetails: VacancySummaryDetail[]
+  vacancySummaryDetails: VacancySummaryDetail[],
+  excludeAccountingCodesFromGrouping?: boolean,
+  excludePayCodesFromGrouping?: boolean
 ): boolean => {
   if (assignmentDetails.length !== vacancySummaryDetails.length) {
     return false;
@@ -176,12 +251,18 @@ export const vacancySummaryDetailsAreEqual = (
       assignmentDetail.endTime !==
         format(vacancySummaryDetail.endTimeLocal, "h:mm a") ||
       assignmentDetail.locationId !== vacancySummaryDetail.locationId ||
-      assignmentDetail.payCodeId !== vacancySummaryDetail.payCodeId
+      (!excludePayCodesFromGrouping &&
+        assignmentDetail.payCodeId !== vacancySummaryDetail.payCodeId)
     ) {
       return false;
     }
 
     // Compare Accounting Code Allocations
+    if (excludeAccountingCodesFromGrouping) {
+      // We don't want to use the Accounting Code selections for grouping
+      // so no need to compare any of those details
+      return true;
+    }
 
     if (
       !assignmentDetail.accountingCodeAllocations?.length &&
@@ -238,6 +319,7 @@ export const convertToAssignmentWithDetails = (
         ],
       },
     ],
+    vacancySummaryDetails: summaryDetailsByAssignmentAndDate.details,
     details: summaryDetailsByAssignmentAndDate.details.map(d => {
       return {
         startTime: format(d.startTimeLocal, "h:mm a"),
@@ -249,6 +331,20 @@ export const convertToAssignmentWithDetails = (
         accountingCodeAllocations: d.accountingCodeAllocations,
       };
     }),
+    absenceStartTime: summaryDetailsByAssignmentAndDate.details[0]
+      .absenceStartTimeLocal
+      ? format(
+          summaryDetailsByAssignmentAndDate.details[0].absenceStartTimeLocal,
+          "h:mm a"
+        )
+      : undefined,
+    absenceEndTime: summaryDetailsByAssignmentAndDate.details[0]
+      .absenceEndTimeLocal
+      ? format(
+          summaryDetailsByAssignmentAndDate.details[0].absenceEndTimeLocal,
+          "h:mm a"
+        )
+      : undefined,
   };
   return assignmentWithDetails;
 };

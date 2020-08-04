@@ -584,9 +584,9 @@ const displaySections = (
   handleSwapSubs: (detail: Detail) => Promise<void>
 ) => {
   // If there is a selected card, go through each group and filter all of their data to match
-  if (selectedCard) {
-    filterDetailGroups(groupedDetails, d => d.state === selectedCard);
-  }
+  const filteredDetailGroups = selectedCard
+    ? filterDetailGroups(groupedDetails, d => d.state === selectedCard)
+    : groupedDetails;
 
   let selectedCardDisplayText = "";
   switch (selectedCard) {
@@ -636,7 +636,7 @@ const displaySections = (
       </Grid>
       {
         <div className={classes.groupedDetailsContainer}>
-          {groupedDetails.map((g, i) => {
+          {filteredDetailGroups.map((g, i) => {
             const hasNoDetails = !(g.details && g.details.length);
             if (selectedCard && hasNoDetails) {
               return null;

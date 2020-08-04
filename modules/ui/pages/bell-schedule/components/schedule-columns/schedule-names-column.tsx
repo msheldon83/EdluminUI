@@ -33,6 +33,7 @@ type ScheduleNameRowProps = {
 const ScheduleNameRow = (props: ScheduleNameRowProps) => {
   const {
     period,
+    index,
     isStandard,
     hasMoreThanOnePeriod,
     setFieldValue,
@@ -85,7 +86,7 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
             name={period.name ?? Math.random().toString()} // There always needs to be a valid name on the element
             variant="outlined"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setFieldValue(period.name, e.target.value);
+              setFieldValue(`periods[${index}].name`, e.target.value);
             }}
             style={{ opacity: dragPreviewOpacity }}
           />

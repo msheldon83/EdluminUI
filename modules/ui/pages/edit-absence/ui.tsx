@@ -60,7 +60,6 @@ import { AssignVacancy } from "./graphql/assign-vacancy.gen";
 import { UpdateAbsence } from "./graphql/update-absence.gen";
 import { editAbsenceReducer, EditAbsenceState } from "./state";
 import { StepParams } from "./step-params";
-import { DiscardChangesDialog } from "./discard-changes-dialog";
 import { Prompt, useRouteMatch } from "react-router";
 import { OrgUserPermissions } from "ui/components/auth/types";
 import { canViewAbsVacActivityLog } from "helpers/permissions";
@@ -78,6 +77,7 @@ import {
   mapAccountingCodeAllocationsToAccountingCodeValue,
   mapAccountingCodeValueToAccountingCodeAllocations,
 } from "helpers/accounting-code-allocations";
+import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
 
 type Props = {
   firstName: string;
@@ -117,6 +117,7 @@ type Props = {
     preventAbsenceRefetch?: boolean
   ) => Promise<void>;
   refetchAbsence: () => Promise<unknown>;
+  canDeleteAbsence: boolean;
   onDelete: () => void;
   returnUrl?: string;
   assignmentsByDate: AssignmentOnDate[];
@@ -292,12 +293,12 @@ export const EditAbsenceUI: React.FC<Props> = props => {
           value.allocations.filter(a => a.selection)
         );
 
-        if (selectedAccountingCodes.filter(a => !a.percentage).length > 0) {
+        if (selectedAccountingCodes.filter(a => !a.amount).length > 0) {
           // Missing percentages
           return `${t("Accounting codes missing allocation percentages")}`;
         }
 
-        if (sum(selectedAccountingCodes.map(a => a.percentage)) !== 100) {
+        if (sum(selectedAccountingCodes.map(a => a.amount)) !== 100) {
           // Allocations need to add up to 100%
           return `${t("Accounting code allocations do not total 100%")}`;
         }
@@ -758,7 +759,7 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               returnUrl={props.returnUrl}
               isSubmitted={formState.isSubmitted}
               initialAbsenceCreation={false}
-              onDelete={props.onDelete}
+              onDelete={props.canDeleteAbsence ? props.onDelete : undefined}
               onCancel={onClickReset}
               onAssignSubClick={onAssignSubClick}
               isFormDirty={

@@ -1,12 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  makeStyles,
-} from "@material-ui/core";
-import { format } from "date-fns";
+import { Grid, makeStyles } from "@material-ui/core";
 import { VerifyQueryFilters } from "./filter-params";
 import { DateRangeFilter } from "./date-range-filter";
 import { SharedFilters } from "./shared-filters";
@@ -22,7 +16,6 @@ export const OverviewFilters: React.FC<Props> = ({
   filters,
   setFilters,
 }) => {
-  const { t } = useTranslation();
   const classes = useStyles();
 
   return (

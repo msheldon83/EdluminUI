@@ -32,6 +32,8 @@ import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employ
 import { VacancySummary } from "../absence-vacancy/vacancy-summary";
 import { VacancySummaryDetail } from "../absence-vacancy/vacancy-summary/types";
 import { EmployeeLink } from "ui/components/links/people";
+import { useAccountingCodes } from "reference-data/accounting-codes";
+import { usePayCodes } from "reference-data/pay-codes";
 
 type Props = {
   orgId: string;
@@ -51,17 +53,17 @@ type Props = {
     replacementEmployeeFirstName: string,
     replacementEmployeeLastName: string,
     payCode: string | undefined,
-    vacancyDetailIds?: string[]
+    vacancyDetailIds?: string[],
+    vacancyDetailDates?: Date[]
   ) => void;
   onCancel: () => void;
   employeeToReplace?: string;
   assignmentsByDate: AssignmentOnDate[];
   isForVacancy?: boolean;
+  useVacancySummaryDetails?: boolean;
   vacancySummaryDetails?: VacancySummaryDetail[];
   vacancy?: VacancyCreateInput;
   vacancyId?: string;
-  orgHasPayCodesDefined?: boolean;
-  orgHasAccountingCodesDefined?: boolean;
   isEdit?: boolean;
 };
 
@@ -98,10 +100,9 @@ export const AssignSub: React.FC<Props> = props => {
     employeeToReplace = "",
     vacancySummaryDetails,
     isForVacancy = false,
+    useVacancySummaryDetails = false,
     vacancy = undefined,
     vacancyId = undefined,
-    orgHasPayCodesDefined = true,
-    orgHasAccountingCodesDefined = true,
   } = props;
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
@@ -122,16 +123,16 @@ export const AssignSub: React.FC<Props> = props => {
 
   // If we don't have any info, cancel the Assign Sub action
   if (
-    (!isForVacancy && !props.vacancies) ||
+    (!useVacancySummaryDetails && !props.vacancies) ||
     props.vacancies?.length === 0 ||
-    (isForVacancy && !vacancySummaryDetails) ||
+    (useVacancySummaryDetails && !vacancySummaryDetails) ||
     vacancySummaryDetails?.length === 0
   ) {
     props.onCancel();
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 200;
+  const collapsedVacancyDetailsHeight = 225;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -154,6 +155,8 @@ export const AssignSub: React.FC<Props> = props => {
         orgId: props.orgId,
         vacancyId: props.vacancies
           ? props.vacancies[0]?.id ?? undefined
+          : props.vacancyId
+          ? props.vacancyId
           : undefined,
         vacancy:
           props.vacancies && !props.vacancies[0]?.id
@@ -275,11 +278,14 @@ export const AssignSub: React.FC<Props> = props => {
           replacementEmployeeFirstName,
           replacementEmployeeLastName,
           payCodeId,
-          vacancyDetailIdsToAssign
+          vacancyDetailIdsToAssign,
+          !vacancyDetailIdsToAssign && vacancySummaryDetails
+            ? uniq(vacancySummaryDetails.map(vsd => vsd.date))
+            : undefined
         );
       }
     },
-    [onAssignReplacement, vacancyDetailIdsToAssign, t]
+    [onAssignReplacement, vacancyDetailIdsToAssign, vacancySummaryDetails, t]
   );
 
   const confirmReassign = useCallback(
@@ -316,6 +322,9 @@ export const AssignSub: React.FC<Props> = props => {
     updateSearch(filters);
   };
 
+  const accountingCodes = useAccountingCodes(props.orgId);
+  const payCodes = usePayCodes(props.orgId);
+
   const renderVacancyDetails = () => {
     const showViewAllDetails =
       vacancyDetailsHeight &&
@@ -328,13 +337,13 @@ export const AssignSub: React.FC<Props> = props => {
           collapsedHeight={theme.typography.pxToRem(
             vacancyDetailsHeight
               ? Math.min(
-                  vacancyDetailsHeight + (isForVacancy ? 75 : 0),
+                  vacancyDetailsHeight + (useVacancySummaryDetails ? 75 : 0),
                   collapsedVacancyDetailsHeight
                 )
               : collapsedVacancyDetailsHeight
           )}
         >
-          {props.vacancies && !isForVacancy && (
+          {props.vacancies && !useVacancySummaryDetails && (
             <VacancyDetails
               vacancies={props.vacancies}
               vacancyDetailIds={vacancyDetailIdsToAssign}
@@ -347,7 +356,7 @@ export const AssignSub: React.FC<Props> = props => {
               isForVacancy={isForVacancy}
             />
           )}
-          {vacancySummaryDetails && isForVacancy && (
+          {vacancySummaryDetails && useVacancySummaryDetails && (
             <>
               <VacancySummaryHeader
                 positionName={props.positionName}
@@ -359,11 +368,15 @@ export const AssignSub: React.FC<Props> = props => {
                 <VacancySummary
                   vacancySummaryDetails={vacancySummaryDetails}
                   onAssignClick={async () => {}}
-                  onCancelAssignment={async () => {}}
+                  onCancelAssignment={async () => true}
                   detailsOnly={true}
                   divRef={vacancyDetailsRef}
-                  showAccountingCodes={orgHasAccountingCodesDefined}
-                  showPayCodes={orgHasPayCodesDefined}
+                  showAccountingCodes={
+                    accountingCodes.length > 0 && (props.isForVacancy ?? false)
+                  }
+                  showPayCodes={
+                    payCodes.length > 0 && (props.isForVacancy ?? false)
+                  }
                 />
               </div>
             </>

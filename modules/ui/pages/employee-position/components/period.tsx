@@ -10,35 +10,36 @@ import { useQueryBundle } from "graphql/hooks";
 import { useMemo, useEffect } from "react";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { TextButton } from "ui/components/text-button";
+import { FormikTimespanInput } from "ui/components/form/formik-timespan-input";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
-import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { Period, Schedule, GetError } from "./helpers";
 import { GetBellSchedulePeriods } from "../graphql/get-bell-schedule-periods.gen";
 import { FormikErrors } from "formik";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
+import { compact } from "lodash-es";
 
 export type BellSchedule = {
   id: string;
   name: string;
-  usages:
-    | Array<
-        | {
-            locationId?: string | null | undefined;
-            locationGroupId?: string | null | undefined;
-          }
-        | null
-        | undefined
-      >
-    | null
-    | undefined;
+  usages: {
+    locationId?: string | null | undefined;
+    locationGroupId?: string | null | undefined;
+  }[];
+  periods: {
+    name: string;
+    standardPeriod?: {
+      startTime: number;
+      endTime: number;
+    };
+  }[];
 };
 
 type Props = {
   index: number;
   scheduleIndex: number;
   locationOptions: OptionType[];
-  bellSchedules: Array<BellSchedule | null | undefined>;
+  bellSchedules: BellSchedule[];
   period: Period;
   lastPeriod: boolean;
   disableAllDay: boolean;
@@ -59,27 +60,55 @@ export const PeriodUI: React.FC<Props> = props => {
   const classes = useStyles();
   const index = props.index;
 
+  const bellSchedules = props.bellSchedules;
   const bellScheduleOptions: OptionType[] = useMemo(() => {
-    const bellSchedules = props.bellSchedules?.filter(x =>
-      x?.usages?.some(u => {
-        if (
-          u?.locationId === period.locationId ||
-          u?.locationGroupId === period.locationGroupId
-        ) {
-          return true;
-        }
+    const options: OptionType[] = bellSchedules
+      .filter(x =>
+        x?.usages?.some(
+          u =>
+            u?.locationId === period.locationId ||
+            u?.locationGroupId === period.locationGroupId
+        )
+      )
+      .map(p => {
+        const lines = compact(
+          p?.periods
+            .filter(
+              p =>
+                p.standardPeriod &&
+                p.standardPeriod.startTime != p.standardPeriod.endTime
+            )
+            .map(p =>
+              p.standardPeriod
+                ? `${p.name}: ${secondsToFormattedHourMinuteString(
+                    p.standardPeriod.startTime
+                  )} - ${secondsToFormattedHourMinuteString(
+                    p.standardPeriod.endTime
+                  )}`
+                : undefined
+            )
+        );
+        const info =
+          lines.length == 0 ? (
+            undefined
+          ) : (
+            <>
+              <Typography>{t("Standard Periods:")}</Typography>
+              {lines.map((l, i) => (
+                <Typography key={i}>{l}</Typography>
+              ))}
+            </>
+          );
+        return {
+          label: p?.name ?? "",
+          value: p?.id ?? "",
+          info,
+        };
       })
-    );
-
-    const options = bellSchedules
-      .map(p => ({
-        label: p?.name ?? "",
-        value: p?.id ?? "",
-      }))
       .sort((a, b) => (a.label.toLowerCase() > b.label.toLowerCase() ? 1 : -1));
     options.push({ label: t("Custom"), value: "custom" });
     return options;
-  }, [props.bellSchedules, t, period.locationId, period.locationGroupId]);
+  }, [bellSchedules, t, period.locationId, period.locationGroupId]);
 
   const getPeriods = useQueryBundle(GetBellSchedulePeriods, {
     variables: {
@@ -173,6 +202,12 @@ export const PeriodUI: React.FC<Props> = props => {
     index,
     props.scheduleIndex
   );
+  const timeSpanError = GetError(
+    props.errors,
+    "timespan",
+    index,
+    props.scheduleIndex
+  );
   const startPeriodIdError = GetError(
     props.errors,
     "startPeriodId",
@@ -232,70 +267,60 @@ export const PeriodUI: React.FC<Props> = props => {
             doSort={false}
           />
         </Grid>
-        <Grid container item xs={6} spacing={2} alignItems="center">
-          {period.bellScheduleId === "custom" ? (
-            <>
-              <Grid item xs={6}>
-                <Typography>{t("Starting")}</Typography>
-                <FormikTimeInput
-                  label=""
-                  name={`schedules[${props.scheduleIndex}].periods[${props.index}].startTime`}
-                  value={period.startTime || undefined}
-                  inputStatus={startTimeError ? "error" : "default"}
-                  validationMessage={startTimeError}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Typography>{t("Ending")}</Typography>
-                <FormikTimeInput
-                  label=""
-                  name={`schedules[${props.scheduleIndex}]periods[${props.index}].endTime`}
-                  value={period.endTime || undefined}
-                  earliestTime={period.startTime || undefined}
-                  inputStatus={endTimeError ? "error" : "default"}
-                  validationMessage={endTimeError}
-                />
-              </Grid>
-            </>
-          ) : (
-            <>
-              <Grid item xs={6}>
-                <Typography>{t("Starting")}</Typography>
-                <SelectNew
-                  value={startPeriodSelected}
-                  multiple={false}
-                  onChange={(value: OptionType) => {
-                    const id = (value as OptionTypeBase).value.toString();
-                    props.onChangeStartPeriod(id, index);
-                  }}
-                  options={periodStartOptions}
-                  withResetValue={false}
-                  disabled={!period.bellScheduleId || period.allDay}
-                  inputStatus={startPeriodIdError ? "error" : "default"}
-                  validationMessage={startPeriodIdError}
-                  doSort={false}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Typography>{t("Ending")}</Typography>
-                <SelectNew
-                  value={endPeriodSelected}
-                  multiple={false}
-                  onChange={(value: OptionType) => {
-                    const id = (value as OptionTypeBase).value.toString();
-                    props.onChangeEndPeriod(id, index);
-                  }}
-                  options={periodEndOptions}
-                  withResetValue={false}
-                  disabled={!period.bellScheduleId || period.allDay}
-                  inputStatus={endPeriodIdError ? "error" : "default"}
-                  validationMessage={endPeriodIdError}
-                  doSort={false}
-                />
-              </Grid>
-            </>
-          )}
-        </Grid>
+
+        {period.bellScheduleId === "custom" ? (
+          <Grid container spacing={2} alignItems="center">
+            <FormikTimespanInput
+              index={props.index}
+              scheduleIndex={props.scheduleIndex}
+              permitReversedTimes={true}
+              startTimeName={`schedules[${props.scheduleIndex}].periods[${props.index}].startTime`}
+              endTimeName={`schedules[${props.scheduleIndex}]periods[${props.index}].endTime`}
+              period={period}
+              inputStatus={timeSpanError ? "error" : "default"}
+              validationMessage={timeSpanError}
+              errors={props.errors}
+            />
+          </Grid>
+        ) : (
+          <Grid container item xs={6} spacing={2} alignItems="center">
+            <Grid item xs={6}>
+              <Typography>{t("Starting")}</Typography>
+              <SelectNew
+                value={startPeriodSelected}
+                multiple={false}
+                onChange={(value: OptionType) => {
+                  const id = (value as OptionTypeBase).value.toString();
+                  props.onChangeStartPeriod(id, index);
+                }}
+                options={periodStartOptions}
+                withResetValue={false}
+                disabled={!period.bellScheduleId || period.allDay}
+                inputStatus={startPeriodIdError ? "error" : "default"}
+                validationMessage={startPeriodIdError}
+                doSort={false}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>{t("Ending")}</Typography>
+              <SelectNew
+                value={endPeriodSelected}
+                multiple={false}
+                onChange={(value: OptionType) => {
+                  const id = (value as OptionTypeBase).value.toString();
+                  props.onChangeEndPeriod(id, index);
+                }}
+                options={periodEndOptions}
+                withResetValue={false}
+                disabled={!period.bellScheduleId || period.allDay}
+                inputStatus={endPeriodIdError ? "error" : "default"}
+                validationMessage={endPeriodIdError}
+                doSort={false}
+              />
+            </Grid>
+          </Grid>
+        )}
+
         {period.bellScheduleId !== "custom" && (
           <Grid item>
             <FormControlLabel

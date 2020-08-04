@@ -19,7 +19,7 @@ export const SingleDayUnassigned = () => {
         vacancySummaryDetails={AssignmentGroupTestCases.singleDayNoAssignment}
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onCancelAssignment={async () => {}}
+        onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
       />
@@ -36,7 +36,7 @@ export const SingleDayAssigned = () => {
         vacancySummaryDetails={AssignmentGroupTestCases.singleDayWithAssignment}
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onCancelAssignment={async () => {}}
+        onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
       />
@@ -53,7 +53,7 @@ export const SingleDayPrearranged = () => {
         vacancySummaryDetails={AssignmentGroupTestCases.singleDayPrearranged}
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onCancelAssignment={async () => {}}
+        onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
       />
@@ -72,7 +72,7 @@ export const MultiDayUnassigned = () => {
         }
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onCancelAssignment={async () => {}}
+        onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
       />
@@ -91,7 +91,7 @@ export const MultiDayAssigned = () => {
         }
         setNotesForSubstitute={() => {}}
         onAssignClick={async () => {}}
-        onCancelAssignment={async () => {}}
+        onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
       />
@@ -127,7 +127,7 @@ export const MultiDaySplitAssignment = () => {
             }
             setNotesForSubstitute={() => {}}
             onAssignClick={async () => {}}
-            onCancelAssignment={async () => {}}
+            onCancelAssignment={async () => true}
             showPayCodes={true}
             showAccountingCodes={true}
           />

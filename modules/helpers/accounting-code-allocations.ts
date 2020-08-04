@@ -80,7 +80,7 @@ export const mapAccountingCodeValueToAccountingCodeAllocations = (
       allocations = accountingCodeAllocations.allocations.map(a => {
         return {
           accountingCodeId: a.selection?.value?.toString() ?? "",
-          allocation: (a.percentage ?? 0) / 100,
+          allocation: (a.amount ?? 0) / 100,
           accountingCodeName: setName ? a.selection?.label : undefined,
         };
       });
@@ -126,7 +126,7 @@ export const mapAccountingCodeAllocationsToAccountingCodeValue = (
           label: a.accountingCodeName ?? "",
           value: a.accountingCodeId,
         },
-        percentage: a.allocation ? Math.floor(a.allocation * 100) : undefined,
+        amount: a.allocation ? Math.floor(a.allocation * 100) : undefined,
       };
     })
   );
@@ -154,4 +154,78 @@ export const validateAccountingCodeAllocations = (
   }
 
   return undefined;
+};
+
+export const accountingCodeValuesAreEqual = (
+  value: AccountingCodeValue,
+  toCompare: AccountingCodeValue
+) => {
+  if (value.type === "no-allocation" && toCompare.type === "no-allocation") {
+    return true;
+  }
+
+  if (
+    value.type === "single-allocation" &&
+    toCompare.type === "single-allocation" &&
+    value.selection?.value === toCompare.selection?.value
+  ) {
+    return true;
+  }
+
+  if (
+    value.type === "multiple-allocations" &&
+    toCompare.type === "multiple-allocations"
+  ) {
+    const valueAllocations = value.allocations.map(a => {
+      return {
+        accountingCodeId: a.selection?.value,
+        allocation: a.amount,
+      };
+    });
+    const toCompareAllocations = toCompare.allocations.map(a => {
+      return {
+        accountingCodeId: a.selection?.value,
+        allocation: a.amount,
+      };
+    });
+
+    if (valueAllocations.length !== toCompareAllocations.length) {
+      // Different number of allocations between the 2
+      return false;
+    }
+
+    if (
+      isEqual(
+        valueAllocations.sort(
+          (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
+        ),
+        toCompareAllocations.sort(
+          (a, b) => +(a.accountingCodeId ?? 0) - +(b.accountingCodeId ?? 0)
+        )
+      )
+    ) {
+      // Same lists
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export const allAccountingCodeValuesAreEqual = (
+  values: AccountingCodeValue[]
+) => {
+  if (values.length === 0) {
+    return true;
+  }
+
+  const toCompare = values[0];
+  for (let index = 0; index < values.length; index++) {
+    const element = values[index];
+    if (!accountingCodeValuesAreEqual(element, toCompare)) {
+      return false;
+    }
+  }
+
+  return true;
 };

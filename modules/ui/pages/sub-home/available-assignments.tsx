@@ -10,7 +10,11 @@ import { FilterList } from "@material-ui/icons";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { parseISO, isBefore } from "date-fns";
 import { useMutationBundle, usePagedQueryBundle } from "graphql/hooks";
-import { PermissionEnum } from "graphql/server-types.gen";
+import {
+  PersonalPreference,
+  PermissionEnum,
+  PreferenceFilter,
+} from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
@@ -67,15 +71,19 @@ export const AvailableAssignments: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-  const [filters] = useQueryParamIso(FilterQueryParams);
+  const [{ preferenceFilter, ...filters }] = useQueryParamIso(
+    FilterQueryParams
+  );
 
-  const [getVacancies, pagination] = usePagedQueryBundle(
+  const [getVacancies] = usePagedQueryBundle(
     SubJobSearch,
     r => r.vacancy?.subJobSearch?.totalCount,
     {
       variables: {
         ...filters,
         id: userId ?? "",
+        limit: 2000000000,
+        showNonPreferredJobs: preferenceFilter === PreferenceFilter.ShowAll,
       },
       skip: !userId,
     }
@@ -89,10 +97,28 @@ export const AvailableAssignments: React.FC<Props> = props => {
     [getVacancies]
   );
 
+  const preferenceMatchesFilter = React.useCallback(
+    (result: PersonalPreference | null) => {
+      switch (preferenceFilter) {
+        case PreferenceFilter.ShowFavorites:
+          return result === PersonalPreference.Favorite;
+        case PreferenceFilter.ShowFavoritesAndDefault:
+          return result === PersonalPreference.Favorite || result === null;
+        default:
+          return true;
+      }
+    },
+    [preferenceFilter]
+  );
+
   const sortedVacancies = useMemo(
     () =>
       vacancies
-        .filter(x => !dismissedAssignments.includes(x?.vacancy.id ?? ""))
+        .filter(
+          x =>
+            !dismissedAssignments.includes(x?.vacancy.id ?? "") &&
+            preferenceMatchesFilter(x?.locationPreferenceId ?? null)
+        )
         .sort((a, b) =>
           isBefore(
             parseISO(a?.vacancy.startTimeLocal),
@@ -101,7 +127,7 @@ export const AvailableAssignments: React.FC<Props> = props => {
             ? -1
             : 1
         ),
-    [vacancies, dismissedAssignments]
+    [vacancies, dismissedAssignments, preferenceMatchesFilter]
   );
   const onRefreshVacancies = async () => await getVacancies.refetch();
 
@@ -201,14 +227,16 @@ export const AvailableAssignments: React.FC<Props> = props => {
             </div>
           )}
 
-          {showFilters && <Filters />}
+          {showFilters && (
+            <Filters userId={userId} viewingAsAdmin={props.viewingAsAdmin} />
+          )}
           <div>
             <Divider className={classes.header} />
             {getVacancies.state === "LOADING" ? (
               <Typography variant="h5">
                 {t("Loading available assignments")}
               </Typography>
-            ) : vacancies.length > 0 ? (
+            ) : sortedVacancies.length > 0 ? (
               sortedVacancies.map((x, index) => (
                 <AvailableJob
                   vacancy={x?.vacancy}
@@ -218,12 +246,23 @@ export const AvailableAssignments: React.FC<Props> = props => {
                   key={index}
                   onAccept={onAcceptVacancy}
                   viewingAsAdmin={props.viewingAsAdmin}
+                  isFavorite={
+                    x?.locationPreferenceId === PersonalPreference.Favorite
+                  }
                 />
               ))
             ) : (
-              <Typography variant="h5">
-                {t("No assignments available")}
-              </Typography>
+              <Grid container direction="column" alignItems="center">
+                <Typography variant="h5">
+                  {t("No assignments available")}
+                </Typography>
+                <Typography variant="h6">
+                  {filters.locationIds.length == 0 &&
+                  preferenceFilter == PreferenceFilter.ShowAll
+                    ? t("Try checking back later")
+                    : t("Try changing your filters, or checking back later")}
+                </Typography>
+              </Grid>
             )}
           </div>
         </Section>

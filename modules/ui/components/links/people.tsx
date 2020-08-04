@@ -18,8 +18,9 @@ const PeopleLink: React.FC<Props & { perms: CanDo }> = ({
   state,
   ...props
 }) => {
-  const contextOrgId = useOrganizationId();
-  if (!orgUserId || !contextOrgId) {
+  const contextOrgId = useOrganizationId() ?? undefined;
+  orgId = orgId ?? contextOrgId;
+  if (!orgUserId || !orgId) {
     return <span className={props.textClass}> {props.children} </span>;
   }
   const urlStr = PersonViewRoute.generate({
@@ -34,6 +35,10 @@ const PeopleLink: React.FC<Props & { perms: CanDo }> = ({
     />
   );
 };
+
+export const AdminLink: React.FC<Props> = props => (
+  <PeopleLink perms={[PermissionEnum.AdminView]} {...props} />
+);
 
 export const EmployeeLink: React.FC<Props> = props => (
   <PeopleLink perms={[PermissionEnum.EmployeeView]} {...props} />

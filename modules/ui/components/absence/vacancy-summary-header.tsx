@@ -24,8 +24,11 @@ export const VacancySummaryHeader: React.FC<Props> = props => {
       )
     : [];
 
+  const uniqueDays = uniq(allDates.map(a => a.toString()));
   const dayLengthDisplayText =
-    allDates.length > 1 ? `${allDates.length} days` : `${allDates.length} day`;
+    uniqueDays.length > 1
+      ? `${uniqueDays.length} days`
+      : `${uniqueDays.length} day`;
 
   let headerText = getDateRangeDisplayTextWithOutDayOfWeekForContiguousDates(
     allDates,

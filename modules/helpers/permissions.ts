@@ -202,7 +202,8 @@ export const canViewConfigNavLink = (
     !userPerms?.includes(PermissionEnum.GeneralSettingsView) &&
     !userPerms?.includes(PermissionEnum.ScheduleSettingsView) &&
     !userPerms?.includes(PermissionEnum.AbsVacSettingsView) &&
-    !userPerms?.includes(PermissionEnum.FinanceSettingsView)
+    !userPerms?.includes(PermissionEnum.FinanceSettingsView) &&
+    !userPerms?.includes(PermissionEnum.ApprovalSettingsView)
   ) {
     return false;
   }

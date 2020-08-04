@@ -1,0 +1,9 @@
+mutation RemoveSubLocationGroupPreference($orgUserId: ID!, $orgId: ID!, $locationGroupId: ID!) {
+  employee {
+    removeLocationGroupPreference(
+      orgId: $orgId,
+      employeeId: $orgUserId,
+      locationGroupId: $locationGroupId
+    )
+  }
+}

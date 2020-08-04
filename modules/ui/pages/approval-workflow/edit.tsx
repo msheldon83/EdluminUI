@@ -1,9 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Grid, makeStyles, Button, Typography } from "@material-ui/core";
-import { Formik } from "formik";
-import { TextField as FormTextField } from "ui/components/form/text-field";
-import { PageTitle } from "ui/components/page-title";
+import { Grid, makeStyles, Button } from "@material-ui/core";
 import { PageHeader } from "ui/components/page-header";
 import { Section } from "ui/components/section";
 import { useState, useEffect } from "react";
@@ -30,9 +27,9 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useHistory } from "react-router";
 import { Can } from "ui/components/auth/can";
 import { BasicInfo } from "./components/create/basic-info";
-import { compact } from "lodash-es";
 import { WorkflowReturnLink } from "./components/return-link";
-import { buildCleanStepInput } from "./types";
+import { buildCleanStepInput } from "./components/workflow-graph/types";
+import { TestHeader } from "./components/test-header";
 
 type Props = {};
 
@@ -49,6 +46,11 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
 
   const [editing, setEditing] = useState<string | null>(null);
   const [steps, setSteps] = useState<ApprovalWorkflowStepInput[]>([]);
+  const [showTestHeader, setShowTestHeader] = useState(false);
+  const [testReasonId, setTestReasonId] = useState<string | undefined>(
+    undefined
+  );
+  const [stepsDirty, setStepsDirty] = useState(false);
 
   const [deleteApprovalWorkflow] = useMutationBundle(DeleteApprovalWorkflow, {
     onError: error => {
@@ -128,7 +130,7 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
   };
 
   const handleUpdateSteps = async () => {
-    await updateApprovalWorkflow({
+    const result = await updateApprovalWorkflow({
       variables: {
         approvalWorkflow: {
           approvalWorkflowId: params.approvalWorkflowId,
@@ -137,6 +139,15 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
         },
       },
     });
+    if (result?.data) {
+      openSnackbar({
+        message: t("Workflow steps updated"),
+        dismissable: true,
+        status: "info",
+        autoHideDuration: 5000,
+      });
+      setStepsDirty(false);
+    }
   };
 
   if (!approvalWorkflow) {
@@ -191,11 +202,24 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
             saveLabel={t("Save")}
             approvalWorkflowId={params.approvalWorkflowId}
           />
+          <TestHeader
+            open={showTestHeader}
+            orgId={params.organizationId}
+            workflowType={approvalWorkflow.approvalWorkflowTypeId}
+            onClose={() => {
+              setShowTestHeader(false);
+              setTestReasonId(undefined);
+            }}
+            reasonId={testReasonId}
+            setReasonId={setTestReasonId}
+          />
         </div>
         <StepsGraph
           steps={steps}
-          setSteps={setSteps}
           orgId={params.organizationId}
+          workflowType={approvalWorkflow.approvalWorkflowTypeId}
+          testReasonId={testReasonId}
+          setStepsDirty={setStepsDirty}
         />
         <Grid
           container
@@ -203,20 +227,30 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
           spacing={2}
           className={classes.buttonContainer}
         >
-          {/*
           <Grid item>
-            <Button variant="outlined" onClick={() => {}}>
-              {t("Test")}
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setShowTestHeader(!showTestHeader);
+                setTestReasonId(undefined);
+              }}
+            >
+              {showTestHeader ? t("Hide test") : t("Test")}
             </Button>
           </Grid>
-          */}
-          <Can do={[PermissionEnum.ApprovalSettingsSave]}>
-            <Grid item>
-              <Button variant="contained" onClick={() => handleUpdateSteps()}>
-                {t("Save")}
-              </Button>
-            </Grid>
-          </Can>
+          {!editing && (
+            <Can do={[PermissionEnum.ApprovalSettingsSave]}>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  onClick={() => handleUpdateSteps()}
+                  disabled={!stepsDirty}
+                >
+                  {t("Save")}
+                </Button>
+              </Grid>
+            </Can>
+          )}
         </Grid>
       </Section>
     </>

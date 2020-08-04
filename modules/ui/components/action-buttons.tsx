@@ -9,6 +9,7 @@ type Props = {
 type Action = {
   text: string;
   execute: Function;
+  disabled?: boolean;
 };
 
 export const ActionButtons: React.FC<Props> = props => {
@@ -38,7 +39,11 @@ export const ActionButtons: React.FC<Props> = props => {
           </Button>
         </Grid>
         <Grid item>
-          <Button variant="contained" onClick={() => props.submit.execute()}>
+          <Button
+            variant="contained"
+            onClick={() => props.submit.execute()}
+            disabled={props.submit.disabled}
+          >
             {props.submit.text}
           </Button>
         </Grid>

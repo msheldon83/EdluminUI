@@ -16,6 +16,16 @@ export default {
   title: "Forms/Date Picker",
 };
 
+const minimumDate = addDays(endOfYesterday(), -15);
+const maximumDate = addDays(endOfTomorrow(), 15);
+
+const customDate = (name: string, defaultValue?: Date): Date => {
+  const value = date(name, defaultValue);
+
+  const d = new Date(value);
+  return new Date(d);
+};
+
 export const DateRangePickerStory = () => {
   const classes = useStyles();
 
@@ -28,6 +38,8 @@ export const DateRangePickerStory = () => {
         contained={boolean("contained", false)}
         startDate={startDate}
         endDate={endDate}
+        minimumDate={minimumDate}
+        maximumDate={maximumDate}
         onDateRangeSelected={(start, end) => {
           action("onDateRangeSelected")({
             start,
@@ -63,6 +75,7 @@ export const DateRangePickerPopoverStory = () => {
             start,
             end,
           });
+
           setStartDate(start);
           setEndDate(end);
         }}
@@ -177,13 +190,6 @@ export const SingleHiddenDateStory = () => {
 
 SingleHiddenDateStory.story = {
   name: "Show Calendar on Focus",
-};
-
-const customDate = (name: string, defaultValue?: Date): Date => {
-  const value = date(name, defaultValue);
-
-  const d = new Date(value);
-  return new Date(d);
 };
 
 export const CalendarStory = () => {

@@ -1,4 +1,11 @@
-import { makeStyles, Tooltip, Chip, Button } from "@material-ui/core";
+import {
+  makeStyles,
+  Tooltip,
+  Chip,
+  Button,
+  Grid,
+  Typography,
+} from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { ActionMenu } from "ui/components/action-menu";
@@ -10,6 +17,7 @@ import { LocationLink } from "ui/components/links/locations";
 import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
 import InfoIcon from "@material-ui/icons/Info";
 import { ApprovalStatus } from "graphql/server-types.gen";
+import clsx from "clsx";
 
 type Props = {
   detail: Detail;
@@ -38,18 +46,18 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
 
   return (
     <div
-      className={
-        props.highlighted
-          ? [classes.highlighted, classes.container, props.className].join(" ")
-          : [classes.container, props.className].join(" ")
-      }
+      className={clsx(
+        props.highlighted ? classes.highlighted : undefined,
+        classes.container,
+        props.className
+      )}
     >
       {props.detail.isClosed && (
         <div className={classes.closedSection}>
           <Chip label={t("Closed")} />
         </div>
       )}
-      <div className={classes.locationSection}>
+      <div className={classes.employeeSection}>
         <div>
           {props.detail.type === "absence" ? (
             <>
@@ -102,15 +110,19 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
       <div className={classes.locationSection}>
         <div>
           <div>
-            {props.highlighted || inSwapMode ? (
-              props.detail.location?.name
+            {!props.detail.locations?.length ? (
+              undefined
+            ) : props.detail.locations.length > 1 ? (
+              t("Multiple")
+            ) : props.highlighted || inSwapMode ? (
+              props.detail.locations[0].name
             ) : (
               <LocationLink
-                locationId={props.detail.location?.id}
+                locationId={props.detail.locations[0].id}
                 linkClass={classes.action}
                 textClass={props.detail.isClosed ? classes.closedText : ""}
               >
-                {props.detail.location?.name}
+                {props.detail.locations[0].name}
               </LocationLink>
             )}
           </div>
@@ -266,6 +278,25 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           </div>
         )}
       {props.highlighted && <div className={classes.actionCell}></div>}
+      {props.detail.locations && props.detail.locations.length > 1 && (
+        <div className={classes.extraLocations}>
+          {props.detail.locations.map((l, i) => (
+            <Typography
+              key={l.id ?? i}
+              className={props.highlighted ? "" : classes.detailSubText}
+            >
+              {l.times ? `${l.times.startTime} - ${l.times.endTime} @ ` : "@ "}
+              <LocationLink
+                locationId={l.id}
+                linkClass={classes.action}
+                textClass={props.detail.isClosed ? classes.closedText : ""}
+              >
+                {l.name}
+              </LocationLink>
+            </Typography>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -273,41 +304,39 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   container: {
     padding: theme.spacing(2),
-    paddingLeft: `${theme.typography.pxToRem(45)} !important`,
-    display: "flex",
+    display: "grid",
     width: "100%",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    [theme.breakpoints.down("sm")]: {
-      alignItems: "stretch",
-    },
+    gridTemplate: `
+      "closed employee reason location       date           substitute     confirmation   approval       action        " auto
+      ".      .        .      extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
+      / 48px   3fr      3fr    3fr            3fr            3fr            3fr           72px           48px
+    `,
+    columnGap: theme.spacing(1),
   },
   employeeSection: {
-    display: "flex",
-    flex: 7,
+    gridArea: "employee",
   },
   locationSection: {
-    display: "flex",
-    flex: 7,
+    gridArea: "location",
   },
   closedSection: {
-    display: "flex",
-    flex: 3,
-    marginRight: theme.spacing(),
+    gridArea: "closed",
+    justifySelf: "end",
   },
   reasonSection: {
-    display: "flex",
-    flex: 4,
+    gridArea: "reason",
   },
   substituteSection: {
-    display: "flex",
-    flex: 6,
+    gridArea: "substitute",
   },
   date: {
-    flex: 4,
+    gridArea: "date",
   },
   approvalChip: {
-    flex: 2,
+    gridArea: "approval",
+  },
+  extraLocations: {
+    gridArea: "extraLocations",
   },
   closedText: {
     fontStyle: "italic",
@@ -333,13 +362,15 @@ const useStyles = makeStyles(theme => ({
     },
   },
   confirmationNumbers: {
-    width: "120px",
+    //width: "120px",
+    gridArea: "confirmation",
   },
   action: {
     cursor: "pointer",
   },
   actionCell: {
-    width: theme.typography.pxToRem(85),
+    //width: theme.typography.pxToRem(85),
+    gridArea: "action",
     "@media print": {
       display: "none",
     },

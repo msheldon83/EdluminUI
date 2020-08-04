@@ -1,4 +1,8 @@
-query GetSubstituteById($id: ID!) {
+query GetSubstituteById(
+  $id: ID!
+  $includeRelatedOrgs: Boolean
+  $relatedOrgId: ID
+) {
   orgUser {
     byId(id: $id) {
       id
@@ -33,6 +37,43 @@ query GetSubstituteById($id: ID!) {
           id
           name
         }
+        substituteLocationPreferences {
+          id
+          preferenceId
+          location {
+            id
+            name
+          }
+        }
+        comments(
+          includeRelatedOrgs: $includeRelatedOrgs
+          relatedOrgId: $relatedOrgId
+        ) {
+          id
+          payload
+          createdLocal
+          hasBeenEdited
+          actualUser {
+            id
+            firstName
+            lastName
+          }
+          actingUser {
+            id
+            firstName
+            lastName
+          }
+          actingOrgUser {
+            id
+            organization {
+              id
+              name
+            }
+          }
+          discussion {
+            id
+          }
+        }
         permissionSet {
           id
           name
@@ -40,10 +81,14 @@ query GetSubstituteById($id: ID!) {
         }
         attributes {
           id
+          changedUtc
+          createdUtc
+          deletedUtc
           endorsement {
             id
             name
             expires
+            expired
           }
           expirationDate
         }

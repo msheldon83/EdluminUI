@@ -13,10 +13,12 @@ export type VacancySummaryDetail = {
   locationName: string;
   accountingCodeAllocations: AccountingCodeAllocation[];
   assignment?: {
-    id?: string;
-    rowVersion?: string;
+    id?: string | undefined;
+    rowVersion?: string | undefined;
     employee?: Employee;
   };
+  absenceStartTimeLocal?: Date;
+  absenceEndTimeLocal?: Date;
 };
 
 /* When you need to keep track of what VacancyDetails are on which 
@@ -38,6 +40,7 @@ export type AssignmentFor = {
     date: Date;
     vacancyDetailIds: string[];
   }[];
+  vacancySummaryDetails: VacancySummaryDetail[];
 };
 
 /* For relevant Assignment information. If an existing Assignment, then

@@ -17,13 +17,17 @@ import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { useState, useCallback, useMemo } from "react";
 import { format, isSameDay } from "date-fns";
-import { AssignmentWithDetails, Assignment } from "./types";
+import { AssignmentWithDetails } from "./types";
+import { compact } from "lodash-es";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   open: boolean;
   onClose: () => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
+  onCancelAssignment: (
+    vacancyDetailIds: string[],
+    vacancyDetailDates?: Date[]
+  ) => Promise<boolean>;
 };
 
 export const CancelAssignmentDialog: React.FC<Props> = props => {
@@ -57,7 +61,7 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
       []
     );
 
-    await onCancelAssignment(vacancyDetailIds);
+    await onCancelAssignment(compact(vacancyDetailIds), compact(selectedDates));
     onClose();
   }, [assignmentWithDetails, selectedDates, onCancelAssignment, onClose]);
 

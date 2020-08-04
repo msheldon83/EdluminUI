@@ -66,6 +66,7 @@ query GetAbsence($id: ID!) {
             id
             name
             requireNotesToAdmin
+            absenceReasonCategoryId
           }
         }
         dayPartId
@@ -91,6 +92,7 @@ query GetAbsence($id: ID!) {
             id
             name
             requireNotesToAdmin
+            absenceReasonCategoryId
           }
         }
       }
@@ -126,6 +128,7 @@ query GetAbsence($id: ID!) {
         absenceReasonBalances {
           id
           absenceReasonId
+          absenceReasonCategoryId
         }
       }
       vacancies {
@@ -178,6 +181,8 @@ query GetAbsence($id: ID!) {
             }
             allocation
           }
+          isFilled
+          verifiedAtUtc
         }
         absenceId
         absence {
@@ -191,6 +196,7 @@ query GetAbsence($id: ID!) {
           }
         }
       }
+      approvalStatus
     }
   }
 }

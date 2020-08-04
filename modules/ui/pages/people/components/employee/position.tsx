@@ -45,6 +45,9 @@ type Props = {
     | {
         daysOfTheWeek: DayOfWeek[];
         items: {
+          bellSchedule?: {
+            name: string;
+          } | null;
           endTime?: number | null | undefined;
           startTime?: number | null | undefined;
           location: {
@@ -80,7 +83,9 @@ export const Position: React.FC<Props> = props => {
       ? props.accountingCodeAllocations
           ?.map(
             ac =>
-              `${ac?.accountingCode?.name} (${(ac?.allocation ?? 0) * 100}%)`
+              `${ac?.accountingCode?.name} (${(
+                (ac?.allocation ?? 0) * 100
+              ).toFixed(2)}%)`
           )
           .join(", ") ?? t("None defined")
       : props.accountingCodeAllocations[0]?.accountingCode?.name ??
@@ -170,7 +175,8 @@ export const Position: React.FC<Props> = props => {
                           <div
                             className={classes.timeField}
                           >{`${formattedStartTime} - ${formattedEndTime}`}</div>
-                          <div>{locationName}</div>
+                          <div>{`@ ${locationName} (${item.bellSchedule?.name ??
+                            t("Custom")})`}</div>
                         </div>
                       );
                     });

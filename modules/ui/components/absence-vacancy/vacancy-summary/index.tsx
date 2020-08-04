@@ -1,4 +1,4 @@
-import { makeStyles, Typography, TextField } from "@material-ui/core";
+import { makeStyles, Typography, TextField, Grid } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
@@ -11,15 +11,22 @@ type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
   showPayCodes: boolean;
   showAccountingCodes: boolean;
-  showAbsenceTimes?: boolean;
   notesForSubstitute?: string;
   setNotesForSubstitute?: (notes: string) => void;
   onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<void>;
+  onCancelAssignment?: (
+    vacancyDetailIds: string[],
+    vacancyDetailDates?: Date[]
+  ) => Promise<boolean>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
   divRef?: React.RefObject<HTMLDivElement>;
   readOnly?: boolean;
+  noDaysChosenText?: string;
+  isAbsence?: boolean;
+  absenceActions?: JSX.Element;
+  footerActions?: JSX.Element;
+  allowRemoval?: boolean;
 };
 
 export const VacancySummary: React.FC<Props> = props => {
@@ -33,10 +40,14 @@ export const VacancySummary: React.FC<Props> = props => {
     showPayCodes,
     showAccountingCodes,
     notesForSubstitute = "",
-    showAbsenceTimes = false,
+    isAbsence = false,
     disableAssignmentActions = false,
     detailsOnly = false,
     divRef = null,
+    absenceActions = null,
+    footerActions = null,
+    noDaysChosenText = t("No days chosen"),
+    allowRemoval = false,
   } = props;
 
   const assignmentGroups = useMemo(() => {
@@ -44,9 +55,13 @@ export const VacancySummary: React.FC<Props> = props => {
       return [];
     }
 
-    const groups = buildAssignmentGroups(vacancySummaryDetails);
+    const groups = buildAssignmentGroups(
+      vacancySummaryDetails,
+      !showAccountingCodes,
+      !showPayCodes
+    );
     return groups;
-  }, [vacancySummaryDetails]);
+  }, [showAccountingCodes, showPayCodes, vacancySummaryDetails]);
 
   const isPartiallyFilled = useMemo(() => {
     if (!vacancySummaryDetails || vacancySummaryDetails.length === 0) {
@@ -69,13 +84,19 @@ export const VacancySummary: React.FC<Props> = props => {
 
   return (
     <div className={classes.container} ref={divRef}>
-      <div className={classes.header}>
-        {showAbsenceTimes && <div>{t("Absence")}</div>}
-        <div>{t("Substitute schedule")}</div>
-      </div>
+      <Grid container className={classes.header}>
+        {isAbsence && (
+          <Grid item xs={4}>
+            {t("Absence")}
+          </Grid>
+        )}
+        <Grid item xs={isAbsence ? 8 : 12}>
+          {t("Substitute schedule")}
+        </Grid>
+      </Grid>
       {assignmentGroups.length === 0 && (
         <div className={classes.noDaysChosenContainer}>
-          <Typography>{t("No days chosen")}</Typography>
+          <Typography>{noDaysChosenText}</Typography>
         </div>
       )}
       <div className={classes.assignmentGroupsContainer}>
@@ -84,7 +105,7 @@ export const VacancySummary: React.FC<Props> = props => {
             key={i}
             assignmentWithDetails={a}
             isPartiallyFilled={isPartiallyFilled}
-            showAbsenceTimes={showAbsenceTimes}
+            showAbsenceTimes={isAbsence}
             onAssignClick={onAssignClick}
             onCancelAssignment={onCancelAssignment}
             disableActions={disableAssignmentActions}
@@ -92,9 +113,13 @@ export const VacancySummary: React.FC<Props> = props => {
             showPayCodes={showPayCodes}
             showAccountingCodes={showAccountingCodes}
             readOnly={props.readOnly ?? false}
+            allowRemoval={allowRemoval}
           />
         ))}
       </div>
+      {absenceActions && (
+        <div className={classes.absenceActions}>{absenceActions}</div>
+      )}
       {!detailsOnly && (
         <div className={classes.notesContainer}>
           <Typography variant={"h6"}>{t("Notes to substitute")}</Typography>
@@ -117,6 +142,9 @@ export const VacancySummary: React.FC<Props> = props => {
           </div>
         </div>
       )}
+      {footerActions && (
+        <div className={classes.footerActions}>{footerActions}</div>
+      )}
     </div>
   );
 };
@@ -130,8 +158,6 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(2),
   },
   header: {
-    display: "flex",
-    justifyContent: "space-between",
     backgroundColor: theme.customColors.lightGray,
     color: theme.customColors.edluminSubText,
     borderBottom: `${theme.typography.pxToRem(1)} solid ${
@@ -158,5 +184,15 @@ const useStyles = makeStyles(theme => ({
   },
   subText: {
     color: theme.customColors.edluminSubText,
+  },
+  absenceActions: {
+    marginTop: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+  },
+  footerActions: {
+    marginTop: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
   },
 }));

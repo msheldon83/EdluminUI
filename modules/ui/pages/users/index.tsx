@@ -60,6 +60,10 @@ export const UsersPage: React.FC<Props> = props => {
     {
       variables: {
         searchText,
+        sortBy: [
+          { sortByPropertyName: "lastName" },
+          { sortByPropertyName: "firstName" },
+        ],
       },
       fetchPolicy: "cache-and-network",
     },

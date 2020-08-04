@@ -7,7 +7,6 @@ const ProgressBarPlugin = require("progress-bar-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const loaders = require("./loaders");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
-const { execSync } = require("child_process");
 const TerserPlugin = require("terser-webpack-plugin");
 
 /*
@@ -20,52 +19,6 @@ const HardSourceWebpackPlugin = require("hard-source-webpack-plugin-fixed-hashbu
 
 const DEV_PORT = config.get("devServer.port");
 const PROXY_HOST = config.get("devServer.proxyHost");
-
-function codeVersion() {
-  return (
-    process.env.SOURCE_VERSION ||
-    execSync("git rev-parse --short HEAD")
-      .toString()
-      .trim()
-  );
-}
-
-const temporaryProductionEnv = {
-  // Flag to detect non-production
-  __DEV__: JSON.stringify(config.get("development")),
-  __TEST__: "false",
-
-  "Config.Auth0.domain": JSON.stringify(config.get("auth0_domain")),
-  "Config.Auth0.clientId": JSON.stringify(config.get("auth0_client")),
-  "Config.Auth0.redirectUrl": JSON.stringify(config.get("auth0_redirect_url")),
-  "Config.Auth0.apiAudience": JSON.stringify(config.get("auth0_api_audience")),
-  "Config.Auth0.scope": JSON.stringify(config.get("auth0_scope")),
-  "Config.Auth0.clockSkewLeewaySeconds": JSON.stringify(
-    config.get("auth0_clock_skew_leeway_seconds")
-  ),
-  "Config.restUri": JSON.stringify(config.get("restUrl")),
-  "Config.apiUri": JSON.stringify(config.get("apiUrl")),
-  "Config.isDevFeatureOnly": JSON.stringify(config.get("isDevFeatureOnly")),
-
-  // Impersonation header keys
-  "Config.impersonation.actingUserIdKey": JSON.stringify(
-    config.get("impersonation_actingUserIdKey")
-  ),
-  "Config.impersonation.actingOrgUserIdKey": JSON.stringify(
-    config.get("impersonation_actingOrgUserIdKey")
-  ),
-  "Config.impersonation.impersonatingOrgId": JSON.stringify(
-    config.get("impersonation_impersonatingOrgId")
-  ),
-
-  // ALlow switching on NODE_ENV in client code
-  "process.env.NODE_ENV": JSON.stringify(config.get("environment")),
-
-  // Expose Google Analytics ID to client
-  "process.env.TRACKING_ID": JSON.stringify(config.get("trackingId")),
-
-  "process.env.CODE_VERSION": JSON.stringify(codeVersion()),
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 // per-environment plugins
@@ -146,26 +99,18 @@ module.exports = {
   plugins: [
     new CopyPlugin([
       { from: "scripts/new-relic.js" },
+      { from: "scripts/canny.js" },
       { from: "static" },
       { from: "config/environment.js" },
+      { from: "config/environment.js.template" },
+      { from: "config/web.config" },
     ]),
 
-    // Define global letiables in the client to instrument behavior.
-    new webpack.DefinePlugin(
-      config.get("development") ? {} : temporaryProductionEnv
-    ),
-
     /*
-    Process index.html and insert script and stylesheet tags for us.
-
-    Temporarily there are 2 different index files because of how the
-    environment is loaded. This will change when we have the environment file
-      in QA and production builds
+    Process index.html and insert script and stylesheet tags for us including config script
     */
     new HtmlWebpackPlugin({
-      template: config.get("development")
-        ? "./entry/index.development.tmp.html"
-        : "./entry/index.production.tmp.html",
+      template: "./entry/index.html",
       inject: "body",
     }),
 

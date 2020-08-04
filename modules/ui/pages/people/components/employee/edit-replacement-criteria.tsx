@@ -11,7 +11,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { ReplacementCriteriaUI } from "ui/components/replacement-criteria/index";
 import { useRouteParams } from "ui/routes/definition";
-import { Employee } from "graphql/server-types.gen";
+import { Employee, OrgUser, Position } from "graphql/server-types.gen";
 import { PersonViewRoute } from "ui/routes/people";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
 
@@ -34,12 +34,22 @@ export const PeopleReplacementCriteriaEdit: React.FC<Props> = props => {
     variables: { id: params.orgUserId },
   });
 
-  const employee = (getEmployee.state === "LOADING"
-    ? undefined
-    : getEmployee.data?.orgUser?.byId?.employee) as Pick<
-    Employee,
-    "id" | "orgId" | "firstName" | "lastName" | "primaryPosition"
-  >;
+  const employee:
+    | (Pick<OrgUser, "firstName" | "lastName" | "orgId"> &
+        Pick<Employee, "id" | "primaryPosition">)
+    | undefined =
+    getEmployee.state === "LOADING"
+      ? undefined
+      : {
+          id: getEmployee.data?.orgUser?.byId?.employee?.id ?? "",
+          primaryPosition:
+            // TODO: Fix this assertion
+            getEmployee.data?.orgUser?.byId?.employee
+              ?.primaryPosition as Position,
+          firstName: getEmployee.data?.orgUser?.byId?.firstName ?? "",
+          lastName: getEmployee.data?.orgUser?.byId?.lastName ?? "",
+          orgId: getEmployee.data?.orgUser?.byId?.orgId ?? "",
+        };
 
   //Mutations
   const updateMustHave = useCallback(
