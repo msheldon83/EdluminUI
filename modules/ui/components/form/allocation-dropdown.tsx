@@ -3,7 +3,7 @@ import clsx from "clsx";
 import memoize from "lodash-es/memoize";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
-import DeleteIcon from "@material-ui/icons/Delete";
+import CancelIcon from "@material-ui/icons/Cancel";
 import IconButton from "@material-ui/core/IconButton";
 import { SelectNew as Select, OptionType } from "./select-new";
 import { TextButton } from "ui/components/text-button";
@@ -214,12 +214,13 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
         <IconButton
           aria-label="delete"
           role="button"
+          className={classes.deleteAllocationButton}
           disableFocusRipple
           size="small"
           onClick={() => removeAllocation(allocation.id)}
           disabled={disabled}
         >
-          <DeleteIcon />
+          <CancelIcon />
         </IconButton>
       </>
     );
@@ -325,7 +326,7 @@ const useStyles = makeStyles(theme => ({
   },
   multiCodeSelect: {
     flex: "1 0 auto",
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(0.5),
   },
   alloctionButtons: {
     padding: `0 ${theme.typography.pxToRem(
@@ -344,5 +345,13 @@ const useStyles = makeStyles(theme => ({
   error: {
     borderColor: theme.customColors.darkRed,
     borderTopColor: theme.customColors.edluminSubText,
+  },
+  deleteAllocationButton: {
+    color: theme.status.error,
+
+    "& svg": {
+      height: theme.typography.pxToRem(16),
+      width: theme.typography.pxToRem(16),
+    },
   },
 }));

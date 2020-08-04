@@ -79,15 +79,15 @@ export const AbsenceReasonDropdown = ({
 
         console.log("days value", hoursToDays(value));
 
-        return (
-          <>
+        return selection ? (
+          <div className={classes.allocationAmountWrapper}>
             {hoursVisible && (
               <NumberInput
                 {...allocationProps}
                 value={value}
                 className={classes.hoursInput}
                 endAdornment={t("hrs")}
-                maxLength={2}
+                maxLength={3}
                 disabled={allocationProps.disabled || hoursDisabled}
               />
             )}
@@ -101,11 +101,13 @@ export const AbsenceReasonDropdown = ({
                 value={hoursToDays(value)}
                 className={classes.daysInput}
                 endAdornment={t("days")}
-                maxLength={2}
+                maxLength={3}
                 disabled={allocationProps.disabled || daysDisabled}
               />
             )}
-          </>
+          </div>
+        ) : (
+          <div />
         );
       }}
     />
@@ -115,9 +117,13 @@ export const AbsenceReasonDropdown = ({
 const useStyles = makeStyles(theme => ({
   hoursInput: {
     marginRight: theme.spacing(1),
-    width: theme.spacing(8.5),
+    width: theme.spacing(10),
   },
   daysInput: {
-    width: theme.spacing(9.5),
+    width: theme.spacing(11),
+  },
+  allocationAmountWrapper: {
+    marginLeft: theme.spacing(0.5),
+    marginRight: theme.spacing(0.5),
   },
 }));
