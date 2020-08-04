@@ -25,6 +25,7 @@ import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id-forad
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
+import { FinishWizard } from "../finish-create-wizard";
 import {
   buildDaysOfTheWeek,
   buildNewPeriod,
@@ -151,14 +152,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       <AddBasicInfo
         orgId={params.organizationId}
         orgUser={employee}
-        onSubmit={(
-          firstName,
-          lastName,
-          email,
-          middleName,
-          externalId,
-          inviteImmediately
-        ) => {
+        onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setEmployee({
             ...employee,
             firstName: firstName,
@@ -166,7 +160,6 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
-            inviteImmediately: inviteImmediately,
           });
           setStep(steps[1].stepNumber);
         }}
@@ -215,7 +208,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <PositionEditUI
-        submitLabel={t("Save")} // TODO: Change this label to "Next" if we add another step
+        submitLabel={t("Next")} // TODO: Change this label to "Next" if we add another step
         position={{
           positionTypeId: employee.position?.positionType?.id,
           title: employee.position?.title,
@@ -256,8 +249,36 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             },
           };
           setEmployee(newEmployee);
+          setStep(steps[3].stepNumber);
+        }}
+        onCancel={handleCancel}
+      />
+    );
+  };
+
+  const renderFinish = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <FinishWizard
+        orgUserName={`${employee.firstName} ${employee.lastName}`}
+        orgUserType={t("Employee")}
+        onSubmit={async (orgUser: any) => {
+          const newEmployee = {
+            ...employee,
+            inviteImmediately: orgUser.inviteImmediately,
+          };
+          setEmployee(newEmployee);
           const id = await create(newEmployee);
           if (id) {
+            if (orgUser.createAnother) {
+              history.push(
+                EmployeeAddRoute.generate({
+                  organizationId: params.organizationId,
+                  orgUserId: "new",
+                })
+              );
+            }
             const viewParams = { ...params, orgUserId: id };
             history.push(PersonViewRoute.generate(viewParams));
           }
@@ -291,6 +312,11 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       stepNumber: 2,
       name: t("Position"),
       content: renderPosition,
+    },
+    {
+      stepNumber: 3,
+      name: t("Finish"),
+      content: renderFinish,
     },
   ];
   const [initialStepNumber, setInitialStepNumber] = React.useState(

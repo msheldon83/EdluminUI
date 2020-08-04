@@ -16,7 +16,7 @@ import { SubstituteInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveSubstitute } from "../../graphql/substitute/save-substitute.gen";
-import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
+import { FinishWizard } from "../finish-create-wizard";
 import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -118,14 +118,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       <AddBasicInfo
         orgId={params.organizationId}
         orgUser={substitute}
-        onSubmit={(
-          firstName,
-          lastName,
-          email,
-          middleName,
-          externalId,
-          inviteImmediately
-        ) => {
+        onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setSubstitute({
             ...substitute,
             firstName: firstName,
@@ -133,7 +126,6 @@ export const SubstituteAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
-            inviteImmediately: inviteImmediately,
           });
           goToNextStep();
         }}
@@ -215,13 +207,9 @@ export const SubstituteAddPage: React.FC<{}> = props => {
         />
         <ActionButtons
           submit={{
-            text: t("Save"),
+            text: t("Next"),
             execute: async () => {
-              const id = await create(substitute, subAttributes);
-              if (id) {
-                const viewParams = { ...params, orgUserId: id };
-                history.push(PersonViewRoute.generate(viewParams));
-              }
+              setStep(steps[3].stepNumber);
             },
           }}
           cancel={{
@@ -230,6 +218,38 @@ export const SubstituteAddPage: React.FC<{}> = props => {
           }}
         />
       </Section>
+    );
+  };
+
+  const renderFinish = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <FinishWizard
+        orgUserName={`${substitute.firstName} ${substitute.lastName}`}
+        orgUserType={t("Substitute")}
+        onSubmit={async (orgUser: any) => {
+          const newSubstitute = {
+            ...substitute,
+            inviteImmediately: orgUser.inviteImmediately,
+          };
+          setSubstitute(newSubstitute);
+          const id = await create(substitute, subAttributes);
+          if (id) {
+            if (orgUser.createAnother) {
+              history.push(
+                SubstituteAddRoute.generate({
+                  organizationId: params.organizationId,
+                  orgUserId: "new",
+                })
+              );
+            }
+            const viewParams = { ...params, orgUserId: id };
+            history.push(PersonViewRoute.generate(viewParams));
+          }
+        }}
+        onCancel={handleCancel}
+      />
     );
   };
 
@@ -270,6 +290,11 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       stepNumber: 2,
       name: t("Position Types & Attributes"),
       content: renderPositionTypesAndAttributes,
+    },
+    {
+      stepNumber: 3,
+      name: t("Finish"),
+      content: renderFinish,
     },
   ];
 

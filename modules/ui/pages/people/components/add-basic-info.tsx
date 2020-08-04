@@ -1,4 +1,4 @@
-import { Grid, Checkbox, FormControlLabel } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
@@ -23,15 +23,13 @@ type Props = {
     lastName?: string | null | undefined;
     externalId?: string | null | undefined;
     email?: string | null | undefined;
-    inviteImmediately?: boolean | null | undefined;
   };
   onSubmit: (
     firstName: string | null | undefined,
     lastName: string | null | undefined,
     email: string,
     middleName?: string | null | undefined,
-    externalId?: string | null | undefined,
-    invite?: boolean | null | undefined
+    externalId?: string | null | undefined
   ) => void;
   onCancel: () => void;
   onNameChange: (
@@ -67,7 +65,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
     lastName: props.orgUser.lastName,
     externalId: props.orgUser.externalId || "",
     email: props.orgUser.email || "",
-    inviteImmediately: true,
   };
 
   return (
@@ -89,9 +86,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
           email: Yup.string()
             .nullable()
             .required(t("Email is required")),
-          inviteImmediately: Yup.boolean().required(
-            t("Invitation selection required")
-          ),
         })}
         onSubmit={async (data: any) => {
           const verified = await onVerify(data.externalId);
@@ -102,20 +96,12 @@ export const AddBasicInfo: React.FC<Props> = props => {
               data.lastName,
               data.email,
               data.middleName,
-              data.externalId,
-              data.inviteImmediately
+              data.externalId
             );
           }
         }}
       >
-        {({
-          handleSubmit,
-          handleChange,
-          submitForm,
-          setFieldValue,
-          values,
-          errors,
-        }) => (
+        {({ handleSubmit, handleChange, submitForm, values, errors }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={4} sm={2} lg={2}>
@@ -202,21 +188,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
                     variant: "outlined",
                     fullWidth: true,
                   }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} lg={6}>
-                <FormControlLabel
-                  className={classes.paddingTop}
-                  checked={values.inviteImmediately}
-                  control={
-                    <Checkbox
-                      onChange={e => {
-                        setFieldValue("inviteImmediately", e.target.checked);
-                      }}
-                      color="primary"
-                    />
-                  }
-                  label={t("Invite to Red Rover")}
                 />
               </Grid>
             </Grid>

@@ -9,6 +9,7 @@ import { AddBasicInfo } from "../add-basic-info";
 import { useHistory } from "react-router";
 import { Information, editableSections } from "../information";
 import { AccessControl } from "./access-control";
+import { FinishWizard } from "../finish-create-wizard";
 import { AdministratorInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -100,14 +101,7 @@ export const AdminAddPage: React.FC<{}> = props => {
       <AddBasicInfo
         orgId={params.organizationId}
         orgUser={admin}
-        onSubmit={(
-          firstName,
-          lastName,
-          email,
-          middleName,
-          externalId,
-          inviteImmediately
-        ) => {
+        onSubmit={(firstName, lastName, email, middleName, externalId) => {
           setAdmin({
             ...admin,
             firstName: firstName,
@@ -115,7 +109,6 @@ export const AdminAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
-            inviteImmediately: inviteImmediately,
           });
           setStep(steps[1].stepNumber);
         }}
@@ -192,8 +185,35 @@ export const AdminAddPage: React.FC<{}> = props => {
             ...orgUser,
           };
           setAdmin(newAdmin);
+          setStep(steps[3].stepNumber);
+        }}
+        onCancel={handleCancel}
+      />
+    );
+  };
+  const renderFinish = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <FinishWizard
+        orgUserName={`${admin.firstName} ${admin.lastName}`}
+        orgUserType={t("Admin")}
+        onSubmit={async (orgUser: any) => {
+          const newAdmin = {
+            ...admin,
+            inviteImmediately: orgUser.inviteImmediately,
+          };
+          setAdmin(newAdmin);
           const id = await create(newAdmin);
           if (id) {
+            if (orgUser.createAnother) {
+              history.push(
+                AdminAddRoute.generate({
+                  organizationId: params.organizationId,
+                  orgUserId: "new",
+                })
+              );
+            }
             const viewParams = { ...params, orgUserId: id };
             history.push(PersonViewRoute.generate(viewParams));
           }
@@ -227,6 +247,11 @@ export const AdminAddPage: React.FC<{}> = props => {
       stepNumber: 2,
       name: t("Access Control"),
       content: renderAccessControl,
+    },
+    {
+      stepNumber: 3,
+      name: t("Finish"),
+      content: renderFinish,
     },
   ];
   const [initialStepNumber, setInitialStepNumber] = React.useState(
