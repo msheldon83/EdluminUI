@@ -197,7 +197,8 @@ export const AdminAddPage: React.FC<{}> = props => {
     return (
       <FinishWizard
         orgUserName={`${admin.firstName} ${admin.lastName}`}
-        orgUserType={t("Admin")}
+        orgUserType={t("admin")}
+        orgId={params.organizationId}
         onSubmit={async (orgUser: any) => {
           const newAdmin = {
             ...admin,
@@ -207,6 +208,24 @@ export const AdminAddPage: React.FC<{}> = props => {
           const id = await create(newAdmin);
           if (id) {
             if (orgUser.createAnother) {
+              openSnackbar({
+                dismissable: true,
+                autoHideDuration: 7000,
+                status: "success",
+                message: (
+                  <div
+                    onClick={() => {
+                      const viewParams = { ...params, orgUserId: id };
+                      history.push(PersonViewRoute.generate(viewParams));
+                    }}
+                  >
+                    {t(
+                      `${admin.firstName} ${admin.lastName} successfully created. Click to view.`
+                    )}
+                  </div>
+                ),
+              });
+
               history.push(
                 AdminAddRoute.generate({
                   organizationId: params.organizationId,

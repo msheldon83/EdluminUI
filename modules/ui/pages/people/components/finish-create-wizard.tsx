@@ -2,10 +2,12 @@ import * as React from "react";
 import { useIsMobile } from "hooks";
 import { makeStyles } from "@material-ui/styles";
 import { Section } from "ui/components/section";
-import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
+import { ActionButtons } from "ui/components/action-buttons";
+import { useOrganization } from "reference-data/organization";
 import { Formik } from "formik";
 import * as yup from "yup";
+import { OrganizationType } from "graphql/server-types.gen";
 import {
   Grid,
   RadioGroup,
@@ -17,6 +19,7 @@ import {
 type Props = {
   orgUserName: string;
   orgUserType: string;
+  orgId: string;
   onSubmit: (orgUser: any) => Promise<unknown>;
   onCancel: () => void;
 };
@@ -26,20 +29,26 @@ export const FinishWizard: React.FC<Props> = props => {
   const classes = useStyles();
   const isMobile = useIsMobile();
 
+  const getOrganization = useOrganization(props.orgId);
+  const orgType = getOrganization?.config?.organizationTypeId;
+
   return (
     <Section>
-      <SectionHeader title={t("Basic info")} />
       <Formik
-        initialValues={{ inviteImmediately: true, createAnother: true }}
+        initialValues={{
+          inviteImmediately:
+            orgType == OrganizationType.Standard ? true : false,
+          createAnother: false,
+        }}
         onSubmit={props.onSubmit}
         validationSchema={yup.object().shape({
           inviteImmediately: yup
             .boolean()
             .required(t("Invitation selection required")),
-          isRestricted: yup.boolean(),
+          createAnother: yup.boolean().required(t("Create selection required")),
         })}
       >
-        {({ values, handleSubmit, setFieldValue }) => (
+        {({ values, handleSubmit, submitForm, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6" className={classes.label}>
@@ -98,6 +107,10 @@ export const FinishWizard: React.FC<Props> = props => {
                 />
               </RadioGroup>
             </Grid>
+            <ActionButtons
+              submit={{ text: t("Save"), execute: submitForm }}
+              cancel={{ text: t("Cancel"), execute: props.onCancel }}
+            />
           </form>
         )}
       </Formik>

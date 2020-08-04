@@ -227,7 +227,8 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     return (
       <FinishWizard
         orgUserName={`${substitute.firstName} ${substitute.lastName}`}
-        orgUserType={t("Substitute")}
+        orgUserType={t("substitute")}
+        orgId={params.organizationId}
         onSubmit={async (orgUser: any) => {
           const newSubstitute = {
             ...substitute,
@@ -237,6 +238,24 @@ export const SubstituteAddPage: React.FC<{}> = props => {
           const id = await create(substitute, subAttributes);
           if (id) {
             if (orgUser.createAnother) {
+              openSnackbar({
+                dismissable: true,
+                autoHideDuration: 7000,
+                status: "success",
+                message: (
+                  <div
+                    onClick={() => {
+                      const viewParams = { ...params, orgUserId: id };
+                      history.push(PersonViewRoute.generate(viewParams));
+                    }}
+                  >
+                    {t(
+                      `${substitute.firstName} ${substitute.lastName} successfully created. Click to view.`
+                    )}
+                  </div>
+                ),
+              });
+
               history.push(
                 SubstituteAddRoute.generate({
                   organizationId: params.organizationId,
