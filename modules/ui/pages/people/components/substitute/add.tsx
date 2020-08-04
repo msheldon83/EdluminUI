@@ -49,7 +49,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     lastName: "",
     externalId: null,
     email: "",
-    inviteImmediately: true,
+    inviteImmediately: null,
   });
   const [subAttributes, setSubAttributes] = React.useState<Attribute[]>([]);
 

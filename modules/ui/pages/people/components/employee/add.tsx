@@ -157,7 +157,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           email,
           middleName,
           externalId,
-          invite
+          inviteImmediately
         ) => {
           setEmployee({
             ...employee,
@@ -166,7 +166,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
-            inviteImmediately: invite,
+            inviteImmediately: inviteImmediately,
           });
           setStep(steps[1].stepNumber);
         }}

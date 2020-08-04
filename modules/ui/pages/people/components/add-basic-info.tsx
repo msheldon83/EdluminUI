@@ -101,9 +101,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
               data.firstName,
               data.lastName,
               data.email,
-              data.inviteImmediately,
               data.middleName,
-              data.externalId
+              data.externalId,
+              data.inviteImmediately
             );
           }
         }}
