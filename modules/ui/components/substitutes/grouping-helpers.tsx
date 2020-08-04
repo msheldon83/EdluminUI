@@ -15,19 +15,24 @@ export interface DateGroupByMonth {
   dates: Date[];
 }
 
-export function generateEmptyDateMap(from: Date, to: Date): DateGroupByMonth[] {
+export function generateMonths(from: Date, to: Date): string[] {
   const toDate = isLastDayOfMonth(to) ? addDays(to, 1) : to;
   const diff = differenceInCalendarMonths(toDate, from);
   const absDiff = Math.abs(diff);
   const delta = diff > 0 ? 1 : -1;
 
   return absDiff > 1
-    ? range(0, absDiff).map(i => ({
-        month: startOfMonth(addMonths(from, i * delta)).toISOString(),
-        dates: [],
-      }))
+    ? range(0, absDiff).map(i =>
+        startOfMonth(addMonths(from, i * delta)).toISOString()
+      )
     : [];
 }
+
+export const generateEmptyDateMap = (
+  from: Date,
+  to: Date
+): DateGroupByMonth[] =>
+  generateMonths(from, to).map(month => ({ month, dates: [] }));
 
 export type AssignmentVacancyTimeDetails = {
   id?: string;

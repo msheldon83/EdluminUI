@@ -1,18 +1,18 @@
 import * as React from "react";
-import { CalendarChange } from "graphql/server-types.gen";
+import { CalendarChange, CalendarDayType } from "graphql/server-types.gen";
 import { Grid } from "@material-ui/core";
 import { CalendarChangeMonthCalendar } from "./calendar-change-month-calendar";
 import {
-  generateEmptyDateMap,
+  generateMonths,
   DateGroupByMonth,
 } from "ui/components/substitutes/grouping-helpers";
-import { startOfMonth } from "date-fns/esm";
+import { startOfMonth, startOfDay } from "date-fns/esm";
 import { parseISO, eachDayOfInterval, format } from "date-fns";
-import { groupBy } from "lodash-es";
-import { CalendarEvent } from "../types";
+import { compact, groupBy } from "lodash-es";
+import { CalendarEvent, CalendarChangeDate } from "../types";
 
 type Props = {
-  calandarChangeDates: any[];
+  calandarChangeDates: CalendarChange[];
   fromDate: Date;
   toDate: Date;
   setSelectedCalendarChanges: (cc: CalendarEvent) => void;
@@ -22,47 +22,85 @@ type Props = {
 export const CalendarView: React.FC<Props> = props => {
   /*need to group all dates by month then iterate over each and render a calendar-change-month-calendar*/
 
-  const empty = generateEmptyDateMap(props.fromDate, props.toDate);
+  const monthList = generateMonths(props.fromDate, props.toDate);
 
   const onSelectDate = (date: Date) => {
     const calendarChanges = props.calandarChangeDates.find(cc => {
       return date >= parseISO(cc.startDate) && date <= parseISO(cc.endDate);
     });
-    props.setSelectedCalendarChanges(calendarChanges);
+    props.setSelectedCalendarChanges(calendarChanges!);
     props.setSelectedDate(date);
   };
 
-  const mergeChangeDatesByMonth = (
-    emptyMap: DateGroupByMonth[],
-    calandarChangeDates: CalendarChange[]
-  ) => {
-    const all = emptyMap;
-    Object.entries(
-      groupBy(
-        calandarChangeDates,
-        c => c.startDate && startOfMonth(parseISO(c.startDate)).toISOString()
-      )
-    ).map(([date, calandarChangeDates]) => {
-      const month = all.find(e => e.month === date);
-      if (!month) return;
-      month.dates = calandarChangeDates.map(a => parseISO(a.startDate));
-    });
+  const printId: <T>(t: T, message?: string) => T = (t, message) => {
+    //console.log(message);
+    console.log(t);
+    return t;
+  };
 
-    return all;
+  const mergeChangeDatesByMonth = (
+    monthList: string[],
+    calandarChangeDates: (Pick<
+      CalendarChange,
+      "startDate" | "endDate" | "affectsAllContracts"
+    > & { dayType?: CalendarDayType })[]
+  ): { month: string; dates: CalendarChangeDate[] }[] => {
+    const groupedDates = groupBy(
+      calandarChangeDates,
+      c => c.startDate && startOfMonth(parseISO(c.startDate)).toISOString()
+    );
+
+    return monthList.map(month => ({
+      month,
+      dates:
+        month in groupedDates
+          ? Object.entries(
+              groupBy(groupedDates[month], a =>
+                startOfDay(parseISO(a.startDate)).toISOString()
+              )
+            ).map(
+              ([day, dates]): CalendarChangeDate => ({
+                date: parseISO(day),
+                isClosed: dates.some(
+                  d => d.dayType == CalendarDayType.CancelledDay
+                ),
+                isModified: dates.some(
+                  d => d.dayType == CalendarDayType.InstructionalDay
+                ),
+                isInservice: dates.some(
+                  d =>
+                    d.dayType == CalendarDayType.NonWorkDay ||
+                    d.dayType == CalendarDayType.TeacherWorkDay
+                ),
+              })
+            )
+          : [],
+    }));
   };
 
   // first unconsolidate dates if any calendar change goes for more then one day
-  const unConsolidatedCalandarChangeDates: any[] = [];
+  const unConsolidatedCalandarChangeDates: (Pick<
+    CalendarChange,
+    "startDate" | "endDate" | "affectsAllContracts"
+  > & {
+    dayType?: CalendarDayType;
+  })[] = [];
   props.calandarChangeDates.forEach(e => {
     if (e.startDate === e.endDate) {
-      unConsolidatedCalandarChangeDates.push(e);
+      unConsolidatedCalandarChangeDates.push({
+        ...e,
+        dayType: e.calendarChangeReason?.calendarDayTypeId ?? undefined,
+      });
     } else {
       const days = eachDayOfInterval({
         start: parseISO(e.startDate),
         end: parseISO(e.endDate),
       });
       days.forEach(d => {
-        const cc = { ...e };
+        const cc = {
+          ...e,
+          dayType: e.calendarChangeReason?.calendarDayTypeId ?? undefined,
+        };
         cc.startDate = format(d, "yyyy-MM-dd");
         cc.endDate = format(d, "yyyy-MM-dd");
         unConsolidatedCalandarChangeDates.push(cc);
@@ -83,7 +121,7 @@ export const CalendarView: React.FC<Props> = props => {
   }
 
   const groupedDates = mergeChangeDatesByMonth(
-    empty,
+    monthList,
     unConsolidatedCalandarChangeDates
   );
 

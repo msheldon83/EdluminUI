@@ -3,70 +3,78 @@ import { makeStyles } from "@material-ui/core";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
 import { useMemo } from "react";
 import * as DateFns from "date-fns";
+import { CalendarChangeDate } from "../types";
 import clsx from "clsx";
 
 type Props = {
   date: string;
-  calendarChangeDates: Date[];
+  calendarChangeDates: CalendarChangeDate[];
   selectedDate: Date;
   onSelectDate: (date: Date) => void;
+};
+
+const makeFlagClassKey = ({
+  isClosed,
+  isModified,
+  isInservice,
+}: {
+  isClosed: boolean;
+  isModified: boolean;
+  isInservice: boolean;
+}): string => {
+  const maybeWithCapital = (isClosed ? ["closed"] : [])
+    .concat(isModified ? ["Modified"] : [])
+    .concat(isInservice ? ["InService"] : [])
+    .join("And");
+  return maybeWithCapital.length == 0
+    ? ""
+    : maybeWithCapital[0].toLowerCase() + maybeWithCapital.substring(1);
 };
 
 export const CalendarChangeMonthCalendar: React.FC<Props> = props => {
   const classes = useStyles();
   const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
-  const className = classes.event;
+  const inputDates = props.calendarChangeDates;
 
-  const checkDays = useMemo(
-    () => DateFns.isSameMonth(parsedDate, props.selectedDate),
-    [parsedDate, props.selectedDate]
+  const styledDates = useMemo(
+    () =>
+      inputDates
+        .map(({ date, ...flags }) => {
+          const flagClasses =
+            classes[makeFlagClassKey(flags) as keyof typeof classes];
+          return {
+            date,
+            buttonProps: {
+              className: clsx(
+                flagClasses,
+                DateFns.isSameDay(date, props.selectedDate)
+                  ? classes.selected
+                  : DateFns.isToday(date)
+                  ? classes.today
+                  : undefined
+              ),
+            },
+          };
+        })
+        .concat(
+          inputDates.some(({ date }) => DateFns.isToday(date))
+            ? []
+            : [
+                {
+                  date: DateFns.startOfToday(),
+                  buttonProps: { className: classes.today },
+                },
+              ]
+        ),
+    [inputDates, classes, props.selectedDate]
   );
-
-  const checkSelected = useMemo(
-    () => (d: Date) => {
-      if (DateFns.isSameDay(d, props.selectedDate)) {
-        return classes.selected;
-      } else {
-        return className;
-      }
-    },
-    [props.selectedDate, classes, className]
-  );
-
-  const calendarChangeDates = useMemo(() => {
-    const days = checkDays
-      ? props.calendarChangeDates.map(d => ({
-          date: d,
-          buttonProps: { className: checkSelected(d) },
-        }))
-      : props.calendarChangeDates.map(d => ({
-          date: d,
-          buttonProps: { className },
-        }));
-    const today = days.find(d => DateFns.isToday(d.date));
-    if (today) {
-      today.buttonProps.className += ` ${classes.today}`;
-    } else {
-      days.push({
-        date: DateFns.startOfToday(),
-        buttonProps: { className: classes.today },
-      });
-    }
-    return days;
-  }, [
-    props.calendarChangeDates,
-    className,
-    checkDays,
-    checkSelected,
-    classes.today,
-  ]);
 
   return (
     <>
       <div className={classes.calendar}>
         <SingleMonthCalendar
           currentMonth={parsedDate}
-          customDates={calendarChangeDates}
+          customDates={styledDates}
           onSelectDate={props.onSelectDate}
           className={classes.calendarSize}
         />
@@ -84,13 +92,7 @@ const useStyles = makeStyles(theme => ({
     minWidth: theme.typography.pxToRem(300),
   },
   selected: {
-    backgroundColor: theme.customColors.blueHover,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.blueHover,
-      color: theme.customColors.white,
-    },
+    border: "3px solid #050039",
   },
   event: {
     backgroundColor: theme.customColors.sky,
@@ -102,6 +104,71 @@ const useStyles = makeStyles(theme => ({
     },
   },
   today: {
-    border: "2px solid black",
+    border: "3px solid #4CC17C",
+  },
+  closed: {
+    backgroundColor: "#FF5555",
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: "#FF5555",
+      color: theme.customColors.white,
+    },
+  },
+  modified: {
+    backgroundColor: "#FFCC01",
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: "#FFCC01",
+      color: theme.customColors.white,
+    },
+  },
+  inService: {
+    backgroundColor: "#6471DF",
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: "#6471DF",
+      color: theme.customColors.white,
+    },
+  },
+  closedAndModified: {
+    background: "linear-gradient(to bottom right, #FF5555 50%, #FFCC01 50%)",
+    color: theme.customColors.white,
+
+    "&:hover": {
+      background: "linear-gradient(to bottom right, #FF5555 50%, #FFCC01 50%)",
+      color: theme.customColors.white,
+    },
+  },
+  closedAndInService: {
+    background: "linear-gradient(to bottom right, #FF5555 50%, #6471DF 50%)",
+    color: theme.customColors.white,
+
+    "&:hover": {
+      background: "linear-gradient(to bottom right, #FF5555 50%, #6471DF 50%)",
+      color: theme.customColors.white,
+    },
+  },
+  modifiedAndInService: {
+    background: "linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)",
+    color: theme.customColors.white,
+
+    "&:hover": {
+      background: "linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)",
+      color: theme.customColors.white,
+    },
+  },
+  closedAndModifiedAndInService: {
+    background: `radial-gradient(#FF5555 50%, transparent 50%),
+                 linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)`,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      background: `radial-gradient(#FF5555 50%, transparent 50%),
+                  linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)`,
+      color: theme.customColors.white,
+    },
   },
 }));
