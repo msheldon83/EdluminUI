@@ -9,13 +9,13 @@ import { SelectNew as Select, OptionType } from "./select-new";
 import { TextButton } from "ui/components/text-button";
 import { FormHelperText } from "@material-ui/core";
 
-export type AllocationDropdownProps<ALLOCTION_TYPE = any> = {
-  value?: AllocationCodeValue<ALLOCTION_TYPE>;
+export type AllocationDropdownProps = {
+  value?: AllocationCodeValue;
   placeholder?: string;
   multipleAllocationPlaceholder?: string;
   label?: string;
   options: OptionType[];
-  onChange: (value: AllocationCodeValue<ALLOCTION_TYPE>) => void;
+  onChange: (value: AllocationCodeValue) => void;
   showLabel?: boolean;
   disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
@@ -29,26 +29,22 @@ export type RenderAllocationAmountArgs = {
   disabled: boolean | undefined;
   value: number | undefined;
   onChange: (value: number | undefined) => void;
+  selection?: OptionType;
 };
 
-export type AllocationCodeValue<ALLOCTION_TYPE = any> =
+export type AllocationCodeValue =
   | { type: "no-allocation"; selection: undefined }
   | { type: "single-allocation"; selection?: OptionType }
   | {
       type: "multiple-allocations";
       selection?: OptionType;
-      allocations: Allocation<ALLOCTION_TYPE>[];
+      allocations: Allocation[];
     };
 
-type Allocation<ALLOCTION_TYPE = any> = {
+type Allocation = {
   id: number;
   selection?: OptionType;
   amount?: number;
-  /*
-    Used right now for absence reason being days or hours. Probably future uses. This type
-    is optional
-  */
-  allocationType?: ALLOCTION_TYPE;
 };
 
 /*
@@ -60,9 +56,13 @@ type Allocation<ALLOCTION_TYPE = any> = {
   Use them to send initial date into the dropdown from data stored on the server
 */
 
+export const NO_ALLOCATION = "no-allocation";
+export const SINGLE_ALLOCATION = "single-allocation";
+export const MULTIPLE_ALLOCATIONS = "multiple-allocations";
+
 // Used when there is no code selected
 export const noAllocation = (): AllocationCodeValue => ({
-  type: "no-allocation",
+  type: NO_ALLOCATION,
   selection: undefined,
 });
 
@@ -70,16 +70,16 @@ export const noAllocation = (): AllocationCodeValue => ({
 export const singleAllocation = (
   selection?: OptionType
 ): AllocationCodeValue => ({
-  type: "single-allocation",
+  type: SINGLE_ALLOCATION,
   selection,
 });
 
 // Used when allocated to multiple codes
-export const multipleAllocations = <ALLOCATION_TYPE,>(
-  allocations: Allocation<ALLOCATION_TYPE>[],
+export const multipleAllocations = (
+  allocations: Allocation[],
   selection?: OptionType
-): AllocationCodeValue<ALLOCATION_TYPE> => ({
-  type: "multiple-allocations",
+): AllocationCodeValue => ({
+  type: MULTIPLE_ALLOCATIONS,
   selection,
   allocations,
 });
@@ -209,6 +209,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
             onChange(amount) {
               updateAllocation({ ...allocation, amount });
             },
+            selection: allocation.selection,
           })}
         <IconButton
           aria-label="delete"
