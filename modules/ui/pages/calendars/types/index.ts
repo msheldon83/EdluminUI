@@ -18,6 +18,13 @@ export type CalendarEvent = {
   calendarChangeReason?: Maybe<CalendarChangeReason>;
 };
 
+export type CalendarChangeDate = {
+  date: Date;
+  isClosed: boolean;
+  isModified: boolean;
+  isInservice: boolean;
+};
+
 export const CalendarChangeToCalendarEvent = (
   calendarChange: Pick<
     CalendarChange,

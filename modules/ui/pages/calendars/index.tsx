@@ -19,6 +19,7 @@ import {
   CalendarDayType,
   PermissionEnum,
   DataImportType,
+  CalendarChange,
   CalendarChangeCreateInput,
   CalendarChangeUpdateInput,
 } from "graphql/server-types.gen";
@@ -143,7 +144,7 @@ export const Calendars: React.FC<Props> = props => {
         );
       });
       if (found) {
-        setSelectedDateCalendarChanges(found);
+        setSelectedDateCalendarChanges(found as CalendarEvent);
       } else {
         const cc: CalendarEvent = {
           startDate: selectedDate.toISOString(),
@@ -608,7 +609,7 @@ export const Calendars: React.FC<Props> = props => {
             )}
             {props.view === "calendar" && (
               <CalendarView
-                calandarChangeDates={calendarChanges}
+                calandarChangeDates={calendarChanges as CalendarChange[]}
                 fromDate={parseISO(schoolYear?.startDate)}
                 toDate={parseISO(schoolYear?.endDate)}
                 setSelectedCalendarChanges={input => {
