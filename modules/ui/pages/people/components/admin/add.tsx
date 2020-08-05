@@ -31,8 +31,7 @@ export const AdminAddPage: React.FC<{}> = props => {
   });
   const [name, setName] = React.useState<string | null>(null);
 
-  // Save a new admin in state
-  const [admin, setAdmin] = React.useState<AdministratorInput>({
+  const defaultAdmin = {
     id: null,
     orgId: params.organizationId,
     firstName: "",
@@ -45,7 +44,10 @@ export const AdminAddPage: React.FC<{}> = props => {
       allLocationIdsInScope: true,
       allPositionTypeIdsInScope: true,
     }, // TODO: this is temporary until we build the component to set access control
-  });
+  };
+
+  // Save a new admin in state
+  const [admin, setAdmin] = React.useState<AdministratorInput>(defaultAdmin);
 
   const getOrgUser = useQueryBundle(GetAdminById, {
     variables: { id: params.orgUserId },
@@ -158,6 +160,7 @@ export const AdminAddPage: React.FC<{}> = props => {
       <AccessControl
         editing={"edit-access-control"}
         editable={true}
+        label={t("Next")}
         orgId={params.organizationId}
         locations={[]}
         locationGroups={[]}
@@ -196,9 +199,10 @@ export const AdminAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <FinishWizard
-        orgUserName={`${admin.firstName} ${admin.lastName}`}
+        orgUserFullName={`${admin.firstName} ${admin.lastName}`}
         orgUserType={t("admin")}
         orgId={params.organizationId}
+        orgUserId={orgUser?.id}
         onSubmit={async (orgUser: any) => {
           const newAdmin = {
             ...admin,
@@ -207,6 +211,8 @@ export const AdminAddPage: React.FC<{}> = props => {
           setAdmin(newAdmin);
           const id = await create(newAdmin);
           if (id) {
+            const viewParams = { ...params, orgUserId: id };
+
             if (orgUser.createAnother) {
               openSnackbar({
                 dismissable: true,
@@ -214,27 +220,22 @@ export const AdminAddPage: React.FC<{}> = props => {
                 status: "success",
                 message: (
                   <div
-                    onClick={() => {
-                      const viewParams = { ...params, orgUserId: id };
-                      history.push(PersonViewRoute.generate(viewParams));
-                    }}
+                    onClick={() =>
+                      history.push(PersonViewRoute.generate(viewParams))
+                    }
+                    className={classes.pointer}
                   >
                     {t(
-                      `${admin.firstName} ${admin.lastName} successfully created. Click to view.`
+                      `${admin.firstName} ${admin.lastName} successfully saved. Click to view.`
                     )}
                   </div>
                 ),
               });
 
-              history.push(
-                AdminAddRoute.generate({
-                  organizationId: params.organizationId,
-                  orgUserId: "new",
-                })
-              );
-            }
-            const viewParams = { ...params, orgUserId: id };
-            history.push(PersonViewRoute.generate(viewParams));
+              setName(null);
+              setAdmin(defaultAdmin);
+              setStep(steps[0].stepNumber);
+            } else history.push(PersonViewRoute.generate(viewParams));
           }
         }}
         onCancel={handleCancel}
@@ -301,4 +302,5 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
   },
+  pointer: { cursor: "pointer" },
 }));

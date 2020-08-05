@@ -41,8 +41,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   const [name, setName] = React.useState<string | null>(null);
   const [initialStepNumber, setInitialStepNumber] = React.useState(0);
 
-  // Save a new substitute in state
-  const [substitute, setSubstitute] = React.useState<SubstituteInput>({
+  const defaultSubstitute = {
     orgId: params.organizationId,
     firstName: "",
     middleName: null,
@@ -50,7 +49,12 @@ export const SubstituteAddPage: React.FC<{}> = props => {
     externalId: null,
     email: "",
     inviteImmediately: null,
-  });
+  };
+
+  // Save a new substitute in state
+  const [substitute, setSubstitute] = React.useState<SubstituteInput>(
+    defaultSubstitute
+  );
   const [subAttributes, setSubAttributes] = React.useState<Attribute[]>([]);
 
   const getOrgUser = useQueryBundle(GetSubstituteById, {
@@ -226,9 +230,10 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <FinishWizard
-        orgUserName={`${substitute.firstName} ${substitute.lastName}`}
+        orgUserFullName={`${substitute.firstName} ${substitute.lastName}`}
         orgUserType={t("substitute")}
         orgId={params.organizationId}
+        orgUserId={orgUser?.id}
         onSubmit={async (orgUser: any) => {
           const newSubstitute = {
             ...substitute,
@@ -237,6 +242,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
           setSubstitute(newSubstitute);
           const id = await create(substitute, subAttributes);
           if (id) {
+            const viewParams = { ...params, orgUserId: id };
             if (orgUser.createAnother) {
               openSnackbar({
                 dismissable: true,
@@ -244,27 +250,23 @@ export const SubstituteAddPage: React.FC<{}> = props => {
                 status: "success",
                 message: (
                   <div
-                    onClick={() => {
-                      const viewParams = { ...params, orgUserId: id };
-                      history.push(PersonViewRoute.generate(viewParams));
-                    }}
+                    onClick={() =>
+                      history.push(PersonViewRoute.generate(viewParams))
+                    }
+                    className={classes.pointer}
                   >
                     {t(
-                      `${substitute.firstName} ${substitute.lastName} successfully created. Click to view.`
+                      `${substitute.firstName} ${substitute.lastName} successfully saved. Click to view.`
                     )}
                   </div>
                 ),
               });
 
-              history.push(
-                SubstituteAddRoute.generate({
-                  organizationId: params.organizationId,
-                  orgUserId: "new",
-                })
-              );
-            }
-            const viewParams = { ...params, orgUserId: id };
-            history.push(PersonViewRoute.generate(viewParams));
+              setName(null);
+              setSubAttributes([]);
+              setSubstitute(defaultSubstitute);
+              setStep(steps[0].stepNumber);
+            } else history.push(PersonViewRoute.generate(viewParams));
           }
         }}
         onCancel={handleCancel}
@@ -341,4 +343,5 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
   },
+  pointer: { cursor: "pointer" },
 }));

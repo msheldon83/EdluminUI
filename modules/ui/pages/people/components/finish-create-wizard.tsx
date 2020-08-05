@@ -17,9 +17,10 @@ import {
 } from "@material-ui/core";
 
 type Props = {
-  orgUserName: string;
+  orgUserFullName: string;
   orgUserType: string;
   orgId: string;
+  orgUserId?: string | undefined | null;
   onSubmit: (orgUser: any) => Promise<unknown>;
   onCancel: () => void;
 };
@@ -40,7 +41,15 @@ export const FinishWizard: React.FC<Props> = props => {
             orgType == OrganizationType.Standard ? true : false,
           createAnother: false,
         }}
-        onSubmit={props.onSubmit}
+        onSubmit={async (data: any) => {
+          const orgUser = {
+            createAnother: data.createAnother,
+            inviteImmediately: props.orgUserId
+              ? undefined
+              : data.inviteImmediately,
+          };
+          await props.onSubmit(orgUser);
+        }}
         validationSchema={yup.object().shape({
           inviteImmediately: yup
             .boolean()
@@ -50,36 +59,40 @@ export const FinishWizard: React.FC<Props> = props => {
       >
         {({ values, handleSubmit, submitForm, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6" className={classes.label}>
-                {t(
-                  `Do you want to invite ${props.orgUserName} to create their account right away?`
-                )}
-              </Typography>
-              <RadioGroup
-                aria-label="inviteImmediately"
-                name="inviteImmediately"
-                value={values.inviteImmediately}
-                onChange={e => {
-                  setFieldValue("inviteImmediately", e.target.value === "true");
-                }}
-                row={!isMobile}
-              >
-                <FormControlLabel
-                  value={false}
-                  control={<Radio color="primary" />}
-                  label={t("No")}
-                  labelPlacement="end"
-                />
-                <FormControlLabel
-                  value={true}
-                  control={<Radio color="primary" />}
-                  label={t("Yes")}
-                  labelPlacement="end"
-                />
-              </RadioGroup>
-            </Grid>
-
+            {!props.orgUserId && (
+              <Grid item xs={12} sm={6} lg={6}>
+                <Typography variant="h6" className={classes.label}>
+                  {t(
+                    `Do you want to invite ${props.orgUserFullName} to create their account right away?`
+                  )}
+                </Typography>
+                <RadioGroup
+                  aria-label="inviteImmediately"
+                  name="inviteImmediately"
+                  value={values.inviteImmediately}
+                  onChange={e => {
+                    setFieldValue(
+                      "inviteImmediately",
+                      e.target.value === "true"
+                    );
+                  }}
+                  row={!isMobile}
+                >
+                  <FormControlLabel
+                    value={false}
+                    control={<Radio color="primary" />}
+                    label={t("No")}
+                    labelPlacement="end"
+                  />
+                  <FormControlLabel
+                    value={true}
+                    control={<Radio color="primary" />}
+                    label={t("Yes")}
+                    labelPlacement="end"
+                  />
+                </RadioGroup>
+              </Grid>
+            )}
             <Grid item xs={12} sm={6} lg={6}>
               <Typography variant="h6" className={classes.label}>
                 {t(`Do you want to create another ${props.orgUserType}?`)}

@@ -46,8 +46,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   });
   const [name, setName] = React.useState<string | null>(null);
 
-  // Save a new employee in state
-  const [employee, setEmployee] = React.useState<EmployeeInput>({
+  const defaultEmployee = {
     id: null,
     orgId: params.organizationId,
     firstName: "",
@@ -68,7 +67,12 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       hoursPerFullWorkDay: undefined,
       accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1 }],
     },
-  });
+  };
+
+  // Save a new employee in state
+  const [employee, setEmployee] = React.useState<EmployeeInput>(
+    defaultEmployee
+  );
 
   const getOrgUser = useQueryBundle(GetEmployeeById, {
     variables: { id: params.orgUserId },
@@ -261,9 +265,10 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <FinishWizard
-        orgUserName={`${employee.firstName} ${employee.lastName}`}
+        orgUserFullName={`${employee.firstName} ${employee.lastName}`}
         orgUserType={t("employee")}
         orgId={params.organizationId}
+        orgUserId={orgUser?.id}
         onSubmit={async (orgUser: any) => {
           const newEmployee = {
             ...employee,
@@ -272,6 +277,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
           setEmployee(newEmployee);
           const id = await create(newEmployee);
           if (id) {
+            const viewParams = { ...params, orgUserId: id };
             if (orgUser.createAnother) {
               openSnackbar({
                 dismissable: true,
@@ -279,27 +285,22 @@ export const EmployeeAddPage: React.FC<{}> = props => {
                 status: "success",
                 message: (
                   <div
-                    onClick={() => {
-                      const viewParams = { ...params, orgUserId: id };
-                      history.push(PersonViewRoute.generate(viewParams));
-                    }}
+                    onClick={() =>
+                      history.push(PersonViewRoute.generate(viewParams))
+                    }
+                    className={classes.pointer}
                   >
                     {t(
-                      `${employee.firstName} ${employee.lastName} successfully created. Click to view.`
+                      `${employee.firstName} ${employee.lastName} successfully saved. Click to view.`
                     )}
                   </div>
                 ),
               });
 
-              history.push(
-                EmployeeAddRoute.generate({
-                  organizationId: params.organizationId,
-                  orgUserId: "new",
-                })
-              );
-            }
-            const viewParams = { ...params, orgUserId: id };
-            history.push(PersonViewRoute.generate(viewParams));
+              setEmployee(defaultEmployee);
+              setName(null);
+              setStep(steps[0].stepNumber);
+            } else history.push(PersonViewRoute.generate(viewParams));
           }
         }}
         onCancel={handleCancel}
@@ -366,4 +367,5 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
   },
+  pointer: { cursor: "pointer" },
 }));
