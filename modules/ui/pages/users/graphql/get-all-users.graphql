@@ -1,6 +1,16 @@
-query GetAllUsersPaged($limit: Int, $offset: Int, $searchText: String) {
+query GetAllUsersPaged(
+  $limit: Int
+  $offset: Int
+  $searchText: String
+  $sortBy: [SortDetailsInput]
+) {
   user {
-    paged(limit: $limit, offset: $offset, searchText: $searchText) {
+    paged(
+      limit: $limit
+      offset: $offset
+      searchText: $searchText
+      sortBy: $sortBy
+    ) {
       results {
         id
         createdUtc
