@@ -2,7 +2,7 @@ import { isValid, parseISO } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import { DayPart, NeedsReplacement } from "graphql/server-types.gen";
 import { useQueryParams } from "hooks/query-params";
-import { includes, values } from "lodash-es";
+import { includes, values, compact } from "lodash-es";
 import * as React from "react";
 import { useMemo } from "react";
 import { useGetEmployee } from "reference-data/employee";
@@ -41,6 +41,8 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
     throw new Error("The user is not an employee");
   }
 
+  const locationIds = compact(employee.locations?.map(l => l?.id));
+
   return (
     <CreateAbsenceUI
       {...initialData}
@@ -55,6 +57,7 @@ export const EmployeeCreateAbsence: React.FC<Props> = props => {
       positionName={employee.primaryPosition?.title}
       positionId={employee.primaryPosition?.id}
       positionTypeId={employee.primaryPosition?.positionType?.id}
+      locationIds={locationIds}
     />
   );
 };
