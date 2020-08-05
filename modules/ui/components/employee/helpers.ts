@@ -204,15 +204,6 @@ export const GetPositionScheduleDates = (
   });
 };
 
-/*export type CalendarScheduleDate = {
-  date: Date;
-  absences: EmployeeAbsenceDetail[];
-  closedDays: ContractDate[];
-  modifiedDays: PositionScheduleDate[];
-  inServiceDays: ContractDate[];
-  nonWorkDays: ContractDate[];
-};*/
-
 export const GroupEmployeeScheduleByMonth = (
   startDate: Date,
   endDate: Date,
@@ -239,15 +230,6 @@ export const GroupEmployeeScheduleByMonth = (
   absences.forEach(a => {
     a.allDays.forEach(d => dateLookup(d).absences.push(a));
   });
-  /*export type PositionScheduleDate = {
-  position: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  location: string;
-  nonStandardVariantTypeName?: string;
-};*/
-  console.log(contractDates.filter(d => d.date.getDate() == 21));
   contractDates.forEach(c => {
     const entry = dateLookup(c.date);
     switch (c.calendarDayType) {
@@ -270,86 +252,14 @@ export const GroupEmployeeScheduleByMonth = (
         break;
     }
   });
-  /*allDates.push(
-    ...flatMap(absences, a =>
-      a.allDays.map(
-        (d): ScheduleDate => ({
-          date: d,
-          type:
-            a.approvalStatus === ApprovalStatus.Denied
-              ? "deniedAbsence"
-              : a.approvalStatus === ApprovalStatus.ApprovalRequired ||
-                a.approvalStatus === ApprovalStatus.PartiallyApproved
-              ? "pendingAbsence"
-              : "absence",
-          rawData: a,
-        })
-      )
-    )
-  );
-  allDates.push(
-    // Instructional Day information will be added from the Position Schedule below
-    ...contractDates
-      .filter(c => c.calendarDayType !== CalendarDayType.InstructionalDay)
-      .map(c => {
-        let description = undefined;
-        if (c.hasCalendarChange) {
-          if (!!c.calendarChangeDescription && !!c.calendarChangeReasonName) {
-            description = `${c.calendarChangeReasonName} - ${c.calendarChangeDescription}`;
-          } else if (c.calendarChangeReasonName) {
-            description = c.calendarChangeReasonName;
-          } else if (c.calendarChangeDescription) {
-            description = c.calendarChangeDescription;
-          }
-        }
-
-        return {
-          date: c.date,
-          type: getScheduleDateType(c.calendarDayType),
-          rawData: c,
-          description: description,
-        } as ScheduleDate;
-      })
-  );
-  allDates.push(
-    // Only add days that aren't already accounted for above
-    ...positionScheduleDates
-      .filter(p => allDates.find(a => isSameDay(a.date, p.date)) === undefined)
-      .map(
-        (p): ScheduleDate => ({
-          date: p.date,
-          type: "instructionalDay",
-          rawData: p,
-        })
-      )
-  );*/
   positionScheduleDates
     .filter(p => p.nonStandardVariantTypeName)
     .forEach(p => dateLookup(p.date).modifiedDays.push(p));
 
-  /*// Get all the months
-  const diff = differenceInCalendarMonths(endDate, startDate) + 1;
-  const absDiff = Math.abs(diff);
-  const delta = diff > 0 ? 1 : -1;
-
-  const months: ScheduleDateGroupByMonth[] = 
-    absDiff > 1
-      ? range(0, absDiff).map(i => ({
-          month: startOfMonth(addMonths(startDate, i * delta)).toISOString(),
-          scheduleDates: [],
-        }))
-      : [];*/
   const months = generateMonths(startDate, endDate);
   const groupedDates = groupBy(Object.values(allDates), v =>
     startOfMonth(v.date).toISOString()
   );
-
-  /*Object.entries(
-  ).map(([date, scheduleDates]) => {
-    const month = months.find(e => e.month === date);
-    if (!month) return;
-    month.scheduleDates = scheduleDates;
-  });*/
 
   return months.map(month => ({
     month,
