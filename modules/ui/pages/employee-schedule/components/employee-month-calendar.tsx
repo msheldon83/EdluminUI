@@ -24,13 +24,14 @@ type Props = {
 };
 
 const makeFlagClassKey = (
+  isAbsence: boolean,
   isClosed: boolean,
   isModified: boolean,
   isInservice: boolean,
   isNonWorkDay: boolean
 ): string => {
-  if (!isClosed && !isModified && !isInservice && isNonWorkDay)
-    return "nonWorkDay";
+  if (!isClosed && !isModified && !isInservice)
+    return isAbsence ? "absence" : isNonWorkDay ? "nonWorkDay" : "";
   const maybeWithCapital = (isClosed ? ["closed"] : [])
     .concat(isModified ? ["Modified"] : [])
     .concat(isInservice ? ["InService"] : [])
@@ -65,6 +66,7 @@ export const EmployeeMonthCalendar: React.FC<Props> = props => {
           const className = clsx(
             classes[
               makeFlagClassKey(
+                calendarDate.absences.length > 0,
                 calendarDate.closedDays.length > 0,
                 calendarDate.modifiedDays.length > 0 ||
                   calendarDate.contractInstructionalDays.length > 0,
@@ -84,7 +86,9 @@ export const EmployeeMonthCalendar: React.FC<Props> = props => {
               className,
             },
             timeClass:
-              calendarDate.absences.length > 0 ? classes.absence : undefined,
+              calendarDate.absences.length > 0
+                ? classes.absenceToken
+                : undefined,
           };
         })
         .concat(
@@ -138,7 +142,7 @@ const useStyles = makeStyles(theme => ({
   today: {
     border: "3px solid #4CC17C",
   },
-  absence: {
+  absenceToken: {
     background: "radial-gradient(#050039 50%, transparent 50%)",
     color: theme.customColors.white,
   },
@@ -149,6 +153,15 @@ const useStyles = makeStyles(theme => ({
     "&:hover": {
       backgroundColor: "#E1E1E1",
       color: theme.customColors.black,
+    },
+  },
+  absence: {
+    backgroundColor: "#050039",
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: "#050039",
+      color: theme.customColors.white,
     },
   },
   closed: {
