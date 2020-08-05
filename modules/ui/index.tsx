@@ -377,6 +377,8 @@ import {
   EmployeeCreateAbsenceRouteV2,
   EmployeeEditAbsenceRouteV2,
   EditAbsenceLoaderV2,
+  EmployeeCreateAbsenceConfirmationLoaderV2,
+  EmployeeCreateAbsenceConfirmationRouteV2
 } from "./routes/absence-v2";
 import { AdminFeedbackRoute, FeedbackLoader } from "./routes/feedback";
 /** Build the core app store with middlewares and reducer. Used to bootstrap the app to run and to test. */
@@ -453,9 +455,14 @@ export const App = hot(function() {
                                 component={UnauthorizedLoader}
                                 path={UnauthorizedEmployeeRoleRoute.path}
                               />
+                              
                               <Route
                                 component={CreateAbsenceConfirmationLoader}
                                 path={CreateAbsenceConfirmationRoute.path}
+                              />
+                              <Route
+                                component={EmployeeCreateAbsenceConfirmationLoaderV2}
+                                path={EmployeeCreateAbsenceConfirmationRouteV2.path}
                               />
                               
                               <Route

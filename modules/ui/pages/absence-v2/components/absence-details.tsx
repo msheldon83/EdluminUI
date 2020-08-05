@@ -17,12 +17,13 @@ import { BalanceUsage, AbsenceReasonUsageData } from "./balance-usage";
 type Props = {
   absenceId?: string;
   employeeId: string;
+  headerText?: string;
   travellingEmployee: boolean;
   organizationId: string;
   actingAsEmployee: boolean;
   onToggleAbsenceDate: (d: Date) => void;
   absenceDates: Date[];
-  isClosed: boolean;
+  isClosed?: boolean;
   closedDates?: Date[];
   currentMonth: Date;
   onSwitchMonth: (month: Date) => void;
@@ -35,6 +36,7 @@ type Props = {
   initialUsageData?: AbsenceReasonUsageData[];
   deletedAbsenceReasons?: { detailId: string; id: string; name: string }[];
   updateKey?: string;
+  isQuickCreate?: boolean;
 };
 
 export const AbsenceDetails: React.FC<Props> = props => {
@@ -59,11 +61,13 @@ export const AbsenceDetails: React.FC<Props> = props => {
     canEditDatesAndTimes,
     setNegativeBalanceWarning,
     initialUsageData,
-    isClosed,
     travellingEmployee,
     deletedAbsenceReasons,
     updateKey,
+    isQuickCreate,
+    isClosed = false,
     closedDates = [],
+    headerText = t("Absence Details"),
   } = props;
 
   // Letting the absenceDates from state be the source of record as to what
@@ -151,7 +155,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
 
   return (
     <>
-      <Typography variant="h5">{t("Absence Details")}</Typography>
+      <Typography variant="h5">{headerText}</Typography>
       <div className={classes.calendar}>
         <CreateAbsenceCalendar
           monthNavigation
@@ -205,33 +209,36 @@ export const AbsenceDetails: React.FC<Props> = props => {
           sameTimesForAllDetails={values.sameTimesForAllDetails}
           travellingEmployee={travellingEmployee}
           deletedAbsenceReasons={deletedAbsenceReasons}
+          isQuickCreate={isQuickCreate}
         />
       </div>
 
-      <div className={classes.notesSection}>
-        <Typography variant="h6">{t("Notes to administrator")}</Typography>
-        <Typography className={classes.subText}>
-          {t("Can be seen by the administrator and the employee.")}
-        </Typography>
+      {!isQuickCreate && (
+        <div className={classes.notesSection}>
+          <Typography variant="h6">{t("Notes to administrator")}</Typography>
+          <Typography className={classes.subText}>
+            {t("Can be seen by the administrator and the employee.")}
+          </Typography>
 
-        <NoteField
-          onChange={async e =>
-            setFieldValue(
-              "notesToApprover",
-              e.target.value,
-              !!errors.notesToApprover
-            )
-          }
-          name={"notesToApprover"}
-          isSubmitted={!dirty}
-          initialAbsenceCreation={!absenceId}
-          value={values.notesToApprover}
-          validationMessage={errors.notesToApprover}
-          required={values.requireNotesToApprover}
-        />
-      </div>
+          <NoteField
+            onChange={async e =>
+              setFieldValue(
+                "notesToApprover",
+                e.target.value,
+                !!errors.notesToApprover
+              )
+            }
+            name={"notesToApprover"}
+            isSubmitted={!dirty}
+            initialAbsenceCreation={!absenceId}
+            value={values.notesToApprover}
+            validationMessage={errors.notesToApprover}
+            required={values.requireNotesToApprover}
+          />
+        </div>
+      )}
 
-      {!actingAsEmployee && (
+      {!actingAsEmployee && !isQuickCreate && (
         <div className={classes.notesSection}>
           <Typography variant="h6">{t("Administrator comments")}</Typography>
           <Typography className={classes.subText}>

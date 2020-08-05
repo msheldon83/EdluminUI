@@ -36,6 +36,8 @@ import { ScheduleCalendar } from "./components/schedule-calendar";
 import { Can } from "ui/components/auth/can";
 import { ShowErrors } from "ui/components/error-helpers";
 import { HideAbsence } from "ui/components/employee/graphql/hide-absence.gen";
+import { EmployeeQuickAbsenceCreateV2 } from "../absence-v2/create/employee-quick-create";
+import { compact } from "lodash-es";
 
 type Props = {};
 
@@ -148,14 +150,29 @@ export const EmployeeHome: React.FC<Props> = props => {
       <Grid container spacing={2} className={classes.content}>
         <Can do={[PermissionEnum.AbsVacSave]}>
           <Grid item md={6} xs={12}>
-            <QuickAbsenceCreate
-              employeeId={employee!.id}
-              organizationId={employee!.orgId.toString()}
-              defaultReplacementNeeded={
-                employee?.primaryPosition?.needsReplacement
-              }
-              positionTypeId={employee!.primaryPosition?.positionType?.id}
-            />
+            {Config.isDevFeatureOnly ? (
+              <EmployeeQuickAbsenceCreateV2
+                employeeId={employee!.id}
+                organizationId={employee!.orgId}
+                locationIds={compact(
+                  employee?.locations?.map(l => l?.id) ?? []
+                )}
+                positionId={employee?.primaryPosition?.id}
+                positionTypeId={employee?.primaryPosition?.positionType?.id}
+                defaultReplacementNeeded={
+                  employee?.primaryPosition?.needsReplacement
+                }
+              />
+            ) : (
+              <QuickAbsenceCreate
+                employeeId={employee!.id}
+                organizationId={employee!.orgId.toString()}
+                defaultReplacementNeeded={
+                  employee?.primaryPosition?.needsReplacement
+                }
+                positionTypeId={employee!.primaryPosition?.positionType?.id}
+              />
+            )}
           </Grid>
         </Can>
         <Grid item md={6} xs={12}>

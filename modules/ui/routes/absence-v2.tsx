@@ -46,24 +46,24 @@ export const SelectEmployeeForCreateAbsenceLoaderV2 = asyncComponent({
   name: "Select Employee for Absence",
 });
 
-// // Quick Create from Employee Home redirects to confimation route
-// export const CreateAbsenceConfirmationRoute = defineSubRoute(
-//   EmployeeCreateAbsenceRoute,
-//   "/:absenceId/confirmation",
-//   ["absenceId"]
-// );
+// Quick Create from Employee Home redirects to confimation route
+export const EmployeeCreateAbsenceConfirmationRouteV2 = defineSubRoute(
+  EmployeeCreateAbsenceRouteV2,
+  "/:absenceId/confirmation",
+  ["absenceId"]
+);
 
-// export const CreateAbsenceConfirmationLoader = asyncComponent({
-//   resolve: async () => {
-//     const CreateAbsenceConfirmationPage = (
-//       await import(
-//         "ui/pages/employee-home/components/quick-absence-create/quick-create-confirmation"
-//       )
-//     ).QuickCreateConfirmation;
-//     return CreateAbsenceConfirmationPage;
-//   },
-//   name: "Create Absence Confirmation",
-// });
+export const EmployeeCreateAbsenceConfirmationLoaderV2 = asyncComponent({
+  resolve: async () => {
+    const EmployeeCreateAbsenceConfirmationPage = (
+      await import(
+        "ui/pages/absence-v2/create/employee-quick-create-confirmation"
+      )
+    ).EmployeeQuickAbsenceCreateConfirmationV2;
+    return EmployeeCreateAbsenceConfirmationPage;
+  },
+  name: "Create Absence Confirmation",
+});
 
 // Edit
 export const AdminEditAbsenceRouteV2 = defineSubRoute(
