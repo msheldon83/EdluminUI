@@ -18,6 +18,7 @@ import {
   differenceInHours,
   eachDayOfInterval,
   isEqual,
+  startOfDay,
 } from "date-fns";
 import { GetEmployeePositionContractSchedule } from "./graphql/get-employee-position-contract-schedule.gen";
 import { flatMap, range, groupBy, compact, uniq } from "lodash-es";
@@ -28,8 +29,11 @@ import {
   ScheduleDateGroupByMonth,
   ScheduleDate,
   EmployeeAbsenceAssignment,
+  CalendarScheduleDate,
 } from "./types";
 import { TFunction } from "i18next";
+import { generateMonths } from "../substitutes/grouping-helpers";
+import { breakLabel } from "ui/pages/approval-workflow/components/workflow-graph/text-helper";
 
 export const GetEmployeeAbsenceDetails = (
   absences: GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]
@@ -200,19 +204,76 @@ export const GetPositionScheduleDates = (
   });
 };
 
+/*export type CalendarScheduleDate = {
+  date: Date;
+  absences: EmployeeAbsenceDetail[];
+  closedDays: ContractDate[];
+  modifiedDays: PositionScheduleDate[];
+  inServiceDays: ContractDate[];
+  nonWorkDays: ContractDate[];
+};*/
+
 export const GroupEmployeeScheduleByMonth = (
   startDate: Date,
   endDate: Date,
   absences: EmployeeAbsenceDetail[],
   contractDates: ContractDate[],
   positionScheduleDates: PositionScheduleDate[]
-): ScheduleDateGroupByMonth[] => {
-  // Combine all dates into a common object
-  const allDates: ScheduleDate[] = [];
-  allDates.push(
-    ...flatMap(absences, a => {
-      return a.allDays.map(d => {
-        return {
+): { month: string; dates: CalendarScheduleDate[] }[] => {
+  const allDates: Record<string, CalendarScheduleDate> = {};
+  const dateLookup = (date: Date): CalendarScheduleDate => {
+    const dateString = startOfDay(date).toISOString();
+    if (!(dateString in allDates)) {
+      allDates[dateString] = {
+        date,
+        absences: [],
+        closedDays: [],
+        modifiedDays: [],
+        contractInstructionalDays: [],
+        inServiceDays: [],
+        nonWorkDays: [],
+      };
+    }
+    return allDates[dateString];
+  };
+  absences.forEach(a => {
+    a.allDays.forEach(d => dateLookup(d).absences.push(a));
+  });
+  /*export type PositionScheduleDate = {
+  position: string;
+  date: Date;
+  startTime: string;
+  endTime: string;
+  location: string;
+  nonStandardVariantTypeName?: string;
+};*/
+  console.log(contractDates.filter(d => d.date.getDate() == 21));
+  contractDates.forEach(c => {
+    const entry = dateLookup(c.date);
+    switch (c.calendarDayType) {
+      case CalendarDayType.NonWorkDay:
+        (c.calendarChangeReasonName
+          ? entry.closedDays
+          : entry.nonWorkDays
+        ).push(c);
+        break;
+      case CalendarDayType.TeacherWorkDay:
+        entry.inServiceDays.push(c);
+        break;
+      case CalendarDayType.CancelledDay:
+        entry.closedDays.push(c);
+        break;
+      case CalendarDayType.InstructionalDay:
+        if (c.hasCalendarChange) entry.contractInstructionalDays.push(c);
+        break;
+      default:
+        break;
+    }
+  });
+  /*allDates.push(
+    ...flatMap(absences, a =>
+      a.allDays.map(
+        (d): ScheduleDate => ({
           date: d,
           type:
             a.approvalStatus === ApprovalStatus.Denied
@@ -222,9 +283,9 @@ export const GroupEmployeeScheduleByMonth = (
               ? "pendingAbsence"
               : "absence",
           rawData: a,
-        } as ScheduleDate;
-      });
-    })
+        })
+      )
+    )
   );
   allDates.push(
     // Instructional Day information will be added from the Position Schedule below
@@ -254,53 +315,46 @@ export const GroupEmployeeScheduleByMonth = (
     // Only add days that aren't already accounted for above
     ...positionScheduleDates
       .filter(p => allDates.find(a => isSameDay(a.date, p.date)) === undefined)
-      .map(p => {
-        return {
+      .map(
+        (p): ScheduleDate => ({
           date: p.date,
           type: "instructionalDay",
           rawData: p,
-        } as ScheduleDate;
-      })
-  );
+        })
+      )
+  );*/
+  positionScheduleDates
+    .filter(p => p.nonStandardVariantTypeName)
+    .forEach(p => dateLookup(p.date).modifiedDays.push(p));
 
-  // Get all the months
+  /*// Get all the months
   const diff = differenceInCalendarMonths(endDate, startDate) + 1;
   const absDiff = Math.abs(diff);
   const delta = diff > 0 ? 1 : -1;
 
-  const months: ScheduleDateGroupByMonth[] =
+  const months: ScheduleDateGroupByMonth[] = 
     absDiff > 1
       ? range(0, absDiff).map(i => ({
           month: startOfMonth(addMonths(startDate, i * delta)).toISOString(),
           scheduleDates: [],
         }))
-      : [];
+      : [];*/
+  const months = generateMonths(startDate, endDate);
+  const groupedDates = groupBy(Object.values(allDates), v =>
+    startOfMonth(v.date).toISOString()
+  );
 
-  Object.entries(
-    groupBy(allDates, a => startOfMonth(a.date).toISOString())
+  /*Object.entries(
   ).map(([date, scheduleDates]) => {
     const month = months.find(e => e.month === date);
     if (!month) return;
     month.scheduleDates = scheduleDates;
-  });
+  });*/
 
-  return months;
-};
-
-const getScheduleDateType = (
-  calendarDayType: CalendarDayType
-): ScheduleDate["type"] => {
-  switch (calendarDayType) {
-    case CalendarDayType.NonWorkDay:
-      return "nonWorkDay";
-    case CalendarDayType.TeacherWorkDay:
-      return "teacherWorkDay";
-    case CalendarDayType.CancelledDay:
-      return "cancelledDay";
-    case CalendarDayType.InstructionalDay:
-    default:
-      return "instructionalDay";
-  }
+  return months.map(month => ({
+    month,
+    dates: month in groupedDates ? groupedDates[month] : [],
+  }));
 };
 
 export const getDateRangeDisplay = (startDate: Date, endDate: Date) => {

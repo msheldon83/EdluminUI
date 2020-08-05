@@ -56,15 +56,15 @@ export const CalendarView: React.FC<Props> = props => {
               ([day, dates]): CalendarChangeDate => ({
                 date: parseISO(day),
                 isClosed: dates.some(
-                  d => d.dayType == CalendarDayType.CancelledDay
+                  d =>
+                    d.dayType == CalendarDayType.NonWorkDay ||
+                    d.dayType == CalendarDayType.CancelledDay
                 ),
                 isModified: dates.some(
                   d => d.dayType == CalendarDayType.InstructionalDay
                 ),
                 isInservice: dates.some(
-                  d =>
-                    d.dayType == CalendarDayType.NonWorkDay ||
-                    d.dayType == CalendarDayType.TeacherWorkDay
+                  d => d.dayType == CalendarDayType.TeacherWorkDay
                 ),
               })
             )
