@@ -37,7 +37,6 @@ export const SubstituteAssignmentsListView: React.FC<Props> = props => {
   const upcomingAssignments = useQueryBundle(GetUpcomingAssignments, {
     variables: {
       id: String(props.userId),
-      organizationId: props.orgId ?? null,
       fromDate: props.startDate,
       toDate: props.endDate,
       includeCompletedToday: true,
