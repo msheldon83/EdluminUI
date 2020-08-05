@@ -94,15 +94,6 @@ const useStyles = makeStyles(theme => ({
   selected: {
     border: "3px solid #373361",
   },
-  event: {
-    backgroundColor: theme.customColors.sky,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.sky,
-      color: theme.customColors.white,
-    },
-  },
   today: {
     border: "3px solid #4CC17C",
   },
