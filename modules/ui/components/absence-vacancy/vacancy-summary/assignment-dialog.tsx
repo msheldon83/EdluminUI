@@ -21,21 +21,22 @@ import { AssignmentWithDetails } from "./types";
 import { compact } from "lodash-es";
 
 type Props = {
+  action: "pre-arrange" | "assign" | "cancel";
   assignmentWithDetails: AssignmentWithDetails;
   open: boolean;
   onClose: () => void;
-  onCancelAssignment: (
+  onSubmit: (
     vacancyDetailIds: string[],
     vacancyDetailDates?: Date[]
   ) => Promise<boolean>;
 };
 
-export const CancelAssignmentDialog: React.FC<Props> = props => {
+export const AssignmentDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [selection, setSelection] = useState<"all" | "select">("select");
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const { open, onClose, assignmentWithDetails, onCancelAssignment } = props;
+  const { action, open, onClose, assignmentWithDetails, onSubmit } = props;
 
   const assignment = useMemo(() => assignmentWithDetails.assignment!, [
     assignmentWithDetails,
@@ -47,7 +48,7 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
     [assignment]
   );
 
-  const onRemoveClick = useCallback(async () => {
+  const onSubmitClick = useCallback(async () => {
     // Find the Vacancy Details Ids that are on the selected dates
     const vacancyDetailIds = selectedDates.reduce(
       (accumulator: string[], date) => {
@@ -61,9 +62,9 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
       []
     );
 
-    await onCancelAssignment(compact(vacancyDetailIds), compact(selectedDates));
+    await onSubmit(compact(vacancyDetailIds), compact(selectedDates));
     onClose();
-  }, [assignmentWithDetails, selectedDates, onCancelAssignment, onClose]);
+  }, [assignmentWithDetails, selectedDates, onSubmit, onClose]);
 
   const detailsDisplay = useMemo(() => {
     return assignmentWithDetails.dates.map((d, i) => {
@@ -101,6 +102,8 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
     : t(
         "Would you like to remove the substitute from the entire assignment or only select days?"
       );
+
+  const actionText = action === "pre-arrange";
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -143,7 +146,7 @@ export const CancelAssignmentDialog: React.FC<Props> = props => {
         </TextButton>
         <ButtonDisableOnClick
           variant="outlined"
-          onClick={onRemoveClick}
+          onClick={onSubmitClick}
           className={[classes.buttonSpacing, classes.remove].join(" ")}
           disabled={selectedDates.length === 0}
         >
