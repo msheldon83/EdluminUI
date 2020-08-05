@@ -1,5 +1,6 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 import { useTranslation } from "react-i18next";
 import {
   AllocationDropdown,
@@ -10,7 +11,19 @@ import {
 } from "./allocation-dropdown";
 import { NumberInput } from "ui/components/form/number-input";
 
-type AbsenceReasonDropdownProps = AllocationDropdownProps & {
+type AbsenceReasonDropdownProps = Pick<
+  AllocationDropdownProps,
+  | "value"
+  | "placeholder"
+  | "multipleAllocationPlaceholder"
+  | "label"
+  | "options"
+  | "onChange"
+  | "showLabel"
+  | "disabled"
+  | "inputStatus"
+  | "validationMessage"
+> & {
   hoursInADay: number;
 };
 
@@ -21,6 +34,7 @@ export const AbsenceReasonDropdown = ({
   ...props
 }: AbsenceReasonDropdownProps) => {
   const classes = useStyles();
+  const theme = useTheme();
   const { t } = useTranslation();
 
   const amountInputVisibleness = () => {
@@ -69,6 +83,41 @@ export const AbsenceReasonDropdown = ({
       multipleAllocationPlaceholder={t("Select reason")}
       placeholder={t("Select code")}
       label={t("Reason")}
+      renderAllocationsHeaders={() => {
+        return (
+          <div role="row" className={classes.allocationHeaders}>
+            <div role="columnheader" style={{ flex: "1 0 auto" }} />
+            {hoursVisible && (
+              <div
+                role="columnheader"
+                style={{
+                  transform: "translateX(-10px)",
+                  paddingBottom: theme.spacing(0.5),
+                }}
+                className={classes.hoursInputColumn}
+              >
+                {t("Hours")}
+              </div>
+            )}
+            {daysVisible && (
+              <div
+                role="columnheader"
+                style={{
+                  transform: "translateX(-10px)",
+                  paddingBottom: theme.spacing(0.5),
+                }}
+                className={classes.daysInputColumn}
+              >
+                {t("Days")}
+              </div>
+            )}
+            <div
+              role="columnheader"
+              style={{ width: theme.typography.pxToRem(16) }}
+            />
+          </div>
+        );
+      }}
       renderAllocationAmount={({
         selection,
         value,
@@ -77,16 +126,13 @@ export const AbsenceReasonDropdown = ({
         const hoursDisabled = !selection || selection?.descriptor === "DAYS";
         const daysDisabled = !selection || selection?.descriptor === "HOURS";
 
-        console.log("days value", hoursToDays(value));
-
         return selection ? (
-          <div className={classes.allocationAmountWrapper}>
+          <div className={classes.allocationAmountWrapper} role="cell">
             {hoursVisible && (
               <NumberInput
                 {...allocationProps}
                 value={value}
-                className={classes.hoursInput}
-                endAdornment={t("hrs")}
+                className={classes.hoursInputColumn}
                 maxLength={3}
                 disabled={allocationProps.disabled || hoursDisabled}
               />
@@ -95,12 +141,10 @@ export const AbsenceReasonDropdown = ({
               <NumberInput
                 {...allocationProps}
                 onChange={days => {
-                  console.log(daysToHours(days));
                   allocationProps.onChange(daysToHours(days));
                 }}
                 value={hoursToDays(value)}
-                className={classes.daysInput}
-                endAdornment={t("days")}
+                className={classes.daysInputColumn}
                 maxLength={3}
                 disabled={allocationProps.disabled || daysDisabled}
               />
@@ -115,15 +159,20 @@ export const AbsenceReasonDropdown = ({
 };
 
 const useStyles = makeStyles(theme => ({
-  hoursInput: {
+  hoursInputColumn: {
     marginRight: theme.spacing(1),
     width: theme.spacing(10),
+    textAlign: "left",
   },
-  daysInput: {
+  daysInputColumn: {
     width: theme.spacing(11),
+    textAlign: "left",
   },
   allocationAmountWrapper: {
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
+  },
+  allocationHeaders: {
+    display: "flex",
   },
 }));

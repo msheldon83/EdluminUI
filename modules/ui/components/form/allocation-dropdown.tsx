@@ -20,9 +20,12 @@ export type AllocationDropdownProps = {
   disabled?: boolean;
   inputStatus?: "warning" | "error" | "success" | "default" | undefined | null;
   validationMessage?: string;
+  // Allows the parent to render custom elements in the allocation amounts section
   renderAllocationAmount?: (
     props: RenderAllocationAmountArgs
   ) => React.ReactElement;
+  // Allows the parent to render custom elements above the multiple allocations section
+  renderAllocationsHeaders?: () => React.ReactElement;
 };
 
 export type RenderAllocationAmountArgs = {
@@ -101,6 +104,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
     placeholder,
     multipleAllocationPlaceholder,
     renderAllocationAmount,
+    renderAllocationsHeaders,
   } = props;
 
   const classes = useStyles();
@@ -252,15 +256,19 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
       {value?.type === "multiple-allocations" && (
         <>
           <div
+            role="table"
             className={clsx({
               [classes.multiCodeInputContainer]: true,
               [classes.error]: isError,
             })}
           >
-            <ul className={classes.multiCodeList}>
+            <div role="rowgroup" className={classes.allocationsHeader}>
+              {renderAllocationsHeaders?.()}
+            </div>
+            <ul role="rowgroup" className={classes.multiCodeList}>
               {value?.allocations.map(allocation => {
                 return (
-                  <li key={allocation.id.toString()}>
+                  <li role="row" key={allocation.id.toString()}>
                     {renderAllocationRow(allocation)}
                   </li>
                 );
@@ -308,10 +316,17 @@ const useStyles = makeStyles(theme => ({
     borderBottomLeftRadius: theme.spacing(0.5),
     borderBottomRightRadius: theme.spacing(0.5),
   },
+  allocationsHeader: {
+    padding: `${theme.typography.pxToRem(
+      theme.spacing(1.5)
+    )} ${theme.typography.pxToRem(theme.spacing(1.5))} 0`,
+  },
   multiCodeList: {
     listStyle: "none",
     margin: 0,
-    padding: `${theme.typography.pxToRem(theme.spacing(1.5))}`,
+    padding: ` 0 ${theme.typography.pxToRem(
+      theme.spacing(1.5)
+    )} ${theme.typography.pxToRem(theme.spacing(1.5))}`,
 
     "& li": {
       alignItems: "center",
