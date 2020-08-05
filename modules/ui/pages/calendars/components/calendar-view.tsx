@@ -32,12 +32,6 @@ export const CalendarView: React.FC<Props> = props => {
     props.setSelectedDate(date);
   };
 
-  const printId: <T>(t: T, message?: string) => T = (t, message) => {
-    //console.log(message);
-    console.log(t);
-    return t;
-  };
-
   const mergeChangeDatesByMonth = (
     monthList: string[],
     calandarChangeDates: (Pick<
