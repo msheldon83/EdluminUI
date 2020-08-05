@@ -52,13 +52,7 @@ import {
 } from "ui/components/absence/helpers";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import {
-  some,
-  compact,
-  flatMap,
-  isEqual,
-  differenceWith,
-} from "lodash-es";
+import { some, compact, flatMap, isEqual, differenceWith } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -83,6 +77,7 @@ import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log"
 import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
 import { AbsenceFormValidationSchema } from "../validation";
+import { DeletedData } from "ui/components/deleted-data";
 
 type Props = {
   organizationId: string;
@@ -656,6 +651,52 @@ export const AbsenceUI: React.FC<Props> = props => {
     return allDeletedReasons;
   }, [localAbsence?.closedDetails, localAbsence?.details]);
 
+  const absVacHeader = (
+    <AbsenceVacancyHeader
+      pageHeader={
+        isCreate
+          ? t("Create absence")
+          : `${t("Edit absence")} #${state.absenceId}`
+      }
+      subHeader={
+        !actingAsEmployee ? (
+          <EmployeeLink orgUserId={employee?.id ?? ""} color="black">
+            {`${employee.firstName} ${employee.lastName}`}
+          </EmployeeLink>
+        ) : (
+          undefined
+        )
+      }
+    />
+  );
+  const missingLocationsWarning = (
+    <DeletedData
+      message={
+        actingAsEmployee
+          ? t(
+              "Your Position is not currently associated with any Schools. Please contact your administrator."
+            )
+          : t(
+              "The Position of {{name}} is not currently associated with any Schools. Please update their Position.",
+              {
+                name: `${employee.firstName} ${employee.lastName}`,
+              }
+            )
+      }
+      header={""}
+      subHeader={""}
+    />
+  );
+
+  if (isCreate && employee.locationIds.length === 0) {
+    return (
+      <>
+        {absVacHeader}
+        {missingLocationsWarning}
+      </>
+    );
+  }
+
   return (
     <>
       <PageTitle
@@ -710,7 +751,9 @@ export const AbsenceUI: React.FC<Props> = props => {
           // in state and not as a part of this form, we have to consider that when
           // determining if the overall interface is currently dirty
           const formIsDirty =
-            dirty || (isCreate && state.absenceDates.length > 0) || !isEqual(state.initialVacancyDetails, vacancyDetails);
+            dirty ||
+            (isCreate && state.absenceDates.length > 0) ||
+            !isEqual(state.initialVacancyDetails, vacancyDetails);
 
           // The object we send to the server when getting projected vacancies
           // or projected absence usage is not the exact same as what we would send
@@ -788,25 +831,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                       }}
                     />
                     <div className={classes.titleContainer}>
-                      <AbsenceVacancyHeader
-                        pageHeader={
-                          isCreate
-                            ? t("Create absence")
-                            : `${t("Edit absence")} #${state.absenceId}`
-                        }
-                        subHeader={
-                          !actingAsEmployee ? (
-                            <EmployeeLink
-                              orgUserId={employee?.id ?? ""}
-                              color="black"
-                            >
-                              {`${employee.firstName} ${employee.lastName}`}
-                            </EmployeeLink>
-                          ) : (
-                            undefined
-                          )
-                        }
-                      />
+                      {absVacHeader}
                       {!isCreate && (
                         <div className={classes.headerMenu}>
                           <ActionMenu
@@ -816,6 +841,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                         </div>
                       )}
                     </div>
+
+                    {!isCreate &&
+                      employee.locationIds.length === 0 &&
+                      missingLocationsWarning}
 
                     {state.approvalState && (
                       <Can do={[PermissionEnum.AbsVacApprovalsView]}>
@@ -858,7 +887,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                             setNegativeBalanceWarning={
                               setNegativeBalanceWarning
                             }
-                            initialUsageData={state.initialAbsenceReasonUsageData}
+                            initialUsageData={
+                              state.initialAbsenceReasonUsageData
+                            }
                             canEditReason={!state.isClosed}
                             canEditDatesAndTimes={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
