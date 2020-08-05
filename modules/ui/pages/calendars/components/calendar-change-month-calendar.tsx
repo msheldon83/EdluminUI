@@ -92,7 +92,7 @@ const useStyles = makeStyles(theme => ({
     minWidth: theme.typography.pxToRem(300),
   },
   selected: {
-    border: "3px solid #050039",
+    border: "3px solid #373361",
   },
   event: {
     backgroundColor: theme.customColors.sky,
