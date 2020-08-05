@@ -216,7 +216,7 @@ export const AdminAddPage: React.FC<{}> = props => {
             if (orgUser.createAnother) {
               openSnackbar({
                 dismissable: true,
-                autoHideDuration: 7000,
+                autoHideDuration: 5000,
                 status: "success",
                 message: (
                   <div
