@@ -1,4 +1,4 @@
-import { isSameDay, startOfDay, parseISO } from "date-fns";
+import { isSameDay, startOfDay, parseISO, isEqual } from "date-fns";
 import {
   differenceWith,
   filter,
@@ -213,7 +213,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           const incomingDates = action.assignments.map(a => a.startTimeLocal);
           assignments = [
             ...assignments.filter(
-              a => !incomingDates.find(d => isSameDay(d, a.startTimeLocal))
+              a => !incomingDates.find(d => isEqual(d, a.startTimeLocal))
             ),
             ...action.assignments,
           ];
@@ -223,7 +223,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           assignments = assignments.filter(
             a =>
               !action.assignments.find(x =>
-                isSameDay(x.startTimeLocal, a.startTimeLocal)
+                isEqual(x.startTimeLocal, a.startTimeLocal)
               )
           );
           break;
@@ -260,7 +260,7 @@ export const projectVacancyDetailsFromVacancies = (
       const assignment = assignmentsByDate?.find(
         a =>
           (d.id && a.vacancyDetailId === d.id) ||
-          isSameDay(a.startTimeLocal, parseISO(d.startTimeLocal))
+          isEqual(a.startTimeLocal, parseISO(d.startTimeLocal))
       );
 
       return {

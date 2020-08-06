@@ -75,11 +75,11 @@ export const convertVacancyToVacancySummaryDetails = (
     );
 
     // Find a matching assignment from assignmentsByDate by vacancyDetailId
-    // if we have it, otherwise by the same day comparison
+    // if we have it, otherwise by the exact start time
     const assignmentOnDate = assignmentsByDate?.find(
       a =>
         (vd.id && a.vacancyDetailId === vd.id) ||
-        isSameDay(a.startTimeLocal, parseISO(vd.startTimeLocal))
+        isEqual(a.startTimeLocal, parseISO(vd.startTimeLocal))
     );
 
     return {

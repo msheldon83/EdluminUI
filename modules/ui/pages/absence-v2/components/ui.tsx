@@ -254,21 +254,17 @@ export const AbsenceUI: React.FC<Props> = props => {
   });
 
   const onCancelAssignment = React.useCallback(
-    async (
-      vacancyDetailIds?: string[],
-      vacancyDetailDates?: Date[]
-    ): Promise<boolean> => {
+    async (vacancySummaryDetails: VacancySummaryDetail[]): Promise<boolean> => {
       // Get all of the matching assignments
-      const assignments =
-        vacancyDetailIds && vacancyDetailIds.length > 0
-          ? (state.assignmentsByDate ?? []).filter(a =>
-              vacancyDetailIds.includes(a.vacancyDetailId ?? "")
-            )
-          : (state.assignmentsByDate ?? []).filter(a =>
-              vacancyDetailDates?.find(date =>
-                isSameDay(date, a.startTimeLocal)
-              )
-            );
+      const assignments = (state.assignmentsByDate ?? []).filter(
+        a =>
+          !!vacancySummaryDetails.find(
+            vsd =>
+              (vsd.vacancyDetailId && a.vacancyDetailId === vsd.vacancyDetailId) ||
+              isEqual(a.startTimeLocal, vsd.startTimeLocal) ||
+              isSameDay(a.startTimeLocal, vsd.startTimeLocal)
+          )
+      );
 
       if (!assignments || assignments.length === 0) {
         return true;
@@ -365,25 +361,9 @@ export const AbsenceUI: React.FC<Props> = props => {
       replacementEmployeeLastName: string,
       payCode: string | undefined,
       vacancyDetailIds?: string[],
-      vacancyDetailDates?: Date[]
+      vacancySummaryDetails?: VacancySummaryDetail[]
     ) => {
-      const vacancyDetails =
-        state.customizedVacanciesInput ??
-        state.projectedVacancyDetails ??
-        state.initialVacancyDetails;
-
-      // Get all of the matching details
-      const detailsToAssign = vacancyDetailIds
-        ? vacancyDetails?.filter(d =>
-            vacancyDetailIds.find(i => i === d.vacancyDetailId)
-          )
-        : vacancyDetails?.filter(d =>
-            vacancyDetailDates?.find(date =>
-              isSameDay(date, parseISO(d.startTime))
-            )
-          );
-
-      if (!detailsToAssign || detailsToAssign.length === 0) {
+      if (!vacancySummaryDetails || vacancySummaryDetails.length === 0) {
         setStep("absence");
         return;
       }
@@ -391,10 +371,10 @@ export const AbsenceUI: React.FC<Props> = props => {
       if (isCreate) {
         dispatch({
           action: "updateAssignments",
-          assignments: detailsToAssign.map(d => {
+          assignments: vacancySummaryDetails.map(vsd => {
             return {
-              startTimeLocal: parseISO(d.startTime),
-              vacancyDetailId: d.vacancyDetailId,
+              startTimeLocal: vsd.startTimeLocal,
+              vacancyDetailId: vsd.vacancyDetailId,
               employee: {
                 id: replacementEmployeeId,
                 firstName: replacementEmployeeFirstName,
@@ -406,7 +386,7 @@ export const AbsenceUI: React.FC<Props> = props => {
         });
       } else {
         // Cancel any existing assignments on these Details
-        await onCancelAssignment(vacancyDetailIds);
+        await onCancelAssignment(vacancySummaryDetails);
         // Create an Assignment for these Details
         const result = await assignVacancy({
           variables: {
@@ -415,7 +395,7 @@ export const AbsenceUI: React.FC<Props> = props => {
               vacancyId: state.vacancyId ?? "",
               employeeId: replacementEmployeeId,
               vacancyDetailIds: compact(
-                detailsToAssign.map(d => d.vacancyDetailId)
+                vacancySummaryDetails.map(vsd => vsd.vacancyDetailId)
               ),
             },
           },
@@ -425,10 +405,10 @@ export const AbsenceUI: React.FC<Props> = props => {
           // Update the assignments information in state
           dispatch({
             action: "updateAssignments",
-            assignments: detailsToAssign.map(d => {
+            assignments: vacancySummaryDetails.map(vsd => {
               return {
-                startTimeLocal: parseISO(d.startTime),
-                vacancyDetailId: d.vacancyDetailId,
+                startTimeLocal: vsd.startTimeLocal,
+                vacancyDetailId: vsd.vacancyDetailId,
                 assignmentId: assignment.id,
                 assignmentRowVersion: assignment.rowVersion,
                 employee: {
@@ -451,9 +431,6 @@ export const AbsenceUI: React.FC<Props> = props => {
       onCancelAssignment,
       organizationId,
       setStep,
-      state.customizedVacanciesInput,
-      state.initialVacancyDetails,
-      state.projectedVacancyDetails,
       state.vacancyId,
     ]
   );
@@ -493,12 +470,14 @@ export const AbsenceUI: React.FC<Props> = props => {
       return undefined;
     }
 
-    const datesToAssign = vacancySummaryDetailsToAssign.map(vsd => vsd.date);
+    const datesToAssign = vacancySummaryDetailsToAssign.map(
+      vsd => vsd.startTimeLocal
+    );
     const vacanciesWithFilteredDetails = state.projectedVacancies.map(v => {
       return {
         ...v,
         details: v.details.filter(vd =>
-          datesToAssign.find(d => isSameDay(d, parseISO(vd.startTimeLocal)))
+          datesToAssign.find(d => isEqual(d, parseISO(vd.startTimeLocal)))
         ),
       };
     });
