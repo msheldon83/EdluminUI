@@ -2,7 +2,7 @@ import { makeStyles, Typography, TextField, Grid } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
-import { VacancySummaryDetail, AssignmentFor } from "./types";
+import { VacancySummaryDetail } from "./types";
 import { buildAssignmentGroups } from "./helpers";
 import { AssignmentGroup } from "./assignment-group";
 import { uniqWith } from "lodash-es";

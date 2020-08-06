@@ -42,7 +42,7 @@ import { CreateVacancyMutation } from "../graphql/create-vacancy.gen";
 import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { vacancyReducer } from "../state";
-import { AssignmentFor } from "ui/components/absence-vacancy/vacancy-summary/types";
+import { AssignmentFor, VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import {
   VacancyDetailsFormData,
   VacancyFormValues,
@@ -229,15 +229,19 @@ export const VacancyUI: React.FC<Props> = props => {
       replacementEmployeeFirstName: string,
       replacementEmployeeLastName: string,
       payCode: string | undefined,
-      vacancyDetailIds?: string[]
+      vacancyDetailIds?: string[],
+      vacancySummaryDetails?: VacancySummaryDetail[]
     ) => {
       // Get all of the matching details
-      const detailsToAssign = vacancyDetailIds
-        ? vacancy.details.filter(d => vacancyDetailIds.find(i => i === d.id))
+      const detailsToAssign = vacancySummaryDetails
+        ? vacancy.details.filter(d => vacancySummaryDetails.find(vsd => vsd.vacancyDetailId === d.id))
         : vacancy.details;
+      
       if (vacancy.id) {
         // Cancel any existing assignments on these Details
-        await onCancelAssignment(vacancyDetailIds);
+        if (vacancySummaryDetails) {
+          await onCancelAssignment(vacancySummaryDetails);
+        }        
 
         // Create an Assignment for these Details
         const result = await assignVacancy({
@@ -303,11 +307,11 @@ export const VacancyUI: React.FC<Props> = props => {
   );
 
   const onCancelAssignment = React.useCallback(
-    async (vacancyDetailIds?: string[]): Promise<boolean> => {
+    async (vacancySummaryDetails: VacancySummaryDetail[]): Promise<boolean> => {
       // Get all of the matching details
-      const detailsToCancelAssignmentsFor = vacancyDetailIds
+      const detailsToCancelAssignmentsFor = vacancySummaryDetails
         ? vacancy.details.filter(
-            d => d.assignment && !!vacancyDetailIds.find(i => i === d.id)
+            d => d.assignment && !!vacancySummaryDetails.find(vsd => vsd.vacancyDetailId === d.id)
           )
         : vacancy.details.filter(d => d.assignment);
 
@@ -839,11 +843,11 @@ export const VacancyUI: React.FC<Props> = props => {
                     </Grid>
                     <VacancySummary
                       vacancySummaryDetails={vacancySummaryDetails}
-                      onAssignClick={(currentAssignmentInfo: AssignmentFor) => {
+                      onAssignClick={async (vacancySummaryDetails: VacancySummaryDetail[]) => {
                         dispatch({
                           action: "setVacancyDetailIdsToAssign",
                           vacancyDetailIdsToAssign:
-                            currentAssignmentInfo.vacancyDetailIds,
+                          vacancySummaryDetails.map(vsd => vsd.vacancyDetailId),
                         });
                         setStep("preAssignSub");
                       }}

@@ -31,7 +31,9 @@ type Props = {
     React.SetStateAction<VacancyDetailsFormData>
   >;
   vacancySummaryDetails: VacancySummaryDetail[];
-  onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<boolean>;
+  onCancelAssignment: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<boolean>;
   orgHasPayCodesDefined: boolean;
   orgHasAccountingCodesDefined: boolean;
 };
