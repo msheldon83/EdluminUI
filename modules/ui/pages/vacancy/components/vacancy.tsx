@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/styles";
 import { useTranslation } from "react-i18next";
 import { Typography, Grid, Button } from "@material-ui/core";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { useState, useMemo, useReducer, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouteParams } from "ui/routes/definition";
 import {
   PermissionEnum,
@@ -25,11 +25,11 @@ import { VacancyDetailSection } from "./vacancy-details-section";
 import { ContentFooter } from "ui/components/content-footer";
 import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { canEditAbsVac } from "helpers/permissions";
+import { canEditAbsVac, canAssignSub } from "helpers/permissions";
 import { parseISO, isSameDay, format, startOfDay, min } from "date-fns";
 import { AssignSub } from "ui/components/assign-sub";
 import { VacancyConfirmation } from "./vacancy-confirmation";
-import { compact, isEqual, sum } from "lodash-es";
+import { compact, isEqual } from "lodash-es";
 import { ExecutionResult } from "graphql";
 import { Prompt, useRouteMatch } from "react-router";
 import { buildVacancyCreateInput } from "../helpers";
@@ -41,8 +41,7 @@ import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
 import { CreateVacancyMutation } from "../graphql/create-vacancy.gen";
 import { UpdateVacancyMutation } from "../graphql/update-vacancy.gen";
 import { convertVacancyDetailsFormDataToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
-import { vacancyReducer } from "../state";
-import { AssignmentFor, VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import {
   VacancyDetailsFormData,
   VacancyFormValues,
@@ -52,7 +51,7 @@ import { ApprovalState } from "ui/components/absence-vacancy/approval-state/stat
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import * as yup from "yup";
 import { validateAccountingCodeAllocations } from "helpers/accounting-code-allocations";
-import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
+import { FilteredAssignmentButton } from "ui/components/absence-vacancy/vacancy-summary/filtered-assignment-button";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -96,10 +95,6 @@ export const VacancyUI: React.FC<Props> = props => {
     approvalState,
   } = props;
   const [resetKey, setResetKey] = useState(0);
-
-  const [state, dispatch] = useReducer(vacancyReducer, {
-    vacancyDetailIdsToAssign: [],
-  });
 
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
     ...initialVacancy,
@@ -223,6 +218,11 @@ export const VacancyUI: React.FC<Props> = props => {
     }
   }, [vacancy]);
 
+  const [
+    vacancySummaryDetailsToAssign,
+    setVacancySummaryDetailsToAssign,
+  ] = React.useState<VacancySummaryDetail[]>([]);
+
   const onAssignSub = React.useCallback(
     async (
       replacementEmployeeId: string,
@@ -234,14 +234,16 @@ export const VacancyUI: React.FC<Props> = props => {
     ) => {
       // Get all of the matching details
       const detailsToAssign = vacancySummaryDetails
-        ? vacancy.details.filter(d => vacancySummaryDetails.find(vsd => vsd.vacancyDetailId === d.id))
+        ? vacancy.details.filter(d =>
+            vacancySummaryDetails.find(vsd => vsd.vacancyDetailId === d.id)
+          )
         : vacancy.details;
-      
+
       if (vacancy.id) {
         // Cancel any existing assignments on these Details
         if (vacancySummaryDetails) {
           await onCancelAssignment(vacancySummaryDetails);
-        }        
+        }
 
         // Create an Assignment for these Details
         const result = await assignVacancy({
@@ -311,7 +313,9 @@ export const VacancyUI: React.FC<Props> = props => {
       // Get all of the matching details
       const detailsToCancelAssignmentsFor = vacancySummaryDetails
         ? vacancy.details.filter(
-            d => d.assignment && !!vacancySummaryDetails.find(vsd => vsd.vacancyDetailId === d.id)
+            d =>
+              d.assignment &&
+              !!vacancySummaryDetails.find(vsd => vsd.vacancyDetailId === d.id)
           )
         : vacancy.details.filter(d => d.assignment);
 
@@ -398,12 +402,6 @@ export const VacancyUI: React.FC<Props> = props => {
     );
     return summaryDetails;
   }, [vacancy]);
-
-  const vacancySummaryDetailsToAssign = useMemo(() => {
-    return vacancySummaryDetails.filter(d =>
-      state.vacancyDetailIdsToAssign.find(i => d.vacancyDetailId === i)
-    );
-  }, [vacancySummaryDetails, state.vacancyDetailIdsToAssign]);
 
   React.useEffect(() => {
     const container = document.getElementById("main-container");
@@ -508,16 +506,16 @@ export const VacancyUI: React.FC<Props> = props => {
               {showAssign && (
                 <FilteredAssignmentButton
                   {...{
-                    details: vacancy.details,
-                    buttonText: !vacancyExists ? t("Pre-arrange") : t("Assign"),
-                    disableAssign:
+                    details: vacancySummaryDetails,
+                    action: vacancyExists ? "assign" : "pre-arrange",
+                    permissionCheck: canAssignSub,
+                    disableAction:
                       isSubmitting ||
                       (vacancyExists ? formIsDirty : disableAssign),
-                    onClick: (detailIds: string[]) => {
-                      dispatch({
-                        action: "setVacancyDetailIdsToAssign",
-                        vacancyDetailIdsToAssign: detailIds,
-                      });
+                    onClick: (
+                      vacancySummaryDetails: VacancySummaryDetail[]
+                    ) => {
+                      setVacancySummaryDetailsToAssign(vacancySummaryDetails);
                       setStep("preAssignSub");
                     },
                   }}
@@ -565,22 +563,23 @@ export const VacancyUI: React.FC<Props> = props => {
       );
     },
     [
-      classes.actionButtons,
-      classes.cancelButton,
-      classes.contentFooter,
-      classes.deleteButton,
-      classes.saveButton,
-      classes.unsavedText,
-      disableAssign,
       isDirty,
-      isUnfilled,
-      onDelete,
-      setStep,
-      showAssign,
-      showSubmit,
+      classes.contentFooter,
+      classes.actionButtons,
+      classes.unsavedText,
+      classes.deleteButton,
+      classes.cancelButton,
+      classes.saveButton,
+      vacancy.isClosed,
       t,
-      vacancy,
+      onDelete,
       vacancyExists,
+      showAssign,
+      vacancySummaryDetails,
+      disableAssign,
+      showSubmit,
+      isUnfilled,
+      setStep,
       startDate,
       approvalState?.approvalStatusId,
     ]
@@ -781,10 +780,7 @@ export const VacancyUI: React.FC<Props> = props => {
           setFieldValue,
           dirty,
           isSubmitting,
-          resetForm,
-          touched,
           initialValues,
-          errors,
         }) => (
           <form id="vacancy-form" onSubmit={handleSubmit}>
             <Prompt
@@ -843,12 +839,12 @@ export const VacancyUI: React.FC<Props> = props => {
                     </Grid>
                     <VacancySummary
                       vacancySummaryDetails={vacancySummaryDetails}
-                      onAssignClick={async (vacancySummaryDetails: VacancySummaryDetail[]) => {
-                        dispatch({
-                          action: "setVacancyDetailIdsToAssign",
-                          vacancyDetailIdsToAssign:
-                          vacancySummaryDetails.map(vsd => vsd.vacancyDetailId),
-                        });
+                      onAssignClick={async (
+                        vacancySummaryDetails: VacancySummaryDetail[]
+                      ) => {
+                        setVacancySummaryDetailsToAssign(
+                          vacancySummaryDetailsToAssign
+                        );
                         setStep("preAssignSub");
                       }}
                       onCancelAssignment={onCancelAssignment}
@@ -892,13 +888,21 @@ export const VacancyUI: React.FC<Props> = props => {
                     : buildVacancyCreateInput({
                         ...vacancy,
                         details: vacancy.details.filter(d =>
-                          state.vacancyDetailIdsToAssign.find(s => s === d.id)
+                          vacancySummaryDetailsToAssign.find(
+                            vsd => vsd.vacancyDetailId === d.id
+                          )
                         ),
                       })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 existingVacancy={vacancyExists}
-                vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
+                vacancyDetailIdsToAssign={
+                  vacancyExists
+                    ? vacancySummaryDetailsToAssign.map(
+                        vsd => vsd.vacancyDetailId
+                      )
+                    : undefined
+                }
                 employeeToReplace={
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
                     ?.firstName ?? undefined
