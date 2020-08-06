@@ -8,8 +8,6 @@ import {
   PermissionEnum,
   AbsenceUpdateInput,
   AbsenceCreateInput,
-  DayPart,
-  AbsenceDetailCreateInput,
   Absence,
   Vacancy,
   CancelVacancyAssignmentInput,
@@ -24,9 +22,7 @@ import { useQueryParamIso } from "hooks/query-params";
 import { AbsenceFormData, AbsenceDetail } from "../types";
 import { Formik } from "formik";
 import {
-  mapAccountingCodeValueToAccountingCodeAllocations,
   allAccountingCodeValuesAreEqual,
-  mapAccountingCodeAllocationsToAccountingCodeValue,
 } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
@@ -34,9 +30,7 @@ import { makeStyles, Grid, Typography, Button } from "@material-ui/core";
 import { AbsenceDetails } from "./absence-details";
 import {
   isSameDay,
-  format,
   isAfter,
-  isBefore,
   startOfDay,
   min,
   parseISO,
@@ -46,11 +40,9 @@ import { SubstituteDetails } from "./substitute-details";
 import { ContentFooter } from "ui/components/content-footer";
 import { Can, useCanDo } from "ui/components/auth/can";
 import {
-  getAbsenceDates,
   getCannotCreateAbsenceDates,
   payCodeIdsAreTheSame,
 } from "ui/components/absence/helpers";
-import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import {
   some,
@@ -58,14 +50,12 @@ import {
   flatMap,
   isEqual,
   differenceWith,
-  sortBy,
 } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
 import { EditVacancies } from "ui/pages/create-absence/edit-vacancies";
 import { VacancyDetail } from "ui/components/absence/types";
-import { convertStringToDate } from "helpers/date";
 import { Confirmation } from "../create/confirmation";
 import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
@@ -85,6 +75,7 @@ import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
 import { AbsenceFormValidationSchema } from "../validation";
 import { DeletedData } from "ui/components/deleted-data";
+import { buildAbsenceInput, buildFormData } from "../helpers";
 
 type Props = {
   organizationId: string;
@@ -1140,288 +1131,3 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(4),
   },
 }));
-
-export const buildAbsenceInput = (
-  formValues: AbsenceFormData,
-  state: AbsenceState,
-  vacancyDetails: VacancyDetail[],
-  disabledDates: Date[],
-  forProjections: boolean
-): AbsenceCreateInput | AbsenceUpdateInput | null => {
-  if (
-    hasIncompleteDetails(formValues.details) ||
-    formValues.details.length === 0
-  ) {
-    return null;
-  }
-  const dates = getAbsenceDates(
-    formValues.details.map(d => d.date),
-    disabledDates
-  );
-  if (!dates) return null;
-
-  let absence: AbsenceCreateInput | AbsenceUpdateInput;
-  if (!state.absenceId || forProjections) {
-    absence = {
-      orgId: state.organizationId,
-      employeeId: state.employeeId,
-    };
-  } else {
-    absence = {
-      id: state.absenceId ?? "0",
-      rowVersion: state.absenceRowVersion ?? "",
-    };
-  }
-
-  // Add properties that span create and update
-  absence = {
-    ...absence,
-    notesToApprover: forProjections ? undefined : formValues.notesToApprover,
-    adminOnlyNotes: forProjections ? undefined : formValues.adminOnlyNotes,
-    details: createAbsenceDetailInput(formValues.details, forProjections),
-  };
-
-  const hasEditedDetails = !!state.customizedVacanciesInput;
-
-  // Build Vacancy Details in case we want to tell the server to use our Details
-  // instead of it coming up with its own
-  const vDetails = vacancyDetails?.map(v => {
-    // If creating, look to see if we're trying to prearrange anyone for this detail
-    const assignment = !state.absenceId
-      ? state.assignmentsByDate?.find(
-          a =>
-            (v.vacancyDetailId && a.vacancyDetailId === v.vacancyDetailId) ||
-            (!v.vacancyDetailId &&
-              isSameDay(a.startTimeLocal, startOfDay(parseISO(v.date))))
-        )
-      : undefined;
-
-    return (
-      {
-        date: v.date,
-        locationId: v.locationId,
-        startTime: secondsSinceMidnight(
-          parseTimeFromString(
-            format(convertStringToDate(v.startTime)!, "h:mm a")
-          )
-        ),
-        endTime: secondsSinceMidnight(
-          parseTimeFromString(format(convertStringToDate(v.endTime)!, "h:mm a"))
-        ),
-        payCodeId: !hasEditedDetails ? undefined : v.payCodeId ?? null,
-        accountingCodeAllocations: !hasEditedDetails
-          ? undefined
-          : mapAccountingCodeValueToAccountingCodeAllocations(
-              v.accountingCodeAllocations,
-              true
-            ),
-        prearrangedReplacementEmployeeId: assignment?.employee?.id,
-      } ?? undefined
-    );
-  });
-
-  const notesToReplacement = forProjections
-    ? undefined
-    : formValues.notesToReplacement;
-
-  // Populate the Vacancies on the Absence
-  absence = {
-    ...absence,
-    /* TODO: When we support multi Position Employees we'll need to account for the following:
-          When creating an Absence, there must be 1 Vacancy created here per Position Id.
-      */
-    vacancies: [
-      {
-        positionId: state.positionId ?? undefined,
-        useSuppliedDetails:
-          (hasEditedDetails || !!notesToReplacement) &&
-          vDetails &&
-          vDetails.length > 0,
-        needsReplacement: formValues.needsReplacement,
-        notesToReplacement: notesToReplacement,
-        details: vDetails,
-        accountingCodeAllocations:
-          hasEditedDetails || !formValues.accountingCodeAllocations
-            ? undefined
-            : mapAccountingCodeValueToAccountingCodeAllocations(
-                formValues.accountingCodeAllocations,
-                true
-              ),
-        payCodeId:
-          hasEditedDetails || !formValues.payCodeId
-            ? undefined
-            : formValues.payCodeId,
-      },
-    ],
-  };
-  return absence;
-};
-
-const createAbsenceDetailInput = (
-  details: AbsenceDetail[],
-  forProjections: boolean
-): AbsenceDetailCreateInput[] => {
-  return details.map(d => {
-    let detail: AbsenceDetailCreateInput = {
-      id: forProjections ? undefined : d.id,
-      date: format(d.date, "P"),
-      dayPartId: d.dayPart,
-      reasons: [{ absenceReasonId: d.absenceReasonId }],
-    };
-
-    if (d.dayPart === DayPart.Hourly) {
-      detail = {
-        ...detail,
-        startTime: secondsSinceMidnight(
-          parseTimeFromString(format(d.hourlyStartTime!, "h:mm a"))
-        ),
-        endTime: secondsSinceMidnight(
-          parseTimeFromString(format(d.hourlyEndTime!, "h:mm a"))
-        ),
-      };
-    }
-
-    return detail;
-  });
-};
-
-const hasIncompleteDetails = (details: AbsenceDetail[]): boolean => {
-  const incompleteDetail = details.find(
-    d =>
-      !d.absenceReasonId ||
-      !d.dayPart ||
-      (d.dayPart === DayPart.Hourly &&
-        (!d.hourlyStartTime ||
-          !d.hourlyEndTime ||
-          isBefore(d.hourlyEndTime, d.hourlyStartTime)))
-  );
-  return !!incompleteDetail;
-};
-
-export const buildFormData = (absence: Absence): AbsenceFormData => {
-  // Figure out the details to put into the form
-  const details = compact(absence?.details);
-  const closedDetails = compact(absence?.closedDetails);
-  const detailsToUse = details.length === 0 ? closedDetails : details;
-  const formDetails = sortBy(
-    compact(detailsToUse).map(d => {
-      return {
-        id: d.id,
-        date: startOfDay(parseISO(d.startDate)),
-        dayPart: d.dayPartId ?? undefined,
-        hourlyStartTime:
-          d.dayPartId === DayPart.Hourly
-            ? parseISO(d.startTimeLocal)
-            : undefined,
-        hourlyEndTime:
-          d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
-        absenceReasonId: d.reasonUsages
-          ? d.reasonUsages[0]?.absenceReasonId
-          : undefined,
-      };
-    }),
-    d => d.date
-  );
-
-  const vacancies = compact(absence?.vacancies ?? []);
-  const vacancy = vacancies[0];
-
-  // Figure out the overall accounting code allocations
-  // that would display on the Absence Details view
-  const accountingCodeAllocations = compact(
-    vacancy?.details
-  )[0]?.accountingCodeAllocations?.map(a => {
-    return {
-      accountingCodeId: a.accountingCodeId,
-      accountingCodeName: a.accountingCode?.name,
-      allocation: a.allocation,
-    };
-  });
-
-  // Figure out if the form needs to enforce
-  // Notes To Approver being required
-  const allReasons = compact(
-    flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
-  );
-  const notesToApproverRequired = allReasons.find(
-    a => a.absenceReason?.requireNotesToAdmin
-  );
-
-  return {
-    details: formDetails,
-    notesToApprover: absence?.notesToApprover ?? "",
-    adminOnlyNotes: absence?.adminOnlyNotes ?? "",
-    needsReplacement: !!vacancy,
-    notesToReplacement: vacancy?.notesToReplacement ?? "",
-    requireNotesToApprover: !!notesToApproverRequired,
-    payCodeId: vacancy?.details
-      ? vacancy?.details[0]?.payCodeId ?? undefined
-      : undefined,
-    accountingCodeAllocations: vacancy?.details
-      ? mapAccountingCodeAllocationsToAccountingCodeValue(
-          accountingCodeAllocations ?? undefined
-        )
-      : undefined,
-    sameReasonForAllDetails: detailsHaveTheSameReasons(formDetails),
-    sameTimesForAllDetails: detailsHaveTheSameTimes(formDetails),
-  };
-};
-
-const detailsHaveTheSameReasons = (details: AbsenceDetail[]) => {
-  if (!details || details.length === 0) {
-    return true;
-  }
-
-  const absenceReasonIdToCompare = details[0].absenceReasonId;
-  for (let index = 0; index < details.length; index++) {
-    const absenceReasonId = details[index].absenceReasonId;
-    if (!absenceReasonId && !absenceReasonIdToCompare) {
-      continue;
-    }
-
-    if (absenceReasonId !== absenceReasonIdToCompare) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const detailsHaveTheSameTimes = (details: AbsenceDetail[]) => {
-  if (!details || details.length === 0) {
-    return true;
-  }
-
-  const timesToCompare = {
-    dayPart: details[0].dayPart,
-    hourlyStartTime: details[0].hourlyStartTime,
-    hourlyEndTime: details[0].hourlyEndTime,
-  };
-  for (let index = 0; index < details.length; index++) {
-    const times = {
-      dayPart: details[index].dayPart,
-      hourlyStartTime: details[index].hourlyStartTime,
-      hourlyEndTime: details[index].hourlyEndTime,
-    };
-    if (!times?.dayPart && !timesToCompare?.dayPart) {
-      continue;
-    }
-
-    if (times.dayPart !== timesToCompare.dayPart) {
-      return false;
-    }
-
-    // If Hourly, check if the start and end are the same
-    if (
-      times.dayPart === DayPart.Hourly &&
-      (times.hourlyStartTime?.toISOString() !==
-        timesToCompare.hourlyStartTime?.toISOString() ||
-        times.hourlyEndTime?.toISOString() !==
-          timesToCompare.hourlyEndTime?.toISOString())
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-};

@@ -1,17 +1,8 @@
 import * as React from "react";
-import {
-  makeStyles,
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  Button,
-} from "@material-ui/core";
+import { makeStyles, Typography, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
-import {
-  AssignmentFor,
-  VacancySummaryDetail,
-} from "ui/components/absence-vacancy/vacancy-summary/types";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { AbsenceFormData, AssignmentOnDate } from "../types";
 import { useFormikContext } from "formik";
 import {
@@ -25,17 +16,14 @@ import { useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact } from "lodash-es";
-import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { SubstituteDetailsCodes } from "./substitute-details-codes";
 import { Can } from "ui/components/auth/can";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
-import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
-import { secondsSinceMidnight } from "helpers/time";
-import { isSameDay } from "date-fns";
 import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { payCodeIdsAreTheSame } from "ui/components/absence/helpers";
 import { NeedsReplacementCheckbox } from "./needs-replacement";
+import { convertVacancyToVacancySummaryDetails } from "../helpers";
 
 type Props = {
   absenceId?: string;

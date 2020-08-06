@@ -6,7 +6,6 @@ import {
   sortBy,
   compact,
   flatMap,
-  isNil,
 } from "lodash-es";
 import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
@@ -16,11 +15,14 @@ import {
   Maybe,
   Absence,
 } from "graphql/server-types.gen";
-import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 import { AssignmentOnDate } from "./types";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import { AbsenceReasonUsageData } from "./components/balance-usage";
+import {
+  projectVacancyDetailsFromVacancies,
+  getAbsenceReasonUsageData,
+} from "./helpers";
 
 export type AbsenceState = {
   employeeId: string;
@@ -238,93 +240,4 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       };
     }
   }
-};
-
-export const projectVacancyDetailsFromVacancies = (
-  vacancies: Partial<Vacancy | null>[] | null | undefined,
-  assignmentsByDate?: AssignmentOnDate[] | undefined
-): VacancyDetail[] => {
-  if (!vacancies || vacancies.length < 1) {
-    return [];
-  }
-  const absenceDetails = vacancies[0]?.absence?.details;
-  return (vacancies[0]?.details ?? [])
-    .map(d => {
-      // Find a matching Absence Detail record if available
-      const absenceDetail = absenceDetails?.find(
-        ad => ad?.startDate === d?.startDate
-      );
-
-      // Find a matching assignment from state if we don't already
-      // have one on the VacancyDetail record itself
-      const assignment = assignmentsByDate?.find(
-        a =>
-          (d.id && a.vacancyDetailId === d.id) ||
-          isEqual(a.startTimeLocal, parseISO(d.startTimeLocal))
-      );
-
-      return {
-        vacancyDetailId: d?.id,
-        date: d?.startDate,
-        locationId: d?.locationId,
-        startTime: d?.startTimeLocal,
-        endTime: d?.endTimeLocal,
-        locationName: d?.location?.name,
-        absenceStartTime: absenceDetail?.startTimeLocal,
-        absenceEndTime: absenceDetail?.endTimeLocal,
-        payCodeId: d?.payCodeId,
-        accountingCodeAllocations: mapAccountingCodeAllocationsToAccountingCodeValue(
-          d?.accountingCodeAllocations?.map(a => {
-            return {
-              accountingCodeId: a.accountingCodeId,
-              accountingCodeName: a.accountingCode?.name,
-              allocation: a.allocation,
-            };
-          })
-        ),
-        assignmentId: d?.assignment?.id ?? assignment?.assignmentId,
-        assignmentRowVersion:
-          d?.assignment?.rowVersion ?? assignment?.assignmentRowVersion,
-        assignmentStartDateTime:
-          d?.startTimeLocal ?? assignment?.startTimeLocal?.toISOString(),
-        assignmentEmployeeId:
-          d?.assignment?.employee?.id ?? assignment?.employee?.id,
-        assignmentEmployeeFirstName:
-          d?.assignment?.employee?.firstName ?? assignment?.employee?.firstName,
-        assignmentEmployeeLastName:
-          d?.assignment?.employee?.lastName ?? assignment?.employee?.lastName,
-        isClosed: d.isClosed ?? false,
-      } as VacancyDetail;
-    })
-    .filter(
-      (detail): detail is VacancyDetail =>
-        !!detail.locationId &&
-        !!detail.date &&
-        !!detail.startTime &&
-        !!detail.endTime
-    );
-};
-
-export const getAbsenceReasonUsageData = (
-  absence: Absence
-): AbsenceReasonUsageData[] => {
-  const details = absence.details;
-  const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
-  const usageData: AbsenceReasonUsageData[] = compact(
-    usages.map(u => {
-      if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
-        return null;
-      }
-
-      return {
-        hourlyAmount: u.hourlyAmount,
-        dailyAmount: u.dailyAmount,
-        absenceReasonId: u.absenceReasonId,
-        absenceReason: {
-          absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
-        },
-      };
-    })
-  );
-  return usageData;
 };
