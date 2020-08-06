@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import * as DateFns from "date-fns";
 import * as React from "react";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
 import clsx from "clsx";
 
@@ -31,21 +31,27 @@ export const AssignmentCalendar: React.FC<Props> = ({
     [parsedDate, selectedDate]
   );
 
-  const decorateDate = useCallback(
-    (className: string) => (date: Date) => ({
-      date,
-      buttonProps: {
-        className: clsx(
-          className,
-          DateFns.isSameDay(date, selectedDate)
-            ? classes.selected
-            : DateFns.isToday(date)
-            ? classes.today
-            : undefined
-        ),
-      },
-    }),
-    [selectedDate, classes]
+  const decorateDate = useMemo(
+    () =>
+      checkDays
+        ? (className: string) => (date: Date) => ({
+            date,
+            buttonProps: {
+              className: clsx(
+                className,
+                DateFns.isSameDay(date, selectedDate)
+                  ? classes.selected
+                  : DateFns.isToday(date)
+                  ? classes.today
+                  : undefined
+              ),
+            },
+          })
+        : (className: string) => (date: Date) => ({
+            date,
+            buttonProps: { className },
+          }),
+    [checkDays, selectedDate, classes]
   );
 
   const styledDates = useMemo(() => {
