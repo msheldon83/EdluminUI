@@ -4,20 +4,60 @@ import { useTranslation } from "react-i18next";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
+import { AssignmentDialog } from "./assignment-dialog";
+import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
+import { useIsMount } from "hooks/use-is-mount";
 
 type Props = {
   assignmentStartTime: Date;
-  onAssignClick?: () => void;
+  assignmentWithDetails: AssignmentWithDetails;
+  isExistingVacancy: boolean;
+  onAssignClick?: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<void>;
   disableActions?: boolean;
 };
 
 export const UnfilledBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { onAssignClick, assignmentStartTime, disableActions = false } = props;
+  const isMount = useIsMount();
+  const {
+    onAssignClick,
+    assignmentStartTime,
+    assignmentWithDetails,
+    isExistingVacancy,
+    disableActions = false,
+  } = props;
+
+  const [assignmentDialogIsOpen, setAssignmentDialogIsOpen] = React.useState<
+    boolean
+  >(false);
+  const onLocalAssignClick = React.useCallback(async () => {
+    if (!onAssignClick) {
+      return;
+    }
+
+    if (assignmentWithDetails.vacancySummaryDetails.length === 1) {
+      // Assigning a single vacancy detail, no need to prompt the user
+      await onAssignClick(assignmentWithDetails.vacancySummaryDetails);
+    } else {
+      // Assigning multiple vacancy details, want to ask the user what they want to do
+      setAssignmentDialogIsOpen(true);
+    }
+  }, [onAssignClick, assignmentWithDetails]);
 
   return (
     <>
+      {onAssignClick && (
+        <AssignmentDialog
+          action={isExistingVacancy ? "assign" : "pre-arrange"}
+          onSubmit={onAssignClick}
+          onClose={() => isMount && setAssignmentDialogIsOpen(false)}
+          open={assignmentDialogIsOpen}
+          vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
+        />
+      )}
       <Divider className={classes.divider} />
       <div className={classes.unfilled}>
         <Typography variant={"h6"}>{t("Unfilled")}</Typography>
@@ -40,11 +80,11 @@ export const UnfilledBanner: React.FC<Props> = props => {
           >
             <Button
               variant="outlined"
-              onClick={onAssignClick}
+              onClick={onLocalAssignClick}
               disabled={disableActions}
               className={classes.assignButton}
             >
-              {t("Assign")}
+              {isExistingVacancy ? t("Assign") : t("Pre-arrange")}
             </Button>
           </Can>
         )}
@@ -53,7 +93,7 @@ export const UnfilledBanner: React.FC<Props> = props => {
   );
 };
 
-export const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(theme => ({
   unfilled: {
     display: "flex",
     justifyContent: "space-between",

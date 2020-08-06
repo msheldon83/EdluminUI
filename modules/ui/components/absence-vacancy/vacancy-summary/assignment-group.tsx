@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AssignmentWithDetails, AssignmentFor } from "./types";
+import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
 import { UnfilledBanner } from "./unfilled-banner";
 import { AssignedBanner } from "./assigned-banner";
 import { DateGroup } from "./date-group";
@@ -7,14 +7,16 @@ import { makeStyles } from "@material-ui/core";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
+  isExistingVacancy: boolean;
   isPartiallyFilled: boolean;
   showPayCodes: boolean;
   showAccountingCodes: boolean;
   showAbsenceTimes: boolean;
-  onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
+  onAssignClick?: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<void>;
   onCancelAssignment?: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
+    vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   disableActions?: boolean;
   detailsOnly?: boolean;
@@ -26,6 +28,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
   const {
     assignmentWithDetails,
+    isExistingVacancy,
     isPartiallyFilled,
     showAbsenceTimes,
     onAssignClick,
@@ -54,24 +57,18 @@ export const AssignmentGroup: React.FC<Props> = props => {
         <>
           {showUnfilledHeader && (
             <UnfilledBanner
-              onAssignClick={
-                onAssignClick
-                  ? () => onAssignClick(assignmentWithDetails)
-                  : undefined
-              }
+              assignmentWithDetails={assignmentWithDetails}
+              onAssignClick={onAssignClick}
               assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
               disableActions={disableActions}
+              isExistingVacancy={isExistingVacancy}
             />
           )}
           {isAssigned && (
             <AssignedBanner
               assignmentWithDetails={assignmentWithDetails}
               assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
-              onReassignClick={
-                onAssignClick
-                  ? () => onAssignClick(assignmentWithDetails)
-                  : undefined
-              }
+              onReassignClick={onAssignClick}
               onCancelAssignment={onCancelAssignment}
               disableActions={disableActions}
               readOnly={props.readOnly}

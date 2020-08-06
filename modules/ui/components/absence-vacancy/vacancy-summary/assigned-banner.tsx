@@ -1,23 +1,24 @@
 import { makeStyles, Button, Typography, Divider } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { AssignmentWithDetails } from "./types";
+import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
 import { Can } from "ui/components/auth/can";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
-import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { AssignmentDialog } from "./assignment-dialog";
+import { useState, useCallback } from "react";
 import { SubstituteLink } from "ui/components/links/people";
-import { compact } from "lodash-es";
+import { useIsMount } from "hooks/use-is-mount";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
   assignmentStartTime: Date;
-  onReassignClick?: () => void;
+  onReassignClick?: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<void>;
   onCancelAssignment?: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
+    vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   disableActions?: boolean;
   readOnly: boolean;
@@ -27,10 +28,7 @@ type Props = {
 export const AssignedBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [
-    cancelAssignmentDialogIsOpen,
-    setCancelAssignmentDialogIsOpen,
-  ] = useState<boolean>(false);
+  const isMount = useIsMount();
   const {
     assignmentWithDetails,
     assignmentStartTime,
@@ -45,40 +43,62 @@ export const AssignedBanner: React.FC<Props> = props => {
     ?.firstName ?? ""} ${assignmentWithDetails.assignment?.employee?.lastName ??
     ""}`;
 
-  const onRemoveClick = useCallback(async () => {
+  const [
+    cancelAssignmentDialogIsOpen,
+    setCancelAssignmentDialogIsOpen,
+  ] = useState<boolean>(false);
+  const onLocalRemoveClick = useCallback(async () => {
     if (!onCancelAssignment) {
       return;
     }
 
-    if (assignmentWithDetails.dates.length === 1) {
-      // Cancelling an assignment for a single day, no need to prompt the user
-      await onCancelAssignment(
-        compact(assignmentWithDetails.vacancyDetailIds),
-        compact(assignmentWithDetails.dates)
-      );
+    if (assignmentWithDetails.vacancySummaryDetails.length === 1) {
+      // Cancelling an assignment for a single vacancy detail, no need to prompt the user
+      await onCancelAssignment(assignmentWithDetails.vacancySummaryDetails);
     } else {
-      // Cancelling a multi day assignment, want to ask the user what they want to do
+      // Cancelling an assignment covering multiple vacancy details, want to ask the user what they want to do
       setCancelAssignmentDialogIsOpen(true);
     }
   }, [onCancelAssignment, assignmentWithDetails]);
 
-  const componentIsMounted = useRef(true);
-  useEffect(() => {
-    return () => {
-      componentIsMounted.current = false;
-    };
-  }, []);
+  const [
+    reassignAssignmentDialogIsOpen,
+    setReassignAssignmentDialogIsOpen,
+  ] = useState<boolean>(false);
+  const onLocalReassignClick = useCallback(async () => {
+    if (!onReassignClick) {
+      return;
+    }
+
+    if (assignmentWithDetails.vacancySummaryDetails.length === 1) {
+      // Reassigning a single vacancy detail, no need to prompt the user
+      await onReassignClick(assignmentWithDetails.vacancySummaryDetails);
+    } else {
+      // Reassigning an assignment covering multiple vacancy details, want to ask the user what they want to do
+      setReassignAssignmentDialogIsOpen(true);
+    }
+  }, [onReassignClick, assignmentWithDetails]);
 
   return (
     <>
       {onCancelAssignment && (
-        <CancelAssignmentDialog
-          onCancelAssignment={onCancelAssignment}
-          onClose={() =>
-            componentIsMounted.current && setCancelAssignmentDialogIsOpen(false)
-          }
+        <AssignmentDialog
+          action={"cancel"}
+          onSubmit={onCancelAssignment}
+          onClose={() => isMount && setCancelAssignmentDialogIsOpen(false)}
           open={cancelAssignmentDialogIsOpen}
-          assignmentWithDetails={assignmentWithDetails}
+          vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
+          assignment={assignmentWithDetails.assignment}
+        />
+      )}
+      {onReassignClick && (
+        <AssignmentDialog
+          action={"reassign"}
+          onSubmit={onReassignClick}
+          onClose={() => isMount && setReassignAssignmentDialogIsOpen(false)}
+          open={reassignAssignmentDialogIsOpen}
+          vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
+          assignment={assignmentWithDetails.assignment}
         />
       )}
       <Divider className={classes.divider} />
@@ -125,7 +145,7 @@ export const AssignedBanner: React.FC<Props> = props => {
             >
               <Button
                 variant="outlined"
-                onClick={onReassignClick}
+                onClick={onLocalReassignClick}
                 disabled={disableActions}
                 className={classes.reassignButton}
               >
@@ -157,7 +177,7 @@ export const AssignedBanner: React.FC<Props> = props => {
               <Button
                 disabled={disableActions}
                 variant={"outlined"}
-                onClick={onRemoveClick}
+                onClick={onLocalRemoveClick}
                 className={classes.removeButton}
               >
                 {t("Remove")}
@@ -170,7 +190,7 @@ export const AssignedBanner: React.FC<Props> = props => {
   );
 };
 
-export const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(theme => ({
   assignedBanner: {
     display: "flex",
     padding: theme.spacing(2),

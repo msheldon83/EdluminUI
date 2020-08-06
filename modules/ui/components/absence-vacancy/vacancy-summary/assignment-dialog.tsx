@@ -16,108 +16,143 @@ import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { useState, useCallback, useMemo } from "react";
-import { format, isSameDay } from "date-fns";
-import { AssignmentWithDetails } from "./types";
-import { compact } from "lodash-es";
+import { format, isEqual } from "date-fns";
+import { Assignment, VacancySummaryDetail } from "./types";
 
 type Props = {
-  action: "pre-arrange" | "assign" | "cancel";
-  assignmentWithDetails: AssignmentWithDetails;
+  action: "pre-arrange" | "assign" | "reassign" | "cancel";
+  vacancySummaryDetails: VacancySummaryDetail[];
+  assignment?: Assignment;
   open: boolean;
   onClose: () => void;
   onSubmit: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
-  ) => Promise<boolean>;
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<boolean | void>;
 };
 
 export const AssignmentDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [selection, setSelection] = useState<"all" | "select">("select");
+  const [selection, setSelection] = useState<"all" | "select">("all");
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const { action, open, onClose, assignmentWithDetails, onSubmit } = props;
+  const {
+    action,
+    open,
+    onClose,
+    assignment,
+    vacancySummaryDetails,
+    onSubmit,
+  } = props;
 
-  const assignment = useMemo(() => assignmentWithDetails.assignment!, [
-    assignmentWithDetails,
-  ]);
-  const subName = useMemo(
+  const assignedSubName = useMemo(
     () =>
-      `${assignment.employee?.firstName ?? ""} ${assignment.employee
-        ?.lastName ?? ""}`,
+      assignment
+        ? `${assignment.employee?.firstName ?? ""} ${assignment.employee
+            ?.lastName ?? ""}`
+        : undefined,
     [assignment]
   );
 
   const onSubmitClick = useCallback(async () => {
-    // Find the Vacancy Details Ids that are on the selected dates
-    const vacancyDetailIds = selectedDates.reduce(
-      (accumulator: string[], date) => {
-        accumulator.push(
-          ...(assignmentWithDetails.vacancyDetailIdsByDate.find(vd =>
-            isSameDay(vd.date, date)
-          )?.vacancyDetailIds ?? [])
-        );
-        return accumulator;
-      },
-      []
+    const details = vacancySummaryDetails.filter(vsd =>
+      selectedDates.includes(vsd.startTimeLocal)
     );
-
-    await onSubmit(compact(vacancyDetailIds), compact(selectedDates));
+    await onSubmit(details);
     onClose();
-  }, [assignmentWithDetails, selectedDates, onSubmit, onClose]);
+  }, [vacancySummaryDetails, selectedDates, onSubmit, onClose]);
 
   const detailsDisplay = useMemo(() => {
-    return assignmentWithDetails.dates.map((d, i) => {
+    return vacancySummaryDetails.map((vsd, i) => {
       return (
         <div key={i}>
           <FormControlLabel
-            checked={selectedDates.includes(d)}
+            checked={
+              selectedDates.includes(vsd.startTimeLocal) || selection === "all"
+            }
             disabled={selection === "all"}
             control={
               <Checkbox
                 onChange={e => {
                   if (e.target.checked) {
                     // Add to selection list
-                    setSelectedDates([...selectedDates, d]);
+                    setSelectedDates([...selectedDates, vsd.startTimeLocal]);
                   } else {
                     // Remove from selection list
-                    setSelectedDates([...selectedDates.filter(s => s !== d)]);
+                    setSelectedDates([
+                      ...selectedDates.filter(s =>
+                        isEqual(s, vsd.startTimeLocal)
+                      ),
+                    ]);
                   }
                 }}
                 color="primary"
               />
             }
-            label={format(d, "EEE, MMM d")}
+            label={`${format(vsd.startTimeLocal, "EEE, MMM d h:mm a")} @ ${
+              vsd.locationName
+            }`}
           />
         </div>
       );
     });
-  }, [assignmentWithDetails, selectedDates, setSelectedDates, selection]);
+  }, [vacancySummaryDetails, selectedDates, setSelectedDates, selection]);
 
-  const warningMessagePrompt = assignment.employee?.firstName
-    ? t(
-        "Would you like to remove {{firstName}} from the entire assignment or only select days?",
-        { firstName: assignment.employee.firstName }
-      )
-    : t(
-        "Would you like to remove the substitute from the entire assignment or only select days?"
+  let actionText = "";
+  let messagePrompt = "";
+
+  switch (action) {
+    case "pre-arrange":
+      actionText = t("Pre-arrange");
+      messagePrompt = t(
+        "Would you like to pre-arrange a substitute for all of the following details or only select ones?"
       );
-
-  const actionText = action === "pre-arrange";
+      break;
+    case "assign":
+      actionText = t("Assign");
+      messagePrompt = t(
+        "Would you like to assign a substitute for all of the following details or only select ones?"
+      );
+      break;
+    case "reassign":
+      actionText = t("Reassign");
+      messagePrompt = assignment?.employee?.firstName
+        ? t(
+            "Would you like to reassign all of the following details or only select ones from {{firstName}} to another substitute?",
+            { firstName: assignment.employee.firstName }
+          )
+        : t(
+            "Would you like to reassign all of the following details or only select ones?"
+          );
+      break;
+    case "cancel":
+      actionText = t("Remove");
+      messagePrompt = assignment?.employee?.firstName
+        ? t(
+            "Would you like to remove {{firstName}} from the entire assignment or only select details?",
+            { firstName: assignment.employee.firstName }
+          )
+        : t(
+            "Would you like to remove the substitute from the entire assignment or only select details?"
+          );
+      break;
+  }
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle disableTypography>
-        <Typography variant="h5">{`${t("Remove")} ${subName}`}</Typography>
+        <Typography variant="h5">{`${actionText} ${assignedSubName ??
+          ""}`}</Typography>
       </DialogTitle>
       <DialogContent>
-        <Typography>{warningMessagePrompt}</Typography>
+        <Typography className={classes.message}>{messagePrompt}</Typography>
         <RadioGroup
           value={selection}
           onChange={e => {
             setSelection(e.target.value === "all" ? "all" : "select");
             if (e.target.value === "all") {
-              setSelectedDates(assignmentWithDetails.dates);
+              setSelectedDates(
+                vacancySummaryDetails.map(vsd => vsd.startTimeLocal)
+              );
             } else {
               setSelectedDates([]);
             }
@@ -128,12 +163,12 @@ export const AssignmentDialog: React.FC<Props> = props => {
           <FormControlLabel
             value={"select"}
             control={<Radio />}
-            label={"Select days"}
+            label={t("Select details")}
           />
           <FormControlLabel
             value={"all"}
             control={<Radio />}
-            label={"Entire assignment"}
+            label={t("All details")}
           />
         </RadioGroup>
         <div>{detailsDisplay}</div>
@@ -150,7 +185,7 @@ export const AssignmentDialog: React.FC<Props> = props => {
           className={[classes.buttonSpacing, classes.remove].join(" ")}
           disabled={selectedDates.length === 0}
         >
-          {t("Remove")}
+          {actionText}
         </ButtonDisableOnClick>
       </DialogActions>
     </Dialog>
@@ -158,6 +193,9 @@ export const AssignmentDialog: React.FC<Props> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
+  message: {
+    marginBottom: theme.spacing(),
+  },
   buttonSpacing: {
     marginRight: theme.spacing(2),
   },
