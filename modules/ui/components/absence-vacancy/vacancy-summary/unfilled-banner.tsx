@@ -6,7 +6,7 @@ import { Can } from "ui/components/auth/can";
 import { canAssignSub } from "helpers/permissions";
 import { AssignmentDialog } from "./assignment-dialog";
 import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
-import { useIsMount } from "hooks/use-is-mount";
+import { useIsCurrentlyMounted } from "hooks/use-is-currently-mounted";
 
 type Props = {
   assignmentStartTime: Date;
@@ -21,7 +21,7 @@ type Props = {
 export const UnfilledBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMount = useIsMount();
+  const isCurrentlyMounted = useIsCurrentlyMounted();
   const {
     onAssignClick,
     assignmentStartTime,
@@ -53,7 +53,7 @@ export const UnfilledBanner: React.FC<Props> = props => {
         <AssignmentDialog
           action={isExistingVacancy ? "assign" : "pre-arrange"}
           onSubmit={onAssignClick}
-          onClose={() => isMount && setAssignmentDialogIsOpen(false)}
+          onClose={() => isCurrentlyMounted && setAssignmentDialogIsOpen(false)}
           open={assignmentDialogIsOpen}
           vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
         />

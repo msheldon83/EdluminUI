@@ -9,7 +9,7 @@ import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { AssignmentDialog } from "./assignment-dialog";
 import { useState, useCallback } from "react";
 import { SubstituteLink } from "ui/components/links/people";
-import { useIsMount } from "hooks/use-is-mount";
+import { useIsCurrentlyMounted } from "hooks/use-is-currently-mounted";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
@@ -28,7 +28,7 @@ type Props = {
 export const AssignedBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMount = useIsMount();
+  const isCurrentlyMounted = useIsCurrentlyMounted();
   const {
     assignmentWithDetails,
     assignmentStartTime,
@@ -85,7 +85,7 @@ export const AssignedBanner: React.FC<Props> = props => {
         <AssignmentDialog
           action={"cancel"}
           onSubmit={onCancelAssignment}
-          onClose={() => isMount && setCancelAssignmentDialogIsOpen(false)}
+          onClose={() => isCurrentlyMounted && setCancelAssignmentDialogIsOpen(false)}
           open={cancelAssignmentDialogIsOpen}
           vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
           assignment={assignmentWithDetails.assignment}
@@ -95,7 +95,7 @@ export const AssignedBanner: React.FC<Props> = props => {
         <AssignmentDialog
           action={"reassign"}
           onSubmit={onReassignClick}
-          onClose={() => isMount && setReassignAssignmentDialogIsOpen(false)}
+          onClose={() => isCurrentlyMounted && setReassignAssignmentDialogIsOpen(false)}
           open={reassignAssignmentDialogIsOpen}
           vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
           assignment={assignmentWithDetails.assignment}

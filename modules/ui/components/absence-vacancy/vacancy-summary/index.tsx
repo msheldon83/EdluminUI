@@ -8,8 +8,8 @@ import { AssignmentGroup } from "./assignment-group";
 import { uniqWith } from "lodash-es";
 import { secondsSinceMidnight } from "helpers/time";
 import { FilteredAssignmentButton } from "../filtered-assignment-button";
-import { useIsMount } from "hooks/use-is-mount";
 import { AssignmentDialog } from "./assignment-dialog";
+import { useIsCurrentlyMounted } from "hooks/use-is-currently-mounted";
 
 type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
@@ -38,7 +38,7 @@ type Props = {
 export const VacancySummary: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isMount = useIsMount();
+  const isCurrentlyMounted = useIsCurrentlyMounted();
   const {
     vacancySummaryDetails,
     onAssignClick,
@@ -121,7 +121,7 @@ export const VacancySummary: React.FC<Props> = props => {
         <AssignmentDialog
           action={isExistingVacancy ? "assign" : "pre-arrange"}
           onSubmit={onAssignClick}
-          onClose={() => isMount && setAssignmentDialogIsOpen(false)}
+          onClose={() => isCurrentlyMounted && setAssignmentDialogIsOpen(false)}
           open={assignmentDialogIsOpen}
           vacancySummaryDetails={vacancySummaryDetails}
         />
