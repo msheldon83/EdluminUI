@@ -33,6 +33,7 @@ type Props = {
   editable: boolean;
   setEditing?: React.Dispatch<React.SetStateAction<string | null>>;
   isCreate?: boolean;
+  label: string;
   orgId: string;
   locations: Array<{ name: string } | null>;
   locationIds: Array<string | null> | null | undefined;
@@ -203,7 +204,7 @@ export const AccessControl: React.FC<Props> = props => {
                     },
                   }}
                   submit={{
-                    text: t("Save"),
+                    text: props.label,
                     visible: editingThis,
                     execute: submitForm,
                   }}
@@ -477,7 +478,7 @@ export const AccessControl: React.FC<Props> = props => {
               </Grid>
               {props.isCreate && (
                 <ActionButtons
-                  submit={{ text: t("Save"), execute: submitForm }}
+                  submit={{ text: props.label, execute: submitForm }}
                   cancel={{ text: t("Cancel"), execute: props.onCancel }}
                 />
               )}

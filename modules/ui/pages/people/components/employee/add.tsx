@@ -25,6 +25,7 @@ import { GetEmployeeById } from "../../graphql/employee/get-employee-by-id-forad
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { PositionEditUI } from "ui/pages/employee-position/ui";
+import { FinishWizard } from "../finish-create-wizard";
 import {
   buildDaysOfTheWeek,
   buildNewPeriod,
@@ -45,14 +46,14 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   });
   const [name, setName] = React.useState<string | null>(null);
 
-  // Save a new employee in state
-  const [employee, setEmployee] = React.useState<EmployeeInput>({
+  const defaultEmployee = {
     id: null,
     orgId: params.organizationId,
     firstName: "",
     middleName: null,
     lastName: "",
     externalId: null,
+    inviteImmediately: null,
     email: "",
     position: {
       positionType: {
@@ -64,9 +65,14 @@ export const EmployeeAddPage: React.FC<{}> = props => {
         id: "",
       },
       hoursPerFullWorkDay: undefined,
-      accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1 }],
+      accountingCodeAllocations: null,
     },
-  });
+  };
+
+  // Save a new employee in state
+  const [employee, setEmployee] = React.useState<EmployeeInput>(
+    defaultEmployee
+  );
 
   const getOrgUser = useQueryBundle(GetEmployeeById, {
     variables: { id: params.orgUserId },
@@ -111,20 +117,9 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             },
             hoursPerFullWorkDay:
               orgUser.originalEmployee?.primaryPosition?.hoursPerFullWorkDay,
-            accountingCodeAllocations: [
-              {
-                accountingCodeId: orgUser.originalEmployee?.primaryPosition
-                  ?.accountingCodeAllocations
-                  ? orgUser.originalEmployee.primaryPosition
-                      .accountingCodeAllocations[0]?.accountingCodeId ?? ""
-                  : "",
-                allocation: orgUser.originalEmployee?.primaryPosition
-                  ?.accountingCodeAllocations
-                  ? orgUser.originalEmployee.primaryPosition
-                      .accountingCodeAllocations[0]?.allocation ?? 1
-                  : 1,
-              },
-            ],
+            accountingCodeAllocations:
+              orgUser.originalEmployee?.primaryPosition
+                ?.accountingCodeAllocations,
             schedules: orgUser.originalEmployee?.primaryPosition?.schedules,
           },
         });
@@ -206,7 +201,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
   ) => {
     return (
       <PositionEditUI
-        submitLabel={t("Save")} // TODO: Change this label to "Next" if we add another step
+        submitLabel={t("Next")} // TODO: Change this label to "Next" if we add another step
         position={{
           positionTypeId: employee.position?.positionType?.id,
           title: employee.position?.title,
@@ -247,10 +242,54 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             },
           };
           setEmployee(newEmployee);
+          setStep(steps[3].stepNumber);
+        }}
+        onCancel={handleCancel}
+      />
+    );
+  };
+
+  const renderFinish = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <FinishWizard
+        orgUserFullName={`${employee.firstName} ${employee.lastName}`}
+        orgUserType={t("employee")}
+        orgId={params.organizationId}
+        orgUserId={orgUser?.id}
+        onSubmit={async (orgUser: any) => {
+          const newEmployee = {
+            ...employee,
+            inviteImmediately: orgUser.inviteImmediately,
+          };
+          setEmployee(newEmployee);
           const id = await create(newEmployee);
           if (id) {
             const viewParams = { ...params, orgUserId: id };
-            history.push(PersonViewRoute.generate(viewParams));
+            if (orgUser.createAnother) {
+              openSnackbar({
+                dismissable: true,
+                autoHideDuration: 5000,
+                status: "success",
+                message: (
+                  <div
+                    onClick={() =>
+                      history.push(PersonViewRoute.generate(viewParams))
+                    }
+                    className={classes.pointer}
+                  >
+                    {t(
+                      `${employee.firstName} ${employee.lastName} successfully saved. Click to view.`
+                    )}
+                  </div>
+                ),
+              });
+
+              setEmployee(defaultEmployee);
+              setName(null);
+              setStep(steps[0].stepNumber);
+            } else history.push(PersonViewRoute.generate(viewParams));
           }
         }}
         onCancel={handleCancel}
@@ -283,6 +322,11 @@ export const EmployeeAddPage: React.FC<{}> = props => {
       name: t("Position"),
       content: renderPosition,
     },
+    {
+      stepNumber: 3,
+      name: t("Finish"),
+      content: renderFinish,
+    },
   ];
   const [initialStepNumber, setInitialStepNumber] = React.useState(
     steps[0].stepNumber
@@ -312,4 +356,5 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
   },
+  pointer: { cursor: "pointer" },
 }));

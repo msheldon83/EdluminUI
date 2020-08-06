@@ -1,13 +1,22 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button, { ButtonProps } from "@material-ui/core/Button";
-import { eachDayOfInterval, format, isSameDay, lastDayOfMonth, startOfMonth, getDay } from "date-fns";
+import {
+  eachDayOfInterval,
+  format,
+  isSameDay,
+  lastDayOfMonth,
+  startOfMonth,
+  getDay,
+} from "date-fns";
+import clsx from "clsx";
 
 type SingleMonthCalendarProps = {
   currentMonth: Date;
   customDates?: Array<{
     date: Date;
     buttonProps: ButtonProps;
+    timeClass?: string;
   }>;
   onSelectDate?: (date: Date) => void;
   className?: string;
@@ -29,7 +38,7 @@ export const SingleMonthCalendar = (props: SingleMonthCalendarProps) => {
       const day = format(dayListDate, "d");
       const formattedDate = format(dayListDate, "yyyy-MM-dd");
 
-      const { buttonProps = {} } =
+      const { buttonProps = {}, timeClass } =
         customDates.find(highlightedDate =>
           isSameDay(highlightedDate.date, dayListDate)
         ) || {};
@@ -54,7 +63,10 @@ export const SingleMonthCalendar = (props: SingleMonthCalendarProps) => {
             {...buttonProps}
             className={`${classes.dayButton} ${buttonClassName}`}
           >
-            <time className={classes.dayButtonTime} dateTime={formattedDate}>
+            <time
+              className={clsx(classes.dayButtonTime, timeClass)}
+              dateTime={formattedDate}
+            >
               {day}
             </time>
           </Button>

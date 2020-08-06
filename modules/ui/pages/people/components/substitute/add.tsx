@@ -16,7 +16,7 @@ import { SubstituteInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
 import { SaveSubstitute } from "../../graphql/substitute/save-substitute.gen";
-import { GetOrgUserById } from "../../graphql/get-orguser-by-id.gen";
+import { FinishWizard } from "../finish-create-wizard";
 import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
@@ -41,15 +41,20 @@ export const SubstituteAddPage: React.FC<{}> = props => {
   const [name, setName] = React.useState<string | null>(null);
   const [initialStepNumber, setInitialStepNumber] = React.useState(0);
 
-  // Save a new substitute in state
-  const [substitute, setSubstitute] = React.useState<SubstituteInput>({
+  const defaultSubstitute = {
     orgId: params.organizationId,
     firstName: "",
     middleName: null,
     lastName: "",
     externalId: null,
     email: "",
-  });
+    inviteImmediately: null,
+  };
+
+  // Save a new substitute in state
+  const [substitute, setSubstitute] = React.useState<SubstituteInput>(
+    defaultSubstitute
+  );
   const [subAttributes, setSubAttributes] = React.useState<Attribute[]>([]);
 
   const getOrgUser = useQueryBundle(GetSubstituteById, {
@@ -206,13 +211,9 @@ export const SubstituteAddPage: React.FC<{}> = props => {
         />
         <ActionButtons
           submit={{
-            text: t("Save"),
+            text: t("Next"),
             execute: async () => {
-              const id = await create(substitute, subAttributes);
-              if (id) {
-                const viewParams = { ...params, orgUserId: id };
-                history.push(PersonViewRoute.generate(viewParams));
-              }
+              setStep(steps[3].stepNumber);
             },
           }}
           cancel={{
@@ -221,6 +222,55 @@ export const SubstituteAddPage: React.FC<{}> = props => {
           }}
         />
       </Section>
+    );
+  };
+
+  const renderFinish = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <FinishWizard
+        orgUserFullName={`${substitute.firstName} ${substitute.lastName}`}
+        orgUserType={t("substitute")}
+        orgId={params.organizationId}
+        orgUserId={orgUser?.id}
+        onSubmit={async (orgUser: any) => {
+          const newSubstitute = {
+            ...substitute,
+            inviteImmediately: orgUser.inviteImmediately,
+          };
+          setSubstitute(newSubstitute);
+          const id = await create(substitute, subAttributes);
+          if (id) {
+            const viewParams = { ...params, orgUserId: id };
+            if (orgUser.createAnother) {
+              openSnackbar({
+                dismissable: true,
+                autoHideDuration: 5000,
+                status: "success",
+                message: (
+                  <div
+                    onClick={() =>
+                      history.push(PersonViewRoute.generate(viewParams))
+                    }
+                    className={classes.pointer}
+                  >
+                    {t(
+                      `${substitute.firstName} ${substitute.lastName} successfully saved. Click to view.`
+                    )}
+                  </div>
+                ),
+              });
+
+              setName(null);
+              setSubAttributes([]);
+              setSubstitute(defaultSubstitute);
+              setStep(steps[0].stepNumber);
+            } else history.push(PersonViewRoute.generate(viewParams));
+          }
+        }}
+        onCancel={handleCancel}
+      />
     );
   };
 
@@ -262,6 +312,11 @@ export const SubstituteAddPage: React.FC<{}> = props => {
       name: t("Position Types & Attributes"),
       content: renderPositionTypesAndAttributes,
     },
+    {
+      stepNumber: 3,
+      name: t("Finish"),
+      content: renderFinish,
+    },
   ];
 
   return (
@@ -288,4 +343,5 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
   },
+  pointer: { cursor: "pointer" },
 }));

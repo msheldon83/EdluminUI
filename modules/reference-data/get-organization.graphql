@@ -4,6 +4,10 @@ query GetOrganization($orgId: ID!) {
       id
       name
       isStaffingProvider
+      config {
+        id
+        organizationTypeId
+      }
     }
   }
 }
