@@ -78,6 +78,7 @@ import {
   mapAccountingCodeValueToAccountingCodeAllocations,
 } from "helpers/accounting-code-allocations";
 import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
+import { DeletedData } from "ui/components/deleted-data";
 
 type Props = {
   firstName: string;
@@ -707,6 +708,15 @@ export const EditAbsenceUI: React.FC<Props> = props => {
               />
             </div>
           </div>
+
+          {(props.locationIds ?? []).length === 0 && (
+            <DeletedData message={actingAsEmployee ? t("Your Position is not currently associated with any Schools. Please contact your administrator.") : t(
+              "The Position of {{name}} is not currently associated with any Schools. Please update their Position.",
+              {
+                name: employeeName,
+              }
+            )} header={""} subHeader={""} />
+          )}
 
           {props.approvalState && (
             <Can do={[PermissionEnum.AbsVacApprovalsView]}>

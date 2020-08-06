@@ -6,23 +6,34 @@ import {
   AbsenceReasonDropdown,
   AbsenceReasonDropdownValue,
 } from "./absence-reason-dropdown";
+import { noAllocation } from "./allocation-dropdown";
 
 export const AbsenceReasonDropdownStory = () => {
   const classes = useStyles();
 
   const options = [
     {
-      label: "1",
-      value: "1",
+      label: "A Days Reason",
+      value: "a-days-reason",
+      descriptor: "DAYS",
+    },
+    {
+      label: "An Hours Reason",
+      value: "an-hours-reason",
+      descriptor: "HOURS",
+    },
+    {
+      label: "Another Hours Reason",
+      value: "another-hours-reason",
+      descriptor: "HOURS",
     },
   ];
 
   const [absenceReason, setAbsenceReason] = React.useState<
     AbsenceReasonDropdownValue
-  >({
-    type: "no-allocation",
-    selection: undefined,
-  });
+  >(noAllocation());
+
+  // console.log("absenceReason", absenceReason);
 
   return (
     <div className={classes.container}>
@@ -30,6 +41,7 @@ export const AbsenceReasonDropdownStory = () => {
         value={absenceReason}
         options={options}
         onChange={setAbsenceReason}
+        hoursInADay={8}
       />
     </div>
   );

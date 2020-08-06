@@ -11,9 +11,12 @@ import { CreateAbsence } from "../graphql/create.gen";
 import { ApolloError } from "apollo-client";
 import { startOfMonth } from "date-fns";
 import { useGetEmployee } from "reference-data/employee";
+import { useHistory } from "react-router-dom";
+import { AbsenceFormData } from "../types";
 
 export const EmployeeCreateAbsence: React.FC<{}> = props => {
   const employee = useGetEmployee();
+  const history = useHistory();
 
   const [createErrorsInfo, setCreateErrorsInfo] = React.useState<
     { error: ApolloError | null; confirmed: boolean } | undefined
@@ -25,6 +28,13 @@ export const EmployeeCreateAbsence: React.FC<{}> = props => {
         confirmed: false,
       }),
   });
+
+  // The Quick Create option on the Employee's home page allows them to set a
+  // few values on the Absence and then jump over to the full create view here.
+  // We want the changes they did make to be carried over to here so we pass
+  // them over using the state of the location object
+  const initialFormDataPassedIn: AbsenceFormData =
+    history.location?.state?.initialFormData;
 
   // Our route definition for this page will ensure whomever gets here is an
   // Employee somewhere in their list of Org Users so our "!employee" check here is
@@ -63,14 +73,20 @@ export const EmployeeCreateAbsence: React.FC<{}> = props => {
           employee.primaryPosition?.needsReplacement === NeedsReplacement.Yes,
         sameReasonForAllDetails: true,
         sameTimesForAllDetails: true,
+        ...initialFormDataPassedIn,
       }}
       initialAbsenceState={() => {
         return {
           employeeId: employee.id,
           organizationId: employee.orgId,
           positionId: employee.primaryPosition?.id ?? "0",
-          viewingCalendarMonth: startOfMonth(new Date()),
-          absenceDates: [],
+          viewingCalendarMonth:
+            initialFormDataPassedIn && initialFormDataPassedIn.details[0]
+              ? startOfMonth(initialFormDataPassedIn.details[0].date)
+              : startOfMonth(new Date()),
+          absenceDates: initialFormDataPassedIn
+            ? initialFormDataPassedIn.details?.map(d => d.date) ?? []
+            : [],
           isClosed: false,
           closedDates: [],
           assignmentsByDate: [],

@@ -19,13 +19,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { AbsenceState, absenceReducer } from "../state";
 import { PageTitle } from "ui/components/page-title";
-import * as yup from "yup";
 import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
 import { AbsenceFormData, AbsenceDetail } from "../types";
 import { Formik } from "formik";
 import {
-  validateAccountingCodeAllocations,
   mapAccountingCodeValueToAccountingCodeAllocations,
   allAccountingCodeValuesAreEqual,
   mapAccountingCodeAllocationsToAccountingCodeValue,
@@ -58,9 +56,9 @@ import {
   some,
   compact,
   flatMap,
-  isNil,
   isEqual,
   differenceWith,
+  sortBy,
 } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
@@ -79,13 +77,14 @@ import { CancelAssignment } from "../graphql/cancel-assignment.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
-import { AbsenceReasonUsageData } from "./balance-usage";
 import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
 import { ActionMenu, Option } from "ui/components/action-menu";
 import { useHistory } from "react-router";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
 import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
+import { AbsenceFormValidationSchema } from "../validation";
+import { DeletedData } from "ui/components/deleted-data";
 
 type Props = {
   organizationId: string;
@@ -659,6 +658,52 @@ export const AbsenceUI: React.FC<Props> = props => {
     return allDeletedReasons;
   }, [localAbsence?.closedDetails, localAbsence?.details]);
 
+  const absenceHeader = (
+    <AbsenceVacancyHeader
+      pageHeader={
+        isCreate
+          ? t("Create absence")
+          : `${t("Edit absence")} #${state.absenceId}`
+      }
+      subHeader={
+        !actingAsEmployee ? (
+          <EmployeeLink orgUserId={employee?.id ?? ""} color="black">
+            {`${employee.firstName} ${employee.lastName}`}
+          </EmployeeLink>
+        ) : (
+          undefined
+        )
+      }
+    />
+  );
+  const missingLocationsWarning = (
+    <DeletedData
+      message={
+        actingAsEmployee
+          ? t(
+              "Your Position is not currently associated with any Schools. Please contact your administrator."
+            )
+          : t(
+              "The Position of {{name}} is not currently associated with any Schools. Please update their Position.",
+              {
+                name: `${employee.firstName} ${employee.lastName}`,
+              }
+            )
+      }
+      header={""}
+      subHeader={""}
+    />
+  );
+
+  if (isCreate && employee.locationIds.length === 0) {
+    return (
+      <>
+        {absenceHeader}
+        {missingLocationsWarning}
+      </>
+    );
+  }
+
   return (
     <>
       <PageTitle
@@ -668,50 +713,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       <Formik
         initialValues={initialAbsenceFormData}
         enableReinitialize={true}
-        validationSchema={yup.object().shape({
-          details: yup.array().of(
-            yup.object().shape({
-              absenceReasonId: yup
-                .string()
-                .nullable()
-                .required(t("Required")),
-              dayPart: yup
-                .string()
-                .nullable()
-                .required(t("Required")),
-              hourlyStartTime: yup.string().when("dayPart", {
-                is: DayPart.Hourly,
-                then: yup.string().required(t("Required")),
-              }),
-              hourlyEndTime: yup.string().when("dayPart", {
-                is: DayPart.Hourly,
-                then: yup.string().required(t("Required")),
-              }),
-            })
-          ),
-          notesToApprover: yup.string().when("requireNotesToApprover", {
-            is: true,
-            then: yup.string().required(t("Required")),
-          }),
-          accountingCodeAllocations: yup.object().test({
-            name: "accountingCodeAllocationsCheck",
-            test: function test(value: AccountingCodeValue) {
-              const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
-                value
-              );
-
-              const error = validateAccountingCodeAllocations(
-                accountingCodeAllocations ?? [],
-                t
-              );
-              if (!error) {
-                return true;
-              }
-
-              return new yup.ValidationError(error, null, this.path);
-            },
-          }),
-        })}
+        validationSchema={AbsenceFormValidationSchema(t)}
         onSubmit={async (data, e) => {
           const formData = await save(data);
           if (formData) {
@@ -724,14 +726,11 @@ export const AbsenceUI: React.FC<Props> = props => {
         {({
           values,
           handleSubmit,
-          handleReset,
           setFieldValue,
           dirty,
           isSubmitting,
           resetForm,
-          touched,
           initialValues,
-          errors,
         }) => {
           // Not necessarily if any part of the form has changes, but do we have
           // changes to the Absence that would prevent us from taking sub
@@ -759,7 +758,9 @@ export const AbsenceUI: React.FC<Props> = props => {
           // in state and not as a part of this form, we have to consider that when
           // determining if the overall interface is currently dirty
           const formIsDirty =
-            dirty || !isEqual(state.initialVacancyDetails, vacancyDetails);
+            dirty ||
+            (isCreate && state.absenceDates.length > 0) ||
+            !isEqual(state.initialVacancyDetails, vacancyDetails);
 
           // The object we send to the server when getting projected vacancies
           // or projected absence usage is not the exact same as what we would send
@@ -837,25 +838,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                       }}
                     />
                     <div className={classes.titleContainer}>
-                      <AbsenceVacancyHeader
-                        pageHeader={
-                          isCreate
-                            ? t("Create absence")
-                            : `${t("Edit absence")} #${state.absenceId}`
-                        }
-                        subHeader={
-                          !actingAsEmployee ? (
-                            <EmployeeLink
-                              orgUserId={employee?.id ?? ""}
-                              color="black"
-                            >
-                              {`${employee.firstName} ${employee.lastName}`}
-                            </EmployeeLink>
-                          ) : (
-                            undefined
-                          )
-                        }
-                      />
+                      {absenceHeader}
                       {!isCreate && (
                         <div className={classes.headerMenu}>
                           <ActionMenu
@@ -865,6 +848,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                         </div>
                       )}
                     </div>
+
+                    {!isCreate &&
+                      employee.locationIds.length === 0 &&
+                      missingLocationsWarning}
 
                     {state.approvalState && (
                       <Can do={[PermissionEnum.AbsVacApprovalsView]}>
@@ -907,7 +894,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                             setNegativeBalanceWarning={
                               setNegativeBalanceWarning
                             }
-                            initialUsageData={state.initialAbsenceReasonUsageData}
+                            initialUsageData={
+                              state.initialAbsenceReasonUsageData
+                            }
                             canEditReason={!state.isClosed}
                             canEditDatesAndTimes={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
@@ -916,7 +905,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             updateKey={localAbsence?.changedUtc ?? undefined}
                           />
                         </Grid>
-                        <Grid item md={6}>
+                        <Grid item md={7}>
                           <SubstituteDetails
                             absenceId={state.absenceId}
                             organizationId={organizationId}
@@ -1173,7 +1162,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const buildAbsenceInput = (
+export const buildAbsenceInput = (
   formValues: AbsenceFormData,
   state: AbsenceState,
   vacancyDetails: VacancyDetail[],
@@ -1335,20 +1324,25 @@ export const buildFormData = (absence: Absence): AbsenceFormData => {
   const details = compact(absence?.details);
   const closedDetails = compact(absence?.closedDetails);
   const detailsToUse = details.length === 0 ? closedDetails : details;
-  const formDetails = compact(detailsToUse).map(d => {
-    return {
-      id: d.id,
-      date: startOfDay(parseISO(d.startDate)),
-      dayPart: d.dayPartId ?? undefined,
-      hourlyStartTime:
-        d.dayPartId === DayPart.Hourly ? parseISO(d.startTimeLocal) : undefined,
-      hourlyEndTime:
-        d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
-      absenceReasonId: d.reasonUsages
-        ? d.reasonUsages[0]?.absenceReasonId
-        : undefined,
-    };
-  });
+  const formDetails = sortBy(
+    compact(detailsToUse).map(d => {
+      return {
+        id: d.id,
+        date: startOfDay(parseISO(d.startDate)),
+        dayPart: d.dayPartId ?? undefined,
+        hourlyStartTime:
+          d.dayPartId === DayPart.Hourly
+            ? parseISO(d.startTimeLocal)
+            : undefined,
+        hourlyEndTime:
+          d.dayPartId === DayPart.Hourly ? parseISO(d.endTimeLocal) : undefined,
+        absenceReasonId: d.reasonUsages
+          ? d.reasonUsages[0]?.absenceReasonId
+          : undefined,
+      };
+    }),
+    d => d.date
+  );
 
   const vacancies = compact(absence?.vacancies ?? []);
   const vacancy = vacancies[0];

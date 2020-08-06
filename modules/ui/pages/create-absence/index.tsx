@@ -32,8 +32,8 @@ export const CreateAbsence: React.FC<Props> = props => {
     return <NotFound />;
   }
 
-  const locationIds = employeeInfo.data.employee?.byId?.locations?.map(
-    l => l?.id ?? ""
+  const locationIds = compact(
+    employeeInfo.data.employee?.byId?.locations?.map(l => l?.id)
   );
 
   const accountingCodeAllocations: AccountingCodeValue = employeeInfo.data

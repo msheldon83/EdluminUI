@@ -10,11 +10,17 @@ import {
   InstructionalScheduleDate,
   OtherScheduleDate,
   ScheduleDate,
+  EmployeeAbsenceDetail,
+  CalendarScheduleDate,
+  PositionScheduleDate,
+  ContractDate,
 } from "ui/components/employee/types";
+import { compact } from "lodash-es";
+import { CalendarDayType } from "graphql/server-types.gen";
 
 type Props = {
   selectedDate: Date;
-  scheduleDates: ScheduleDate[];
+  scheduleDates: CalendarScheduleDate[];
   cancelAbsence?: (absenceId: string) => Promise<void>;
   hideAbsence?: (absenceId: string) => Promise<void>;
   actingAsEmployee?: boolean;
@@ -28,30 +34,29 @@ export const SelectedDateView: React.FC<Props> = props => {
   const {
     absenceDays,
     instructionalDays,
+    contractInstructionalDays,
     nonInstructionalDays,
   } = useMemo(() => {
-    const absenceDays: AbsenceScheduleDate[] = [];
-    const instructionalDays: InstructionalScheduleDate[] = [];
-    const nonInstructionalDays: OtherScheduleDate[] = [];
+    const absenceDays: EmployeeAbsenceDetail[] = [];
+    const instructionalDays: PositionScheduleDate[] = [];
+    const contractInstructionalDays: ContractDate[] = [];
+    const nonInstructionalDays: ContractDate[] = [];
 
     props.scheduleDates.forEach(s => {
-      switch (s.type) {
-        case "pendingAbsence":
-        case "deniedAbsence":
-        case "absence":
-          absenceDays.push(s);
-          break;
-        case "instructionalDay":
-          instructionalDays.push(s);
-          break;
-        case "nonWorkDay":
-        case "teacherWorkDay":
-        case "cancelledDay":
-          nonInstructionalDays.push(s);
-      }
+      absenceDays.push(...s.absences);
+      instructionalDays.push(...s.modifiedDays);
+      contractInstructionalDays.push(...s.contractInstructionalDays);
+      nonInstructionalDays.push(
+        ...s.closedDays.concat(s.inServiceDays).concat(s.nonWorkDays)
+      );
     });
 
-    return { absenceDays, instructionalDays, nonInstructionalDays };
+    return {
+      absenceDays,
+      instructionalDays,
+      contractInstructionalDays,
+      nonInstructionalDays,
+    };
   }, [props.scheduleDates]);
 
   return (
@@ -68,7 +73,12 @@ export const SelectedDateView: React.FC<Props> = props => {
         props.actingAsEmployee,
         props.orgId
       )}
-      {displayInstructionalDayInformation(instructionalDays, classes)}
+      {displayInstructionalDayInformation(
+        instructionalDays,
+        contractInstructionalDays,
+        classes,
+        t
+      )}
       {displayNonInstructionalDayInformation(nonInstructionalDays, classes, t)}
     </Grid>
   );
@@ -88,49 +98,77 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: "#FFF5E5",
   },
   closedChip: {
-    backgroundColor: "##F5F5F5",
+    backgroundColor: "#F5F5F5",
   },
 }));
 
 const displayInstructionalDayInformation = (
-  instructionalDays: InstructionalScheduleDate[],
-  classes: any
+  instructionalDays: PositionScheduleDate[],
+  contractInstructionalDays: ContractDate[],
+  classes: any,
+  t: TFunction
 ) => {
   return instructionalDays
-    .filter(d => d.rawData.startTime != d.rawData.endTime)
+    .filter(d => d.startTime != d.endTime)
     .map((d, i) => {
-      const day = d.rawData;
       return (
         <Grid item container xs={12} key={i} className={classes.detail}>
           <Grid item xs={4}>
-            <div>{day.position}</div>
-            <div className={classes.subText}>{day.location}</div>
+            <div>{d.position}</div>
+            <div className={classes.subText}>{d.location}</div>
           </Grid>
-          <Grid item>{`${day.startTime} - ${day.endTime}`}</Grid>
-          {day.nonStandardVariantTypeName && (
+          <Grid item>{`${d.startTime} - ${d.endTime}`}</Grid>
+          {d.nonStandardVariantTypeName && (
             <Grid item>
-              <Chip label={day.nonStandardVariantTypeName} />
+              <Chip label={d.nonStandardVariantTypeName} />
             </Grid>
           )}
         </Grid>
       );
-    });
+    })
+    .concat(
+      contractInstructionalDays.map((d, i) => {
+        const description =
+          d.hasCalendarChange &&
+          (d.calendarChangeDescription || d.calendarChangeReasonName)
+            ? compact([
+                d.calendarChangeDescription,
+                d.calendarChangeReasonName,
+              ]).join(" - ")
+            : t("Contracted Instructional Day");
+        const showDates =
+          d.startDate && d.endDate && !isSameDay(d.startDate, d.endDate);
+
+        return (
+          <Grid item container xs={12} key={i} className={classes.detail}>
+            <Grid item>
+              <div>{description}</div>
+              {showDates && (
+                <div className={classes.subText}>{`${format(
+                  d.startDate!,
+                  "MMM d"
+                )} - ${format(d.endDate!, "MMM d")}`}</div>
+              )}
+            </Grid>
+          </Grid>
+        );
+      })
+    );
 };
 
 const displayAbsenceDayInformation = (
-  absenceDays: AbsenceScheduleDate[],
+  absenceDays: EmployeeAbsenceDetail[],
   cancelAbsence?: (absenceId: string) => Promise<void>,
   hideAbsence?: (absenceId: string) => Promise<void>,
   actingAsEmployee?: boolean,
   orgId?: string
 ) => {
   return absenceDays.map((a, i) => {
-    const day = a.rawData;
-    const cancel = async () => cancelAbsence && (await cancelAbsence(day.id));
+    const cancel = async () => cancelAbsence && (await cancelAbsence(a.id));
     return (
-      <Grid item container xs={12} spacing={4} key={day.id}>
+      <Grid item container xs={12} spacing={4} key={a.id}>
         <AbsenceDetailRow
-          absence={day}
+          absence={a}
           cancelAbsence={cancel}
           hideAbsence={hideAbsence}
           showAbsenceChip={true}
@@ -143,22 +181,23 @@ const displayAbsenceDayInformation = (
 };
 
 const displayNonInstructionalDayInformation = (
-  nonInstructionalDays: OtherScheduleDate[],
+  nonInstructionalDays: ContractDate[],
   classes: any,
   t: TFunction
 ) => {
   return nonInstructionalDays.map((d, i) => {
-    const day = d.rawData;
-
-    const description = d.description
-      ? d.description
-      : d.type === "teacherWorkDay"
-      ? t("Teacher Inservice")
-      : t("Non Work Day");
+    const description =
+      d.hasCalendarChange &&
+      (d.calendarChangeDescription || d.calendarChangeReasonName)
+        ? compact([
+            d.calendarChangeDescription,
+            d.calendarChangeReasonName,
+          ]).join(" - ")
+        : d.calendarDayType === CalendarDayType.TeacherWorkDay
+        ? t("Teacher Inservice")
+        : t("Non Work Day");
     const showDates =
-      !!day.startDate &&
-      !!day.endDate &&
-      !isSameDay(day.startDate, day.endDate);
+      d.startDate && d.endDate && !isSameDay(d.startDate, d.endDate);
 
     return (
       <Grid item container xs={12} key={i} className={classes.detail}>
@@ -166,18 +205,20 @@ const displayNonInstructionalDayInformation = (
           <div>{description}</div>
           {showDates && (
             <div className={classes.subText}>{`${format(
-              day.startDate!,
+              d.startDate!,
               "MMM d"
-            )} - ${format(day.endDate!, "MMM d")}`}</div>
+            )} - ${format(d.endDate!, "MMM d")}`}</div>
           )}
         </Grid>
         <Grid item>
           <Chip
             label={
-              d.type === "cancelledDay" ? t("Closed") : t("Non-instructional")
+              d.calendarDayType === CalendarDayType.CancelledDay
+                ? t("Closed")
+                : t("Non-instructional")
             }
             className={
-              d.type === "cancelledDay"
+              d.calendarDayType === CalendarDayType.CancelledDay
                 ? classes.closedChip
                 : classes.nonInstructionalChip
             }

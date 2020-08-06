@@ -60,6 +60,16 @@ export type PositionScheduleDate = {
   nonStandardVariantTypeName?: string;
 };
 
+export type CalendarScheduleDate = {
+  date: Date;
+  absences: EmployeeAbsenceDetail[];
+  closedDays: ContractDate[];
+  modifiedDays: PositionScheduleDate[];
+  contractInstructionalDays: ContractDate[];
+  inServiceDays: ContractDate[];
+  nonWorkDays: ContractDate[];
+};
+
 export type AbsenceScheduleDate = {
   date: Date;
   type: "absence" | "pendingAbsence" | "deniedAbsence";

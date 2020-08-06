@@ -13,6 +13,7 @@ import {
 import {
   EmployeeAbsenceDetail,
   ScheduleDate,
+  CalendarScheduleDate,
 } from "ui/components/employee/types";
 import { EmployeeMonthCalendar } from "./employee-month-calendar";
 
@@ -21,9 +22,9 @@ type Props = {
   startDate: Date;
   endDate: Date;
   absences: EmployeeAbsenceDetail[];
-  selectedScheduleDates: ScheduleDate[];
+  selectedScheduleDates: CalendarScheduleDate[];
   setSelectedScheduleDates: React.Dispatch<
-    React.SetStateAction<ScheduleDate[]>
+    React.SetStateAction<CalendarScheduleDate[]>
   >;
 };
 
@@ -35,11 +36,15 @@ export const CalendarView: React.FC<Props> = props => {
     setSelectedScheduleDates,
     startDate,
     endDate,
+    absences,
   } = props;
   const today = useMemo(() => new Date(), []);
 
   const onSelectDate = React.useCallback(
-    (scheduleDates: ScheduleDate[]) => setSelectedScheduleDates(scheduleDates),
+    (possibleDates: CalendarScheduleDate[]) => (selectedDate: Date) =>
+      setSelectedScheduleDates(
+        possibleDates.filter(pd => isSameDay(selectedDate, pd.date))
+      ),
     [setSelectedScheduleDates]
   );
 
@@ -74,11 +79,11 @@ export const CalendarView: React.FC<Props> = props => {
       GroupEmployeeScheduleByMonth(
         startDate,
         endDate,
-        props.absences,
+        absences,
         GetContractDates(contractSchedule),
         GetPositionScheduleDates(positionSchedule)
       ),
-    [props.absences, startDate, endDate, positionSchedule, contractSchedule]
+    [absences, startDate, endDate, positionSchedule, contractSchedule]
   );
 
   // Default to Today if it exists in the current set of Months
@@ -108,7 +113,7 @@ export const CalendarView: React.FC<Props> = props => {
         );
         if (month) {
           setSelectedScheduleDates(
-            month.scheduleDates.filter(s => isSameDay(s.date, dateToSelect))
+            month.dates.filter(s => isSameDay(s.date, dateToSelect))
           );
         }
       }
@@ -141,10 +146,10 @@ export const CalendarView: React.FC<Props> = props => {
       {monthGroups.map((group, i) => (
         <Grid item xs={4} key={i}>
           <EmployeeMonthCalendar
-            onSelectDate={onSelectDate}
+            onSelectDate={onSelectDate(group.dates)}
             date={group.month}
             selectedScheduleDates={selectedScheduleDates}
-            scheduleDates={group.scheduleDates}
+            scheduleDates={group.dates}
           />
         </Grid>
       ))}

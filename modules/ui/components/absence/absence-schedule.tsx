@@ -7,7 +7,10 @@ import { EmployeeCreateAbsenceRoute } from "ui/routes/create-absence";
 import { useRouteParams } from "ui/routes/definition";
 import { Link } from "react-router-dom";
 import { Section } from "ui/components/section";
-import { ScheduleDate } from "ui/components/employee/types";
+import {
+  ScheduleDate,
+  CalendarScheduleDate,
+} from "ui/components/employee/types";
 import { SelectedDateView } from "ui/pages/employee-schedule/components/selected-date-view";
 import { useMemo, useState } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
@@ -42,8 +45,8 @@ export const AbsenceSchedule: React.FC<Props> = props => {
 
   const createAbsenceParams = useRouteParams(EmployeeCreateAbsenceRoute);
 
-  const [selectedScheduleDates, setSelectedScheduleDates] = useState<
-    ScheduleDate[]
+  const [selectedCalendarDates, setSelectedCalendarDates] = useState<
+    CalendarScheduleDate[]
   >([]);
 
   const currentSchoolYear = useCurrentSchoolYear(props.orgId);
@@ -92,7 +95,10 @@ export const AbsenceSchedule: React.FC<Props> = props => {
       ? []
       : (getAbsenceSchedule.data?.employee
           ?.employeeAbsenceSchedule as GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]);
-  const employeeAbsenceDetails = GetEmployeeAbsenceDetails(absences);
+  const employeeAbsenceDetails = useMemo(
+    () => GetEmployeeAbsenceDetails(absences),
+    [absences]
+  );
 
   if (!currentSchoolYear) {
     return <></>;
@@ -130,10 +136,10 @@ export const AbsenceSchedule: React.FC<Props> = props => {
           {props.view === "calendar" && getAbsenceSchedule.state === "DONE" && (
             <Grid item xs={12}>
               <Section className={classes.absenceSection}>
-                {selectedScheduleDates && selectedScheduleDates.length > 0 && (
+                {selectedCalendarDates.length > 0 && (
                   <SelectedDateView
-                    scheduleDates={selectedScheduleDates}
-                    selectedDate={selectedScheduleDates[0].date}
+                    scheduleDates={selectedCalendarDates}
+                    selectedDate={selectedCalendarDates[0].date}
                     cancelAbsence={props.cancelAbsence}
                     hideAbsence={props.hideAbsence}
                     orgId={props.orgId}
@@ -193,8 +199,8 @@ export const AbsenceSchedule: React.FC<Props> = props => {
               <div className={classes.calendarContent}>
                 {getAbsenceSchedule.state === "DONE" && (
                   <CalendarView
-                    selectedScheduleDates={selectedScheduleDates}
-                    setSelectedScheduleDates={setSelectedScheduleDates}
+                    selectedScheduleDates={selectedCalendarDates}
+                    setSelectedScheduleDates={setSelectedCalendarDates}
                     employeeId={props.employeeId}
                     startDate={calendarStartDate}
                     endDate={queryEndDate}

@@ -35,6 +35,7 @@ import { isSameDay } from "date-fns";
 import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { payCodeIdsAreTheSame } from "ui/components/absence/helpers";
+import { NeedsReplacementCheckbox } from "./needs-replacement";
 
 type Props = {
   absenceId?: string;
@@ -194,47 +195,16 @@ export const SubstituteDetails: React.FC<Props> = props => {
     return !codesAreTheSame;
   }, [vacancySummaryDetails]);
 
-  const needsReplacementDisplay: JSX.Element = React.useMemo(() => {
-    return (
-      <>
-        {!actingAsEmployee ||
-        needsReplacement === NeedsReplacement.Sometimes ? (
-          <FormControlLabel
-            label={t("Requires a substitute")}
-            control={
-              <Checkbox
-                checked={values.needsReplacement}
-                onChange={e =>
-                  setFieldValue("needsReplacement", e.target.checked)
-                }
-                color="primary"
-                disabled={isClosed}
-              />
-            }
-          />
-        ) : (
-          <Typography className={classes.substituteRequiredText}>
-            {needsReplacement === NeedsReplacement.Yes
-              ? t("Requires a substitute")
-              : t("No substitute required")}
-          </Typography>
-        )}
-      </>
-    );
-  }, [
-    actingAsEmployee,
-    classes.substituteRequiredText,
-    needsReplacement,
-    setFieldValue,
-    t,
-    values.needsReplacement,
-    isClosed,
-  ]);
-
   const absenceActions: JSX.Element = React.useMemo(() => {
     return (
       <>
-        {needsReplacementDisplay}
+        <NeedsReplacementCheckbox
+          actingAsEmployee={actingAsEmployee}
+          needsReplacement={needsReplacement}
+          value={values.needsReplacement}
+          onChange={checked => setFieldValue("needsReplacement", checked)}
+          disabled={isClosed}
+        />
         {values.needsReplacement && !actingAsEmployee && (
           <SubstituteDetailsCodes
             organizationId={organizationId}
@@ -252,10 +222,12 @@ export const SubstituteDetails: React.FC<Props> = props => {
     actingAsEmployee,
     detailsHaveDifferentAccountingCodes,
     detailsHaveDifferentPayCodes,
+    isClosed,
     locationIds,
-    needsReplacementDisplay,
+    needsReplacement,
     onOverallCodeChanges,
     organizationId,
+    setFieldValue,
     values.needsReplacement,
   ]);
 
@@ -351,7 +323,13 @@ export const SubstituteDetails: React.FC<Props> = props => {
       )}
       {!values.needsReplacement && (
         <div className={classes.noReplacementNeeded}>
-          {needsReplacementDisplay}
+          <NeedsReplacementCheckbox
+            actingAsEmployee={actingAsEmployee}
+            needsReplacement={needsReplacement}
+            value={values.needsReplacement}
+            onChange={checked => setFieldValue("needsReplacement", checked)}
+            disabled={isClosed}
+          />
         </div>
       )}
     </>
@@ -364,9 +342,6 @@ const useStyles = makeStyles(theme => ({
   },
   subText: {
     color: theme.customColors.edluminSubText,
-  },
-  substituteRequiredText: {
-    fontStyle: "italic",
   },
   noReplacementNeeded: {
     width: "100%",

@@ -44,6 +44,7 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
 
 const useStyles = makeStyles(theme => ({
   multiCodeInput: {
+    marginLeft: theme.spacing(0.5),
     width: theme.spacing(8),
   },
 }));

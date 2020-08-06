@@ -51,7 +51,7 @@ export const EditAbsence: React.FC<Props> = props => {
     }
   }, [absence]);
 
-  const locationIds = employee?.locations?.map(l => l?.id ?? "");
+  const locationIds = compact(employee?.locations?.map(l => l?.id));
 
   const goBack = React.useCallback(() => {
     if (document.referrer === "") {

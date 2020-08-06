@@ -26,6 +26,7 @@ type Props = {
   canEditTimes: boolean;
   sameTimesForAllDetails: boolean;
   deletedAbsenceReasons?: { detailId: string; id: string; name: string }[];
+  isQuickCreate?: boolean;
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
@@ -42,6 +43,7 @@ export const AbsenceDays: React.FC<Props> = props => {
     canEditTimes,
     sameTimesForAllDetails,
     travellingEmployee,
+    isQuickCreate,
     details = [],
     deletedAbsenceReasons = [],
   } = props;
@@ -164,9 +166,9 @@ export const AbsenceDays: React.FC<Props> = props => {
               showReason={i === 0 || !sameReasonForAllDetails}
               showDayPart={i === 0 || !sameTimesForAllDetails}
               subTitle={
-                details.length > 1 && !allDetailsAreTheSame
+                details.length > 1 && !allDetailsAreTheSame && !isQuickCreate
                   ? format(ad.date, "EEE, MMM d")
-                  : details.length > 1 && allDetailsAreTheSame && i === 0
+                  : details.length > 1 && allDetailsAreTheSame && i === 0 && !isQuickCreate
                   ? t("Details for all days")
                   : undefined
               }
@@ -242,7 +244,7 @@ export const AbsenceDays: React.FC<Props> = props => {
                   : undefined
               }
             />
-            {i === 0 && details.length > 1 && (
+            {i === 0 && details.length > 1 && !isQuickCreate && (
               <div className={classes.sameOptions}>
                 <FormControlLabel
                   control={

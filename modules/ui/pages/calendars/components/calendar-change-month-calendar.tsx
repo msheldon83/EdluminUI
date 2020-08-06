@@ -31,10 +31,15 @@ const makeFlagClassKey = ({
     : maybeWithCapital[0].toLowerCase() + maybeWithCapital.substring(1);
 };
 
-export const CalendarChangeMonthCalendar: React.FC<Props> = props => {
+export const CalendarChangeMonthCalendar: React.FC<Props> = ({
+  date,
+  calendarChangeDates,
+  selectedDate,
+  onSelectDate,
+}) => {
   const classes = useStyles();
-  const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
-  const inputDates = props.calendarChangeDates;
+  const parsedDate = useMemo(() => DateFns.parseISO(date), [date]);
+  const inputDates = calendarChangeDates;
 
   const styledDates = useMemo(
     () =>
@@ -47,7 +52,7 @@ export const CalendarChangeMonthCalendar: React.FC<Props> = props => {
             buttonProps: {
               className: clsx(
                 flagClasses,
-                DateFns.isSameDay(date, props.selectedDate)
+                DateFns.isSameDay(date, selectedDate)
                   ? classes.selected
                   : DateFns.isToday(date)
                   ? classes.today
@@ -66,7 +71,7 @@ export const CalendarChangeMonthCalendar: React.FC<Props> = props => {
                 },
               ]
         ),
-    [inputDates, classes, props.selectedDate]
+    [inputDates, classes, selectedDate]
   );
 
   return (
@@ -75,7 +80,7 @@ export const CalendarChangeMonthCalendar: React.FC<Props> = props => {
         <SingleMonthCalendar
           currentMonth={parsedDate}
           customDates={styledDates}
-          onSelectDate={props.onSelectDate}
+          onSelectDate={onSelectDate}
           className={classes.calendarSize}
         />
       </div>

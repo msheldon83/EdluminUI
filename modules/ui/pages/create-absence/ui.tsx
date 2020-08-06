@@ -49,6 +49,7 @@ import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { mapAccountingCodeValueToAccountingCodeAllocations } from "helpers/accounting-code-allocations";
+import { DeletedData } from "ui/components/deleted-data";
 
 type Props = {
   firstName: string;
@@ -440,6 +441,27 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
     await setValue("replacementEmployeeName", undefined);
   }, [setValue]);
 
+  const header = (
+    <AbsenceVacancyHeader
+      pageHeader={t("Create absence")}
+      subHeader={!actingAsEmployee ? employeeName : undefined}
+    />
+  );
+  if ((props.locationIds ?? []).length === 0) {
+    const msg = actingAsEmployee ? t("Your Position is not currently associated with any Schools. Please contact your administrator.") : t(
+      "The Position of {{name}} is not currently associated with any Schools. Please update their Position.",
+      {
+        name: employeeName,
+      }
+    );
+    return (
+      <>
+        {header}
+        <DeletedData message={msg} header={""} subHeader={""} />
+      </>
+    );
+  }
+
   return (
     <>
       <PageTitle title={t("Create absence")} withoutHeading />
@@ -466,10 +488,7 @@ export const CreateAbsenceUI: React.FC<Props> = props => {
       >
         {step === "absence" && (
           <>
-            <AbsenceVacancyHeader
-              pageHeader={t("Create absence")}
-              subHeader={!actingAsEmployee ? employeeName : undefined}
-            />
+            {header}
             <Section className={classes.absenceDetails}>
               <ErrorBanner
                 errorBannerOpen={errorBannerOpen}
