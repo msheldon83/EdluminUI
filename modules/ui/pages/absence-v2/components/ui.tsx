@@ -21,9 +21,7 @@ import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
 import { AbsenceFormData, AbsenceDetail } from "../types";
 import { Formik } from "formik";
-import {
-  allAccountingCodeValuesAreEqual,
-} from "helpers/accounting-code-allocations";
+import { allAccountingCodeValuesAreEqual } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
 import { makeStyles, Grid, Typography, Button } from "@material-ui/core";
@@ -44,13 +42,7 @@ import {
   payCodeIdsAreTheSame,
 } from "ui/components/absence/helpers";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import {
-  some,
-  compact,
-  flatMap,
-  isEqual,
-  differenceWith,
-} from "lodash-es";
+import { some, compact, flatMap, isEqual, differenceWith } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -75,7 +67,11 @@ import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
 import { AbsenceFormValidationSchema } from "../validation";
 import { DeletedData } from "ui/components/deleted-data";
-import { buildAbsenceInput, buildFormData } from "../helpers";
+import {
+  buildAbsenceInput,
+  buildFormData,
+  findMatchingAssignmentsForDetails,
+} from "../helpers";
 
 type Props = {
   organizationId: string;
@@ -247,14 +243,14 @@ export const AbsenceUI: React.FC<Props> = props => {
   const onCancelAssignment = React.useCallback(
     async (vacancySummaryDetails: VacancySummaryDetail[]): Promise<boolean> => {
       // Get all of the matching assignments
-      const assignments = (state.assignmentsByDate ?? []).filter(
-        a =>
-          !!vacancySummaryDetails.find(
-            vsd =>
-              (vsd.vacancyDetailId && a.vacancyDetailId === vsd.vacancyDetailId) ||
-              isEqual(a.startTimeLocal, vsd.startTimeLocal) ||
-              isSameDay(a.startTimeLocal, vsd.startTimeLocal)
-          )
+      const assignments = findMatchingAssignmentsForDetails(
+        vacancySummaryDetails.map(vsd => {
+          return {
+            id: vsd.vacancyDetailId,
+            startTimeLocal: vsd.startTimeLocal,
+          };
+        }),
+        state.assignmentsByDate ?? []
       );
 
       if (!assignments || assignments.length === 0) {

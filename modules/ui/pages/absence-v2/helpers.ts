@@ -10,14 +10,7 @@ import {
 } from "graphql/server-types.gen";
 import { getAbsenceDates } from "ui/components/absence/helpers";
 import { VacancyDetail } from "ui/components/absence/types";
-import {
-  isSameDay,
-  startOfDay,
-  parseISO,
-  format,
-  isBefore,
-  isEqual,
-} from "date-fns";
+import { startOfDay, parseISO, format, isBefore, isEqual } from "date-fns";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { convertStringToDate } from "helpers/date";
 import {
@@ -74,14 +67,13 @@ export const buildAbsenceInput = (
   // instead of it coming up with its own
   const vDetails = vacancyDetails?.map(v => {
     // If creating, look to see if we're trying to prearrange anyone for this detail
-    const assignment = !state.absenceId
-      ? state.assignmentsByDate?.find(
-          a =>
-            (v.vacancyDetailId && a.vacancyDetailId === v.vacancyDetailId) ||
-            (!v.vacancyDetailId &&
-              isSameDay(a.startTimeLocal, startOfDay(parseISO(v.date))))
-        )
-      : undefined;
+    const assignment =
+      !state.absenceId && state.assignmentsByDate
+        ? findMatchingAssignmentForSingleDetail(
+            { id: v.vacancyDetailId, startTimeLocal: parseISO(v.startTime) },
+            state.assignmentsByDate
+          )
+        : undefined;
 
     return (
       {
@@ -328,13 +320,13 @@ export const projectVacancyDetailsFromVacancies = (
         ad => ad?.startDate === d?.startDate
       );
 
-      // Find a matching assignment from state if we don't already
-      // have one on the VacancyDetail record itself
-      const assignment = assignmentsByDate?.find(
-        a =>
-          (d.id && a.vacancyDetailId === d.id) ||
-          isEqual(a.startTimeLocal, parseISO(d.startTimeLocal))
-      );
+      // Find a matching assignment from assignmentsByDate
+      const assignment = assignmentsByDate
+        ? findMatchingAssignmentForSingleDetail(
+            { id: d.id, startTimeLocal: parseISO(d.startTimeLocal) },
+            assignmentsByDate
+          )
+        : undefined;
 
       return {
         vacancyDetailId: d?.id,
@@ -395,12 +387,10 @@ export const convertVacancyToVacancySummaryDetails = (
       ad => ad?.startDate === vd?.startDate
     );
 
-    // Find a matching assignment from assignmentsByDate by vacancyDetailId
-    // if we have it, otherwise by the exact start time
-    const assignmentOnDate = assignmentsByDate?.find(
-      a =>
-        (vd.id && a.vacancyDetailId === vd.id) ||
-        isEqual(a.startTimeLocal, parseISO(vd.startTimeLocal))
+    // Find a matching assignment from assignmentsByDate
+    const assignmentOnDate = findMatchingAssignmentForSingleDetail(
+      { id: vd.id, startTimeLocal: parseISO(vd.startTimeLocal) },
+      assignmentsByDate
     );
 
     return {
@@ -440,6 +430,39 @@ export const convertVacancyToVacancySummaryDetails = (
         : undefined,
     };
   });
+};
+
+export const findMatchingAssignmentsForDetails = (
+  details: { id: string | undefined; startTimeLocal: Date }[],
+  assignmentsByDate: AssignmentOnDate[]
+): AssignmentOnDate[] => {
+  const assignments: AssignmentOnDate[] = [];
+
+  details.forEach(d => {
+    // Find a matching assignment
+    const match = findMatchingAssignmentForSingleDetail(d, assignmentsByDate);
+    if (
+      match &&
+      !assignments.find(a => isEqual(a.startTimeLocal, d.startTimeLocal))
+    ) {
+      // Add to the list if it isn't already there
+      assignments.push(match);
+    }
+  });
+
+  return assignments;
+};
+
+const findMatchingAssignmentForSingleDetail = (
+  detail: { id: string | undefined; startTimeLocal: Date },
+  assignmentsByDate: AssignmentOnDate[]
+): AssignmentOnDate | undefined => {
+  const assignmentOnDate = assignmentsByDate.find(
+    a =>
+      (detail.id && a.vacancyDetailId === detail.id) ||
+      isEqual(a.startTimeLocal, detail.startTimeLocal)
+  );
+  return assignmentOnDate;
 };
 
 export const getAbsenceReasonUsageData = (
