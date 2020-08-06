@@ -22,13 +22,13 @@ import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vac
 import { Can } from "ui/components/auth/can";
 import { dayPartToLabel } from "ui/components/absence/helpers";
 import { AssignmentOnDate } from "../types";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 
 type Props = {
   absence: Absence;
   actingAsEmployee?: boolean;
   onCancelAssignment?: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
+    vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   assignmentsByDate?: AssignmentOnDate[];
 };

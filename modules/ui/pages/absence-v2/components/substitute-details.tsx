@@ -49,7 +49,9 @@ type Props = {
   onAssignSubClick: (
     vacancySummaryDetailsToAssign: VacancySummaryDetail[]
   ) => void;
-  onCancelAssignment: (vacancyDetailIds: string[]) => Promise<boolean>;
+  onCancelAssignment: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<boolean>;
   canEditSubDetails: boolean;
   onEditSubDetailsClick: () => void;
   onProjectedVacanciesChange: (vacancies: Vacancy[]) => void;
@@ -195,16 +197,28 @@ export const SubstituteDetails: React.FC<Props> = props => {
     return !codesAreTheSame;
   }, [vacancySummaryDetails]);
 
+  const needsReplacementDisplay = React.useMemo(() => {
+    return (
+      <NeedsReplacementCheckbox
+        actingAsEmployee={actingAsEmployee}
+        needsReplacement={needsReplacement}
+        value={values.needsReplacement}
+        onChange={checked => setFieldValue("needsReplacement", checked)}
+        disabled={isClosed}
+      />
+    );
+  }, [
+    actingAsEmployee,
+    isClosed,
+    needsReplacement,
+    setFieldValue,
+    values.needsReplacement,
+  ]);
+
   const absenceActions: JSX.Element = React.useMemo(() => {
     return (
       <>
-        <NeedsReplacementCheckbox
-          actingAsEmployee={actingAsEmployee}
-          needsReplacement={needsReplacement}
-          value={values.needsReplacement}
-          onChange={checked => setFieldValue("needsReplacement", checked)}
-          disabled={isClosed}
-        />
+        {needsReplacementDisplay}
         {values.needsReplacement && !actingAsEmployee && (
           <SubstituteDetailsCodes
             organizationId={organizationId}
@@ -222,66 +236,11 @@ export const SubstituteDetails: React.FC<Props> = props => {
     actingAsEmployee,
     detailsHaveDifferentAccountingCodes,
     detailsHaveDifferentPayCodes,
-    isClosed,
     locationIds,
-    needsReplacement,
+    needsReplacementDisplay,
     onOverallCodeChanges,
     organizationId,
-    setFieldValue,
     values.needsReplacement,
-  ]);
-
-  const footerActions: JSX.Element = React.useMemo(() => {
-    if (vacancySummaryDetails.length === 0) {
-      return <></>;
-    }
-
-    const hasAssignments = assignmentsByDate && assignmentsByDate.length > 0;
-
-    return (
-      <div>
-        {!hasAssignments && (
-          <FilteredAssignmentButton
-            details={vacancySummaryDetails.map(d => {
-              return {
-                id: d.vacancyDetailId,
-                date: d.date,
-                startTime: secondsSinceMidnight(d.startTimeLocal.toISOString()),
-              };
-            })}
-            buttonText={absenceId ? t("Assign Sub") : t("Pre-arrange")}
-            disableAssign={disableReplacementInteractions}
-            onClick={(detailIds, dates) => {
-              const detailsToAssign = vacancySummaryDetails.filter(
-                d =>
-                  detailIds.includes(d.vacancyDetailId) ||
-                  dates.find(date => isSameDay(date, d.date))
-              );
-              onAssignSubClick(detailsToAssign);
-            }}
-          />
-        )}
-        <Can do={[PermissionEnum.AbsVacSave]}>
-          <Button
-            variant="outlined"
-            onClick={onEditSubDetailsClick}
-            disabled={!canEditSubDetails}
-          >
-            <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
-            <MobileOnly>{t("Edit Details")}</MobileOnly>
-          </Button>
-        </Can>
-      </div>
-    );
-  }, [
-    vacancySummaryDetails,
-    assignmentsByDate,
-    absenceId,
-    t,
-    disableReplacementInteractions,
-    onEditSubDetailsClick,
-    canEditSubDetails,
-    onAssignSubClick,
   ]);
 
   return (
@@ -299,9 +258,9 @@ export const SubstituteDetails: React.FC<Props> = props => {
       {values.needsReplacement && (
         <VacancySummary
           vacancySummaryDetails={vacancySummaryDetails}
-          onAssignClick={(currentAssignmentInfo: AssignmentFor) =>
-            onAssignSubClick(currentAssignmentInfo.vacancySummaryDetails)
-          }
+          onAssignClick={async (
+            vacancySummaryDetails: VacancySummaryDetail[]
+          ) => onAssignSubClick(vacancySummaryDetails)}
           onCancelAssignment={onCancelAssignment}
           notesForSubstitute={values.notesToReplacement}
           setNotesForSubstitute={(notes: string) => {
@@ -316,20 +275,33 @@ export const SubstituteDetails: React.FC<Props> = props => {
           }
           isAbsence={true}
           absenceActions={absenceActions}
-          footerActions={footerActions}
+          footerActions={
+            vacancySummaryDetails.length > 0 ? (
+              <Can do={[PermissionEnum.AbsVacSave]}>
+                <Button
+                  variant="outlined"
+                  onClick={onEditSubDetailsClick}
+                  disabled={!canEditSubDetails}
+                >
+                  <DesktopOnly>{t("Edit Substitute Details")}</DesktopOnly>
+                  <MobileOnly>{t("Edit Details")}</MobileOnly>
+                </Button>
+              </Can>
+            ) : (
+              undefined
+            )
+          }
           disableAssignmentActions={disableReplacementInteractions}
           allowRemoval={!absenceId}
+          showAssignAllButton={
+            vacancySummaryDetails.length !== 0 &&
+            (!assignmentsByDate || assignmentsByDate.length === 0)
+          }
         />
       )}
       {!values.needsReplacement && (
         <div className={classes.noReplacementNeeded}>
-          <NeedsReplacementCheckbox
-            actingAsEmployee={actingAsEmployee}
-            needsReplacement={needsReplacement}
-            value={values.needsReplacement}
-            onChange={checked => setFieldValue("needsReplacement", checked)}
-            disabled={isClosed}
-          />
+          {needsReplacementDisplay}
         </div>
       )}
     </>

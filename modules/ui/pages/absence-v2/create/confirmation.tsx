@@ -16,6 +16,7 @@ import {
 } from "ui/routes/absence-v2";
 import { compact, flatMap } from "lodash-es";
 import { AssignmentOnDate } from "../types";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 
 type Props = {
   orgId: string;
@@ -24,8 +25,7 @@ type Props = {
   setStep?: (s: Step) => void;
   resetForm?: () => void;
   onCancelAssignment?: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
+    vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   assignmentsByDate?: AssignmentOnDate[];
 };
@@ -41,7 +41,7 @@ export const Confirmation: React.FC<Props> = props => {
     setStep,
     resetForm,
     onCancelAssignment,
-    assignmentsByDate = []
+    assignmentsByDate = [],
   } = props;
 
   const params = useRouteParams(
@@ -119,19 +119,14 @@ export const Confirmation: React.FC<Props> = props => {
             assignmentsByDate={assignmentsByDate}
             onCancelAssignment={
               onCancelAssignment
-                ? async (
-                    vacancyDetailIds: string[],
-                    vacancyDetailDates?: Date[]
-                  ) => {
+                ? async (vacancySummaryDetails: VacancySummaryDetail[]) => {
                     const isSuccess = await onCancelAssignment(
-                      vacancyDetailIds,
-                      vacancyDetailDates
+                      vacancySummaryDetails
                     );
-                    if (
-                      isSuccess &&
-                      vacancyDetailIds &&
-                      vacancyDetailIds.length > 0
-                    ) {
+                    const vacancyDetailIds = vacancySummaryDetails.map(
+                      vsd => vsd.vacancyDetailId
+                    );
+                    if (isSuccess && vacancyDetailIds.length > 0) {
                       // If Sub was only removed from part of the Assignment, then we'll
                       // redirect the User directly to the Edit view of the Absence
                       const allVacancyDetailIds = flatMap(
