@@ -3,6 +3,7 @@ import { Formik } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { makeStyles } from "@material-ui/styles";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -41,6 +42,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
+  const classes = useStyles();
 
   const verifyExternalId = useImperativeQuery(VerifyExternalId);
   const onVerify = async (externalId: string) => {
@@ -199,3 +201,8 @@ export const AddBasicInfo: React.FC<Props> = props => {
     </Section>
   );
 };
+const useStyles = makeStyles(theme => ({
+  paddingTop: {
+    paddingTop: "10px",
+  },
+}));
