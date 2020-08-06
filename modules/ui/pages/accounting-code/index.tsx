@@ -20,6 +20,7 @@ import { UpdateAccountingCode } from "./graphql/update-accounting-code.gen";
 import { CreateAccountingCode } from "./graphql/create-accounting-code.gen";
 import { DeleteAccountingCode } from "./graphql/delete-accounting-code.gen";
 import { compact } from "lodash-es";
+import { CsvExporter } from "ui/components/csv-exporter";
 import { Column } from "material-table";
 import { EditableTable } from "ui/components/editable-table";
 import {
@@ -281,6 +282,19 @@ export const AccountingCode: React.FC<{}> = props => {
     });
   };
 
+  const title = `${accountingCodesCount} ${t("Accounting Codes")}`;
+
+  const exportData = formattedAccountingCodes.map(e => {
+    return {
+      Name: e.name,
+      Code: e.externalId ?? "",
+      School:
+        e.locations.length === 0
+          ? "All Schools"
+          : e.locations.map(c => c.name).join(";"),
+    };
+  });
+
   return (
     <>
       <Grid
@@ -299,13 +313,16 @@ export const AccountingCode: React.FC<{}> = props => {
               orgId={params.organizationId}
               importType={DataImportType.AccountingCode}
               label={t("Import accounting codes")}
+              className={classes.marginRight}
             />
+
+            <CsvExporter data={exportData} fileName={title} />
           </Grid>
         </Can>
       </Grid>
 
       <EditableTable
-        title={`${accountingCodesCount} ${t("Accounting Codes")}`}
+        title={title}
         columns={columns}
         data={formattedAccountingCodes}
         onRowAdd={{
@@ -368,5 +385,8 @@ const useStyles = makeStyles(theme => ({
   },
   toolTip: {
     cursor: "pointer",
+  },
+  marginRight: {
+    marginRight: "10px",
   },
 }));
