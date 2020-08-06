@@ -47,6 +47,7 @@ export type OptionType = {
   label: string;
   value: string | number;
   info?: React.ReactNode;
+  descriptor?: any;
 };
 
 const TAG_CHIP_CONTAINER_HEIGHT = 36;
