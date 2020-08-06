@@ -1,15 +1,11 @@
-import { makeStyles, Typography, Button, Divider } from "@material-ui/core";
+import { makeStyles, Typography, Divider } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { Can } from "ui/components/auth/can";
-import { canAssignSub } from "helpers/permissions";
-import { AssignmentDialog } from "./assignment-dialog";
 import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
-import { useIsCurrentlyMounted } from "hooks/use-is-currently-mounted";
+import { FilteredAssignmentButton } from "./filtered-assignment-button";
+import { canAssignSub } from "helpers/permissions";
 
 type Props = {
-  assignmentStartTime: Date;
   assignmentWithDetails: AssignmentWithDetails;
   isExistingVacancy: boolean;
   onAssignClick?: (
@@ -21,72 +17,26 @@ type Props = {
 export const UnfilledBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isCurrentlyMounted = useIsCurrentlyMounted();
   const {
     onAssignClick,
-    assignmentStartTime,
     assignmentWithDetails,
     isExistingVacancy,
     disableActions = false,
   } = props;
 
-  const [assignmentDialogIsOpen, setAssignmentDialogIsOpen] = React.useState<
-    boolean
-  >(false);
-  const onLocalAssignClick = React.useCallback(async () => {
-    if (!onAssignClick) {
-      return;
-    }
-
-    if (assignmentWithDetails.vacancySummaryDetails.length === 1) {
-      // Assigning a single vacancy detail, no need to prompt the user
-      await onAssignClick(assignmentWithDetails.vacancySummaryDetails);
-    } else {
-      // Assigning multiple vacancy details, want to ask the user what they want to do
-      setAssignmentDialogIsOpen(true);
-    }
-  }, [onAssignClick, assignmentWithDetails]);
-
   return (
     <>
-      {onAssignClick && (
-        <AssignmentDialog
-          action={isExistingVacancy ? "assign" : "pre-arrange"}
-          onSubmit={onAssignClick}
-          onClose={() => isCurrentlyMounted && setAssignmentDialogIsOpen(false)}
-          open={assignmentDialogIsOpen}
-          vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
-        />
-      )}
       <Divider className={classes.divider} />
       <div className={classes.unfilled}>
         <Typography variant={"h6"}>{t("Unfilled")}</Typography>
         {onAssignClick && (
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string,
-              forRole?: Role | null | undefined
-            ) =>
-              canAssignSub(
-                assignmentStartTime,
-                permissions,
-                isSysAdmin,
-                orgId,
-                forRole
-              )
-            }
-          >
-            <Button
-              variant="outlined"
-              onClick={onLocalAssignClick}
-              disabled={disableActions}
-              className={classes.assignButton}
-            >
-              {isExistingVacancy ? t("Assign") : t("Pre-arrange")}
-            </Button>
-          </Can>
+          <FilteredAssignmentButton
+            details={assignmentWithDetails.vacancySummaryDetails}
+            action={isExistingVacancy ? "assign" : "pre-arrange"}
+            permissionCheck={canAssignSub}
+            disableAction={disableActions}
+            onClick={onAssignClick}
+          />
         )}
       </div>
     </>

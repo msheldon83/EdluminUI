@@ -1,19 +1,15 @@
-import { makeStyles, Button, Typography, Divider } from "@material-ui/core";
+import { makeStyles, Typography, Divider } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
-import { Can } from "ui/components/auth/can";
 import { AccountCircleOutlined } from "@material-ui/icons";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
-import { AssignmentDialog } from "./assignment-dialog";
-import { useState, useCallback } from "react";
 import { SubstituteLink } from "ui/components/links/people";
-import { useIsCurrentlyMounted } from "hooks/use-is-currently-mounted";
+import { FilteredAssignmentButton } from "./filtered-assignment-button";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
-  assignmentStartTime: Date;
   onReassignClick?: (
     vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<void>;
@@ -28,10 +24,8 @@ type Props = {
 export const AssignedBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isCurrentlyMounted = useIsCurrentlyMounted();
   const {
     assignmentWithDetails,
-    assignmentStartTime,
     onReassignClick,
     onCancelAssignment,
     disableActions = false,
@@ -43,64 +37,8 @@ export const AssignedBanner: React.FC<Props> = props => {
     ?.firstName ?? ""} ${assignmentWithDetails.assignment?.employee?.lastName ??
     ""}`;
 
-  const [
-    cancelAssignmentDialogIsOpen,
-    setCancelAssignmentDialogIsOpen,
-  ] = useState<boolean>(false);
-  const onLocalRemoveClick = useCallback(async () => {
-    if (!onCancelAssignment) {
-      return;
-    }
-
-    if (assignmentWithDetails.vacancySummaryDetails.length === 1) {
-      // Cancelling an assignment for a single vacancy detail, no need to prompt the user
-      await onCancelAssignment(assignmentWithDetails.vacancySummaryDetails);
-    } else {
-      // Cancelling an assignment covering multiple vacancy details, want to ask the user what they want to do
-      setCancelAssignmentDialogIsOpen(true);
-    }
-  }, [onCancelAssignment, assignmentWithDetails]);
-
-  const [
-    reassignAssignmentDialogIsOpen,
-    setReassignAssignmentDialogIsOpen,
-  ] = useState<boolean>(false);
-  const onLocalReassignClick = useCallback(async () => {
-    if (!onReassignClick) {
-      return;
-    }
-
-    if (assignmentWithDetails.vacancySummaryDetails.length === 1) {
-      // Reassigning a single vacancy detail, no need to prompt the user
-      await onReassignClick(assignmentWithDetails.vacancySummaryDetails);
-    } else {
-      // Reassigning an assignment covering multiple vacancy details, want to ask the user what they want to do
-      setReassignAssignmentDialogIsOpen(true);
-    }
-  }, [onReassignClick, assignmentWithDetails]);
-
   return (
     <>
-      {onCancelAssignment && (
-        <AssignmentDialog
-          action={"cancel"}
-          onSubmit={onCancelAssignment}
-          onClose={() => isCurrentlyMounted && setCancelAssignmentDialogIsOpen(false)}
-          open={cancelAssignmentDialogIsOpen}
-          vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
-          assignment={assignmentWithDetails.assignment}
-        />
-      )}
-      {onReassignClick && (
-        <AssignmentDialog
-          action={"reassign"}
-          onSubmit={onReassignClick}
-          onClose={() => isCurrentlyMounted && setReassignAssignmentDialogIsOpen(false)}
-          open={reassignAssignmentDialogIsOpen}
-          vacancySummaryDetails={assignmentWithDetails.vacancySummaryDetails}
-          assignment={assignmentWithDetails.assignment}
-        />
-      )}
       <Divider className={classes.divider} />
       <div className={classes.assignedBanner}>
         <div className={classes.employeeInfo}>
@@ -127,35 +65,21 @@ export const AssignedBanner: React.FC<Props> = props => {
 
         <div className={classes.actions}>
           {onReassignClick && (
-            <Can
-              do={(
-                permissions: OrgUserPermissions[],
-                isSysAdmin: boolean,
-                orgId?: string,
-                forRole?: Role | null | undefined
-              ) =>
-                canReassignSub(
-                  assignmentStartTime,
-                  permissions,
-                  isSysAdmin,
-                  orgId,
-                  forRole
-                )
-              }
-            >
-              <Button
-                variant="outlined"
-                onClick={onLocalReassignClick}
-                disabled={disableActions}
-                className={classes.reassignButton}
-              >
-                {t("Reassign")}
-              </Button>
-            </Can>
+            <FilteredAssignmentButton
+              details={assignmentWithDetails.vacancySummaryDetails}
+              action={"reassign"}
+              permissionCheck={canReassignSub}
+              disableAction={disableActions}
+              onClick={onReassignClick}
+              assignment={assignmentWithDetails.assignment}
+            />
           )}
           {onCancelAssignment && (
-            <Can
-              do={(
+            <FilteredAssignmentButton
+              details={assignmentWithDetails.vacancySummaryDetails}
+              action={"cancel"}
+              permissionCheck={(
+                absDate: Date,
                 permissions: OrgUserPermissions[],
                 isSysAdmin: boolean,
                 orgId?: string,
@@ -166,23 +90,17 @@ export const AssignedBanner: React.FC<Props> = props => {
                 }
 
                 return canRemoveSub(
-                  assignmentStartTime,
+                  absDate,
                   permissions,
                   isSysAdmin,
                   orgId,
                   forRole
                 );
               }}
-            >
-              <Button
-                disabled={disableActions}
-                variant={"outlined"}
-                onClick={onLocalRemoveClick}
-                className={classes.removeButton}
-              >
-                {t("Remove")}
-              </Button>
-            </Can>
+              disableAction={disableActions}
+              onClick={onCancelAssignment}
+              assignment={assignmentWithDetails.assignment}
+            />
           )}
         </div>
       </div>

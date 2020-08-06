@@ -35,6 +35,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
     onCancelAssignment,
     showPayCodes,
     showAccountingCodes,
+    readOnly,
     disableActions = false,
     detailsOnly = false,
     allowRemoval = false,
@@ -51,7 +52,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
         showAbsenceTimes={showAbsenceTimes}
         showPayCodes={showPayCodes}
         showAccountingCodes={showAccountingCodes}
-        readOnly={props.readOnly}
+        readOnly={readOnly}
       />
       {!detailsOnly && (
         <>
@@ -59,7 +60,6 @@ export const AssignmentGroup: React.FC<Props> = props => {
             <UnfilledBanner
               assignmentWithDetails={assignmentWithDetails}
               onAssignClick={onAssignClick}
-              assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
               disableActions={disableActions}
               isExistingVacancy={isExistingVacancy}
             />
@@ -67,11 +67,10 @@ export const AssignmentGroup: React.FC<Props> = props => {
           {isAssigned && (
             <AssignedBanner
               assignmentWithDetails={assignmentWithDetails}
-              assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
               onReassignClick={onAssignClick}
               onCancelAssignment={onCancelAssignment}
               disableActions={disableActions}
-              readOnly={props.readOnly}
+              readOnly={readOnly}
               allowRemoval={allowRemoval}
             />
           )}

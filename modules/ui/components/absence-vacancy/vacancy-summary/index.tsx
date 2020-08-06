@@ -6,10 +6,8 @@ import { VacancySummaryDetail } from "./types";
 import { buildAssignmentGroups } from "./helpers";
 import { AssignmentGroup } from "./assignment-group";
 import { uniqWith } from "lodash-es";
-import { secondsSinceMidnight } from "helpers/time";
-import { FilteredAssignmentButton } from "../filtered-assignment-button";
-import { AssignmentDialog } from "./assignment-dialog";
-import { useIsCurrentlyMounted } from "hooks/use-is-currently-mounted";
+import { FilteredAssignmentButton } from "./filtered-assignment-button";
+import { canAssignSub } from "helpers/permissions";
 
 type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
@@ -38,7 +36,6 @@ type Props = {
 export const VacancySummary: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const isCurrentlyMounted = useIsCurrentlyMounted();
   const {
     vacancySummaryDetails,
     onAssignClick,
@@ -98,34 +95,8 @@ export const VacancySummary: React.FC<Props> = props => {
     return !!vacancySummaryDetails[0]?.vacancyId;
   }, [vacancySummaryDetails]);
 
-  const [assignmentDialogIsOpen, setAssignmentDialogIsOpen] = React.useState<
-    boolean
-  >(false);
-  const onLocalAssignClick = React.useCallback(async () => {
-    if (!onAssignClick) {
-      return;
-    }
-
-    if (vacancySummaryDetails.length === 1) {
-      // Assigning or prearranging for a single vacancy detail, no need to prompt the user
-      await onAssignClick(vacancySummaryDetails);
-    } else {
-      // Assigning or prearranging for multiple vacancy details, want to ask the user what they want to do
-      setAssignmentDialogIsOpen(true);
-    }
-  }, [onAssignClick, vacancySummaryDetails]);
-
   return (
     <>
-      {onAssignClick && (
-        <AssignmentDialog
-          action={isExistingVacancy ? "assign" : "pre-arrange"}
-          onSubmit={onAssignClick}
-          onClose={() => isCurrentlyMounted && setAssignmentDialogIsOpen(false)}
-          open={assignmentDialogIsOpen}
-          vacancySummaryDetails={vacancySummaryDetails}
-        />
-      )}
       <div className={classes.container} ref={divRef}>
         <Grid container className={classes.header}>
           {isAbsence && (
@@ -188,22 +159,13 @@ export const VacancySummary: React.FC<Props> = props => {
         )}
         {footerActions && (
           <div className={classes.footerActions}>
-            {showAssignAllButton && (
+            {showAssignAllButton && onAssignClick && (
               <FilteredAssignmentButton
-                details={vacancySummaryDetails.map(d => {
-                  return {
-                    id: d.vacancyDetailId,
-                    date: d.date,
-                    startTime: secondsSinceMidnight(
-                      d.startTimeLocal.toISOString()
-                    ),
-                  };
-                })}
-                buttonText={
-                  isExistingVacancy ? t("Assign Sub") : t("Pre-arrange")
-                }
-                disableAssign={disableAssignmentActions}
-                onClick={onLocalAssignClick}
+                details={vacancySummaryDetails}
+                action={isExistingVacancy ? "assign" : "pre-arrange"}
+                permissionCheck={canAssignSub}
+                disableAction={disableAssignmentActions}
+                onClick={onAssignClick}
               />
             )}
             {footerActions}
