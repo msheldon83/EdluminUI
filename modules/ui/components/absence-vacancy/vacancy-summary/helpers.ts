@@ -3,11 +3,13 @@ import {
   AssignmentWithDetails,
   DateDetail,
   VacancySummaryDetailByAssignmentAndDate,
+  AssignmentAction,
 } from "./types";
 import { format, isEqual as isDateEqual } from "date-fns";
 import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
+import { TFunction } from "i18next";
 
 export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   vacancy: VacancyDetailsFormData
@@ -281,4 +283,17 @@ export const convertToAssignmentWithDetails = (
       : undefined,
   };
   return assignmentWithDetails;
+};
+
+export const getActionButtonText = (action: AssignmentAction, t: TFunction) => {
+  switch (action) {
+    case "pre-arrange":
+      return t("Pre-arrange");
+    case "assign":
+      return t("Assign");
+    case "reassign":
+      return t("Reassign");
+    case "cancel":
+      return t("Remove");
+  }
 };

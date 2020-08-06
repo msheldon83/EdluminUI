@@ -17,10 +17,11 @@ import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { useState, useCallback, useMemo } from "react";
 import { format, isEqual } from "date-fns";
-import { Assignment, VacancySummaryDetail } from "./types";
+import { Assignment, VacancySummaryDetail, AssignmentAction } from "./types";
+import { getActionButtonText } from "./helpers";
 
 type Props = {
-  action: "pre-arrange" | "assign" | "reassign" | "cancel";
+  action: AssignmentAction;
   vacancySummaryDetails: VacancySummaryDetail[];
   assignment?: Assignment;
   open: boolean;
@@ -102,24 +103,21 @@ export const AssignmentDialog: React.FC<Props> = props => {
     });
   }, [vacancySummaryDetails, selectedDates, setSelectedDates, selection]);
 
-  let actionText = "";
+  const actionText = getActionButtonText(action, t);
   let messagePrompt = "";
 
   switch (action) {
     case "pre-arrange":
-      actionText = t("Pre-arrange");
       messagePrompt = t(
         "Would you like to pre-arrange a substitute for all of the following details or only select ones?"
       );
       break;
     case "assign":
-      actionText = t("Assign");
       messagePrompt = t(
         "Would you like to assign a substitute for all of the following details or only select ones?"
       );
       break;
     case "reassign":
-      actionText = t("Reassign");
       messagePrompt = assignment?.employee?.firstName
         ? t(
             "Would you like to reassign all of the following details or only select ones from {{firstName}} to another substitute?",
@@ -130,7 +128,6 @@ export const AssignmentDialog: React.FC<Props> = props => {
           );
       break;
     case "cancel":
-      actionText = t("Remove");
       messagePrompt = assignment?.employee?.firstName
         ? t(
             "Would you like to remove {{firstName}} from the entire assignment or only select details?",
