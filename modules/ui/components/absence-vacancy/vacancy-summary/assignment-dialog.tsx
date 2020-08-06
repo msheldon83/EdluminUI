@@ -33,8 +33,6 @@ type Props = {
 export const AssignmentDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [selection, setSelection] = useState<"all" | "select">("all");
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const {
     action,
     open,
@@ -43,6 +41,10 @@ export const AssignmentDialog: React.FC<Props> = props => {
     vacancySummaryDetails,
     onSubmit,
   } = props;
+
+  // Default to all details selected
+  const [selection, setSelection] = useState<"all" | "select">("all");
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
   const assignedSubName = useMemo(
     () =>
@@ -54,12 +56,15 @@ export const AssignmentDialog: React.FC<Props> = props => {
   );
 
   const onSubmitClick = useCallback(async () => {
-    const details = vacancySummaryDetails.filter(vsd =>
-      selectedDates.includes(vsd.startTimeLocal)
-    );
+    const details =
+      selection === "all"
+        ? vacancySummaryDetails
+        : vacancySummaryDetails.filter(vsd =>
+            selectedDates.includes(vsd.startTimeLocal)
+          );
     await onSubmit(details);
     onClose();
-  }, [vacancySummaryDetails, selectedDates, onSubmit, onClose]);
+  }, [selection, vacancySummaryDetails, onSubmit, onClose, selectedDates]);
 
   const detailsDisplay = useMemo(() => {
     return vacancySummaryDetails.map((vsd, i) => {
@@ -183,7 +188,7 @@ export const AssignmentDialog: React.FC<Props> = props => {
           variant="outlined"
           onClick={onSubmitClick}
           className={[classes.buttonSpacing, classes.remove].join(" ")}
-          disabled={selectedDates.length === 0}
+          disabled={selectedDates.length === 0 && selection === "select"}
         >
           {actionText}
         </ButtonDisableOnClick>
