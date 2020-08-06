@@ -1,7 +1,7 @@
 import { makeStyles } from "@material-ui/core";
 import * as DateFns from "date-fns";
 import * as React from "react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
 import clsx from "clsx";
 
@@ -27,11 +27,18 @@ export const AssignmentCalendar: React.FC<Props> = ({
   const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
 
   const checkDays = useMemo(
-    () => DateFns.isSameMonth(parsedDate, selectedDate),
+    () =>
+      DateFns.isSameMonth(parsedDate, selectedDate) ||
+      DateFns.isThisMonth(parsedDate),
     [parsedDate, selectedDate]
   );
 
-  const decorateDate = useMemo(
+  const simpleDecorate = (className: string) => (date: Date) => ({
+    date,
+    buttonProps: { className },
+  });
+
+  const complexDecorate = useMemo(
     () =>
       checkDays
         ? (className: string) => (date: Date) => ({
@@ -47,15 +54,13 @@ export const AssignmentCalendar: React.FC<Props> = ({
               ),
             },
           })
-        : (className: string) => (date: Date) => ({
-            date,
-            buttonProps: { className },
-          }),
+        : undefined,
     [checkDays, selectedDate, classes]
   );
 
-  const styledDates = useMemo(() => {
-    const inputDates = unavailableDates
+  const baseDates = useMemo(() => {
+    const decorateDate = complexDecorate ?? simpleDecorate;
+    return unavailableDates
       .map(decorateDate(classes.unavailableDate))
       .concat(
         availableBeforeDates.map(decorateDate(classes.availableBeforeDate))
@@ -63,39 +68,51 @@ export const AssignmentCalendar: React.FC<Props> = ({
       .concat(availableAfterDates.map(decorateDate(classes.availableAfterDate)))
       .filter(d => !assignmentDates.some(ad => DateFns.isSameDay(ad, d.date)))
       .concat(assignmentDates.map(decorateDate(classes.assignment)));
-    return inputDates
-      .concat(
-        inputDates.some(({ date }) => DateFns.isSameDay(date, selectedDate))
-          ? []
-          : [
-              {
-                date: selectedDate,
-                buttonProps: { className: classes.selected },
-              },
-            ]
-      )
-      .concat(
-        [selectedDate]
-          .concat(inputDates.map(({ date }) => date))
-          .some(DateFns.isToday)
-          ? []
-          : [{ date: selectedDate, buttonProps: { className: classes.today } }]
-      );
   }, [
-    decorateDate,
+    complexDecorate,
     unavailableDates,
     availableBeforeDates,
     availableAfterDates,
     assignmentDates,
-    selectedDate,
     classes,
   ]);
+
+  const customDates = useMemo(
+    () =>
+      checkDays
+        ? baseDates
+            .concat(
+              baseDates.some(({ date }) =>
+                DateFns.isSameDay(date, selectedDate)
+              )
+                ? []
+                : [
+                    {
+                      date: selectedDate,
+                      buttonProps: { className: classes.selected },
+                    },
+                  ]
+            )
+            .concat(
+              DateFns.isToday(selectedDate) ||
+                baseDates.some(({ date }) => DateFns.isToday(date))
+                ? []
+                : [
+                    {
+                      date: DateFns.startOfToday(),
+                      buttonProps: { className: classes.today },
+                    },
+                  ]
+            )
+        : baseDates,
+    [checkDays, baseDates, selectedDate, classes]
+  );
 
   return (
     <div className={classes.calendar}>
       <SingleMonthCalendar
         currentMonth={parsedDate}
-        customDates={styledDates}
+        customDates={customDates}
         onSelectDate={props.onSelectDate}
         className={classes.calendarSize}
       />
