@@ -996,6 +996,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                           )
                         : undefined
                     }
+                    employeeToReplace={
+                      vacancySummaryDetailsToAssign[0]?.assignment?.employee
+                        ?.firstName ?? undefined
+                    }
                   />
                 )}
                 {step === "confirmation" && (
