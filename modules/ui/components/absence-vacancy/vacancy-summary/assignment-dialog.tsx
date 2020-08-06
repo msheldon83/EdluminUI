@@ -19,6 +19,7 @@ import { useState, useCallback, useMemo } from "react";
 import { format, isEqual } from "date-fns";
 import { Assignment, VacancySummaryDetail, AssignmentAction } from "./types";
 import { getActionButtonText } from "./helpers";
+import clsx from "clsx";
 
 type Props = {
   action: AssignmentAction;
@@ -184,7 +185,10 @@ export const AssignmentDialog: React.FC<Props> = props => {
         <ButtonDisableOnClick
           variant="outlined"
           onClick={onSubmitClick}
-          className={[classes.buttonSpacing, classes.remove].join(" ")}
+          className={clsx({
+            [classes.buttonSpacing]: true,
+            [classes.remove]: action === "cancel",
+          })}
           disabled={selectedDates.length === 0 && selection === "select"}
         >
           {actionText}
@@ -205,5 +209,5 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.gray,
     marginTop: theme.spacing(2),
   },
-  remove: { color: theme.customColors.darkRed, marginRight: theme.spacing(2) },
+  remove: { color: theme.customColors.darkRed },
 }));

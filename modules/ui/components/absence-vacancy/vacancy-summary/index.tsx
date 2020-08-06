@@ -166,6 +166,7 @@ export const VacancySummary: React.FC<Props> = props => {
                 permissionCheck={canAssignSub}
                 disableAction={disableAssignmentActions}
                 onClick={onAssignClick}
+                className={classes.assignAllButton}
               />
             )}
             {footerActions}
@@ -221,5 +222,8 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingLeft: theme.spacing(2),
+  },
+  assignAllButton: {
+    marginRight: theme.spacing(2),
   },
 }));

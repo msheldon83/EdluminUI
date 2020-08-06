@@ -518,6 +518,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       setVacancySummaryDetailsToAssign(vacancySummaryDetails);
                       setStep("preAssignSub");
                     },
+                    className: classes.preArrangeButton,
                   }}
                 />
               )}
@@ -569,6 +570,7 @@ export const VacancyUI: React.FC<Props> = props => {
       classes.unsavedText,
       classes.deleteButton,
       classes.cancelButton,
+      classes.preArrangeButton,
       classes.saveButton,
       vacancy.isClosed,
       t,

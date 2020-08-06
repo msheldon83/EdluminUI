@@ -36,6 +36,7 @@ export const UnfilledBanner: React.FC<Props> = props => {
             permissionCheck={canAssignSub}
             disableAction={disableActions}
             onClick={onAssignClick}
+            className={classes.assignButton}
           />
         )}
       </div>

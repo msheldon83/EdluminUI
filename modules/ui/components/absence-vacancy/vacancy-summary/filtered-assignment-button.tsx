@@ -23,6 +23,7 @@ type Props = {
     orgId?: string,
     forRole?: Role | null | undefined
   ) => boolean;
+  className?: string;
 };
 
 export const FilteredAssignmentButton: React.FC<Props> = ({
@@ -32,9 +33,9 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
   disableAction,
   onClick,
   permissionCheck,
+  className,
 }) => {
   const { t } = useTranslation();
-  const classes = useStyles();
   const isCurrentlyMounted = useIsCurrentlyMounted();
 
   const futureDetails = details.filter(d => {
@@ -95,7 +96,7 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
     <Button
       variant="outlined"
       disabled={disableAction}
-      className={classes.actionButton}
+      className={className}
       onClick={() => onLocalActionClick(details)}
     >
       {getActionButtonText(action, t)}
@@ -132,9 +133,3 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  actionButton: {
-    marginRight: theme.spacing(2),
-  },
-}));

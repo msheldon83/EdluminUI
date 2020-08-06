@@ -72,6 +72,7 @@ export const AssignedBanner: React.FC<Props> = props => {
               disableAction={disableActions}
               onClick={onReassignClick}
               assignment={assignmentWithDetails.assignment}
+              className={classes.reassignButton}
             />
           )}
           {onCancelAssignment && (
@@ -100,6 +101,7 @@ export const AssignedBanner: React.FC<Props> = props => {
               disableAction={disableActions}
               onClick={onCancelAssignment}
               assignment={assignmentWithDetails.assignment}
+              className={classes.removeButton}
             />
           )}
         </div>
