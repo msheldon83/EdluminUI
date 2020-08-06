@@ -65,7 +65,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
         id: "",
       },
       hoursPerFullWorkDay: undefined,
-      accountingCodeAllocations: [{ accountingCodeId: "", allocation: 1 }],
+      accountingCodeAllocations: null,
     },
   };
 
@@ -117,20 +117,9 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             },
             hoursPerFullWorkDay:
               orgUser.originalEmployee?.primaryPosition?.hoursPerFullWorkDay,
-            accountingCodeAllocations: [
-              {
-                accountingCodeId: orgUser.originalEmployee?.primaryPosition
-                  ?.accountingCodeAllocations
-                  ? orgUser.originalEmployee.primaryPosition
-                      .accountingCodeAllocations[0]?.accountingCodeId ?? ""
-                  : "",
-                allocation: orgUser.originalEmployee?.primaryPosition
-                  ?.accountingCodeAllocations
-                  ? orgUser.originalEmployee.primaryPosition
-                      .accountingCodeAllocations[0]?.allocation ?? 1
-                  : 1,
-              },
-            ],
+            accountingCodeAllocations:
+              orgUser.originalEmployee?.primaryPosition
+                ?.accountingCodeAllocations,
             schedules: orgUser.originalEmployee?.primaryPosition?.schedules,
           },
         });
