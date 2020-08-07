@@ -91,6 +91,7 @@ export const AssignSub: React.FC<Props> = props => {
     vacancyDetailIdsToAssign,
     employeeToReplace = "",
     vacancySummaryDetails,
+    existingVacancy,
     vacancies,
     isForVacancy = false,
     vacancy = undefined,
@@ -114,9 +115,12 @@ export const AssignSub: React.FC<Props> = props => {
   const [messages, setMessages] = React.useState<string[]>([]);
 
   // If we don't have any info, cancel the Assign Sub action
+  // This covers both Absence and Vacancy scenarios since they pass in
+  // different information since they use different GraphQL Queries
   if (
-    (isForVacancy && !vacancy) ||
-    (!isForVacancy && (!vacancies || vacancies.length === 0)) ||
+    (existingVacancy && !vacancyId) || 
+    (!existingVacancy && isForVacancy && !vacancy) ||
+    (!existingVacancy && !isForVacancy && (!vacancies || vacancies.length === 0)) ||
     vacancySummaryDetails.length === 0
   ) {
     props.onCancel();
