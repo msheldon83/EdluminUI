@@ -118,16 +118,18 @@ export const AssignSub: React.FC<Props> = props => {
   // This covers both Absence and Vacancy scenarios since they pass in
   // different information since they use different GraphQL Queries
   if (
-    (existingVacancy && !vacancyId) || 
+    (existingVacancy && !vacancyId) ||
     (!existingVacancy && isForVacancy && !vacancy) ||
-    (!existingVacancy && !isForVacancy && (!vacancies || vacancies.length === 0)) ||
+    (!existingVacancy &&
+      !isForVacancy &&
+      (!vacancies || vacancies.length === 0)) ||
     vacancySummaryDetails.length === 0
   ) {
     props.onCancel();
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 225;
+  const collapsedVacancyDetailsHeight = 150;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -335,10 +337,7 @@ export const AssignSub: React.FC<Props> = props => {
           in={vacancyDetailsExpanded}
           collapsedHeight={theme.typography.pxToRem(
             vacancyDetailsHeight
-              ? Math.min(
-                  vacancyDetailsHeight + 75,
-                  collapsedVacancyDetailsHeight
-                )
+              ? Math.min(vacancyDetailsHeight, collapsedVacancyDetailsHeight)
               : collapsedVacancyDetailsHeight
           )}
         >
