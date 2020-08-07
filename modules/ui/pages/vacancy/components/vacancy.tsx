@@ -875,7 +875,6 @@ export const VacancyUI: React.FC<Props> = props => {
                 orgId={params.organizationId}
                 onAssignReplacement={onAssignSub}
                 onCancel={onCancel}
-                assignmentsByDate={[]}
                 positionName={
                   positionTypes.find(
                     (pt: any) => vacancy.positionTypeId === pt.id
@@ -899,7 +898,7 @@ export const VacancyUI: React.FC<Props> = props => {
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
                     ?.firstName ?? undefined
                 }
-                useVacancySummaryDetails={true}
+                selectButtonText={vacancyExists ? t("Assign") : undefined}
               />
             )}
             {step === "confirmation" && (

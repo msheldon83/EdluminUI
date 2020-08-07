@@ -1010,13 +1010,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                     actingAsEmployee={actingAsEmployee}
                     onAssignReplacement={onAssignSub}
                     onCancel={() => setStep("absence")}
-                    assignmentsByDate={[]}
                     employeeName={`${employee.firstName} ${employee.lastName}`}
                     employeeId={employee.id}
-                    positionId={position?.id}
                     positionName={position?.title}
                     vacancySummaryDetails={vacancySummaryDetailsToAssign}
-                    useVacancySummaryDetails={true}
                     existingVacancy={!!state.vacancyId}
                     selectButtonText={!isCreate ? t("Assign") : undefined}
                     vacancies={!state.vacancyId ? vacanciesToAssign : undefined}
