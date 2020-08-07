@@ -7,7 +7,7 @@ import { canAssignSub } from "helpers/permissions";
 import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
-} from "ui/routes/edit-absence";
+} from "ui/routes/absence";
 import { useRole } from "core/role-context";
 import { useOrganizationId } from "core/org-context";
 

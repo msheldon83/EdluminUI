@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useRouteParams } from "ui/routes/definition";
-import { AdminCreateAbsenceRouteV2 } from "ui/routes/absence-v2";
+import { AdminCreateAbsenceRoute } from "ui/routes/absence";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { AbsenceUI } from "../components/ui";
 import { NotFound } from "ui/pages/not-found";
@@ -22,7 +22,7 @@ import { startOfMonth } from "date-fns";
 
 export const AdminCreateAbsence: React.FC<{}> = props => {
   const { organizationId, employeeId } = useRouteParams(
-    AdminCreateAbsenceRouteV2
+    AdminCreateAbsenceRoute
   );
   const employeeInfo = useQueryBundle(GetEmployee, {
     variables: {

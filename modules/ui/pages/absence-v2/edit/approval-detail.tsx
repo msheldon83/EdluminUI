@@ -7,7 +7,7 @@ import {
   AdminAbsenceApprovalViewRoute,
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
-} from "ui/routes/edit-absence";
+} from "ui/routes/absence";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { GetAbsence } from "ui/pages/approval-inbox/graphql/get-absence-by-id.gen";

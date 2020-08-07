@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useRouteParams } from "ui/routes/definition";
-import { AdminEditAbsenceRouteV2 } from "ui/routes/absence-v2";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { AbsenceUI, buildFormData } from "../components/ui";
 import { compact, flatMap, uniq } from "lodash-es";
@@ -31,7 +31,7 @@ type Props = { actingAsEmployee?: boolean };
 
 export const EditAbsence: React.FC<Props> = props => {
   const { organizationId: adminOrgId, absenceId } = useRouteParams(
-    AdminEditAbsenceRouteV2
+    AdminEditAbsenceRoute
   );
   const history = useHistory();
   const { openSnackbar } = useSnackbar();

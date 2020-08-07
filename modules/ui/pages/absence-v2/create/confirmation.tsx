@@ -9,11 +9,11 @@ import { EmployeeChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
 import { Step } from "helpers/step-params";
 import { AbsenceView } from "../components/absence-view";
 import {
-  AdminSelectEmployeeForCreateAbsenceRouteV2,
-  AdminEditAbsenceRouteV2,
-  EmployeeCreateAbsenceRouteV2,
-  EmployeeEditAbsenceRouteV2,
-} from "ui/routes/absence-v2";
+  AdminSelectEmployeeForCreateAbsenceRoute,
+  AdminEditAbsenceRoute,
+  EmployeeCreateAbsenceRoute,
+  EmployeeEditAbsenceRoute,
+} from "ui/routes/absence";
 import { compact, flatMap } from "lodash-es";
 import { AssignmentOnDate } from "../types";
 
@@ -46,8 +46,8 @@ export const Confirmation: React.FC<Props> = props => {
 
   const params = useRouteParams(
     actingAsEmployee
-      ? EmployeeCreateAbsenceRouteV2
-      : AdminSelectEmployeeForCreateAbsenceRouteV2
+      ? EmployeeCreateAbsenceRoute
+      : AdminSelectEmployeeForCreateAbsenceRoute
   );
 
   React.useEffect(() => {
@@ -61,11 +61,11 @@ export const Confirmation: React.FC<Props> = props => {
     }
 
     const url = actingAsEmployee
-      ? EmployeeEditAbsenceRouteV2.generate({
+      ? EmployeeEditAbsenceRoute.generate({
           ...params,
           absenceId: absence.id,
         })
-      : AdminEditAbsenceRouteV2.generate({
+      : AdminEditAbsenceRoute.generate({
           ...params,
           organizationId: orgId,
           absenceId: absence.id,
@@ -75,8 +75,8 @@ export const Confirmation: React.FC<Props> = props => {
 
   const createNewUrl = React.useMemo(() => {
     const url = actingAsEmployee
-      ? EmployeeCreateAbsenceRouteV2.generate(params)
-      : AdminSelectEmployeeForCreateAbsenceRouteV2.generate({
+      ? EmployeeCreateAbsenceRoute.generate(params)
+      : AdminSelectEmployeeForCreateAbsenceRoute.generate({
           ...params,
           organizationId: orgId,
         });

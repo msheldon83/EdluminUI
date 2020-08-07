@@ -17,9 +17,9 @@ import { useRouteParams } from "ui/routes/definition";
 import { GetEmployeesForOrg } from "../../graphql/get-employees.gen";
 import clsx from "clsx";
 import {
-  AdminCreateAbsenceRouteV2,
-  AdminSelectEmployeeForCreateAbsenceRouteV2,
-} from "ui/routes/absence-v2";
+  AdminCreateAbsenceRoute,
+  AdminSelectEmployeeForCreateAbsenceRoute,
+} from "ui/routes/absence";
 
 type Props = {};
 
@@ -38,7 +38,7 @@ export const SelectEmployee: React.FC<Props> = props => {
   const isMobile = useIsMobile();
 
   const { organizationId } = useRouteParams(
-    AdminSelectEmployeeForCreateAbsenceRouteV2
+    AdminSelectEmployeeForCreateAbsenceRoute
   );
   const [filters, updateFilters] = useQueryParams({ name: "" });
   const [name, pendingName, setPendingName] = useDeferredState(
@@ -118,7 +118,7 @@ export const SelectEmployee: React.FC<Props> = props => {
     (_: unknown, row?: Row) => {
       if (row) {
         history.push(
-          AdminCreateAbsenceRouteV2.generate({
+          AdminCreateAbsenceRoute.generate({
             organizationId,
             employeeId: row.id,
           })

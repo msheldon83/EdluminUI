@@ -3,14 +3,14 @@ import { useTranslation } from "react-i18next";
 import { Absence } from "graphql/server-types.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { GetAbsence } from "../graphql/get-absence.gen";
-import { EmployeeCreateAbsenceConfirmationRouteV2 } from "ui/routes/absence-v2";
+import { EmployeeCreateAbsenceConfirmationRoute } from "ui/routes/absence";
 import { useRouteParams } from "ui/routes/definition";
 import { Confirmation } from "./confirmation";
 import { PageTitle } from "ui/components/page-title";
 
-export const EmployeeQuickAbsenceCreateConfirmationV2: React.FC<{}> = props => {
+export const EmployeeQuickAbsenceCreateConfirmation: React.FC<{}> = props => {
   const { t } = useTranslation();
-  const params = useRouteParams(EmployeeCreateAbsenceConfirmationRouteV2);
+  const params = useRouteParams(EmployeeCreateAbsenceConfirmationRoute);
 
   const absenceQuery = useQueryBundle(GetAbsence, {
     variables: {

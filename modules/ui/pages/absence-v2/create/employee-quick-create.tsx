@@ -21,9 +21,9 @@ import { some } from "lodash-es";
 import { NeedsReplacementCheckbox } from "../components/needs-replacement";
 import { TextButton } from "ui/components/text-button";
 import {
-  EmployeeCreateAbsenceConfirmationRouteV2,
-  EmployeeCreateAbsenceRouteV2,
-} from "ui/routes/absence-v2";
+  EmployeeCreateAbsenceConfirmationRoute,
+  EmployeeCreateAbsenceRoute,
+} from "ui/routes/absence";
 
 type Props = {
   employeeId: string;
@@ -34,7 +34,7 @@ type Props = {
   defaultReplacementNeeded?: NeedsReplacement | null;
 };
 
-export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
+export const EmployeeQuickAbsenceCreate: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
@@ -120,7 +120,7 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
 
       if (result?.data?.absence?.create) {
         history.push(
-          EmployeeCreateAbsenceConfirmationRouteV2.generate({
+          EmployeeCreateAbsenceConfirmationRoute.generate({
             absenceId: result.data.absence.create.id,
           })
         );
@@ -230,7 +230,7 @@ export const EmployeeQuickAbsenceCreateV2: React.FC<Props> = props => {
                   className={classes.additionalButton}
                   onClick={() =>
                     history.push(
-                      EmployeeCreateAbsenceRouteV2.generate({}),
+                      EmployeeCreateAbsenceRoute.generate({}),
                       {
                         initialFormData: values
                       }

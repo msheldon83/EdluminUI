@@ -16,7 +16,7 @@ import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { Can } from "ui/components/auth/can";
 import { getPayLabel } from "ui/components/helpers";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 import { usePayCodes } from "reference-data/pay-codes";
 import { AssignmentDetail } from "./types";
