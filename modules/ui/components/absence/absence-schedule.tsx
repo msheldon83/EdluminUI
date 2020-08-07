@@ -7,10 +7,7 @@ import { EmployeeCreateAbsenceRoute } from "ui/routes/absence";
 import { useRouteParams } from "ui/routes/definition";
 import { Link } from "react-router-dom";
 import { Section } from "ui/components/section";
-import {
-  ScheduleDate,
-  CalendarScheduleDate,
-} from "ui/components/employee/types";
+import { CalendarScheduleDate } from "ui/components/employee/types";
 import { SelectedDateView } from "ui/pages/employee-schedule/components/selected-date-view";
 import { useMemo, useState } from "react";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
