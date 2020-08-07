@@ -1,4 +1,4 @@
-import { Button, Collapse, Divider, Link, Typography } from "@material-ui/core";
+import { Collapse, Divider, Link, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { useQueryBundle } from "graphql/hooks";
@@ -263,7 +263,11 @@ export const AssignSub: React.FC<Props> = props => {
       validationChecks: ValidationChecks,
       ignoreAndContinue?: boolean
     ) => {
-      if (!validator(validationChecks, setMessages, t) && !ignoreAndContinue) {
+      if (
+        !validator(validationChecks, setMessages, t) &&
+        !ignoreAndContinue &&
+        !props.actingAsEmployee
+      ) {
         setReplacementEmployeeInfo({
           id: replacementEmployeeId,
           firstName: replacementEmployeeFirstName,
