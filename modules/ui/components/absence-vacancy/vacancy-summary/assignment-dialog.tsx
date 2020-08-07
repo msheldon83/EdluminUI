@@ -179,7 +179,7 @@ export const AssignmentDialog: React.FC<Props> = props => {
 
       <Divider className={classes.divider} />
       <DialogActions>
-        <TextButton onClick={props.onClose} className={classes.buttonSpacing}>
+        <TextButton onClick={onClose} className={classes.buttonSpacing}>
           {t("No, go back")}
         </TextButton>
         <ButtonDisableOnClick

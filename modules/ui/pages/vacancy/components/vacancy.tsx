@@ -284,7 +284,7 @@ export const VacancyUI: React.FC<Props> = props => {
         setVacancy({
           ...vacancy,
           details: vacancy.details.map(d => {
-            if (!vacancyDetailIds?.find(i => d.id === i)) {
+            if (!detailsToAssign?.find(a => d.id === a.id)) {
               return d;
             }
 
@@ -844,9 +844,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       onAssignClick={async (
                         vacancySummaryDetails: VacancySummaryDetail[]
                       ) => {
-                        setVacancySummaryDetailsToAssign(
-                          vacancySummaryDetailsToAssign
-                        );
+                        setVacancySummaryDetailsToAssign(vacancySummaryDetails);
                         setStep("preAssignSub");
                       }}
                       onCancelAssignment={onCancelAssignment}
