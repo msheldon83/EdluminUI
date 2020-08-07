@@ -123,19 +123,20 @@ export const Confirmation: React.FC<Props> = props => {
                     const isSuccess = await onCancelAssignment(
                       vacancySummaryDetails
                     );
-                    const vacancyDetailIds = vacancySummaryDetails.map(
-                      vsd => vsd.vacancyDetailId
-                    );
-                    if (isSuccess && vacancyDetailIds.length > 0) {
+                    const assignmentId =
+                      vacancySummaryDetails[0]?.assignment?.id;
+                    if (isSuccess && vacancySummaryDetails.length > 0) {
                       // If Sub was only removed from part of the Assignment, then we'll
                       // redirect the User directly to the Edit view of the Absence
-                      const allVacancyDetailIds = flatMap(
-                        compact(absence.vacancies ?? []).map(v =>
-                          v.details.map(d => d.id)
-                        )
+                      const allVacancyDetails = flatMap(
+                        compact(absence.vacancies ?? []).map(v => v.details)
+                      );
+                      const vacancyDetailsForThisAssignment = allVacancyDetails.filter(
+                        d => d.assignmentId && d.assignmentId === assignmentId
                       );
                       if (
-                        vacancyDetailIds.length !== allVacancyDetailIds.length
+                        vacancySummaryDetails.length !==
+                        vacancyDetailsForThisAssignment.length
                       ) {
                         history.push(editUrl);
                       }
