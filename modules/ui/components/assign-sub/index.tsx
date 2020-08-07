@@ -1,4 +1,4 @@
-import { Button, Collapse, Divider, Link, Typography } from "@material-ui/core";
+import { Collapse, Divider, Link, Typography } from "@material-ui/core";
 import { makeStyles, useTheme } from "@material-ui/styles";
 import format from "date-fns/format";
 import { useQueryBundle } from "graphql/hooks";
@@ -12,10 +12,8 @@ import { parseTimeFromString, secondsSinceMidnight } from "helpers/time";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useEffect, useMemo, useCallback } from "react";
-import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { AppChromeRoute } from "ui/routes/app-chrome";
 import { Table } from "ui/components/table";
 import { useRole } from "core/role-context";
 import { AssignAbsenceDialog } from "ui/components/assign-absence-dialog";
@@ -259,7 +257,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   //Get the role to determine whether or not the User will be alerted of minimally qualified subs.
   const contextRole = useRole();
-  const isEmployee = props.actingAsEmployee || contextRole === "employee"; 
+  const isEmployee = props.actingAsEmployee || contextRole === "employee";
 
   const assignReplacementEmployee = useCallback(
     async (
