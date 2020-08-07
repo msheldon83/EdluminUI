@@ -15,7 +15,6 @@ import { useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
-import { useRole } from "core/role-context";
 import { AssignAbsenceDialog } from "ui/components/assign-absence-dialog";
 import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
 import { VacancyDetails } from "../absence/vacancy-details";
@@ -255,10 +254,6 @@ export const AssignSub: React.FC<Props> = props => {
     }));
   }, [replacementEmployees]);
 
-  //Get the role to determine whether or not the User will be alerted of minimally qualified subs.
-  const contextRole = useRole();
-  const isEmployee = props.actingAsEmployee || contextRole === "employee";
-
   const assignReplacementEmployee = useCallback(
     async (
       replacementEmployeeId: string,
@@ -271,7 +266,7 @@ export const AssignSub: React.FC<Props> = props => {
       if (
         !validator(validationChecks, setMessages, t) &&
         !ignoreAndContinue &&
-        !isEmployee
+        !props.actingAsEmployee
       ) {
         setReplacementEmployeeInfo({
           id: replacementEmployeeId,
