@@ -129,7 +129,7 @@ export const AssignSub: React.FC<Props> = props => {
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 150;
+  const collapsedVacancyDetailsHeight = 200;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -339,27 +339,31 @@ export const AssignSub: React.FC<Props> = props => {
 
     return (
       <div>
+        <VacancySummaryHeader
+          positionName={props.positionName}
+          vacancyDates={vacancySummaryDetails?.map((vsd: any) => {
+            return vsd.date;
+          })}
+        />
         <Collapse
           in={vacancyDetailsExpanded}
           collapsedHeight={theme.typography.pxToRem(
             vacancyDetailsHeight
-              ? Math.min(vacancyDetailsHeight, collapsedVacancyDetailsHeight)
+              ? showViewAllDetails
+                ? collapsedVacancyDetailsHeight
+                : vacancyDetailsHeight
               : collapsedVacancyDetailsHeight
           )}
         >
-          <VacancySummaryHeader
-            positionName={props.positionName}
-            vacancyDates={vacancySummaryDetails?.map((vsd: any) => {
-              return vsd.date;
-            })}
-          />
-          <div className={classes.vacSubDetailContainer}>
+          <div
+            className={classes.vacSubDetailContainer}
+            ref={vacancyDetailsRef}
+          >
             <VacancySummary
               vacancySummaryDetails={vacancySummaryDetails}
               onAssignClick={async () => {}}
               onCancelAssignment={async () => true}
               detailsOnly={true}
-              divRef={vacancyDetailsRef}
               showAccountingCodes={
                 accountingCodes.length > 0 && (props.isForVacancy ?? false)
               }

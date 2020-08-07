@@ -20,7 +20,6 @@ type Props = {
   ) => Promise<boolean>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
-  divRef?: React.RefObject<HTMLDivElement>;
   readOnly?: boolean;
   noDaysChosenText?: string;
   isAbsence?: boolean;
@@ -43,7 +42,6 @@ export const VacancySummary: React.FC<Props> = props => {
     isAbsence = false,
     disableAssignmentActions = false,
     detailsOnly = false,
-    divRef = null,
     absenceActions = null,
     footerActions = null,
     noDaysChosenText = t("No days chosen"),
@@ -83,7 +81,7 @@ export const VacancySummary: React.FC<Props> = props => {
   }, [vacancySummaryDetails]);
 
   return (
-    <div className={classes.container} ref={divRef}>
+    <div className={classes.container}>
       <Grid container className={classes.header}>
         {isAbsence && (
           <Grid item xs={4}>
