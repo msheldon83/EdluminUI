@@ -63,7 +63,7 @@ import {
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
-import { EditVacancies } from "ui/pages/create-absence/edit-vacancies";
+import { EditVacancies } from "ui/pages/absence/components/edit-vacancies";
 import { VacancyDetail } from "ui/components/absence/types";
 import { convertStringToDate } from "helpers/date";
 import { Confirmation } from "../create/confirmation";

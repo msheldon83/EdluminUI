@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AbsenceFormData, AbsenceDetail } from "../types";
 import { startOfDay, min, format, isSameDay } from "date-fns";
 import { useFormikContext } from "formik";
-import { NoteField } from "ui/components/absence/absence-details/notes-field";
+import { NoteField } from "ui/pages/absence/components/notes-field";
 import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-calendar";
 import { compact, flatMap, intersection, sortBy } from "lodash-es";
 import { AbsenceCreateInput } from "graphql/server-types.gen";

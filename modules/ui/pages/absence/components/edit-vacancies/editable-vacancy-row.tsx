@@ -13,14 +13,14 @@ import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import { FormikSelect } from "ui/components/form/formik-select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
-import { GetLocationsForEmployee } from "../graphql/get-locations-for-employee.gen";
-import { VacancyDetail } from "../../../components/absence/types";
+import { VacancyDetail } from "../../../../components/absence/types";
 import { FormikErrors, useFormikContext } from "formik";
 import { startOfDay, parseISO, format } from "date-fns";
 import {
   AccountingCodeDropdown,
   noAllocation,
 } from "ui/components/form/accounting-code-dropdown";
+import { GetLocationsForEmployee } from "../../graphql/get-locations-for-employee.gen";
 
 type Props = {
   locationOptions: GetLocationsForEmployee.Locations[];
