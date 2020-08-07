@@ -286,7 +286,13 @@ export const AssignSub: React.FC<Props> = props => {
         );
       }
     },
-    [onAssignReplacement, vacancyDetailIdsToAssign, vacancySummaryDetails, t]
+    [
+      t,
+      props.actingAsEmployee,
+      onAssignReplacement,
+      vacancyDetailIdsToAssign,
+      vacancySummaryDetails,
+    ]
   );
 
   const confirmReassign = useCallback(
