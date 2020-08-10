@@ -285,7 +285,6 @@ const useStyles = makeStyles(theme => ({
     }),
   },
   leftPaddingCompact: {
-    maxWidth: theme.typography.pxToRem(1440),
     paddingLeft: theme.spacing(7) + 1,
     [theme.breakpoints.up("sm")]: {
       paddingLeft: theme.spacing(9) + 1,
