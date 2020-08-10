@@ -133,7 +133,8 @@ export const AbsenceReasonDropdown = ({
                 {...allocationProps}
                 value={value}
                 className={classes.hoursInputColumn}
-                maxLength={3}
+                maxLengthBeforeDecimal={2}
+                maxLengthAfterDecimal={2}
                 disabled={allocationProps.disabled || hoursDisabled}
               />
             )}
@@ -145,7 +146,8 @@ export const AbsenceReasonDropdown = ({
                 }}
                 value={hoursToDays(value)}
                 className={classes.daysInputColumn}
-                maxLength={3}
+                maxLengthBeforeDecimal={1}
+                maxLengthAfterDecimal={2}
                 disabled={allocationProps.disabled || daysDisabled}
               />
             )}

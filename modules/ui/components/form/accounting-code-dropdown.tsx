@@ -34,7 +34,8 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
             {...allocationProps}
             className={classes.multiCodeInput}
             endAdornment="%"
-            maxLength={2}
+            maxLengthBeforeDecimal={3}
+            maxLengthAfterDecimal={2}
           />
         );
       }}
