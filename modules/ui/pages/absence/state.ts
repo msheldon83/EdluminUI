@@ -99,6 +99,10 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           projectedVacancyDetails: undefined,
           projectedVacancies: undefined,
           absenceDates: filter(prev.absenceDates, d => !isSameDay(d, date)),
+          assignmentsByDate: filter(
+            prev.assignmentsByDate,
+            a => !isSameDay(a.startTimeLocal, date) || !!a.assignmentId
+          ),
         };
       } else {
         return {
