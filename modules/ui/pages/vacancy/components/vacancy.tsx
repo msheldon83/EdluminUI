@@ -97,9 +97,7 @@ export const VacancyUI: React.FC<Props> = props => {
   } = props;
   const [resetKey, setResetKey] = useState(0);
 
-  const [state, dispatch] = useReducer(vacancyReducer, {
-    vacancyDetailIdsToAssign: [],
-  });
+  const [state, dispatch] = useReducer(vacancyReducer, {});
 
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
     ...initialVacancy,
@@ -396,8 +394,13 @@ export const VacancyUI: React.FC<Props> = props => {
   }, [vacancy]);
 
   const vacancySummaryDetailsToAssign = useMemo(() => {
+    if (!state.vacancyDetailIdsToAssign) {
+      // return all unfilled details
+      return vacancySummaryDetails.filter(d => !d.assignment);
+    }
+
     return vacancySummaryDetails.filter(d =>
-      state.vacancyDetailIdsToAssign.find(i => d.vacancyDetailId === i)
+      state.vacancyDetailIdsToAssign?.find(i => d.vacancyDetailId === i)
     );
   }, [vacancySummaryDetails, state.vacancyDetailIdsToAssign]);
 
@@ -887,13 +890,13 @@ export const VacancyUI: React.FC<Props> = props => {
                     : buildVacancyCreateInput({
                         ...vacancy,
                         details: vacancy.details.filter(d =>
-                          state.vacancyDetailIdsToAssign.find(s => s === d.id)
+                          vacancySummaryDetailsToAssign.find(vsd => vsd.vacancyDetailId === d.id)
                         ),
                       })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 existingVacancy={vacancyExists}
-                vacancyDetailIdsToAssign={state.vacancyDetailIdsToAssign}
+                vacancyDetailIdsToAssign={vacancySummaryDetailsToAssign.map(vsd => vsd.vacancyDetailId)}
                 employeeToReplace={
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
                     ?.firstName ?? undefined

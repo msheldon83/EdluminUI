@@ -1,7 +1,7 @@
 import { Reducer } from "react";
 
 export type VacancyState = {
-  vacancyDetailIdsToAssign: string[];
+  vacancyDetailIdsToAssign?: string[];
 };
 
 export type VacancyActions = {
