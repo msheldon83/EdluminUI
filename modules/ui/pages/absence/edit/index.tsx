@@ -26,6 +26,7 @@ import {
   projectVacancyDetailsFromVacancies,
   getAbsenceReasonUsageData,
 } from "../state";
+import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 
 type Props = { actingAsEmployee?: boolean };
 
@@ -148,6 +149,17 @@ export const EditAbsence: React.FC<Props> = props => {
     });
   }, [absence]);
 
+  const unfilledVacancySummaryDetails = React.useMemo(() => {
+    if (!absence || !absence.vacancies || !absence.vacancies[0]) {
+      return undefined;
+    }
+    const allVacancySummaryDetails = convertVacancyToVacancySummaryDetails(
+      absence.vacancies[0],
+      assignmentsByDate
+    );
+    return allVacancySummaryDetails.filter(vsd => !vsd.assignment);
+  }, [absence, assignmentsByDate]);
+
   const initialFormData = React.useMemo(() => {
     if (!absence) {
       return null;
@@ -259,6 +271,7 @@ export const EditAbsence: React.FC<Props> = props => {
           await absenceQuery.refetch();
         }}
         absence={absence}
+        unfilledVacancySummaryDetails={unfilledVacancySummaryDetails}
       />
     </>
   );

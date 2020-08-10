@@ -113,6 +113,7 @@ type Props = {
   deleteAbsence?: () => void;
   refetchAbsence?: () => Promise<void>;
   absence?: Absence;
+  unfilledVacancySummaryDetails?: VacancySummaryDetail[];
 };
 
 export const AbsenceUI: React.FC<Props> = props => {
@@ -136,6 +137,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     onErrorsConfirmed,
     refetchAbsence,
     absence,
+    unfilledVacancySummaryDetails,
   } = props;
 
   const [cancelDialogIsOpen, setCancelDialogIsOpen] = React.useState(false);
@@ -152,7 +154,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   const [
     vacancySummaryDetailsToAssign,
     setVacancySummaryDetailsToAssign,
-  ] = React.useState<VacancySummaryDetail[]>([]);
+  ] = React.useState<VacancySummaryDetail[] | undefined>(undefined);
 
   const [state, dispatch] = React.useReducer(
     absenceReducer,
@@ -493,7 +495,9 @@ export const AbsenceUI: React.FC<Props> = props => {
       return undefined;
     }
 
-    const datesToAssign = vacancySummaryDetailsToAssign.map(vsd => vsd.date);
+    const datesToAssign = (vacancySummaryDetailsToAssign ?? []).map(
+      vsd => vsd.date
+    );
     const vacanciesWithFilteredDetails = state.projectedVacancies.map(v => {
       return {
         ...v,
@@ -1013,16 +1017,26 @@ export const AbsenceUI: React.FC<Props> = props => {
                     employeeName={`${employee.firstName} ${employee.lastName}`}
                     employeeId={employee.id}
                     positionName={position?.title}
-                    vacancySummaryDetails={vacancySummaryDetailsToAssign}
+                    vacancySummaryDetails={
+                      vacancySummaryDetailsToAssign ??
+                      unfilledVacancySummaryDetails ??
+                      []
+                    }
                     existingVacancy={!!state.vacancyId}
                     selectButtonText={!isCreate ? t("Assign") : undefined}
                     vacancies={!state.vacancyId ? vacanciesToAssign : undefined}
                     vacancyId={state.vacancyId}
                     vacancyDetailIdsToAssign={
-                      state.vacancyId
+                      state.vacancyId && vacancySummaryDetailsToAssign
                         ? compact(
                             vacancySummaryDetailsToAssign.map(
                               v => v.vacancyDetailId
+                            )
+                          )
+                        : unfilledVacancySummaryDetails
+                        ? compact(
+                            unfilledVacancySummaryDetails.map(
+                              uvsd => uvsd.vacancyDetailId
                             )
                           )
                         : undefined
