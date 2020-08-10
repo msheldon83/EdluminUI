@@ -122,8 +122,7 @@ export const AssignSub: React.FC<Props> = props => {
     (!existingVacancy && isForVacancy && !vacancy) ||
     (!existingVacancy &&
       !isForVacancy &&
-      (!vacancies || vacancies.length === 0)) ||
-    vacancySummaryDetails.length === 0
+      (!vacancies || vacancies.length === 0))
   ) {
     props.onCancel();
   }
