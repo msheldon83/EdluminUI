@@ -1,6 +1,7 @@
 query GetEmployee($employeeId: ID!) {
   orgUser {
     byId(id: $employeeId) {
+      id
       employee {
         id
         firstName
