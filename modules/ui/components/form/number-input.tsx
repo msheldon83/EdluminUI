@@ -7,8 +7,10 @@ export type NumberInputProps = Omit<
   InputProps,
   "value" | "onChange" | "maxLength"
 > & {
-  value: number | undefined;
-  onChange: (value: number | undefined) => void;
+  value: string | undefined;
+  onChange: (
+    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => void;
   maxLengthBeforeDecimal?: number;
   maxLengthAfterDecimal?: number;
 };
@@ -38,7 +40,7 @@ export const NumberInput = (props: NumberInputProps) => {
         // if value is not blank, then test the regex
         if (e.target.value === "" || numberRegExp.test(e.target.value)) {
           // Make sure value is always a number
-          onChange(e.target.value !== "" ? +e.target.value : undefined);
+          onChange(e);
         }
       }}
     />
