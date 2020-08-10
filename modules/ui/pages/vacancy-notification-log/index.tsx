@@ -12,7 +12,7 @@ import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { format } from "date-fns";
 import { getDisplayName } from "ui/components/enumHelpers";
 import { VacancyViewRoute } from "ui/routes/vacancy";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { GetVacancyById } from "./graphql/get-vacancy-byid.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";

@@ -1,5 +1,0 @@
-mutation DeleteAbsence($absenceId: ID!) {
-  absence {
-    delete(absenceId: $absenceId)
-  }
-}

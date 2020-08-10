@@ -16,8 +16,6 @@ import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { Table } from "ui/components/table";
 import { AssignAbsenceDialog } from "ui/components/assign-absence-dialog";
-import { GetReplacementEmployeesForVacancy } from "ui/pages/create-absence/graphql/get-replacement-employees.gen";
-import { VacancyDetails } from "../absence/vacancy-details";
 import { AssignSubColumn, getAssignSubColumns } from "./columns";
 import { compact, uniq } from "lodash-es";
 import {
@@ -25,7 +23,6 @@ import {
   ReplacementEmployeeFilters,
 } from "./filters";
 import { ReassignAbsenceDialog } from "ui/components/absence/reassign-dialog";
-import { AssignmentOnDate } from "ui/components/absence/types";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { VacancySummaryHeader } from "../absence/vacancy-summary-header";
 import { GetVacancyReplacementEmployees } from "./graphql/get-replacement-employees-for-vacancy.gen";
@@ -34,19 +31,17 @@ import { VacancySummaryDetail } from "../absence-vacancy/vacancy-summary/types";
 import { EmployeeLink } from "ui/components/links/people";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { usePayCodes } from "reference-data/pay-codes";
+import { GetAbsenceReplacementEmployeesForVacancy } from "./graphql/get-replacement-employees-for-absence.gen";
 
 type Props = {
   orgId: string;
-  absenceId?: string;
-  existingVacancy?: boolean;
+  existingVacancy: boolean;
   vacancies?: Vacancy[];
   vacancyDetailIdsToAssign?: string[];
   actingAsEmployee?: boolean;
   employeeName?: string;
   employeeId?: string;
-  positionId?: string;
   positionName?: string;
-  disabledDates?: Date[];
   selectButtonText?: string;
   onAssignReplacement: (
     replacementEmployeeId: string,
@@ -58,13 +53,10 @@ type Props = {
   ) => void;
   onCancel: () => void;
   employeeToReplace?: string;
-  assignmentsByDate: AssignmentOnDate[];
   isForVacancy?: boolean;
-  useVacancySummaryDetails?: boolean;
-  vacancySummaryDetails?: VacancySummaryDetail[];
+  vacancySummaryDetails: VacancySummaryDetail[];
   vacancy?: VacancyCreateInput;
   vacancyId?: string;
-  isEdit?: boolean;
 };
 
 export type ValidationChecks = {
@@ -99,8 +91,9 @@ export const AssignSub: React.FC<Props> = props => {
     vacancyDetailIdsToAssign,
     employeeToReplace = "",
     vacancySummaryDetails,
+    existingVacancy,
+    vacancies,
     isForVacancy = false,
-    useVacancySummaryDetails = false,
     vacancy = undefined,
     vacancyId = undefined,
   } = props;
@@ -122,17 +115,20 @@ export const AssignSub: React.FC<Props> = props => {
   const [messages, setMessages] = React.useState<string[]>([]);
 
   // If we don't have any info, cancel the Assign Sub action
+  // This covers both Absence and Vacancy scenarios since they pass in
+  // different information since they use different GraphQL Queries
   if (
-    (!useVacancySummaryDetails && !props.vacancies) ||
-    props.vacancies?.length === 0 ||
-    (useVacancySummaryDetails && !vacancySummaryDetails) ||
-    vacancySummaryDetails?.length === 0
+    (existingVacancy && !vacancyId) ||
+    (!existingVacancy && isForVacancy && !vacancy) ||
+    (!existingVacancy &&
+      !isForVacancy &&
+      (!vacancies || vacancies.length === 0))
   ) {
     props.onCancel();
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 225;
+  const collapsedVacancyDetailsHeight = 200;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -149,7 +145,7 @@ export const AssignSub: React.FC<Props> = props => {
   We will reintroduce pagining in the future. */
   }
   const getReplacementEmployeesForAbsenceVacancyQuery = useQueryBundle(
-    GetReplacementEmployeesForVacancy,
+    GetAbsenceReplacementEmployeesForVacancy,
     {
       variables: {
         orgId: props.orgId,
@@ -289,7 +285,13 @@ export const AssignSub: React.FC<Props> = props => {
         );
       }
     },
-    [onAssignReplacement, vacancyDetailIdsToAssign, vacancySummaryDetails, t]
+    [
+      t,
+      props.actingAsEmployee,
+      onAssignReplacement,
+      vacancyDetailIdsToAssign,
+      vacancySummaryDetails,
+    ]
   );
 
   const confirmReassign = useCallback(
@@ -336,55 +338,39 @@ export const AssignSub: React.FC<Props> = props => {
 
     return (
       <div>
+        <VacancySummaryHeader
+          positionName={props.positionName}
+          vacancyDates={vacancySummaryDetails?.map((vsd: any) => {
+            return vsd.date;
+          })}
+        />
         <Collapse
           in={vacancyDetailsExpanded}
           collapsedHeight={theme.typography.pxToRem(
             vacancyDetailsHeight
-              ? Math.min(
-                  vacancyDetailsHeight + (useVacancySummaryDetails ? 75 : 0),
-                  collapsedVacancyDetailsHeight
-                )
+              ? showViewAllDetails
+                ? collapsedVacancyDetailsHeight
+                : vacancyDetailsHeight
               : collapsedVacancyDetailsHeight
           )}
         >
-          {props.vacancies && !useVacancySummaryDetails && (
-            <VacancyDetails
-              vacancies={props.vacancies}
-              vacancyDetailIds={vacancyDetailIdsToAssign}
-              positionName={props.positionName}
-              gridRef={vacancyDetailsRef}
-              showHeader
-              disabledDates={props.disabledDates}
-              detailsClassName={classes.vacancyDetailsTable}
-              assignmentsByDate={props.assignmentsByDate}
-              isForVacancy={isForVacancy}
+          <div
+            className={classes.vacSubDetailContainer}
+            ref={vacancyDetailsRef}
+          >
+            <VacancySummary
+              vacancySummaryDetails={vacancySummaryDetails}
+              onAssignClick={async () => {}}
+              onCancelAssignment={async () => true}
+              detailsOnly={true}
+              showAccountingCodes={
+                accountingCodes.length > 0 && (props.isForVacancy ?? false)
+              }
+              showPayCodes={
+                payCodes.length > 0 && (props.isForVacancy ?? false)
+              }
             />
-          )}
-          {vacancySummaryDetails && useVacancySummaryDetails && (
-            <>
-              <VacancySummaryHeader
-                positionName={props.positionName}
-                vacancyDates={vacancySummaryDetails?.map((vsd: any) => {
-                  return vsd.date;
-                })}
-              />
-              <div className={classes.vacSubDetailContainer}>
-                <VacancySummary
-                  vacancySummaryDetails={vacancySummaryDetails}
-                  onAssignClick={async () => {}}
-                  onCancelAssignment={async () => true}
-                  detailsOnly={true}
-                  divRef={vacancyDetailsRef}
-                  showAccountingCodes={
-                    accountingCodes.length > 0 && (props.isForVacancy ?? false)
-                  }
-                  showPayCodes={
-                    payCodes.length > 0 && (props.isForVacancy ?? false)
-                  }
-                />
-              </div>
-            </>
-          )}
+          </div>
         </Collapse>
         {showViewAllDetails && (
           <div className={classes.viewAllDetails}>
@@ -453,7 +439,7 @@ export const AssignSub: React.FC<Props> = props => {
 
   const subHeader =
     !props.actingAsEmployee && props.employeeName ? (
-      props.isEdit ? (
+      props.existingVacancy ? (
         <EmployeeLink orgUserId={props.employeeId} color="black">
           {props.employeeName}
         </EmployeeLink>
@@ -570,21 +556,8 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     justifyContent: "space-between",
   },
-  confAndReturnContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-  },
   vacancyDetails: {
     marginBottom: theme.spacing(3),
-  },
-  vacancyDetailsTable: {
-    width: "50%",
-    border: `${theme.typography.pxToRem(1)} solid ${
-      theme.customColors.medLightGray
-    }`,
-    paddingBottom: theme.spacing(),
   },
   viewAllDetails: {
     cursor: "pointer",

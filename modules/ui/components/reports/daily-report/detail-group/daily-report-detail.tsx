@@ -3,7 +3,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { useRouteParams } from "ui/routes/definition";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { Detail } from "../helpers";
 import { DailyReportDetailUI } from "./daily-report-detail-ui";
 import { MobileDailyReportDetailUI } from "./mobile-daily-report-detail-ui";

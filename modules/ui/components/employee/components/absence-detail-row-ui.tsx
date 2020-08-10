@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import {
   EmployeeEditAbsenceRoute,
   AdminEditAbsenceRoute,
-} from "ui/routes/edit-absence";
+} from "ui/routes/absence";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum, ApprovalStatus } from "graphql/server-types.gen";
 import { getBasicDateRangeDisplayText } from "ui/components/date-helpers";

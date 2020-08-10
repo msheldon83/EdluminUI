@@ -9,7 +9,7 @@ import { NotesPopper } from "ui/components/substitutes/notes-popper";
 import { AvailableJobDetail } from "./available-job-detail";
 import { isBefore, parseISO } from "date-fns";
 import { Warning } from "@material-ui/icons";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
