@@ -24,7 +24,13 @@ export const HoursToDaysRow: React.FC<Props> = props => {
   const { t } = useTranslation();
 
   return (
-    <Grid item container xs={12} className={props.className}>
+    <Grid
+      item
+      container
+      xs={12}
+      className={props.className}
+      alignItems="center"
+    >
       <Grid item xs={1}>
         {props.deleteThisRow && (
           <IconButton aria-label="delete" onClick={props.deleteThisRow}>

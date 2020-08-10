@@ -28,6 +28,8 @@ import {
   OrganizationType,
   TimeZone,
 } from "graphql/server-types.gen";
+import { HoursToDaysTable } from "ui/pages/hours-to-days/components/hours-to-days-table";
+import { DayConversion } from "ui/pages/hours-to-days/types";
 
 type Props = {
   namePlaceholder: string;
@@ -45,6 +47,32 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const overrideStyles = rootStyles();
   const { t } = useTranslation();
+
+  const ensureCatchAll = (conversions: Partial<DayConversion>[]) => {
+    const last =
+      conversions.length === 0 ? null : conversions[conversions.length - 1];
+    if (!last?.maxMinutes || last.maxMinutes < 1440) {
+      return conversions.concat({ maxMinutes: 1440 });
+    }
+    return conversions;
+  };
+
+  const initialConversions = ensureCatchAll(
+    (
+      props?.organization?.config?.vacancyDayConversions ?? [
+        { name: "Half Day", maxMinutes: 240, dayEquivalent: 0.5 },
+        { name: "Full Day", maxMinutes: 1440, dayEquivalent: 1 },
+      ]
+    ).map(input =>
+      input
+        ? {
+            name: input.name,
+            maxMinutes: input.maxMinutes,
+            dayEquivalent: input.dayEquivalent,
+          }
+        : {}
+    )
+  );
 
   const initialValues = {
     name: props?.organization?.name || "",
@@ -93,11 +121,27 @@ export const AddBasicInfo: React.FC<Props> = props => {
     minutesRelativeToStartVacancyCanBeFilled:
       props.organization?.config?.minutesRelativeToStartVacancyCanBeFilled ||
       60,
-    vacancyDayConversions: props.organization?.config
-      ?.vacancyDayConversions || [
-      { name: "Half Day", maxMinutes: 240, dayEquivalent: 0.5 },
-      { name: "Full Day", maxMinutes: 510, dayEquivalent: 1 },
-    ],
+    vacancyDayConversions: initialConversions.slice(0, -1),
+    vacancyDayCatchAll: initialConversions[initialConversions.length - 1],
+  };
+
+  const deleteVacancyRow = (
+    setFieldValue: (field: keyof typeof initialValues, value: any) => void
+  ) => (conversions: Partial<DayConversion>[], i: number) => {
+    conversions.splice(i, 1);
+    setFieldValue("vacancyDayConversions", conversions);
+  };
+
+  const addVacancyRow = (
+    setFieldValue: (field: keyof typeof initialValues, value: any) => void
+  ) => (
+    conversions: Partial<DayConversion>[],
+    catchAll: Partial<DayConversion>
+  ) => {
+    catchAll.maxMinutes = undefined;
+    conversions.push(catchAll);
+    setFieldValue("vacancyDayConversions", conversions);
+    setFieldValue("vacancyDayCatchAll", { maxMinutes: 1440 });
   };
 
   const validateBasicDetails = React.useMemo(
@@ -126,18 +170,79 @@ export const AddBasicInfo: React.FC<Props> = props => {
         featureFlags: Yup.array(Yup.string()).required(t("* Required *")),
         vacancyDayConversions: Yup.array(
           Yup.object({
-            name: Yup.string()
-              .nullable()
-              .required(t("* Required *")),
             maxMinutes: Yup.number()
-              .max(510)
-              .nullable()
-              .required(t("Max of 510 Minutes")),
+              .min(0, t("Up to must be non-negative"))
+              .max(1439, t("Up to must be less than 24 hours"))
+              .required(t("Required")),
+            name: Yup.string().required(t("Name must be non-empty")),
             dayEquivalent: Yup.number()
-              .max(1)
-              .nullable()
-              .required(t("Max of 1")),
+              .min(0, t("Day equivalent must be non-negative"))
+              .required(t("Required")),
           })
+        )
+          .test({
+            name: "minutesOrderedCheck",
+            test: function test(conversions: DayConversion[]) {
+              for (let i = 0; i < conversions.length - 1; i++) {
+                if (
+                  conversions[i].maxMinutes >= conversions[i + 1].maxMinutes
+                ) {
+                  return new Yup.ValidationError(
+                    t("Time durations out of order"),
+                    null,
+                    `${this.path}.${i + 1}.maxMinutes`
+                  );
+                }
+              }
+              return true;
+            },
+          })
+          .test({
+            name: "dayOrderedCheck",
+            test: function test(conversions: DayConversion[]) {
+              for (let i = 0; i < conversions.length - 1; i++) {
+                if (
+                  conversions[i].dayEquivalent >=
+                  conversions[i + 1].dayEquivalent
+                ) {
+                  return new Yup.ValidationError(
+                    t("Day equivalents out of order"),
+                    null,
+                    `${this.path}.${i + 1}.dayEquivalent`
+                  );
+                }
+              }
+              return true;
+            },
+          }),
+        vacancyDayCatchAll: Yup.object({
+          maxMinutes: Yup.number()
+            .min(0, t("Up to must be non-negative"))
+            .required(t("Required")),
+          name: Yup.string().required(t("Name must be non-empty")),
+          dayEquivalent: Yup.number()
+            .min(0, t("Day equivalent must be non-negative"))
+            .required(t("Required")),
+        }).when(
+          "vacancyDayConversions",
+          (vacancyDayConversions: Partial<DayConversion>[], schema: any) =>
+            schema.test({
+              name: "catch all order",
+              test: function test(value: Partial<DayConversion>) {
+                if (
+                  vacancyDayConversions[vacancyDayConversions.length - 1]
+                    .dayEquivalent! >= value.dayEquivalent!
+                ) {
+                  return new Yup.ValidationError(
+                    t("Day equivalents out of order"),
+                    null,
+                    `conversions.${vacancyDayConversions.length -
+                      1}.dayEquivalent`
+                  );
+                }
+                return true;
+              },
+            })
         ),
       }),
     [t]
@@ -187,10 +292,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
               minorConflictThresholdMinutes: data.minorConflictThresholdMinutes,
               minutesRelativeToStartVacancyCanBeFilled:
                 data.minutesRelativeToStartVacancyCanBeFilled,
-              vacancyDayConversions:
-                data.vacancyDayConversions.length > 0
-                  ? data.vacancyDayConversions
-                  : undefined,
+              vacancyDayConversions: data.vacancyDayConversions.concat(
+                data.vacancyDayCatchAll
+              ),
             },
           });
         }}
@@ -201,6 +305,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
           submitForm,
           setFieldValue,
           values,
+          errors,
         }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={isMobile ? 2 : 8}>
@@ -593,129 +698,23 @@ export const AddBasicInfo: React.FC<Props> = props => {
               >
                 <SectionHeader title={t("Vacancy Day Conversions")} />
               </Grid>
-              <Grid
-                xs={12}
-                item
-                container
-                classes={{ root: overrideStyles.row }}
-              >
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={e => {
-                    const value: DayConversionInput = {
-                      name: "",
-                      maxMinutes: 0,
-                      dayEquivalent: 0,
-                    };
-
-                    values.vacancyDayConversions.push(value);
-                    setFieldValue(
-                      "vacancyDayConversions",
-                      values.vacancyDayConversions
-                    );
-                  }}
-                >
-                  {t("Add")}
-                </Button>
-              </Grid>
-              {values.vacancyDayConversions.length > 0 && (
-                <Grid
-                  container
-                  item
-                  xs={12}
-                  classes={{ root: overrideStyles.row }}
-                >
-                  <Grid item xs={3} classes={{ root: overrideStyles.cell }}>
-                    <label>Name</label>
-                  </Grid>
-                  <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
-                    <label>Max Minutes</label>
-                  </Grid>
-                  <Grid item xs={2} classes={{ root: overrideStyles.cell }}>
-                    <label>Day Equivalent</label>
-                  </Grid>
-                </Grid>
-              )}
-
-              {values.vacancyDayConversions.map((n, i) => (
-                <Grid
-                  item
-                  key={i}
-                  container
-                  xs={12}
-                  classes={{ root: overrideStyles.row }}
-                >
-                  <Grid
-                    item
-                    xs={12}
-                    sm={3}
-                    classes={{ root: overrideStyles.cell }}
-                  >
-                    <Input
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        margin: isMobile ? "normal" : "none",
-                        variant: "outlined",
-                        fullWidth: true,
-                        name: `vacancyDayConversions[${i}].name`,
-                      }}
-                    />
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sm={2}
-                    classes={{ root: overrideStyles.cell }}
-                  >
-                    <Input
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        margin: isMobile ? "normal" : "none",
-                        variant: "outlined",
-                        fullWidth: true,
-                        name: `vacancyDayConversions[${i}].maxMinutes`,
-                      }}
-                    />
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sm={2}
-                    classes={{ root: overrideStyles.cell }}
-                  >
-                    <Input
-                      InputComponent={FormTextField}
-                      inputComponentProps={{
-                        margin: isMobile ? "normal" : "none",
-                        variant: "outlined",
-                        name: `vacancyDayConversions[${i}].dayEquivalent`,
-                        fullWidth: true,
-                      }}
-                    />
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sm={3}
-                    classes={{ root: overrideStyles.cell }}
-                  >
-                    <Button
-                      onClick={() => {
-                        values.vacancyDayConversions.splice(i, 1);
-                        setFieldValue(
-                          "vacancyDayConversions",
-                          values.vacancyDayConversions
-                        );
-                      }}
-                      variant="contained"
-                      size="small"
-                    >
-                      {t("Remove")}
-                    </Button>
-                  </Grid>
-                </Grid>
-              ))}
+              <div className={overrideStyles.conversionContainer}>
+                <HoursToDaysTable
+                  mainPrefix="vacancyDayConversions"
+                  mainValues={values.vacancyDayConversions}
+                  mainErrors={
+                    typeof errors?.vacancyDayConversions === "string" ||
+                    errors?.vacancyDayConversions instanceof String
+                      ? undefined
+                      : errors?.vacancyDayConversions
+                  }
+                  catchAllValue={values.vacancyDayCatchAll}
+                  catchAllPrefix="vacancyDayCatchAll"
+                  catchAllError={errors?.vacancyDayCatchAll}
+                  addRow={addVacancyRow(setFieldValue)}
+                  deleteRow={deleteVacancyRow(setFieldValue)}
+                />
+              </div>
             </Grid>
             <ActionButtons
               submit={{ text: t("Save"), execute: submitForm }}
@@ -740,5 +739,11 @@ const rootStyles = makeStyles(theme => ({
   },
   tooltip: {
     padding: theme.spacing(2),
+  },
+  conversionContainer: {
+    display: "flex",
+    flexDirection: "column",
+    width: "70%",
+    padding: theme.spacing(4),
   },
 }));

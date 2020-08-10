@@ -4,12 +4,8 @@ import { useHistory } from "react-router";
 import { Button, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { Formik } from "formik";
-import clsx from "clsx";
 import * as yup from "yup";
-import { startOfDay, format } from "date-fns";
-import { FormikErrors } from "formik";
 import { useSnackbar } from "hooks/use-snackbar";
-import { DayConversion as RawDayConversion } from "graphql/server-types.gen";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { GetOrganizationById } from "./graphql/get-organization.gen";
 import { UpdateOrganization } from "./graphql/update-organization.gen";
@@ -18,17 +14,10 @@ import { SettingsRoute } from "ui/routes/settings";
 import { Section } from "ui/components/section";
 import { ShowErrors } from "ui/components/error-helpers";
 import { PageTitle } from "ui/components/page-title";
-import { HoursToDaysRow } from "./components/hours-to-days-row";
+import { HoursToDaysTable } from "./components/hours-to-days-table";
 import { DayConversion, HoursToDaysData } from "./types";
 
 type Props = {};
-
-const formatMinutes = (minutes?: number) =>
-  minutes
-    ? `${Math.floor(minutes / 60)}:${(minutes % 60)
-        .toString()
-        .padStart(2, "0")}`
-    : "...";
 
 export const HoursToDays: React.FC<Props> = props => {
   const { t } = useTranslation();
@@ -80,18 +69,17 @@ export const HoursToDays: React.FC<Props> = props => {
   };
 
   const deleteRow = (
-    currentConversions: Partial<DayConversion>[],
-    setFieldValue: (field: keyof HoursToDaysData, value: any) => void,
-    i: number
-  ) => () => {
+    setFieldValue: (field: keyof HoursToDaysData, value: any) => void
+  ) => (currentConversions: Partial<DayConversion>[], i: number) => {
     currentConversions.splice(i, 1);
     setFieldValue("conversions", currentConversions);
   };
   const addRow = (
-    currentConversions: Partial<DayConversion>[],
-    currentCatchAll: Partial<DayConversion>,
     setFieldValue: (field: keyof HoursToDaysData, value: any) => void
-  ) => () => {
+  ) => (
+    currentConversions: Partial<DayConversion>[],
+    currentCatchAll: Partial<DayConversion>
+  ) => {
     currentCatchAll.maxMinutes = undefined;
     currentConversions.push(currentCatchAll);
     setFieldValue("conversions", currentConversions);
@@ -106,10 +94,12 @@ export const HoursToDays: React.FC<Props> = props => {
   const ensureCatchAll = (conversions: Partial<DayConversion>[]) => {
     const last =
       conversions.length === 0 ? null : conversions[conversions.length - 1];
-    if (!last || !last.maxMinutes || last.maxMinutes < 1440) {
-      conversions.push({
-        maxMinutes: 1440,
-      });
+    if (!last?.maxMinutes || last.maxMinutes < 1440) {
+      return conversions.concat([
+        {
+          maxMinutes: 1440,
+        },
+      ]);
     }
     return conversions;
   };
@@ -142,85 +132,89 @@ export const HoursToDays: React.FC<Props> = props => {
           ) as DayConversion[];
           await updateConversions(unified);
         }}
-        validationSchema={yup
-          .object()
-          .shape({
-            conversions: yup
-              .array()
-              .of(
-                yup.object().shape({
-                  maxMinutes: yup
-                    .number()
-                    .min(0, t("Up to must be non-negative"))
-                    .max(1439, t("Up to must be less than 24 hours"))
-                    .required(t("Required")),
-                  name: yup.string().required(t("Name must be non-empty")),
-                  dayEquivalent: yup
-                    .number()
-                    .min(0, t("Day equivalent must be non-negative"))
-                    .required(t("Required")),
-                })
-              )
-              .test({
-                name: "minutesOrderedCheck",
-                test: function test(conversions: DayConversion[]) {
-                  for (let i = 0; i < conversions.length - 1; i++) {
-                    if (
-                      conversions[i].maxMinutes >= conversions[i + 1].maxMinutes
-                    ) {
-                      return new yup.ValidationError(
-                        t("Time durations out of order"),
-                        null,
-                        `${this.path}.${i + 1}.maxMinutes`
-                      );
-                    }
-                  }
-                  return true;
-                },
+        validationSchema={yup.object().shape({
+          conversions: yup
+            .array()
+            .of(
+              yup.object().shape({
+                maxMinutes: yup
+                  .number()
+                  .min(0, t("Up to must be non-negative"))
+                  .max(1439, t("Up to must be less than 24 hours"))
+                  .required(t("Required")),
+                name: yup.string().required(t("Name must be non-empty")),
+                dayEquivalent: yup
+                  .number()
+                  .min(0, t("Day equivalent must be non-negative"))
+                  .required(t("Required")),
               })
-              .test({
-                name: "dayOrderedCheck",
-                test: function test(conversions: DayConversion[]) {
-                  for (let i = 0; i < conversions.length - 1; i++) {
-                    if (
-                      conversions[i].dayEquivalent >=
-                      conversions[i + 1].dayEquivalent
-                    ) {
-                      return new yup.ValidationError(
-                        t("Day equivalents out of order"),
-                        null,
-                        `${this.path}.${i + 1}.dayEquivalent`
-                      );
-                    }
+            )
+            .test({
+              name: "minutesOrderedCheck",
+              test: function test(conversions: DayConversion[]) {
+                for (let i = 0; i < conversions.length - 1; i++) {
+                  if (
+                    conversions[i].maxMinutes >= conversions[i + 1].maxMinutes
+                  ) {
+                    return new yup.ValidationError(
+                      t("Time durations out of order"),
+                      null,
+                      `${this.path}.${i + 1}.maxMinutes`
+                    );
                   }
-                  return true;
-                },
-              }),
-            catchAll: yup.object().shape({
+                }
+                return true;
+              },
+            })
+            .test({
+              name: "dayOrderedCheck",
+              test: function test(conversions: DayConversion[]) {
+                for (let i = 0; i < conversions.length - 1; i++) {
+                  if (
+                    conversions[i].dayEquivalent >=
+                    conversions[i + 1].dayEquivalent
+                  ) {
+                    return new yup.ValidationError(
+                      t("Day equivalents out of order"),
+                      null,
+                      `${this.path}.${i + 1}.dayEquivalent`
+                    );
+                  }
+                }
+                return true;
+              },
+            }),
+          catchAll: yup
+            .object()
+            .shape({
               maxMinutes: yup.number().required(t("Required")),
               name: yup.string().required(t("Required")),
               dayEquivalent: yup
                 .number()
                 .min(0, t("Day equivalent must be non-negative"))
                 .required(t("Required")),
-            }),
-          })
-          .test({
-            name: "catch all order",
-            test: function test(value: HoursToDaysData) {
-              if (
-                value.conversions[value.conversions.length - 1]
-                  .dayEquivalent! >= value.catchAll.dayEquivalent!
-              ) {
-                return new yup.ValidationError(
-                  t("Day equivalents out of order"),
-                  null,
-                  `conversions.${value.conversions.length - 1}.dayEquivalent`
-                );
-              }
-              return true;
-            },
-          })}
+            })
+            .when(
+              "conversions",
+              (conversions: Partial<DayConversion>[], schema: any) =>
+                schema.test({
+                  name: "catch all order",
+                  test: function test(value: Partial<DayConversion>) {
+                    if (
+                      conversions[conversions.length - 1].dayEquivalent! >=
+                      value.dayEquivalent!
+                    ) {
+                      return new yup.ValidationError(
+                        t("Day equivalents out of order"),
+                        null,
+                        `conversions.${conversions.length - 1}.dayEquivalent`
+                      );
+                    }
+                    return true;
+                  },
+                })
+            ),
+        })}
       >
         {({ values, handleSubmit, submitForm, setFieldValue, errors }) => {
           return (
@@ -232,81 +226,30 @@ export const HoursToDays: React.FC<Props> = props => {
                   )}
                 </h4>
                 <div className={classes.container}>
-                  <div>
-                    <Grid container>
-                      <Grid item container>
-                        <Grid item xs={1} className={classes.headerCell} />
-                        <Grid item xs={3} className={classes.headerCell}>
-                          {t("Up to")}
-                        </Grid>
-                        <Grid item xs={4} className={classes.headerCell}>
-                          {t("Display Name")}
-                        </Grid>
-                        <Grid item xs={4} className={classes.headerCell}>
-                          {t("Day equivalent")}
-                        </Grid>
-                      </Grid>
-                      {values.conversions.map((c, i) => (
-                        <HoursToDaysRow
-                          key={`conversions.${i}`}
-                          keyPrefix={`conversions.${i}`}
-                          className={clsx(
-                            i % 2
-                              ? [classes.row, classes.shadedRow]
-                              : classes.row
-                          )}
-                          deleteThisRow={deleteRow(
-                            values.conversions,
-                            setFieldValue,
-                            i
-                          )}
-                          error={
-                            errors?.conversions &&
-                            Array.isArray(errors.conversions)
-                              ? (errors.conversions[i] as FormikErrors<
-                                  DayConversion
-                                >)
-                              : undefined
-                          }
-                        />
-                      ))}
-                      <HoursToDaysRow
-                        keyPrefix={`catchAll`}
-                        error={errors?.catchAll ? errors.catchAll : undefined}
-                        className={clsx(
-                          values.conversions.length % 2
-                            ? [classes.row, classes.shadedRow]
-                            : classes.row
-                        )}
-                        headerText={
-                          values.conversions.length
-                            ? `${t("Greater than")} ${formatMinutes(
-                                values.conversions[
-                                  values.conversions.length - 1
-                                ].maxMinutes
-                              )}`
-                            : t("All hours") ?? ""
-                        }
-                      />
-                    </Grid>
-                    <Button
-                      variant="outlined"
-                      onClick={addRow(
-                        values.conversions,
-                        values.catchAll,
-                        setFieldValue
-                      )}
-                    >
-                      {t("Add row")}
-                    </Button>
-                  </div>
-                  <Button
-                    onClick={submitForm}
-                    variant="contained"
-                    className={classes.submit}
-                  >
-                    {t("Save")}
-                  </Button>
+                  <HoursToDaysTable
+                    mainPrefix="conversions"
+                    mainValues={values.conversions}
+                    mainErrors={
+                      typeof errors?.conversions === "string" ||
+                      errors?.conversions instanceof String
+                        ? undefined
+                        : errors?.conversions
+                    }
+                    catchAllValue={values.catchAll}
+                    catchAllPrefix="catchAll"
+                    catchAllError={errors?.catchAll}
+                    addRow={addRow(setFieldValue)}
+                    deleteRow={deleteRow(setFieldValue)}
+                    extraActions={
+                      <Button
+                        onClick={submitForm}
+                        variant="contained"
+                        className={classes.submit}
+                      >
+                        {t("Save")}
+                      </Button>
+                    }
+                  />
                 </div>
               </Section>
             </form>
