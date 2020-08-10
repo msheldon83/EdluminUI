@@ -8,14 +8,13 @@ import {
   flatMap,
 } from "lodash-es";
 import { Reducer } from "react";
-import { VacancyDetail } from "ui/components/absence/types";
 import {
   Vacancy,
   ApprovalStatus,
   Maybe,
   Absence,
 } from "graphql/server-types.gen";
-import { AssignmentOnDate } from "./types";
+import { AssignmentOnDate, VacancyDetail } from "./types";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import { AbsenceReasonUsageData } from "./components/balance-usage";

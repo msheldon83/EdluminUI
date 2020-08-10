@@ -21,7 +21,7 @@ import { AbsenceState, absenceReducer } from "../state";
 import { PageTitle } from "ui/components/page-title";
 import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
-import { AbsenceFormData, AbsenceDetail } from "../types";
+import { AbsenceFormData, AbsenceDetail, VacancyDetail } from "../types";
 import { Formik } from "formik";
 import {
   mapAccountingCodeValueToAccountingCodeAllocations,
@@ -64,7 +64,6 @@ import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
 import { EditVacancies } from "ui/pages/absence/components/edit-vacancies";
-import { VacancyDetail } from "ui/components/absence/types";
 import { convertStringToDate } from "helpers/date";
 import { Confirmation } from "../create/confirmation";
 import { ApolloError } from "apollo-client";
@@ -85,6 +84,7 @@ import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
 import { AbsenceFormValidationSchema } from "../validation";
 import { DeletedData } from "ui/components/deleted-data";
+import { findMatchingAssignmentsForDetails } from "../helpers";
 
 type Props = {
   organizationId: string;

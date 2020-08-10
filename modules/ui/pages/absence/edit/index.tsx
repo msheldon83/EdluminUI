@@ -23,10 +23,10 @@ import { parseISO, startOfMonth } from "date-fns";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import {
+  convertVacancyToVacancySummaryDetails,
   projectVacancyDetailsFromVacancies,
   getAbsenceReasonUsageData,
-} from "../state";
-import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
+} from "../helpers";
 
 type Props = { actingAsEmployee?: boolean };
 

@@ -1,4 +1,9 @@
-import { AbsenceFormData, AbsenceDetail, AssignmentOnDate } from "./types";
+import {
+  AbsenceFormData,
+  AbsenceDetail,
+  AssignmentOnDate,
+  VacancyDetail,
+} from "./types";
 import { AbsenceState } from "./state";
 import {
   AbsenceCreateInput,
@@ -9,7 +14,6 @@ import {
   Vacancy,
 } from "graphql/server-types.gen";
 import { getAbsenceDates } from "ui/components/absence/helpers";
-import { VacancyDetail } from "ui/components/absence/types";
 import { startOfDay, parseISO, format, isBefore, isEqual } from "date-fns";
 import { secondsSinceMidnight, parseTimeFromString } from "helpers/time";
 import { convertStringToDate } from "helpers/date";

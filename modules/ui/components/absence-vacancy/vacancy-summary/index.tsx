@@ -95,7 +95,7 @@ export const VacancySummary: React.FC<Props> = props => {
 
   return (
     <>
-      <div className={classes.container} ref={divRef}>
+      <div className={classes.container}>
         <Grid container className={classes.header}>
           {isAbsence && (
             <Grid item xs={4}>
