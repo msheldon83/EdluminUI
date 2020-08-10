@@ -10,6 +10,7 @@ export const numberRegExpWithMaxLength = (
   const after = maxLengthAfterDecimal ?? "";
 
   return new RegExp(
-    `^\\s*[+-]?(\\d{1,${before}}|\\.\\d{1,${before}}|\\d{1,${before}}\\.\\d{1,${after}}|\\d{1,${after}}\\.)(e[+-]?\\d+)?\\s*$`
+    `^\\s*[+-]?(\\d{1,${before}}|\\.\\d{1,${before}}|\\d{1,${before}}\\.\\d{1,${after}}|\\d{1,${after}}\\.)(e[+-]?\\d+)?\\s*$`,
+    "g"
   );
 };
