@@ -13,7 +13,7 @@ import { Table } from "ui/components/table";
 import { GetNotificationLogForUser } from "./graphql/get-notification-log.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { VacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { format, addDays } from "date-fns";

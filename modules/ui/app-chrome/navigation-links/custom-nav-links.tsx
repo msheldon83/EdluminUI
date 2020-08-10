@@ -33,7 +33,7 @@ import { VerifyOverviewRoute } from "ui/routes/absence-vacancy/verify";
 import {
   AdminCreateAbsenceRoute,
   AdminSelectEmployeeForCreateAbsenceRoute,
-} from "ui/routes/create-absence";
+} from "ui/routes/absence";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationGroupsRoute } from "ui/routes/location-groups";
 import { LocationsRoute } from "ui/routes/locations";

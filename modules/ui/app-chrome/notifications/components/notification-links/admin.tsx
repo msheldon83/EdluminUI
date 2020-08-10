@@ -8,7 +8,7 @@ import { ViewedIcon } from "ui/app-chrome/notifications/components/viewed-icon";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {

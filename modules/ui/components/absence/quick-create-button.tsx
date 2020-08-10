@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import {
   AdminSelectEmployeeForCreateAbsenceRoute,
   EmployeeCreateAbsenceRoute,
-} from "ui/routes/create-absence";
+} from "ui/routes/absence";
 import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 import { Can } from "ui/components/auth/can";

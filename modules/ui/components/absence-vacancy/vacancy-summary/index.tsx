@@ -23,7 +23,6 @@ type Props = {
   ) => Promise<boolean>;
   disableAssignmentActions?: boolean;
   detailsOnly?: boolean;
-  divRef?: React.RefObject<HTMLDivElement>;
   readOnly?: boolean;
   noDaysChosenText?: string;
   showAssignAllButton?: boolean;
@@ -48,7 +47,6 @@ export const VacancySummary: React.FC<Props> = props => {
     isAbsence = false,
     disableAssignmentActions = false,
     detailsOnly = false,
-    divRef = null,
     absenceActions = null,
     footerActions = null,
     noDaysChosenText = t("No days chosen"),

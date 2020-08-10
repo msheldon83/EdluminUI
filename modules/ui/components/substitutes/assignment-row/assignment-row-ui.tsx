@@ -8,7 +8,7 @@ import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { NotesPopper } from "../notes-popper";
 import { useRouteParams } from "ui/routes/definition";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { canRemoveSub } from "helpers/permissions";
 import { parseISO } from "date-fns";
 import { useHistory } from "react-router";

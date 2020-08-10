@@ -10,6 +10,8 @@ import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
 import { TFunction } from "i18next";
+import { Vacancy } from "graphql/server-types.gen";
+import { AssignmentOnDate } from "ui/pages/absence/types";
 
 export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
   vacancy: VacancyDetailsFormData

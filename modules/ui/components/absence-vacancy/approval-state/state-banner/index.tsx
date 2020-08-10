@@ -8,7 +8,7 @@ import { VacancyApprovalViewRoute } from "ui/routes/vacancy";
 import {
   AdminAbsenceApprovalViewRoute,
   EmployeeAbsenceApprovalViewRoute,
-} from "ui/routes/edit-absence";
+} from "ui/routes/absence";
 import { ApproveDenyDialog } from "./approve-dialog";
 import { CommentDialog } from "./comment-dialog";
 import { useMyApprovalWorkflows } from "reference-data/my-approval-workflows";

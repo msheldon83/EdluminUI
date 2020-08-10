@@ -7,7 +7,7 @@ import { ObjectType, OrgUserRole } from "graphql/server-types.gen";
 import { ViewedIcon } from "ui/app-chrome/notifications/components/viewed-icon";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { EmployeeEditAbsenceRoute } from "ui/routes/edit-absence";
+import { EmployeeEditAbsenceRoute } from "ui/routes/absence";
 
 type Props = {
   notification: Notification;

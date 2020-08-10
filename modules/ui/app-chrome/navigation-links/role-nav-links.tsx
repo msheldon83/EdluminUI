@@ -37,7 +37,7 @@ import {
   DataManagementNavLink,
 } from "./custom-nav-links";
 import { SettingsRoute } from "ui/routes/settings";
-import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
+import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/absence";
 import { LocationsRoute } from "ui/routes/locations";
 import { DataImportRoute } from "ui/routes/data-import";
 import { EmployeeScheduleRoute } from "ui/routes/employee-schedule";
