@@ -193,7 +193,7 @@ export const EditAbsence: React.FC<Props> = props => {
   const organizationId = absence.orgId;
 
   return (
-    <>
+    <React.Fragment key={absence.id}>
       <DeleteAbsenceVacancyDialog
         objectType={"absence"}
         onDelete={onDeleteAbsence}
@@ -273,6 +273,6 @@ export const EditAbsence: React.FC<Props> = props => {
         absence={absence}
         unfilledVacancySummaryDetails={unfilledVacancySummaryDetails}
       />
-    </>
+    </React.Fragment>
   );
 };
