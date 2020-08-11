@@ -3,6 +3,7 @@ import {
   Contract,
   CalendarChangeReason,
   CalendarChange,
+  Location,
 } from "graphql/server-types.gen";
 
 export type CalendarEvent = {
@@ -13,8 +14,10 @@ export type CalendarEvent = {
   endDate: Maybe<string>;
   calendarChangeReasonId?: Maybe<string>;
   affectsAllContracts?: Maybe<boolean>;
+  affectsAllLocations?: Maybe<boolean>;
   contractIds?: Maybe<Array<Maybe<string>>>;
   changedContracts?: Maybe<Array<Maybe<Contract>>>;
+  locationIds?: Maybe<Array<Maybe<string>>>;
   calendarChangeReason?: Maybe<CalendarChangeReason>;
 };
 
@@ -35,7 +38,9 @@ export const CalendarChangeToCalendarEvent = (
     | "endDate"
     | "calendarChangeReasonId"
     | "affectsAllContracts"
+    | "affectsAllLocations"
     | "changedContracts"
+    | "locationIds"
     | "calendarChangeReason"
   >
 ) => {
@@ -47,8 +52,10 @@ export const CalendarChangeToCalendarEvent = (
     endDate: calendarChange.endDate,
     calendarChangeReasonId: calendarChange.calendarChangeReasonId,
     affectsAllContracts: calendarChange.affectsAllContracts,
+    affectsAllLocations: calendarChange.affectsAllLocations,
     contractIds: calendarChange.changedContracts?.map(c => c?.id),
     changedContracts: calendarChange.changedContracts,
+    locationIds: calendarChange.locationIds,
     calendarChangeReason: calendarChange.calendarChangeReason,
   };
   return calendarEvent;

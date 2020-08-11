@@ -215,7 +215,9 @@ export const Calendars: React.FC<Props> = props => {
         description: calendarChange.description,
         calendarChangeReasonId: calendarChange.calendarChangeReasonId,
         contractIds: calendarChange.contractIds as string[],
+        locationIds: calendarChange.locationIds as string[],
         affectsAllContracts: calendarChange.affectsAllContracts ?? false,
+        affectsAllLocations: calendarChange.affectsAllLocations ?? false,
       };
 
       const result = await splitCalendarChange({

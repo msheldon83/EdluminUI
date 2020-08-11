@@ -11,6 +11,7 @@ import {
   Button,
   Tooltip,
 } from "@material-ui/core";
+import clsx from "clsx";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
@@ -32,6 +33,7 @@ import {
 import { CalendarEvent } from "../types";
 import { parseISO, format } from "date-fns";
 import { isSameDay } from "date-fns/esm";
+import { useLocations } from "reference-data/locations";
 import InfoIcon from "@material-ui/icons/Info";
 
 type Props = {
@@ -60,6 +62,13 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
     () => contracts.map(c => ({ label: c.name, value: c.id })),
     [contracts]
   );
+
+  const locations = useLocations();
+  const locationOptions: OptionType[] = React.useMemo(
+    () => locations.map(l => ({ label: l.name, value: l.id })),
+    [locations]
+  );
+
   const [submittingData, setSubmittingData] = React.useState(false);
 
   const updating = props.calendarChange ? !!props.calendarChange.id : false;
@@ -100,13 +109,17 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           ),
           notes: props.calendarChange.description ?? "",
           contracts: props.calendarChange.changedContracts?.map(c => c?.id),
-          applyToAll: props.calendarChange.affectsAllContracts,
+          locations: props.calendarChange.changedContracts?.map(c => c?.id), // TODO: Get value from object
+          applyToAllContracts: props.calendarChange.affectsAllContracts,
+          applyToAllLocations: false, //TODO: Get value from object
         }}
         onReset={(values, formProps) => {
           formProps.setFieldValue("toDate", today);
           formProps.setFieldValue("fromDate", today);
           formProps.setFieldValue("contracts", []);
-          formProps.setFieldValue("applyToAll", true);
+          formProps.setFieldValue("locations", []);
+          formProps.setFieldValue("applyToAllContracts", true);
+          formProps.setFieldValue("applyToAllLocations", false);
           formProps.setFieldValue("changeReason", changeReasonOptions[0].value);
           formProps.setFieldValue("notes", "");
           props.onClose();
@@ -124,7 +137,9 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                   ? data.changeReason
                   : changeReasonOptions[0]?.value,
                 contractIds: data.contracts ?? [],
-                affectsAllContracts: data.applyToAll,
+                locationIds: data.locations ?? [],
+                affectsAllContracts: data.applyToAllContracts,
+                affectsAllLocations: data.applyToAllLocations,
               };
               resultSucceeded = await props.onSplit(
                 props.calendarChange.id ?? "0",
@@ -141,7 +156,9 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                   ? data.changeReason
                   : changeReasonOptions[0]?.value,
                 contractIds: data.contracts ?? [],
-                affectsAllContracts: data.applyToAll,
+                locationIds: data.locations ?? [],
+                affectsAllContracts: data.applyToAllContracts,
+                affectsAllLocations: data.applyToAllLocations,
               };
 
               resultSucceeded = await props.onUpdate(calendarChange);
@@ -156,7 +173,9 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 ? data.changeReason
                 : changeReasonOptions[0]?.value,
               contractIds: data.contracts ?? [],
-              affectsAllContracts: data.applyToAll,
+              locationIds: data.locations ?? [],
+              affectsAllContracts: data.applyToAllContracts,
+              affectsAllLocations: data.applyToAllLocations,
             };
 
             resultSucceeded = await props.onAdd(calendarChange);
@@ -189,10 +208,9 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     justify="flex-start"
                     alignItems="center"
                     spacing={2}
-                    xs={7}
-                    className={classes.dateReasonContainer}
+                    xs={12}
                   >
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
@@ -239,7 +257,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                           </>
                         )}
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
@@ -251,8 +269,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         />
                       )}
                     </Grid>
-
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       <Typography>{t("Reason")}</Typography>
                       <SelectNew
                         options={changeReasonOptions}
@@ -275,8 +292,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         fixedListBox={true}
                       />
                     </Grid>
-
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       <Input
                         value={values.notes}
                         label={t("Note")}
@@ -294,29 +310,42 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                       />
                     </Grid>
                   </Grid>
-                  <Grid item xs={5} container>
+                  <Grid item xs={12} container>
                     <Grid item xs={12}>
+                      <Typography>
+                        {t("For [Summary test from Jira issue]")}
+                      </Typography>
+                      <div>show affected employee count here</div>
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={12} container>
+                    <Grid item xs={4}>
                       <FormControlLabel
-                        checked={values.applyToAll ?? false}
-                        className={classes.contractSelector}
+                        checked={values.applyToAllContracts ?? false}
+                        className={clsx(
+                          classes.selectorColor,
+                          classes.checkBoxAlignment
+                        )}
                         control={
                           <Checkbox
                             onChange={e => {
-                              setFieldValue("applyToAll", !values.applyToAll);
-                              if (!values.applyToAll) {
+                              setFieldValue(
+                                "applyToAllContracts",
+                                !values.applyToAllContracts
+                              );
+                              if (!values.applyToAllContracts) {
                                 setFieldValue("contracts", []);
                               }
                             }}
+                            color="primary"
                           />
                         }
-                        label={t("Apply To All Contracts")}
+                        label={t("All")}
                       />
-                    </Grid>
-                    <Grid item xs={12}>
                       <SelectNew
                         name={"contracts"}
-                        className={classes.contractSelector}
-                        disabled={values.applyToAll ?? false}
+                        className={classes.selectorColor}
+                        disabled={values.applyToAllContracts ?? false}
                         label={t("Contracts")}
                         value={
                           contractOptions.filter(
@@ -334,6 +363,53 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         options={contractOptions}
                         multiple={true}
                         placeholder={t("Search for Contracts")}
+                        fixedListBox={true}
+                      />
+                    </Grid>
+                    <Grid item xs={4} className={classes.marginLeft}>
+                      <FormControlLabel
+                        checked={values.applyToAllLocations ?? false}
+                        className={clsx(
+                          classes.selectorColor,
+                          classes.checkBoxAlignment
+                        )}
+                        control={
+                          <Checkbox
+                            onChange={e => {
+                              setFieldValue(
+                                "applyToAllLocations",
+                                !values.applyToAllLocations
+                              );
+                              if (!values.applyToAllLocations) {
+                                setFieldValue("locations", []);
+                              }
+                            }}
+                            color="primary"
+                          />
+                        }
+                        label={t("All")}
+                      />
+                      <SelectNew
+                        name={"locations"}
+                        className={classes.selectorColor}
+                        disabled={values.applyToAllLocations ?? false}
+                        label={t("Schools")}
+                        value={
+                          locationOptions.filter(
+                            e =>
+                              e.value &&
+                              values.locations?.includes(e.value.toString())
+                          ) ?? [{ label: "", id: "" }]
+                        }
+                        onChange={e => {
+                          const ids = e.map((v: OptionType) =>
+                            v.value.toString()
+                          );
+                          setFieldValue("locations", ids);
+                        }}
+                        options={locationOptions}
+                        multiple={true}
+                        placeholder={t("Search for Schools")}
                         fixedListBox={true}
                       />
                     </Grid>
@@ -383,13 +459,23 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.darkRed,
   },
   content: { minHeight: theme.typography.pxToRem(200) },
-  dateReasonContainer: {
-    borderRight: "1px solid #E5E5E5",
-  },
-  contractSelector: {
-    marginLeft: theme.spacing(2),
+  selectorColor: {
+    color: theme.customColors.primary,
   },
   tooltip: {
     padding: theme.spacing(2),
+  },
+  fontWeight: {
+    fontWeight: 700,
+  },
+  checkBoxAlignment: {
+    top: "30px",
+    position: "relative",
+    float: "right",
+    marginRight: "0px",
+    zIndex: 1000,
+  },
+  marginLeft: {
+    marginLeft: "20px",
   },
 }));
