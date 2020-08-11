@@ -271,9 +271,12 @@ export const VacancyUI: React.FC<Props> = props => {
 
   const onAssignSub = React.useCallback(
     async (
-      replacementEmployeeId: string,
-      replacementEmployeeFirstName: string,
-      replacementEmployeeLastName: string,
+      replacementEmployee: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email?: string | null | undefined;
+      },
       payCode: string | undefined,
       vacancyDetailIds?: string[]
     ) => {
@@ -291,7 +294,7 @@ export const VacancyUI: React.FC<Props> = props => {
             assignment: {
               orgId: params.organizationId,
               vacancyId: vacancy.id,
-              employeeId: replacementEmployeeId,
+              employeeId: replacementEmployee.id,
               vacancyDetailIds: detailsToAssign.map(d => d.id!),
             },
           },
@@ -311,9 +314,10 @@ export const VacancyUI: React.FC<Props> = props => {
                   id: assignment.id,
                   rowVersion: assignment.rowVersion,
                   employee: {
-                    id: replacementEmployeeId,
-                    firstName: replacementEmployeeFirstName,
-                    lastName: replacementEmployeeLastName,
+                    id: replacementEmployee.id,
+                    firstName: replacementEmployee.firstName,
+                    lastName: replacementEmployee.lastName,
+                    email: replacementEmployee.email ?? undefined,
                   },
                 },
               };
@@ -332,9 +336,10 @@ export const VacancyUI: React.FC<Props> = props => {
               ...d,
               assignment: {
                 employee: {
-                  id: replacementEmployeeId,
-                  firstName: replacementEmployeeFirstName,
-                  lastName: replacementEmployeeLastName,
+                  id: replacementEmployee.id,
+                  firstName: replacementEmployee.firstName,
+                  lastName: replacementEmployee.lastName,
+                  email: replacementEmployee.email ?? undefined,
                 },
               },
             };
@@ -753,6 +758,9 @@ export const VacancyUI: React.FC<Props> = props => {
                     const matchingDetail = createdVacancy?.details?.find(cvd =>
                       isSameDay(parseISO(cvd?.startDate), d.date)
                     );
+                    const assignedEmployee =
+                      matchingDetail?.assignment?.employee ??
+                      d.assignment?.employee;
                     return {
                       ...d,
                       id: matchingDetail?.id ?? undefined,
@@ -761,9 +769,14 @@ export const VacancyUI: React.FC<Props> = props => {
                         ? {
                             id: matchingDetail.assignment.id,
                             rowVersion: matchingDetail.assignment.rowVersion,
-                            employee: matchingDetail.assignment.employee
-                              ? matchingDetail.assignment.employee
-                              : d.assignment?.employee,
+                            employee: assignedEmployee
+                              ? {
+                                  id: assignedEmployee.id,
+                                  firstName: assignedEmployee.firstName,
+                                  lastName: assignedEmployee.lastName,
+                                  email: assignedEmployee.email ?? undefined,
+                                }
+                              : undefined,
                           }
                         : undefined,
                     };

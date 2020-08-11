@@ -33,6 +33,7 @@ query GetAbsenceReplacementEmployeesForVacancy(
         firstName
         lastName
         phoneNumber
+        email
         isAvailableToSubWhenSearching
         availableToSubWhenSearchingAtUtc
         availableToSubWhenSearchingAtLocal

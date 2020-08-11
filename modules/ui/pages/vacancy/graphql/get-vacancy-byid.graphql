@@ -96,6 +96,7 @@ query GetVacancyById($id: ID!) {
             id
             firstName
             lastName
+            email
           }
         }
       }
@@ -140,6 +141,7 @@ query GetVacancyById($id: ID!) {
             id
             firstName
             lastName
+            email
           }
         }
       }
