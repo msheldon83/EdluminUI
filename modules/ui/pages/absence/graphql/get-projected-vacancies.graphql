@@ -10,6 +10,7 @@ query GetProjectedVacancies(
       endTimeLocal
       numDays
       positionId
+      isApprovedForSubJobSearch
       details {
         startDate
         startTimeLocal
@@ -39,6 +40,12 @@ query GetProjectedVacancies(
           endDate
           startTimeLocal
           endTimeLocal
+          reasonUsages {
+            id
+            absenceReason {
+              id
+            }
+          }
         }
       }
     }

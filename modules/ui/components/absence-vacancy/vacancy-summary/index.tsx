@@ -6,6 +6,7 @@ import { VacancySummaryDetail, AssignmentFor } from "./types";
 import { buildAssignmentGroups } from "./helpers";
 import { AssignmentGroup } from "./assignment-group";
 import { uniqWith } from "lodash-es";
+import { NotReleasedBanner } from "ui/components/absence-vacancy/approval-state/not-released-banner";
 
 type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
@@ -26,6 +27,7 @@ type Props = {
   absenceActions?: JSX.Element;
   footerActions?: JSX.Element;
   allowRemoval?: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const VacancySummary: React.FC<Props> = props => {
@@ -46,6 +48,7 @@ export const VacancySummary: React.FC<Props> = props => {
     footerActions = null,
     noDaysChosenText = t("No days chosen"),
     allowRemoval = false,
+    isApprovedForSubJobSearch,
   } = props;
 
   const assignmentGroups = useMemo(() => {
@@ -96,6 +99,9 @@ export const VacancySummary: React.FC<Props> = props => {
         <div className={classes.noDaysChosenContainer}>
           <Typography>{noDaysChosenText}</Typography>
         </div>
+      )}
+      {!isApprovedForSubJobSearch && (
+        <NotReleasedBanner isNormalVacancy={!isAbsence} />
       )}
       <div className={classes.assignmentGroupsContainer}>
         {assignmentGroups.map((a, i) => (

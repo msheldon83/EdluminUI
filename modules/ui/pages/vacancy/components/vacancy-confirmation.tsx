@@ -34,6 +34,7 @@ type Props = {
   onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<boolean>;
   orgHasPayCodesDefined: boolean;
   orgHasAccountingCodesDefined: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const VacancyConfirmation: React.FC<Props> = props => {
@@ -56,6 +57,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
     notes,
     orgHasPayCodesDefined,
     orgHasAccountingCodesDefined,
+    isApprovedForSubJobSearch,
   } = props;
 
   const editUrl = useMemo(() => {
@@ -114,6 +116,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
               showPayCodes={orgHasPayCodesDefined}
               showAccountingCodes={orgHasAccountingCodesDefined}
               readOnly={true}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           </Grid>
         </Grid>

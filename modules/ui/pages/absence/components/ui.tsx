@@ -625,6 +625,10 @@ export const AbsenceUI: React.FC<Props> = props => {
     : []
   ).some(d => d.verifiedAtUtc);
 
+  const isApprovedForSubJobSearch = localAbsence?.vacancies
+    ? localAbsence.vacancies.some(x => x?.isApprovedForSubJobSearch)
+    : false;
+
   const canDeleteAbsence =
     actingAsEmployee && localAbsence
       ? isAfter(parseISO(localAbsence.startTimeLocal), new Date()) &&
@@ -745,6 +749,11 @@ export const AbsenceUI: React.FC<Props> = props => {
           const unsavedAbsenceDetailChanges =
             !isEqual(initialValues.details, values.details) ||
             initialAbsenceFormData.needsReplacement !== values.needsReplacement;
+
+          const disableReplacementInteractions =
+            !isCreate &&
+            unsavedAbsenceDetailChanges &&
+            !(actingAsEmployee && isApprovedForSubJobSearch);
 
           // Complicated hierarchy to what vacancy details are the ones we want
           // to consider when displaying information or taking action.
@@ -945,7 +954,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               )
                             }
                             disableReplacementInteractions={
-                              !isCreate && unsavedAbsenceDetailChanges
+                              disableReplacementInteractions
                             }
                             vacanciesOverride={
                               unsavedAbsenceDetailChanges ||
@@ -1047,6 +1056,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                           )
                         : undefined
                     }
+                    isApprovedForSubJobSearch={isApprovedForSubJobSearch}
                   />
                 )}
                 {step === "confirmation" && (
