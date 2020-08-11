@@ -99,7 +99,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
       <CancelDialog
         open={isCancelDialogOpen}
         onClose={onCloseDialog}
-        onCancel={onCancelAllMutation}
+        onConfirm={onCancelAllMutation}
       />
 
       <div
@@ -143,13 +143,14 @@ export const AssignmentGroup: React.FC<Props> = props => {
                 locationName={a.location?.name ?? ""}
                 shadeRow={i % 2 != 0}
                 key={i}
-                onCancel={() =>
+                onCancel={() => {
+                  event?.stopPropagation();
                   onCancel(
                     a.assignment?.id ?? "",
                     a.assignment?.rowVersion ?? "",
                     [a.id ?? ""]
-                  )
-                }
+                  );
+                }}
                 isAdmin={props.isAdmin}
                 forSpecificAssignment={props.forSpecificAssignment}
                 canCancel={a.canCancel}
