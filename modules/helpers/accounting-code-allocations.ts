@@ -127,7 +127,7 @@ export const mapAccountingCodeAllocationsToAccountingCodeValue = (
           value: a.accountingCodeId,
         },
         amount: a.allocation
-          ? Math.floor(a.allocation * 100).toString()
+          ? (a.allocation * 100).toFixed(2).toString()
           : undefined,
       };
     })
