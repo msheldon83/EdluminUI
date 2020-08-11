@@ -27,7 +27,7 @@ export const AssignmentGroupDetail: React.FC<Props> = props => {
       <CancelDialog
         open={isCancelDialogOpen}
         onClose={onCloseDialog}
-        onCancel={props.onCancel}
+        onConfirm={props.onCancel}
       />
       <AssignmentGroupDetailUI {...props} onCancel={onCancelClick} />
     </>
