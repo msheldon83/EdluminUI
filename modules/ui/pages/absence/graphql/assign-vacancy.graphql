@@ -7,6 +7,7 @@ mutation AssignVacancy($assignment: CreateVacancyAssignmentInput!) {
         id
         firstName
         lastName
+        email
       }
     }
   }

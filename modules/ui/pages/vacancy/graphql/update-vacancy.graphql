@@ -13,6 +13,7 @@ mutation UpdateVacancy($vacancy: VacancyUpdateInput!) {
             id
             firstName
             lastName
+            email
           }
         }
       }
