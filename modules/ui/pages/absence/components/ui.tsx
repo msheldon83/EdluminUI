@@ -140,7 +140,10 @@ export const AbsenceUI: React.FC<Props> = props => {
     unfilledVacancySummaryDetails,
   } = props;
 
-  const [cancelDialogIsOpen, setCancelDialogIsOpen] = React.useState(false);
+  const [
+    discardChangesDialogIsOpen,
+    setDiscardChangesDialogIsOpen,
+  ] = React.useState(false);
   const [localAbsence, setLocalAbsence] = React.useState<Absence | undefined>(
     absence
   );
@@ -616,11 +619,11 @@ export const AbsenceUI: React.FC<Props> = props => {
     t,
   ]);
 
-  const allVacancyDetails = localAbsence?.vacancies
+  const hasFilledVacancies = state.assignmentsByDate.length > 0;
+  const hasVerifiedAssignments = (localAbsence?.vacancies
     ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
-    : [];
-  const hasFilledVacancies = allVacancyDetails.some(d => d.isFilled);
-  const hasVerifiedAssignments = allVacancyDetails.some(d => d.verifiedAtUtc);
+    : []
+  ).some(d => d.verifiedAtUtc);
 
   const canDeleteAbsence =
     actingAsEmployee && localAbsence
@@ -787,11 +790,12 @@ export const AbsenceUI: React.FC<Props> = props => {
                     dispatch({
                       action: "resetToInitialState",
                       initialState: initialAbsenceState(),
+                      keepAssignments: !isCreate,
                     });
-                    setCancelDialogIsOpen(false);
+                    setDiscardChangesDialogIsOpen(false);
                   }}
-                  onClose={() => setCancelDialogIsOpen(false)}
-                  open={cancelDialogIsOpen}
+                  onClose={() => setDiscardChangesDialogIsOpen(false)}
+                  open={discardChangesDialogIsOpen}
                 />
                 <Prompt
                   message={location => {
@@ -979,7 +983,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                           )}
                           {!isCreate && formIsDirty && !state.isClosed && (
                             <Button
-                              onClick={() => setCancelDialogIsOpen(true)}
+                              onClick={() =>
+                                setDiscardChangesDialogIsOpen(true)
+                              }
                               variant="outlined"
                               className={classes.cancelButton}
                               disabled={!formIsDirty || isSubmitting}
