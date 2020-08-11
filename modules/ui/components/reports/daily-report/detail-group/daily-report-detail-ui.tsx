@@ -3,7 +3,6 @@ import {
   Tooltip,
   Chip,
   Button,
-  Grid,
   Typography,
 } from "@material-ui/core";
 import * as React from "react";
@@ -16,7 +15,9 @@ import { EmployeeLink, SubstituteLink } from "ui/components/links/people";
 import { LocationLink } from "ui/components/links/locations";
 import { AbsVacLink, AbsVacAssignLink } from "ui/components/links/abs-vac";
 import InfoIcon from "@material-ui/icons/Info";
-import { ApprovalStatus } from "graphql/server-types.gen";
+import { ApprovalStatus, DayPart } from "graphql/server-types.gen";
+import { DayIcon } from "ui/components/day-icon";
+import { Schedule } from "@material-ui/icons";
 import clsx from "clsx";
 
 type Props = {
@@ -107,6 +108,20 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
           </div>
         </div>
       </div>
+      {props.detail.dayPartId && (
+        <div className={classes.dayPortionSection}>
+          <DayIcon
+            dayPortion={
+              props.detail.dayPartId == DayPart.FullDay
+                ? 1
+                : props.detail.dayPartId == DayPart.Hourly
+                ? 0.25
+                : 0.5
+            }
+            startTime={props.detail.startTime}
+          />
+        </div>
+      )}
       <div className={classes.locationSection}>
         <div>
           <div>
@@ -134,6 +149,11 @@ export const DailyReportDetailUI: React.FC<Props> = props => {
         </div>
       </div>
       <div className={classes.date}>
+        <Tooltip title={props.detail.created}>
+          <Schedule />
+        </Tooltip>
+      </div>
+      <div className={classes.longDate}>
         <span className={props.detail.isClosed ? classes.closedText : ""}>
           {props.detail.created}
         </span>
@@ -307,11 +327,17 @@ const useStyles = makeStyles(theme => ({
     display: "grid",
     width: "100%",
     gridTemplate: `
-      "closed employee reason location       date           substitute     confirmation   approval       action        " auto
-      ".      .        .      extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
-      / 48px   3fr      3fr    3fr            3fr            3fr            3fr           72px           48px
-    `,
+      "closed employee reason dayPortion location       date           substitute     confirmation   approval       action        " auto
+      ".      .        .      .          extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
+     / 48px   3fr      3fr    48px       3fr            48px           3fr            3fr            72px           48px`,
     columnGap: theme.spacing(1),
+
+    "@media print": {
+      gridTemplate: `
+      "closed employee reason dayPortion location       longDate       substitute     confirmation   approval       action        " auto
+      ".      .        .      .          extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
+     / 48px   3fr      3fr    48px       3fr            3fr            3fr            3fr            72px           48px`,
+    },
   },
   employeeSection: {
     gridArea: "employee",
@@ -326,11 +352,27 @@ const useStyles = makeStyles(theme => ({
   reasonSection: {
     gridArea: "reason",
   },
+  dayPortionSection: {
+    gridArea: "dayPortion",
+    justifySelf: "center",
+  },
   substituteSection: {
     gridArea: "substitute",
   },
   date: {
     gridArea: "date",
+
+    "@media print": {
+      display: "none",
+    },
+  },
+  longDate: {
+    gridArea: "longDate",
+    display: "none",
+
+    "@media print": {
+      display: "block",
+    },
   },
   approvalChip: {
     gridArea: "approval",
