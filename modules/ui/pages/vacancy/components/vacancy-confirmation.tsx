@@ -21,7 +21,7 @@ import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
 type Props = {
   orgId: string;
   vacancyId: string;
-  setStep?: (s: VacancyStep) => void;
+  setStep: (s: VacancyStep) => void;
   notes: string;
   values: VacancyDetailsFormData;
   locations: Loc[];
@@ -34,10 +34,24 @@ type Props = {
   onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<boolean>;
   orgHasPayCodesDefined: boolean;
   orgHasAccountingCodesDefined: boolean;
-  resetForm: () => void;
+  resetVacancy: () => void;
 };
 
-export const VacancyConfirmation: React.FC<Props> = props => {
+export const VacancyConfirmation: React.FC<Props> = ({
+  orgId,
+  setStep,
+  vacancyId,
+  vacancySummaryDetails,
+  onCancelAssignment,
+  notes,
+  orgHasPayCodesDefined,
+  orgHasAccountingCodesDefined,
+  resetVacancy,
+  values,
+  locations,
+  positionTypes,
+  contracts,
+}) => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory();
@@ -46,18 +60,10 @@ export const VacancyConfirmation: React.FC<Props> = props => {
   React.useEffect(() => {
     const container = document.getElementById("main-container");
     if (container) container.scrollTop = 0;
-  }, []);
-
-  const {
-    orgId,
-    setStep,
-    vacancyId,
-    vacancySummaryDetails,
-    onCancelAssignment,
-    notes,
-    orgHasPayCodesDefined,
-    orgHasAccountingCodesDefined,
-  } = props;
+    // return resetVacancy, so it's called
+    // when this component is unmounted
+    return resetVacancy;
+  }, [resetVacancy]);
 
   const editUrl = useMemo(() => {
     if (!vacancyId) {
@@ -75,7 +81,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
 
   if (!vacancyId) {
     // Redirect the User back to the Absence Details step
-    setStep && setStep("vacancy");
+    setStep("vacancy");
 
     return null;
   }
@@ -97,12 +103,12 @@ export const VacancyConfirmation: React.FC<Props> = props => {
           <Grid item xs={6}>
             <VacancyDetailSection
               orgId={params.organizationId}
-              values={props.values}
-              locations={props.locations}
-              positionTypes={props.positionTypes}
-              contracts={props.contracts}
-              setFieldValue={(f, v) => {}}
-              setVacancy={v => {}}
+              values={values}
+              locations={locations}
+              positionTypes={positionTypes}
+              contracts={contracts}
+              setFieldValue={() => {}}
+              setVacancy={() => {}}
               readOnly={true}
               vacancyExists={true}
             />
@@ -120,7 +126,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
           <Grid item>
-            <Button variant="outlined" onClick={props.resetForm}>
+            <Button variant="outlined" onClick={() => setStep("vacancy")}>
               {t("Create New")}
             </Button>
           </Grid>

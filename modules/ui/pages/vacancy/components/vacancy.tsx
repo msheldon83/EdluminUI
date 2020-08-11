@@ -102,6 +102,12 @@ export const VacancyUI: React.FC<Props> = props => {
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
     ...initialVacancy,
   });
+
+  const resetVacancy = () => {
+    setResetKey(resetKey + 1);
+    setVacancy({ ...initialVacancy });
+  };
+
   const [initialFormValues, setInitialFormValues] = useState<VacancyFormValues>(
     {
       id: vacancy.id,
@@ -685,23 +691,6 @@ export const VacancyUI: React.FC<Props> = props => {
             })
           ),
         })}
-        onReset={(values, e) => {
-          setResetKey(resetKey + 1);
-          setVacancy({ ...initialVacancy });
-          e.resetForm({
-            values: {
-              positionTypeId: initialVacancy.positionTypeId,
-              title: initialVacancy.title,
-              locationId: initialVacancy.locationId,
-              locationName: initialVacancy.locationName,
-              contractId: initialVacancy.contractId,
-              workDayScheduleId: initialVacancy.workDayScheduleId,
-              details: initialVacancy.details,
-              notesToReplacement: initialVacancy.notesToReplacement,
-              adminOnlyNotes: initialVacancy.adminOnlyNotes,
-            },
-          });
-        }}
         onSubmit={async (data, e) => {
           if (!vacancyExists) {
             if (createVacancy) {
@@ -922,10 +911,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
-                resetForm={() => {
-                  resetForm();
-                  setStep("vacancy");
-                }}
+                resetVacancy={resetVacancy}
               />
             )}
           </form>
