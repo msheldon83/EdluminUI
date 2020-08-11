@@ -223,13 +223,21 @@ export const VacancyUI: React.FC<Props> = props => {
     }
   }, [vacancy]);
 
-  const skipProjectedIsAvailableForSubJobSearch: boolean = useMemo(() => {
-    if (vacancy.id || !vacancy.positionTypeId || vacancy.details.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }, [vacancy.details.length, vacancy.id, vacancy.positionTypeId]);
+  const initialReasonIds = [
+    ...new Set(initialFormValues.details.map(x => x.vacancyReasonId)),
+  ];
+  const updatedReasonIds = [
+    ...new Set(vacancy.details.map(x => x.vacancyReasonId)),
+  ];
+  const differentReasonIds = updatedReasonIds.filter(
+    x => !initialReasonIds.includes(x)
+  );
+
+  const skipProjectedIsAvailableForSubJobSearch =
+    initialFormValues.positionTypeId === vacancy.positionTypeId ||
+    differentReasonIds.length === 0
+      ? true
+      : false;
 
   const getProjectedIsAvailableForSubJobSearch = useQueryBundle(
     GetProjectedIsApprovedForSubJobSearch,

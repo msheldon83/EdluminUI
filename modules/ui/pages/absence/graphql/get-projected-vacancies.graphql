@@ -40,12 +40,6 @@ query GetProjectedVacancies(
           endDate
           startTimeLocal
           endTimeLocal
-          reasonUsages {
-            id
-            absenceReason {
-              id
-            }
-          }
         }
       }
     }
