@@ -96,14 +96,16 @@ export const AssignedBanner: React.FC<Props> = props => {
                   {employeeName}
                 </SubstituteLink>
               </Typography>
-              <Can do={[PermissionEnum.SubstituteViewEmail]}>
-                {assignmentWithDetails.assignment?.employee?.email && (
-                  <Button
-                    startIcon={<MailOutline />}
-                    href={`mailto:${assignmentWithDetails.assignment?.employee?.email}`}
-                  />
-                )}
-              </Can>
+              <div>
+                <Can do={[PermissionEnum.SubstituteViewEmail]}>
+                  {assignmentWithDetails.assignment?.employee?.email && (
+                    <Button
+                      startIcon={<MailOutline />}
+                      href={`mailto:${assignmentWithDetails.assignment?.employee?.email}`}
+                    />
+                  )}
+                </Can>
+              </div>
             </div>
             <div className={classes.subText}>
               {isExistingAssignment ? t("assigned") : t("pre-arranged")}
@@ -184,7 +186,7 @@ export const AssignedBanner: React.FC<Props> = props => {
 export const useStyles = makeStyles(theme => ({
   assignedBanner: {
     display: "flex",
-    padding: theme.spacing(2),
+    padding: theme.spacing(),
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
@@ -193,7 +195,6 @@ export const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
   },
-
   employeeInfo: {
     display: "flex",
     alignItems: "center",
