@@ -18,6 +18,7 @@ import { GetSpecificAssignment } from "./graphql/get-specific-assignment.gen";
 import { AssignmentRow } from "ui/components/substitutes/assignment-row";
 import { AssignmentGroup } from "ui/components/substitutes/assignment-row/assignment-group";
 import { GetMyUserAccess } from "reference-data/get-my-user-access.gen";
+import { CancelDialog } from "ui/components/substitutes/assignment-row/cancel-dialog";
 
 type Props = {};
 
@@ -29,21 +30,36 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
   const params = useRouteParams(SubSpecificAssignmentRoute);
   const assignmentId = params.assignmentId;
 
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = React.useState(false);
+  const onCancelClick = () => setIsCancelDialogOpen(true);
+  const onCloseDialog = () => setIsCancelDialogOpen(false);
+
   const [cancelAssignment] = useMutationBundle(CancelAssignment, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
 
+  const onConfirmCancelAssignment = React.useCallback(async () => {
+    await onCancelAssignment(
+      assignmentId ?? "",
+      vacancyDetails[0].assignment?.rowVersion ?? "",
+      undefined
+    );
+    onCloseDialog();
+  }, [onCancelClick, assignmentId]);
+
   const onCancelAssignment = async (
     assignmentId: string,
-    rowVersion: string
+    rowVersion: string,
+    vacancyDetailIds: string[] | undefined
   ) => {
     await cancelAssignment({
       variables: {
         cancelRequest: {
           assignmentId,
           rowVersion,
+          vacancyDetailIds,
         },
       },
     });
@@ -82,6 +98,11 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
 
   return (
     <>
+      <CancelDialog
+        open={isCancelDialogOpen}
+        onClose={onCloseDialog}
+        onConfirm={onConfirmCancelAssignment}
+      />
       <PageTitle title={`${t("Assignment")} ${assignmentNumber}`} />
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -153,12 +174,7 @@ export const SubSpecificAssignment: React.FC<Props> = props => {
                         <Button
                           variant="outlined"
                           className={classes.cancel}
-                          onClick={() =>
-                            onCancelAssignment(
-                              assignmentId,
-                              vacancyDetails[0].assignment?.rowVersion ?? ""
-                            )
-                          }
+                          onClick={onCancelClick}
                         >
                           {t("Cancel")}
                         </Button>

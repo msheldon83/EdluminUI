@@ -166,7 +166,15 @@ export const EditAbsence: React.FC<Props> = props => {
       return null;
     }
 
-    return buildFormData(absence);
+    // Figure out if Notes To Approver is required for this Absence
+    const allReasons = compact(
+      flatMap((absence.details ?? []).map(d => d?.reasonUsages))
+    );
+    const notesToApproverRequired = allReasons.find(
+      a => a.absenceReason?.requireNotesToAdmin
+    );
+
+    return buildFormData(absence, !!notesToApproverRequired);
   }, [absence]);
 
   if (absenceQuery.state !== "DONE" && absenceQuery.state !== "UPDATING") {
