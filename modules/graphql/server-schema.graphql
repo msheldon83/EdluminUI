@@ -2712,6 +2712,7 @@ enum EventType {
   USER_DEVICE_UPDATED
   USER_DEVICE_DELETED
   USERS_MERGED
+  USER_DEVICE_SEND_EXCEPTION_RECEIVED
   ORGANIZATION_CREATED
   ORGANIZATION_UPDATED
   ORGANIZATION_DELETED
@@ -6647,6 +6648,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   approvalStatus: ApprovalStatus
   payInfoSummary: PayInfoSummary
   canCancel: Boolean!
+  isApprovedForSubJobSearch: Boolean!
 }
 
 type VacancyApprovalWorkflowUsage implements ModelObjectInterface & OrgObjectInterface {
@@ -6950,6 +6952,7 @@ type VacancyQueries {
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: VacancyCreateInput, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   activityLog(id: ID!): ActivityLog
   deletedVacancyInfo(vacancyId: ID!): DeletedVacancyType
+  projectIsApprovedForSubJobSearch(vacancy: VacancyCreateInput!): Boolean
 }
 
 type VacancyReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -7013,6 +7016,7 @@ type VacancySubSearchQueryResult {
   middleName: String
   lastName: String!
   phoneNumber: String
+  email: String
   levelQualified: VacancyQualification!
   levelAvailable: VacancyAvailability!
   vacancyId: ID
