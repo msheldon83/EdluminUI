@@ -40,15 +40,11 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
     return <></>;
   }
 
-  const hasAbsences = details.some(d => d.type == "absence");
-
   const detailClass = isMobile
     ? classes.mobileDetail
     : details.some(d => d.isClosed)
     ? classes.closedDetail
-    : hasAbsences
-    ? classes.absenceDetail
-    : classes.vacancyDetail;
+    : classes.detail;
 
   const detailsDisplay = details.map((d, i) => {
     const className = clsx(
@@ -81,9 +77,7 @@ export const DailyReportDetailsGroup: React.FC<Props> = props => {
         <div className={headerClasses}>
           <div className={classes.employeeSection}>{t("Employee")}</div>
           <div className={classes.reasonSection}>{t("Reason")}</div>
-          {hasAbsences && (
-            <div className={classes.dayPortionSection}>{t("Portion")}</div>
-          )}
+          <div className={classes.dayPortionSection}></div>
           <div className={classes.locationSection}>{t("School")}</div>
           <div className={classes.date}>{t("Created")}</div>
           <div className={classes.substituteSection}>{t("Substitute")}</div>
@@ -127,6 +121,10 @@ const useStyles = makeStyles(theme => ({
   },
   dayPortionSection: {
     gridArea: "dayPortion",
+
+    "@media print": {
+      display: "none",
+    },
   },
   confirmationNumber: {
     gridArea: "confirmation",
@@ -136,7 +134,7 @@ const useStyles = makeStyles(theme => ({
     borderTop: `1px solid ${theme.customColors.medLightGray}`,
     borderBottom: `1px solid ${theme.customColors.medLightGray}`,
   },
-  absenceDetail: {
+  detail: {
     padding: theme.spacing(2),
     display: "grid",
     width: "100%",
@@ -144,23 +142,6 @@ const useStyles = makeStyles(theme => ({
       "closed employee reason dayPortion location       date           substitute     confirmation   approval       action        " auto
       ".      .        .      .          extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
      / 48px   3fr      3fr    48px       3fr            48px           3fr            3fr            72px           48px`,
-    columnGap: theme.spacing(1),
-
-    "@media print": {
-      gridTemplate: `
-      "closed employee reason dayPortion location       longDate       substitute     confirmation   approval       action        " auto
-      ".      .        .      .          extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
-     / 48px   3fr      3fr    48px       3fr            3fr            3fr            3fr            72px           48px`,
-    },
-  },
-  vacancyDetail: {
-    padding: theme.spacing(2),
-    display: "grid",
-    width: "100%",
-    gridTemplate: `
-      "closed employee reason location       date           substitute     confirmation   approval       action        " auto
-      ".      .        .      extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
-     / 48px   3fr      3fr    3fr            48px           3fr            3fr            72px           48px`,
     columnGap: theme.spacing(1),
 
     "@media print": {
@@ -181,9 +162,9 @@ const useStyles = makeStyles(theme => ({
     columnGap: theme.spacing(1),
     "@media print": {
       gridTemplate: `
-      "closed employee reason dayPortion location       longDate       substitute     confirmation   approval       action        " auto
-      ".      .        .      .          extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
-     / 72px   3fr      3fr    48px       3fr            3fr            3fr            3fr            72px           48px`,
+      "closed employee reason location       longDate       substitute     confirmation   approval       action        " auto
+      ".      .        .      extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
+     / 72px   3fr      3fr    3fr            3fr            3fr            3fr            72px           48px`,
     },
   },
   mobileDetail: {

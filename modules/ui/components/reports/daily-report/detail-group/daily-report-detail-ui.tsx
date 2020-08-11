@@ -334,9 +334,9 @@ const useStyles = makeStyles(theme => ({
 
     "@media print": {
       gridTemplate: `
-      "closed employee reason dayPortion location       longDate       substitute     confirmation   approval       action        " auto
-      ".      .        .      .          extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
-     / 48px   3fr      3fr    48px       3fr            3fr            3fr            3fr            72px           48px`,
+      "closed employee reason location       longDate       substitute     confirmation   approval       action        " auto
+      ".      .        .      extraLocations extraLocations extraLocations extraLocations extraLocations extraLocations" auto
+     / 48px   3fr      3fr    3fr            3fr            3fr            3fr            72px           48px`,
     },
   },
   employeeSection: {
@@ -355,6 +355,10 @@ const useStyles = makeStyles(theme => ({
   dayPortionSection: {
     gridArea: "dayPortion",
     justifySelf: "center",
+
+    "@media print": {
+      display: "none",
+    },
   },
   substituteSection: {
     gridArea: "substitute",
