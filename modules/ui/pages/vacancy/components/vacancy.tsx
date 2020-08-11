@@ -777,11 +777,12 @@ export const VacancyUI: React.FC<Props> = props => {
             <Prompt
               message={location => {
                 if (
-                  vacancyExists
+                  step === "confirmation" ||
+                  (vacancyExists
                     ? match.url === location.pathname ||
                       !isDirty(initialValues, values, dirty)
                     : match.url === location.pathname ||
-                      (!showSubmit && !isSubmitting)
+                      (!showSubmit && !isSubmitting))
                 ) {
                   return true;
                 }
