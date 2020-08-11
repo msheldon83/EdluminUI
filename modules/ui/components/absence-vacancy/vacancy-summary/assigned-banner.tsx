@@ -86,23 +86,25 @@ export const AssignedBanner: React.FC<Props> = props => {
       <div className={classes.assignedBanner}>
         <div className={classes.employeeInfo}>
           <AccountCircleOutlined fontSize="large" />
-          <div className={classes.name}>
-            <Typography variant="h6">
-              <SubstituteLink
-                orgUserId={assignmentWithDetails.assignment?.employee?.id}
-                disabled={props.readOnly}
-              >
-                {employeeName}
-              </SubstituteLink>
-            </Typography>
-            <Can do={[PermissionEnum.SubstituteViewEmail]}>
-              {assignmentWithDetails.assignment?.employee?.email && (
-                <Button
-                  startIcon={<MailOutline />}
-                  href={`mailto:${assignmentWithDetails.assignment?.employee?.email}`}
-                />
-              )}
-            </Can>
+          <div className={classes.assignedInfo}>
+            <div className={classes.nameAndEmail}>
+              <Typography variant="h6">
+                <SubstituteLink
+                  orgUserId={assignmentWithDetails.assignment?.employee?.id}
+                  disabled={props.readOnly}
+                >
+                  {employeeName}
+                </SubstituteLink>
+              </Typography>
+              <Can do={[PermissionEnum.SubstituteViewEmail]}>
+                {assignmentWithDetails.assignment?.employee?.email && (
+                  <Button
+                    startIcon={<MailOutline />}
+                    href={`mailto:${assignmentWithDetails.assignment?.employee?.email}`}
+                  />
+                )}
+              </Can>
+            </div>
             <div className={classes.subText}>
               {isExistingAssignment ? t("assigned") : t("pre-arranged")}
             </div>
@@ -196,8 +198,12 @@ export const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
   },
-  name: {
+  assignedInfo: {
     marginLeft: theme.spacing(2),
+  },
+  nameAndEmail: {
+    display: "flex",
+    alignItems: "center",
   },
   subText: {
     fontSize: theme.typography.pxToRem(12),
