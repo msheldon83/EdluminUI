@@ -732,7 +732,6 @@ export const VacancyUI: React.FC<Props> = props => {
                   }),
                 });
                 setStep("confirmation");
-                e.resetForm();
               }
             }
           } else {
@@ -890,13 +889,17 @@ export const VacancyUI: React.FC<Props> = props => {
                     : buildVacancyCreateInput({
                         ...vacancy,
                         details: vacancy.details.filter(d =>
-                          vacancySummaryDetailsToAssign.find(vsd => vsd.vacancyDetailId === d.id)
+                          vacancySummaryDetailsToAssign.find(
+                            vsd => vsd.vacancyDetailId === d.id
+                          )
                         ),
                       })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 existingVacancy={vacancyExists}
-                vacancyDetailIdsToAssign={vacancySummaryDetailsToAssign.map(vsd => vsd.vacancyDetailId)}
+                vacancyDetailIdsToAssign={vacancySummaryDetailsToAssign.map(
+                  vsd => vsd.vacancyDetailId
+                )}
                 employeeToReplace={
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
                     ?.firstName ?? undefined
@@ -919,6 +922,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
+                resetForm={resetForm}
               />
             )}
           </form>

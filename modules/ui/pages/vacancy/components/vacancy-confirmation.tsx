@@ -34,6 +34,7 @@ type Props = {
   onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<boolean>;
   orgHasPayCodesDefined: boolean;
   orgHasAccountingCodesDefined: boolean;
+  resetForm: () => void;
 };
 
 export const VacancyConfirmation: React.FC<Props> = props => {
@@ -41,11 +42,14 @@ export const VacancyConfirmation: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const params = useRouteParams(VacancyCreateRoute);
+  const resetForm = props.resetForm;
 
   React.useEffect(() => {
     const container = document.getElementById("main-container");
     if (container) container.scrollTop = 0;
-  }, []);
+    resetForm();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetForm]);
 
   const {
     orgId,
