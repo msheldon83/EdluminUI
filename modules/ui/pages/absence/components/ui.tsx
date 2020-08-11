@@ -365,9 +365,12 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const onAssignSub = React.useCallback(
     async (
-      replacementEmployeeId: string,
-      replacementEmployeeFirstName: string,
-      replacementEmployeeLastName: string,
+      replacementEmployee: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email?: string | null | undefined;
+      },
       payCode: string | undefined,
       vacancyDetailIds?: string[],
       vacancyDetailDates?: Date[]
@@ -401,9 +404,10 @@ export const AbsenceUI: React.FC<Props> = props => {
               startTimeLocal: parseISO(d.startTime),
               vacancyDetailId: d.vacancyDetailId,
               employee: {
-                id: replacementEmployeeId,
-                firstName: replacementEmployeeFirstName,
-                lastName: replacementEmployeeLastName,
+                id: replacementEmployee.id,
+                firstName: replacementEmployee.firstName,
+                lastName: replacementEmployee.lastName,
+                email: replacementEmployee.email ?? undefined
               },
             };
           }),
@@ -418,7 +422,7 @@ export const AbsenceUI: React.FC<Props> = props => {
             assignment: {
               orgId: organizationId,
               vacancyId: state.vacancyId ?? "",
-              employeeId: replacementEmployeeId,
+              employeeId: replacementEmployee.id,
               vacancyDetailIds: compact(
                 detailsToAssign.map(d => d.vacancyDetailId)
               ),
@@ -437,9 +441,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                 assignmentId: assignment.id,
                 assignmentRowVersion: assignment.rowVersion,
                 employee: {
-                  id: replacementEmployeeId,
-                  firstName: replacementEmployeeFirstName,
-                  lastName: replacementEmployeeLastName,
+                  id: replacementEmployee.id,
+                  firstName: replacementEmployee.firstName,
+                  lastName: replacementEmployee.lastName,
+                  email: replacementEmployee.email ?? undefined
                 },
               };
             }),
