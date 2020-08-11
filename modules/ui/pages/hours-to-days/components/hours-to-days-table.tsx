@@ -3,16 +3,13 @@ import { useTranslation } from "react-i18next";
 import { HoursToDaysRow } from "./hours-to-days-row";
 import { Button, Grid, makeStyles } from "@material-ui/core";
 import { DayConversion } from "../types";
-import { FormikErrors } from "formik";
 import clsx from "clsx";
 
 type Props = {
   mainPrefix: string;
   mainValues: Partial<DayConversion>[];
-  mainErrors?: string[] | FormikErrors<Partial<DayConversion>>[];
   catchAllValue: Partial<DayConversion>;
   catchAllPrefix: string;
-  catchAllError?: FormikErrors<Partial<DayConversion>>;
   addRow: (
     mainValues: Partial<DayConversion>[],
     catchAllValue: Partial<DayConversion>
@@ -31,10 +28,8 @@ const formatMinutes = (minutes?: number) =>
 export const HoursToDaysTable: React.FC<Props> = ({
   mainPrefix,
   mainValues,
-  mainErrors,
   catchAllValue,
   catchAllPrefix,
-  catchAllError,
   addRow,
   deleteRow,
   extraActions,
@@ -67,17 +62,11 @@ export const HoursToDaysTable: React.FC<Props> = ({
                 i % 2 ? classes.shadedRow : undefined
               )}
               deleteThisRow={() => deleteRow(mainValues, i)}
-              error={
-                mainErrors
-                  ? (mainErrors[i] as FormikErrors<DayConversion> | undefined)
-                  : undefined
-              }
             />
           );
         })}
         <HoursToDaysRow
           keyPrefix={catchAllPrefix}
-          error={catchAllError}
           className={clsx(
             classes.row,
             mainValues.length % 2 ? classes.shadedRow : undefined
@@ -91,14 +80,14 @@ export const HoursToDaysTable: React.FC<Props> = ({
           }
         />
       </Grid>
-      <Grid container>
-      <Button
-        variant="outlined"
-        onClick={() => addRow(mainValues, catchAllValue)}
-      >
-        {t("Add row")}
-      </Button>
-      {extraActions}
+      <Grid container className={classes.actionContainer}>
+        <Button
+          variant="outlined"
+          onClick={() => addRow(mainValues, catchAllValue)}
+        >
+          {t("Add row")}
+        </Button>
+        {extraActions}
       </Grid>
     </div>
   );
@@ -113,5 +102,8 @@ const useStyles = makeStyles(theme => ({
   },
   shadedRow: {
     background: theme.customColors.lightGray,
+  },
+  actionContainer: {
+    marginTop: theme.spacing(1),
   },
 }));

@@ -81,8 +81,7 @@ export const HoursToDays: React.FC<Props> = props => {
     currentCatchAll: Partial<DayConversion>
   ) => {
     currentCatchAll.maxMinutes = undefined;
-    currentConversions.push(currentCatchAll);
-    setFieldValue("conversions", currentConversions);
+    setFieldValue("conversions", currentConversions.concat(currentCatchAll));
     setFieldValue("catchAll", {
       maxMinutes: 1440,
     });
@@ -139,9 +138,9 @@ export const HoursToDays: React.FC<Props> = props => {
               yup.object().shape({
                 maxMinutes: yup
                   .number()
+                  .required(t("Required"))
                   .min(0, t("Up to must be non-negative"))
-                  .max(1439, t("Up to must be less than 24 hours"))
-                  .required(t("Required")),
+                  .max(1439, t("Up to must be less than 24 hours")),
                 name: yup.string().required(t("Name must be non-empty")),
                 dayEquivalent: yup
                   .number()
@@ -216,7 +215,7 @@ export const HoursToDays: React.FC<Props> = props => {
             ),
         })}
       >
-        {({ values, handleSubmit, submitForm, setFieldValue, errors }) => {
+        {({ values, handleSubmit, submitForm, setFieldValue, touched }) => {
           return (
             <form onSubmit={handleSubmit}>
               <Section>
@@ -229,15 +228,8 @@ export const HoursToDays: React.FC<Props> = props => {
                   <HoursToDaysTable
                     mainPrefix="conversions"
                     mainValues={values.conversions}
-                    mainErrors={
-                      typeof errors?.conversions === "string" ||
-                      errors?.conversions instanceof String
-                        ? undefined
-                        : errors?.conversions
-                    }
                     catchAllValue={values.catchAll}
                     catchAllPrefix="catchAll"
-                    catchAllError={errors?.catchAll}
                     addRow={addRow(setFieldValue)}
                     deleteRow={deleteRow(setFieldValue)}
                     extraActions={

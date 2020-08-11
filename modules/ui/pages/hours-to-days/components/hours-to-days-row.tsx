@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Grid, IconButton } from "@material-ui/core";
+import { Grid, IconButton, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { HighlightOff } from "@material-ui/icons";
-import { FormikErrors } from "formik";
+import { useField } from "formik";
 import { FormikDurationInput } from "ui/components/form/formik-duration-input";
 import { ClearedInput } from "./cleared-input";
 
@@ -12,16 +12,12 @@ type Props = {
   className?: string;
   headerText?: string;
   deleteThisRow?: () => void;
-  error?: FormikErrors<{
-    maxMinutes: number;
-    name: string;
-    dayEquivalent: number;
-  }>;
 };
 
 export const HoursToDaysRow: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const [minutesField, minutesMeta] = useField(`${props.keyPrefix}.maxMinutes`);
 
   return (
     <Grid
@@ -43,11 +39,11 @@ export const HoursToDaysRow: React.FC<Props> = props => {
           <FormikDurationInput
             placeholder={t("hh:mm")}
             name={`${props.keyPrefix}.maxMinutes`}
-            inputStatus={props.error?.maxMinutes ? "error" : "default"}
-            validationMessage={props.error?.maxMinutes}
+            inputStatus={"formik"}
+            alwaysTouched
           />
         )}
-        {props.headerText && <span>{props.headerText}</span>}
+        {props.headerText && <Typography>{props.headerText}</Typography>}
       </Grid>
       <Grid item xs={4} className={classes.rowCell}>
         <ClearedInput

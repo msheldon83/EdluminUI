@@ -134,14 +134,16 @@ export const AddBasicInfo: React.FC<Props> = props => {
 
   const addVacancyRow = (
     setFieldValue: (field: keyof typeof initialValues, value: any) => void
-  ) => (
+  ) => async (
     conversions: Partial<DayConversion>[],
     catchAll: Partial<DayConversion>
   ) => {
     catchAll.maxMinutes = undefined;
     conversions.push(catchAll);
     setFieldValue("vacancyDayConversions", conversions);
-    setFieldValue("vacancyDayCatchAll", { maxMinutes: 1440 });
+    setFieldValue("vacancyDayCatchAll", {
+      maxMinutes: 1440,
+    });
   };
 
   const validateBasicDetails = React.useMemo(
@@ -305,7 +307,6 @@ export const AddBasicInfo: React.FC<Props> = props => {
           submitForm,
           setFieldValue,
           values,
-          errors,
         }) => (
           <form onSubmit={handleSubmit}>
             <Grid container spacing={isMobile ? 2 : 8}>
@@ -702,15 +703,8 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 <HoursToDaysTable
                   mainPrefix="vacancyDayConversions"
                   mainValues={values.vacancyDayConversions}
-                  mainErrors={
-                    typeof errors?.vacancyDayConversions === "string" ||
-                    errors?.vacancyDayConversions instanceof String
-                      ? undefined
-                      : errors?.vacancyDayConversions
-                  }
                   catchAllValue={values.vacancyDayCatchAll}
                   catchAllPrefix="vacancyDayCatchAll"
-                  catchAllError={errors?.vacancyDayCatchAll}
                   addRow={addVacancyRow(setFieldValue)}
                   deleteRow={deleteVacancyRow(setFieldValue)}
                 />
