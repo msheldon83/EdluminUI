@@ -102,6 +102,12 @@ export const VacancyUI: React.FC<Props> = props => {
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
     ...initialVacancy,
   });
+
+  const resetVacancy = () => {
+    setResetKey(resetKey + 1);
+    setVacancy({ ...initialVacancy });
+  };
+
   const [initialFormValues, setInitialFormValues] = useState<VacancyFormValues>(
     {
       id: vacancy.id,
@@ -690,23 +696,6 @@ export const VacancyUI: React.FC<Props> = props => {
             })
           ),
         })}
-        onReset={(values, e) => {
-          setResetKey(resetKey + 1);
-          setVacancy({ ...initialVacancy });
-          e.resetForm({
-            values: {
-              positionTypeId: initialVacancy.positionTypeId,
-              title: initialVacancy.title,
-              locationId: initialVacancy.locationId,
-              locationName: initialVacancy.locationName,
-              contractId: initialVacancy.contractId,
-              workDayScheduleId: initialVacancy.workDayScheduleId,
-              details: initialVacancy.details,
-              notesToReplacement: initialVacancy.notesToReplacement,
-              adminOnlyNotes: initialVacancy.adminOnlyNotes,
-            },
-          });
-        }}
         onSubmit={async (data, e) => {
           if (!vacancyExists) {
             if (createVacancy) {
@@ -745,7 +734,6 @@ export const VacancyUI: React.FC<Props> = props => {
                   }),
                 });
                 setStep("confirmation");
-                e.resetForm();
               }
             }
           } else {
@@ -802,11 +790,12 @@ export const VacancyUI: React.FC<Props> = props => {
             <Prompt
               message={location => {
                 if (
-                  vacancyExists
+                  step === "confirmation" ||
+                  (vacancyExists
                     ? match.url === location.pathname ||
                       !isDirty(initialValues, values, dirty)
                     : match.url === location.pathname ||
-                      (!showSubmit && !isSubmitting)
+                      (!showSubmit && !isSubmitting))
                 ) {
                   return true;
                 }
@@ -936,6 +925,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
+                resetVacancy={resetVacancy}
               />
             )}
           </form>
