@@ -3,13 +3,14 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentWithDetails } from "./types";
 import { Can } from "ui/components/auth/can";
-import { AccountCircleOutlined } from "@material-ui/icons";
+import { AccountCircleOutlined, MailOutline } from "@material-ui/icons";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { SubstituteLink } from "ui/components/links/people";
 import { compact } from "lodash-es";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
@@ -94,6 +95,14 @@ export const AssignedBanner: React.FC<Props> = props => {
                 {employeeName}
               </SubstituteLink>
             </Typography>
+            <Can do={[PermissionEnum.SubstituteViewEmail]}>
+              {assignmentWithDetails.assignment?.employee?.email && (
+                <Button
+                  startIcon={<MailOutline />}
+                  href={`mailto:${assignmentWithDetails.assignment?.employee?.email}`}
+                />
+              )}
+            </Can>
             <div className={classes.subText}>
               {isExistingAssignment ? t("assigned") : t("pre-arranged")}
             </div>

@@ -144,6 +144,7 @@ export const EditAbsence: React.FC<Props> = props => {
           id: a.assignment.employeeId,
           firstName: a.assignment.employee?.firstName ?? "",
           lastName: a.assignment.employee?.lastName ?? "",
+          email: a.assignment.employee?.email ?? undefined,
         },
       };
     });

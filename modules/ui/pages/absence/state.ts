@@ -185,6 +185,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
               id: a.assignment.employeeId,
               firstName: a.assignment.employee?.firstName ?? "",
               lastName: a.assignment.employee?.lastName ?? "",
+              email: a.assignment.employee?.email ?? undefined,
             },
           };
         }),
