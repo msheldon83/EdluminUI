@@ -922,7 +922,10 @@ export const VacancyUI: React.FC<Props> = props => {
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
-                resetForm={resetForm}
+                resetForm={() => {
+                  resetForm();
+                  setStep("vacancy");
+                }}
               />
             )}
           </form>

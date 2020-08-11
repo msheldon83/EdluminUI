@@ -42,14 +42,11 @@ export const VacancyConfirmation: React.FC<Props> = props => {
   const classes = useStyles();
   const history = useHistory();
   const params = useRouteParams(VacancyCreateRoute);
-  const resetForm = props.resetForm;
 
   React.useEffect(() => {
     const container = document.getElementById("main-container");
     if (container) container.scrollTop = 0;
-    resetForm();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetForm]);
+  }, []);
 
   const {
     orgId,
@@ -123,31 +120,7 @@ export const VacancyConfirmation: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
           <Grid item>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                props.setVacancyForCreate({
-                  orgId: params.organizationId,
-                  isClosed: false,
-                  title: "",
-                  positionTypeId: "",
-                  contractId: "",
-                  locationId: "",
-                  locationName: "",
-                  workDayScheduleId: "",
-                  closedDetails: [],
-                  details: [],
-                  id: "",
-                  rowVersion: "",
-                });
-                history.push(
-                  VacancyCreateRoute.generate({
-                    ...params,
-                    organizationId: orgId,
-                  })
-                );
-              }}
-            >
+            <Button variant="outlined" onClick={props.resetForm}>
               {t("Create New")}
             </Button>
           </Grid>
