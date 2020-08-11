@@ -10,7 +10,7 @@ export const AbsenceActivityLogRoute = defineSubRoute(
 
 export const AbsenceActivityLogLoader = asyncComponent({
   async resolve() {
-    return (await import("ui/pages/edit-absence/absence-activity-log"))
+    return (await import("ui/pages/absence/edit/absence-activity-log"))
       .AbsenceActivityLog;
   },
 });

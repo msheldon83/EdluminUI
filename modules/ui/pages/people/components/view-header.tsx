@@ -15,7 +15,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useHistory } from "react-router";
 import { canEditOrgUser, canDeleteOrgUser } from "helpers/permissions";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { AdminCreateAbsenceRoute } from "ui/routes/create-absence";
+import { AdminCreateAbsenceRoute } from "ui/routes/absence";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrganizationType, FeatureFlag } from "graphql/server-types.gen";
 import { ShadowIndicator } from "ui/components/shadow-indicator";

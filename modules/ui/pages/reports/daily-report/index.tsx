@@ -12,7 +12,7 @@ import { PrintPageButton } from "ui/components/print-page-button";
 import { DailyReport } from "ui/components/reports/daily-report/daily-report";
 import { FilterQueryParams } from "ui/components/reports/daily-report/filters/filter-params";
 import { DailyReportRoute } from "ui/routes/absence-vacancy/daily-report";
-import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/create-absence";
+import { AdminSelectEmployeeForCreateAbsenceRoute } from "ui/routes/absence";
 import { useRouteParams } from "ui/routes/definition";
 import { Can } from "ui/components/auth/can";
 import { PermissionEnum } from "graphql/server-types.gen";

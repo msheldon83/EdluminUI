@@ -1,0 +1,39 @@
+query GetEmployee($employeeId: ID!) {
+  orgUser {
+    byId(id: $employeeId) {
+      id
+      employee {
+        id
+        firstName
+        lastName
+        primaryPositionId
+        locations {
+          id
+        }
+        primaryPosition {
+          id
+          title
+          needsReplacement
+          accountingCodeAllocations {
+            id
+            accountingCodeId
+            accountingCode {
+              id
+              name
+            }
+            allocation
+          }
+          positionTypeId
+          positionType {
+            id
+            payCodeId
+          }
+        }
+        absenceReasonBalances {
+          id
+          absenceReasonId
+        }
+      }
+    }
+  }
+}

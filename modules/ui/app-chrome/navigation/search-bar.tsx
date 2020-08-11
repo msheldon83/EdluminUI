@@ -23,7 +23,7 @@ import { useRouteParams } from "ui/routes/definition";
 import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
-} from "ui/routes/edit-absence";
+} from "ui/routes/absence";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 import { useHistory } from "react-router";
 import { Can } from "ui/components/auth/can";

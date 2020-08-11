@@ -9,6 +9,7 @@ import { AddBasicInfo } from "../add-basic-info";
 import { useHistory } from "react-router";
 import { Information, editableSections } from "../information";
 import { AccessControl } from "./access-control";
+import { FinishWizard } from "../finish-create-wizard";
 import { AdministratorInput, OrgUserRole } from "graphql/server-types.gen";
 import { TabbedHeader as Tabs, Step } from "ui/components/tabbed-header";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -30,8 +31,7 @@ export const AdminAddPage: React.FC<{}> = props => {
   });
   const [name, setName] = React.useState<string | null>(null);
 
-  // Save a new admin in state
-  const [admin, setAdmin] = React.useState<AdministratorInput>({
+  const defaultAdmin = {
     id: null,
     orgId: params.organizationId,
     firstName: "",
@@ -39,11 +39,15 @@ export const AdminAddPage: React.FC<{}> = props => {
     lastName: "",
     externalId: null,
     email: "",
+    inviteImmediately: null,
     accessControl: {
       allLocationIdsInScope: true,
       allPositionTypeIdsInScope: true,
     }, // TODO: this is temporary until we build the component to set access control
-  });
+  };
+
+  // Save a new admin in state
+  const [admin, setAdmin] = React.useState<AdministratorInput>(defaultAdmin);
 
   const getOrgUser = useQueryBundle(GetAdminById, {
     variables: { id: params.orgUserId },
@@ -156,6 +160,7 @@ export const AdminAddPage: React.FC<{}> = props => {
       <AccessControl
         editing={"edit-access-control"}
         editable={true}
+        label={t("Next")}
         orgId={params.organizationId}
         locations={[]}
         locationGroups={[]}
@@ -183,10 +188,54 @@ export const AdminAddPage: React.FC<{}> = props => {
             ...orgUser,
           };
           setAdmin(newAdmin);
+          setStep(steps[3].stepNumber);
+        }}
+        onCancel={handleCancel}
+      />
+    );
+  };
+  const renderFinish = (
+    setStep: React.Dispatch<React.SetStateAction<number>>
+  ) => {
+    return (
+      <FinishWizard
+        orgUserFullName={`${admin.firstName} ${admin.lastName}`}
+        orgUserType={t("admin")}
+        orgId={params.organizationId}
+        orgUserId={orgUser?.id}
+        onSubmit={async (orgUser: any) => {
+          const newAdmin = {
+            ...admin,
+            inviteImmediately: orgUser.inviteImmediately,
+          };
+          setAdmin(newAdmin);
           const id = await create(newAdmin);
           if (id) {
             const viewParams = { ...params, orgUserId: id };
-            history.push(PersonViewRoute.generate(viewParams));
+
+            if (orgUser.createAnother) {
+              openSnackbar({
+                dismissable: true,
+                autoHideDuration: 5000,
+                status: "success",
+                message: (
+                  <div
+                    onClick={() =>
+                      history.push(PersonViewRoute.generate(viewParams))
+                    }
+                    className={classes.pointer}
+                  >
+                    {t(
+                      `${admin.firstName} ${admin.lastName} successfully saved. Click to view.`
+                    )}
+                  </div>
+                ),
+              });
+
+              setName(null);
+              setAdmin(defaultAdmin);
+              setStep(steps[0].stepNumber);
+            } else history.push(PersonViewRoute.generate(viewParams));
           }
         }}
         onCancel={handleCancel}
@@ -219,6 +268,11 @@ export const AdminAddPage: React.FC<{}> = props => {
       name: t("Access Control"),
       content: renderAccessControl,
     },
+    {
+      stepNumber: 3,
+      name: t("Finish"),
+      content: renderFinish,
+    },
   ];
   const [initialStepNumber, setInitialStepNumber] = React.useState(
     steps[0].stepNumber
@@ -248,4 +302,5 @@ const useStyles = makeStyles(theme => ({
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
   },
+  pointer: { cursor: "pointer" },
 }));

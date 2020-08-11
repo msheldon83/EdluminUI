@@ -10,6 +10,7 @@ import {
 } from "graphql/server-types.gen";
 import { GetAdminById } from "../graphql/admin/get-admin-by-id.gen";
 import { Can } from "ui/components/auth/can";
+import { useTranslation } from "react-i18next";
 import { SaveAdmin } from "../graphql/admin/save-administrator.gen";
 import { OrganizationList } from "../components/admin/org-list";
 import { PersonViewRoute } from "ui/routes/people";
@@ -31,6 +32,7 @@ type Props = {
 export const AdminTab: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const canDoFn = useCanDo();
+  const { t } = useTranslation();
   const params = useRouteParams(PersonViewRoute);
 
   const [updateAdmin] = useMutationBundle(SaveAdmin, {
@@ -102,6 +104,7 @@ export const AdminTab: React.FC<Props> = props => {
       <AccessControl
         editing={props.editing}
         editable={canEditThisAdmin}
+        label={t("Save")}
         setEditing={props.setEditing}
         orgId={orgUser.orgId.toString()}
         locations={admin?.accessControl?.locations ?? []}

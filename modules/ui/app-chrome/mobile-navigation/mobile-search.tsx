@@ -17,7 +17,7 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import {
   AdminEditAbsenceRoute,
   EmployeeEditAbsenceRoute,
-} from "ui/routes/edit-absence";
+} from "ui/routes/absence";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 import { AppChromeRoute } from "ui/routes/app-chrome";

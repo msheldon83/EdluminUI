@@ -40,7 +40,7 @@ import { useHistory, useLocation } from "react-router";
 import { usePayCodes } from "reference-data/pay-codes";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";
-import { AdminEditAbsenceRoute } from "ui/routes/edit-absence";
+import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 
 type Props = {
