@@ -13,6 +13,7 @@ mutation CreateVacancy($vacancy: VacancyCreateInput!) {
             id
             firstName
             lastName
+            email
           }
         }
       }

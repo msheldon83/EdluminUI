@@ -99,6 +99,12 @@ export const VacancyUI: React.FC<Props> = props => {
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
     ...initialVacancy,
   });
+
+  const resetVacancy = () => {
+    setResetKey(resetKey + 1);
+    setVacancy({ ...initialVacancy });
+  };
+
   const [initialFormValues, setInitialFormValues] = useState<VacancyFormValues>(
     {
       id: vacancy.id,
@@ -225,9 +231,12 @@ export const VacancyUI: React.FC<Props> = props => {
 
   const onAssignSub = React.useCallback(
     async (
-      replacementEmployeeId: string,
-      replacementEmployeeFirstName: string,
-      replacementEmployeeLastName: string,
+      replacementEmployee: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email?: string | null | undefined;
+      },
       payCode: string | undefined,
       vacancyDetailIds?: string[],
       vacancySummaryDetails?: VacancySummaryDetail[]
@@ -251,7 +260,7 @@ export const VacancyUI: React.FC<Props> = props => {
             assignment: {
               orgId: params.organizationId,
               vacancyId: vacancy.id,
-              employeeId: replacementEmployeeId,
+              employeeId: replacementEmployee.id,
               vacancyDetailIds: detailsToAssign.map(d => d.id!),
             },
           },
@@ -271,9 +280,10 @@ export const VacancyUI: React.FC<Props> = props => {
                   id: assignment.id,
                   rowVersion: assignment.rowVersion,
                   employee: {
-                    id: replacementEmployeeId,
-                    firstName: replacementEmployeeFirstName,
-                    lastName: replacementEmployeeLastName,
+                    id: replacementEmployee.id,
+                    firstName: replacementEmployee.firstName,
+                    lastName: replacementEmployee.lastName,
+                    email: replacementEmployee.email ?? undefined,
                   },
                 },
               };
@@ -292,9 +302,10 @@ export const VacancyUI: React.FC<Props> = props => {
               ...d,
               assignment: {
                 employee: {
-                  id: replacementEmployeeId,
-                  firstName: replacementEmployeeFirstName,
-                  lastName: replacementEmployeeLastName,
+                  id: replacementEmployee.id,
+                  firstName: replacementEmployee.firstName,
+                  lastName: replacementEmployee.lastName,
+                  email: replacementEmployee.email ?? undefined,
                 },
               },
             };
@@ -687,23 +698,6 @@ export const VacancyUI: React.FC<Props> = props => {
             })
           ),
         })}
-        onReset={(values, e) => {
-          setResetKey(resetKey + 1);
-          setVacancy({ ...initialVacancy });
-          e.resetForm({
-            values: {
-              positionTypeId: initialVacancy.positionTypeId,
-              title: initialVacancy.title,
-              locationId: initialVacancy.locationId,
-              locationName: initialVacancy.locationName,
-              contractId: initialVacancy.contractId,
-              workDayScheduleId: initialVacancy.workDayScheduleId,
-              details: initialVacancy.details,
-              notesToReplacement: initialVacancy.notesToReplacement,
-              adminOnlyNotes: initialVacancy.adminOnlyNotes,
-            },
-          });
-        }}
         onSubmit={async (data, e) => {
           if (!vacancyExists) {
             if (createVacancy) {
@@ -717,6 +711,9 @@ export const VacancyUI: React.FC<Props> = props => {
                     const matchingDetail = createdVacancy?.details?.find(cvd =>
                       isSameDay(parseISO(cvd?.startDate), d.date)
                     );
+                    const assignedEmployee =
+                      matchingDetail?.assignment?.employee ??
+                      d.assignment?.employee;
                     return {
                       ...d,
                       id: matchingDetail?.id ?? undefined,
@@ -725,16 +722,20 @@ export const VacancyUI: React.FC<Props> = props => {
                         ? {
                             id: matchingDetail.assignment.id,
                             rowVersion: matchingDetail.assignment.rowVersion,
-                            employee: matchingDetail.assignment.employee
-                              ? matchingDetail.assignment.employee
-                              : d.assignment?.employee,
+                            employee: assignedEmployee
+                              ? {
+                                  id: assignedEmployee.id,
+                                  firstName: assignedEmployee.firstName,
+                                  lastName: assignedEmployee.lastName,
+                                  email: assignedEmployee.email ?? undefined,
+                                }
+                              : undefined,
                           }
                         : undefined,
                     };
                   }),
                 });
                 setStep("confirmation");
-                e.resetForm();
               }
             }
           } else {
@@ -788,11 +789,12 @@ export const VacancyUI: React.FC<Props> = props => {
             <Prompt
               message={location => {
                 if (
-                  vacancyExists
+                  step === "confirmation" ||
+                  (vacancyExists
                     ? match.url === location.pathname ||
                       !isDirty(initialValues, values, dirty)
                     : match.url === location.pathname ||
-                      (!showSubmit && !isSubmitting)
+                      (!showSubmit && !isSubmitting))
                 ) {
                   return true;
                 }
@@ -924,6 +926,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
+                resetVacancy={resetVacancy}
               />
             )}
           </form>

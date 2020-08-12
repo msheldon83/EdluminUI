@@ -1,12 +1,14 @@
-import { makeStyles, Typography, Divider } from "@material-ui/core";
+import { makeStyles, Typography, Divider, Button } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
-import { AccountCircleOutlined } from "@material-ui/icons";
+import { Can } from "ui/components/auth/can";
+import { AccountCircleOutlined, MailOutline } from "@material-ui/icons";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
 import { SubstituteLink } from "ui/components/links/people";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
+import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
@@ -43,15 +45,27 @@ export const AssignedBanner: React.FC<Props> = props => {
       <div className={classes.assignedBanner}>
         <div className={classes.employeeInfo}>
           <AccountCircleOutlined fontSize="large" />
-          <div className={classes.name}>
-            <Typography variant="h6">
-              <SubstituteLink
-                orgUserId={assignmentWithDetails.assignment?.employee?.id}
-                disabled={props.readOnly}
-              >
-                {employeeName}
-              </SubstituteLink>
-            </Typography>
+          <div className={classes.assignedInfo}>
+            <div className={classes.nameAndEmail}>
+              <Typography variant="h6">
+                <SubstituteLink
+                  orgUserId={assignmentWithDetails.assignment?.employee?.id}
+                  disabled={props.readOnly}
+                >
+                  {employeeName}
+                </SubstituteLink>
+              </Typography>
+              <div>
+                <Can do={[PermissionEnum.SubstituteViewEmail]}>
+                  {assignmentWithDetails.assignment?.employee?.email && (
+                    <Button
+                      startIcon={<MailOutline />}
+                      href={`mailto:${assignmentWithDetails.assignment?.employee?.email}`}
+                    />
+                  )}
+                </Can>
+              </div>
+            </div>
             <div className={classes.subText}>
               {isExistingAssignment ? t("assigned") : t("pre-arranged")}
             </div>
@@ -113,7 +127,7 @@ export const AssignedBanner: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   assignedBanner: {
     display: "flex",
-    padding: theme.spacing(2),
+    padding: theme.spacing(),
     justifyContent: "space-between",
     alignItems: "center",
     width: "100%",
@@ -122,13 +136,16 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(2),
   },
-
   employeeInfo: {
     display: "flex",
     alignItems: "center",
   },
-  name: {
+  assignedInfo: {
     marginLeft: theme.spacing(2),
+  },
+  nameAndEmail: {
+    display: "flex",
+    alignItems: "center",
   },
   subText: {
     fontSize: theme.typography.pxToRem(12),

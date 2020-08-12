@@ -44,9 +44,12 @@ type Props = {
   positionName?: string;
   selectButtonText?: string;
   onAssignReplacement: (
-    replacementEmployeeId: string,
-    replacementEmployeeFirstName: string,
-    replacementEmployeeLastName: string,
+    replacementEmployee: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email?: string | null | undefined;
+    },
     payCode: string | undefined,
     vacancyDetailIds?: string[],
     vacancySummaryDetails?: VacancySummaryDetail[]
@@ -72,6 +75,7 @@ type ReplacementEmployeeInfo = {
   id: string;
   firstName: string;
   lastName: string;
+  email?: string | undefined;
   payCode?: string;
 };
 
@@ -232,6 +236,7 @@ export const AssignSub: React.FC<Props> = props => {
       firstName: r.firstName,
       lastName: r.lastName,
       primaryPhone: r.phoneNumber,
+      email: r.email,
       qualified: r.levelQualified,
       available: r.levelAvailable,
       unavailableToWork: r.unavailableToWork,
@@ -255,6 +260,7 @@ export const AssignSub: React.FC<Props> = props => {
       replacementEmployeeId: string,
       replacementEmployeeFirstName: string,
       replacementEmployeeLastName: string,
+      replacementEmployeeEmail: string | undefined,
       payCodeId: string | undefined,
       validationChecks: ValidationChecks,
       ignoreAndContinue?: boolean
@@ -268,15 +274,19 @@ export const AssignSub: React.FC<Props> = props => {
           id: replacementEmployeeId,
           firstName: replacementEmployeeFirstName,
           lastName: replacementEmployeeLastName,
+          email: replacementEmployeeEmail,
           payCode: payCodeId,
         });
         setValidationChecks(validationChecks);
         setWarningDialogIsOpen(true);
       } else {
         onAssignReplacement(
-          replacementEmployeeId,
-          replacementEmployeeFirstName,
-          replacementEmployeeLastName,
+          {
+            id: replacementEmployeeId,
+            firstName: replacementEmployeeFirstName,
+            lastName: replacementEmployeeLastName,
+            email: replacementEmployeeEmail,
+          },
           payCodeId,
           vacancyDetailIdsToAssign,
           vacancySummaryDetails
@@ -297,6 +307,7 @@ export const AssignSub: React.FC<Props> = props => {
       replacementEmployeeId: string,
       replacementEmployeeFirstName: string,
       replacementEmployeeLastName: string,
+      replacementEmployeeEmail: string | undefined,
       payCodeId: string | undefined,
       validationChecks: ValidationChecks
     ) => {
@@ -305,6 +316,7 @@ export const AssignSub: React.FC<Props> = props => {
           id: replacementEmployeeId,
           firstName: replacementEmployeeFirstName,
           lastName: replacementEmployeeLastName,
+          email: replacementEmployeeEmail,
           payCode: payCodeId,
         });
         setValidationChecks(validationChecks);
@@ -314,6 +326,7 @@ export const AssignSub: React.FC<Props> = props => {
           replacementEmployeeId,
           replacementEmployeeFirstName,
           replacementEmployeeLastName,
+          replacementEmployeeEmail,
           payCodeId,
           validationChecks
         );
@@ -468,6 +481,7 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeeInfo.id,
             replacementEmployeeInfo.firstName,
             replacementEmployeeInfo.lastName,
+            replacementEmployeeInfo.email,
             replacementEmployeeInfo.payCode,
             validationCheck
           );
@@ -495,6 +509,7 @@ export const AssignSub: React.FC<Props> = props => {
             replacementEmployeeInfo.id,
             replacementEmployeeInfo.firstName,
             replacementEmployeeInfo.lastName,
+            replacementEmployeeInfo.email,
             replacementEmployeeInfo.payCode,
             validationCheck,
             true

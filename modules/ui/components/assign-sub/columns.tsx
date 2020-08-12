@@ -18,6 +18,7 @@ export type AssignSubColumn = {
   firstName: string;
   lastName: string;
   primaryPhone?: string | null;
+  email?: string | null | undefined;
   qualified: VacancyQualification;
   available: VacancyAvailability;
   unavailableToWork: boolean;
@@ -43,6 +44,7 @@ export const getAssignSubColumns = (
     replacementEmployeeId: string,
     replacementEmployeeFirstName: string,
     replacementEmployeeLastName: string,
+    replacementEmployeeEmail: string | undefined,
     payCodeId: string | undefined,
     validationChecks: ValidationChecks
   ) => Promise<void>,
@@ -178,6 +180,7 @@ export const getAssignSubColumns = (
             data.employeeId,
             data.firstName,
             data.lastName,
+            data.email ? data.email : undefined,
             data.payCodeId ? data.payCodeId : undefined,
             validationChecks
           );

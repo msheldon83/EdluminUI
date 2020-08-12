@@ -82,7 +82,14 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
               ? {
                   id: d.assignment.id,
                   rowVersion: d.assignment.rowVersion,
-                  employee: d.assignment.employee ?? undefined,
+                  employee: d.assignment.employee
+                    ? {
+                        id: d.assignment.employee.id,
+                        firstName: d.assignment.employee.firstName,
+                        lastName: d.assignment.employee.lastName,
+                        email: d.assignment.employee.email ?? undefined,
+                      }
+                    : undefined,
                 }
               : undefined,
           };
@@ -112,7 +119,14 @@ export const buildFormData = (v: Vacancy): VacancyDetailsFormData => {
               ? {
                   id: d.assignment.id,
                   rowVersion: d.assignment.rowVersion,
-                  employee: d.assignment.employee ?? undefined,
+                  employee: d.assignment.employee
+                    ? {
+                        id: d.assignment.employee.id,
+                        firstName: d.assignment.employee.firstName,
+                        lastName: d.assignment.employee.lastName,
+                        email: d.assignment.employee.email ?? undefined,
+                      }
+                    : undefined,
                 }
               : undefined,
           };

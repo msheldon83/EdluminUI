@@ -413,6 +413,7 @@ export const convertVacancyToVacancySummaryDetails = (
               id: assignmentOnDate.employee.id,
               firstName: assignmentOnDate.employee.firstName,
               lastName: assignmentOnDate.employee.lastName,
+              email: assignmentOnDate.employee.email ?? undefined
             },
           }
         : undefined,

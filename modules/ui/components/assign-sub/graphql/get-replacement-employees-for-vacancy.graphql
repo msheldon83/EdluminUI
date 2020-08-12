@@ -31,6 +31,7 @@ query GetVacancyReplacementEmployees(
         firstName
         lastName
         phoneNumber
+        email
         isAvailableToSubWhenSearching
         availableToSubWhenSearchingAtUtc
         availableToSubWhenSearchingAtLocal

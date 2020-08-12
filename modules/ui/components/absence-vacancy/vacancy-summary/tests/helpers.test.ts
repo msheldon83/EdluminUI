@@ -89,6 +89,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
               id: "3000",
               firstName: "David",
               lastName: "Nawn",
+              email: "dnawn@redroverk12.com"
             },
           },
         },
@@ -117,6 +118,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
             id: "3000",
             firstName: "David",
             lastName: "Nawn",
+            email: "dnawn@redroverk12.com"
           },
         },
       },
@@ -161,6 +163,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
               id: "3000",
               firstName: "David",
               lastName: "Nawn",
+              email: "dnawn@redroverk12.com"
             },
           },
         },
@@ -188,6 +191,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
               id: "3001",
               firstName: "John",
               lastName: "Smith",
+              email: "jsmith@test.com"
             },
           },
         },
@@ -222,6 +226,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
             id: "3000",
             firstName: "David",
             lastName: "Nawn",
+            email: "dnawn@redroverk12.com"
           },
         },
       },
@@ -249,6 +254,7 @@ describe("convertVacancyDetailsFormDataToVacancySummaryDetails", () => {
             id: "3001",
             firstName: "John",
             lastName: "Smith",
+            email: "jsmith@test.com"
           },
         },
       },
@@ -303,7 +309,7 @@ describe("buildAssignmentGroups", () => {
         assignment: {
           id: "3",
           rowVersion: "34536346",
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn", email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["1"],
         vacancyDetailIdsByDate: [
@@ -340,7 +346,7 @@ describe("buildAssignmentGroups", () => {
       {
         dates: [new Date("2020-03-17T04:00:00.000Z")],
         assignment: {
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn", email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["1"],
         vacancyDetailIdsByDate: [
@@ -383,7 +389,7 @@ describe("buildAssignmentGroups", () => {
         assignment: {
           id: "3",
           rowVersion: "34536346",
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn", email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["1", "2", "3"],
         vacancyDetailIdsByDate: [
@@ -430,7 +436,7 @@ describe("buildAssignmentGroups", () => {
         assignment: {
           id: "3",
           rowVersion: "34536346",
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn", email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["1"],
         vacancyDetailIdsByDate: [
@@ -462,7 +468,7 @@ describe("buildAssignmentGroups", () => {
         assignment: {
           id: "3",
           rowVersion: "34536346",
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn", email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["2"],
         vacancyDetailIdsByDate: [
@@ -559,7 +565,7 @@ describe("buildAssignmentGroups", () => {
         assignment: {
           id: "3",
           rowVersion: "34536346",
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn",email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["1", "2", "3", "4"],
         vacancyDetailIdsByDate: [
@@ -611,7 +617,7 @@ describe("buildAssignmentGroups", () => {
         assignment: {
           id: "3",
           rowVersion: "34536346",
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn", email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["1"],
         vacancyDetailIdsByDate: [
@@ -671,7 +677,7 @@ describe("buildAssignmentGroups", () => {
         assignment: {
           id: "3",
           rowVersion: "34536346",
-          employee: { id: "7", firstName: "David", lastName: "Nawn" },
+          employee: { id: "7", firstName: "David", lastName: "Nawn", email: "dnawn@redroverk12.com" },
         },
         vacancyDetailIds: ["3"],
         vacancyDetailIdsByDate: [
@@ -1179,6 +1185,7 @@ describe("convertToAssignmentWithDetails", () => {
             id: "3000",
             firstName: "John",
             lastName: "Smith",
+            email: "jSmith@test.com"
           },
         },
       },
@@ -1198,6 +1205,7 @@ describe("convertToAssignmentWithDetails", () => {
             id: "3000",
             firstName: "John",
             lastName: "Smith",
+            email: "jSmith@test.com"
           },
         },
       },
@@ -1223,6 +1231,7 @@ describe("convertToAssignmentWithDetails", () => {
           id: "3000",
           firstName: "John",
           lastName: "Smith",
+          email: "jSmith@test.com"
         },
       },
       vacancyDetailIds: ["2", "3"],

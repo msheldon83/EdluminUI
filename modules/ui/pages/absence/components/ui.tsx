@@ -140,7 +140,10 @@ export const AbsenceUI: React.FC<Props> = props => {
     unfilledVacancySummaryDetails,
   } = props;
 
-  const [cancelDialogIsOpen, setCancelDialogIsOpen] = React.useState(false);
+  const [
+    discardChangesDialogIsOpen,
+    setDiscardChangesDialogIsOpen,
+  ] = React.useState(false);
   const [localAbsence, setLocalAbsence] = React.useState<Absence | undefined>(
     absence
   );
@@ -358,9 +361,12 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const onAssignSub = React.useCallback(
     async (
-      replacementEmployeeId: string,
-      replacementEmployeeFirstName: string,
-      replacementEmployeeLastName: string,
+      replacementEmployee: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email?: string | null | undefined;
+      },
       payCode: string | undefined,
       vacancyDetailIds?: string[],
       vacancySummaryDetails?: VacancySummaryDetail[]
@@ -378,9 +384,10 @@ export const AbsenceUI: React.FC<Props> = props => {
               startTimeLocal: vsd.startTimeLocal,
               vacancyDetailId: vsd.vacancyDetailId,
               employee: {
-                id: replacementEmployeeId,
-                firstName: replacementEmployeeFirstName,
-                lastName: replacementEmployeeLastName,
+                id: replacementEmployee.id,
+                firstName: replacementEmployee.firstName,
+                lastName: replacementEmployee.lastName,
+                email: replacementEmployee.email ?? undefined
               },
             };
           }),
@@ -395,7 +402,7 @@ export const AbsenceUI: React.FC<Props> = props => {
             assignment: {
               orgId: organizationId,
               vacancyId: state.vacancyId ?? "",
-              employeeId: replacementEmployeeId,
+              employeeId: replacementEmployee.id,
               vacancyDetailIds: compact(
                 vacancySummaryDetails.map(vsd => vsd.vacancyDetailId)
               ),
@@ -414,9 +421,10 @@ export const AbsenceUI: React.FC<Props> = props => {
                 assignmentId: assignment.id,
                 assignmentRowVersion: assignment.rowVersion,
                 employee: {
-                  id: replacementEmployeeId,
-                  firstName: replacementEmployeeFirstName,
-                  lastName: replacementEmployeeLastName,
+                  id: replacementEmployee.id,
+                  firstName: replacementEmployee.firstName,
+                  lastName: replacementEmployee.lastName,
+                  email: replacementEmployee.email ?? undefined
                 },
               };
             }),
@@ -537,7 +545,7 @@ export const AbsenceUI: React.FC<Props> = props => {
 
       // When editing an Absence, this will provide us with a
       // fresh version of the form data that we can reset the form with
-      return buildFormData(updatedAbsence);
+      return buildFormData(updatedAbsence, formValues.requireNotesToApprover ?? false);
     },
     [disabledDates, isCreate, openSnackbar, saveAbsence, setStep, state, t]
   );
@@ -593,11 +601,11 @@ export const AbsenceUI: React.FC<Props> = props => {
     t,
   ]);
 
-  const allVacancyDetails = localAbsence?.vacancies
+  const hasFilledVacancies = state.assignmentsByDate.length > 0;
+  const hasVerifiedAssignments = (localAbsence?.vacancies
     ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
-    : [];
-  const hasFilledVacancies = allVacancyDetails.some(d => d.isFilled);
-  const hasVerifiedAssignments = allVacancyDetails.some(d => d.verifiedAtUtc);
+    : []
+  ).some(d => d.verifiedAtUtc);
 
   const canDeleteAbsence =
     actingAsEmployee && localAbsence
@@ -764,11 +772,12 @@ export const AbsenceUI: React.FC<Props> = props => {
                     dispatch({
                       action: "resetToInitialState",
                       initialState: initialAbsenceState(),
+                      keepAssignments: !isCreate,
                     });
-                    setCancelDialogIsOpen(false);
+                    setDiscardChangesDialogIsOpen(false);
                   }}
-                  onClose={() => setCancelDialogIsOpen(false)}
-                  open={cancelDialogIsOpen}
+                  onClose={() => setDiscardChangesDialogIsOpen(false)}
+                  open={discardChangesDialogIsOpen}
                 />
                 <Prompt
                   message={location => {
@@ -967,7 +976,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                           )}
                           {!isCreate && formIsDirty && !state.isClosed && (
                             <Button
-                              onClick={() => setCancelDialogIsOpen(true)}
+                              onClick={() =>
+                                setDiscardChangesDialogIsOpen(true)
+                              }
                               variant="outlined"
                               className={classes.cancelButton}
                               disabled={!formIsDirty || isSubmitting}
@@ -1324,7 +1335,7 @@ const hasIncompleteDetails = (details: AbsenceDetail[]): boolean => {
   return !!incompleteDetail;
 };
 
-export const buildFormData = (absence: Absence): AbsenceFormData => {
+export const buildFormData = (absence: Absence, notesToApproverRequired: boolean): AbsenceFormData => {
   // Figure out the details to put into the form
   const details = compact(absence?.details);
   const closedDetails = compact(absence?.closedDetails);
@@ -1364,22 +1375,13 @@ export const buildFormData = (absence: Absence): AbsenceFormData => {
     };
   });
 
-  // Figure out if the form needs to enforce
-  // Notes To Approver being required
-  const allReasons = compact(
-    flatMap((absence?.details ?? []).map(d => d?.reasonUsages))
-  );
-  const notesToApproverRequired = allReasons.find(
-    a => a.absenceReason?.requireNotesToAdmin
-  );
-
   return {
     details: formDetails,
     notesToApprover: absence?.notesToApprover ?? "",
     adminOnlyNotes: absence?.adminOnlyNotes ?? "",
     needsReplacement: !!vacancy,
     notesToReplacement: vacancy?.notesToReplacement ?? "",
-    requireNotesToApprover: !!notesToApproverRequired,
+    requireNotesToApprover: notesToApproverRequired,
     payCodeId: vacancy?.details
       ? vacancy?.details[0]?.payCodeId ?? undefined
       : undefined,

@@ -75,7 +75,11 @@ export type AbsenceActions =
     }
   | { action: "removeAbsenceDates"; dates: Date[] }
   | { action: "resetAfterSave"; updatedAbsence: Absence }
-  | { action: "resetToInitialState"; initialState: AbsenceState }
+  | {
+      action: "resetToInitialState";
+      initialState: AbsenceState;
+      keepAssignments?: boolean;
+    }
   | {
       action: "updateAssignments";
       assignments: AssignmentOnDate[];
@@ -190,6 +194,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
               id: a.assignment.employeeId,
               firstName: a.assignment.employee?.firstName ?? "",
               lastName: a.assignment.employee?.lastName ?? "",
+              email: a.assignment.employee?.email ?? undefined,
             },
           };
         }),
@@ -199,7 +204,14 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       };
     }
     case "resetToInitialState": {
-      return action.initialState;
+      if (!action.keepAssignments) {
+        return action.initialState;
+      }
+
+      return {
+        ...action.initialState,
+        assignmentsByDate: prev.assignmentsByDate,
+      };
     }
     case "setProjectedVacancies": {
       return {
