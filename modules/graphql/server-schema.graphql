@@ -7031,6 +7031,7 @@ type VacancySubSearchQueryResult {
   middleName: String
   lastName: String!
   phoneNumber: String
+  email: String
   levelQualified: VacancyQualification!
   levelAvailable: VacancyAvailability!
   vacancyId: ID

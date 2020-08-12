@@ -33,23 +33,26 @@ export const AbsenceFormValidationSchema = (t: TFunction) => {
       is: true,
       then: yup.string().required(t("Required")),
     }),
-    accountingCodeAllocations: yup.object().test({
-      name: "accountingCodeAllocationsCheck",
-      test: function test(value: AccountingCodeValue) {
-        const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
-          value
-        );
+    accountingCodeAllocations: yup.object().when("needsReplacement", {
+      is: true,
+      then: yup.object().test({
+        name: "accountingCodeAllocationsCheck",
+        test: function test(value: AccountingCodeValue) {
+          const accountingCodeAllocations = mapAccountingCodeValueToAccountingCodeAllocations(
+            value
+          );
 
-        const error = validateAccountingCodeAllocations(
-          accountingCodeAllocations ?? [],
-          t
-        );
-        if (!error) {
-          return true;
-        }
+          const error = validateAccountingCodeAllocations(
+            accountingCodeAllocations ?? [],
+            t
+          );
+          if (!error) {
+            return true;
+          }
 
-        return new yup.ValidationError(error, null, this.path);
-      },
+          return new yup.ValidationError(error, null, this.path);
+        },
+      }),
     }),
   });
 };

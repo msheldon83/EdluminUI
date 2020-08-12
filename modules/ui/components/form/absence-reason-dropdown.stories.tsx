@@ -33,8 +33,6 @@ export const AbsenceReasonDropdownStory = () => {
     AbsenceReasonDropdownValue
   >(noAllocation());
 
-  // console.log("absenceReason", absenceReason);
-
   return (
     <div className={classes.container}>
       <AbsenceReasonDropdown

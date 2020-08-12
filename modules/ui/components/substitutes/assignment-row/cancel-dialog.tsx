@@ -15,7 +15,7 @@ import { makeStyles } from "@material-ui/styles";
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCancel: () => void;
+  onConfirm: () => void;
 };
 
 export const CancelDialog: React.FC<Props> = props => {
@@ -40,7 +40,7 @@ export const CancelDialog: React.FC<Props> = props => {
         </TextButton>
         <ButtonDisableOnClick
           variant="outlined"
-          onClick={props.onCancel}
+          onClick={props.onConfirm}
           className={classes.cancel}
         >
           {t("Yes, Cancel")}

@@ -12,14 +12,11 @@ import { Reducer } from "react";
 import { VacancyDetail } from "ui/components/absence/types";
 import {
   Vacancy,
-  ApprovalStatus,
-  Maybe,
   Absence,
 } from "graphql/server-types.gen";
 import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
 import { AssignmentOnDate } from "./types";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
-import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import { AbsenceReasonUsageData } from "./components/balance-usage";
 
 export type AbsenceState = {
@@ -39,21 +36,6 @@ export type AbsenceState = {
   initialVacancyDetails?: VacancyDetail[];
   assignmentsByDate: AssignmentOnDate[];
   initialAbsenceReasonUsageData?: AbsenceReasonUsageData[];
-  approvalState?: {
-    id: string;
-    canApprove: boolean;
-    approvalWorkflowId: string;
-    approvalWorkflow: {
-      steps: ApprovalWorkflowSteps[];
-    };
-    approvalStatusId: ApprovalStatus;
-    deniedApproverGroupHeaderName?: string | null;
-    approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
-    pendingApproverGroupHeaderName?: string | null;
-    comments: {
-      commentIsPublic: boolean;
-    }[];
-  } | null;
 };
 
 export type AbsenceActions =
@@ -74,7 +56,11 @@ export type AbsenceActions =
     }
   | { action: "removeAbsenceDates"; dates: Date[] }
   | { action: "resetAfterSave"; updatedAbsence: Absence }
-  | { action: "resetToInitialState"; initialState: AbsenceState }
+  | {
+      action: "resetToInitialState";
+      initialState: AbsenceState;
+      keepAssignments?: boolean;
+    }
   | {
       action: "updateAssignments";
       assignments: AssignmentOnDate[];
@@ -185,6 +171,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
               id: a.assignment.employeeId,
               firstName: a.assignment.employee?.firstName ?? "",
               lastName: a.assignment.employee?.lastName ?? "",
+              email: a.assignment.employee?.email ?? undefined,
             },
           };
         }),
@@ -194,7 +181,14 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       };
     }
     case "resetToInitialState": {
-      return action.initialState;
+      if (!action.keepAssignments) {
+        return action.initialState;
+      }
+
+      return {
+        ...action.initialState,
+        assignmentsByDate: prev.assignmentsByDate,
+      };
     }
     case "setProjectedVacancies": {
       return {

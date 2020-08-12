@@ -16,6 +16,7 @@ type Props = {
   buttonText: string;
   onClick: (detailIds: string[], dates: Date[]) => void;
   disableAssign: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const FilteredAssignmentButton: React.FC<Props> = ({
@@ -23,6 +24,7 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
   buttonText,
   disableAssign,
   onClick,
+  isApprovedForSubJobSearch,
 }) => {
   const classes = useStyles();
 
@@ -45,7 +47,8 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
       permissions,
       isSysAdmin,
       orgId,
-      forRole
+      forRole,
+      isApprovedForSubJobSearch
     );
 
   const futureDetailPerms = (
@@ -60,7 +63,8 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
       permissions,
       isSysAdmin,
       orgId,
-      forRole
+      forRole,
+      isApprovedForSubJobSearch
     );
 
   const PreArrangeButton: React.FC<{ detailIds: string[]; dates: Date[] }> = ({

@@ -53,6 +53,7 @@ import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-st
 import * as yup from "yup";
 import { validateAccountingCodeAllocations } from "helpers/accounting-code-allocations";
 import { FilteredAssignmentButton } from "ui/components/absence-vacancy/filtered-assignment-button";
+import { GetProjectedIsApprovedForSubJobSearch } from "../graphql/get-projected-isapprovedforsubjobsearch.gen";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -79,6 +80,7 @@ type Props = {
     }[];
   } | null;
   refetchVacancy?: () => Promise<unknown>;
+  isApprovedForSubJobSearch?: boolean;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -102,6 +104,12 @@ export const VacancyUI: React.FC<Props> = props => {
   const [vacancy, setVacancy] = useState<VacancyDetailsFormData>({
     ...initialVacancy,
   });
+
+  const resetVacancy = () => {
+    setResetKey(resetKey + 1);
+    setVacancy({ ...initialVacancy });
+  };
+
   const [initialFormValues, setInitialFormValues] = useState<VacancyFormValues>(
     {
       id: vacancy.id,
@@ -221,11 +229,60 @@ export const VacancyUI: React.FC<Props> = props => {
     }
   }, [vacancy]);
 
+  const initialReasonIds = [
+    ...new Set(initialFormValues.details.map(x => x.vacancyReasonId)),
+  ];
+  const updatedReasonIds = [
+    ...new Set(vacancy.details.map(x => x.vacancyReasonId)),
+  ];
+  const differentReasonIds = updatedReasonIds.filter(
+    x => !initialReasonIds.includes(x)
+  );
+
+  const skipProjectedIsAvailableForSubJobSearch =
+    initialFormValues.positionTypeId === vacancy.positionTypeId ||
+    differentReasonIds.length === 0
+      ? true
+      : false;
+
+  const getProjectedIsAvailableForSubJobSearch = useQueryBundle(
+    GetProjectedIsApprovedForSubJobSearch,
+    {
+      variables: {
+        vacancy: buildVacancyCreateInput(vacancy),
+      },
+      skip: skipProjectedIsAvailableForSubJobSearch,
+    }
+  );
+
+  const isApprovedForSubJobSearch = useMemo(() => {
+    const projectedIsAvailableForSubJobSearch =
+      getProjectedIsAvailableForSubJobSearch.state !== "LOADING" &&
+      getProjectedIsAvailableForSubJobSearch.state !== "UPDATING"
+        ? getProjectedIsAvailableForSubJobSearch.data.vacancy
+            ?.projectIsApprovedForSubJobSearch
+        : undefined;
+
+    if (
+      projectedIsAvailableForSubJobSearch !== null &&
+      projectedIsAvailableForSubJobSearch !== undefined
+    ) {
+      return projectedIsAvailableForSubJobSearch;
+    } else {
+      return props.isApprovedForSubJobSearch !== undefined
+        ? props.isApprovedForSubJobSearch
+        : true;
+    }
+  }, [getProjectedIsAvailableForSubJobSearch, props.isApprovedForSubJobSearch]);
+
   const onAssignSub = React.useCallback(
     async (
-      replacementEmployeeId: string,
-      replacementEmployeeFirstName: string,
-      replacementEmployeeLastName: string,
+      replacementEmployee: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        email?: string | null | undefined;
+      },
       payCode: string | undefined,
       vacancyDetailIds?: string[]
     ) => {
@@ -243,7 +300,7 @@ export const VacancyUI: React.FC<Props> = props => {
             assignment: {
               orgId: params.organizationId,
               vacancyId: vacancy.id,
-              employeeId: replacementEmployeeId,
+              employeeId: replacementEmployee.id,
               vacancyDetailIds: detailsToAssign.map(d => d.id!),
             },
           },
@@ -263,9 +320,10 @@ export const VacancyUI: React.FC<Props> = props => {
                   id: assignment.id,
                   rowVersion: assignment.rowVersion,
                   employee: {
-                    id: replacementEmployeeId,
-                    firstName: replacementEmployeeFirstName,
-                    lastName: replacementEmployeeLastName,
+                    id: replacementEmployee.id,
+                    firstName: replacementEmployee.firstName,
+                    lastName: replacementEmployee.lastName,
+                    email: replacementEmployee.email ?? undefined,
                   },
                 },
               };
@@ -284,9 +342,10 @@ export const VacancyUI: React.FC<Props> = props => {
               ...d,
               assignment: {
                 employee: {
-                  id: replacementEmployeeId,
-                  firstName: replacementEmployeeFirstName,
-                  lastName: replacementEmployeeLastName,
+                  id: replacementEmployee.id,
+                  firstName: replacementEmployee.firstName,
+                  lastName: replacementEmployee.lastName,
+                  email: replacementEmployee.email ?? undefined,
                 },
               },
             };
@@ -519,6 +578,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       });
                       setStep("preAssignSub");
                     },
+                    isApprovedForSubJobSearch: isApprovedForSubJobSearch,
                   }}
                 />
               )}
@@ -631,17 +691,6 @@ export const VacancyUI: React.FC<Props> = props => {
       <Typography className={classes.subHeader} variant="h4">
         {subHeader()}
       </Typography>
-      {approvalState && (
-        <Can do={[PermissionEnum.AbsVacApprovalsView]}>
-          <ApprovalState
-            orgId={params.organizationId}
-            approvalState={approvalState}
-            isTrueVacancy={true}
-            vacancyId={vacancy.id}
-            onChange={props.refetchVacancy}
-          />
-        </Can>
-      )}
       {vacancy.closedDetails.length > 0 && (
         <Grid className={classes.closedDayBanner} item xs={12}>
           <Typography>
@@ -685,23 +734,6 @@ export const VacancyUI: React.FC<Props> = props => {
             })
           ),
         })}
-        onReset={(values, e) => {
-          setResetKey(resetKey + 1);
-          setVacancy({ ...initialVacancy });
-          e.resetForm({
-            values: {
-              positionTypeId: initialVacancy.positionTypeId,
-              title: initialVacancy.title,
-              locationId: initialVacancy.locationId,
-              locationName: initialVacancy.locationName,
-              contractId: initialVacancy.contractId,
-              workDayScheduleId: initialVacancy.workDayScheduleId,
-              details: initialVacancy.details,
-              notesToReplacement: initialVacancy.notesToReplacement,
-              adminOnlyNotes: initialVacancy.adminOnlyNotes,
-            },
-          });
-        }}
         onSubmit={async (data, e) => {
           if (!vacancyExists) {
             if (createVacancy) {
@@ -715,6 +747,9 @@ export const VacancyUI: React.FC<Props> = props => {
                     const matchingDetail = createdVacancy?.details?.find(cvd =>
                       isSameDay(parseISO(cvd?.startDate), d.date)
                     );
+                    const assignedEmployee =
+                      matchingDetail?.assignment?.employee ??
+                      d.assignment?.employee;
                     return {
                       ...d,
                       id: matchingDetail?.id ?? undefined,
@@ -723,16 +758,20 @@ export const VacancyUI: React.FC<Props> = props => {
                         ? {
                             id: matchingDetail.assignment.id,
                             rowVersion: matchingDetail.assignment.rowVersion,
-                            employee: matchingDetail.assignment.employee
-                              ? matchingDetail.assignment.employee
-                              : d.assignment?.employee,
+                            employee: assignedEmployee
+                              ? {
+                                  id: assignedEmployee.id,
+                                  firstName: assignedEmployee.firstName,
+                                  lastName: assignedEmployee.lastName,
+                                  email: assignedEmployee.email ?? undefined,
+                                }
+                              : undefined,
                           }
                         : undefined,
                     };
                   }),
                 });
                 setStep("confirmation");
-                e.resetForm();
               }
             }
           } else {
@@ -789,11 +828,12 @@ export const VacancyUI: React.FC<Props> = props => {
             <Prompt
               message={location => {
                 if (
-                  vacancyExists
+                  step === "confirmation" ||
+                  (vacancyExists
                     ? match.url === location.pathname ||
                       !isDirty(initialValues, values, dirty)
                     : match.url === location.pathname ||
-                      (!showSubmit && !isSubmitting)
+                      (!showSubmit && !isSubmitting))
                 ) {
                   return true;
                 }
@@ -810,6 +850,19 @@ export const VacancyUI: React.FC<Props> = props => {
             />
             {step === "vacancy" && (
               <>
+                {approvalState && (
+                  <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+                    <div className={classes.approvalBannerContainer}>
+                      <ApprovalState
+                        orgId={params.organizationId}
+                        approvalState={approvalState}
+                        isTrueVacancy={true}
+                        vacancyId={vacancy.id}
+                        onChange={props.refetchVacancy}
+                      />
+                    </div>
+                  </Can>
+                )}
                 <Grid
                   container
                   justify="space-between"
@@ -860,6 +913,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       }}
                       showPayCodes={payCodes.length > 0}
                       showAccountingCodes={accountingCodes.length > 0}
+                      isApprovedForSubJobSearch={isApprovedForSubJobSearch}
                     />
                   </Grid>
                 </Grid>
@@ -890,18 +944,23 @@ export const VacancyUI: React.FC<Props> = props => {
                     : buildVacancyCreateInput({
                         ...vacancy,
                         details: vacancy.details.filter(d =>
-                          vacancySummaryDetailsToAssign.find(vsd => vsd.vacancyDetailId === d.id)
+                          vacancySummaryDetailsToAssign.find(
+                            vsd => vsd.vacancyDetailId === d.id
+                          )
                         ),
                       })
                 }
                 vacancyId={vacancyExists ? vacancy.id : undefined}
                 existingVacancy={vacancyExists}
-                vacancyDetailIdsToAssign={vacancySummaryDetailsToAssign.map(vsd => vsd.vacancyDetailId)}
+                vacancyDetailIdsToAssign={vacancySummaryDetailsToAssign.map(
+                  vsd => vsd.vacancyDetailId
+                )}
                 employeeToReplace={
                   vacancySummaryDetailsToAssign[0]?.assignment?.employee
                     ?.firstName ?? undefined
                 }
                 selectButtonText={vacancyExists ? t("Assign") : undefined}
+                isApprovedForSubJobSearch={isApprovedForSubJobSearch}
               />
             )}
             {step === "confirmation" && (
@@ -919,6 +978,8 @@ export const VacancyUI: React.FC<Props> = props => {
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
+                isApprovedForSubJobSearch={isApprovedForSubJobSearch}
+                resetVacancy={resetVacancy}
               />
             )}
           </form>
@@ -932,11 +993,13 @@ const useStyles = makeStyles(theme => ({
   container: {
     backgroundColor: theme.customColors.white,
     border: `1px solid ${theme.customColors.sectionBorder}`,
-    borderTopWidth: 0,
     borderRadius: `0 0 ${theme.typography.pxToRem(
       5
     )} ${theme.typography.pxToRem(5)}`,
     padding: theme.spacing(3),
+  },
+  approvalBannerContainer: {
+    marginBottom: theme.spacing(2),
   },
   subHeader: {
     minHeight: theme.typography.pxToRem(60),

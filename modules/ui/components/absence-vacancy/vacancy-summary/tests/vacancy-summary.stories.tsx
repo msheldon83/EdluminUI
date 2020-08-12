@@ -22,6 +22,7 @@ export const SingleDayUnassigned = () => {
         onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
+        isApprovedForSubJobSearch={true}
       />
     </div>
   );
@@ -39,6 +40,7 @@ export const SingleDayAssigned = () => {
         onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
+        isApprovedForSubJobSearch={true}
       />
     </div>
   );
@@ -56,6 +58,7 @@ export const SingleDayPrearranged = () => {
         onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
+        isApprovedForSubJobSearch={false}
       />
     </div>
   );
@@ -75,6 +78,7 @@ export const MultiDayUnassigned = () => {
         onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
+        isApprovedForSubJobSearch={true}
       />
     </div>
   );
@@ -94,6 +98,7 @@ export const MultiDayAssigned = () => {
         onCancelAssignment={async () => true}
         showPayCodes={true}
         showAccountingCodes={true}
+        isApprovedForSubJobSearch={true}
       />
     </div>
   );
@@ -130,6 +135,7 @@ export const MultiDaySplitAssignment = () => {
             onCancelAssignment={async () => true}
             showPayCodes={true}
             showAccountingCodes={true}
+            isApprovedForSubJobSearch={true}
           />
         </div>
       </Route>

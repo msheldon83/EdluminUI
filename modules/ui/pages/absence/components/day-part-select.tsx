@@ -193,7 +193,7 @@ export const DayPartSelect: React.FC<Props> = props => {
           <div className={classes.time}>
             <TimeInput
               disabled={disabled}
-              label=""
+              label={t("Start")}
               value={
                 incompleteStartTime !== undefined
                   ? incompleteStartTime
@@ -210,7 +210,7 @@ export const DayPartSelect: React.FC<Props> = props => {
           <div className={classes.time}>
             <TimeInput
               disabled={disabled}
-              label=""
+              label={t("End")}
               value={
                 incompleteEndTime !== undefined
                   ? incompleteEndTime

@@ -54,7 +54,7 @@ export const AssignmentRow: React.FC<Props> = props => {
       <CancelDialog
         open={isCancelDialogOpen}
         onClose={onCloseDialog}
-        onCancel={onCancelMutation}
+        onConfirm={onCancelMutation}
       />
 
       <AssignmentRowUI

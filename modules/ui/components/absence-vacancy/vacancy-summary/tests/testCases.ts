@@ -32,6 +32,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -53,6 +54,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -76,6 +78,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -97,6 +100,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -118,6 +122,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -141,6 +146,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -162,6 +168,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -227,6 +234,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -246,6 +254,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -265,6 +274,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -284,6 +294,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -307,6 +318,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },
@@ -340,6 +352,7 @@ export const AssignmentGroupTestCases = {
           id: "7",
           firstName: "David",
           lastName: "Nawn",
+          email: "dnawn@redroverk12.com"
         },
       },
     },

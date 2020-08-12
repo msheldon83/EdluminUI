@@ -98,7 +98,7 @@ export const AbsenceView: React.FC<Props> = props => {
                             <div key={i}>
                               {a.accountingCode?.name}{" "}
                               {multipleAccountingCodeAllocations
-                                ? `(${Math.floor(a.allocation * 100)}%)`
+                                ? `(${(a.allocation * 100).toFixed(2)}%)`
                                 : ""}
                             </div>
                           );
@@ -217,6 +217,11 @@ export const AbsenceView: React.FC<Props> = props => {
                   isAbsence={true}
                   readOnly={true}
                   absenceActions={subDetailsAbsenceInfo}
+                  isApprovedForSubJobSearch={
+                    absence.vacancies && absence.vacancies[0]
+                      ? absence.vacancies[0].isApprovedForSubJobSearch
+                      : true
+                  }
                 />
               </div>
             </Grid>

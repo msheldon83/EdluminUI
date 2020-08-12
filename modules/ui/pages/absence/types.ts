@@ -32,5 +32,6 @@ export type AssignmentOnDate = {
     id: string;
     firstName: string;
     lastName: string;
+    email: string | undefined;
   };
 };

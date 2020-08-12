@@ -17,7 +17,9 @@ export const ClearedInput: React.FC<Props> = ({ name, className }) => {
         name: name,
         id: name,
         fullWidth: true,
-        className: className,
+        InputProps: { className },
+        error: meta?.error ? true : false,
+        helperText: meta?.error,
       }}
       value={field.value ?? ""}
     />

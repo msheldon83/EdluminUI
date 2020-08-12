@@ -8,6 +8,10 @@
 
 ## Dependent PR's (if appropriate):
 
+### Frontend
+[PR-](https://github.com/edustaff/EdluminUI/pull/)
+
+### Backend
 [PR-](https://github.com/edustaff/HCMServer/pull/)
 
 ## Checklist:

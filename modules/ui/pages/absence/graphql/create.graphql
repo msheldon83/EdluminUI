@@ -47,6 +47,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
         numDays
         rowVersion
         notesToReplacement
+        isApprovedForSubJobSearch
         positionId
         position {
           id
@@ -78,6 +79,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
               id
               firstName
               lastName
+              email
             }
           }
           accountingCodeAllocations {
