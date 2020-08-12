@@ -210,7 +210,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
       getProjectedVacancies.state !== "LOADING" &&
       getProjectedVacancies.state !== "UPDATING"
     ) {
-      return projectedVacancies[0].isApprovedForSubJobSearch;
+      return projectedVacancies[0]?.isApprovedForSubJobSearch;
     }
     return true;
   }, [getProjectedVacancies, projectedVacancies, vacanciesOverride]);
