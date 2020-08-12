@@ -3,6 +3,7 @@ mutation CreateVacancy($vacancy: VacancyCreateInput!) {
     create(vacancy: $vacancy) {
       id
       rowVersion
+      isApprovedForSubJobSearch
       details {
         id
         startDate
