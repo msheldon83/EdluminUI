@@ -78,6 +78,7 @@ mutation UpdateAbsence($absence: AbsenceUpdateInput!) {
         numDays
         rowVersion
         notesToReplacement
+        isApprovedForSubJobSearch
         positionId
         position {
           id

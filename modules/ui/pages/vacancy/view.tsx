@@ -168,6 +168,7 @@ export const VacancyView: React.FC<Props> = props => {
         onDelete={onClickDelete}
         approvalState={vacancy.approvalState}
         refetchVacancy={refetchVacancy}
+        isApprovedForSubJobSearch={vacancy.isApprovedForSubJobSearch}
       />
     </>
   );
