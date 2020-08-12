@@ -30,9 +30,10 @@ export type AllocationDropdownProps = {
 
 export type RenderAllocationAmountArgs = {
   disabled: boolean | undefined;
-  value: number | undefined;
-  onChange: (value: number | undefined) => void;
+  value: string | undefined;
+  onChange: (value: string | undefined) => void;
   selection?: OptionType;
+  allocationType?: string;
 };
 
 export type AllocationCodeValue =
@@ -47,7 +48,8 @@ export type AllocationCodeValue =
 type Allocation = {
   id: number;
   selection?: OptionType;
-  amount?: number;
+  amount?: string;
+  allocationType?: string;
 };
 
 /*
@@ -204,12 +206,19 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
           disabled={disabled}
           readOnly
           withResetValue={false}
-          onChange={selection => updateAllocation({ ...allocation, selection })}
+          onChange={selection =>
+            updateAllocation({
+              ...allocation,
+              selection,
+              allocationType: selection.descriptor,
+            })
+          }
         />
         {renderAllocationAmount &&
           renderAllocationAmount({
             disabled,
-            value: allocation.amount,
+            value: allocation.amount?.toString(),
+            allocationType: allocation.allocationType,
             onChange(amount) {
               updateAllocation({ ...allocation, amount });
             },

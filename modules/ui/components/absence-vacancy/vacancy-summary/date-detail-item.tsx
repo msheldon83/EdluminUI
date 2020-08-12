@@ -69,7 +69,8 @@ export const DateDetailItem: React.FC<Props> = props => {
                   {accountingCodeAllocations.map((a, i) => {
                     return (
                       <div key={i}>
-                        {a.accountingCodeName} ({Math.floor(a.allocation * 100)}
+                        {a.accountingCodeName} (
+                        {(a.allocation * 100).toFixed(2)}
                         %)
                       </div>
                     );

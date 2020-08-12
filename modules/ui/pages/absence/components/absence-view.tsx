@@ -98,7 +98,7 @@ export const AbsenceView: React.FC<Props> = props => {
                             <div key={i}>
                               {a.accountingCode?.name}{" "}
                               {multipleAccountingCodeAllocations
-                                ? `(${Math.floor(a.allocation * 100)}%)`
+                                ? `(${(a.allocation * 100).toFixed(2)}%)`
                                 : ""}
                             </div>
                           );
