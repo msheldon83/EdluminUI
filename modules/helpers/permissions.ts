@@ -332,9 +332,14 @@ export const canAssignSub = (
   permissions: OrgUserPermissions[],
   isSysAdmin: boolean,
   orgId?: string,
-  forRole?: Role | null | undefined
+  forRole?: Role | null | undefined,
+  isApprovedForSubJobSearch?: boolean
 ) => {
   if (isSysAdmin) return true;
+
+  if (forRole === "employee" && isApprovedForSubJobSearch === false) {
+    return false;
+  }
 
   const userPerms = getUserPermissions(permissions, orgId, forRole);
   if (

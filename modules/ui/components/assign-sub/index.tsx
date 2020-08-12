@@ -60,6 +60,7 @@ type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
   vacancy?: VacancyCreateInput;
   vacancyId?: string;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export type ValidationChecks = {
@@ -100,6 +101,7 @@ export const AssignSub: React.FC<Props> = props => {
     isForVacancy = false,
     vacancy = undefined,
     vacancyId = undefined,
+    isApprovedForSubJobSearch,
   } = props;
 
   const [reassignDialogIsOpen, setReassignDialogIsOpen] = React.useState(false);
@@ -132,7 +134,7 @@ export const AssignSub: React.FC<Props> = props => {
   }
 
   // Vacancy Details collapse configuration
-  const collapsedVacancyDetailsHeight = 200;
+  const collapsedVacancyDetailsHeight = isApprovedForSubJobSearch ? 200 : 240;
   const [vacancyDetailsHeight, setVacancyDetailsHeight] = React.useState<
     number | null
   >(null);
@@ -380,6 +382,7 @@ export const AssignSub: React.FC<Props> = props => {
               showPayCodes={
                 payCodes.length > 0 && (props.isForVacancy ?? false)
               }
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           </div>
         </Collapse>

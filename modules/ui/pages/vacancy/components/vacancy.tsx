@@ -52,6 +52,7 @@ import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-st
 import * as yup from "yup";
 import { validateAccountingCodeAllocations } from "helpers/accounting-code-allocations";
 import { FilteredAssignmentButton } from "ui/components/absence-vacancy/vacancy-summary/filtered-assignment-button";
+import { GetProjectedIsApprovedForSubJobSearch } from "../graphql/get-projected-isapprovedforsubjobsearch.gen";
 
 type Props = {
   initialVacancy: VacancyDetailsFormData;
@@ -78,6 +79,7 @@ type Props = {
     }[];
   } | null;
   refetchVacancy?: () => Promise<unknown>;
+  isApprovedForSubJobSearch?: boolean;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -228,6 +230,52 @@ export const VacancyUI: React.FC<Props> = props => {
     vacancySummaryDetailsToAssign,
     setVacancySummaryDetailsToAssign,
   ] = React.useState<VacancySummaryDetail[]>([]);
+
+  const initialReasonIds = [
+    ...new Set(initialFormValues.details.map(x => x.vacancyReasonId)),
+  ];
+  const updatedReasonIds = [
+    ...new Set(vacancy.details.map(x => x.vacancyReasonId)),
+  ];
+  const differentReasonIds = updatedReasonIds.filter(
+    x => !initialReasonIds.includes(x)
+  );
+
+  const skipProjectedIsAvailableForSubJobSearch =
+    initialFormValues.positionTypeId === vacancy.positionTypeId ||
+    differentReasonIds.length === 0
+      ? true
+      : false;
+
+  const getProjectedIsAvailableForSubJobSearch = useQueryBundle(
+    GetProjectedIsApprovedForSubJobSearch,
+    {
+      variables: {
+        vacancy: buildVacancyCreateInput(vacancy),
+      },
+      skip: skipProjectedIsAvailableForSubJobSearch,
+    }
+  );
+
+  const isApprovedForSubJobSearch = useMemo(() => {
+    const projectedIsAvailableForSubJobSearch =
+      getProjectedIsAvailableForSubJobSearch.state !== "LOADING" &&
+      getProjectedIsAvailableForSubJobSearch.state !== "UPDATING"
+        ? getProjectedIsAvailableForSubJobSearch.data.vacancy
+            ?.projectIsApprovedForSubJobSearch
+        : undefined;
+
+    if (
+      projectedIsAvailableForSubJobSearch !== null &&
+      projectedIsAvailableForSubJobSearch !== undefined
+    ) {
+      return projectedIsAvailableForSubJobSearch;
+    } else {
+      return props.isApprovedForSubJobSearch !== undefined
+        ? props.isApprovedForSubJobSearch
+        : true;
+    }
+  }, [getProjectedIsAvailableForSubJobSearch, props.isApprovedForSubJobSearch]);
 
   const onAssignSub = React.useCallback(
     async (
@@ -530,6 +578,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       setStep("preAssignSub");
                     },
                     className: classes.preArrangeButton,
+                    isApprovedForSubJobSearch: isApprovedForSubJobSearch,
                   }}
                 />
               )}
@@ -644,17 +693,6 @@ export const VacancyUI: React.FC<Props> = props => {
       <Typography className={classes.subHeader} variant="h4">
         {subHeader()}
       </Typography>
-      {approvalState && (
-        <Can do={[PermissionEnum.AbsVacApprovalsView]}>
-          <ApprovalState
-            orgId={params.organizationId}
-            approvalState={approvalState}
-            isTrueVacancy={true}
-            vacancyId={vacancy.id}
-            onChange={props.refetchVacancy}
-          />
-        </Can>
-      )}
       {vacancy.closedDetails.length > 0 && (
         <Grid className={classes.closedDayBanner} item xs={12}>
           <Typography>
@@ -811,6 +849,19 @@ export const VacancyUI: React.FC<Props> = props => {
             />
             {step === "vacancy" && (
               <>
+                {approvalState && (
+                  <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+                    <div className={classes.approvalBannerContainer}>
+                      <ApprovalState
+                        orgId={params.organizationId}
+                        approvalState={approvalState}
+                        isTrueVacancy={true}
+                        vacancyId={vacancy.id}
+                        onChange={props.refetchVacancy}
+                      />
+                    </div>
+                  </Can>
+                )}
                 <Grid
                   container
                   justify="space-between"
@@ -860,6 +911,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       showPayCodes={payCodes.length > 0}
                       showAccountingCodes={accountingCodes.length > 0}
                       assignAction={vacancyExists ? "assign" : "pre-arrange"}
+                      isApprovedForSubJobSearch={isApprovedForSubJobSearch}
                     />
                   </Grid>
                 </Grid>
@@ -910,6 +962,7 @@ export const VacancyUI: React.FC<Props> = props => {
                     ?.firstName ?? undefined
                 }
                 selectButtonText={vacancyExists ? t("Assign") : undefined}
+                isApprovedForSubJobSearch={isApprovedForSubJobSearch}
               />
             )}
             {step === "confirmation" && (
@@ -927,6 +980,7 @@ export const VacancyUI: React.FC<Props> = props => {
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
+                isApprovedForSubJobSearch={isApprovedForSubJobSearch}
                 resetVacancy={resetVacancy}
               />
             )}
@@ -941,11 +995,13 @@ const useStyles = makeStyles(theme => ({
   container: {
     backgroundColor: theme.customColors.white,
     border: `1px solid ${theme.customColors.sectionBorder}`,
-    borderTopWidth: 0,
     borderRadius: `0 0 ${theme.typography.pxToRem(
       5
     )} ${theme.typography.pxToRem(5)}`,
     padding: theme.spacing(3),
+  },
+  approvalBannerContainer: {
+    marginBottom: theme.spacing(2),
   },
   subHeader: {
     minHeight: theme.typography.pxToRem(60),

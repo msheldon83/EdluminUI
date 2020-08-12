@@ -36,6 +36,7 @@ type Props = {
   ) => Promise<boolean>;
   orgHasPayCodesDefined: boolean;
   orgHasAccountingCodesDefined: boolean;
+  isApprovedForSubJobSearch: boolean;
   resetVacancy: () => void;
 };
 
@@ -53,6 +54,7 @@ export const VacancyConfirmation: React.FC<Props> = ({
   locations,
   positionTypes,
   contracts,
+  isApprovedForSubJobSearch,
 }) => {
   const { t } = useTranslation();
   const classes = useStyles();
@@ -123,6 +125,7 @@ export const VacancyConfirmation: React.FC<Props> = ({
               showPayCodes={orgHasPayCodesDefined}
               showAccountingCodes={orgHasAccountingCodesDefined}
               readOnly={true}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           </Grid>
         </Grid>

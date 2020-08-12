@@ -145,6 +145,7 @@ query GetAbsence($id: ID!) {
         numDays
         rowVersion
         notesToReplacement
+        isApprovedForSubJobSearch
         positionId
         position {
           id

@@ -1,0 +1,5 @@
+query GetProjectedIsApprovedForSubJobSearch($vacancy: VacancyCreateInput!) {
+  vacancy {
+    projectIsApprovedForSubJobSearch(vacancy: $vacancy)
+  }
+}

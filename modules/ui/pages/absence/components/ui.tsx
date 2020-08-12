@@ -733,6 +733,19 @@ export const AbsenceUI: React.FC<Props> = props => {
             !isEqual(initialValues.details, values.details) ||
             initialAbsenceFormData.needsReplacement !== values.needsReplacement;
 
+          const isApprovedForSubJobSearch = unsavedAbsenceDetailChanges
+            ? state.projectedVacancies
+              ? state.projectedVacancies.some(x => x.isApprovedForSubJobSearch)
+              : true
+            : localAbsence?.vacancies
+            ? localAbsence.vacancies.some(x => x?.isApprovedForSubJobSearch)
+            : true;
+
+          const disableReplacementInteractions =
+            !isCreate &&
+            unsavedAbsenceDetailChanges &&
+            !(actingAsEmployee && isApprovedForSubJobSearch);
+
           // Complicated hierarchy to what vacancy details are the ones we want
           // to consider when displaying information or taking action.
           //  1. The "state.customizedVacanciesInput" always take precedence, because
@@ -932,7 +945,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               )
                             }
                             disableReplacementInteractions={
-                              !isCreate && unsavedAbsenceDetailChanges
+                              disableReplacementInteractions
                             }
                             vacanciesOverride={
                               unsavedAbsenceDetailChanges ||
@@ -1034,6 +1047,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                           )
                         : undefined
                     }
+                    isApprovedForSubJobSearch={isApprovedForSubJobSearch}
                     employeeToReplace={
                       vacancySummaryDetailsToAssign
                         ? vacancySummaryDetailsToAssign[0]?.assignment?.employee

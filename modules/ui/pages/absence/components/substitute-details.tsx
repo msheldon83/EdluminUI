@@ -203,6 +203,18 @@ export const SubstituteDetails: React.FC<Props> = props => {
     values.needsReplacement,
   ]);
 
+  const isApprovedForSubJobSearch = React.useMemo(() => {
+    if (vacanciesOverride) {
+      return vacanciesOverride[0].isApprovedForSubJobSearch;
+    } else if (
+      getProjectedVacancies.state !== "LOADING" &&
+      getProjectedVacancies.state !== "UPDATING"
+    ) {
+      return projectedVacancies[0].isApprovedForSubJobSearch;
+    }
+    return true;
+  }, [getProjectedVacancies, projectedVacancies, vacanciesOverride]);
+
   const absenceActions: JSX.Element = React.useMemo(() => {
     return (
       <>
@@ -281,6 +293,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
           }
           disableAssignmentActions={disableReplacementInteractions}
           allowRemoval={!absenceId}
+          isApprovedForSubJobSearch={isApprovedForSubJobSearch}
           showAssignAllButton={
             vacancySummaryDetails.length !== 0 &&
             (!assignmentsByDate || assignmentsByDate.length === 0)
