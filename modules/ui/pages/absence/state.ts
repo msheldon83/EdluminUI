@@ -168,6 +168,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
               return {
                 vacancyDetailId: vd.id,
                 startTimeLocal: parseISO(vd.startTimeLocal),
+                endTimeLocal: parseISO(vd.endTimeLocal),
                 assignment: vd.assignment,
               };
             })
@@ -190,6 +191,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
         assignmentsByDate: allAssignments.map(a => {
           return {
             startTimeLocal: a.startTimeLocal,
+            endTimeLocal: a.endTimeLocal,
             vacancyDetailId: a.vacancyDetailId,
             assignmentId: a.assignment.id,
             assignmentRowVersion: a.assignment.rowVersion,
@@ -220,36 +222,33 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       const isAbsenceCreate = !prev.absenceId;
       let updatedAssignmentsByDate = prev.assignmentsByDate;
       if (isAbsenceCreate) {
-        // Recalculate the assignmentsByDate in case the times have changed on
-        // details that had been pre-arranged. We want to maintain the first pre-arrange
-        // on that day so if Sub A was pre-arranged for a Half Day AM and the User changes
-        // the Absence to a Half Day PM, Sub A should still be pre-arranged
-        const allDetailStartTimes = compact(
+        // Only keep the assignmentsByDate that still match exactly to our details here.
+        // Only doing this on Create, because we don't want to lose existing Assignments
+        // when User is adding or removing days since that will be handled when they
+        // actually save their Absence changes
+        const allDetailTimes = compact(
           flatMap(
             action.projectedVacancies?.map(v =>
-              v.details?.map(d => d?.startTimeLocal)
+              v.details?.map(d =>
+                d
+                  ? {
+                      startTimeLocal: parseISO(d.startTimeLocal),
+                      endTimeLocal: parseISO(d.endTimeLocal),
+                    }
+                  : undefined
+              )
             )
           )
-        ).map(d => parseISO(d));
+        );
         const assignments: AssignmentOnDate[] = [];
-        allDetailStartTimes.forEach(d => {
-          // Check for an exact match
-          let match = updatedAssignmentsByDate.find(a =>
-            isEqual(a.startTimeLocal, d)
+        allDetailTimes.forEach(d => {
+          const match = updatedAssignmentsByDate.find(
+            a =>
+              isEqual(a.startTimeLocal, d.startTimeLocal) &&
+              isEqual(a.endTimeLocal, d.endTimeLocal)
           );
-          if (!match) {
-            // When there is no exact match then look for a same day match
-            match = sortBy(
-              updatedAssignmentsByDate,
-              a => a.startTimeLocal
-            ).find(a => isSameDay(a.startTimeLocal, d));
-          }
-
           if (match) {
-            assignments.push({
-              ...match,
-              startTimeLocal: d,
-            });
+            assignments.push(match);
           }
         });
         updatedAssignmentsByDate = assignments;

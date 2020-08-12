@@ -25,6 +25,7 @@ export type AbsenceDetail = {
 
 export type AssignmentOnDate = {
   startTimeLocal: Date;
+  endTimeLocal: Date;
   vacancyDetailId?: string | undefined;
   assignmentId?: string;
   assignmentRowVersion?: string;

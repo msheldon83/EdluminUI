@@ -382,6 +382,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           assignments: vacancySummaryDetails.map(vsd => {
             return {
               startTimeLocal: vsd.startTimeLocal,
+              endTimeLocal: vsd.endTimeLocal,
               vacancyDetailId: vsd.vacancyDetailId,
               employee: {
                 id: replacementEmployee.id,
@@ -417,6 +418,7 @@ export const AbsenceUI: React.FC<Props> = props => {
             assignments: vacancySummaryDetails.map(vsd => {
               return {
                 startTimeLocal: vsd.startTimeLocal,
+                endTimeLocal: vsd.endTimeLocal,
                 vacancyDetailId: vsd.vacancyDetailId,
                 assignmentId: assignment.id,
                 assignmentRowVersion: assignment.rowVersion,

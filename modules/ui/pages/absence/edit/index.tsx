@@ -139,6 +139,7 @@ export const EditAbsence: React.FC<Props> = props => {
         assignmentId: a.assignment.id,
         assignmentRowVersion: a.assignment.rowVersion,
         startTimeLocal: parseISO(a.detail.startTimeLocal),
+        endTimeLocal: parseISO(a.detail.endTimeLocal),
         vacancyDetailId: a.detail.id,
         employee: {
           id: a.assignment.employeeId,
