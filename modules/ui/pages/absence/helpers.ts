@@ -362,6 +362,8 @@ export const projectVacancyDetailsFromVacancies = (
           d?.assignment?.employee?.firstName ?? assignment?.employee?.firstName,
         assignmentEmployeeLastName:
           d?.assignment?.employee?.lastName ?? assignment?.employee?.lastName,
+        assignmentEmployeeEmail:
+          d?.assignment?.employee?.email ?? assignment?.employee?.email,
         isClosed: d.isClosed ?? false,
       } as VacancyDetail;
     })
@@ -413,7 +415,7 @@ export const convertVacancyToVacancySummaryDetails = (
               id: assignmentOnDate.employee.id,
               firstName: assignmentOnDate.employee.firstName,
               lastName: assignmentOnDate.employee.lastName,
-              email: assignmentOnDate.employee.email ?? undefined
+              email: assignmentOnDate.employee.email ?? undefined,
             },
           }
         : undefined,
