@@ -10,13 +10,10 @@ import {
 import { Reducer } from "react";
 import {
   Vacancy,
-  ApprovalStatus,
-  Maybe,
   Absence,
 } from "graphql/server-types.gen";
 import { AssignmentOnDate, VacancyDetail } from "./types";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
-import { ApprovalWorkflowSteps } from "ui/components/absence-vacancy/approval-state/types";
 import { AbsenceReasonUsageData } from "./components/balance-usage";
 import {
   projectVacancyDetailsFromVacancies,
@@ -40,21 +37,6 @@ export type AbsenceState = {
   initialVacancyDetails?: VacancyDetail[];
   assignmentsByDate: AssignmentOnDate[];
   initialAbsenceReasonUsageData?: AbsenceReasonUsageData[];
-  approvalState?: {
-    id: string;
-    canApprove: boolean;
-    approvalWorkflowId: string;
-    approvalWorkflow: {
-      steps: ApprovalWorkflowSteps[];
-    };
-    approvalStatusId: ApprovalStatus;
-    deniedApproverGroupHeaderName?: string | null;
-    approvedApproverGroupHeaderNames?: Maybe<string>[] | null;
-    pendingApproverGroupHeaderName?: string | null;
-    comments: {
-      commentIsPublic: boolean;
-    }[];
-  } | null;
 };
 
 export type AbsenceActions =

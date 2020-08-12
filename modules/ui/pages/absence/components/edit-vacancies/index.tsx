@@ -173,7 +173,9 @@ export const EditVacancies: React.FC<Props> = props => {
                     );
                   }
 
-                  if (sum(selectedAccountingCodes.map(a => a.amount)) !== 100) {
+                  if (
+                    sum(selectedAccountingCodes.map(a => +a.amount!)) !== 100
+                  ) {
                     // Allocations need to add up to 100%
                     return new yup.ValidationError(
                       t("Accounting code allocations do not total 100%"),

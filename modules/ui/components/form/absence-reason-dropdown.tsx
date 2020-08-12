@@ -37,7 +37,7 @@ export const AbsenceReasonDropdown = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const amountInputVisibleness = () => {
+  const { hoursVisible, daysVisible } = (() => {
     switch (props.value?.type) {
       case MULTIPLE_ALLOCATIONS: {
         return {
@@ -57,24 +57,63 @@ export const AbsenceReasonDropdown = ({
         };
       }
     }
-  };
+  })();
 
-  const { hoursVisible, daysVisible } = amountInputVisibleness();
+  const renderAllocationAmount = ({
+    selection,
+    value,
+    allocationType,
+    ...allocationProps
+  }: RenderAllocationAmountArgs) => {
+    const hoursDisabled =
+      !selection ||
+      selection?.descriptor === "DAYS" ||
+      allocationProps.disabled;
+    const daysDisabled =
+      !selection ||
+      selection?.descriptor === "HOURS" ||
+      allocationProps.disabled;
 
-  const daysToHours = (days?: number) => {
-    if (days === undefined) {
-      return undefined;
-    }
+    /*
+      Only convert the allocation amount when absolutely necessary
+    */
+    const hoursValue =
+      allocationType === "DAYS" && value
+        ? daysToHours(value, hoursInADay)
+        : value;
+    const daysValue =
+      allocationType === "HOURS" && value
+        ? hoursToDays(value, hoursInADay)
+        : value;
 
-    return days * hoursInADay;
-  };
-
-  const hoursToDays = (hours?: number) => {
-    if (hours === undefined) {
-      return undefined;
-    }
-
-    return hours / hoursInADay;
+    return selection ? (
+      <div className={classes.allocationAmountWrapper} role="cell">
+        {hoursVisible && (
+          <NumberInput
+            {...allocationProps}
+            onChange={e => allocationProps.onChange(e.target.value)}
+            value={hoursValue}
+            className={classes.hoursInputColumn}
+            maxLengthBeforeDecimal={2}
+            maxLengthAfterDecimal={2}
+            disabled={hoursDisabled}
+          />
+        )}
+        {daysVisible && (
+          <NumberInput
+            {...allocationProps}
+            onChange={e => allocationProps.onChange(e.target.value)}
+            value={daysValue}
+            className={classes.daysInputColumn}
+            maxLengthBeforeDecimal={1}
+            maxLengthAfterDecimal={2}
+            disabled={daysDisabled}
+          />
+        )}
+      </div>
+    ) : (
+      <div />
+    );
   };
 
   return (
@@ -118,42 +157,7 @@ export const AbsenceReasonDropdown = ({
           </div>
         );
       }}
-      renderAllocationAmount={({
-        selection,
-        value,
-        ...allocationProps
-      }: RenderAllocationAmountArgs) => {
-        const hoursDisabled = !selection || selection?.descriptor === "DAYS";
-        const daysDisabled = !selection || selection?.descriptor === "HOURS";
-
-        return selection ? (
-          <div className={classes.allocationAmountWrapper} role="cell">
-            {hoursVisible && (
-              <NumberInput
-                {...allocationProps}
-                value={value}
-                className={classes.hoursInputColumn}
-                maxLength={3}
-                disabled={allocationProps.disabled || hoursDisabled}
-              />
-            )}
-            {daysVisible && (
-              <NumberInput
-                {...allocationProps}
-                onChange={days => {
-                  allocationProps.onChange(daysToHours(days));
-                }}
-                value={hoursToDays(value)}
-                className={classes.daysInputColumn}
-                maxLength={3}
-                disabled={allocationProps.disabled || daysDisabled}
-              />
-            )}
-          </div>
-        ) : (
-          <div />
-        );
-      }}
+      renderAllocationAmount={renderAllocationAmount}
     />
   );
 };
@@ -176,3 +180,11 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
   },
 }));
+
+function daysToHours(days: string, hoursInADay: number) {
+  return (+days * hoursInADay).toString();
+}
+
+function hoursToDays(hours: string, hoursInADay: number) {
+  return (+hours / hoursInADay).toString();
+}
