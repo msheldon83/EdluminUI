@@ -106,7 +106,7 @@ export const AdminCreateAbsence: React.FC<{}> = props => {
       initialAbsenceFormData={{
         details: [],
         needsReplacement:
-          employee.primaryPosition?.needsReplacement === NeedsReplacement.Yes,
+          employee.primaryPosition?.needsReplacement !== NeedsReplacement.No,
         accountingCodeAllocations: defaultAccountingCodeAllocations,
         payCodeId:
           employee.primaryPosition?.positionType?.payCodeId ?? undefined,
