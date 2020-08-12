@@ -1284,14 +1284,14 @@ export const buildAbsenceInput = (
         notesToReplacement: notesToReplacement,
         details: vDetails,
         accountingCodeAllocations:
-          hasEditedDetails || !formValues.accountingCodeAllocations
+          hasEditedDetails || !formValues.accountingCodeAllocations || !formValues.needsReplacement
             ? undefined
             : mapAccountingCodeValueToAccountingCodeAllocations(
                 formValues.accountingCodeAllocations,
                 true
               ),
         payCodeId:
-          hasEditedDetails || !formValues.payCodeId
+          hasEditedDetails || !formValues.payCodeId || !formValues.needsReplacement
             ? undefined
             : formValues.payCodeId,
       },
