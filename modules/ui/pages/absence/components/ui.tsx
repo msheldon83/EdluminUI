@@ -149,7 +149,7 @@ export const AbsenceUI: React.FC<Props> = props => {
   );
   React.useEffect(() => {
     // Since there are conditions in the Edit workflow where we allow sub components
-    // to refetch the Absence, it is possible for us to get an update Absence prop
+    // to refetch the Absence, it is possible for us to get an updated Absence prop
     // coming into this component and we want to account for that
     setLocalAbsence(absence);
   }, [absence]);
@@ -216,11 +216,11 @@ export const AbsenceUI: React.FC<Props> = props => {
             isSysAdmin,
             orgId,
             actingAsEmployee ? "employee" : "admin",
-            state.approvalState?.approvalStatusId
+            absence?.approvalState?.approvalStatusId
           )
       );
     },
-    [actingAsEmployee, canDoFn, isCreate, state.approvalState?.approvalStatusId]
+    [actingAsEmployee, canDoFn, isCreate, absence?.approvalState?.approvalStatusId]
   );
 
   const onProjectedVacanciesChange = React.useCallback(
@@ -882,11 +882,11 @@ export const AbsenceUI: React.FC<Props> = props => {
                       employee.locationIds.length === 0 &&
                       missingLocationsWarning}
 
-                    {state.approvalState && (
+                    {absence?.approvalState && (
                       <Can do={[PermissionEnum.AbsVacApprovalsView]}>
                         <ApprovalState
                           orgId={organizationId}
-                          approvalState={state.approvalState}
+                          approvalState={absence.approvalState}
                           actingAsEmployee={actingAsEmployee}
                           isTrueVacancy={false}
                           absenceId={state.absenceId}
@@ -1301,14 +1301,18 @@ export const buildAbsenceInput = (
         notesToReplacement: notesToReplacement,
         details: vDetails,
         accountingCodeAllocations:
-          hasEditedDetails || !formValues.accountingCodeAllocations
+          hasEditedDetails ||
+          !formValues.accountingCodeAllocations ||
+          !formValues.needsReplacement
             ? undefined
             : mapAccountingCodeValueToAccountingCodeAllocations(
                 formValues.accountingCodeAllocations,
                 true
               ),
         payCodeId:
-          hasEditedDetails || !formValues.payCodeId
+          hasEditedDetails ||
+          !formValues.payCodeId ||
+          !formValues.needsReplacement
             ? undefined
             : formValues.payCodeId,
       },
