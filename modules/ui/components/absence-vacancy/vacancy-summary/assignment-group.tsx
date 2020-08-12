@@ -7,7 +7,7 @@ import { makeStyles } from "@material-ui/core";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
-  isExistingVacancy: boolean;
+  assignAction: "assign" | "pre-arrange";
   isPartiallyFilled: boolean;
   showPayCodes: boolean;
   showAccountingCodes: boolean;
@@ -28,7 +28,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
   const {
     assignmentWithDetails,
-    isExistingVacancy,
+    assignAction,
     isPartiallyFilled,
     showAbsenceTimes,
     onAssignClick,
@@ -61,7 +61,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
               assignmentWithDetails={assignmentWithDetails}
               onAssignClick={onAssignClick}
               disableActions={disableActions}
-              isExistingVacancy={isExistingVacancy}
+              assignAction={assignAction}
             />
           )}
           {isAssigned && (

@@ -7,7 +7,7 @@ import { canAssignSub } from "helpers/permissions";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
-  isExistingVacancy: boolean;
+  assignAction: "assign" | "pre-arrange";
   onAssignClick?: (
     vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<void>;
@@ -20,7 +20,7 @@ export const UnfilledBanner: React.FC<Props> = props => {
   const {
     onAssignClick,
     assignmentWithDetails,
-    isExistingVacancy,
+    assignAction,
     disableActions = false,
   } = props;
 
@@ -32,7 +32,7 @@ export const UnfilledBanner: React.FC<Props> = props => {
         {onAssignClick && (
           <FilteredAssignmentButton
             details={assignmentWithDetails.vacancySummaryDetails}
-            action={isExistingVacancy ? "assign" : "pre-arrange"}
+            action={assignAction}
             permissionCheck={canAssignSub}
             disableAction={disableActions}
             onClick={onAssignClick}

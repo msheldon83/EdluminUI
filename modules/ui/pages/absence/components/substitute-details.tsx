@@ -285,6 +285,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
             vacancySummaryDetails.length !== 0 &&
             (!assignmentsByDate || assignmentsByDate.length === 0)
           }
+          assignAction={absenceId ? "assign" : "pre-arrange"}
         />
       )}
       {!values.needsReplacement && (

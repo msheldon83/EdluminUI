@@ -859,6 +859,7 @@ export const VacancyUI: React.FC<Props> = props => {
                       }}
                       showPayCodes={payCodes.length > 0}
                       showAccountingCodes={accountingCodes.length > 0}
+                      assignAction={vacancyExists ? "assign" : "pre-arrange"}
                     />
                   </Grid>
                 </Grid>

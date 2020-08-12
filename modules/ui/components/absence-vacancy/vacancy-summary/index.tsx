@@ -11,6 +11,7 @@ import { canAssignSub } from "helpers/permissions";
 
 type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
+  assignAction?: "assign" | "pre-arrange";
   showPayCodes: boolean;
   showAccountingCodes: boolean;
   notesForSubstitute?: string;
@@ -51,6 +52,7 @@ export const VacancySummary: React.FC<Props> = props => {
     footerActions = null,
     noDaysChosenText = t("No days chosen"),
     allowRemoval = false,
+    assignAction = "assign",
   } = props;
 
   const assignmentGroups = useMemo(() => {
@@ -83,14 +85,6 @@ export const VacancySummary: React.FC<Props> = props => {
       !!uniqueRecords[0].assignment?.id ||
       !!uniqueRecords[0].assignment?.employee?.id
     );
-  }, [vacancySummaryDetails]);
-
-  const isExistingVacancy = useMemo(() => {
-    if (vacancySummaryDetails.length === 0) {
-      return false;
-    }
-
-    return !!vacancySummaryDetails[0]?.vacancyId;
   }, [vacancySummaryDetails]);
 
   return (
@@ -126,7 +120,7 @@ export const VacancySummary: React.FC<Props> = props => {
               showAccountingCodes={showAccountingCodes}
               readOnly={props.readOnly ?? false}
               allowRemoval={allowRemoval}
-              isExistingVacancy={isExistingVacancy}
+              assignAction={assignAction}
             />
           ))}
         </div>
@@ -160,7 +154,7 @@ export const VacancySummary: React.FC<Props> = props => {
             {showAssignAllButton && onAssignClick && (
               <FilteredAssignmentButton
                 details={vacancySummaryDetails}
-                action={isExistingVacancy ? "assign" : "pre-arrange"}
+                action={assignAction}
                 permissionCheck={canAssignSub}
                 disableAction={disableAssignmentActions}
                 onClick={onAssignClick}
