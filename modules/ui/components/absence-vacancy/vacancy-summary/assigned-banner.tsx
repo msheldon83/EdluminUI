@@ -21,6 +21,7 @@ type Props = {
   disableActions?: boolean;
   readOnly: boolean;
   allowRemoval?: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const AssignedBanner: React.FC<Props> = props => {
@@ -30,6 +31,7 @@ export const AssignedBanner: React.FC<Props> = props => {
     assignmentWithDetails,
     onReassignClick,
     onCancelAssignment,
+    isApprovedForSubJobSearch,
     disableActions = false,
     allowRemoval = false,
   } = props;
@@ -87,6 +89,7 @@ export const AssignedBanner: React.FC<Props> = props => {
               onClick={onReassignClick}
               assignment={assignmentWithDetails.assignment}
               className={classes.reassignButton}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           )}
           {onCancelAssignment && (
@@ -116,6 +119,7 @@ export const AssignedBanner: React.FC<Props> = props => {
               onClick={onCancelAssignment}
               assignment={assignmentWithDetails.assignment}
               className={classes.removeButton}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           )}
         </div>

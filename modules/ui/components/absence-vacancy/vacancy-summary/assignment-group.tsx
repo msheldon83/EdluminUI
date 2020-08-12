@@ -22,6 +22,7 @@ type Props = {
   detailsOnly?: boolean;
   readOnly: boolean;
   allowRemoval?: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
@@ -36,6 +37,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
     showPayCodes,
     showAccountingCodes,
     readOnly,
+    isApprovedForSubJobSearch,
     disableActions = false,
     detailsOnly = false,
     allowRemoval = false,
@@ -62,6 +64,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
               onAssignClick={onAssignClick}
               disableActions={disableActions}
               assignAction={assignAction}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           )}
           {isAssigned && (
@@ -72,6 +75,7 @@ export const AssignmentGroup: React.FC<Props> = props => {
               disableActions={disableActions}
               readOnly={readOnly}
               allowRemoval={allowRemoval}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           )}
         </>

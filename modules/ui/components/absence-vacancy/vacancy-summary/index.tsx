@@ -109,8 +109,8 @@ export const VacancySummary: React.FC<Props> = props => {
           </div>
         )}
         {!isApprovedForSubJobSearch && (
-            <NotReleasedBanner isNormalVacancy={!isAbsence} />
-      )}
+          <NotReleasedBanner isNormalVacancy={!isAbsence} />
+        )}
         <div className={classes.assignmentGroupsContainer}>
           {assignmentGroups.map((a, i) => (
             <AssignmentGroup
@@ -127,6 +127,7 @@ export const VacancySummary: React.FC<Props> = props => {
               readOnly={props.readOnly ?? false}
               allowRemoval={allowRemoval}
               assignAction={assignAction}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           ))}
         </div>
@@ -165,6 +166,7 @@ export const VacancySummary: React.FC<Props> = props => {
                 disableAction={disableAssignmentActions}
                 onClick={onAssignClick}
                 className={classes.assignAllButton}
+                isApprovedForSubJobSearch={isApprovedForSubJobSearch}
               />
             )}
             {footerActions}

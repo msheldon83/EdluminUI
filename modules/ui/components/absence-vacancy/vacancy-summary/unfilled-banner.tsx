@@ -12,6 +12,7 @@ type Props = {
     vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<void>;
   disableActions?: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const UnfilledBanner: React.FC<Props> = props => {
@@ -21,6 +22,7 @@ export const UnfilledBanner: React.FC<Props> = props => {
     onAssignClick,
     assignmentWithDetails,
     assignAction,
+    isApprovedForSubJobSearch,
     disableActions = false,
   } = props;
 
@@ -37,6 +39,7 @@ export const UnfilledBanner: React.FC<Props> = props => {
             disableAction={disableActions}
             onClick={onAssignClick}
             className={classes.assignButton}
+            isApprovedForSubJobSearch={isApprovedForSubJobSearch}
           />
         )}
       </div>

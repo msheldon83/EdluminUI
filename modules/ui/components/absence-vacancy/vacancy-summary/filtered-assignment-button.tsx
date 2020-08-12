@@ -1,5 +1,4 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/styles";
 import { Button } from "@material-ui/core";
 import { Can } from "ui/components/auth/can";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
@@ -16,12 +15,14 @@ type Props = {
   action: AssignmentAction;
   onClick: (vacancySummaryDetails: VacancySummaryDetail[]) => void;
   disableAction: boolean;
+  isApprovedForSubJobSearch: boolean;
   permissionCheck: (
     absDate: Date,
     permissions: OrgUserPermissions[],
     isSysAdmin: boolean,
     orgId?: string,
-    forRole?: Role | null | undefined
+    forRole?: Role | null | undefined,
+    isApprovedForSubJobSearch?: boolean
   ) => boolean;
   className?: string;
 };
@@ -31,6 +32,7 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
   assignment,
   action,
   disableAction,
+  isApprovedForSubJobSearch,
   onClick,
   permissionCheck,
   className,
@@ -56,7 +58,8 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
       permissions,
       isSysAdmin,
       orgId,
-      forRole
+      forRole,
+      isApprovedForSubJobSearch
     );
 
   const futureDetailPerms = (
@@ -71,7 +74,8 @@ export const FilteredAssignmentButton: React.FC<Props> = ({
       permissions,
       isSysAdmin,
       orgId,
-      forRole
+      forRole,
+      isApprovedForSubJobSearch
     );
 
   const [assignmentDialogIsOpen, setAssignmentDialogIsOpen] = React.useState<
