@@ -205,12 +205,18 @@ export const SubstituteDetails: React.FC<Props> = props => {
 
   const isApprovedForSubJobSearch = React.useMemo(() => {
     if (vacanciesOverride) {
-      return vacanciesOverride[0].isApprovedForSubJobSearch;
+      return vacanciesOverride[0]
+        ? vacanciesOverride[0].isApprovedForSubJobSearch
+        : true;
     } else if (
       getProjectedVacancies.state !== "LOADING" &&
       getProjectedVacancies.state !== "UPDATING"
     ) {
-      return projectedVacancies[0]?.isApprovedForSubJobSearch;
+      // projected vacancies will be empty if this absence is on an inservice day
+      // If so, there will be no vacancy so it will never be released to subs
+      return projectedVacancies[0]
+        ? projectedVacancies[0].isApprovedForSubJobSearch
+        : true;
     }
     return true;
   }, [getProjectedVacancies, projectedVacancies, vacanciesOverride]);
