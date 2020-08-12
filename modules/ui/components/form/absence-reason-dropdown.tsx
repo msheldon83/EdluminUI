@@ -37,6 +37,46 @@ export const AbsenceReasonDropdown = ({
   const theme = useTheme();
   const { t } = useTranslation();
 
+  const totalHours = React.useMemo(() => {
+    // Only multiple allocations will need this value
+    if (props.value?.type !== MULTIPLE_ALLOCATIONS) {
+      return 0;
+    }
+
+    return (
+      props.value?.allocations.reduce((total, allocation) => {
+        switch (allocation.selection?.descriptor) {
+          case "DAYS": {
+            return allocation.amount
+              ? +daysToHours(allocation?.amount, hoursInADay) + total
+              : total;
+          }
+
+          case "HOURS": {
+            return allocation.amount ? +allocation?.amount + total : total;
+          }
+
+          default: {
+            return total;
+          }
+        }
+      }, 0) ?? 0
+    );
+  }, [hoursInADay, props.value]);
+
+  const totalDays = React.useMemo(() => {
+    return +hoursToDays(totalHours.toString(), hoursInADay);
+  }, [hoursInADay, totalHours]);
+
+  const totalHoursDescription =
+    totalHours > 0
+      ? `${totalHours} ${totalHours === 1 ? t("hour") : t("hours")}`
+      : "";
+  const totalDaysDescription =
+    totalDays > 0
+      ? `${totalDays} ${totalDays === 1 ? t("day") : t("days")}`
+      : "";
+
   const { hoursVisible, daysVisible } = (() => {
     switch (props.value?.type) {
       case MULTIPLE_ALLOCATIONS: {
@@ -130,7 +170,7 @@ export const AbsenceReasonDropdown = ({
               <div
                 role="columnheader"
                 style={{
-                  transform: "translateX(-10px)",
+                  paddingLeft: theme.typography.pxToRem(1),
                   paddingBottom: theme.spacing(0.5),
                 }}
                 className={classes.hoursInputColumn}
@@ -142,7 +182,7 @@ export const AbsenceReasonDropdown = ({
               <div
                 role="columnheader"
                 style={{
-                  transform: "translateX(-10px)",
+                  paddingLeft: theme.typography.pxToRem(1),
                   paddingBottom: theme.spacing(0.5),
                 }}
                 className={classes.daysInputColumn}
@@ -157,12 +197,43 @@ export const AbsenceReasonDropdown = ({
           </div>
         );
       }}
+      renderAllocationFooter={() => {
+        return (
+          <>
+            {hoursVisible && (
+              <div
+                className={classes.hoursInputColumn}
+                style={{
+                  paddingLeft: theme.typography.pxToRem(2),
+                  fontWeight: theme.typography.fontWeightMedium,
+                }}
+              >
+                {totalHoursDescription}
+              </div>
+            )}
+            {daysVisible && (
+              <div
+                className={classes.daysInputColumn}
+                style={{
+                  paddingLeft: theme.typography.pxToRem(2),
+                  fontWeight: theme.typography.fontWeightMedium,
+                }}
+              >
+                {totalDaysDescription}
+              </div>
+            )}
+          </>
+        );
+      }}
       renderAllocationAmount={renderAllocationAmount}
     />
   );
 };
 
 const useStyles = makeStyles(theme => ({
+  column: {
+    flex: "1 0 auto",
+  },
   hoursInputColumn: {
     marginRight: theme.spacing(1),
     width: theme.spacing(10),
@@ -172,12 +243,12 @@ const useStyles = makeStyles(theme => ({
     width: theme.spacing(11),
     textAlign: "left",
   },
+  allocationHeaders: {
+    display: "flex",
+  },
   allocationAmountWrapper: {
     marginLeft: theme.spacing(0.5),
     marginRight: theme.spacing(0.5),
-  },
-  allocationHeaders: {
-    display: "flex",
   },
 }));
 

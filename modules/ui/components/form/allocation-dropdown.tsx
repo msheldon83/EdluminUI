@@ -26,6 +26,7 @@ export type AllocationDropdownProps = {
   ) => React.ReactElement;
   // Allows the parent to render custom elements above the multiple allocations section
   renderAllocationsHeaders?: () => React.ReactElement;
+  renderAllocationFooter?: () => React.ReactElement;
 };
 
 export type RenderAllocationAmountArgs = {
@@ -107,6 +108,7 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
     multipleAllocationPlaceholder,
     renderAllocationAmount,
     renderAllocationsHeaders,
+    renderAllocationFooter,
   } = props;
 
   const classes = useStyles();
@@ -284,20 +286,27 @@ export const AllocationDropdown = (props: AllocationDropdownProps) => {
               })}
             </ul>
 
-            <div className={classes.alloctionButtons}>
-              <TextButton
-                onClick={handleAddAllocation}
-                className={classes.addAllocationButton}
-              >
-                {t("Add Allocation")}
-              </TextButton>
+            <div className={classes.allocationButtons}>
+              <div className={classes.allocationButtonWrapper}>
+                <TextButton
+                  onClick={handleAddAllocation}
+                  className={classes.addAllocationButton}
+                >
+                  {t("Add Allocation")}
+                </TextButton>
+                <TextButton
+                  onClick={() => resetAllocation()}
+                  className={classes.removeSplit}
+                >
+                  {t("Remove Split")}
+                </TextButton>
+              </div>
 
-              <TextButton
-                onClick={() => resetAllocation()}
-                className={classes.removeSplit}
-              >
-                {t("Remove Split")}
-              </TextButton>
+              {renderAllocationFooter && (
+                <div className={classes.allocationFooterWrapper}>
+                  {renderAllocationFooter()}
+                </div>
+              )}
             </div>
           </div>
           {validationMessage && (
@@ -352,12 +361,17 @@ const useStyles = makeStyles(theme => ({
     flex: "1 0 auto",
     marginRight: theme.spacing(0.5),
   },
-  alloctionButtons: {
+  allocationButtons: {
+    display: "flex",
     padding: `0 ${theme.typography.pxToRem(
       theme.spacing(1.5)
     )} ${theme.typography.pxToRem(
       theme.spacing(1.5)
     )} ${theme.typography.pxToRem(theme.spacing(1.5))}`,
+  },
+  allocationButtonWrapper: {
+    flex: "1 0 auto",
+    marginRight: theme.spacing(0.5),
   },
   addAllocationButton: {
     color: theme.messages.default,
@@ -365,6 +379,10 @@ const useStyles = makeStyles(theme => ({
   },
   removeSplit: {
     color: theme.status.error,
+  },
+  allocationFooterWrapper: {
+    display: 'flex',
+    paddingRight: theme.typography.pxToRem(16),
   },
   error: {
     borderColor: theme.customColors.darkRed,
