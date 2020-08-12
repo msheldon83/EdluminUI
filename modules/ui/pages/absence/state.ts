@@ -95,6 +95,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       return { ...prev, viewingCalendarMonth: action.month };
     }
     case "toggleDate": {
+      const isAbsenceCreate = !prev.absenceId;
       const date = startOfDay(action.date);
       if (find(prev.absenceDates, d => isSameDay(d, date))) {
         return {
@@ -103,10 +104,12 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           projectedVacancyDetails: undefined,
           projectedVacancies: undefined,
           absenceDates: filter(prev.absenceDates, d => !isSameDay(d, date)),
-          assignmentsByDate: filter(
-            prev.assignmentsByDate,
-            a => !isSameDay(a.startTimeLocal, date) || !!a.assignmentId
-          ),
+          assignmentsByDate: isAbsenceCreate
+            ? filter(
+                prev.assignmentsByDate,
+                a => !isSameDay(a.startTimeLocal, date)
+              )
+            : prev.assignmentsByDate,
         };
       } else {
         return {
@@ -214,13 +217,52 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       };
     }
     case "setProjectedVacancies": {
+      const isAbsenceCreate = !prev.absenceId;
+      let updatedAssignmentsByDate = prev.assignmentsByDate;
+      if (isAbsenceCreate) {
+        // Recalculate the assignmentsByDate in case the times have changed on
+        // details that had been pre-arranged. We want to maintain the first pre-arrange
+        // on that day so if Sub A was pre-arranged for a Half Day AM and the User changes
+        // the Absence to a Half Day PM, Sub A should still be pre-arranged
+        const allDetailStartTimes = compact(
+          flatMap(
+            action.projectedVacancies?.map(v =>
+              v.details?.map(d => d?.startTimeLocal)
+            )
+          )
+        ).map(d => parseISO(d));
+        const assignments: AssignmentOnDate[] = [];
+        allDetailStartTimes.forEach(d => {
+          // Check for an exact match
+          let match = updatedAssignmentsByDate.find(a =>
+            isEqual(a.startTimeLocal, d)
+          );
+          if (!match) {
+            // When there is no exact match then look for a same day match
+            match = sortBy(
+              updatedAssignmentsByDate,
+              a => a.startTimeLocal
+            ).find(a => isSameDay(a.startTimeLocal, d));
+          }
+
+          if (match) {
+            assignments.push({
+              ...match,
+              startTimeLocal: d,
+            });
+          }
+        });
+        updatedAssignmentsByDate = assignments;
+      }
+
       return {
         ...prev,
         projectedVacancies: action.projectedVacancies,
         projectedVacancyDetails: projectVacancyDetailsFromVacancies(
           action.projectedVacancies,
-          prev.assignmentsByDate
+          updatedAssignmentsByDate
         ),
+        assignmentsByDate: updatedAssignmentsByDate,
       };
     }
     case "updateAssignments": {

@@ -876,17 +876,6 @@ export const AbsenceUI: React.FC<Props> = props => {
                             projectionInput={inputForProjectedCalls}
                             positionTypeId={position?.positionTypeId}
                             onTimeChange={() => {
-                              // dispatch an action here that includes the
-                              // updated time information as an array of 
-                              // all of the days/dates affected
-
-                              // That action will then adjust assignments on 
-                              // matching days to make sure any assignments
-                              // on that day that no longer match anything are
-                              // replaced with the earliest assignment on that day
-
-                              // Vacancy Details are important here, not Absence Details
-                              
                               dispatch({
                                 action: "setVacanciesInput",
                                 input: undefined,
