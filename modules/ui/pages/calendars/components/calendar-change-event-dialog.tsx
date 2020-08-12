@@ -97,7 +97,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
       affectsAllContracts,
       affectsAllLocations,
       contractIds,
-      locationIds
+      locationIds,
+      t
     );
 
     setSummaryTest(string);
