@@ -254,7 +254,6 @@ export const EditAbsence: React.FC<Props> = props => {
                   parseISO(cd.startDate)
                 )
               : [],
-            approvalState: absence.approvalState,
             assignmentsByDate: assignmentsByDate,
             initialVacancyDetails: absence.vacancies
               ? projectVacancyDetailsFromVacancies(absence.vacancies)
