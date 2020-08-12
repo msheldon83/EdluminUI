@@ -4,11 +4,18 @@ import { NumberInput } from "./number-input";
 
 export const NumberInputStory = () => {
   const classes = useStyles();
-  const [value, setValue] = React.useState<number | undefined>();
+  const [value, setValue] = React.useState<string>();
 
   return (
     <div className={classes.container}>
-      <NumberInput value={value} onChange={setValue} />
+      <NumberInput
+        value={value}
+        maxLengthBeforeDecimal={2}
+        maxLengthAfterDecimal={2}
+        onChange={e => {
+          setValue(e.target.value);
+        }}
+      />
     </div>
   );
 };

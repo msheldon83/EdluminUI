@@ -29,12 +29,18 @@ export const AccountingCodeDropdown = (props: AccountingCodeDropdownProps) => {
       placeholder={t("Select code")}
       label={t("Accounting code")}
       renderAllocationAmount={(allocationProps: RenderAllocationAmountArgs) => {
+        const { allocationType, ...inputProps } = allocationProps;
+
         return (
           <NumberInput
-            {...allocationProps}
+            {...inputProps}
+            onChange={e => {
+              allocationProps.onChange(e.target.value);
+            }}
             className={classes.multiCodeInput}
             endAdornment="%"
-            maxLength={2}
+            maxLengthBeforeDecimal={3}
+            maxLengthAfterDecimal={2}
           />
         );
       }}
