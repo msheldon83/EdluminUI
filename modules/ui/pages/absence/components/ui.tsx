@@ -633,12 +633,6 @@ export const AbsenceUI: React.FC<Props> = props => {
     : []
   ).some(d => d.verifiedAtUtc);
 
-  const isApprovedForSubJobSearch = localAbsence?.vacancies
-    ? localAbsence.vacancies.some(x => x?.isApprovedForSubJobSearch)
-    : state.projectedVacancies
-    ? state.projectedVacancies.some(x => x.isApprovedForSubJobSearch)
-    : true;
-
   const canDeleteAbsence =
     actingAsEmployee && localAbsence
       ? isAfter(parseISO(localAbsence.startTimeLocal), new Date()) &&
@@ -759,6 +753,14 @@ export const AbsenceUI: React.FC<Props> = props => {
           const unsavedAbsenceDetailChanges =
             !isEqual(initialValues.details, values.details) ||
             initialAbsenceFormData.needsReplacement !== values.needsReplacement;
+
+          const isApprovedForSubJobSearch = unsavedAbsenceDetailChanges
+            ? state.projectedVacancies
+              ? state.projectedVacancies.some(x => x.isApprovedForSubJobSearch)
+              : true
+            : localAbsence?.vacancies
+            ? localAbsence.vacancies.some(x => x?.isApprovedForSubJobSearch)
+            : true;
 
           const disableReplacementInteractions =
             !isCreate &&
