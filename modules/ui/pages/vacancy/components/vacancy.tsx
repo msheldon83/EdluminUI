@@ -105,6 +105,7 @@ export const VacancyUI: React.FC<Props> = props => {
   const resetVacancy = () => {
     setResetKey(resetKey + 1);
     setVacancy({ ...initialVacancy });
+    setStep("vacancy");
   };
 
   const [initialFormValues, setInitialFormValues] = useState<VacancyFormValues>(
@@ -639,6 +640,7 @@ export const VacancyUI: React.FC<Props> = props => {
       showAssign,
       vacancySummaryDetails,
       disableAssign,
+      isApprovedForSubJobSearch,
       showSubmit,
       isUnfilled,
       setStep,
@@ -976,7 +978,6 @@ export const VacancyUI: React.FC<Props> = props => {
                 locations={locations}
                 positionTypes={positionTypes}
                 contracts={contracts}
-                setVacancyForCreate={setVacancy}
                 onCancelAssignment={onCancelAssignment}
                 orgHasPayCodesDefined={payCodes.length > 0}
                 orgHasAccountingCodesDefined={accountingCodes.length > 0}
