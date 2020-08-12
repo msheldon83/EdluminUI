@@ -211,6 +211,7 @@ export const MapDailyReportDetails = (
             : undefined,
         locations,
         approvalStatus: a.approvalStatus ?? undefined,
+        dayPartId: a.details ? a.details[0]?.dayPartId : undefined,
       } as Detail;
     });
   });
