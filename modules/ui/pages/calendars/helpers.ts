@@ -81,17 +81,17 @@ export const getCalendarSummaryText = (
     }
 
     if (locations.length === 1) {
-      temp = t(` @ ${locations[0]}`);
+      temp = t(` at ${locations[0]}`);
     } else if (locations.length === 2) {
-      temp = t(` @ ${locations[0]} & ${locations[1]}`);
+      temp = t(` at ${locations[0]} & ${locations[1]}`);
     } else if (locations.length === 3) {
-      temp = t(` @ ${locations[0]}, ${locations[1]} & ${locations[2]}`);
+      temp = t(` at ${locations[0]}, ${locations[1]} & ${locations[2]}`);
     } else if (locations.length === 4) {
       temp = t(
-        ` @ ${locations[0]}, ${locations[1]}, ${locations[2]} & ${locations[3]}`
+        ` at ${locations[0]}, ${locations[1]}, ${locations[2]} & ${locations[3]}`
       );
     } else {
-      temp = t(` @ the ${locations.length} schools selected below`);
+      temp = t(` at the ${locations.length} schools selected below`);
     }
 
     result = result.concat(temp);

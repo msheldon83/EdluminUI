@@ -29,11 +29,16 @@ export const ContractSelect: React.FC<Props> = props => {
     contractOptions.unshift({ label: t("All Contracts"), value: "0" });
   }
 
-  const selectedContract =
-    contractOptions.find((c: any) => c.value === selectedContractId) ??
-    includeAllOption
-      ? contractOptions[0]
-      : { value: "", label: "" };
+  let selectedContract = contractOptions.find(
+    (c: any) => c.value === selectedContractId
+  );
+
+  selectedContract =
+    selectedContract === undefined
+      ? includeAllOption
+        ? contractOptions[0]
+        : { value: "", label: "" }
+      : selectedContract;
 
   return (
     <SelectNew

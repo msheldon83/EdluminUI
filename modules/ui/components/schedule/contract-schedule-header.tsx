@@ -1,7 +1,9 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { ContractSelect } from "ui/components/reference-selects/contract-select";
+import { LocationSelect } from "ui/components/reference-selects/location-select";
 
 type Props = {
   orgId: string;
@@ -9,16 +11,21 @@ type Props = {
   setSchoolYearId: React.Dispatch<React.SetStateAction<string | undefined>>;
   contractId?: string;
   setContractId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  locationIds?: string[];
+  setLocationIds: React.Dispatch<React.SetStateAction<string[] | undefined>>;
 };
 
 export const ContractScheduleHeader: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const {
     setSchoolYearId,
     schoolYearId,
     contractId,
+    locationIds,
     setContractId,
+    setLocationIds,
     orgId,
   } = props;
 
@@ -38,6 +45,19 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
           setSelectedContractId={setContractId}
         />
       </div>
+      <div
+        className={[classes.select, classes.fromSelect, classes.width].join(
+          " "
+        )}
+      >
+        <LocationSelect
+          label={t("School")}
+          orgId={orgId}
+          selectedLocationIds={locationIds}
+          setSelectedLocationIds={setLocationIds}
+          multiple={false}
+        />
+      </div>
     </>
   );
 };
@@ -46,9 +66,11 @@ const useStyles = makeStyles(theme => ({
   select: {
     display: "flex",
     flexDirection: "column",
-    minWidth: theme.typography.pxToRem(250),
   },
   fromSelect: {
-    marginLeft: theme.spacing(6),
+    marginLeft: theme.spacing(4),
+  },
+  width: {
+    minWidth: theme.typography.pxToRem(250),
   },
 }));

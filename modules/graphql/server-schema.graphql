@@ -1444,6 +1444,7 @@ type CalendarChange implements ModelObjectInterface & OrgObjectInterface & Domai
   contractIds: [ID]!
   locationIds: [ID]!
   positionTypeIds: [ID]!
+  locations: [Location]
 }
 
 input CalendarChangeCreateInput {
@@ -1469,8 +1470,8 @@ type CalendarChangeMutations {
 
 type CalendarChangeQueries {
   byId(id: ID!): CalendarChange
-  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], contractId: ID, schoolYearId: ID, locationId: ID, positionTypeId: ID): [CalendarChange]
-  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], contractId: ID, schoolYearId: ID, locationId: ID, positionTypeId: ID): PagedCalendarChange
+  all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], schoolYearId: ID, contractId: ID, locationId: ID, positionTypeId: ID): [CalendarChange]
+  paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], schoolYearId: ID, contractId: ID, locationId: ID, positionTypeId: ID): PagedCalendarChange
 }
 
 type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -2800,6 +2801,7 @@ enum EventType {
   POSITION_SCHEDULE_VARIANT_DELETED
   POSITION_CHANGED_OBJECT_SCOPE
   POSITION_CHANGED_POSITION_TYPE
+  POSITION_CHANGED_CONTRACT
   CALENDAR_CHANGE_CREATED
   CALENDAR_CHANGE_UPDATED
   CALENDAR_CHANGE_DELETED

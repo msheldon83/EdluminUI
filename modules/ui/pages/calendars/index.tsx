@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
-import { Divider, Grid, Typography, Button } from "@material-ui/core";
+import { Divider, Grid, Typography, Button, Tooltip } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
@@ -64,6 +64,7 @@ export const Calendars: React.FC<Props> = props => {
 
   const [openEventDialog, setOpenEventDialog] = useState(false);
   const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
+  const [locationIds, setLocationIds] = useState<string[] | undefined>();
   const allSchoolYears = useAllSchoolYears(params.organizationId);
   const schoolYear = useMemo(
     () => allSchoolYears.find(x => x.id === schoolYearId),
@@ -117,6 +118,7 @@ export const Calendars: React.FC<Props> = props => {
         orgId: params.organizationId,
         schoolYearId: schoolYearId,
         contractId: contractId,
+        locationId: locationIds?.[0],
       },
       fetchPolicy: "cache-and-network",
     }
@@ -413,10 +415,28 @@ export const Calendars: React.FC<Props> = props => {
       sorting: false,
     },
     {
-      title: t("Note"),
-      field: "description",
+      title: t("School"),
+      field: "locationIds",
       searchable: false,
-      sorting: false,
+      render: data => {
+        if (data.affectsAllLocations) {
+          return <Typography>{t("All Schools")}</Typography>;
+        } else if (data?.locations?.length === 1) {
+          return <Typography>{data?.locations?.[0]?.name}</Typography>;
+        } else {
+          return (
+            <Tooltip
+              className={classes.toolTip}
+              placement="bottom-start"
+              title={data?.locations?.map(l => l?.name).join(", ")}
+            >
+              <Typography>{`${data?.locations?.length} ${t(
+                "Schools"
+              )}`}</Typography>
+            </Tooltip>
+          );
+        }
+      },
     },
     {
       title: t("Contract"),
@@ -524,6 +544,8 @@ export const Calendars: React.FC<Props> = props => {
                     setContractId(input);
                   }}
                   orgId={params.organizationId}
+                  setLocationIds={setLocationIds}
+                  locationIds={locationIds}
                 />
               </div>
               <div>
@@ -697,5 +719,8 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.typography.pxToRem(27),
     zIndex: 1000,
     marginRight: theme.typography.pxToRem(30),
+  },
+  toolTip: {
+    cursor: "pointer",
   },
 }));
