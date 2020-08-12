@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { AbsenceUI, buildFormData } from "../components/ui";
+import { AbsenceUI } from "../components/ui";
 import { compact, flatMap, uniq } from "lodash-es";
 import {
   NeedsReplacement,
@@ -26,6 +26,7 @@ import {
   convertVacancyToVacancySummaryDetails,
   projectVacancyDetailsFromVacancies,
   getAbsenceReasonUsageData,
+  buildFormData,
 } from "../helpers";
 
 type Props = { actingAsEmployee?: boolean };
