@@ -375,7 +375,7 @@ export const Assignment: React.FC<Props> = props => {
                 ?.label ?? t("N/A");
             return (
               <div key={i}>
-                {accountingCodeLabel} ({Math.floor(a.allocation * 100)}
+                {accountingCodeLabel} ({(a.allocation * 100).toFixed(2)}
                 %)
               </div>
             );
