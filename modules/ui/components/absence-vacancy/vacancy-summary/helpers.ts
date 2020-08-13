@@ -3,11 +3,13 @@ import {
   AssignmentWithDetails,
   DateDetail,
   VacancySummaryDetailByAssignmentAndDate,
+  AssignmentAction,
 } from "./types";
-import { format, isEqual as isDateEqual, parseISO, isSameDay } from "date-fns";
+import { format, isEqual as isDateEqual } from "date-fns";
 import { isEqual } from "lodash-es";
 import { secondsToFormattedHourMinuteString } from "helpers/time";
 import { VacancyDetailsFormData } from "ui/pages/vacancy/helpers/types";
+import { TFunction } from "i18next";
 import { Vacancy } from "graphql/server-types.gen";
 import { AssignmentOnDate } from "ui/pages/absence/types";
 
@@ -55,71 +57,6 @@ export const convertVacancyDetailsFormDataToVacancySummaryDetails = (
     };
   });
   return summaryDetails;
-};
-
-// The Assignments on the Vacancy > Vacancy Detail objects are going to be ignored
-// in favor of the information provided by assignmentsByDate. The reason for this is
-// that we often end up with a "vacancy" that is from the projected vacancies query
-// and would never contain assignment information. Because of this potential, we have
-// to keep track of the assignments separately so it's better to just always use that
-// instead of picking and choosing when we use assignmentsByDate or VacancyDetail
-export const convertVacancyToVacancySummaryDetails = (
-  vacancy: Vacancy,
-  assignmentsByDate: AssignmentOnDate[]
-): VacancySummaryDetail[] => {
-  const absenceDetails = vacancy?.absence?.details;
-  return vacancy.details?.map(vd => {
-    // Find a matching Absence Detail record if available
-    const absenceDetail = absenceDetails?.find(
-      ad => ad?.startDate === vd?.startDate
-    );
-
-    // Find a matching assignment from assignmentsByDate by vacancyDetailId
-    // if we have it, otherwise by the same day comparison
-    const assignmentOnDate = assignmentsByDate?.find(
-      a =>
-        (vd.id && a.vacancyDetailId === vd.id) ||
-        isSameDay(a.startTimeLocal, parseISO(vd.startTimeLocal))
-    );
-
-    return {
-      vacancyId: vacancy.id,
-      vacancyDetailId: vd.id,
-      date: parseISO(vd.startDate),
-      startTimeLocal: parseISO(vd.startTimeLocal),
-      endTimeLocal: parseISO(vd.endTimeLocal),
-      locationId: vd.locationId,
-      locationName: vd.location?.name ?? "",
-      assignment: assignmentOnDate
-        ? {
-            id: assignmentOnDate.assignmentId,
-            rowVersion: assignmentOnDate.assignmentRowVersion,
-            employee: {
-              id: assignmentOnDate.employee.id,
-              firstName: assignmentOnDate.employee.firstName,
-              lastName: assignmentOnDate.employee.lastName,
-              email: assignmentOnDate.employee.email,
-            },
-          }
-        : undefined,
-      payCodeId: vd.payCodeId ?? undefined,
-      payCodeName: vd.payCode?.name,
-      accountingCodeAllocations:
-        vd.accountingCodeAllocations?.map(a => {
-          return {
-            accountingCodeId: a.accountingCodeId,
-            accountingCodeName: a.accountingCode?.name,
-            allocation: a.allocation,
-          };
-        }) ?? [],
-      absenceStartTimeLocal: absenceDetail?.startTimeLocal
-        ? parseISO(absenceDetail.startTimeLocal)
-        : undefined,
-      absenceEndTimeLocal: absenceDetail?.endTimeLocal
-        ? parseISO(absenceDetail.endTimeLocal)
-        : undefined,
-    };
-  });
 };
 
 export const buildAssignmentGroups = (
@@ -348,4 +285,17 @@ export const convertToAssignmentWithDetails = (
       : undefined,
   };
   return assignmentWithDetails;
+};
+
+export const getActionButtonText = (action: AssignmentAction, t: TFunction) => {
+  switch (action) {
+    case "pre-arrange":
+      return t("Pre-arrange");
+    case "assign":
+      return t("Assign");
+    case "reassign":
+      return t("Reassign");
+    case "cancel":
+      return t("Remove");
+  }
 };

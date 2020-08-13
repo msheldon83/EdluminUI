@@ -262,7 +262,7 @@ const featureFlagsToDayPartOptions = (
 const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
-    alignItems: "flex-end",
+    alignItems: "flex-start",
     width: "100%",
   },
   dayPart: {

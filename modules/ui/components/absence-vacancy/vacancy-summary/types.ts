@@ -75,6 +75,8 @@ export type DateDetail = {
   accountingCodeAllocations?: AccountingCodeAllocation[];
 };
 
+export type AssignmentAction = "pre-arrange" | "assign" | "reassign" | "cancel";
+
 /* LOCAL TYPES */
 type Employee = {
   id: string;

@@ -1,4 +1,4 @@
-import { isSameDay, startOfDay, parseISO } from "date-fns";
+import { isSameDay, startOfDay, parseISO, isEqual } from "date-fns";
 import {
   differenceWith,
   filter,
@@ -6,18 +6,16 @@ import {
   sortBy,
   compact,
   flatMap,
-  isNil,
 } from "lodash-es";
 import { Reducer } from "react";
-import { VacancyDetail } from "ui/components/absence/types";
-import {
-  Vacancy,
-  Absence,
-} from "graphql/server-types.gen";
-import { mapAccountingCodeAllocationsToAccountingCodeValue } from "helpers/accounting-code-allocations";
-import { AssignmentOnDate } from "./types";
+import { Vacancy, Absence } from "graphql/server-types.gen";
+import { AssignmentOnDate, VacancyDetail } from "./types";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { AbsenceReasonUsageData } from "./components/balance-usage";
+import {
+  projectVacancyDetailsFromVacancies,
+  getAbsenceReasonUsageData,
+} from "./helpers";
 
 export type AbsenceState = {
   employeeId: string;
@@ -76,6 +74,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       return { ...prev, viewingCalendarMonth: action.month };
     }
     case "toggleDate": {
+      const isAbsenceCreate = !prev.absenceId;
       const date = startOfDay(action.date);
       if (find(prev.absenceDates, d => isSameDay(d, date))) {
         return {
@@ -84,6 +83,12 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           projectedVacancyDetails: undefined,
           projectedVacancies: undefined,
           absenceDates: filter(prev.absenceDates, d => !isSameDay(d, date)),
+          assignmentsByDate: isAbsenceCreate
+            ? filter(
+                prev.assignmentsByDate,
+                a => !isSameDay(a.startTimeLocal, date)
+              )
+            : prev.assignmentsByDate,
         };
       } else {
         return {
@@ -142,6 +147,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
               return {
                 vacancyDetailId: vd.id,
                 startTimeLocal: parseISO(vd.startTimeLocal),
+                endTimeLocal: parseISO(vd.endTimeLocal),
                 assignment: vd.assignment,
               };
             })
@@ -164,6 +170,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
         assignmentsByDate: allAssignments.map(a => {
           return {
             startTimeLocal: a.startTimeLocal,
+            endTimeLocal: a.endTimeLocal,
             vacancyDetailId: a.vacancyDetailId,
             assignmentId: a.assignment.id,
             assignmentRowVersion: a.assignment.rowVersion,
@@ -191,13 +198,48 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
       };
     }
     case "setProjectedVacancies": {
+      const isAbsenceCreate = !prev.absenceId;
+      const assignments: AssignmentOnDate[] = [];
+
+      if (isAbsenceCreate) {
+        const allProjectedDetailTimes = compact(
+          flatMap(
+            action.projectedVacancies?.map(v =>
+              v.details?.map(d =>
+                d
+                  ? {
+                      startTimeLocal: parseISO(d.startTimeLocal),
+                      endTimeLocal: parseISO(d.endTimeLocal),
+                    }
+                  : undefined
+              )
+            )
+          )
+        );
+
+        // On Create, we just look for exact matches
+        allProjectedDetailTimes.forEach(d => {
+          const match = prev.assignmentsByDate.find(
+            a =>
+              isEqual(a.startTimeLocal, d.startTimeLocal) &&
+              isEqual(a.endTimeLocal, d.endTimeLocal)
+          );
+          if (match) {
+            assignments.push(match);
+          }
+        });
+      } else {
+        assignments.push(...prev.assignmentsByDate);
+      }
+
       return {
         ...prev,
         projectedVacancies: action.projectedVacancies,
         projectedVacancyDetails: projectVacancyDetailsFromVacancies(
           action.projectedVacancies,
-          prev.assignmentsByDate
+          assignments
         ),
+        assignmentsByDate: assignments,
       };
     }
     case "updateAssignments": {
@@ -207,7 +249,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           const incomingDates = action.assignments.map(a => a.startTimeLocal);
           assignments = [
             ...assignments.filter(
-              a => !incomingDates.find(d => isSameDay(d, a.startTimeLocal))
+              a => !incomingDates.find(d => isEqual(d, a.startTimeLocal))
             ),
             ...action.assignments,
           ];
@@ -217,7 +259,7 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           assignments = assignments.filter(
             a =>
               !action.assignments.find(x =>
-                isSameDay(x.startTimeLocal, a.startTimeLocal)
+                isEqual(x.startTimeLocal, a.startTimeLocal)
               )
           );
           break;
@@ -226,99 +268,38 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           break;
       }
 
-      return {
-        ...prev,
-        assignmentsByDate: assignments,
-      };
-    }
-  }
-};
-
-export const projectVacancyDetailsFromVacancies = (
-  vacancies: Partial<Vacancy | null>[] | null | undefined,
-  assignmentsByDate?: AssignmentOnDate[] | undefined
-): VacancyDetail[] => {
-  if (!vacancies || vacancies.length < 1) {
-    return [];
-  }
-  const absenceDetails = vacancies[0]?.absence?.details;
-  return (vacancies[0]?.details ?? [])
-    .map(d => {
-      // Find a matching Absence Detail record if available
-      const absenceDetail = absenceDetails?.find(
-        ad => ad?.startDate === d?.startDate
-      );
-
-      // Find a matching assignment from state if we don't already
-      // have one on the VacancyDetail record itself
-      const assignment = assignmentsByDate?.find(
-        a =>
-          (d.id && a.vacancyDetailId === d.id) ||
-          isSameDay(a.startTimeLocal, parseISO(d.startTimeLocal))
-      );
-
-      return {
-        vacancyDetailId: d?.id,
-        date: d?.startDate,
-        locationId: d?.locationId,
-        startTime: d?.startTimeLocal,
-        endTime: d?.endTimeLocal,
-        locationName: d?.location?.name,
-        absenceStartTime: absenceDetail?.startTimeLocal,
-        absenceEndTime: absenceDetail?.endTimeLocal,
-        payCodeId: d?.payCodeId,
-        accountingCodeAllocations: mapAccountingCodeAllocationsToAccountingCodeValue(
-          d?.accountingCodeAllocations?.map(a => {
-            return {
-              accountingCodeId: a.accountingCodeId,
-              accountingCodeName: a.accountingCode?.name,
-              allocation: a.allocation,
-            };
-          })
-        ),
-        assignmentId: d?.assignment?.id ?? assignment?.assignmentId,
-        assignmentRowVersion:
-          d?.assignment?.rowVersion ?? assignment?.assignmentRowVersion,
-        assignmentStartDateTime:
-          d?.startTimeLocal ?? assignment?.startTimeLocal?.toISOString(),
-        assignmentEmployeeId:
-          d?.assignment?.employee?.id ?? assignment?.employee?.id,
-        assignmentEmployeeFirstName:
-          d?.assignment?.employee?.firstName ?? assignment?.employee?.firstName,
-        assignmentEmployeeLastName:
-          d?.assignment?.employee?.lastName ?? assignment?.employee?.lastName,
-        isClosed: d.isClosed ?? false,
-      } as VacancyDetail;
-    })
-    .filter(
-      (detail): detail is VacancyDetail =>
-        !!detail.locationId &&
-        !!detail.date &&
-        !!detail.startTime &&
-        !!detail.endTime
-    );
-};
-
-export const getAbsenceReasonUsageData = (
-  absence: Absence
-): AbsenceReasonUsageData[] => {
-  const details = absence.details;
-  const usages = flatMap(details, (d => d?.reasonUsages) ?? []) ?? [];
-  const usageData: AbsenceReasonUsageData[] = compact(
-    usages.map(u => {
-      if (!u || isNil(u.dailyAmount) || isNil(u.hourlyAmount)) {
-        return null;
+      // When we're dealing with an existing Absence any changes to the Assignments
+      // are made without actually saving the Absence. When that occurs, let's make sure
+      // the initialVacancyDetails are appropriately updated to reflect the current
+      // state of assignments
+      const vacancyDetails = prev.initialVacancyDetails
+        ? [...prev.initialVacancyDetails]
+        : undefined;
+      if (vacancyDetails) {
+        vacancyDetails.forEach(vd => {
+          // Find a match in assignments on times and where the Assignment Id doesn't match
+          const match = assignments.find(
+            a =>
+              a.assignmentId &&
+              isEqual(a.startTimeLocal, parseISO(vd.startTime)) &&
+              isEqual(a.endTimeLocal, parseISO(vd.endTime))
+          );
+          // Update the assignment details on the Vacancy Detail
+          // Also handles removing assignment details if we no longer have an assignment
+          vd.assignmentId = match?.assignmentId;
+          vd.assignmentRowVersion = match?.assignmentRowVersion;
+          vd.assignmentEmployeeId = match?.employee?.id;
+          vd.assignmentEmployeeFirstName = match?.employee?.firstName;
+          vd.assignmentEmployeeLastName = match?.employee?.lastName;
+          vd.assignmentEmployeeEmail = match?.employee?.email;
+        });
       }
 
       return {
-        hourlyAmount: u.hourlyAmount,
-        dailyAmount: u.dailyAmount,
-        absenceReasonId: u.absenceReasonId,
-        absenceReason: {
-          absenceReasonCategoryId: u.absenceReason?.absenceReasonCategoryId,
-        },
+        ...prev,
+        assignmentsByDate: assignments,
+        initialVacancyDetails: vacancyDetails,
       };
-    })
-  );
-  return usageData;
+    }
+  }
 };

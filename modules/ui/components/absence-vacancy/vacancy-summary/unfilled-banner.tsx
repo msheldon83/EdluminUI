@@ -1,20 +1,30 @@
-import { makeStyles, Typography, Button, Divider } from "@material-ui/core";
+import { makeStyles, Typography, Divider } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { Can } from "ui/components/auth/can";
+import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
+import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { canAssignSub } from "helpers/permissions";
 
 type Props = {
-  assignmentStartTime: Date;
-  onAssignClick?: () => void;
+  assignmentWithDetails: AssignmentWithDetails;
+  assignAction: "assign" | "pre-arrange";
+  onAssignClick?: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<void>;
   disableActions?: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const UnfilledBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const { onAssignClick, assignmentStartTime, disableActions = false } = props;
+  const {
+    onAssignClick,
+    assignmentWithDetails,
+    assignAction,
+    isApprovedForSubJobSearch,
+    disableActions = false,
+  } = props;
 
   return (
     <>
@@ -22,38 +32,22 @@ export const UnfilledBanner: React.FC<Props> = props => {
       <div className={classes.unfilled}>
         <Typography variant={"h6"}>{t("Unfilled")}</Typography>
         {onAssignClick && (
-          <Can
-            do={(
-              permissions: OrgUserPermissions[],
-              isSysAdmin: boolean,
-              orgId?: string,
-              forRole?: Role | null | undefined
-            ) =>
-              canAssignSub(
-                assignmentStartTime,
-                permissions,
-                isSysAdmin,
-                orgId,
-                forRole
-              )
-            }
-          >
-            <Button
-              variant="outlined"
-              onClick={onAssignClick}
-              disabled={disableActions}
-              className={classes.assignButton}
-            >
-              {t("Assign")}
-            </Button>
-          </Can>
+          <FilteredAssignmentButton
+            details={assignmentWithDetails.vacancySummaryDetails}
+            action={assignAction}
+            permissionCheck={canAssignSub}
+            disableAction={disableActions}
+            onClick={onAssignClick}
+            className={classes.assignButton}
+            isApprovedForSubJobSearch={isApprovedForSubJobSearch}
+          />
         )}
       </div>
     </>
   );
 };
 
-export const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(theme => ({
   unfilled: {
     display: "flex",
     justifyContent: "space-between",

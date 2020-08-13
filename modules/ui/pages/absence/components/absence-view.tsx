@@ -18,17 +18,17 @@ import { EmployeeLink } from "ui/components/links/people";
 import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-calendar";
 import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
-import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
 import { Can } from "ui/components/auth/can";
 import { dayPartToLabel } from "ui/components/absence/helpers";
 import { AssignmentOnDate } from "../types";
+import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
+import { convertVacancyToVacancySummaryDetails } from "../helpers";
 
 type Props = {
   absence: Absence;
   actingAsEmployee?: boolean;
   onCancelAssignment?: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
+    vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   assignmentsByDate?: AssignmentOnDate[];
 };

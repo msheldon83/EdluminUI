@@ -15,7 +15,6 @@ import { useTranslation } from "react-i18next";
 import { useAccountingCodes } from "reference-data/accounting-codes";
 import { Section } from "ui/components/section";
 import { GetLocationsForEmployee } from "../../graphql/get-locations-for-employee.gen";
-import { VacancyDetail } from "../../../../components/absence/types";
 import { EditableVacancyDetailRow } from "./editable-vacancy-row";
 import { usePayCodes } from "reference-data/pay-codes";
 import * as yup from "yup";
@@ -30,6 +29,7 @@ import {
 import { getDateRangeDisplayTextWithDayOfWeek } from "ui/components/date-helpers";
 import { EmployeeLink } from "ui/components/links/people";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
+import { VacancyDetail } from "../../types";
 
 type Props = {
   details: VacancyDetail[];

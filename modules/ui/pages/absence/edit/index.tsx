@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRouteParams } from "ui/routes/definition";
 import { AdminEditAbsenceRoute } from "ui/routes/absence";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
-import { AbsenceUI, buildFormData } from "../components/ui";
+import { AbsenceUI } from "../components/ui";
 import { compact, flatMap, uniq } from "lodash-es";
 import {
   NeedsReplacement,
@@ -23,10 +23,11 @@ import { parseISO, startOfMonth } from "date-fns";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import {
+  convertVacancyToVacancySummaryDetails,
   projectVacancyDetailsFromVacancies,
   getAbsenceReasonUsageData,
-} from "../state";
-import { convertVacancyToVacancySummaryDetails } from "ui/components/absence-vacancy/vacancy-summary/helpers";
+  buildFormData,
+} from "../helpers";
 
 type Props = { actingAsEmployee?: boolean };
 
@@ -139,6 +140,7 @@ export const EditAbsence: React.FC<Props> = props => {
         assignmentId: a.assignment.id,
         assignmentRowVersion: a.assignment.rowVersion,
         startTimeLocal: parseISO(a.detail.startTimeLocal),
+        endTimeLocal: parseISO(a.detail.endTimeLocal),
         vacancyDetailId: a.detail.id,
         employee: {
           id: a.assignment.employeeId,
