@@ -15,7 +15,7 @@ type Props = {
   calandarChangeDates: CalendarChange[];
   fromDate: Date;
   toDate: Date;
-  setSelectedCalendarChanges: (cc: CalendarEvent) => void;
+  setSelectedCalendarChanges: (cc: CalendarEvent[]) => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
 };
@@ -25,7 +25,7 @@ export const CalendarView: React.FC<Props> = props => {
   const monthList = generateMonths(props.fromDate, props.toDate);
 
   const onSelectDate = (date: Date) => {
-    const calendarChanges = props.calandarChangeDates.find(cc => {
+    const calendarChanges = props.calandarChangeDates.filter(cc => {
       return date >= parseISO(cc.startDate) && date <= parseISO(cc.endDate);
     });
     props.setSelectedCalendarChanges(calendarChanges!);

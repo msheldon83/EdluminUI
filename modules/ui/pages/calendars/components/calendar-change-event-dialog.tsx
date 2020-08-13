@@ -6,12 +6,9 @@ import {
   Typography,
   Divider,
   Grid,
-  FormControlLabel,
-  Checkbox,
   Button,
   Tooltip,
 } from "@material-ui/core";
-import clsx from "clsx";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -48,7 +45,7 @@ type Props = {
     originalCalendarChangeId: string,
     calendarChange: CalendarEvent
   ) => Promise<boolean>;
-  calendarChange: CalendarEvent;
+  calendarChange: CalendarEvent[];
   errorMessage?: string;
   specificDate?: Date;
 };
@@ -60,7 +57,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const today = React.useMemo(() => new Date(), []);
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
 
-  const { calendarChange } = props;
+  const calendarChange = props.calendarChange[0];
 
   const [contractIds, setContractIds] = React.useState<string[]>(
     compact(calendarChange.contractIds) ?? []
@@ -83,12 +80,23 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
     () => contracts.map(c => ({ label: c.name, value: c.id })),
     [contracts]
   );
+  contractOptions.unshift({ label: t("(All)"), value: "0" });
 
   const locations = useLocations();
   const locationOptions: OptionType[] = React.useMemo(
     () => locations.map(l => ({ label: l.name, value: l.id })),
     [locations]
   );
+  locationOptions.unshift({ label: t("(All)"), value: "0" });
+
+  const clearState = () => {
+    setContractIds([]);
+    setLocationIds([]);
+    setSummaryTest("");
+    setAffectsAllLocations(false);
+    setAffectsAllContracts(false);
+    setSubmittingData(false);
+  };
 
   useEffect(() => {
     const string = getCalendarSummaryText(
@@ -161,7 +169,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           setSubmittingData(true);
           if (updating) {
             if (isRange && !!props.specificDate) {
-              const calendarChange: CalendarEvent = {
+              const calendarChangeSplit: CalendarEvent = {
                 description: data.notes === "" ? null : data.notes,
                 startDate: format(props.specificDate, "MMMM d, yyyy"),
                 endDate: format(props.specificDate, "MMMM d, yyyy"),
@@ -174,13 +182,13 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 affectsAllLocations: affectsAllLocations,
               };
               resultSucceeded = await props.onSplit(
-                props.calendarChange.id ?? "0",
-                calendarChange
+                calendarChange.id ?? "0",
+                calendarChangeSplit
               );
             } else {
-              const calendarChange: CalendarChangeUpdateInput = {
-                id: props.calendarChange.id!,
-                rowVersion: props.calendarChange.rowVersion!,
+              const calendarChangeUpdate: CalendarChangeUpdateInput = {
+                id: calendarChange.id!,
+                rowVersion: calendarChange.rowVersion!,
                 description: data.notes,
                 startDate: data.fromDate,
                 endDate: data.toDate,
@@ -193,10 +201,10 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 affectsAllLocations: affectsAllLocations,
               };
 
-              resultSucceeded = await props.onUpdate(calendarChange);
+              resultSucceeded = await props.onUpdate(calendarChangeUpdate);
             }
           } else {
-            const calendarChange: CalendarChangeCreateInput = {
+            const calendarChangeCreate: CalendarChangeCreateInput = {
               orgId: orgId,
               description: data.notes,
               startDate: data.fromDate,
@@ -210,11 +218,12 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
               affectsAllLocations: affectsAllLocations,
             };
 
-            resultSucceeded = await props.onAdd(calendarChange);
+            resultSucceeded = await props.onAdd(calendarChangeCreate);
           }
           setSubmittingData(false);
           if (resultSucceeded) {
             formProps.resetForm();
+            clearState();
             props.onClose();
           }
         }}
@@ -259,35 +268,33 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                           startLabel={t("From")}
                         />
                       )}
-                      {isRange &&
-                        props.calendarChange.id &&
-                        props.specificDate && (
-                          <>
-                            <Typography variant="h4" display="inline">
-                              {format(props.specificDate, "MMM d")}
-                            </Typography>
-                            <Tooltip
-                              title={
-                                <div className={classes.tooltip}>
-                                  <Typography variant="body1">
-                                    {t(
-                                      "You are currently editing a single date that is associated with an event that spans multiple days.  To edit the event's to and from dates, edit the event instead."
-                                    )}
-                                  </Typography>
-                                </div>
-                              }
-                              placement="right-start"
-                            >
-                              <InfoIcon
-                                color="primary"
-                                style={{
-                                  fontSize: "16px",
-                                  marginLeft: "8px",
-                                }}
-                              />
-                            </Tooltip>
-                          </>
-                        )}
+                      {isRange && calendarChange.id && props.specificDate && (
+                        <>
+                          <Typography variant="h4" display="inline">
+                            {format(props.specificDate, "MMM d")}
+                          </Typography>
+                          <Tooltip
+                            title={
+                              <div className={classes.tooltip}>
+                                <Typography variant="body1">
+                                  {t(
+                                    "You are currently editing a single date that is associated with an event that spans multiple days.  To edit the event's to and from dates, edit the event instead."
+                                  )}
+                                </Typography>
+                              </div>
+                            }
+                            placement="right-start"
+                          >
+                            <InfoIcon
+                              color="primary"
+                              style={{
+                                fontSize: "16px",
+                                marginLeft: "8px",
+                              }}
+                            />
+                          </Tooltip>
+                        </>
+                      )}
                     </Grid>
                     <Grid item xs={3}>
                       {(!isRange || (isRange && !props.specificDate)) && (
@@ -320,7 +327,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                           setFieldValue("changeReason", selectedValue);
                         }}
                         multiple={false}
-                        withResetValue={false}
+                        withResetValue={true}
                         fixedListBox={true}
                       />
                     </Grid>
@@ -354,107 +361,77 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                   </Grid>
                   <Grid item xs={12} container>
                     <Grid item xs={4}>
-                      <SelectNew
-                        name={"contracts"}
-                        className={classes.selectorColor}
-                        disabled={affectsAllContracts}
-                        label={t("Contracts")}
-                        value={
-                          contractOptions.filter(
-                            e =>
-                              e.value &&
-                              values.contracts?.includes(e.value.toString())
-                          ) ?? [{ label: "", id: "" }]
-                        }
-                        onChange={e => {
-                          const ids = e.map((v: OptionType) =>
-                            v.value.toString()
-                          );
-                          setContractIds(ids);
-                          setFieldValue("contracts", ids);
-                        }}
-                        options={contractOptions}
-                        multiple={true}
-                        placeholder={t("Search for Contracts")}
-                        fixedListBox={true}
-                      />
-                      <FormControlLabel
-                        checked={affectsAllContracts}
-                        className={clsx(
-                          classes.selectorColor,
-                          classes.checkBoxAlignment
-                        )}
-                        control={
-                          <Checkbox
-                            onChange={e => {
-                              setAffectsAllContracts(!affectsAllContracts);
-                              setFieldValue(
-                                "applyToAllContracts",
-                                !values.applyToAllContracts
-                              );
-
-                              if (!affectsAllContracts) {
-                                setFieldValue("contracts", []);
-                                setContractIds([]);
-                              }
-                            }}
-                            color="primary"
-                          />
-                        }
-                        label={t("All")}
-                      />
+                      <div className={classes.positionRelative}>
+                        <SelectNew
+                          name={"contracts"}
+                          className={classes.selectorColor}
+                          label={t("Contracts")}
+                          value={
+                            contractOptions.filter(
+                              e =>
+                                e.value &&
+                                values.contracts?.includes(e.value.toString())
+                            ) ?? [{ label: "", id: "" }]
+                          }
+                          onChange={e => {
+                            const ids = e.map((v: OptionType) =>
+                              v.value.toString()
+                            );
+                            if (ids.includes("0")) {
+                              setAffectsAllContracts(true);
+                              setFieldValue("applyToAllContracts", true);
+                              setFieldValue("contracts", []);
+                              setContractIds([]);
+                            } else {
+                              setContractIds(ids);
+                              setFieldValue("contracts", ids);
+                              setAffectsAllContracts(false);
+                              setFieldValue("applyToAllContracts", false);
+                            }
+                          }}
+                          options={contractOptions}
+                          multiple={true}
+                          placeholder={t("Search for Contracts")}
+                          fixedListBox={true}
+                        />
+                      </div>
                     </Grid>
                     <Grid item xs={4} className={classes.marginLeft}>
-                      <SelectNew
-                        name={"locations"}
-                        className={classes.selectorColor}
-                        disabled={values.applyToAllLocations ?? false}
-                        label={t("Schools")}
-                        value={
-                          locationOptions.filter(
-                            e =>
-                              e.value &&
-                              values.locations?.includes(e.value.toString())
-                          ) ?? [{ label: "", id: "" }]
-                        }
-                        onChange={e => {
-                          const ids = e.map((v: OptionType) =>
-                            v.value.toString()
-                          );
-                          setFieldValue("locations", ids);
-                          setLocationIds(ids);
-                        }}
-                        options={locationOptions}
-                        multiple={true}
-                        placeholder={t("Search for Schools")}
-                        fixedListBox={true}
-                      />
-                      <FormControlLabel
-                        checked={affectsAllLocations}
-                        className={clsx(
-                          classes.selectorColor,
-                          classes.checkBoxAlignment
-                        )}
-                        control={
-                          <Checkbox
-                            onChange={e => {
-                              setAffectsAllLocations(!affectsAllLocations);
+                      <div className={classes.positionRelative}>
+                        <SelectNew
+                          name={"locations"}
+                          className={classes.selectorColor}
+                          label={t("Schools")}
+                          value={
+                            locationOptions.filter(
+                              e =>
+                                e.value &&
+                                values.locations?.includes(e.value.toString())
+                            ) ?? [{ label: "", id: "" }]
+                          }
+                          onChange={e => {
+                            const ids = e.map((v: OptionType) =>
+                              v.value.toString()
+                            );
 
-                              setFieldValue(
-                                "applyToAllLocations",
-                                !values.applyToAllLocations
-                              );
-
-                              if (!affectsAllLocations) {
-                                setFieldValue("locations", []);
-                                setLocationIds([]);
-                              }
-                            }}
-                            color="primary"
-                          />
-                        }
-                        label={t("All")}
-                      />
+                            if (ids.includes("0")) {
+                              setFieldValue("applyToAllLocations", true);
+                              setFieldValue("locations", []);
+                              setAffectsAllLocations(true);
+                              setLocationIds([]);
+                            } else {
+                              setFieldValue("applyToAllLocations", false);
+                              setFieldValue("locations", ids);
+                              setAffectsAllLocations(false);
+                              setLocationIds(ids);
+                            }
+                          }}
+                          options={locationOptions}
+                          multiple={true}
+                          placeholder={t("Search for Schools")}
+                          fixedListBox={true}
+                        />
+                      </div>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -515,12 +492,13 @@ const useStyles = makeStyles(theme => ({
   subFont: {
     color: theme.customColors.edluminSubText,
   },
-  checkBoxAlignment: {
-    float: "right",
-    zIndex: 1000,
+  positionRelative: {
     position: "relative",
-    top: "-80px",
-    marginRight: "0px",
+  },
+  checkBoxAlignment: {
+    position: "absolute",
+    top: "-10px",
+    right: "-10px",
   },
   marginLeft: {
     marginLeft: "20px",

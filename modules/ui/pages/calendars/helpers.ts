@@ -41,7 +41,7 @@ export const getCalendarSummaryText = (
     contracts.length === 0 &&
     locations.length === 0
   ) {
-    temp = t("must specifiy a contract or school.");
+    temp = t("must specifiy a contract and school.");
     return result.concat(temp);
   }
 
