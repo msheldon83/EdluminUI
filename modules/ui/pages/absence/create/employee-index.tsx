@@ -70,7 +70,7 @@ export const EmployeeCreateAbsence: React.FC<{}> = props => {
       initialAbsenceFormData={{
         details: [],
         needsReplacement:
-          employee.primaryPosition?.needsReplacement === NeedsReplacement.Yes,
+          employee.primaryPosition?.needsReplacement !== NeedsReplacement.No,
         sameReasonForAllDetails: true,
         sameTimesForAllDetails: true,
         ...initialFormDataPassedIn,
