@@ -4,6 +4,18 @@ query GetEmployeeContractSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
       id
       date
       calendarDayTypeId
+      calendarChangeId
+      calendarChange {
+        id
+        description
+        startDate
+        endDate
+        calendarChangeReason {
+          id
+          calendarDayTypeId
+          name
+        }
+      }
     }
     employeeAbsenceSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
       id
