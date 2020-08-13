@@ -102,6 +102,13 @@ type Calendar = {
   selected: string;
   closedDay: string;
   unavailable: string;
+  absence: {
+    disabled: string;
+    closed: string;
+    modified: string;
+    inservice: string;
+    existingAbsence: string;
+  };
 };
 
 interface EdluminTheme extends Theme {

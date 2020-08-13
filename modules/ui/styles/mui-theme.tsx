@@ -312,6 +312,13 @@ export const EdluminTheme = createMuiTheme({
     selected: themeColors.edluminSlate,
     closedDay: themeColors.primary,
     unavailable: themeColors.lightSlate,
+    absence: {
+      disabled: themeColors.lightGray,
+      closed: "#FFBBBB",
+      modified: "#FFF5CC",
+      inservice: "#D8DCF7",
+      existingAbsence: "#9B99B0",
+    },
   },
 
   typography: palette => ({
