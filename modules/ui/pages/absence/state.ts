@@ -253,18 +253,24 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
             )
           : [];
         allProjectedDetailTimes.forEach(a => {
-          // Find a projected detail that matches
-          const match = initialAssignedVacancyDetails.find(
+          // Find a projected detail that matches either
+          // exactly or on start time
+          let match = initialAssignedVacancyDetails.find(
             vd =>
               (isEqual(a.startTimeLocal, vd.startTimeLocal) &&
                 isEqual(a.endTimeLocal, vd.endTimeLocal)) ||
-              isEqual(a.startTimeLocal, vd.startTimeLocal) ||
-              areIntervalsOverlapping(
-                { start: a.startTimeLocal, end: a.endTimeLocal },
-                { start: vd.startTimeLocal, end: vd.endTimeLocal }
-              ) ||
-              isSameDay(a.startTimeLocal, vd.startTimeLocal)
+              isEqual(a.startTimeLocal, vd.startTimeLocal)
           );
+          if (!match) {
+            // Fallback to matching on an overlap or same day check
+            match = initialAssignedVacancyDetails.find(
+              vd =>
+                areIntervalsOverlapping(
+                  { start: a.startTimeLocal, end: a.endTimeLocal },
+                  { start: vd.startTimeLocal, end: vd.endTimeLocal }
+                ) || isSameDay(a.startTimeLocal, vd.startTimeLocal)
+            );
+          }
           console.log("match", match);
           if (match) {
             assignments.push({
@@ -282,37 +288,6 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
             });
           }
         });
-
-        // initialAssignedVacancyDetails.forEach(vd => {
-        //   // Find a projected detail that matches
-        //   const projectedMatch = allProjectedDetailTimes.find(
-        //     a =>
-        //       (isEqual(a.startTimeLocal, vd.startTimeLocal) &&
-        //         isEqual(a.endTimeLocal, vd.endTimeLocal)) ||
-        //         isEqual(a.startTimeLocal, vd.startTimeLocal) ||
-        //       areIntervalsOverlapping(
-        //         { start: a.startTimeLocal, end: a.endTimeLocal },
-        //         { start: vd.startTimeLocal, end: vd.endTimeLocal }
-        //       ) ||
-        //       isSameDay(a.startTimeLocal, vd.startTimeLocal)
-        //   );
-        //   console.log("projectedMatch", projectedMatch);
-        //   if (projectedMatch) {
-        //     assignments.push({
-        //       startTimeLocal: projectedMatch.startTimeLocal,
-        //       endTimeLocal: projectedMatch.endTimeLocal,
-        //       vacancyDetailId: vd.vacancyDetailId,
-        //       assignmentId: vd.assignmentId,
-        //       assignmentRowVersion: vd.assignmentRowVersion,
-        //       employee: {
-        //         id: vd.assignmentEmployeeId ?? "0",
-        //         firstName: vd.assignmentEmployeeFirstName ?? "",
-        //         lastName: vd.assignmentEmployeeLastName ?? "",
-        //         email: vd.assignmentEmployeeEmail,
-        //       },
-        //     });
-        //   }
-        // });
         console.log(
           assignments,
           initialAssignedVacancyDetails,
