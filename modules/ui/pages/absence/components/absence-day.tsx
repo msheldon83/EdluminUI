@@ -5,6 +5,7 @@ import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { makeStyles } from "@material-ui/core";
 import { DayPart } from "graphql/server-types.gen";
 import { DayPartSelect, DayPartValue } from "./day-part-select";
+import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
 
 type Props = {
   organizationId: string;
@@ -29,6 +30,7 @@ type Props = {
     hourlyEndTimeError?: string | undefined;
   };
   subTitle?: string;
+  scheduleTimes: ScheduleTimes | undefined;
 };
 
 export const AbsenceDay: React.FC<Props> = props => {
@@ -49,6 +51,7 @@ export const AbsenceDay: React.FC<Props> = props => {
     reasonError,
     timeError,
     travellingEmployee,
+    scheduleTimes,
   } = props;
 
   const dayPartValue = React.useMemo(() => {
@@ -104,6 +107,7 @@ export const AbsenceDay: React.FC<Props> = props => {
             }}
             timeError={timeError}
             includeHourly={travellingEmployee}
+            scheduleTimes={scheduleTimes}
           />
         </div>
       )}

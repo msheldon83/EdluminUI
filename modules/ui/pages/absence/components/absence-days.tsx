@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AbsenceDetail } from "../types";
 import { useFormikContext } from "formik";
 import { useAbsenceReasonOptionsWithCategories } from "reference-data/absence-reasons";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import {
   FormControlLabel,
   Checkbox,
@@ -13,6 +13,7 @@ import {
 import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
 import { SelectNew } from "ui/components/form/select-new";
+import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
 
 type Props = {
   details: AbsenceDetail[];
@@ -27,6 +28,7 @@ type Props = {
   sameTimesForAllDetails: boolean;
   deletedAbsenceReasons?: { detailId: string; id: string; name: string }[];
   isQuickCreate?: boolean;
+  scheduleTimes: ScheduleTimes[];
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
@@ -44,6 +46,7 @@ export const AbsenceDays: React.FC<Props> = props => {
     sameTimesForAllDetails,
     travellingEmployee,
     isQuickCreate,
+    scheduleTimes,
     details = [],
     deletedAbsenceReasons = [],
   } = props;
@@ -160,6 +163,7 @@ export const AbsenceDays: React.FC<Props> = props => {
               employeeId={employeeId}
               travellingEmployee={travellingEmployee}
               detail={ad}
+              scheduleTimes={scheduleTimes.find(s => isSameDay(ad.date, s.date))}
               absenceReasonOptions={getAbsenceReasonOptions(ad.id)}
               canEditReason={canEditReason}
               canEditTimes={canEditTimes}
@@ -168,7 +172,10 @@ export const AbsenceDays: React.FC<Props> = props => {
               subTitle={
                 details.length > 1 && !allDetailsAreTheSame && !isQuickCreate
                   ? format(ad.date, "EEE, MMM d")
-                  : details.length > 1 && allDetailsAreTheSame && i === 0 && !isQuickCreate
+                  : details.length > 1 &&
+                    allDetailsAreTheSame &&
+                    i === 0 &&
+                    !isQuickCreate
                   ? t("Details for all days")
                   : undefined
               }

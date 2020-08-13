@@ -1,10 +1,6 @@
-import {
-  DayPart,
-} from "graphql/server-types.gen";
+import { DayPart } from "graphql/server-types.gen";
 import { differenceWith, isEmpty } from "lodash-es";
-import {
-  isSameDay,
-} from "date-fns";
+import { isSameDay } from "date-fns";
 import { TFunction } from "i18next";
 import { DisabledDate } from "helpers/absence/computeDisabledDates";
 
@@ -29,35 +25,6 @@ export const dayPartToLabel = (dayPart: DayPart): string => {
     default:
       return "Other";
   }
-};
-
-export const dayPartToTimesLabel = (dayPart: DayPart, times: ScheduleTimes) => {
-  switch (dayPart) {
-    case DayPart.FullDay:
-      return `(${times.startTime} - ${times.endTime})`;
-    case DayPart.HalfDayMorning:
-      return times.halfDayMorningEnd
-        ? `(${times.startTime} - ${times.halfDayMorningEnd})`
-        : null;
-    case DayPart.HalfDayAfternoon:
-      return times.halfDayAfternoonStart
-        ? `(${times.halfDayAfternoonStart} - ${times.endTime})`
-        : null;
-    case DayPart.Hourly:
-    case DayPart.QuarterDayEarlyMorning:
-    case DayPart.QuarterDayLateMorning:
-    case DayPart.QuarterDayEarlyAfternoon:
-    case DayPart.QuarterDayLateAfternoon:
-    default:
-      return "";
-  }
-};
-
-export type ScheduleTimes = {
-  startTime: string;
-  halfDayMorningEnd: string | null;
-  halfDayAfternoonStart: string | null;
-  endTime: string;
 };
 
 export const TranslateAbsenceErrorCodeToMessage = (
