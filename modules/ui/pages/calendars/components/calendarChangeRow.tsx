@@ -91,14 +91,6 @@ export const CalendarChangeRow: React.FC<Props> = props => {
 
   return (
     <div className={classes.container}>
-      <div className={classes.dateContainer}>
-        <Typography className={classes.mainText}>
-          {format(props.date, "MMM d")}
-        </Typography>
-        <Typography className={classes.subText}>
-          {format(props.date, "EEE")}
-        </Typography>
-      </div>
       <div className={classes.notes}>
         <Typography className={classes.mainText}>{descriptionLabel}</Typography>
         <Typography className={classes.subText}>
@@ -183,14 +175,14 @@ const useStyles = makeStyles(theme => ({
     fontSize: theme.typography.pxToRem(18),
   },
   delete: {
-    flex: 3,
+    flex: 2,
     color: theme.customColors.darkRed,
   },
   add: {
     flex: 3,
   },
   edit: {
-    flex: 2,
+    flex: 1,
     marginRight: theme.spacing(1),
   },
 }));

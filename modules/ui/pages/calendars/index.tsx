@@ -9,7 +9,6 @@ import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule
 import { useState, useMemo, useCallback } from "react";
 import { TextButton } from "ui/components/text-button";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
-import clsx from "clsx";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
 import {
   usePagedQueryBundle,
@@ -26,13 +25,14 @@ import {
   CalendarChangeUpdateInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
-import { parseISO, format, isBefore } from "date-fns";
+import { parseISO, format, isBefore, getDay } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
 import { CalendarView } from "./components/calendar-view";
+import { DayHeader } from "./components/event-day-header";
 import { StickyHeader } from "./components/sticky-header";
 import {
   CalendarListViewRoute,
@@ -541,15 +541,11 @@ export const Calendars: React.FC<Props> = props => {
         <div className={props.view === "calendar" ? classes.sticky : ""}>
           {props.view === "calendar" && (
             <Section className={classes.calendarChanges}>
-              {selectedDateCalendarChanges.length === 0 ? (
-                <>
-                  <div className={classes.noEvents}>
-                    <span className={classes.noEventText}>
-                      {t("No events on this day")}
-                    </span>
-                  </div>
-                </>
-              ) : (
+              <DayHeader
+                selectedDate={selectedDate}
+                eventCount={selectedDateCalendarChanges.length ?? 0}
+              />
+              {selectedDateCalendarChanges.length !== 0 && (
                 <>
                   {calendarChangeLength > 2 && hideChanges
                     ? selectedDateCalendarChanges
@@ -782,15 +778,5 @@ const useStyles = makeStyles(theme => ({
   height: {
     height: "25px",
     paddingLeft: "15px",
-  },
-  noEvents: {
-    height: "79px",
-  },
-  noEventText: {
-    fontSize: "1.125rem",
-    fontWeight: 500,
-    position: "relative",
-    paddingLeft: "15px",
-    top: "25px",
   },
 }));
