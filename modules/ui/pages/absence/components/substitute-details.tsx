@@ -164,17 +164,15 @@ export const SubstituteDetails: React.FC<Props> = props => {
       // whole Absence before they can interact with any Assignment actions. If they
       // do change times, we just want to make sure to keep displaying the current
       // Assignments correctly.
-      const initialAssignedVacancyDetails = initialVacancyDetails
+      const vacancyDetails = initialVacancyDetails
         ? sortBy(
-            initialVacancyDetails
-              .filter(vd => !!vd.assignmentId)
-              .map(vd => {
-                return {
-                  ...vd,
-                  startTimeLocal: parseISO(vd.startTime),
-                  endTimeLocal: parseISO(vd.endTime),
-                };
-              }),
+            initialVacancyDetails.map(vd => {
+              return {
+                ...vd,
+                startTimeLocal: parseISO(vd.startTime),
+                endTimeLocal: parseISO(vd.endTime),
+              };
+            }),
             vd => vd.startTimeLocal
           )
         : [];
@@ -191,7 +189,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
       allDetailTimes.forEach(a => {
         // Find a projected detail that matches either
         // exactly or on start time
-        let match = initialAssignedVacancyDetails.find(
+        let match = vacancyDetails.find(
           vd =>
             (isEqual(a.startTimeLocal, vd.startTimeLocal) &&
               isEqual(a.endTimeLocal, vd.endTimeLocal)) ||
@@ -199,7 +197,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
         );
         if (!match) {
           // Fallback to matching on an overlap or same day check
-          match = initialAssignedVacancyDetails.find(
+          match = vacancyDetails.find(
             vd =>
               areIntervalsOverlapping(
                 { start: a.startTimeLocal, end: a.endTimeLocal },
@@ -207,7 +205,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
               ) || isSameDay(a.startTimeLocal, vd.startTimeLocal)
           );
         }
-        if (match) {
+        if (match?.assignmentId) {
           assignments.push({
             startTimeLocal: a.startTimeLocal,
             endTimeLocal: a.endTimeLocal,
