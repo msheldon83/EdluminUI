@@ -1,10 +1,9 @@
 import { makeStyles } from "@material-ui/styles";
 import { isSameDay, isToday } from "date-fns";
-import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import * as React from "react";
 import { useMemo } from "react";
 import { CustomCalendar } from "../form/custom-calendar";
-import { getCannotCreateAbsenceDates } from "./helpers";
+import { useEmployeeContractDates } from "helpers/absence/use-employee-contract-dates";
 
 type Props = {
   selectedAbsenceDates: Date[];
@@ -22,27 +21,40 @@ type Props = {
 export const CreateAbsenceCalendar: React.FC<Props> = props => {
   const { selectedAbsenceDates, currentMonth } = props;
   const classes = useStyles();
-  const disabledDateObjs = useEmployeeDisabledDates(
+  const employeeContractDates = useEmployeeContractDates(
     props.employeeId,
     currentMonth
   );
 
-  const dateDisabledClass = `${classes.dateDisabled} dateDisabled`;
-  const customDatesDisabled = useMemo(
+  const customContractDates = useMemo(
     () =>
-      getCannotCreateAbsenceDates(disabledDateObjs).map(date => {
-        return {
-          date,
-          buttonProps: { className: dateDisabledClass },
-        };
-      }),
-    [disabledDateObjs, dateDisabledClass]
+      employeeContractDates
+        .filter(c => c.type !== "absence" && c.type !== "instructional")
+        .map(c => {
+          let className = classes.dateDisabled;
+          switch (c.type) {
+            case "closed":
+              className = classes.closed;
+              break;
+            case "modified":
+              className = classes.modified;
+              break;
+            case "inservice":
+              className = classes.inservice;
+              break;
+          }
+
+          return {
+            date: c.date,
+            buttonProps: { className },
+          };
+        }),
+    [classes, employeeContractDates]
   );
 
-  const existingDateClass = `${classes.existingDate} existingDate`;
   const customExistingAbsenceDates = useMemo(
     () =>
-      disabledDateObjs
+      employeeContractDates
         .filter(d => d.type === "absence")
         .map(d => d.date)
         // remove if it is a selected date
@@ -50,28 +62,31 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
         .map(date => {
           return {
             date,
-            buttonProps: { className: existingDateClass },
+            buttonProps: { className: classes.existingAbsenceDate },
           };
         }),
-    [disabledDateObjs, existingDateClass, selectedAbsenceDates]
+    [classes.existingAbsenceDate, employeeContractDates, selectedAbsenceDates]
   );
 
-  const selectedDateClass = `${classes.selectedAbsenceDate} selectedAbsenceDate`;
   const customSelectedAbsenceDates = useMemo(
     () =>
       selectedAbsenceDates.map(date => {
         return {
           date,
-          buttonProps: { className: selectedDateClass },
+          buttonProps: { className: classes.selectedAbsenceDate },
         };
       }),
-    [selectedAbsenceDates, selectedDateClass]
+    [classes.selectedAbsenceDate, selectedAbsenceDates]
   );
 
   const customDates = useMemo(() => {
     const ranges = customSelectedAbsenceDates
-      .concat(customDatesDisabled)
-      .concat(customExistingAbsenceDates);
+      .concat(customExistingAbsenceDates)
+      .concat(
+        customContractDates.filter(
+          c => !customExistingAbsenceDates.find(a => isSameDay(c.date, a.date))
+        )
+      );
     const todayIndex = ranges.findIndex(o => isToday(o.date));
     if (todayIndex === -1) {
       ranges.push({
@@ -90,7 +105,7 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
     return ranges;
   }, [
     classes.today,
-    customDatesDisabled,
+    customContractDates,
     customExistingAbsenceDates,
     customSelectedAbsenceDates,
   ]);
@@ -128,30 +143,52 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
 
 const useStyles = makeStyles(theme => ({
   dateDisabled: {
-    backgroundColor: theme.customColors.lightGray,
+    backgroundColor: theme.calendar.absence.disabled,
     color: theme.palette.text.disabled,
     pointerEvents: "none",
 
     "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
+      backgroundColor: theme.calendar.absence.disabled,
       color: theme.palette.text.disabled,
     },
   },
-  existingDate: {
-    backgroundColor: theme.customColors.lightBlue,
-    color: theme.palette.text.disabled,
+  closed: {
+    backgroundColor: theme.calendar.absence.closed,
+    pointerEvents: "none",
 
     "&:hover": {
-      backgroundColor: theme.customColors.lightBlue,
-      color: theme.palette.text.disabled,
+      backgroundColor: theme.calendar.absence.closed,
     },
   },
-  selectedAbsenceDate: {
-    backgroundColor: theme.palette.primary.main,
+  modified: {
+    backgroundColor: theme.calendar.absence.modified,
+
+    "&:hover": {
+      backgroundColor: theme.calendar.absence.modified,
+    },
+  },
+  inservice: {
+    backgroundColor: theme.calendar.absence.inservice,
+
+    "&:hover": {
+      backgroundColor: theme.calendar.absence.inservice,
+    },
+  },
+  existingAbsenceDate: {
+    backgroundColor: theme.calendar.absence.existingAbsence,
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: theme.calendar.absence.existingAbsence,
+      color: theme.customColors.white,
+    },
+  },
+  selectedAbsenceDate: {
+    backgroundColor: theme.customColors.edluminSlate,
+    color: theme.customColors.white,
+
+    "&:hover": {
+      backgroundColor: theme.customColors.edluminSlate,
       color: theme.customColors.white,
     },
   },
