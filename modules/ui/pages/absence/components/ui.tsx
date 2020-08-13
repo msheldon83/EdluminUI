@@ -795,8 +795,6 @@ export const AbsenceUI: React.FC<Props> = props => {
             (isCreate && state.absenceDates.length > 0) ||
             !vacancyDetailsAreEqual(state.initialVacancyDetails ?? [], vacancyDetails ?? []);
 
-          console.log(dirty, state.initialVacancyDetails, vacancyDetails);
-
           // The object we send to the server when getting projected vacancies
           // or projected absence usage is not the exact same as what we would send
           // on a Create or Update call so we define a specific object for those

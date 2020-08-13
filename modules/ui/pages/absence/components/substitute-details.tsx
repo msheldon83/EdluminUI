@@ -84,7 +84,6 @@ export const SubstituteDetails: React.FC<Props> = props => {
     isClosed,
     disableReplacementInteractions = false,
   } = props;
-  console.log("vacanciesOverride", vacanciesOverride);
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
   const snackbar = useSnackbar();
 
