@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AssignmentWithDetails, AssignmentFor } from "./types";
+import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
 import { UnfilledBanner } from "./unfilled-banner";
 import { AssignedBanner } from "./assigned-banner";
 import { DateGroup } from "./date-group";
@@ -7,31 +7,37 @@ import { makeStyles } from "@material-ui/core";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
+  assignAction: "assign" | "pre-arrange";
   isPartiallyFilled: boolean;
   showPayCodes: boolean;
   showAccountingCodes: boolean;
   showAbsenceTimes: boolean;
-  onAssignClick?: (currentAssignmentInfo: AssignmentFor) => void;
+  onAssignClick?: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<void>;
   onCancelAssignment?: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
+    vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   disableActions?: boolean;
   detailsOnly?: boolean;
   readOnly: boolean;
   allowRemoval?: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const AssignmentGroup: React.FC<Props> = props => {
   const classes = useStyles();
   const {
     assignmentWithDetails,
+    assignAction,
     isPartiallyFilled,
     showAbsenceTimes,
     onAssignClick,
     onCancelAssignment,
     showPayCodes,
     showAccountingCodes,
+    readOnly,
+    isApprovedForSubJobSearch,
     disableActions = false,
     detailsOnly = false,
     allowRemoval = false,
@@ -48,34 +54,28 @@ export const AssignmentGroup: React.FC<Props> = props => {
         showAbsenceTimes={showAbsenceTimes}
         showPayCodes={showPayCodes}
         showAccountingCodes={showAccountingCodes}
-        readOnly={props.readOnly}
+        readOnly={readOnly}
       />
       {!detailsOnly && (
         <>
           {showUnfilledHeader && (
             <UnfilledBanner
-              onAssignClick={
-                onAssignClick
-                  ? () => onAssignClick(assignmentWithDetails)
-                  : undefined
-              }
-              assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
+              assignmentWithDetails={assignmentWithDetails}
+              onAssignClick={onAssignClick}
               disableActions={disableActions}
+              assignAction={assignAction}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           )}
           {isAssigned && (
             <AssignedBanner
               assignmentWithDetails={assignmentWithDetails}
-              assignmentStartTime={assignmentWithDetails.startDateAndTimeLocal}
-              onReassignClick={
-                onAssignClick
-                  ? () => onAssignClick(assignmentWithDetails)
-                  : undefined
-              }
+              onReassignClick={onAssignClick}
               onCancelAssignment={onCancelAssignment}
               disableActions={disableActions}
-              readOnly={props.readOnly}
+              readOnly={readOnly}
               allowRemoval={allowRemoval}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
             />
           )}
         </>

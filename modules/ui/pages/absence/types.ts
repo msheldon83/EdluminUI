@@ -25,6 +25,7 @@ export type AbsenceDetail = {
 
 export type AssignmentOnDate = {
   startTimeLocal: Date;
+  endTimeLocal: Date;
   vacancyDetailId?: string | undefined;
   assignmentId?: string;
   assignmentRowVersion?: string;
@@ -34,4 +35,28 @@ export type AssignmentOnDate = {
     lastName: string;
     email: string | undefined;
   };
+};
+
+export type VacancyDetail = {
+  vacancyDetailId: string | undefined;
+  date: string;
+  startTime: string;
+  endTime: string;
+  locationId: string;
+  locationName?: string;
+  absenceStartTime?: string;
+  absenceEndTime?: string;
+  accountingCodeAllocations?: AccountingCodeValue | null;
+  payCodeId?: string | null;
+  isClosed: boolean;
+} & AssignmentInfo;
+
+type AssignmentInfo = {
+  assignmentId?: string;
+  assignmentRowVersion?: string;
+  assignmentStartDateTime?: string;
+  assignmentEmployeeId?: string;
+  assignmentEmployeeFirstName?: string;
+  assignmentEmployeeLastName?: string;
+  assignmentEmployeeEmail?: string;
 };

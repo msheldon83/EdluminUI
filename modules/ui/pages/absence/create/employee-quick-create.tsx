@@ -11,7 +11,6 @@ import { AbsenceFormValidationSchema } from "../validation";
 import { useMutationBundle } from "graphql/hooks";
 import { useHistory } from "react-router-dom";
 import { AbsenceFormData } from "../types";
-import { buildAbsenceInput } from "../components/ui";
 import { CreateAbsence } from "../graphql/create.gen";
 import { ApolloError } from "apollo-client";
 import { ErrorDialog } from "ui/components/error-dialog";
@@ -24,6 +23,7 @@ import {
   EmployeeCreateAbsenceConfirmationRoute,
   EmployeeCreateAbsenceRoute,
 } from "ui/routes/absence";
+import { buildAbsenceInput } from "../helpers";
 
 type Props = {
   employeeId: string;
@@ -229,12 +229,9 @@ export const EmployeeQuickAbsenceCreate: React.FC<Props> = props => {
                   disabled={isSubmitting}
                   className={classes.additionalButton}
                   onClick={() =>
-                    history.push(
-                      EmployeeCreateAbsenceRoute.generate({}),
-                      {
-                        initialFormData: values
-                      }
-                    )
+                    history.push(EmployeeCreateAbsenceRoute.generate({}), {
+                      initialFormData: values,
+                    })
                   }
                 >
                   {t("Add additional details")}

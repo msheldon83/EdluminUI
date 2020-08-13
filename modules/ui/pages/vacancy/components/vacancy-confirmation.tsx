@@ -27,11 +27,10 @@ type Props = {
   locations: Loc[];
   positionTypes: PositionType[];
   contracts: Contract[];
-  setVacancyForCreate: React.Dispatch<
-    React.SetStateAction<VacancyDetailsFormData>
-  >;
   vacancySummaryDetails: VacancySummaryDetail[];
-  onCancelAssignment: (vacancyDetailIds?: string[]) => Promise<boolean>;
+  onCancelAssignment: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<boolean>;
   orgHasPayCodesDefined: boolean;
   orgHasAccountingCodesDefined: boolean;
   isApprovedForSubJobSearch: boolean;
@@ -62,10 +61,7 @@ export const VacancyConfirmation: React.FC<Props> = ({
   React.useEffect(() => {
     const container = document.getElementById("main-container");
     if (container) container.scrollTop = 0;
-    // return resetVacancy, so it's called
-    // when this component is unmounted
-    return resetVacancy;
-  }, [resetVacancy]);
+  }, []);
 
   const editUrl = useMemo(() => {
     if (!vacancyId) {
@@ -84,7 +80,6 @@ export const VacancyConfirmation: React.FC<Props> = ({
   if (!vacancyId) {
     // Redirect the User back to the Absence Details step
     setStep("vacancy");
-
     return null;
   }
 
@@ -118,7 +113,24 @@ export const VacancyConfirmation: React.FC<Props> = ({
           <Grid item xs={6}>
             <VacancySummary
               vacancySummaryDetails={vacancySummaryDetails}
-              onCancelAssignment={onCancelAssignment}
+              onCancelAssignment={async (details: VacancySummaryDetail[]) => {
+                const isSuccess = await onCancelAssignment(details);
+                const assignmentId = details[0]?.assignment?.id;
+                if (isSuccess && details.length > 0) {
+                  // If Sub was only removed from part of the Assignment, then we'll
+                  // redirect the User directly to the Edit view of the Vacancy
+                  const vacancyDetailsForThisAssignment = vacancySummaryDetails.filter(
+                    d => d.assignment?.id && d.assignment.id === assignmentId
+                  );
+                  if (
+                    details.length !==
+                    vacancyDetailsForThisAssignment.length
+                  ) {
+                    history.push(editUrl);
+                  }
+                }
+                return isSuccess;
+              }}
               notesForSubstitute={notes}
               showPayCodes={orgHasPayCodesDefined}
               showAccountingCodes={orgHasAccountingCodesDefined}
@@ -129,7 +141,7 @@ export const VacancyConfirmation: React.FC<Props> = ({
         </Grid>
         <Grid item xs={12} container justify="flex-end" spacing={2}>
           <Grid item>
-            <Button variant="outlined" onClick={() => setStep("vacancy")}>
+            <Button variant="outlined" onClick={() => resetVacancy()}>
               {t("Create New")}
             </Button>
           </Grid>

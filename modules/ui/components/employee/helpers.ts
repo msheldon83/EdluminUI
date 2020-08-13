@@ -283,9 +283,10 @@ const determineDayPartLabel = (
   switch (dayPart) {
     case DayPart.FullDay:
       return count > 1 ? t("Full Days") : t("Full Day");
-    case DayPart.HalfDayAfternoon:
     case DayPart.HalfDayMorning:
-      return count > 1 ? t("Half Days") : t("Half Day");
+      return count > 1 ? t("Half Days AM") : t("Half Day AM");
+    case DayPart.HalfDayAfternoon:
+      return count > 1 ? t("Half Days PM") : t("Half Day PM");
     case DayPart.Hourly:
       return count > 1 ? t("Hours") : t("Hour");
     case DayPart.QuarterDayEarlyAfternoon:

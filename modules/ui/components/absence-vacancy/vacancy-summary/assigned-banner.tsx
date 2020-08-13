@@ -1,42 +1,37 @@
-import { makeStyles, Button, Typography, Divider } from "@material-ui/core";
+import { makeStyles, Typography, Divider, Button } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { AssignmentWithDetails } from "./types";
+import { AssignmentWithDetails, VacancySummaryDetail } from "./types";
 import { Can } from "ui/components/auth/can";
 import { AccountCircleOutlined, MailOutline } from "@material-ui/icons";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canRemoveSub, canReassignSub } from "helpers/permissions";
-import { CancelAssignmentDialog } from "./cancel-assignment-dialog";
-import { useState, useCallback, useRef, useEffect } from "react";
 import { SubstituteLink } from "ui/components/links/people";
-import { compact } from "lodash-es";
+import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { PermissionEnum } from "graphql/server-types.gen";
 
 type Props = {
   assignmentWithDetails: AssignmentWithDetails;
-  assignmentStartTime: Date;
-  onReassignClick?: () => void;
+  onReassignClick?: (
+    vacancySummaryDetails: VacancySummaryDetail[]
+  ) => Promise<void>;
   onCancelAssignment?: (
-    vacancyDetailIds: string[],
-    vacancyDetailDates?: Date[]
+    vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   disableActions?: boolean;
   readOnly: boolean;
   allowRemoval?: boolean;
+  isApprovedForSubJobSearch: boolean;
 };
 
 export const AssignedBanner: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [
-    cancelAssignmentDialogIsOpen,
-    setCancelAssignmentDialogIsOpen,
-  ] = useState<boolean>(false);
   const {
     assignmentWithDetails,
-    assignmentStartTime,
     onReassignClick,
     onCancelAssignment,
+    isApprovedForSubJobSearch,
     disableActions = false,
     allowRemoval = false,
   } = props;
@@ -46,42 +41,8 @@ export const AssignedBanner: React.FC<Props> = props => {
     ?.firstName ?? ""} ${assignmentWithDetails.assignment?.employee?.lastName ??
     ""}`;
 
-  const onRemoveClick = useCallback(async () => {
-    if (!onCancelAssignment) {
-      return;
-    }
-
-    if (assignmentWithDetails.dates.length === 1) {
-      // Cancelling an assignment for a single day, no need to prompt the user
-      await onCancelAssignment(
-        compact(assignmentWithDetails.vacancyDetailIds),
-        compact(assignmentWithDetails.dates)
-      );
-    } else {
-      // Cancelling a multi day assignment, want to ask the user what they want to do
-      setCancelAssignmentDialogIsOpen(true);
-    }
-  }, [onCancelAssignment, assignmentWithDetails]);
-
-  const componentIsMounted = useRef(true);
-  useEffect(() => {
-    return () => {
-      componentIsMounted.current = false;
-    };
-  }, []);
-
   return (
     <>
-      {onCancelAssignment && (
-        <CancelAssignmentDialog
-          onCancelAssignment={onCancelAssignment}
-          onClose={() =>
-            componentIsMounted.current && setCancelAssignmentDialogIsOpen(false)
-          }
-          open={cancelAssignmentDialogIsOpen}
-          assignmentWithDetails={assignmentWithDetails}
-        />
-      )}
       <Divider className={classes.divider} />
       <div className={classes.assignedBanner}>
         <div className={classes.employeeInfo}>
@@ -120,35 +81,23 @@ export const AssignedBanner: React.FC<Props> = props => {
 
         <div className={classes.actions}>
           {onReassignClick && (
-            <Can
-              do={(
-                permissions: OrgUserPermissions[],
-                isSysAdmin: boolean,
-                orgId?: string,
-                forRole?: Role | null | undefined
-              ) =>
-                canReassignSub(
-                  assignmentStartTime,
-                  permissions,
-                  isSysAdmin,
-                  orgId,
-                  forRole
-                )
-              }
-            >
-              <Button
-                variant="outlined"
-                onClick={onReassignClick}
-                disabled={disableActions}
-                className={classes.reassignButton}
-              >
-                {t("Reassign")}
-              </Button>
-            </Can>
+            <FilteredAssignmentButton
+              details={assignmentWithDetails.vacancySummaryDetails}
+              action={"reassign"}
+              permissionCheck={canReassignSub}
+              disableAction={disableActions}
+              onClick={onReassignClick}
+              assignment={assignmentWithDetails.assignment}
+              className={classes.reassignButton}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
+            />
           )}
           {onCancelAssignment && (
-            <Can
-              do={(
+            <FilteredAssignmentButton
+              details={assignmentWithDetails.vacancySummaryDetails}
+              action={"cancel"}
+              permissionCheck={(
+                absDate: Date,
                 permissions: OrgUserPermissions[],
                 isSysAdmin: boolean,
                 orgId?: string,
@@ -159,23 +108,19 @@ export const AssignedBanner: React.FC<Props> = props => {
                 }
 
                 return canRemoveSub(
-                  assignmentStartTime,
+                  absDate,
                   permissions,
                   isSysAdmin,
                   orgId,
                   forRole
                 );
               }}
-            >
-              <Button
-                disabled={disableActions}
-                variant={"outlined"}
-                onClick={onRemoveClick}
-                className={classes.removeButton}
-              >
-                {t("Remove")}
-              </Button>
-            </Can>
+              disableAction={disableActions}
+              onClick={onCancelAssignment}
+              assignment={assignmentWithDetails.assignment}
+              className={classes.removeButton}
+              isApprovedForSubJobSearch={isApprovedForSubJobSearch}
+            />
           )}
         </div>
       </div>
@@ -183,7 +128,7 @@ export const AssignedBanner: React.FC<Props> = props => {
   );
 };
 
-export const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(theme => ({
   assignedBanner: {
     display: "flex",
     padding: theme.spacing(),
