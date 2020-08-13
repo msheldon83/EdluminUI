@@ -1183,6 +1183,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(4),
   },
 }));
+
 const vacancyDetailsAreEqual = (details: VacancyDetail[], detailsToCompare: VacancyDetail[]) => {
   const detailsWithoutIds = details.map(d => {
     return {
