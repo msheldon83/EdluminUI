@@ -268,9 +268,37 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           break;
       }
 
+      // When we're dealing with an existing Absence any changes to the Assignments
+      // are made without actually saving the Absence. When that occurs, let's make sure
+      // the initialVacancyDetails are appropriately updated to reflect the current
+      // state of assignments
+      const vacancyDetails = prev.initialVacancyDetails
+        ? [...prev.initialVacancyDetails]
+        : undefined;
+      if (vacancyDetails) {
+        vacancyDetails.forEach(vd => {
+          // Find a match in assignments on times and where the Assignment Id doesn't match
+          const match = assignments.find(
+            a =>
+              a.assignmentId &&
+              isEqual(a.startTimeLocal, parseISO(vd.startTime)) &&
+              isEqual(a.endTimeLocal, parseISO(vd.endTime))
+          );
+          // Update the assignment details on the Vacancy Detail
+          // Also handles removing assignment details if we no longer have an assignment
+          vd.assignmentId = match?.assignmentId;
+          vd.assignmentRowVersion = match?.assignmentRowVersion;
+          vd.assignmentEmployeeId = match?.employee?.id;
+          vd.assignmentEmployeeFirstName = match?.employee?.firstName;
+          vd.assignmentEmployeeLastName = match?.employee?.lastName;
+          vd.assignmentEmployeeEmail = match?.employee?.email;
+        });
+      }
+
       return {
         ...prev,
         assignmentsByDate: assignments,
+        initialVacancyDetails: vacancyDetails,
       };
     }
   }
