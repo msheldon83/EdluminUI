@@ -20,6 +20,7 @@ import { format, isEqual } from "date-fns";
 import { Assignment, VacancySummaryDetail, AssignmentAction } from "./types";
 import { getActionButtonText } from "./helpers";
 import clsx from "clsx";
+import { sortBy } from "lodash-es";
 
 type Props = {
   action: AssignmentAction;
@@ -69,7 +70,7 @@ export const AssignmentDialog: React.FC<Props> = props => {
   }, [selection, vacancySummaryDetails, onSubmit, onClose, selectedDates]);
 
   const detailsDisplay = useMemo(() => {
-    return vacancySummaryDetails.map((vsd, i) => {
+    return sortBy(vacancySummaryDetails, vsd => vsd.startTimeLocal).map((vsd, i) => {
       return (
         <div key={i}>
           <FormControlLabel
