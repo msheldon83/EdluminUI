@@ -44,9 +44,18 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
               break;
           }
 
+          const dayIsAlsoAbsence = !!employeeContractDates.find(
+            d => d.type === "absence" && isSameDay(d.date, c.date)
+          );
+
           return {
             date: c.date,
-            buttonProps: { className },
+            buttonProps: {
+              className,
+            },
+            timeClass: dayIsAlsoAbsence
+              ? classes.existingAbsenceOverlay
+              : undefined,
           };
         }),
     [classes, employeeContractDates]
@@ -81,10 +90,10 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
 
   const customDates = useMemo(() => {
     const ranges = customSelectedAbsenceDates
-      .concat(customExistingAbsenceDates)
+      .concat(customContractDates)
       .concat(
-        customContractDates.filter(
-          c => !customExistingAbsenceDates.find(a => isSameDay(c.date, a.date))
+        customExistingAbsenceDates.filter(
+          a => !customContractDates.find(c => isSameDay(c.date, a.date))
         )
       );
     const todayIndex = ranges.findIndex(o => isToday(o.date));
@@ -182,6 +191,10 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.calendar.absence.existingAbsence,
       color: theme.customColors.white,
     },
+  },
+  existingAbsenceOverlay: {
+    background: `radial-gradient(${theme.calendar.absence.existingAbsence} 50%, transparent 50%)`,
+    color: theme.customColors.white,
   },
   selectedAbsenceDate: {
     backgroundColor: theme.customColors.edluminSlate,
