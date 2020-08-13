@@ -210,7 +210,12 @@ export const AbsenceUI: React.FC<Props> = props => {
           )
       );
     },
-    [actingAsEmployee, canDoFn, isCreate, absence?.approvalState?.approvalStatusId]
+    [
+      actingAsEmployee,
+      canDoFn,
+      isCreate,
+      absence?.approvalState?.approvalStatusId,
+    ]
   );
 
   const onProjectedVacanciesChange = React.useCallback(
@@ -757,7 +762,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           const formIsDirty =
             dirty ||
             (isCreate && state.absenceDates.length > 0) ||
-            !isEqual(state.initialVacancyDetails, vacancyDetails);
+            !vacancyDetailsAreEqual(state.initialVacancyDetails ?? [], vacancyDetails ?? []);
 
           // The object we send to the server when getting projected vacancies
           // or projected absence usage is not the exact same as what we would send
@@ -942,7 +947,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                               isCreate ||
                               state.customizedVacanciesInput
                                 ? undefined
-                                : compact(localAbsence?.vacancies)
+                                : compact(localAbsence?.vacancies).length > 0
+                                ? compact(localAbsence?.vacancies)
+                                : undefined
                             }
                             canEditSubDetails={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
@@ -1176,3 +1183,18 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(4),
   },
 }));
+const vacancyDetailsAreEqual = (details: VacancyDetail[], detailsToCompare: VacancyDetail[]) => {
+  const detailsWithoutIds = details.map(d => {
+    return {
+      ...d,
+      vacancyDetailId: undefined
+    }
+  });
+  const detailsToCompareWithoutIds = detailsToCompare.map(d => {
+    return {
+      ...d,
+      vacancyDetailId: undefined
+    }
+  });
+  return isEqual(detailsWithoutIds, detailsToCompareWithoutIds);
+}
