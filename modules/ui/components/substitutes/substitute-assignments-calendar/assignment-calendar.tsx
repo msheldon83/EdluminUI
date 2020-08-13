@@ -1,8 +1,9 @@
 import { makeStyles } from "@material-ui/core";
 import * as DateFns from "date-fns";
 import * as React from "react";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
+import clsx from "clsx";
 
 type Props = {
   date: string;
@@ -14,92 +15,98 @@ type Props = {
   availableAfterDates: Date[];
 };
 
-export const AssignmentCalendar: React.FC<Props> = props => {
+export const AssignmentCalendar: React.FC<Props> = ({
+  assignmentDates,
+  unavailableDates,
+  availableBeforeDates,
+  availableAfterDates,
+  selectedDate,
+  ...props
+}) => {
   const classes = useStyles();
   const parsedDate = useMemo(() => DateFns.parseISO(props.date), [props.date]);
 
   const checkDays = useMemo(
-    () => DateFns.isSameMonth(parsedDate, props.selectedDate),
-    [parsedDate, props.selectedDate]
+    () =>
+      DateFns.isSameMonth(parsedDate, selectedDate) ||
+      DateFns.isThisMonth(parsedDate),
+    [parsedDate, selectedDate]
   );
 
-  const checkSelected = (d: Date, className: string) => {
-    if (DateFns.isSameDay(d, props.selectedDate)) {
-      return classes.selected;
-    } else {
-      return className;
-    }
-  };
+  const simpleDecorate = (className: string) => (date: Date) => ({
+    date,
+    buttonProps: { className },
+  });
 
-  const unavailableDates = checkDays
-    ? props.unavailableDates.map(d => ({
-        date: d,
-        buttonProps: { className: checkSelected(d, classes.unavailableDate) },
-      }))
-    : props.unavailableDates.map(d => ({
-        date: d,
-        buttonProps: { className: classes.unavailableDate },
-      }));
+  const complexDecorate = useMemo(
+    () =>
+      checkDays
+        ? (className: string) => (date: Date) => ({
+            date,
+            buttonProps: {
+              className: clsx(
+                className,
+                DateFns.isSameDay(date, selectedDate)
+                  ? classes.selected
+                  : DateFns.isToday(date)
+                  ? classes.today
+                  : undefined
+              ),
+            },
+          })
+        : undefined,
+    [checkDays, selectedDate, classes]
+  );
 
-  const availableBeforeDates = checkDays
-    ? props.availableBeforeDates.map(d => ({
-        date: d,
-        buttonProps: {
-          className: checkSelected(d, classes.availableBeforeDate),
-        },
-      }))
-    : props.availableBeforeDates.map(d => ({
-        date: d,
-        buttonProps: { className: classes.availableBeforeDate },
-      }));
+  const baseDates = useMemo(() => {
+    const decorateDate = complexDecorate ?? simpleDecorate;
+    return unavailableDates
+      .map(decorateDate(classes.unavailableDate))
+      .concat(
+        availableBeforeDates.map(decorateDate(classes.availableBeforeDate))
+      )
+      .concat(availableAfterDates.map(decorateDate(classes.availableAfterDate)))
+      .filter(d => !assignmentDates.some(ad => DateFns.isSameDay(ad, d.date)))
+      .concat(assignmentDates.map(decorateDate(classes.assignment)));
+  }, [
+    complexDecorate,
+    unavailableDates,
+    availableBeforeDates,
+    availableAfterDates,
+    assignmentDates,
+    classes,
+  ]);
 
-  const availableAfterDates = checkDays
-    ? props.availableAfterDates.map(d => ({
-        date: d,
-        buttonProps: {
-          className: checkSelected(d, classes.availableAfterDate),
-        },
-      }))
-    : props.availableAfterDates.map(d => ({
-        date: d,
-        buttonProps: { className: classes.availableAfterDate },
-      }));
-
-  const assignmentDates = checkDays
-    ? props.assignmentDates.map(d => ({
-        date: d,
-        buttonProps: { className: checkSelected(d, classes.assignment) },
-      }))
-    : props.assignmentDates.map(d => ({
-        date: d,
-        buttonProps: { className: classes.assignment },
-      }));
-
-  const disabledDates = unavailableDates
-    .concat(availableBeforeDates)
-    .concat(availableAfterDates)
-    .filter(
-      d => !props.assignmentDates.find(ad => DateFns.isSameDay(ad, d.date))
-    );
-
-  const customDates = disabledDates.concat(assignmentDates);
-
-  // If the selected day is not in customDates, add an entry for it
-  checkDays &&
-    customDates.push({
-      date: props.selectedDate,
-      buttonProps: { className: classes.selected },
-    });
-
-  const today = customDates.find(d => DateFns.isToday(d.date));
-  if (today) {
-    today.buttonProps.className += ` ${classes.today}`;
-  } else {
-    customDates.push({
-      date: DateFns.startOfToday(),
-      buttonProps: { className: classes.today },
-    });
-  }
+  const customDates = useMemo(
+    () =>
+      checkDays
+        ? baseDates
+            .concat(
+              baseDates.some(({ date }) =>
+                DateFns.isSameDay(date, selectedDate)
+              )
+                ? []
+                : [
+                    {
+                      date: selectedDate,
+                      buttonProps: { className: classes.selected },
+                    },
+                  ]
+            )
+            .concat(
+              DateFns.isToday(selectedDate) ||
+                baseDates.some(({ date }) => DateFns.isToday(date))
+                ? []
+                : [
+                    {
+                      date: DateFns.startOfToday(),
+                      buttonProps: { className: classes.today },
+                    },
+                  ]
+            )
+        : baseDates,
+    [checkDays, baseDates, selectedDate, classes]
+  );
 
   return (
     <div className={classes.calendar}>
@@ -122,39 +129,33 @@ const useStyles = makeStyles(theme => ({
     minWidth: theme.typography.pxToRem(300),
   },
   selected: {
-    backgroundColor: theme.customColors.blueHover,
-    color: theme.customColors.white,
-
-    "&:hover": {
-      backgroundColor: theme.customColors.blueHover,
-      color: theme.customColors.white,
-    },
+    border: "3px solid #373361",
   },
   assignment: {
-    backgroundColor: theme.customColors.sky,
+    backgroundColor: "#373361",
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: theme.customColors.sky,
+      backgroundColor: "#373361",
       color: theme.customColors.white,
     },
   },
   unavailableDate: {
-    backgroundColor: theme.customColors.medLightGray,
+    backgroundColor: "#E1E1E1",
     color: theme.palette.text.disabled,
 
     "&:hover": {
-      backgroundColor: theme.customColors.lightGray,
+      backgroundColor: "#E1E1E1",
       color: theme.palette.text.disabled,
     },
   },
   availableBeforeDate: {
-    background: `linear-gradient(to left top, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
+    background: `linear-gradient(to bottom right, transparent 50%, #E1E1E1 50%)`,
   },
   availableAfterDate: {
-    background: `linear-gradient(to right bottom, ${theme.customColors.medLightGray}, ${theme.customColors.white} 65%)`,
+    background: `linear-gradient(to bottom right, #E1E1E1 50%, transparent 50%)`,
   },
   today: {
-    border: "2px solid black",
+    border: "3px solid #4CC17C",
   },
 }));
