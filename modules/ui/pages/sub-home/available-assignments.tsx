@@ -323,5 +323,6 @@ const useStyles = makeStyles(theme => ({
   },
   imageContainer: {
     display: "inline-block",
+    margin: theme.typography.pxToRem(20),
   },
 }));
