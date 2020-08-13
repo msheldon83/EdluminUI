@@ -3,7 +3,7 @@ import { makeStyles, Typography, Button } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { VacancySummary } from "ui/components/absence-vacancy/vacancy-summary";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
-import { AbsenceFormData, AssignmentOnDate } from "../types";
+import { AbsenceFormData, AssignmentOnDate, VacancyDetail } from "../types";
 import { useFormikContext } from "formik";
 import {
   AbsenceCreateInput,
@@ -15,7 +15,7 @@ import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
 import { useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import { compact } from "lodash-es";
+import { compact, sortBy } from "lodash-es";
 import { SubstituteDetailsCodes } from "./substitute-details-codes";
 import { Can } from "ui/components/auth/can";
 import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
@@ -24,6 +24,12 @@ import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown
 import { payCodeIdsAreTheSame } from "ui/components/absence/helpers";
 import { NeedsReplacementCheckbox } from "./needs-replacement";
 import { convertVacancyToVacancySummaryDetails } from "../helpers";
+import {
+  parseISO,
+  areIntervalsOverlapping,
+  isEqual,
+  isSameDay,
+} from "date-fns";
 
 type Props = {
   absenceId?: string;
@@ -50,6 +56,7 @@ type Props = {
   assignmentsByDate: AssignmentOnDate[];
   disableReplacementInteractions?: boolean;
   vacanciesOverride?: Vacancy[];
+  initialVacancyDetails?: VacancyDetail[];
 };
 
 export const SubstituteDetails: React.FC<Props> = props => {
@@ -72,6 +79,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     assignmentsByDate,
     vacanciesOverride,
     isClosed,
+    initialVacancyDetails,
     disableReplacementInteractions = false,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
@@ -135,39 +143,104 @@ export const SubstituteDetails: React.FC<Props> = props => {
       // No dates are currently selected so clear
       // out the Vacancy Summary Details
       setVacancySummaryDetails([]);
-    }
-
-    if (vacanciesOverride) {
-      setVacancySummaryDetails(
-        vacanciesOverride[0]
-          ? convertVacancyToVacancySummaryDetails(
-              vacanciesOverride[0],
-              assignmentsByDate
-            )
-          : []
-      );
       return;
     }
 
-    if (
-      getProjectedVacancies.state !== "LOADING" &&
-      getProjectedVacancies.state !== "UPDATING"
-    ) {
-      setVacancySummaryDetails(
-        projectedVacancies[0]
-          ? convertVacancyToVacancySummaryDetails(
-              projectedVacancies[0],
-              assignmentsByDate
-            )
-          : []
-      );
+    const vacancy: Vacancy | undefined =
+      vacanciesOverride && vacanciesOverride[0]
+        ? vacanciesOverride[0]
+        : getProjectedVacancies.state !== "LOADING" &&
+          getProjectedVacancies.state !== "UPDATING" &&
+          projectedVacancies[0]
+        ? projectedVacancies[0]
+        : undefined;
+
+    if (!vacancy) {
+      setVacancySummaryDetails([]);
+      return;
     }
+
+    const assignments: AssignmentOnDate[] = [];
+    if (initialVacancyDetails) {
+      // If we have initialVacancyDetails then we're working with an existing
+      // Absence. In that case the Assignments displayed are more for visual purposes
+      // because once the User changes Absence dates or times, they have to save the
+      // whole Absence before they can interact with any Assignment actions. If they
+      // do change times, we just want to make sure to keep displaying the current
+      // Assignments correctly.
+      const initialAssignedVacancyDetails = initialVacancyDetails
+        ? sortBy(
+            initialVacancyDetails
+              .filter(vd => !!vd.assignmentId)
+              .map(vd => {
+                return {
+                  ...vd,
+                  startTimeLocal: parseISO(vd.startTime),
+                  endTimeLocal: parseISO(vd.endTime),
+                };
+              }),
+            vd => vd.startTimeLocal
+          )
+        : [];
+      const allDetailTimes = compact(
+        vacancy.details?.map(d =>
+          d
+            ? {
+                startTimeLocal: parseISO(d.startTimeLocal),
+                endTimeLocal: parseISO(d.endTimeLocal),
+              }
+            : undefined
+        )
+      );
+      allDetailTimes.forEach(a => {
+        // Find a projected detail that matches either
+        // exactly or on start time
+        let match = initialAssignedVacancyDetails.find(
+          vd =>
+            (isEqual(a.startTimeLocal, vd.startTimeLocal) &&
+              isEqual(a.endTimeLocal, vd.endTimeLocal)) ||
+            isEqual(a.startTimeLocal, vd.startTimeLocal)
+        );
+        if (!match) {
+          // Fallback to matching on an overlap or same day check
+          match = initialAssignedVacancyDetails.find(
+            vd =>
+              areIntervalsOverlapping(
+                { start: a.startTimeLocal, end: a.endTimeLocal },
+                { start: vd.startTimeLocal, end: vd.endTimeLocal }
+              ) || isSameDay(a.startTimeLocal, vd.startTimeLocal)
+          );
+        }
+        if (match) {
+          assignments.push({
+            startTimeLocal: a.startTimeLocal,
+            endTimeLocal: a.endTimeLocal,
+            vacancyDetailId: match.vacancyDetailId,
+            assignmentId: match.assignmentId,
+            assignmentRowVersion: match.assignmentRowVersion,
+            employee: {
+              id: match.assignmentEmployeeId ?? "0",
+              firstName: match.assignmentEmployeeFirstName ?? "",
+              lastName: match.assignmentEmployeeLastName ?? "",
+              email: match.assignmentEmployeeEmail,
+            },
+          });
+        }
+      });
+    } else {
+      assignments.push(...assignmentsByDate);
+    }
+
+    setVacancySummaryDetails(
+      convertVacancyToVacancySummaryDetails(vacancy, assignments)
+    );
   }, [
     getProjectedVacancies.state,
     projectedVacancies,
     assignmentsByDate,
     absenceDates,
     vacanciesOverride,
+    initialVacancyDetails,
   ]);
 
   const detailsHaveDifferentAccountingCodes = React.useMemo(() => {

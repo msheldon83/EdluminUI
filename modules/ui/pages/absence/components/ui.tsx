@@ -949,6 +949,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             }
                             canEditSubDetails={canEditDatesAndTimes}
                             isClosed={state.isClosed ?? false}
+                            initialVacancyDetails={state.initialVacancyDetails}
                           />
                         </Grid>
                       </Grid>

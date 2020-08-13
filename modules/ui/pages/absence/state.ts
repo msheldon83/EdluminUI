@@ -1,10 +1,4 @@
-import {
-  isSameDay,
-  startOfDay,
-  parseISO,
-  isEqual,
-  areIntervalsOverlapping,
-} from "date-fns";
+import { isSameDay, startOfDay, parseISO, isEqual } from "date-fns";
 import {
   differenceWith,
   filter,
@@ -205,30 +199,27 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
     }
     case "setProjectedVacancies": {
       const isAbsenceCreate = !prev.absenceId;
-      let updatedAssignmentsByDate = sortBy(
-        prev.assignmentsByDate,
-        a => a.startTimeLocal
-      );
       const assignments: AssignmentOnDate[] = [];
-      const allProjectedDetailTimes = compact(
-        flatMap(
-          action.projectedVacancies?.map(v =>
-            v.details?.map(d =>
-              d
-                ? {
-                    startTimeLocal: parseISO(d.startTimeLocal),
-                    endTimeLocal: parseISO(d.endTimeLocal),
-                  }
-                : undefined
-            )
-          )
-        )
-      );
 
       if (isAbsenceCreate) {
+        const allProjectedDetailTimes = compact(
+          flatMap(
+            action.projectedVacancies?.map(v =>
+              v.details?.map(d =>
+                d
+                  ? {
+                      startTimeLocal: parseISO(d.startTimeLocal),
+                      endTimeLocal: parseISO(d.endTimeLocal),
+                    }
+                  : undefined
+              )
+            )
+          )
+        );
+
         // On Create, we just look for exact matches
         allProjectedDetailTimes.forEach(d => {
-          const match = updatedAssignmentsByDate.find(
+          const match = prev.assignmentsByDate.find(
             a =>
               isEqual(a.startTimeLocal, d.startTimeLocal) &&
               isEqual(a.endTimeLocal, d.endTimeLocal)
@@ -238,73 +229,17 @@ export const absenceReducer: Reducer<AbsenceState, AbsenceActions> = (
           }
         });
       } else {
-        const initialAssignedVacancyDetails = prev.initialVacancyDetails
-          ? sortBy(
-              prev.initialVacancyDetails
-                .filter(vd => !!vd.assignmentId)
-                .map(vd => {
-                  return {
-                    ...vd,
-                    startTimeLocal: parseISO(vd.startTime),
-                    endTimeLocal: parseISO(vd.endTime),
-                  };
-                }),
-              vd => vd.startTimeLocal
-            )
-          : [];
-        allProjectedDetailTimes.forEach(a => {
-          // Find a projected detail that matches either
-          // exactly or on start time
-          let match = initialAssignedVacancyDetails.find(
-            vd =>
-              (isEqual(a.startTimeLocal, vd.startTimeLocal) &&
-                isEqual(a.endTimeLocal, vd.endTimeLocal)) ||
-              isEqual(a.startTimeLocal, vd.startTimeLocal)
-          );
-          if (!match) {
-            // Fallback to matching on an overlap or same day check
-            match = initialAssignedVacancyDetails.find(
-              vd =>
-                areIntervalsOverlapping(
-                  { start: a.startTimeLocal, end: a.endTimeLocal },
-                  { start: vd.startTimeLocal, end: vd.endTimeLocal }
-                ) || isSameDay(a.startTimeLocal, vd.startTimeLocal)
-            );
-          }
-          console.log("match", match);
-          if (match) {
-            assignments.push({
-              startTimeLocal: a.startTimeLocal,
-              endTimeLocal: a.endTimeLocal,
-              vacancyDetailId: match.vacancyDetailId,
-              assignmentId: match.assignmentId,
-              assignmentRowVersion: match.assignmentRowVersion,
-              employee: {
-                id: match.assignmentEmployeeId ?? "0",
-                firstName: match.assignmentEmployeeFirstName ?? "",
-                lastName: match.assignmentEmployeeLastName ?? "",
-                email: match.assignmentEmployeeEmail,
-              },
-            });
-          }
-        });
-        console.log(
-          assignments,
-          initialAssignedVacancyDetails,
-          allProjectedDetailTimes
-        );
+        assignments.push(...prev.assignmentsByDate);
       }
-
-      updatedAssignmentsByDate = assignments;
 
       return {
         ...prev,
         projectedVacancies: action.projectedVacancies,
         projectedVacancyDetails: projectVacancyDetailsFromVacancies(
           action.projectedVacancies,
-          updatedAssignmentsByDate
+          assignments
         ),
-        assignmentsByDate: updatedAssignmentsByDate,
+        assignmentsByDate: assignments,
       };
     }
     case "updateAssignments": {
