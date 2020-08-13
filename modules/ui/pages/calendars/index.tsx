@@ -542,7 +542,13 @@ export const Calendars: React.FC<Props> = props => {
           {props.view === "calendar" && (
             <Section className={classes.calendarChanges}>
               {selectedDateCalendarChanges.length === 0 ? (
-                <Typography>{t("No day selected")}</Typography>
+                <>
+                  <div className={classes.noEvents}>
+                    <span className={classes.noEventText}>
+                      {t("No events on this day")}
+                    </span>
+                  </div>
+                </>
               ) : (
                 <>
                   {calendarChangeLength > 2 && hideChanges
@@ -651,6 +657,7 @@ export const Calendars: React.FC<Props> = props => {
                             ),
                           },
                         ];
+
                         setSelectedDateCalendarChanges(calendarEvent);
                         setOpenEventDialog(true);
                       }}
@@ -775,5 +782,15 @@ const useStyles = makeStyles(theme => ({
   height: {
     height: "25px",
     paddingLeft: "15px",
+  },
+  noEvents: {
+    height: "79px",
+  },
+  noEventText: {
+    fontSize: "1.125rem",
+    fontWeight: 500,
+    position: "relative",
+    paddingLeft: "15px",
+    top: "25px",
   },
 }));

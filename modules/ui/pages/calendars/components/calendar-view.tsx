@@ -28,6 +28,7 @@ export const CalendarView: React.FC<Props> = props => {
     const calendarChanges = props.calandarChangeDates.filter(cc => {
       return date >= parseISO(cc.startDate) && date <= parseISO(cc.endDate);
     });
+
     props.setSelectedCalendarChanges(calendarChanges!);
     props.setSelectedDate(date);
   };

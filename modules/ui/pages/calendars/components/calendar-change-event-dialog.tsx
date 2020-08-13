@@ -57,7 +57,16 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const today = React.useMemo(() => new Date(), []);
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
 
-  const calendarChange = props.calendarChange[0];
+  const calendarChange =
+    props.calendarChange[0] !== undefined
+      ? props.calendarChange[0] //If we have no changes, manufacturer a new object
+      : ({
+          startDate: today.toISOString(),
+          endDate: today.toISOString(),
+          affectsAllContracts: true,
+        } as CalendarEvent);
+
+  console.log(calendarChange);
 
   const [contractIds, setContractIds] = React.useState<string[]>(
     compact(calendarChange.contractIds) ?? []
