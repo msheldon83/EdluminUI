@@ -155,13 +155,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
         ? projectedVacancies[0]
         : undefined;
 
-    if (!vacancy) {
-      setVacancySummaryDetails([]);
-      return;
-    }
-
     const assignments: AssignmentOnDate[] = [];
-    if (initialVacancyDetails) {
+    if (initialVacancyDetails && vacancy) {
       // If we have initialVacancyDetails then we're working with an existing
       // Absence. In that case the Assignments displayed are more for visual purposes
       // because once the User changes Absence dates or times, they have to save the
@@ -231,9 +226,23 @@ export const SubstituteDetails: React.FC<Props> = props => {
       assignments.push(...assignmentsByDate);
     }
 
-    setVacancySummaryDetails(
-      convertVacancyToVacancySummaryDetails(vacancy, assignments)
-    );
+    if (vacanciesOverride && vacancy) {
+      setVacancySummaryDetails(
+        convertVacancyToVacancySummaryDetails(vacancy, assignments)
+      );
+      return;
+    }
+
+    if (
+      getProjectedVacancies.state !== "LOADING" &&
+      getProjectedVacancies.state !== "UPDATING" &&
+      vacancy
+    ) {
+      setVacancySummaryDetails(
+        convertVacancyToVacancySummaryDetails(vacancy, assignments)
+      );
+      return;
+    }
   }, [
     getProjectedVacancies.state,
     projectedVacancies,
