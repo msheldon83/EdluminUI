@@ -155,8 +155,9 @@ export const SubstituteDetails: React.FC<Props> = props => {
         ? projectedVacancies[0]
         : undefined;
 
+    const usingProjection = !vacanciesOverride;
     const assignments: AssignmentOnDate[] = [];
-    if (initialVacancyDetails && vacancy) {
+    if (initialVacancyDetails && vacancy && usingProjection) {
       // If we have initialVacancyDetails then we're working with an existing
       // Absence. In that case the Assignments displayed are more for visual purposes
       // because once the User changes Absence dates or times, they have to save the
