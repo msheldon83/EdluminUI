@@ -79,8 +79,6 @@ export const buildAbsenceInput = (
           )
         : undefined;
 
-    console.log(assignment, v.startTime);
-
     return (
       {
         date: v.date,

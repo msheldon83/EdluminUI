@@ -497,9 +497,6 @@ export const AbsenceUI: React.FC<Props> = props => {
         state.projectedVacancyDetails ??
         state.initialVacancyDetails;
 
-      console.log(state.customizedVacanciesInput, state.projectedVacancyDetails,
-        state.initialVacancyDetails, state.assignmentsByDate);
-
       let absenceInput = buildAbsenceInput(
         formValues,
         state,
