@@ -20,7 +20,6 @@ type DatePickerProps = {
   startLabel?: string;
   endLabel?: string;
   dateFormat?: string;
-  disableDates?: Array<Date>;
   onMonthChange?: DatePickerOnMonthChange;
   variant?: "single" | "single-hidden" | "range" | "extended-range";
   endAdornment?: React.ReactNode;
@@ -45,7 +44,6 @@ export const DatePicker = (props: DatePickerProps) => {
     endLabel,
     dateFormat,
     endAdornment,
-    disableDates = [],
     variant = "range",
     placeholder,
     inputStatus,
@@ -254,14 +252,12 @@ export const DatePicker = (props: DatePickerProps) => {
           endDate={endDate}
           onChange={handleCalendarDateChange}
           onMonthChange={props.onMonthChange}
-          disabledDates={disableDates}
           range={shouldShowRange}
           elevated={showCalendarOnFocus}
         />
       </div>
     );
   }, [
-    disableDates,
     startDate,
     endDate,
     guaranteedStartDate,
