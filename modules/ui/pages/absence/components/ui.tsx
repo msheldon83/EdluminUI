@@ -793,8 +793,7 @@ export const AbsenceUI: React.FC<Props> = props => {
           const formIsDirty =
             dirty ||
             (isCreate && state.absenceDates.length > 0) ||
-            state.customizedVacanciesInput ||
-            unsavedAbsenceDetailChanges;
+            !vacancyDetailsAreEqual(state.initialVacancyDetails ?? [], vacancyDetails ?? []);
 
           console.log(dirty, state.initialVacancyDetails, vacancyDetails);
 
@@ -1493,3 +1492,19 @@ const detailsHaveTheSameTimes = (details: AbsenceDetail[]) => {
 
   return true;
 };
+
+const vacancyDetailsAreEqual = (details: VacancyDetail[], detailsToCompare: VacancyDetail[]) => {
+  const detailsWithoutIds = details.map(d => {
+    return {
+      ...d,
+      vacancyDetailId: undefined
+    }
+  });
+  const detailsToCompareWithoutIds = detailsToCompare.map(d => {
+    return {
+      ...d,
+      vacancyDetailId: undefined
+    }
+  });
+  return isEqual(detailsWithoutIds, detailsToCompareWithoutIds);
+}
