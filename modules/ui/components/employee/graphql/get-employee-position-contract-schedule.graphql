@@ -10,7 +10,6 @@ query GetEmployeePositionContractSchedule(
         title
       }
       details {
-        id
         startDate
         startTimeLocal
         endTimeLocal
