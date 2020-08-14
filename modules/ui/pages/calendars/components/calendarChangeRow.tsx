@@ -64,7 +64,7 @@ export const CalendarChangeRow: React.FC<Props> = props => {
       : format(parseISO(calendarChange.startDate!), "MMM d");
 
   return (
-    <Grid container xs={12} spacing={2} className={classes.paddingTop}>
+    <Grid container item xs={12} spacing={2} className={classes.paddingTop}>
       <Grid item xs={2}>
         <div className={classes.paddingLeft}>
           <Typography className={classes.mainText}>

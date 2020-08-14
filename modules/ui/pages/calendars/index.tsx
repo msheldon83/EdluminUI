@@ -110,7 +110,9 @@ export const Calendars: React.FC<Props> = props => {
     {
       startDate: selectedDate.toISOString() ?? today.toISOString(),
       endDate: selectedDate.toISOString() ?? today.toISOString(),
-      affectsAllContracts: true,
+      affectsAllContracts: contractId !== undefined ? false : true,
+      locationIds: locationIds ?? [],
+      contractIds: [contractId] ?? [],
     },
   ];
 

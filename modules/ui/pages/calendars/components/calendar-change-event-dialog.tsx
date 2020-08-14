@@ -54,11 +54,10 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const orgId = useOrganizationId();
-
+  const { locationOptions, contractOptions } = props;
   const today = React.useMemo(() => new Date(), []);
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
 
-  const { locationOptions, contractOptions } = props;
   const calendarChange =
     props.calendarChange[0] !== undefined
       ? props.calendarChange[0]
@@ -68,6 +67,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           startDate: today.toISOString(),
           endDate: today.toISOString(),
           affectsAllContracts: true,
+          locationIds: [],
+          contractIds: [],
         } as CalendarEvent);
 
   const [contractIds, setContractIds] = React.useState<string[]>(
@@ -145,8 +146,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           toDate: format(parseISO(calendarChange.endDate!), "MMMM d, yyyy"),
           fromDate: format(parseISO(calendarChange.startDate!), "MMMM d, yyyy"),
           notes: calendarChange.description ?? "",
-          contracts: contractIds,
-          locations: locationIds,
+          contracts: calendarChange.contractIds,
+          locations: calendarChange.locationIds,
           applyToAllContracts: affectsAllContracts,
           applyToAllLocations: affectsAllLocations,
         }}
