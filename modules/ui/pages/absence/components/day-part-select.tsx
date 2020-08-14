@@ -1,16 +1,11 @@
 import { makeStyles } from "@material-ui/core";
 import { parseISO } from "date-fns";
-import {
-  DayPart,
-  FeatureFlag,
-} from "graphql/server-types.gen";
+import { DayPart, FeatureFlag } from "graphql/server-types.gen";
 import * as React from "react";
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { useTranslation } from "react-i18next";
-import {
-  dayPartToLabel,
-} from "ui/components/absence/helpers";
+import { dayPartToLabel } from "ui/components/absence/helpers";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { TimeInput } from "ui/components/form/time-input";
 import { compact } from "lodash-es";
@@ -34,6 +29,7 @@ export type Props = {
     hourlyEndTimeError?: string | undefined;
   };
   scheduleTimes: ScheduleTimes | undefined;
+  showTimesVary: boolean;
 };
 
 export const DayPartSelect: React.FC<Props> = props => {
@@ -46,7 +42,8 @@ export const DayPartSelect: React.FC<Props> = props => {
     disabled,
     includeHourly,
     timeError,
-    scheduleTimes
+    scheduleTimes,
+    showTimesVary,
   } = props;
 
   const featureFlags = useOrgFeatureFlags(organizationId);
@@ -97,7 +94,9 @@ export const DayPartSelect: React.FC<Props> = props => {
   const options: OptionType[] = useMemo(() => {
     return compact(
       dayPartOptions.map(type => {
-        const timeDisplay = scheduleTimes
+        const timeDisplay = showTimesVary
+          ? `(${t("times vary")})`
+          : scheduleTimes
           ? dayPartToTimesLabel(type, scheduleTimes) ?? ""
           : "";
 
@@ -112,7 +111,7 @@ export const DayPartSelect: React.FC<Props> = props => {
         };
       })
     );
-  }, [dayPartOptions, scheduleTimes]);
+  }, [dayPartOptions, scheduleTimes, showTimesVary, t]);
 
   return (
     <div className={classes.container}>

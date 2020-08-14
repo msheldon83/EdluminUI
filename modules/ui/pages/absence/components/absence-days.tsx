@@ -14,6 +14,7 @@ import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
 import { SelectNew } from "ui/components/form/select-new";
 import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
+import { uniq } from "lodash-es";
 
 type Props = {
   details: AbsenceDetail[];
@@ -115,6 +116,35 @@ export const AbsenceDays: React.FC<Props> = props => {
     [absenceReasonOptions, deletedAbsenceReasons]
   );
 
+  const showTimesVary = React.useMemo(() => {
+    if (!sameTimesForAllDetails) {
+      return false;
+    }
+
+    const currentDayPart = details[0]?.dayPart;
+    if (!currentDayPart || currentDayPart === DayPart.Hourly) {
+      return false;
+    }
+
+    // Figure out what the time ranges for each day are based on the
+    // currently selected Day Part and if we have more than one unique
+    // set of time ranges, that means the times vary across the dates selected
+    const timesToCompare = scheduleTimes.map(s => {
+      return {
+        from:
+          currentDayPart === DayPart.HalfDayAfternoon
+            ? s.halfDayAfternoonStart
+            : s.startTime,
+        to:
+          currentDayPart === DayPart.HalfDayMorning
+            ? s.halfDayMorningEnd
+            : s.endTime,
+      };
+    });
+    const uniqueTimeRanges = uniq(timesToCompare);
+    return uniqueTimeRanges.length > 1;
+  }, [details, sameTimesForAllDetails, scheduleTimes]);
+
   return (
     <>
       {details.length === 0 && (
@@ -163,8 +193,11 @@ export const AbsenceDays: React.FC<Props> = props => {
               employeeId={employeeId}
               travellingEmployee={travellingEmployee}
               detail={ad}
-              scheduleTimes={scheduleTimes.find(s => isSameDay(ad.date, s.date))}
+              scheduleTimes={scheduleTimes.find(s =>
+                isSameDay(ad.date, s.date)
+              )}
               absenceReasonOptions={getAbsenceReasonOptions(ad.id)}
+              showTimesVary={showTimesVary}
               canEditReason={canEditReason}
               canEditTimes={canEditTimes}
               showReason={i === 0 || !sameReasonForAllDetails}

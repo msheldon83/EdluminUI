@@ -31,6 +31,7 @@ type Props = {
   };
   subTitle?: string;
   scheduleTimes: ScheduleTimes | undefined;
+  showTimesVary: boolean;
 };
 
 export const AbsenceDay: React.FC<Props> = props => {
@@ -52,6 +53,7 @@ export const AbsenceDay: React.FC<Props> = props => {
     timeError,
     travellingEmployee,
     scheduleTimes,
+    showTimesVary
   } = props;
 
   const dayPartValue = React.useMemo(() => {
@@ -108,6 +110,7 @@ export const AbsenceDay: React.FC<Props> = props => {
             timeError={timeError}
             includeHourly={travellingEmployee}
             scheduleTimes={scheduleTimes}
+            showTimesVary={showTimesVary}
           />
         </div>
       )}
