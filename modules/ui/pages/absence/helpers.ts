@@ -297,10 +297,10 @@ const detailsHaveTheSameTimes = (details: AbsenceDetail[]) => {
     // If Hourly, check if the start and end are the same
     if (
       times.dayPart === DayPart.Hourly &&
-      (times.hourlyStartTime?.toISOString() !==
-        timesToCompare.hourlyStartTime?.toISOString() ||
-        times.hourlyEndTime?.toISOString() !==
-          timesToCompare.hourlyEndTime?.toISOString())
+      (times.hourlyStartTime?.toTimeString() !==
+        timesToCompare.hourlyStartTime?.toTimeString() ||
+        times.hourlyEndTime?.toTimeString() !==
+          timesToCompare.hourlyEndTime?.toTimeString())
     ) {
       return false;
     }
