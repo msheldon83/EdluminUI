@@ -58,11 +58,16 @@ export const DayPartSelect: React.FC<Props> = props => {
   );
 
   useEffect(() => {
-    if (!value?.part && dayPartOptions && dayPartOptions[0]) {
+    if (
+      featureFlags.length > 0 &&
+      !value?.part &&
+      dayPartOptions &&
+      dayPartOptions[0]
+    ) {
       // Default the Day Part selection to the first one
       onDayPartChange({ part: dayPartOptions[0] });
     }
-  }, [dayPartOptions, onDayPartChange, value?.part]);
+  }, [featureFlags, dayPartOptions, onDayPartChange, value?.part]);
 
   const [incompleteStartTime, setIncompleteStartTime] = useState<string>();
   const [incompleteEndTime, setIncompleteEndTime] = useState<string>();
