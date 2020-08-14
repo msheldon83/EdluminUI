@@ -1456,8 +1456,8 @@ input CalendarChangeCreateInput {
   calendarChangeReasonId: ID
   contractIds: [ID]
   countTowardContractDays: Boolean
-  affectsAllContracts: Boolean!
-  affectsAllLocations: Boolean!
+  affectsAllContracts: Boolean
+  affectsAllLocations: Boolean
   locationIds: [ID]
 }
 
@@ -1527,8 +1527,8 @@ input CalendarChangeUpdateInput {
   calendarChangeReasonId: ID
   contractIds: [ID]
   countTowardContractDays: Boolean
-  affectsAllContracts: Boolean!
-  affectsAllLocations: Boolean!
+  affectsAllContracts: Boolean
+  affectsAllLocations: Boolean
   locationIds: [ID]
 }
 

@@ -104,10 +104,12 @@ export const Calendars: React.FC<Props> = props => {
     return d;
   }, []);
 
+  const [selectedDate, setSelectedDate] = useState(today);
+
   const initialCalendarChange: CalendarEvent[] = [
     {
-      startDate: today.toISOString(),
-      endDate: today.toISOString(),
+      startDate: selectedDate.toISOString() ?? today.toISOString(),
+      endDate: selectedDate.toISOString() ?? today.toISOString(),
       affectsAllContracts: true,
     },
   ];
@@ -116,8 +118,6 @@ export const Calendars: React.FC<Props> = props => {
     selectedDateCalendarChanges,
     setSelectedDateCalendarChanges,
   ] = useState<CalendarEvent[]>(initialCalendarChange);
-
-  const [selectedDate, setSelectedDate] = useState(today);
 
   const [editSpecificDate, setEditSpecificDate] = useState(false);
 

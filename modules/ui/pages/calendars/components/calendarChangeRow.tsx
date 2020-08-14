@@ -24,7 +24,6 @@ type Props = {
 
 export const CalendarChangeRow: React.FC<Props> = props => {
   const classes = useStyles();
-  const contracts = useContracts(props.orgId);
   const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = React.useState(false);
 
@@ -107,7 +106,7 @@ export const CalendarChangeRow: React.FC<Props> = props => {
             </Grid>
           </Can>
           <Can do={[PermissionEnum.CalendarChangeDelete]}>
-            <Grid item xs={1} classes={{ root: classes.root }}>
+            <Grid item xs={1}>
               <Button
                 variant="outlined"
                 className={classes.delete}
@@ -137,7 +136,6 @@ const useStyles = makeStyles(theme => ({
   height: {
     height: "50px",
   },
-
   paddingTop: {
     paddingTop: theme.spacing(1),
   },
@@ -183,10 +181,5 @@ const useStyles = makeStyles(theme => ({
   },
   delete: {
     color: theme.customColors.darkRed,
-  },
-  root: {
-    flexBasis: "0% !important",
-    flexGrow: 0,
-    maxWidth: "8.333333%",
   },
 }));

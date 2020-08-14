@@ -54,11 +54,11 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const orgId = useOrganizationId();
+
   const today = React.useMemo(() => new Date(), []);
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
 
   const { locationOptions, contractOptions } = props;
-
   const calendarChange =
     props.calendarChange[0] !== undefined
       ? props.calendarChange[0]
