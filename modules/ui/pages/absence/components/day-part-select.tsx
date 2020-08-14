@@ -29,7 +29,12 @@ export type Props = {
     hourlyEndTimeError?: string | undefined;
   };
   scheduleTimes: ScheduleTimes | undefined;
-  showTimesVary: boolean;
+  dayPartTimesVary: DayPartTimesVary[];
+};
+
+export type DayPartTimesVary = {
+  dayPart: DayPart;
+  timesVary: boolean;
 };
 
 export const DayPartSelect: React.FC<Props> = props => {
@@ -43,7 +48,7 @@ export const DayPartSelect: React.FC<Props> = props => {
     includeHourly,
     timeError,
     scheduleTimes,
-    showTimesVary,
+    dayPartTimesVary,
   } = props;
 
   const featureFlags = useOrgFeatureFlags(organizationId);
@@ -94,7 +99,9 @@ export const DayPartSelect: React.FC<Props> = props => {
   const options: OptionType[] = useMemo(() => {
     return compact(
       dayPartOptions.map(type => {
-        const timeDisplay = showTimesVary
+        const timesVary =
+          dayPartTimesVary.find(d => d.dayPart === type)?.timesVary ?? false;
+        const timeDisplay = timesVary
           ? `(${t("times vary")})`
           : scheduleTimes
           ? dayPartToTimesLabel(type, scheduleTimes) ?? ""
@@ -111,7 +118,7 @@ export const DayPartSelect: React.FC<Props> = props => {
         };
       })
     );
-  }, [dayPartOptions, scheduleTimes, showTimesVary, t]);
+  }, [dayPartOptions, scheduleTimes, dayPartTimesVary, t]);
 
   return (
     <div className={classes.container}>

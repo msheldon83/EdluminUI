@@ -14,7 +14,9 @@ import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
 import { SelectNew } from "ui/components/form/select-new";
 import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
-import { uniq } from "lodash-es";
+import { uniq, groupBy } from "lodash-es";
+import { getAllScheduleTimeDayPartRanges } from "../helpers";
+import { DayPartTimesVary } from "./day-part-select";
 
 type Props = {
   details: AbsenceDetail[];
@@ -116,33 +118,32 @@ export const AbsenceDays: React.FC<Props> = props => {
     [absenceReasonOptions, deletedAbsenceReasons]
   );
 
-  const showTimesVary = React.useMemo(() => {
-    if (!sameTimesForAllDetails) {
-      return false;
+  const dayPartTimesVary: DayPartTimesVary[] = React.useMemo(() => {
+    if (!sameTimesForAllDetails || details.length === 0) {
+      return [];
     }
 
-    const currentDayPart = details[0]?.dayPart;
-    if (!currentDayPart || currentDayPart === DayPart.Hourly) {
-      return false;
-    }
+    // Figure out what the time ranges for each day are across the different
+    // possible Day Parts and if we have more than one unique set of time ranges
+    // for a certain Day Part, that means those times vary across the dates selected
+    const scheduleTimeDayPartRanges = getAllScheduleTimeDayPartRanges(
+      scheduleTimes.filter(s => !!details.find(d => isSameDay(s.date, d.date)))
+    );
 
-    // Figure out what the time ranges for each day are based on the
-    // currently selected Day Part and if we have more than one unique
-    // set of time ranges, that means the times vary across the dates selected
-    const timesToCompare = scheduleTimes.map(s => {
-      return {
-        from:
-          currentDayPart === DayPart.HalfDayAfternoon
-            ? s.halfDayAfternoonStart
-            : s.startTime,
-        to:
-          currentDayPart === DayPart.HalfDayMorning
-            ? s.halfDayMorningEnd
-            : s.endTime,
-      };
-    });
-    const uniqueTimeRanges = uniq(timesToCompare);
-    return uniqueTimeRanges.length > 1;
+    const dayPartTimesVary: DayPartTimesVary[] = [];
+    Object.entries(groupBy(scheduleTimeDayPartRanges, s => s.dayPart)).forEach(
+      ([dayPart, details]) => {
+        const uniqueTimeRanges = uniq(
+          details.map(d => `${d.startTime}|${d.endTime}`)
+        );
+        dayPartTimesVary.push({
+          dayPart: details[0].dayPart,
+          timesVary: uniqueTimeRanges.length > 1,
+        });
+      }
+    );
+
+    return dayPartTimesVary;
   }, [details, sameTimesForAllDetails, scheduleTimes]);
 
   return (
@@ -197,7 +198,7 @@ export const AbsenceDays: React.FC<Props> = props => {
                 isSameDay(ad.date, s.date)
               )}
               absenceReasonOptions={getAbsenceReasonOptions(ad.id)}
-              showTimesVary={showTimesVary}
+              dayPartTimesVary={dayPartTimesVary}
               canEditReason={canEditReason}
               canEditTimes={canEditTimes}
               showReason={i === 0 || !sameReasonForAllDetails}

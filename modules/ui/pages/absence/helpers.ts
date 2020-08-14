@@ -3,6 +3,7 @@ import {
   AbsenceDetail,
   AssignmentOnDate,
   VacancyDetail,
+  DayPartTimesByDate,
 } from "./types";
 import { AbsenceState } from "./state";
 import {
@@ -24,6 +25,7 @@ import {
 import { compact, sortBy, flatMap, isNil } from "lodash-es";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { AbsenceReasonUsageData } from "./components/balance-usage";
+import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
 
 export const buildAbsenceInput = (
   formValues: AbsenceFormData,
@@ -124,7 +126,8 @@ export const buildAbsenceInput = (
         notesToReplacement: notesToReplacement,
         details: vDetails,
         accountingCodeAllocations:
-          hasEditedDetails || !formValues.accountingCodeAllocations ||
+          hasEditedDetails ||
+          !formValues.accountingCodeAllocations ||
           !formValues.needsReplacement
             ? undefined
             : mapAccountingCodeValueToAccountingCodeAllocations(
@@ -132,7 +135,8 @@ export const buildAbsenceInput = (
                 true
               ),
         payCodeId:
-          hasEditedDetails || !formValues.payCodeId ||
+          hasEditedDetails ||
+          !formValues.payCodeId ||
           !formValues.needsReplacement
             ? undefined
             : formValues.payCodeId,
@@ -183,8 +187,10 @@ const hasIncompleteDetails = (details: AbsenceDetail[]): boolean => {
   return !!incompleteDetail;
 };
 
-export const buildFormData = (absence: Absence,
-  notesToApproverRequired: boolean): AbsenceFormData => {
+export const buildFormData = (
+  absence: Absence,
+  notesToApproverRequired: boolean
+): AbsenceFormData => {
   // Figure out the details to put into the form
   const details = compact(absence?.details);
   const closedDetails = compact(absence?.closedDetails);
@@ -488,4 +494,35 @@ export const getAbsenceReasonUsageData = (
     })
   );
   return usageData;
+};
+
+export const getAllScheduleTimeDayPartRanges = (
+  scheduleTimes: ScheduleTimes[]
+): DayPartTimesByDate[] => {
+  const dayPartTimes: DayPartTimesByDate[] = [];
+  scheduleTimes.forEach(s => {
+    dayPartTimes.push({
+      dayPart: DayPart.FullDay,
+      date: s.date,
+      startTime: s.startTime,
+      endTime: s.endTime,
+    });
+    if (s.halfDayMorningEnd) {
+      dayPartTimes.push({
+        dayPart: DayPart.HalfDayMorning,
+        date: s.date,
+        startTime: s.startTime,
+        endTime: s.halfDayMorningEnd,
+      });
+    }
+    if (s.halfDayAfternoonStart) {
+      dayPartTimes.push({
+        dayPart: DayPart.HalfDayAfternoon,
+        date: s.date,
+        startTime: s.halfDayAfternoonStart,
+        endTime: s.endTime,
+      });
+    }
+  });
+  return dayPartTimes;
 };
