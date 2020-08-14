@@ -71,15 +71,6 @@ export const DatePicker = (props: DatePickerProps) => {
     "100%"
   );
 
-  let shouldShowRange = true;
-  switch (variant) {
-    case "single":
-    case "single-hidden": {
-      shouldShowRange = false;
-      break;
-    }
-  }
-
   const showCalendarOnFocus = variant === "single-hidden";
 
   // Calculate width of input for calendar width for use with single-hidden variant
@@ -252,7 +243,6 @@ export const DatePicker = (props: DatePickerProps) => {
           endDate={endDate}
           onChange={handleCalendarDateChange}
           onMonthChange={props.onMonthChange}
-          range={shouldShowRange}
           elevated={showCalendarOnFocus}
         />
       </div>
@@ -263,7 +253,6 @@ export const DatePicker = (props: DatePickerProps) => {
     guaranteedStartDate,
     handleCalendarDateChange,
     props.onMonthChange,
-    shouldShowRange,
     calendarWidth,
     showCalendarOnFocus,
   ]);

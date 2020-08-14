@@ -197,7 +197,6 @@ export const CalendarStory = () => {
       <Calendar
         startDate={customDate("startDate", new Date())}
         endDate={customDate("endDateDate")}
-        range={boolean("range", false)}
         disableDays={boolean("disableDays", false)}
         disablePast={boolean("disablePast", false)}
         disableFuture={boolean("disableFuture", false)}

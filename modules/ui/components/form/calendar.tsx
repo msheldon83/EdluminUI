@@ -9,7 +9,7 @@ import {
 } from "@material-ui/pickers";
 import Paper from "@material-ui/core/Paper";
 import IconButton from "@material-ui/core/IconButton";
-import { isEqual, isSameDay, format } from "date-fns";
+import { isEqual, format } from "date-fns";
 import {
   isAfterDate,
   areDatesEqual,
@@ -23,7 +23,6 @@ type Props = {
   endDate?: Date | string;
   onChange?: CalendarProps["onChange"];
   onMonthChange?: CalendarProps["onMonthChange"];
-  range?: boolean;
   disableDays?: boolean;
   disablePast?: boolean;
   disableFuture?: boolean;
@@ -32,15 +31,14 @@ type Props = {
 export const Calendar = (props: Props) => {
   const {
     startDate,
+    endDate,
     elevated = false,
     onChange = () => {},
     onMonthChange = () => {},
-    range = false,
     disableDays = false,
     disablePast = false,
     disableFuture = false,
   } = props;
-  let { endDate } = props;
 
   const classes = useStyles();
 
@@ -53,11 +51,6 @@ export const Calendar = (props: Props) => {
   // endDate can be undefined
   if (endDate instanceof Date) {
     endDate.setHours(0, 0, 0, 0);
-  }
-
-  // If there should never be a range, then endDate should always be startDate
-  if (!range) {
-    endDate = startDate;
   }
 
   // This should look like it's floating it's a dropdown style
@@ -83,8 +76,7 @@ export const Calendar = (props: Props) => {
         inDateInterval(day, {
           start: startDate,
           end: endDate,
-        }) &&
-        range;
+        });
       const isFirstDay = isEqual(day, startDate);
       const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
       const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
@@ -100,8 +92,7 @@ export const Calendar = (props: Props) => {
         dateHover !== null &&
         isAfterDate(dateHover, startDate) &&
         inDateInterval(day, { start: startDate, end: dateHover }) &&
-        !endDate &&
-        range;
+        !endDate;
       const dayIsHoverFocus =
         dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
 
@@ -148,7 +139,7 @@ export const Calendar = (props: Props) => {
         </div>
       );
     },
-    [classes, dateHover, disableDays, endDate, onChange, range, startDate]
+    [classes, dateHover, disableDays, endDate, onChange, startDate]
   );
 
   const className = clsx({
