@@ -119,7 +119,6 @@ export const DatePickerStory = () => {
         startLabel="From"
         endLabel="To"
         dateFormat={text("dateFormat", DEFAULT_DATE_FORMAT)}
-        disableDates={[endOfTomorrow(), endOfYesterday()]}
       />
     </div>
   );
@@ -151,7 +150,6 @@ export const SingleDateStory = () => {
         }}
         startLabel="Date"
         dateFormat={text("dateFormat", DEFAULT_DATE_FORMAT)}
-        disableDates={[endOfTomorrow(), endOfYesterday()]}
       />
     </div>
   );
@@ -182,7 +180,6 @@ export const SingleHiddenDateStory = () => {
           setEndDate(endDate);
         }}
         dateFormat={text("dateFormat", DEFAULT_DATE_FORMAT)}
-        disableDates={[endOfTomorrow(), endOfYesterday()]}
       />
     </div>
   );
