@@ -23,7 +23,6 @@ type Props = {
   endDate?: Date | string;
   onChange?: CalendarProps["onChange"];
   onMonthChange?: CalendarProps["onMonthChange"];
-  disabledDates?: Array<Date>;
   range?: boolean;
   disableDays?: boolean;
   disablePast?: boolean;
@@ -36,7 +35,6 @@ export const Calendar = (props: Props) => {
     elevated = false,
     onChange = () => {},
     onMonthChange = () => {},
-    disabledDates = [],
     range = false,
     disableDays = false,
     disablePast = false,
@@ -61,17 +59,6 @@ export const Calendar = (props: Props) => {
   if (!range) {
     endDate = startDate;
   }
-
-  const isDateDisabled = React.useCallback(
-    (date: Date | null) => {
-      if (date === null) {
-        return false;
-      }
-
-      return disabledDates.some(disabledDate => isSameDay(date, disabledDate));
-    },
-    [disabledDates]
-  );
 
   // This should look like it's floating it's a dropdown style
   const elevation = elevated ? 2 : 0;
@@ -101,7 +88,6 @@ export const Calendar = (props: Props) => {
       const isFirstDay = isEqual(day, startDate);
       const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
       const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
-      const isDayDisabled = isDateDisabled(day);
 
       /*
       Used to highlight a date that is between the start date and the date that has the
@@ -120,7 +106,7 @@ export const Calendar = (props: Props) => {
         dayIsBetweenHoverFocus && areDatesEqual(dateHover, day);
 
       const wrapperClassName = clsx({
-        [classes.highlight]: dayIsBetween && !isDayDisabled,
+        [classes.highlight]: dayIsBetween,
         [classes.firstHighlight]: isFirstDay,
         [classes.endHighlight]: isLastDay,
         [classes.dayWrapper]: true,
@@ -130,11 +116,10 @@ export const Calendar = (props: Props) => {
 
       const dayClassName = clsx(classes.day, {
         [classes.day]: true,
-        [classes.nonCurrentMonthDay]: !dayInCurrentMonth || isDayDisabled,
+        [classes.nonCurrentMonthDay]: !dayInCurrentMonth,
         [classes.highlightNonCurrentMonthDay]:
           !dayInCurrentMonth && dayIsBetween,
-        [classes.highlight]: dayIsSelected && !isDayDisabled,
-        [classes.disabledDay]: isDayDisabled,
+        [classes.highlight]: dayIsSelected,
       });
 
       /*
@@ -144,7 +129,7 @@ export const Calendar = (props: Props) => {
       https://github.com/mui-org/material-ui-pickers/blob/next/lib/src/views/Calendar/DayWrapper.tsx#L24
     */
       const handleDayClick = () => {
-        if (!dayInCurrentMonth && !isDayDisabled && !disableDays) {
+        if (!dayInCurrentMonth && !disableDays) {
           onChange(day);
         }
       };
@@ -163,16 +148,7 @@ export const Calendar = (props: Props) => {
         </div>
       );
     },
-    [
-      classes,
-      dateHover,
-      disableDays,
-      endDate,
-      isDateDisabled,
-      onChange,
-      range,
-      startDate,
-    ]
+    [classes, dateHover, disableDays, endDate, onChange, range, startDate]
   );
 
   const className = clsx({
@@ -190,7 +166,6 @@ export const Calendar = (props: Props) => {
           disablePast={disablePast}
           disableFuture={disableFuture}
           allowKeyboardControl={false}
-          shouldDisableDate={isDateDisabled}
           onMonthChange={onMonthChange}
         />
         {/*
