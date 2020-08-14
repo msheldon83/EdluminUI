@@ -1,11 +1,14 @@
 import * as React from "react";
 import { CalendarChangeRow } from "./calendarChangeRow";
+import { OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { CalendarEvent } from "../types";
 import { EditSignleDayDialog } from "./edit-single-day-dialog";
 
 type Props = {
   orgId: string;
+  locationOptions: OptionType[];
+  contractOptions: OptionType[];
   calendarChange: CalendarEvent;
   onDelete: (calendarChangeId: string, date?: Date) => Promise<void>;
   onAdd: (date: string) => void;
@@ -67,6 +70,8 @@ export const StickyHeader: React.FC<Props> = props => {
         forDelete={dialogForDelete}
       />
       <CalendarChangeRow
+        locationOptions={props.locationOptions}
+        contractOptions={props.contractOptions}
         orgId={props.orgId}
         calendarChange={props.calendarChange}
         onDelete={handleOnDelete}

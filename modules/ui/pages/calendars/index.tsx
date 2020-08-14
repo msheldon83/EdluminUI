@@ -27,6 +27,7 @@ import {
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore, getDay } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
+import { OptionType } from "ui/components/form/select-new";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -42,7 +43,6 @@ import { Can } from "ui/components/auth/can";
 import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 import { useAllSchoolYears } from "reference-data/school-years";
 import { CalendarLegend } from "./components/calendar-legend";
-import { useContracts } from "reference-data/contracts";
 import { ContractScheduleWarning } from "ui/components/contract-schedule/contract-schedule-warning";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { CalendarChangeEventDialog } from "./components/calendar-change-event-dialog";
@@ -51,6 +51,8 @@ import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
 import { ConvertApolloErrors } from "ui/components/error-helpers";
 import { Table } from "ui/components/table";
 import { CalendarEvent } from "./types";
+import { useLocations } from "reference-data/locations";
+import { useContracts } from "reference-data/contracts";
 import { SplitCalendarChange } from "./graphql/split-calendar-change.gen";
 import { GetContractsWithoutSchedules } from "ui/components/contract-schedule/graphql/get-contracts-without-schedules.gen";
 
@@ -81,6 +83,20 @@ export const Calendars: React.FC<Props> = props => {
     allContracts,
     contractId,
   ]);
+
+  const contracts = useContracts(params.organizationId ?? "0");
+  const contractOptions = React.useMemo(
+    () => contracts.map(c => ({ label: c.name, value: c.id })),
+    [contracts]
+  );
+  contractOptions.unshift({ label: t("(All)"), value: "0" });
+
+  const locations = useLocations();
+  const locationOptions: OptionType[] = React.useMemo(
+    () => locations.map(l => ({ label: l.name, value: l.id })),
+    [locations]
+  );
+  locationOptions.unshift({ label: t("(All)"), value: "0" });
 
   const today = useMemo(() => {
     const d = new Date();
@@ -491,6 +507,8 @@ export const Calendars: React.FC<Props> = props => {
     <>
       <CalendarChangeEventDialog
         open={openEventDialog}
+        locationOptions={locationOptions}
+        contractOptions={contractOptions}
         onAdd={onCreateCalendarChange}
         onUpdate={onUpdateCalendarChange}
         onClose={() => {
@@ -552,6 +570,9 @@ export const Calendars: React.FC<Props> = props => {
                         .slice(0, 2)
                         .map((e, i) => (
                           <StickyHeader
+                            key={i}
+                            locationOptions={locationOptions}
+                            contractOptions={contractOptions}
                             orgId={params.organizationId}
                             calendarChange={e}
                             onDelete={onDeleteCalendarChange}
@@ -562,6 +583,9 @@ export const Calendars: React.FC<Props> = props => {
                         ))
                     : selectedDateCalendarChanges.map((e, i) => (
                         <StickyHeader
+                          key={i}
+                          locationOptions={locationOptions}
+                          contractOptions={contractOptions}
                           orgId={params.organizationId}
                           calendarChange={e}
                           onDelete={onDeleteCalendarChange}

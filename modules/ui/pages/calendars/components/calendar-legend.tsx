@@ -11,15 +11,15 @@ export const CalendarLegend: React.FC<{}> = props => {
   return (
     <Grid xs={6} item container className={classes.legendBar}>
       <Grid item xs={4} className={classes.paddingLeft}>
-        <span className={classes.closed}></span>
+        <span className={classes.dayOff}></span>
         <span className={classes.text}>{t("Day off")}</span>
       </Grid>
       <Grid item xs={4} className={classes.paddingLeft}>
-        <span className={classes.modified}></span>
+        <span className={classes.modifiedSchedule}></span>
         <span className={classes.text}>{t("Modified schedule")}</span>
       </Grid>
       <Grid item xs={4} className={classes.paddingLeft}>
-        <span className={classes.inService}></span>
+        <span className={classes.teacherWorkDay}></span>
         <span className={classes.text}>{t("Teacher work day")}</span>
       </Grid>
     </Grid>
@@ -27,21 +27,21 @@ export const CalendarLegend: React.FC<{}> = props => {
 };
 
 const useStyles = makeStyles(theme => ({
-  closed: {
+  dayOff: {
     height: "15px",
     width: "15px",
     backgroundColor: "#FF5555",
     borderRadius: "50%",
     display: "inline-block",
   },
-  modified: {
+  modifiedSchedule: {
     height: "15px",
     width: "15px",
     backgroundColor: "#FFCC01",
     borderRadius: "50%",
     display: "inline-block",
   },
-  inService: {
+  teacherWorkDay: {
     height: "15px",
     width: "15px",
     backgroundColor: "#6471DF",

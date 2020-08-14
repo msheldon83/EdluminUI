@@ -16,7 +16,6 @@ import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-reasons";
 import { useOrganizationId } from "core/org-context";
-import { useContracts } from "reference-data/contracts";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { compact } from "lodash-es";
@@ -32,13 +31,14 @@ import {
 import { CalendarEvent } from "../types";
 import { parseISO, format } from "date-fns";
 import { isSameDay } from "date-fns/esm";
-import { useLocations } from "reference-data/locations";
 import { getCalendarSummaryText } from "../helpers";
 import InfoIcon from "@material-ui/icons/Info";
 
 type Props = {
   open: boolean;
   onClose: () => void;
+  locationOptions: OptionType[];
+  contractOptions: OptionType[];
   onAdd: (calendarChange: CalendarChangeCreateInput) => Promise<boolean>;
   onUpdate: (calendarChange: CalendarChangeUpdateInput) => Promise<boolean>;
   onSplit: (
@@ -56,6 +56,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const orgId = useOrganizationId();
   const today = React.useMemo(() => new Date(), []);
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
+
+  const { locationOptions, contractOptions } = props;
 
   const calendarChange =
     props.calendarChange[0] !== undefined
@@ -83,20 +85,6 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(
     calendarChange.affectsAllContracts ?? false
   );
-
-  const contracts = useContracts(orgId ?? "0");
-  const contractOptions = React.useMemo(
-    () => contracts.map(c => ({ label: c.name, value: c.id })),
-    [contracts]
-  );
-  contractOptions.unshift({ label: t("(All)"), value: "0" });
-
-  const locations = useLocations();
-  const locationOptions: OptionType[] = React.useMemo(
-    () => locations.map(l => ({ label: l.name, value: l.id })),
-    [locations]
-  );
-  locationOptions.unshift({ label: t("(All)"), value: "0" });
 
   const clearState = () => {
     setContractIds([]);

@@ -29,10 +29,12 @@ export const DayHeader: React.FC<Props> = props => {
         {props.eventCount === 0 && (
           <Grid
             item
-            xs={3}
+            xs={5}
             className={clsx(classes.displayInline, classes.paddingLeft)}
           >
-            <div className={classes.dateText}>{t("No events on this day")}</div>
+            <div className={classes.noEventText}>
+              {t("No events on this day")}
+            </div>
           </Grid>
         )}
       </Grid>
@@ -45,7 +47,11 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.edluminSubText,
   },
   dateText: {
-    fontSize: "1.125rem",
+    fontSize: theme.typography.pxToRem(24),
+    fontWeight: 500,
+  },
+  noEventText: {
+    fontSize: theme.typography.pxToRem(18),
     fontWeight: 500,
   },
   dateBox: {
