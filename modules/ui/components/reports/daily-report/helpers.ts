@@ -10,6 +10,7 @@ import {
   Maybe,
   AbsenceDr,
   ApprovalStatus,
+  DayPart,
 } from "graphql/server-types.gen";
 import { compact, flatMap, groupBy, some, every } from "lodash-es";
 import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
@@ -52,6 +53,7 @@ export type Detail = {
   };
   absenceReason?: string;
   vacancyReason?: string;
+  dayPartId?: DayPart;
   date: Date;
   dateRange: string;
   startTime: string;
@@ -209,6 +211,7 @@ export const MapDailyReportDetails = (
             : undefined,
         locations,
         approvalStatus: a.approvalStatus ?? undefined,
+        dayPartId: a.details ? a.details[0]?.dayPartId : undefined,
       } as Detail;
     });
   });
@@ -289,6 +292,7 @@ export const MapDailyReportDetails = (
             ]
           : [],
         approvalStatus: v.approvalStatus ?? undefined,
+        dayPartId: undefined,
       } as Detail;
     });
   });
@@ -361,6 +365,7 @@ export const MapDailyReportDetails = (
             : undefined,
         locations,
         approvalStatus: a.approvalStatus ?? undefined,
+        dayPartId: a.details ? a.details[0]?.dayPartId : undefined,
       } as Detail;
     });
   });
@@ -428,6 +433,7 @@ export const MapDailyReportDetails = (
             ]
           : [],
         approvalStatus: v.approvalStatus ?? undefined,
+        dayPartId: undefined,
       } as Detail;
     });
   });
@@ -489,6 +495,7 @@ export const MapDailyReportDetails = (
         locations,
         subTimes: [],
         approvalStatus: a.approvalStatus ?? undefined,
+        dayPartId: a.details ? a.details[0]?.dayPartId : undefined,
       } as Detail;
     });
   });
@@ -553,6 +560,7 @@ export const MapDailyReportDetails = (
           locations,
           subTimes: [],
           approvalStatus: a.approvalStatus ?? undefined,
+          dayPartId: a.details ? a.details[0]?.dayPartId : undefined,
         } as Detail;
       });
     } else {
@@ -617,6 +625,7 @@ export const MapDailyReportDetails = (
               ]
             : [],
           approvalStatus: a.approvalStatus ?? undefined,
+          dayPartId: undefined,
         } as Detail;
       });
     }

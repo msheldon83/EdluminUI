@@ -9,7 +9,7 @@ import {
   Typography,
   IconButton,
 } from "@material-ui/core";
-import { format, isFuture, startOfToday } from "date-fns";
+import { format } from "date-fns";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import {
   DailyReportV2 as DailyReportType,
