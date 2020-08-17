@@ -7,7 +7,7 @@ import {
   labelledGroupBy,
   subGroupBy,
 } from "./helpers";
-import { ApprovalStatus } from "graphql/server-types.gen";
+import { ApprovalStatus, DayPart } from "graphql/server-types.gen";
 
 // natString is a _revolutionary_ function that...
 const natString = fc
@@ -118,6 +118,14 @@ const arbitraryDetailFields: Required<DetailSkeleton> = {
       ApprovalStatus.ApprovalRequired,
       ApprovalStatus.Approved,
       ApprovalStatus.Denied
+    )
+  ),
+  dayPartId: optional(
+    fc.constantFrom(
+      DayPart.FullDay,
+      DayPart.HalfDayAfternoon,
+      DayPart.HalfDayMorning,
+      DayPart.Hourly
     )
   ),
 };
