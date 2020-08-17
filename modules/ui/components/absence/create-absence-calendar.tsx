@@ -6,6 +6,7 @@ import { CustomCalendar } from "../form/custom-calendar";
 import { useEmployeeScheduleDates } from "helpers/absence/use-employee-schedule-dates";
 import clsx from "clsx";
 import { makeFlagClassKey } from "../employee/helpers";
+import { ApprovalStatus } from "graphql/server-types.gen";
 
 type Props = {
   selectedAbsenceDates: Date[];
@@ -58,7 +59,19 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
             className,
           },
           timeClass:
-            calendarDate.absences.length > 0 ? classes.absenceToken : undefined,
+            calendarDate.absences.length > 0
+              ? calendarDate.absences.some(
+                  a => a.approvalStatus === ApprovalStatus.Denied
+                )
+                ? classes.deniedAbsenceToken
+                : calendarDate.absences.some(
+                    a =>
+                      a.approvalStatus === ApprovalStatus.ApprovalRequired ||
+                      a.approvalStatus === ApprovalStatus.PartiallyApproved
+                  )
+                ? classes.pendingAbsenceToken
+                : classes.absenceToken
+              : undefined,
         };
       }),
     [classes, employeeScheduleDates, selectedAbsenceDates]
@@ -98,6 +111,14 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
 const useStyles = makeStyles(theme => ({
   absenceToken: {
     background: `radial-gradient(${theme.calendar.absence.existingAbsence} 50%, transparent 50%)`,
+    color: theme.customColors.white,
+  },
+  pendingAbsenceToken: {
+    background: `radial-gradient(${theme.calendar.absence.pendingApproval} 50%, transparent 50%)`,
+    color: theme.customColors.black,
+  },
+  deniedAbsenceToken: {
+    background: `radial-gradient(${theme.calendar.absence.denied} 50%, transparent 50%)`,
     color: theme.customColors.white,
   },
   nonWorkDay: {

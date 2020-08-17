@@ -26,7 +26,8 @@ import { CalendarScheduleDate } from "ui/components/employee/types";
 export const useEmployeeScheduleDates = (
   employeeId: string,
   month: Date,
-  startDate?: Date
+  startDate?: Date,
+  endDate?: Date
 ) => {
   const fromDate = useMemo(() => {
     if (startDate) {
@@ -36,7 +37,13 @@ export const useEmployeeScheduleDates = (
     return addMonths(month, -1);
   }, [month, startDate]);
 
-  const toDate = useMemo(() => endOfMonth(addMonths(month, 2)), [month]);
+  const toDate = useMemo(() => {
+    if (endDate) {
+      return endDate;
+    }
+
+    return endOfMonth(addMonths(month, 2));
+  }, [month, endDate]);
 
   const employeeSchedule = useQueryBundle(GetEmployeeSchedule, {
     variables: {
