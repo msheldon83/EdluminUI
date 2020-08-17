@@ -2,7 +2,7 @@ import * as React from "react";
 import { Typography, makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { AbsenceFormData, AbsenceDetail } from "../types";
-import { startOfDay, min, format, isSameDay } from "date-fns";
+import { startOfDay, min, format, isSameDay, max } from "date-fns";
 import { useFormikContext } from "formik";
 import { NoteField } from "ui/pages/absence/components/notes-field";
 import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-calendar";
@@ -13,6 +13,7 @@ import { useQueryBundle } from "graphql/hooks";
 import { AbsenceDays } from "./absence-days";
 import { useAbsenceReasons } from "reference-data/absence-reasons";
 import { BalanceUsage, AbsenceReasonUsageData } from "./balance-usage";
+import { useEmployeeScheduleTimes } from "helpers/absence/use-employee-schedule-times";
 
 type Props = {
   absenceId?: string;
@@ -91,6 +92,12 @@ export const AbsenceDetails: React.FC<Props> = props => {
     setFieldValue("details", updatedDetails, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [absenceDates]);
+
+  const employeeScheduleTimes = useEmployeeScheduleTimes(
+    employeeId,
+    min(absenceDates),
+    max(absenceDates)
+  );
 
   const getProjectedAbsenceUsage = useQueryBundle(GetProjectedAbsenceUsage, {
     variables: {
@@ -210,6 +217,7 @@ export const AbsenceDetails: React.FC<Props> = props => {
           travellingEmployee={travellingEmployee}
           deletedAbsenceReasons={deletedAbsenceReasons}
           isQuickCreate={isQuickCreate}
+          scheduleTimes={employeeScheduleTimes}
         />
       </div>
 
