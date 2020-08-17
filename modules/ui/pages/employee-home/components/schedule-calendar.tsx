@@ -28,116 +28,6 @@ export const ScheduleCalendar: React.FC<Props> = props => {
     addDays(startDate, 45)
   );
 
-  // const pendingAbsenceDays = useMemo(() => {
-  //   const days: Date[] = [];
-  //   props.absences
-  //     .filter(
-  //       x =>
-  //         x.approvalStatus === ApprovalStatus.ApprovalRequired ||
-  //         x.approvalStatus === ApprovalStatus.PartiallyApproved
-  //     )
-  //     .forEach(a => {
-  //       days.push(
-  //         ...eachDayOfInterval({
-  //           start: a.startDate,
-  //           end: a.endDate,
-  //         })
-  //       );
-  //     });
-  //   return days;
-  // }, [props.absences]);
-
-  // const deniedAbsenceDays = useMemo(() => {
-  //   const days: Date[] = [];
-  //   props.absences
-  //     .filter(x => x.approvalStatus === ApprovalStatus.Denied)
-  //     .forEach(a => {
-  //       days.push(
-  //         ...eachDayOfInterval({
-  //           start: a.startDate,
-  //           end: a.endDate,
-  //         })
-  //       );
-  //     });
-  //   return days;
-  // }, [props.absences]);
-
-  // const absenceDays = useMemo(() => {
-  //   const days: Date[] = [];
-  //   props.absences
-  //     .filter(
-  //       x =>
-  //         x.approvalStatus !== ApprovalStatus.ApprovalRequired &&
-  //         x.approvalStatus !== ApprovalStatus.PartiallyApproved &&
-  //         x.approvalStatus !== ApprovalStatus.Denied
-  //     )
-  //     .forEach(a => {
-  //       days.push(
-  //         ...eachDayOfInterval({
-  //           start: a.startDate,
-  //           end: a.endDate,
-  //         })
-  //       );
-  //     });
-  //   return days;
-  // }, [props.absences]);
-
-  // const disabledDates = props.disabledDates.map(date => ({
-  //   date,
-  //   buttonProps: { className: `${classes.dateDisabled} dateDisabled` },
-  // }));
-
-  // const absenceDates = useMemo(() => {
-  //   let dates = [] as { date: Date; buttonProps: { className: string } }[];
-
-  //   dates = dates.concat(
-  //     absenceDays.map(date => ({
-  //       date,
-  //       buttonProps: { className: classes.absenceDate },
-  //     }))
-  //   );
-
-  //   dates = dates.concat(
-  //     pendingAbsenceDays.map(date => ({
-  //       date,
-  //       buttonProps: { className: classes.pendingDate },
-  //     }))
-  //   );
-
-  //   dates = dates.concat(
-  //     deniedAbsenceDays.map(date => ({
-  //       date,
-  //       buttonProps: { className: classes.deniedDate },
-  //     }))
-  //   );
-
-  //   return dates;
-  // }, [
-  //   absenceDays,
-  //   classes.absenceDate,
-  //   classes.deniedDate,
-  //   classes.pendingDate,
-  //   deniedAbsenceDays,
-  //   pendingAbsenceDays,
-  // ]);
-
-  // const customDates = disabledDates.concat(absenceDates);
-  // const todayIndex = customDates.findIndex(o => isToday(o.date));
-  // if (todayIndex === -1) {
-  //   customDates.push({
-  //     date: new Date(),
-  //     buttonProps: { className: classes.today },
-  //   });
-  // } else {
-  //   const today = customDates[todayIndex];
-  //   customDates[todayIndex] = {
-  //     date: today.date,
-  //     buttonProps: {
-  //       className: `${classes.today} ${today.buttonProps.className}`,
-  //     },
-  //   };
-  // }
-
   const styledDates = useMemo(
     () =>
       employeeScheduleDates.map((calendarDate): {
@@ -198,7 +88,7 @@ const useStyles = makeStyles(theme => ({
     border: "3px solid #4CC17C",
   },
   absenceToken: {
-    background: `radial-gradient(${theme.calendar.absence.existingAbsence} 50%, transparent 50%)`,
+    background: `radial-gradient(${theme.calendar.selected} 50%, transparent 50%)`,
     color: theme.customColors.white,
   },
   pendingAbsenceToken: {
