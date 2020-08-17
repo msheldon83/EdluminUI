@@ -44,14 +44,13 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     ref,
     { scrollWidth: width, scrollHeight: height },
   ] = useScrollDimensions();
-  console.log(filters.date);
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {
     variables: {
       orgId: params.organizationId,
       includeVerified: true,
       locationIds: filters.locationIds,
-      fromDate: filters.date,
-      toDate: filters.date,
+      fromDate: format(filters.date, "MM/dd/yyyy"),
+      toDate: format(filters.date, "MM/dd/yyyy"),
       shadowFromOrgId: filters.subSource ? filters.subSource : undefined,
     },
   });
