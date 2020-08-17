@@ -23,7 +23,6 @@ import {
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { format } from "date-fns";
-import { compact } from "lodash-es";
 import { DailyFilters as Filters } from "./components/filters/daily";
 import { FilterQueryParams } from "./components/filters/filter-params";
 import { VacancyDetailVerifyInput } from "graphql/server-types.gen";
@@ -40,13 +39,12 @@ export const VerifyDailyPage: React.FC<{}> = props => {
   const params = useRouteParams(VerifyDailyRoute);
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const { openSnackbar } = useSnackbar();
-  const [verifiedId, setVerifiedId] = React.useState<string | null | undefined>(
-    null
-  );
+  const [, setVerifiedId] = React.useState<string | null | undefined>(null);
   const [
     ref,
     { scrollWidth: width, scrollHeight: height },
   ] = useScrollDimensions();
+  console.log(filters.date);
   const getVacancyDetails = useQueryBundle(GetVacancyDetails, {
     variables: {
       orgId: params.organizationId,
@@ -57,14 +55,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       shadowFromOrgId: filters.subSource ? filters.subSource : undefined,
     },
   });
-
-  const fullName = ({
-    firstName,
-    lastName,
-  }: {
-    firstName: string;
-    lastName: string;
-  }) => `${firstName} ${lastName}`;
 
   const assignments: "LOADING" | AssignmentDetail[] =
     getVacancyDetails.state === "LOADING"
