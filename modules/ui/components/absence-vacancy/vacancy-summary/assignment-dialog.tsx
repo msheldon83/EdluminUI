@@ -88,7 +88,7 @@ export const AssignmentDialog: React.FC<Props> = props => {
                     // Remove from selection list
                     setSelectedDates([
                       ...selectedDates.filter(s =>
-                        isEqual(s, vsd.startTimeLocal)
+                        !isEqual(s, vsd.startTimeLocal)
                       ),
                     ]);
                   }
