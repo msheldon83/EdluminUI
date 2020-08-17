@@ -3,10 +3,8 @@ import Fade from "@material-ui/core/Fade";
 import Popper from "@material-ui/core/Popper";
 import { makeStyles } from "@material-ui/core/styles";
 import { useTheme } from "@material-ui/core/styles";
-import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import clsx from "clsx";
 import Paper from "@material-ui/core/Paper";
-import { CalendarProps } from "@material-ui/pickers/views/Calendar/Calendar";
 import DateFnsUtils from "@date-io/date-fns";
 import addDays from "date-fns/addDays";
 import * as React from "react";
@@ -16,8 +14,6 @@ import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previou
 import { CustomCalendar, CustomDate } from "./custom-calendar";
 import { DateInput } from "./date-input";
 
-export type DatePickerOnMonthChange = CalendarProps["onMonthChange"];
-
 type DatePickerProps = {
   startDate: Date | string;
   endDate?: Date | string;
@@ -25,7 +21,6 @@ type DatePickerProps = {
   startLabel?: string;
   endLabel?: string;
   dateFormat?: string;
-  onMonthChange?: DatePickerOnMonthChange;
   variant?: "single" | "single-hidden";
   endAdornment?: React.ReactNode;
   inputStatus?: "warning" | "error" | "success" | "default" | null;
@@ -245,11 +240,9 @@ export const DatePicker = (props: DatePickerProps) => {
       });
 
       return (
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <Paper elevation={2} square className={className}>
-            {children}
-          </Paper>
-        </MuiPickersUtilsProvider>
+        <Paper elevation={2} square className={className}>
+          {children}
+        </Paper>
       );
     },
     [

@@ -6,7 +6,6 @@ import endOfTomorrow from "date-fns/endOfTomorrow";
 import endOfYesterday from "date-fns/endOfYesterday";
 import addDays from "date-fns/addDays";
 import { DatePicker, DEFAULT_DATE_FORMAT } from "./date-picker";
-import { Calendar } from "./calendar";
 import { SingleMonthCalendar } from "./single-month-calendar";
 import { CustomCalendar, useToggleDatesList } from "./custom-calendar";
 import { DateRangePicker } from "./date-range-picker";
@@ -148,30 +147,6 @@ export const SingleHiddenDateStory = () => {
 
 SingleHiddenDateStory.story = {
   name: "Single Date Picker Show Calendar on Focus",
-};
-
-export const CalendarStory = () => {
-  const classes = useStyles();
-  const [startDate, setStartDate] = React.useState<Date | undefined>(
-    new Date()
-  );
-
-  return (
-    <div className={classes.container}>
-      <Calendar
-        startDate={startDate}
-        onMonthChange={date => setStartDate(date)}
-        onChange={date => setStartDate(date)}
-        disableDays={boolean("disableDays", false)}
-        disablePast={boolean("disablePast", false)}
-        disableFuture={boolean("disableFuture", false)}
-      />
-    </div>
-  );
-};
-
-CalendarStory.story = {
-  name: "Calendar",
 };
 
 export const CustomCalendarStory = () => {

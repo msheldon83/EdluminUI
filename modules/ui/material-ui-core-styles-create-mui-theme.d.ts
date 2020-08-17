@@ -1,6 +1,5 @@
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import { Overrides } from "@material-ui/core/styles/overrides";
-import { MuiPickersOverrides } from "@material-ui/pickers/typings/overrides";
 
 interface CustomColors {
   appBackgroundGray: string;
@@ -143,10 +142,6 @@ declare module "@material-ui/core/styles/createMuiTheme" {
     calendar?: Calendar;
   }
 }
-
-type overridesNameToClassKey = {
-  [P in keyof MuiPickersOverrides]: keyof MuiPickersOverrides[P];
-};
 
 declare module "@material-ui/core/styles/overrides" {
   export interface ComponentNameToClassKey extends overridesNameToClassKey {} // eslint-disable-line
