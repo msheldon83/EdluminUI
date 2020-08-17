@@ -122,89 +122,89 @@ const useStyles = makeStyles(theme => ({
     border: "3px solid #4CC17C",
   },
   absenceToken: {
-    background: "radial-gradient(#050039 50%, transparent 50%)",
+    background: `radial-gradient(${theme.calendar.selected} 50%, transparent 50%)`,
     color: theme.customColors.white,
   },
   nonWorkDay: {
-    backgroundColor: "#E1E1E1",
+    backgroundColor: theme.calendar.disabled,
     color: theme.customColors.black,
 
     "&:hover": {
-      backgroundColor: "#E1E1E1",
+      backgroundColor: theme.calendar.disabled,
       color: theme.customColors.black,
     },
   },
   absence: {
-    backgroundColor: "#050039",
+    backgroundColor: theme.calendar.selected,
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: "#050039",
+      backgroundColor: theme.calendar.selected,
       color: theme.customColors.white,
     },
   },
   closed: {
-    backgroundColor: "#FF5555",
+    backgroundColor: theme.calendar.closed,
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: "#FF5555",
+      backgroundColor: theme.calendar.closed,
       color: theme.customColors.white,
     },
   },
   modified: {
-    backgroundColor: "#FFCC01",
+    backgroundColor: theme.calendar.modified,
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: "#FFCC01",
+      backgroundColor: theme.calendar.modified,
       color: theme.customColors.white,
     },
   },
   inService: {
-    backgroundColor: "#6471DF",
+    backgroundColor: theme.calendar.inservice,
     color: theme.customColors.white,
 
     "&:hover": {
-      backgroundColor: "#6471DF",
+      backgroundColor: theme.calendar.inservice,
       color: theme.customColors.white,
     },
   },
   closedAndModified: {
-    background: "linear-gradient(to bottom right, #FF5555 50%, #FFCC01 50%)",
+    background: `linear-gradient(to bottom right, ${theme.calendar.closed} 50%, ${theme.calendar.modified} 50%)`,
     color: theme.customColors.white,
 
     "&:hover": {
-      background: "linear-gradient(to bottom right, #FF5555 50%, #FFCC01 50%)",
+      background: `linear-gradient(to bottom right, ${theme.calendar.closed} 50%, ${theme.calendar.modified} 50%)`,
       color: theme.customColors.white,
     },
   },
   closedAndInService: {
-    background: "linear-gradient(to bottom right, #FF5555 50%, #6471DF 50%)",
+    background: `linear-gradient(to bottom right, ${theme.calendar.closed} 50%, ${theme.calendar.inservice} 50%)`,
     color: theme.customColors.white,
 
     "&:hover": {
-      background: "linear-gradient(to bottom right, #FF5555 50%, #6471DF 50%)",
+      background: `linear-gradient(to bottom right, ${theme.calendar.closed} 50%, ${theme.calendar.inservice} 50%)`,
       color: theme.customColors.white,
     },
   },
   modifiedAndInService: {
-    background: "linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)",
+    background: `linear-gradient(to bottom right, ${theme.calendar.modified} 50%, ${theme.calendar.inservice} 50%)`,
     color: theme.customColors.white,
 
     "&:hover": {
-      background: "linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)",
+      background: `linear-gradient(to bottom right, ${theme.calendar.modified} 50%, ${theme.calendar.inservice} 50%)`,
       color: theme.customColors.white,
     },
   },
   closedAndModifiedAndInService: {
-    background: `radial-gradient(#FF5555 50%, transparent 50%),
-                 linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)`,
+    background: `radial-gradient(${theme.calendar.closed} 50%, transparent 50%),
+                 linear-gradient(to bottom right, ${theme.calendar.modified} 50%, ${theme.calendar.inservice} 50%)`,
     color: theme.customColors.white,
 
     "&:hover": {
-      background: `radial-gradient(#FF5555 50%, transparent 50%),
-                  linear-gradient(to bottom right, #FFCC01 50%, #6471DF 50%)`,
+      background: `radial-gradient(${theme.calendar.closed} 50%, transparent 50%),
+                  linear-gradient(to bottom right, ${theme.calendar.modified} 50%, ${theme.calendar.inservice} 50%)`,
       color: theme.customColors.white,
     },
   },
