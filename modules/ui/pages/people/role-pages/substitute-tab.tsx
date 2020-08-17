@@ -39,6 +39,7 @@ import { useRouteParams } from "ui/routes/definition";
 import { useCanDo } from "ui/components/auth/can";
 import { canEditSub } from "helpers/permissions";
 import { SubSchoolPreferences } from "../components/substitute/school-preferences";
+import { compact } from "lodash-es";
 
 type Props = {
   editing: string | null;
@@ -174,7 +175,7 @@ export const SubstituteTab: React.FC<Props> = props => {
       />
       <SubSchoolPreferences
         subSchoolPreferences={
-          orgUser.substitute.substituteLocationPreferences ?? []
+          compact(orgUser.substitute.substituteLocationPreferences) ?? []
         }
       />
       <SubPayInformation
