@@ -8,6 +8,12 @@ import { PersonalPreference } from "graphql/server-types.gen";
 import { Schedule } from "@material-ui/icons";
 import { GetDateInYesterdayTodayTomorrowFormat } from "ui/components/reports/daily-report/helpers";
 import { parseISO } from "date-fns";
+import {
+  SubstituteLocationPreferencesRoute,
+  PersonViewRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory } from "react-router";
 
 type Props = {
   subSchoolPreferences: {
@@ -19,7 +25,8 @@ type Props = {
 
 export const SubSchoolPreferences: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
+  const params = useRouteParams(PersonViewRoute);
+  const history = useHistory();
 
   const favorite = props?.subSchoolPreferences
     ? props?.subSchoolPreferences?.filter(
@@ -35,7 +42,22 @@ export const SubSchoolPreferences: React.FC<Props> = props => {
 
   return (
     <Section>
-      <SectionHeader title={t("School preferences")} />
+      <SectionHeader
+        title={t("School preferences")}
+        actions={[
+          {
+            text: t("Edit"),
+            visible: true, //showEditButton,
+            execute: () => {
+              const editSettingsUrl = SubstituteLocationPreferencesRoute.generate(
+                params
+              );
+              history.push(editSettingsUrl);
+            },
+            //permissions: [PermissionEnum.SubstituteSave],
+          },
+        ]}
+      />
       <Grid container spacing={2}>
         <Grid container item spacing={2} xs={8}>
           {props.subSchoolPreferences?.length === 0 ? (
@@ -111,5 +133,3 @@ export const SubSchoolPreferences: React.FC<Props> = props => {
     </Section>
   );
 };
-
-const useStyles = makeStyles(theme => ({}));

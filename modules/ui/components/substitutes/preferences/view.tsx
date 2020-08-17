@@ -4,13 +4,16 @@ import { Grid, Typography, makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useIsMobile } from "hooks";
-import { OrgInfo } from "./types";
-import { ViewGroup } from "./components/groups";
-import { RemoveSubLocationGroupPreference } from "./graphql/remove-sub-location-group-preference.gen";
-import { RemoveSubLocationPreference } from "./graphql/remove-sub-location-preference.gen";
-import { GetSubPreferences } from "./graphql/get-sub-preferences.gen";
-import { GetLocationGroups } from "./graphql/get-location-groups.gen";
-import { makeDistricts, groupDistricts } from "./helpers";
+import { OrgInfo } from "ui/components/substitutes/preferences/types";
+import { ViewGroup } from "../../../pages/sub-preferences/components/view-group";
+import { RemoveSubLocationGroupPreference } from "ui/components/substitutes/preferences/graphql/remove-sub-location-group-preference.gen";
+import { RemoveSubLocationPreference } from "ui/components/substitutes/preferences/graphql/remove-sub-location-preference.gen";
+import { GetSubPreferences } from "ui/components/substitutes/preferences/graphql/get-sub-preferences.gen";
+import { GetLocationGroups } from "ui/components/substitutes/preferences/graphql/get-location-groups.gen";
+import {
+  makeDistricts,
+  groupDistricts,
+} from "ui/components/substitutes/preferences/helpers";
 import clsx from "clsx";
 
 type Props = {
@@ -18,7 +21,7 @@ type Props = {
   orgInfo: OrgInfo[];
 };
 
-export const SubPreferencesUI: React.FC<Props> = ({ userId, orgInfo }) => {
+export const SubPreferences: React.FC<Props> = ({ userId, orgInfo }) => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();

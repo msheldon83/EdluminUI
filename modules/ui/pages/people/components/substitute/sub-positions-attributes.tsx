@@ -27,7 +27,6 @@ type Props = {
 export const SubPositionsAttributes: React.FC<Props> = props => {
   const { t } = useTranslation();
   const history = useHistory();
-  const classes = useStyles();
   const params = useRouteParams(PersonViewRoute);
   const showEditButton = !props.editing && props.editable;
 
@@ -90,15 +89,3 @@ export const SubPositionsAttributes: React.FC<Props> = props => {
     </>
   );
 };
-
-const useStyles = makeStyles(theme => ({
-  noteText: {
-    fontWeight: "bold",
-  },
-  tooltip: {
-    padding: theme.spacing(2),
-  },
-  sectionBackground: {
-    backgroundColor: theme.customColors.lightBlue,
-  },
-}));

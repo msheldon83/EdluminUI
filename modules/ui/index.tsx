@@ -166,6 +166,8 @@ import {
   PeopleEmployeeBalancesEditLoader,
   SubstituteAvailableAssignmentsRoute,
   SubstituteAvailableAssignmentsLoader,
+  SubstituteLocationPreferencesRoute,
+  SubstituteLocationPreferencesLoader,
   PeopleAdminRelatedOrgsEditRoute,
   PeopleAdminRelatedOrgsEditLoader,
 } from "./routes/people";
@@ -866,6 +868,18 @@ export const App = hot(function() {
                                         SubstituteAvailableAssignmentsRoute.path
                                       }
                                       role={"admin"}
+                                      permissions={[
+                                        PermissionEnum.SubstituteView,
+                                      ]}
+                                    />
+                                    <ProtectedRoute
+                                      component={
+                                        SubstituteLocationPreferencesLoader
+                                      }
+                                      path={
+                                        SubstituteLocationPreferencesRoute.path
+                                      }
+                                      role="admin"
                                       permissions={[
                                         PermissionEnum.SubstituteView,
                                       ]}

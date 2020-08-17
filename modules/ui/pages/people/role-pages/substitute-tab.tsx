@@ -25,7 +25,6 @@ import { usePayCodes } from "reference-data/pay-codes";
 import { useMemo } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { Section } from "ui/components/section";
-import { Can } from "ui/components/auth/can";
 import { useTranslation } from "react-i18next";
 import { Comments } from "../components/comments/index";
 import { useHistory } from "react-router";
