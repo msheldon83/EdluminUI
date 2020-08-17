@@ -246,21 +246,6 @@ export const EdluminTheme = createMuiTheme({
 
       https://github.com/mui-org/material-ui-pickers/blob/3d2e99089d/lib/src/views/Calendar/Calendar.tsx
     */
-    MuiPickersCalendar: {
-      week: {
-        "& [role='presentation']": {
-          textAlign: "center",
-          flex: 1,
-        },
-      },
-    },
-    MuiPickersCalendarHeader: {
-      dayLabel: {
-        color: themeColors.slate,
-        flex: 1,
-        width: "100%",
-      },
-    },
   },
   palette: {
     primary: {
