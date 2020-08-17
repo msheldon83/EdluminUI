@@ -1,105 +1,96 @@
-import { GetEmployeeAbsenceSchedule } from "./graphql/get-employee-absence-schedule.gen";
 import {
   Absence,
-  PositionScheduleDateDetail,
   CalendarDayType,
   VacancyDetail,
   DayPart,
   ApprovalStatus,
+  Position,
+  WorkDayScheduleVariantType,
+  ContractDate as GraphQLContractDate,
+  PositionScheduleDate as GraphQLPositionScheduleDate,
+  PositionScheduleDateDetail,
+  Maybe,
 } from "graphql/server-types.gen";
 import {
   parseISO,
   format,
-  differenceInCalendarMonths,
   startOfMonth,
-  addMonths,
   isSameMonth,
-  isSameDay,
   differenceInHours,
   eachDayOfInterval,
   isEqual,
   startOfDay,
 } from "date-fns";
-import { GetEmployeePositionContractSchedule } from "./graphql/get-employee-position-contract-schedule.gen";
-import { flatMap, range, groupBy, compact, uniq } from "lodash-es";
+import { flatMap, groupBy, compact, uniq } from "lodash-es";
 import {
   EmployeeAbsenceDetail,
   PositionScheduleDate,
   ContractDate,
-  ScheduleDateGroupByMonth,
-  ScheduleDate,
   EmployeeAbsenceAssignment,
   CalendarScheduleDate,
 } from "./types";
 import { TFunction } from "i18next";
 import { generateMonths } from "../substitutes/grouping-helpers";
-import { breakLabel } from "ui/pages/approval-workflow/components/workflow-graph/text-helper";
 
 export const GetEmployeeAbsenceDetails = (
-  absences: GetEmployeeAbsenceSchedule.EmployeeAbsenceSchedule[]
+  absences: Pick<
+    Absence,
+    | "id"
+    | "details"
+    | "startDate"
+    | "endDate"
+    | "numDays"
+    | "totalDayPortion"
+    | "startTimeLocal"
+    | "endTimeLocal"
+    | "vacancies"
+    | "approvalStatus"
+  >[]
 ): EmployeeAbsenceDetail[] => {
-  return absences.map(
-    (
-      a: Pick<
-        Absence,
-        | "id"
-        | "details"
-        | "startDate"
-        | "endDate"
-        | "numDays"
-        | "totalDayPortion"
-        | "startTimeLocal"
-        | "endTimeLocal"
-        | "vacancies"
-        | "approvalStatus"
-      >
-    ) => {
-      const allVacancyDetails = compact(
-        flatMap(
-          (a.vacancies ?? [])
-            .filter(v => v)
-            .map(v => v?.details?.filter(d => d))
-        )
-      );
-      const assignedDetails = allVacancyDetails.filter(d => !!d.assignmentId);
-      const assignments = buildAssignments(assignedDetails);
+  return absences.map(a => {
+    const allVacancyDetails = compact(
+      flatMap(
+        (a.vacancies ?? []).filter(v => v).map(v => v?.details?.filter(d => d))
+      )
+    );
+    const assignedDetails = allVacancyDetails.filter(d => !!d.assignmentId);
+    const assignments = buildAssignments(assignedDetails);
 
-      return {
-        id: a.id,
-        absenceReason: a.details![0]!.reasonUsages![0]!.absenceReason!.name,
-        startDate: parseISO(a.startDate),
-        endDate: parseISO(a.endDate),
-        numDays: Number(a.numDays),
-        allDayParts:
-          a.details && a.details.length > 0
-            ? a.details.map(d => ({
-                dayPart: d!.dayPartId!,
-                dayPortion: d!.dayPortion,
-                hourDuration: differenceInHours(
-                  parseISO(d!.endTimeLocal),
-                  parseISO(d!.startTimeLocal)
-                ),
-              }))
-            : [],
-        startTime: format(parseISO(a.startTimeLocal), "h:mm a"),
-        startTimeLocal: parseISO(a.startTimeLocal),
-        endTime: format(parseISO(a.endTimeLocal), "h:mm a"),
-        endTimeLocal: parseISO(a.endTimeLocal),
-        subRequired: !!a.vacancies && a.vacancies.length > 0,
-        assignments: assignments,
-        isFilled: assignedDetails.length > 0,
-        isPartiallyFilled:
-          assignedDetails.length > 0 &&
-          allVacancyDetails.length != assignedDetails.length,
-        multipleSubsAssigned: assignments.length > 1,
-        allDays:
-          a.details && a.details.length > 0
-            ? a.details.map(d => parseISO(d!.startDate))
-            : [],
-        approvalStatus: a.approvalStatus ?? ApprovalStatus.Unknown,
-      };
-    }
-  );
+    return {
+      id: a.id,
+      absenceReason: a.details![0]!.reasonUsages![0]!.absenceReason!.name,
+      startDate: parseISO(a.startDate),
+      endDate: parseISO(a.endDate),
+      numDays: Number(a.numDays),
+      allDayParts:
+        a.details && a.details.length > 0
+          ? a.details.map(d => ({
+              dayPart: d!.dayPartId!,
+              dayPortion: d!.dayPortion,
+              hourDuration: differenceInHours(
+                parseISO(d!.endTimeLocal),
+                parseISO(d!.startTimeLocal)
+              ),
+            }))
+          : [],
+      startTime: format(parseISO(a.startTimeLocal), "h:mm a"),
+      startTimeLocal: parseISO(a.startTimeLocal),
+      endTime: format(parseISO(a.endTimeLocal), "h:mm a"),
+      endTimeLocal: parseISO(a.endTimeLocal),
+      subRequired: !!a.vacancies && a.vacancies.length > 0,
+      assignments: assignments,
+      isFilled: assignedDetails.length > 0,
+      isPartiallyFilled:
+        assignedDetails.length > 0 &&
+        allVacancyDetails.length != assignedDetails.length,
+      multipleSubsAssigned: assignments.length > 1,
+      allDays:
+        a.details && a.details.length > 0
+          ? a.details.map(d => parseISO(d!.startDate))
+          : [],
+      approvalStatus: a.approvalStatus ?? ApprovalStatus.Unknown,
+    };
+  });
 };
 
 const buildAssignments = (
@@ -154,7 +145,10 @@ const buildAssignments = (
 };
 
 export const GetContractDates = (
-  contractSchedule: GetEmployeePositionContractSchedule.EmployeeContractSchedule[]
+  contractSchedule: Pick<
+    GraphQLContractDate,
+    "calendarChange" | "date" | "calendarDayTypeId"
+  >[]
 ): ContractDate[] => {
   return contractSchedule.map(c => {
     const hasCalendarChange = !!c.calendarChange;
@@ -176,31 +170,43 @@ export const GetContractDates = (
 };
 
 export const GetPositionScheduleDates = (
-  positionSchedule: GetEmployeePositionContractSchedule.EmployeePositionSchedule[]
+  positionSchedule: {
+    details:
+      | (Pick<
+          PositionScheduleDateDetail,
+          "startDate" | "startTimeLocal" | "endTimeLocal" | "location"
+        > | null)[]
+      | null;
+    position: Maybe<Pick<Position, "id" | "title">>;
+    workScheduleVariantType: Maybe<
+      Pick<WorkDayScheduleVariantType, "id" | "name" | "isStandard">
+    >;
+  }[]
 ): PositionScheduleDate[] => {
   return flatMap(positionSchedule, p => {
     if (!p || !p.details) {
       return [];
     }
 
-    return p.details.map(d => {
-      const detail = d as Pick<
-        PositionScheduleDateDetail,
-        "startDate" | "startTimeLocal" | "endTimeLocal" | "location"
-      >;
+    return compact(
+      p.details.map(d => {
+        if (!d) {
+          return null;
+        }
 
-      return {
-        position: p.position?.title ?? "",
-        date: parseISO(detail.startDate),
-        startTime: format(parseISO(detail.startTimeLocal), "h:mm a"),
-        endTime: format(parseISO(detail.endTimeLocal), "h:mm a"),
-        location: detail.location?.name ?? "",
-        nonStandardVariantTypeName:
-          p.workScheduleVariantType && !p.workScheduleVariantType.isStandard
-            ? p.workScheduleVariantType?.name
-            : undefined,
-      };
-    });
+        return {
+          position: p.position?.title ?? "",
+          date: parseISO(d.startDate),
+          startTime: format(parseISO(d.startTimeLocal), "h:mm a"),
+          endTime: format(parseISO(d.endTimeLocal), "h:mm a"),
+          location: d.location?.name ?? "",
+          nonStandardVariantTypeName:
+            p.workScheduleVariantType && !p.workScheduleVariantType.isStandard
+              ? p.workScheduleVariantType?.name
+              : undefined,
+        };
+      })
+    );
   });
 };
 

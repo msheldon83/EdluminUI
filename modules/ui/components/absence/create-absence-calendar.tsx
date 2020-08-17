@@ -3,7 +3,7 @@ import { isSameDay, isToday } from "date-fns";
 import * as React from "react";
 import { useMemo } from "react";
 import { CustomCalendar } from "../form/custom-calendar";
-import { useEmployeeContractDates } from "helpers/absence/use-employee-contract-dates";
+import { useEmployeeScheduleDates } from "helpers/absence/use-employee-schedule-dates";
 
 type Props = {
   selectedAbsenceDates: Date[];
@@ -21,14 +21,14 @@ type Props = {
 export const CreateAbsenceCalendar: React.FC<Props> = props => {
   const { selectedAbsenceDates, currentMonth } = props;
   const classes = useStyles();
-  const employeeContractDates = useEmployeeContractDates(
+  const employeeScheduleDates = useEmployeeScheduleDates(
     props.employeeId,
     currentMonth
   );
 
   const customContractDates = useMemo(
     () =>
-      employeeContractDates
+      employeeScheduleDates
         .filter(c => c.type !== "absence" && c.type !== "instructional")
         .map(c => {
           let className = classes.dateDisabled;
@@ -44,7 +44,7 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
               break;
           }
 
-          const dayIsAlsoAbsence = !!employeeContractDates.find(
+          const dayIsAlsoAbsence = !!employeeScheduleDates.find(
             d => d.type === "absence" && isSameDay(d.date, c.date)
           );
 
@@ -58,12 +58,12 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
               : undefined,
           };
         }),
-    [classes, employeeContractDates]
+    [classes, employeeScheduleDates]
   );
 
   const customExistingAbsenceDates = useMemo(
     () =>
-      employeeContractDates
+      employeeScheduleDates
         .filter(d => d.type === "absence")
         .map(d => d.date)
         // remove if it is a selected date
@@ -74,7 +74,7 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
             buttonProps: { className: classes.existingAbsenceDate },
           };
         }),
-    [classes.existingAbsenceDate, employeeContractDates, selectedAbsenceDates]
+    [classes.existingAbsenceDate, employeeScheduleDates, selectedAbsenceDates]
   );
 
   const customSelectedAbsenceDates = useMemo(

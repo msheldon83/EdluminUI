@@ -10,14 +10,14 @@ import {
 } from "date-fns";
 import { useQueryBundle, HookQueryResult } from "graphql/hooks";
 import {
-  GetEmployeeContractSchedule,
-  GetEmployeeContractScheduleQuery,
-  GetEmployeeContractScheduleQueryVariables,
-} from "./get-employee-contract-schedule.gen";
+  GetEmployeeSchedule,
+  GetEmployeeScheduleQuery,
+  GetEmployeeScheduleQueryVariables,
+} from "./get-employee-schedule.gen";
 import { compact, differenceWith } from "lodash-es";
 import { CalendarDayType } from "graphql/server-types.gen";
 
-export const useEmployeeContractDates = (
+export const useEmployeeScheduleDates = (
   employeeId: string,
   month: Date,
   startDate?: Date
@@ -32,7 +32,7 @@ export const useEmployeeContractDates = (
 
   const toDate = useMemo(() => endOfMonth(addMonths(month, 2)), [month]);
 
-  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
+  const contractSchedule = useQueryBundle(GetEmployeeSchedule, {
     variables: {
       id: employeeId,
       fromDate: format(fromDate, "yyyy-M-d"),
@@ -78,8 +78,8 @@ type DateType =
 
 export const convertToEmployeeContractDates = (
   queryResult: HookQueryResult<
-    GetEmployeeContractScheduleQuery,
-    GetEmployeeContractScheduleQueryVariables
+    GetEmployeeScheduleQuery,
+    GetEmployeeScheduleQueryVariables
   >
 ): EmployeeContractDate[] => {
   if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
