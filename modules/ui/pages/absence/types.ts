@@ -60,3 +60,10 @@ type AssignmentInfo = {
   assignmentEmployeeLastName?: string;
   assignmentEmployeeEmail?: string;
 };
+
+export type DayPartTimesByDate = {
+  dayPart: DayPart;
+  date: Date;
+  startTime: string;
+  endTime: string;
+};
