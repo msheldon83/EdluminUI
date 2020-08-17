@@ -2,13 +2,18 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Fade from "@material-ui/core/Fade";
 import Popper from "@material-ui/core/Popper";
 import { makeStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import clsx from "clsx";
+import Paper from "@material-ui/core/Paper";
 import { CalendarProps } from "@material-ui/pickers/views/Calendar/Calendar";
+import DateFnsUtils from "@date-io/date-fns";
 import addDays from "date-fns/addDays";
 import * as React from "react";
 import { useState } from "react";
 import { isAfterDate } from "../../../helpers/date";
 import { useGuaranteedPreviousDate } from "../../../hooks/use-guaranteed-previous-date";
-import { Calendar } from "./calendar";
+import { CustomCalendar, CustomDate } from "./custom-calendar";
 import { DateInput } from "./date-input";
 
 export type DatePickerOnMonthChange = CalendarProps["onMonthChange"];
@@ -21,7 +26,7 @@ type DatePickerProps = {
   endLabel?: string;
   dateFormat?: string;
   onMonthChange?: DatePickerOnMonthChange;
-  variant?: "single" | "single-hidden" | "range" | "extended-range";
+  variant?: "single" | "single-hidden";
   endAdornment?: React.ReactNode;
   inputStatus?: "warning" | "error" | "success" | "default" | null;
   validationMessage?: any;
@@ -51,6 +56,7 @@ export const DatePicker = (props: DatePickerProps) => {
   } = props;
 
   const classes = useStyles(props);
+  const theme = useTheme();
 
   const [inputStartDate, setInputStartDate] = useState<
     string | Date | undefined
@@ -69,6 +75,9 @@ export const DatePicker = (props: DatePickerProps) => {
   const [openCalendar, setOpenCalendar] = React.useState(false);
   const [calendarWidth, setCalendarWidth] = React.useState<string | number>(
     "100%"
+  );
+  const [visbibleMonth, setVisibleMonth] = useState<Date>(
+    startDate instanceof Date ? startDate : guaranteedStartDate
   );
 
   const showCalendarOnFocus = variant === "single-hidden";
@@ -217,45 +226,85 @@ export const DatePicker = (props: DatePickerProps) => {
       // A slight delay _feels_ better
       setTimeout(() => setOpenCalendar(false), 10);
 
-      switch (variant) {
-        case "single":
-        case "single-hidden": {
-          handleCalendarSingleDateChange(date);
-          break;
-        }
-        case "range":
-        case "extended-range": {
-          handleCalendarDateRangeChange(date);
-          break;
-        }
+      if (variant === "single" || variant === "single-hidden") {
+        handleCalendarSingleDateChange(date);
       }
     },
-    [handleCalendarDateRangeChange, handleCalendarSingleDateChange, variant]
+    [handleCalendarSingleDateChange, variant]
   );
 
-  const renderCalendar = React.useCallback(() => {
-    const start = startDate instanceof Date ? startDate : guaranteedStartDate;
+  const renderCalendarWrapper = React.useCallback(
+    (children: React.ReactElement) => {
+      if (!showCalendarOnFocus) {
+        return children;
+      }
 
+      const className = clsx({
+        [classes.calendarWrapper]: true,
+        [classes.calendarWrapperFloating]: true,
+      });
+
+      return (
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <Paper elevation={2} square className={className}>
+            {children}
+          </Paper>
+        </MuiPickersUtilsProvider>
+      );
+    },
+    [
+      classes.calendarWrapper,
+      classes.calendarWrapperFloating,
+      showCalendarOnFocus,
+    ]
+  );
+
+  const customDates = React.useMemo(() => {
+    switch (variant) {
+      case "single-hidden":
+      case "single": {
+        return startDate instanceof Date
+          ? [
+              {
+                date: startDate,
+                buttonProps: {
+                  style: {
+                    background: theme.calendar.selected,
+                    color: theme.customColors.white,
+                  },
+                },
+              },
+            ]
+          : [];
+      }
+      default: {
+        return [];
+      }
+    }
+  }, [startDate, theme.calendar.selected, theme.customColors.white, variant]);
+
+  const renderCalendar = () => {
     return (
       <div style={{ width: calendarWidth }}>
-        <Calendar
-          startDate={start}
-          endDate={endDate}
-          onChange={handleCalendarDateChange}
-          onMonthChange={props.onMonthChange}
-          elevated={showCalendarOnFocus}
-        />
+        {renderCalendarWrapper(
+          <CustomCalendar
+            month={visbibleMonth}
+            contained={!showCalendarOnFocus}
+            previousMonthNavigation
+            nextMonthNavigation
+            variant="month"
+            customDates={customDates}
+            onSelectDates={dates => {
+              const date = dates[0] ?? "";
+
+              handleCalendarDateChange(date);
+            }}
+            onMonthChange={date => setVisibleMonth(date)}
+          />
+        )}
       </div>
     );
-  }, [
-    startDate,
-    endDate,
-    guaranteedStartDate,
-    handleCalendarDateChange,
-    props.onMonthChange,
-    calendarWidth,
-    showCalendarOnFocus,
-  ]);
+  };
 
   const renderPopoverCalendar = () => {
     return (
@@ -394,5 +443,24 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.white,
     flexGrow: 1,
     marginLeft: theme.spacing(1.5 / 2),
+  },
+  calendarWrapperFloating: {
+    borderWidth: 0,
+    marginTop: theme.spacing(1),
+  },
+  calendarWrapper: {
+    backgroundColor: theme.customColors.white,
+    border: "1px solid rgba(0, 0, 0, 0.23)",
+    borderRadius: theme.typography.pxToRem(4),
+    minWidth: theme.typography.pxToRem(300),
+    overflow: "hidden",
+    padding: theme.spacing(1.5),
+    position: "relative",
+    transition: "border-color 100ms linear",
+    width: "100%",
+
+    "&:hover": {
+      borderColor: "rgba(0, 0, 0, 0.87)",
+    },
   },
 }));

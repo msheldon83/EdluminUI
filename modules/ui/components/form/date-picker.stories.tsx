@@ -96,15 +96,7 @@ export const DatePickerStory = () => {
   return (
     <div className={classes.container}>
       <DatePicker
-        variant={select(
-          "variant",
-          {
-            Range: "range",
-            Single: "single",
-            "Single, hidden": "single-hidden",
-          },
-          "range"
-        )}
+        variant="single"
         startDate={startDate}
         endDate={endDate}
         onChange={({ startDate, endDate }) => {
@@ -125,38 +117,7 @@ export const DatePickerStory = () => {
 };
 
 DatePickerStory.story = {
-  name: "Date Picker",
-};
-
-export const SingleDateStory = () => {
-  const classes = useStyles();
-  const [startDate, setStartDate] = React.useState<Date | string>(new Date());
-  const [endDate, setEndDate] = React.useState<Date | string | undefined>();
-
-  return (
-    <div className={classes.container}>
-      <DatePicker
-        variant="single"
-        startDate={startDate}
-        endDate={endDate}
-        onChange={({ startDate, endDate }) => {
-          action("onChange")({
-            startDate,
-            endDate,
-          });
-
-          setStartDate(startDate);
-          setEndDate(endDate);
-        }}
-        startLabel="Date"
-        dateFormat={text("dateFormat", DEFAULT_DATE_FORMAT)}
-      />
-    </div>
-  );
-};
-
-SingleDateStory.story = {
-  name: "Single Date",
+  name: "Single Date Picker",
 };
 
 export const SingleHiddenDateStory = () => {
@@ -186,17 +147,21 @@ export const SingleHiddenDateStory = () => {
 };
 
 SingleHiddenDateStory.story = {
-  name: "Show Calendar on Focus",
+  name: "Single Date Picker Show Calendar on Focus",
 };
 
 export const CalendarStory = () => {
   const classes = useStyles();
+  const [startDate, setStartDate] = React.useState<Date | undefined>(
+    new Date()
+  );
 
   return (
     <div className={classes.container}>
       <Calendar
-        startDate={customDate("startDate", new Date())}
-        endDate={customDate("endDateDate")}
+        startDate={startDate}
+        onMonthChange={date => setStartDate(date)}
+        onChange={date => setStartDate(date)}
         disableDays={boolean("disableDays", false)}
         disablePast={boolean("disablePast", false)}
         disableFuture={boolean("disableFuture", false)}

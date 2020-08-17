@@ -16,16 +16,18 @@ import {
   inDateInterval,
   PolymorphicDateType,
 } from "../../../helpers/date";
+import { CustomCalendar } from "./custom-calendar";
 
 type Props = {
   elevated?: boolean;
-  startDate: Date;
+  startDate?: Date;
   endDate?: Date | string;
-  onChange?: CalendarProps["onChange"];
-  onMonthChange?: CalendarProps["onMonthChange"];
+  onChange?: (date: Date | undefined) => void;
+  onMonthChange?: (date: Date) => void;
   disableDays?: boolean;
   disablePast?: boolean;
   disableFuture?: boolean;
+  variant?: "weeks" | "month";
 };
 
 export const Calendar = (props: Props) => {
@@ -38,6 +40,7 @@ export const Calendar = (props: Props) => {
     disableDays = false,
     disablePast = false,
     disableFuture = false,
+    variant = "month",
   } = props;
 
   const classes = useStyles();
@@ -46,7 +49,7 @@ export const Calendar = (props: Props) => {
   const [dateHover, setDateHover] = React.useState<PolymorphicDateType>();
 
   // This makes it easier to compare dates
-  startDate.setHours(0, 0, 0, 0);
+  startDate?.setHours(0, 0, 0, 0);
 
   // endDate can be undefined
   if (endDate instanceof Date) {
@@ -77,7 +80,7 @@ export const Calendar = (props: Props) => {
           start: startDate,
           end: endDate,
         });
-      const isFirstDay = isEqual(day, startDate);
+      const isFirstDay = startDate ? isEqual(day, startDate) : false;
       const isLastDay = endDate ? areDatesEqual(day, endDate) : isFirstDay;
       const dayIsSelected = dayIsBetween || isFirstDay || isLastDay;
 
@@ -150,14 +153,14 @@ export const Calendar = (props: Props) => {
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Paper elevation={elevation} square className={className}>
-        <MuiCalendar
-          date={startDate}
-          onChange={onChange}
-          renderDay={customDayRenderer}
-          disablePast={disablePast}
-          disableFuture={disableFuture}
-          allowKeyboardControl={false}
+        <CustomCalendar
+          month={startDate}
+          contained={false}
           onMonthChange={onMonthChange}
+          previousMonthNavigation
+          nextMonthNavigation
+          variant={variant}
+          onSelectDates={dates => onChange(dates[0])}
         />
         {/*
           There is no easy to to disable day events, so this overlays the days and disables
