@@ -881,7 +881,7 @@ export const App = hot(function() {
                                       }
                                       role="admin"
                                       permissions={[
-                                        PermissionEnum.SubstituteView,
+                                        PermissionEnum.SubstituteSave,
                                       ]}
                                     />
                                     <ProtectedRoute

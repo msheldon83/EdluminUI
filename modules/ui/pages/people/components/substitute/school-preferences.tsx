@@ -1,10 +1,9 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/styles";
 import { Grid, Tooltip, Typography } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { PersonalPreference } from "graphql/server-types.gen";
+import { PersonalPreference, PermissionEnum } from "graphql/server-types.gen";
 import { Schedule } from "@material-ui/icons";
 import { GetDateInYesterdayTodayTomorrowFormat } from "ui/components/reports/daily-report/helpers";
 import { parseISO } from "date-fns";
@@ -54,7 +53,7 @@ export const SubSchoolPreferences: React.FC<Props> = props => {
               );
               history.push(editSettingsUrl);
             },
-            //permissions: [PermissionEnum.SubstituteSave],
+            permissions: [PermissionEnum.SubstituteSave],
           },
         ]}
       />
