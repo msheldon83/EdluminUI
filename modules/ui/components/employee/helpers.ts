@@ -273,6 +273,24 @@ export const GroupEmployeeScheduleByMonth = (
   }));
 };
 
+export const makeFlagClassKey = (
+  isAbsence: boolean,
+  isClosed: boolean,
+  isModified: boolean,
+  isInservice: boolean,
+  isNonWorkDay: boolean
+): string => {
+  if (!isClosed && !isModified && !isInservice)
+    return isAbsence ? "absence" : isNonWorkDay ? "nonWorkDay" : "";
+  const maybeWithCapital = (isClosed ? ["closed"] : [])
+    .concat(isModified ? ["Modified"] : [])
+    .concat(isInservice ? ["InService"] : [])
+    .join("And");
+  return maybeWithCapital.length == 0
+    ? ""
+    : maybeWithCapital[0].toLowerCase() + maybeWithCapital.substring(1);
+};
+
 export const getDateRangeDisplay = (startDate: Date, endDate: Date) => {
   return isEqual(startDate, endDate)
     ? format(startDate, "MMM d")

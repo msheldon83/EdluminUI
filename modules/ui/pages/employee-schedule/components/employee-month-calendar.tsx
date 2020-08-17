@@ -3,42 +3,21 @@ import {
   parseISO,
   isSameMonth,
   isSameDay,
-  isEqual,
   isToday,
   startOfToday,
 } from "date-fns";
 import * as React from "react";
 import { useMemo } from "react";
 import { SingleMonthCalendar } from "ui/components/form/single-month-calendar";
-import {
-  ScheduleDate,
-  CalendarScheduleDate,
-} from "ui/components/employee/types";
+import { CalendarScheduleDate } from "ui/components/employee/types";
 import clsx from "clsx";
+import { makeFlagClassKey } from "ui/components/employee/helpers";
 
 type Props = {
   date: string;
   onSelectDate: (dates: Date) => void;
   scheduleDates: CalendarScheduleDate[];
   selectedScheduleDates: CalendarScheduleDate[];
-};
-
-const makeFlagClassKey = (
-  isAbsence: boolean,
-  isClosed: boolean,
-  isModified: boolean,
-  isInservice: boolean,
-  isNonWorkDay: boolean
-): string => {
-  if (!isClosed && !isModified && !isInservice)
-    return isAbsence ? "absence" : isNonWorkDay ? "nonWorkDay" : "";
-  const maybeWithCapital = (isClosed ? ["closed"] : [])
-    .concat(isModified ? ["Modified"] : [])
-    .concat(isInservice ? ["InService"] : [])
-    .join("And");
-  return maybeWithCapital.length == 0
-    ? ""
-    : maybeWithCapital[0].toLowerCase() + maybeWithCapital.substring(1);
 };
 
 export const EmployeeMonthCalendar: React.FC<Props> = props => {

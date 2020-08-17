@@ -3,19 +3,25 @@ import {
   format,
   addMonths,
   endOfMonth,
-  startOfDay,
-  parseISO,
   eachDayOfInterval,
   isSameDay,
+  startOfDay,
 } from "date-fns";
+import { CalendarDayType } from "graphql/server-types.gen";
 import { useQueryBundle, HookQueryResult } from "graphql/hooks";
 import {
   GetEmployeeSchedule,
   GetEmployeeScheduleQuery,
   GetEmployeeScheduleQueryVariables,
 } from "./get-employee-schedule.gen";
-import { compact, differenceWith } from "lodash-es";
-import { CalendarDayType } from "graphql/server-types.gen";
+import { compact, flatMap, differenceWith } from "lodash-es";
+import {
+  GroupEmployeeScheduleByMonth,
+  GetEmployeeAbsenceDetails,
+  GetContractDates,
+  GetPositionScheduleDates,
+} from "ui/components/employee/helpers";
+import { CalendarScheduleDate } from "ui/components/employee/types";
 
 export const useEmployeeScheduleDates = (
   employeeId: string,
@@ -32,7 +38,7 @@ export const useEmployeeScheduleDates = (
 
   const toDate = useMemo(() => endOfMonth(addMonths(month, 2)), [month]);
 
-  const contractSchedule = useQueryBundle(GetEmployeeSchedule, {
+  const employeeSchedule = useQueryBundle(GetEmployeeSchedule, {
     variables: {
       id: employeeId,
       fromDate: format(fromDate, "yyyy-M-d"),
@@ -42,7 +48,12 @@ export const useEmployeeScheduleDates = (
   });
 
   return useMemo(() => {
-    const contractDates = convertToEmployeeContractDates(contractSchedule);
+    const calendarScheduleDates = convertToCalendarScheduleDates(
+      employeeSchedule,
+      fromDate,
+      toDate
+    );
+
     // Add in any missing days as non work days
     const allPossibleDates = eachDayOfInterval({
       start: fromDate,
@@ -50,85 +61,56 @@ export const useEmployeeScheduleDates = (
     });
     const missingDates = differenceWith(
       allPossibleDates,
-      contractDates.map(c => c.date),
+      calendarScheduleDates.map(c => c.date),
       isSameDay
     );
-    return contractDates.concat(
+    return calendarScheduleDates.concat(
       missingDates.map(d => {
-        return { date: startOfDay(d), type: "nonWorkDay" };
+        return {
+          date: startOfDay(d),
+          nonWorkDays: [
+            {
+              date: startOfDay(d),
+              calendarDayType: CalendarDayType.NonWorkDay,
+              hasCalendarChange: false,
+            },
+          ],
+          absences: [],
+          closedDays: [],
+          modifiedDays: [],
+          contractInstructionalDays: [],
+          inServiceDays: [],
+        };
       })
     );
-  }, [contractSchedule, fromDate, toDate]);
+  }, [employeeSchedule, fromDate, toDate]);
 };
 
-export type EmployeeContractDate = {
-  date: Date;
-  type: DateType;
-  startTime?: Date;
-  endTime?: Date;
-};
-
-type DateType =
-  | "nonWorkDay"
-  | "absence"
-  | "closed"
-  | "modified"
-  | "inservice"
-  | "instructional";
-
-export const convertToEmployeeContractDates = (
+export const convertToCalendarScheduleDates = (
   queryResult: HookQueryResult<
     GetEmployeeScheduleQuery,
     GetEmployeeScheduleQueryVariables
-  >
-): EmployeeContractDate[] => {
+  >,
+  startDate: Date,
+  endDate: Date
+): CalendarScheduleDate[] => {
   if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {
     return [];
   }
-  const dates: EmployeeContractDate[] = [];
-  compact(queryResult.data?.employee?.employeeContractSchedule).forEach(
-    contractDate => {
-      let type: DateType | undefined = undefined;
-      const calendarDayType =
-        contractDate.calendarChange?.calendarChangeReason?.calendarDayTypeId ??
-        contractDate.calendarDayTypeId;
-      switch (calendarDayType) {
-        case CalendarDayType.NonWorkDay:
-          type = contractDate.calendarChangeId ? "closed" : "nonWorkDay";
-          break;
-        case CalendarDayType.TeacherWorkDay:
-          type = "inservice";
-          break;
-        case CalendarDayType.CancelledDay:
-          type = "closed";
-          break;
-        case CalendarDayType.InstructionalDay:
-          type = contractDate.calendarChangeId ? "modified" : "instructional";
-          break;
-        default:
-          break;
-      }
 
-      if (type) {
-        dates.push({
-          date: startOfDay(parseISO(contractDate.date)),
-          type: type,
-        });
-      }
-    }
+  const datesByMonth = GroupEmployeeScheduleByMonth(
+    startDate,
+    endDate,
+    GetEmployeeAbsenceDetails(
+      compact(queryResult.data?.employee?.employeeAbsenceSchedule)
+    ),
+    GetContractDates(
+      compact(queryResult.data?.employee?.employeeContractSchedule)
+    ),
+    GetPositionScheduleDates(
+      compact(queryResult.data?.employee?.employeePositionSchedule)
+    )
   );
-  queryResult.data?.employee?.employeeAbsenceSchedule?.forEach(absence => {
-    absence?.details?.forEach(detail => {
-      if (detail) {
-        dates.push({
-          date: startOfDay(parseISO(detail.startDate)),
-          type: "absence",
-          startTime: parseISO(detail.startTimeLocal),
-          endTime: parseISO(detail.endTimeLocal),
-        });
-      }
-    });
-  });
 
-  return dates;
+  return flatMap(datesByMonth.map(d => d.dates));
 };
