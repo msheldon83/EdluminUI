@@ -262,6 +262,9 @@ export const AvailableAssignments: React.FC<Props> = props => {
                     ? t("Try checking back later")
                     : t("Try changing your filters, or checking back later")}
                 </Typography>
+                <div className={classes.imageContainer}>
+                  <img src={require("./images/RR_Searching.png")} />
+                </div>
               </Grid>
             )}
           </div>
@@ -317,5 +320,9 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     top: "0",
     right: "12px",
+  },
+  imageContainer: {
+    display: "inline-block",
+    margin: theme.typography.pxToRem(20),
   },
 }));
