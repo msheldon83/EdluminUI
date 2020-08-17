@@ -1,8 +1,0 @@
-query GetTimeZone($orgId: ID!) {
-  organization {
-    byId(id: $orgId) {
-      id
-      timeZoneId
-    }
-  }
-}

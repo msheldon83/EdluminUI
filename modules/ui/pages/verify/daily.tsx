@@ -51,7 +51,7 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       locationIds: filters.locationIds,
       fromDate: format(filters.date, "MM/dd/yyyy"),
       toDate: format(filters.date, "MM/dd/yyyy"),
-      shadowFromOrgId: filters.subSource ? filters.subSource : undefined,
+      shadowFromOrgId: filters.subSource,
     },
   });
 
