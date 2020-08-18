@@ -166,7 +166,6 @@ type AbsenceQueries {
   projectedVacancies(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): [Vacancy]
   replacementEmployeesForVacancy(orgId: ID!, limit: Int, offset: Int, sortBy: [SortDetailsInput], vacancyId: ID, vacancyDetailIds: [ID], vacancy: AbsenceVacancyInput, absentEmployeeId: ID, name: String, qualified: [VacancyQualification], available: [VacancyAvailability], favoritesOnly: Boolean, replacementEmployeeId: ID): PagedVacancySubSearchQueryResult
   projectedAbsence(absence: AbsenceCreateInput!, ignoreAbsenceId: ID): Absence
-  dailyReport(orgId: ID!, date: Date!, locationIds: [ID], positionTypeIds: [ID]): DailyReport
   dailyReportV2(orgId: ID!, date: Date!, locationIds: [ID], positionTypeIds: [ID]): DailyReportV2
   subSignInReport(orgId: ID!, date: Date!, locationIds: [ID]): [VacancyDetail]
   byConfirmationId(orgIds: [ID], confirmationId: String!): [ConfirmationNumberQueryResultTypeDef]
@@ -1999,18 +1998,6 @@ enum CustomFieldVisibility {
   SHOW
   SELECT
   HIDE
-}
-
-type DailyReport {
-  _info: [ReturnMessage]
-  unfilledAbsences: [Absence]!
-  unfilledVacancies: [Vacancy]!
-  filledAbsences: [Absence]!
-  filledVacancies: [Vacancy]!
-  noSubRequiredAbsences: [Absence]!
-  totalCount: Int!
-  loadTime: Float!
-  parseTime: Float!
 }
 
 type DailyReportV2 {

@@ -1,8 +1,8 @@
 import { HookQueryResult } from "graphql/hooks";
 import {
-  GetEmployeeContractScheduleQuery,
-  GetEmployeeContractScheduleQueryVariables,
-} from "./get-employee-contract-schedule.gen";
+  GetEmployeeScheduleQuery,
+  GetEmployeeScheduleQueryVariables,
+} from "./get-employee-schedule.gen";
 import { CalendarDayType } from "graphql/server-types.gen";
 import { startOfDay, parseISO } from "date-fns";
 
@@ -15,8 +15,8 @@ export type DisabledDate = {
 
 export const computeDisabledDates = (
   queryResult: HookQueryResult<
-    GetEmployeeContractScheduleQuery,
-    GetEmployeeContractScheduleQueryVariables
+    GetEmployeeScheduleQuery,
+    GetEmployeeScheduleQueryVariables
   >
 ): DisabledDate[] => {
   if (queryResult.state !== "DONE" && queryResult.state !== "UPDATING") {

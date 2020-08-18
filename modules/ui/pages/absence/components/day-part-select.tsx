@@ -1,24 +1,15 @@
 import { makeStyles } from "@material-ui/core";
-import { isValid, format, parseISO } from "date-fns";
-import { useQueryBundle } from "graphql/hooks";
-import {
-  DayPart,
-  FeatureFlag,
-  PositionScheduleDate,
-} from "graphql/server-types.gen";
+import { parseISO } from "date-fns";
+import { DayPart, FeatureFlag } from "graphql/server-types.gen";
 import * as React from "react";
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { useTranslation } from "react-i18next";
-import { GetEmployeeScheduleTimes } from "ui/components/absence/graphql/get-employee-schedule-times.gen";
-import {
-  ScheduleTimes,
-  dayPartToTimesLabel,
-  dayPartToLabel,
-} from "ui/components/absence/helpers";
+import { dayPartToLabel } from "ui/components/absence/helpers";
 import { OptionType, SelectNew } from "ui/components/form/select-new";
 import { TimeInput } from "ui/components/form/time-input";
 import { compact } from "lodash-es";
+import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
 
 export type DayPartValue =
   | { part: Exclude<DayPart, DayPart.Hourly> | undefined }
@@ -37,6 +28,13 @@ export type Props = {
     hourlyStartTimeError?: string | undefined;
     hourlyEndTimeError?: string | undefined;
   };
+  scheduleTimes: ScheduleTimes | undefined;
+  dayPartTimesVary: DayPartTimesVary[];
+};
+
+export type DayPartTimesVary = {
+  dayPart: DayPart;
+  timesVary: boolean;
 };
 
 export const DayPartSelect: React.FC<Props> = props => {
@@ -45,12 +43,12 @@ export const DayPartSelect: React.FC<Props> = props => {
   const {
     onDayPartChange,
     organizationId,
-    employeeId,
-    date,
     value,
     disabled,
     includeHourly,
     timeError,
+    scheduleTimes,
+    dayPartTimesVary,
   } = props;
 
   const featureFlags = useOrgFeatureFlags(organizationId);
@@ -59,57 +57,17 @@ export const DayPartSelect: React.FC<Props> = props => {
     [featureFlags, includeHourly]
   );
 
-  const getEmployeeScheduleTimes = useQueryBundle(GetEmployeeScheduleTimes, {
-    variables: {
-      id: employeeId,
-      fromDate: isValid(date) ? format(date, "P") : undefined,
-      toDate: isValid(date) ? format(date, "P") : undefined,
-    },
-    skip: !isValid(date),
-  });
-
-  const employeeScheduleTimes: ScheduleTimes | undefined = useMemo(() => {
-    if (
-      getEmployeeScheduleTimes.state === "DONE" ||
-      getEmployeeScheduleTimes.state === "UPDATING"
-    ) {
-      const scheduleTimes =
-        getEmployeeScheduleTimes.data?.employee?.employeePositionSchedule &&
-        getEmployeeScheduleTimes.data?.employee?.employeePositionSchedule
-          .length > 0
-          ? (getEmployeeScheduleTimes.data?.employee
-              ?.employeePositionSchedule[0] as Pick<
-              PositionScheduleDate,
-              | "startTimeLocal"
-              | "endTimeLocal"
-              | "halfDayMorningEndLocal"
-              | "halfDayAfternoonStartLocal"
-            >)
-          : undefined;
-
-      if (!scheduleTimes) {
-        return undefined;
-      }
-
-      return {
-        startTime: format(parseISO(scheduleTimes.startTimeLocal), "h:mm a"),
-        halfDayMorningEnd: scheduleTimes.halfDayMorningEndLocal
-          ? format(parseISO(scheduleTimes.halfDayMorningEndLocal), "h:mm a")
-          : null,
-        halfDayAfternoonStart: scheduleTimes.halfDayAfternoonStartLocal
-          ? format(parseISO(scheduleTimes.halfDayAfternoonStartLocal), "h:mm a")
-          : null,
-        endTime: format(parseISO(scheduleTimes.endTimeLocal), "h:mm a"),
-      };
-    }
-  }, [getEmployeeScheduleTimes]);
-
   useEffect(() => {
-    if (!value?.part && dayPartOptions && dayPartOptions[0]) {
+    if (
+      featureFlags.length > 0 &&
+      !value?.part &&
+      dayPartOptions &&
+      dayPartOptions[0]
+    ) {
       // Default the Day Part selection to the first one
       onDayPartChange({ part: dayPartOptions[0] });
     }
-  }, [dayPartOptions, onDayPartChange, value?.part]);
+  }, [featureFlags, dayPartOptions, onDayPartChange, value?.part]);
 
   const [incompleteStartTime, setIncompleteStartTime] = useState<string>();
   const [incompleteEndTime, setIncompleteEndTime] = useState<string>();
@@ -146,8 +104,12 @@ export const DayPartSelect: React.FC<Props> = props => {
   const options: OptionType[] = useMemo(() => {
     return compact(
       dayPartOptions.map(type => {
-        const timeDisplay = employeeScheduleTimes
-          ? dayPartToTimesLabel(type, employeeScheduleTimes) ?? ""
+        const timesVary =
+          dayPartTimesVary.find(d => d.dayPart === type)?.timesVary ?? false;
+        const timeDisplay = timesVary
+          ? `(${t("times vary")})`
+          : scheduleTimes
+          ? dayPartToTimesLabel(type, scheduleTimes) ?? ""
           : "";
 
         if (!timeDisplay && type !== DayPart.Hourly) {
@@ -161,7 +123,7 @@ export const DayPartSelect: React.FC<Props> = props => {
         };
       })
     );
-  }, [dayPartOptions, employeeScheduleTimes]);
+  }, [dayPartOptions, scheduleTimes, dayPartTimesVary, t]);
 
   return (
     <div className={classes.container}>
@@ -272,3 +234,25 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(),
   },
 }));
+
+const dayPartToTimesLabel = (dayPart: DayPart, times: ScheduleTimes) => {
+  switch (dayPart) {
+    case DayPart.FullDay:
+      return `(${times.startTime} - ${times.endTime})`;
+    case DayPart.HalfDayMorning:
+      return times.halfDayMorningEnd
+        ? `(${times.startTime} - ${times.halfDayMorningEnd})`
+        : null;
+    case DayPart.HalfDayAfternoon:
+      return times.halfDayAfternoonStart
+        ? `(${times.halfDayAfternoonStart} - ${times.endTime})`
+        : null;
+    case DayPart.Hourly:
+    case DayPart.QuarterDayEarlyMorning:
+    case DayPart.QuarterDayLateMorning:
+    case DayPart.QuarterDayEarlyAfternoon:
+    case DayPart.QuarterDayLateAfternoon:
+    default:
+      return "";
+  }
+};

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AbsenceDetail } from "../types";
 import { useFormikContext } from "formik";
 import { useAbsenceReasonOptionsWithCategories } from "reference-data/absence-reasons";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import {
   FormControlLabel,
   Checkbox,
@@ -13,6 +13,10 @@ import {
 import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
 import { SelectNew } from "ui/components/form/select-new";
+import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
+import { uniq, groupBy } from "lodash-es";
+import { getAllScheduleTimeDayPartRanges } from "../helpers";
+import { DayPartTimesVary } from "./day-part-select";
 
 type Props = {
   details: AbsenceDetail[];
@@ -27,6 +31,7 @@ type Props = {
   sameTimesForAllDetails: boolean;
   deletedAbsenceReasons?: { detailId: string; id: string; name: string }[];
   isQuickCreate?: boolean;
+  scheduleTimes: ScheduleTimes[];
 };
 
 export const AbsenceDays: React.FC<Props> = props => {
@@ -44,6 +49,7 @@ export const AbsenceDays: React.FC<Props> = props => {
     sameTimesForAllDetails,
     travellingEmployee,
     isQuickCreate,
+    scheduleTimes,
     details = [],
     deletedAbsenceReasons = [],
   } = props;
@@ -112,6 +118,34 @@ export const AbsenceDays: React.FC<Props> = props => {
     [absenceReasonOptions, deletedAbsenceReasons]
   );
 
+  const dayPartTimesVary: DayPartTimesVary[] = React.useMemo(() => {
+    if (!sameTimesForAllDetails || details.length === 0) {
+      return [];
+    }
+
+    // Figure out what the time ranges for each day are across the different
+    // possible Day Parts and if we have more than one unique set of time ranges
+    // for a certain Day Part, that means those times vary across the dates selected
+    const scheduleTimeDayPartRanges = getAllScheduleTimeDayPartRanges(
+      scheduleTimes.filter(s => !!details.find(d => isSameDay(s.date, d.date)))
+    );
+
+    const dayPartTimesVary: DayPartTimesVary[] = [];
+    Object.entries(groupBy(scheduleTimeDayPartRanges, s => s.dayPart)).forEach(
+      ([dayPart, details]) => {
+        const uniqueTimeRanges = uniq(
+          details.map(d => `${d.startTime}|${d.endTime}`)
+        );
+        dayPartTimesVary.push({
+          dayPart: details[0].dayPart,
+          timesVary: uniqueTimeRanges.length > 1,
+        });
+      }
+    );
+
+    return dayPartTimesVary;
+  }, [details, sameTimesForAllDetails, scheduleTimes]);
+
   return (
     <>
       {details.length === 0 && (
@@ -160,7 +194,11 @@ export const AbsenceDays: React.FC<Props> = props => {
               employeeId={employeeId}
               travellingEmployee={travellingEmployee}
               detail={ad}
+              scheduleTimes={scheduleTimes.find(s =>
+                isSameDay(ad.date, s.date)
+              )}
               absenceReasonOptions={getAbsenceReasonOptions(ad.id)}
+              dayPartTimesVary={dayPartTimesVary}
               canEditReason={canEditReason}
               canEditTimes={canEditTimes}
               showReason={i === 0 || !sameReasonForAllDetails}
@@ -168,7 +206,10 @@ export const AbsenceDays: React.FC<Props> = props => {
               subTitle={
                 details.length > 1 && !allDetailsAreTheSame && !isQuickCreate
                   ? format(ad.date, "EEE, MMM d")
-                  : details.length > 1 && allDetailsAreTheSame && i === 0 && !isQuickCreate
+                  : details.length > 1 &&
+                    allDetailsAreTheSame &&
+                    i === 0 &&
+                    !isQuickCreate
                   ? t("Details for all days")
                   : undefined
               }

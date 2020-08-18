@@ -1,6 +1,5 @@
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import { Overrides } from "@material-ui/core/styles/overrides";
-import { MuiPickersOverrides } from "@material-ui/pickers/typings/overrides";
 
 interface CustomColors {
   appBackgroundGray: string;
@@ -100,8 +99,20 @@ type Background = {
 
 type Calendar = {
   selected: string;
-  closedDay: string;
   unavailable: string;
+  disabled: string;
+  closed: string;
+  modified: string;
+  inservice: string;
+  absence: {
+    disabled: string;
+    closed: string;
+    modified: string;
+    inservice: string;
+    existingAbsence: string;
+    pendingApproval: string;
+    denied: string;
+  };
 };
 
 interface EdluminTheme extends Theme {
@@ -143,10 +154,6 @@ declare module "@material-ui/core/styles/createMuiTheme" {
     calendar?: Calendar;
   }
 }
-
-type overridesNameToClassKey = {
-  [P in keyof MuiPickersOverrides]: keyof MuiPickersOverrides[P];
-};
 
 declare module "@material-ui/core/styles/overrides" {
   export interface ComponentNameToClassKey extends overridesNameToClassKey {} // eslint-disable-line

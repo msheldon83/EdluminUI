@@ -1,0 +1,94 @@
+query GetEmployeeSchedule($id: ID!, $fromDate: Date!, $toDate: Date!) {
+  employee {
+    employeeContractSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      id
+      date
+      calendarDayTypeId
+      calendarChangeId
+      calendarChange {
+        id
+        description
+        startDate
+        endDate
+        calendarChangeReason {
+          id
+          calendarDayTypeId
+          name
+        }
+      }
+    }
+    employeePositionSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      position {
+        id
+        title
+      }
+      details {
+        startDate
+        startTimeLocal
+        endTimeLocal
+        location {
+          id
+          name
+        }
+      }
+      workScheduleVariantType {
+        id
+        name
+        isStandard
+      }
+    }
+    employeeAbsenceSchedule(id: $id, fromDate: $fromDate, toDate: $toDate) {
+      id
+      startDate
+      startTimeLocal
+      endDate
+      endTimeLocal
+      numDays
+      totalDayPortion
+      approvalStatus
+      details {
+        id
+        dayPartId
+        dayPortion
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        reasonUsages {
+          id
+          absenceReason {
+            id
+            name
+          }
+        }
+      }
+      vacancies {
+        id
+        startDate
+        startTimeLocal
+        endDate
+        endTimeLocal
+        numDays
+        details {
+          id
+          startDate
+          startTimeLocal
+          endDate
+          endTimeLocal
+          assignmentId
+          assignment {
+            id
+            employeeId
+            employee {
+              id
+              firstName
+              lastName
+              formattedPhone
+            }
+          }
+          verifiedAtUtc
+        }
+      }
+    }
+  }
+}

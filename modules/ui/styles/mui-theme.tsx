@@ -246,21 +246,6 @@ export const EdluminTheme = createMuiTheme({
 
       https://github.com/mui-org/material-ui-pickers/blob/3d2e99089d/lib/src/views/Calendar/Calendar.tsx
     */
-    MuiPickersCalendar: {
-      week: {
-        "& [role='presentation']": {
-          textAlign: "center",
-          flex: 1,
-        },
-      },
-    },
-    MuiPickersCalendarHeader: {
-      dayLabel: {
-        color: themeColors.slate,
-        flex: 1,
-        width: "100%",
-      },
-    },
   },
   palette: {
     primary: {
@@ -310,8 +295,20 @@ export const EdluminTheme = createMuiTheme({
   },
   calendar: {
     selected: themeColors.edluminSlate,
-    closedDay: themeColors.primary,
     unavailable: themeColors.lightSlate,
+    disabled: "#E1E1E1",
+    closed: "#FF5555",
+    modified: "#FFCC01",
+    inservice: "#6471DF",
+    absence: {
+      disabled: themeColors.lightGray,
+      closed: "#FFBBBB",
+      modified: "#FFF5CC",
+      inservice: "#D8DCF7",
+      existingAbsence: "#9B99B0",
+      pendingApproval: themeColors.yellow4,
+      denied: themeColors.darkRed,
+    },
   },
 
   typography: palette => ({

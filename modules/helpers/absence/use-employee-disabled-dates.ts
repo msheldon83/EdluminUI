@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { format, addMonths, endOfMonth } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
-import { GetEmployeeContractSchedule } from "./get-employee-contract-schedule.gen";
+import { GetEmployeeSchedule } from "./get-employee-schedule.gen";
 import { computeDisabledDates } from "./computeDisabledDates";
 
 export const useEmployeeDisabledDates = (
@@ -17,7 +17,7 @@ export const useEmployeeDisabledDates = (
     return format(addMonths(month, -1), "yyyy-M-d");
   }, [month, startDate]);
 
-  const contractSchedule = useQueryBundle(GetEmployeeContractSchedule, {
+  const contractSchedule = useQueryBundle(GetEmployeeSchedule, {
     variables: {
       id: employeeId,
       fromDate: fromDate,

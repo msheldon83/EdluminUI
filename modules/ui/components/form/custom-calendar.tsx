@@ -23,6 +23,7 @@ import * as React from "react";
 export type CustomDate = {
   date: Date;
   buttonProps: ButtonProps;
+  timeClass?: string;
 };
 
 type CustomCalendarProps = {
@@ -225,7 +226,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
         const day = format(date, "d");
         const formattedDate = format(date, "yyyy-MM-dd");
 
-        const { buttonProps = {} } =
+        const { buttonProps = {}, timeClass } =
           customDates.find(highlightedDate =>
             isSameDay(highlightedDate.date, date)
           ) || {};
@@ -290,7 +291,7 @@ export const CustomCalendar = (props: CustomCalendarProps) => {
               className={`${classNames} ${buttonClassName}`}
             >
               <time
-                className={timeClasses}
+                className={clsx(timeClasses, timeClass)}
                 dateTime={formattedDate}
                 data-date={date}
               >
