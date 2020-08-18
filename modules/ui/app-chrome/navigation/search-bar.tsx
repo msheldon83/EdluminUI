@@ -220,6 +220,11 @@ export const SearchBar: React.FC<Props> = props => {
             {headingArr.map(a => {
               return a;
             })}
+            {onOrgSwitcher && (
+              <Typography className={classes.chip} variant="caption">
+                {result.orgName}
+              </Typography>
+            )}
           </div>
           <div>
             <span className={classes.label}>{t("on")}</span>
@@ -261,6 +266,11 @@ export const SearchBar: React.FC<Props> = props => {
             {nameArray.map(a => {
               return a;
             })}
+            {onOrgSwitcher && (
+              <Typography className={classes.chip} variant="caption">
+                {result.orgName}
+              </Typography>
+            )}
           </div>
           <div>
             {phoneArray.length > 0 && (
@@ -329,6 +339,11 @@ export const SearchBar: React.FC<Props> = props => {
             {attributes.isSub === "1" && (
               <Typography className={classes.chip} variant="caption">
                 {t("Substitute")}
+              </Typography>
+            )}
+            {onOrgSwitcher && (
+              <Typography className={classes.chip} variant="caption">
+                {result.orgName}
               </Typography>
             )}
           </div>

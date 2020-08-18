@@ -2999,6 +2999,7 @@ type GlobalSearchTypeDef {
   ownerId: ID!
   objectTypeId: ObjectType!
   orgId: ID!
+  orgName: String
   createdUtc: DateTime!
   objectJson: String!
 }
@@ -5292,7 +5293,6 @@ type Query {
   returnMessageTest: ReturnMessageTestQueries
   savedView: SavedViewQueries
   schoolYear: SchoolYearQueries
-  search: SearchQueries
   userAccess: UserAccessQueries
   user: UserQueries
   vacancy: VacancyQueries
@@ -6080,26 +6080,6 @@ input SchoolYearUpdateInput {
   startDate: Date
   endDate: Date
   earliestDateForAbsenceEntry: Date
-}
-
-type SearchQueries {
-  global(orgId: ID, searchText: String, limit: Int): [SearchResult]
-}
-
-type SearchResult {
-  _info: [ReturnMessage]
-  id: ID!
-  type: ObjectType
-  orgId: ID!
-  fieldName: String
-  value: String!
-  matches: [SearchResultMatch]
-}
-
-type SearchResultMatch {
-  _info: [ReturnMessage]
-  fieldName: String
-  value: String!
 }
 
 scalar Seconds
