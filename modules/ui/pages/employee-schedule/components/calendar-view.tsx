@@ -15,6 +15,7 @@ import {
   ScheduleDate,
   CalendarScheduleDate,
 } from "ui/components/employee/types";
+import { CalendarLegend } from "../../employee-home/components/calendar-legend";
 import { EmployeeMonthCalendar } from "./employee-month-calendar";
 
 type Props = {
@@ -143,6 +144,7 @@ export const CalendarView: React.FC<Props> = props => {
 
   return (
     <Grid container spacing={2}>
+      <CalendarLegend />
       {monthGroups.map((group, i) => (
         <Grid item xs={4} key={i}>
           <EmployeeMonthCalendar

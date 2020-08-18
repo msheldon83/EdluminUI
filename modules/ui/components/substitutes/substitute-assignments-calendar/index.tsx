@@ -11,6 +11,7 @@ import { GetMyAvailableTime } from "ui/pages/sub-availability/graphql/get-availa
 import { UserAvailability, DayOfWeek } from "graphql/server-types.gen";
 import { daysOfWeekOrdered } from "helpers/day-of-week";
 import { flatMap, groupBy } from "lodash-es";
+import { CalendarLegend } from "ui/pages/sub-home/components/calendar-legend";
 import { eachDayOfInterval, parseISO, addDays, getDay } from "date-fns";
 
 type Props = {
@@ -180,6 +181,7 @@ export const SubstituteAssignmentsCalendarView: React.FC<Props> = props => {
 
   return (
     <Grid container>
+      <CalendarLegend calendarView={true} />
       {all.map((group, i) => (
         <AssignmentCalendar
           key={i}

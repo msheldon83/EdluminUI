@@ -1,15 +1,30 @@
 import { Grid } from "@material-ui/core";
+import clsx from "clsx";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 
-export const CalendarLegend: React.FC<{}> = props => {
+type Props = {
+  calendarView?: boolean;
+};
+
+export const CalendarLegend: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
+  const { calendarView = false } = props;
+
   return (
     <>
-      <Grid xs={12} item container className={classes.legendBar}>
+      <Grid
+        xs={12}
+        item
+        container
+        className={clsx({
+          [classes.legendBar]: true,
+          [classes.padding]: calendarView,
+        })}
+      >
         <Grid item xs={3}>
           <span className={classes.assignment}></span>
           <span className={classes.text}>{t("Assignment")}</span>
@@ -45,5 +60,9 @@ const useStyles = makeStyles(theme => ({
   legendBar: {
     paddingTop: theme.spacing(3),
     height: "40px",
+  },
+  padding: {
+    padding: theme.spacing(1),
+    paddingTop: "15px",
   },
 }));
