@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createContext, useContext, useEffect } from "react";
-import { AdminRootChromeRoute, AdminChromeRoute } from "ui/routes/app-chrome";
+import { AdminChromeRoute } from "ui/routes/app-chrome";
 import { useRouteParams } from "ui/routes/definition";
 import { usePageTitleContext } from "ui/app-chrome/page-title-context";
 

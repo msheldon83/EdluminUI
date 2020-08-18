@@ -6,7 +6,7 @@ import { GetSubPreferences } from "./graphql/get-sub-preferences.gen";
 import { GetLocationGroups } from "./graphql/get-location-groups.gen";
 import { compact } from "lodash-es";
 import { SchoolGroup } from "./types";
-import { EditGroup } from "./components/groups";
+import { EditGroup } from "./edit-group";
 import { makeDistricts } from "./helpers";
 import { AddOrChangeSubLocationGroupPreference } from "./graphql/add-or-change-sub-location-group-preference.gen";
 import { AddOrChangeSubLocationPreference } from "./graphql/add-or-change-sub-location-preference.gen";
@@ -15,33 +15,25 @@ import { RemoveSubLocationPreference } from "./graphql/remove-sub-location-prefe
 import { PersonalPreference } from "graphql/server-types.gen";
 
 type Props = {
-  userId: string;
   orgId: string;
   orgName: string;
   orgUserId: string;
   search: string;
+  preferences?: { locationId: string; preferenceId: PersonalPreference }[];
+  refetchQueries?: string[];
 };
 
-export const SubPreferencesEditUI: React.FC<Props> = ({
-  userId,
+export const SubPreferencesEdit: React.FC<Props> = ({
   orgId,
   orgName,
   orgUserId,
   search,
+  preferences,
+  refetchQueries,
 }) => {
   const { t } = useTranslation();
   const classes = useStyles();
   // Not cache-first, since the preferences might well change on the view page
-  const getPreferences = useQueryBundle(GetSubPreferences, {
-    variables: { userId, orgId },
-    skip: orgId.length == 0,
-  });
-  const preferences =
-    getPreferences.state === "LOADING"
-      ? "LOADING"
-      : compact(
-          getPreferences.data.orgUser?.substituteLocationPreferences ?? []
-        );
 
   const getLocationGroups = useQueryBundle(GetLocationGroups, {
     fetchPolicy: "cache-first",
@@ -57,7 +49,7 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
         }));
 
   const district =
-    preferences === "LOADING" || locationGroups === "LOADING"
+    !preferences || locationGroups === "LOADING"
       ? "LOADING"
       : makeDistricts(
           [{ orgId, orgName, orgUserId }],
@@ -81,19 +73,19 @@ export const SubPreferencesEditUI: React.FC<Props> = ({
         }, []);
 
   const [addOrChangeOne] = useMutationBundle(AddOrChangeSubLocationPreference, {
-    refetchQueries: ["GetSubPreferences"],
+    refetchQueries,
   });
   const [addOrChangeGroup] = useMutationBundle(
     AddOrChangeSubLocationGroupPreference,
     {
-      refetchQueries: ["GetSubPreferences"],
+      refetchQueries,
     }
   );
   const [removeOne] = useMutationBundle(RemoveSubLocationPreference, {
-    refetchQueries: ["GetSubPreferences"],
+    refetchQueries,
   });
   const [removeGroup] = useMutationBundle(RemoveSubLocationGroupPreference, {
-    refetchQueries: ["GetSubPreferences"],
+    refetchQueries,
   });
 
   const setOne = async (

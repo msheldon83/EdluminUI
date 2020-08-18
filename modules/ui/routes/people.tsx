@@ -254,6 +254,23 @@ export const SubstituteAvailableAssignmentsLoader = asyncComponent({
   name: "SubstituteAvailableAssignmentsPage",
 });
 
+/***** substitute location preferences *****/
+
+export const SubstituteLocationPreferencesRoute = defineSubRoute(
+  PersonViewRoute,
+  "/location-preferences"
+);
+
+export const SubstituteLocationPreferencesLoader = asyncComponent({
+  resolve: async () => {
+    const SubstituteLocationPreferencesPage = (
+      await import("ui/pages/people/sub-location-preferences")
+    ).SubstituteLocationPreferencesPage;
+    return SubstituteLocationPreferencesPage;
+  },
+  name: "SubstituteLocationPreferencesPage",
+});
+
 /***** employee sub preferences *****/
 
 export const EmployeeSubstitutePreferenceRoute = defineSubRoute(

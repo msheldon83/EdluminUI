@@ -7,9 +7,9 @@ import { useMyUserAccess } from "reference-data/my-user-access";
 import { useIsMobile } from "hooks";
 import { ContentFooter } from "ui/components/content-footer";
 import { SubPreferencesEditRoute } from "ui/routes/sub-preferences";
-import { SubPreferencesUI } from "./ui";
+import { SubPreferences } from "ui/components/substitutes/preferences/view";
 import { OrgUser } from "graphql/server-types.gen";
-import { OrgInfo } from "./types";
+import { OrgInfo } from "ui/components/substitutes/preferences/types";
 
 type Props = {};
 
@@ -55,7 +55,7 @@ export const SubPreferencesPage: React.FC<Props> = props => {
         {!isMobile && EditButton}
       </Grid>
       <Section className={isMobile ? classes.mobileSection : undefined}>
-        <SubPreferencesUI userId={userId} orgInfo={orgInfo} />
+        <SubPreferences userId={userId} orgInfo={orgInfo} />
       </Section>
       {isMobile && (
         <ContentFooter>

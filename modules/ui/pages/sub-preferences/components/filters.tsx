@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Input } from "ui/components/form/input";
 import { Grid, makeStyles } from "@material-ui/core";
 import { compact } from "lodash-es";
-import { useQueryBundle } from "graphql/hooks";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { useIsMobile } from "hooks";
 import { IsoSelectOne, IsoOptionType } from "ui/components/form/iso-select";

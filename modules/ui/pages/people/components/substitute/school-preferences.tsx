@@ -1,15 +1,22 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/styles";
 import { Grid, Tooltip, Typography } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { PersonalPreference } from "graphql/server-types.gen";
+import { PersonalPreference, PermissionEnum } from "graphql/server-types.gen";
 import { Schedule } from "@material-ui/icons";
 import { GetDateInYesterdayTodayTomorrowFormat } from "ui/components/reports/daily-report/helpers";
 import { parseISO } from "date-fns";
+import {
+  SubstituteLocationPreferencesRoute,
+  PersonViewRoute,
+} from "ui/routes/people";
+import { useRouteParams } from "ui/routes/definition";
+import { useHistory } from "react-router";
 
 type Props = {
+  editing: string | null;
+  editable: boolean;
   subSchoolPreferences: {
     preferenceId: PersonalPreference;
     changedLocal?: string;
@@ -19,7 +26,9 @@ type Props = {
 
 export const SubSchoolPreferences: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const classes = useStyles();
+  const params = useRouteParams(PersonViewRoute);
+  const history = useHistory();
+  const showEditButton = !props.editing && props.editable;
 
   const favorite = props?.subSchoolPreferences
     ? props?.subSchoolPreferences?.filter(
@@ -35,7 +44,22 @@ export const SubSchoolPreferences: React.FC<Props> = props => {
 
   return (
     <Section>
-      <SectionHeader title={t("School preferences")} />
+      <SectionHeader
+        title={t("School preferences")}
+        actions={[
+          {
+            text: t("Edit"),
+            visible: showEditButton,
+            execute: () => {
+              const editSettingsUrl = SubstituteLocationPreferencesRoute.generate(
+                params
+              );
+              history.push(editSettingsUrl);
+            },
+            permissions: [PermissionEnum.SubstituteSave],
+          },
+        ]}
+      />
       <Grid container spacing={2}>
         <Grid container item spacing={2} xs={8}>
           {props.subSchoolPreferences?.length === 0 ? (
@@ -111,5 +135,3 @@ export const SubSchoolPreferences: React.FC<Props> = props => {
     </Section>
   );
 };
-
-const useStyles = makeStyles(theme => ({}));
