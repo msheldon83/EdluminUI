@@ -34,8 +34,8 @@ export const VerifyOverviewPage: React.FC<{}> = props => {
     variables: {
       orgId: params.organizationId,
       locationIds: filters.locationIds,
-      fromDate: filters.dateRangeStart,
-      toDate: filters.dateRangeEnd,
+      fromDate: format(filters.dateRangeStart, "MM/dd/yyyy"),
+      toDate: format(filters.dateRangeEnd, "MM/dd/yyyy"),
       shadowFromOrgId: filters.subSource,
     },
   });

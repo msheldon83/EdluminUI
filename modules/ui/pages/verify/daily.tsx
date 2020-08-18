@@ -39,7 +39,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
   const params = useRouteParams(VerifyDailyRoute);
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const { openSnackbar } = useSnackbar();
-  const [, setVerifiedId] = React.useState<string | null | undefined>(null);
   const [
     ref,
     { scrollWidth: width, scrollHeight: height },
@@ -69,7 +68,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       },
     });
     if (verifyInput.doVerify) {
-      setVerifiedId(verifyInput.vacancyDetailId);
       openSnackbar({
         dismissable: true,
         autoHideDuration: 5000,
@@ -94,7 +92,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     }
     if (verifyInput.doVerify !== null) {
       await getVacancyDetails.refetch();
-      setVerifiedId(null);
     }
   };
 
