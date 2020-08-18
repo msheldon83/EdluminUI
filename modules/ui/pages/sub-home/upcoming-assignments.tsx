@@ -36,6 +36,7 @@ import { Padding } from "ui/components/padding";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { SectionHeader } from "ui/components/section-header";
 import { Link } from "react-router-dom";
+import { CalendarLegend } from "./components/calendar-legend";
 import { VacancyDetail } from "./components/assignment";
 import { SubAvailabilityRoute } from "ui/routes/sub-schedule";
 
@@ -297,7 +298,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
         {!isMobile && (
           <Grid item xs={12} sm={6} lg={6}>
             <Section>
-              <Padding bottom={6}>
+              <Padding bottom={3}>
                 <CustomCalendar
                   customDates={calendarDates}
                   month={fromDate}
@@ -308,6 +309,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
                   onSelectDates={preloadDate}
                 />
               </Padding>
+              <CalendarLegend />
             </Section>
           </Grid>
         )}
