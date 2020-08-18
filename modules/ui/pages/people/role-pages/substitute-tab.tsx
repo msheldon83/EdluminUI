@@ -130,8 +130,8 @@ export const SubstituteTab: React.FC<Props> = props => {
     await getSubstitute.refetch();
   };
 
-  const refetchQuery = () => {
-    getSubstitute.refetch();
+  const refetchQuery = async () => {
+    await getSubstitute.refetch();
   };
 
   return (
@@ -173,6 +173,8 @@ export const SubstituteTab: React.FC<Props> = props => {
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
       />
       <SubSchoolPreferences
+        editing={props.editing}
+        editable={canEditThisSub}
         subSchoolPreferences={
           compact(orgUser.substitute.substituteLocationPreferences) ?? []
         }

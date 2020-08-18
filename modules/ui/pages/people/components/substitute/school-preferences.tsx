@@ -15,6 +15,8 @@ import { useRouteParams } from "ui/routes/definition";
 import { useHistory } from "react-router";
 
 type Props = {
+  editing: string | null;
+  editable: boolean;
   subSchoolPreferences: {
     preferenceId: PersonalPreference;
     changedLocal?: string;
@@ -26,6 +28,7 @@ export const SubSchoolPreferences: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(PersonViewRoute);
   const history = useHistory();
+  const showEditButton = !props.editing && props.editable;
 
   const favorite = props?.subSchoolPreferences
     ? props?.subSchoolPreferences?.filter(
@@ -46,7 +49,7 @@ export const SubSchoolPreferences: React.FC<Props> = props => {
         actions={[
           {
             text: t("Edit"),
-            visible: true, //showEditButton,
+            visible: showEditButton,
             execute: () => {
               const editSettingsUrl = SubstituteLocationPreferencesRoute.generate(
                 params

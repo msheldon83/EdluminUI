@@ -8,7 +8,7 @@ import { Filters } from "./components/location-preference-filters";
 import { useQueryBundle } from "graphql/hooks";
 import { SubPreferencesEdit } from "ui/components/substitutes/preferences/edit";
 import { SubPreferencesRoute } from "ui/routes/sub-preferences";
-import { GetOrganizationName } from "./graphql/substitute/get-organization-name.gen";
+import { useOrganization } from "reference-data/organization";
 import { GetSubstituteById } from "./graphql/substitute/get-substitute-by-id.gen";
 import { compact } from "lodash-es";
 import { PersonLinkHeader } from "ui/components/link-headers/person";
@@ -20,22 +20,14 @@ export const SubstituteLocationPreferencesPage: React.FC<Props> = props => {
 
   const params = useRouteParams(SubstituteLocationPreferencesRoute);
   const orgId = params.organizationId;
+  const organization = useOrganization(orgId);
   const orgUserId = params.orgUserId;
   const [search, setSearch] = React.useState<string>("");
-  const getOrgName = useQueryBundle(GetOrganizationName, {
-    variables: {
-      id: orgId,
-    },
-    skip: !orgId,
-  });
   const getSub = useQueryBundle(GetSubstituteById, {
     variables: { id: params.orgUserId },
   });
 
-  const orgName =
-    getOrgName.state == "LOADING"
-      ? undefined
-      : getOrgName.data.organization?.byId?.name;
+  const orgName = organization?.name;
   const preferences =
     getSub.state == "LOADING"
       ? undefined
