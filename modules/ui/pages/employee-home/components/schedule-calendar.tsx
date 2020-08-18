@@ -6,7 +6,6 @@ import { SectionHeader } from "ui/components/section-header";
 import { CustomCalendar } from "ui/components/form/custom-calendar";
 import { useMemo } from "react";
 import { isToday, addDays } from "date-fns";
-import { ApprovalStatus } from "graphql/server-types.gen";
 import { useEmployeeScheduleDates } from "helpers/absence/use-employee-schedule-dates";
 import { makeFlagClassKey } from "ui/components/employee/helpers";
 import clsx from "clsx";
@@ -55,18 +54,8 @@ export const ScheduleCalendar: React.FC<Props> = props => {
           },
           timeClass:
             calendarDate.absences.length > 0
-              ? calendarDate.absences.some(
-                  a => a.approvalStatus === ApprovalStatus.Denied
-                )
-                ? classes.deniedAbsenceToken
-                : calendarDate.absences.some(
-                    a =>
-                      a.approvalStatus === ApprovalStatus.ApprovalRequired ||
-                      a.approvalStatus === ApprovalStatus.PartiallyApproved
-                  )
-                ? classes.pendingAbsenceToken
-                : classes.absenceToken
-              : undefined,
+              ? classes.absenceToken
+              : undefined
         };
       }),
     [classes, employeeScheduleDates]
@@ -89,14 +78,6 @@ const useStyles = makeStyles(theme => ({
   },
   absenceToken: {
     background: `radial-gradient(${theme.calendar.selected} 50%, transparent 50%)`,
-    color: theme.customColors.white,
-  },
-  pendingAbsenceToken: {
-    background: `radial-gradient(${theme.calendar.absence.pendingApproval} 50%, transparent 50%)`,
-    color: theme.customColors.black,
-  },
-  deniedAbsenceToken: {
-    background: `radial-gradient(${theme.calendar.absence.denied} 50%, transparent 50%)`,
     color: theme.customColors.white,
   },
   nonWorkDay: {
