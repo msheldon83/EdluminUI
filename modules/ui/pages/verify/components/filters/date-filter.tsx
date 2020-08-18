@@ -1,10 +1,8 @@
 import { Grid } from "@material-ui/core";
-import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { VerifyQueryFilters } from "./filter-params";
 import { DatePicker } from "ui/components/form/date-picker";
-import { format, parseISO, isValid } from "date-fns";
-import { GetYesterdayTodayTomorrowFormat } from "helpers/date";
+import { parseISO } from "date-fns";
 
 type Props = {
   setDate: (date: Date) => void;

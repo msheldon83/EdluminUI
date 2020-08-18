@@ -23,7 +23,6 @@ import {
 import { PageTitle } from "ui/components/page-title";
 import { Section } from "ui/components/section";
 import { format } from "date-fns";
-import { compact } from "lodash-es";
 import { DailyFilters as Filters } from "./components/filters/daily";
 import { FilterQueryParams } from "./components/filters/filter-params";
 import { VacancyDetailVerifyInput } from "graphql/server-types.gen";
@@ -40,9 +39,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
   const params = useRouteParams(VerifyDailyRoute);
   const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const { openSnackbar } = useSnackbar();
-  const [verifiedId, setVerifiedId] = React.useState<string | null | undefined>(
-    null
-  );
   const [
     ref,
     { scrollWidth: width, scrollHeight: height },
@@ -52,19 +48,11 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       orgId: params.organizationId,
       includeVerified: true,
       locationIds: filters.locationIds,
-      fromDate: filters.date,
-      toDate: filters.date,
-      shadowFromOrgId: filters.subSource ? filters.subSource : undefined,
+      fromDate: format(filters.date, "MM/dd/yyyy"),
+      toDate: format(filters.date, "MM/dd/yyyy"),
+      shadowFromOrgId: filters.subSource,
     },
   });
-
-  const fullName = ({
-    firstName,
-    lastName,
-  }: {
-    firstName: string;
-    lastName: string;
-  }) => `${firstName} ${lastName}`;
 
   const assignments: "LOADING" | AssignmentDetail[] =
     getVacancyDetails.state === "LOADING"
@@ -80,7 +68,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
       },
     });
     if (verifyInput.doVerify) {
-      setVerifiedId(verifyInput.vacancyDetailId);
       openSnackbar({
         dismissable: true,
         autoHideDuration: 5000,
@@ -105,7 +92,6 @@ export const VerifyDailyPage: React.FC<{}> = props => {
     }
     if (verifyInput.doVerify !== null) {
       await getVacancyDetails.refetch();
-      setVerifiedId(null);
     }
   };
 
