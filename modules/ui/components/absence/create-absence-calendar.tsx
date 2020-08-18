@@ -1,5 +1,5 @@
 import { makeStyles } from "@material-ui/styles";
-import { isSameDay, isToday } from "date-fns";
+import { isSameDay, isToday, startOfDay } from "date-fns";
 import * as React from "react";
 import { useMemo } from "react";
 import { CustomCalendar } from "../form/custom-calendar";
@@ -59,7 +59,8 @@ export const CreateAbsenceCalendar: React.FC<Props> = props => {
             className,
           },
           timeClass:
-            calendarDate.absences.length > 0
+            calendarDate.absences.length > 0 &&
+            !selectedAbsenceDates.find(a => isSameDay(a, calendarDate.date))
               ? calendarDate.absences.some(
                   a => a.approvalStatus === ApprovalStatus.Denied
                 )
