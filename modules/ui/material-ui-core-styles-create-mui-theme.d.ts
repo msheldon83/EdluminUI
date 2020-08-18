@@ -99,8 +99,20 @@ type Background = {
 
 type Calendar = {
   selected: string;
-  closedDay: string;
   unavailable: string;
+  disabled: string;
+  closed: string;
+  modified: string;
+  inservice: string;
+  absence: {
+    disabled: string;
+    closed: string;
+    modified: string;
+    inservice: string;
+    existingAbsence: string;
+    pendingApproval: string;
+    denied: string;
+  };
 };
 
 interface EdluminTheme extends Theme {

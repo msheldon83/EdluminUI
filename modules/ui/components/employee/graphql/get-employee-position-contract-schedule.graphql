@@ -19,6 +19,7 @@ query GetEmployeePositionContractSchedule(
         }
       }
       workScheduleVariantType {
+        id
         name
         isStandard
       }
@@ -31,10 +32,12 @@ query GetEmployeePositionContractSchedule(
       calendarDayTypeId
       calendarChangeId
       calendarChange {
+        id
         description
         startDate
         endDate
         calendarChangeReason {
+          id
           calendarDayTypeId
           name
         }
