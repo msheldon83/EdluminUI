@@ -144,7 +144,7 @@ export const CalendarView: React.FC<Props> = props => {
 
   return (
     <Grid container spacing={2}>
-      <CalendarLegend />
+      <CalendarLegend calendarView={true} />
       {monthGroups.map((group, i) => (
         <Grid item xs={4} key={i}>
           <EmployeeMonthCalendar
