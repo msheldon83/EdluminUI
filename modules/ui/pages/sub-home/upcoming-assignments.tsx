@@ -298,7 +298,7 @@ export const UpcomingAssignments: React.FC<Props> = props => {
         {!isMobile && (
           <Grid item xs={12} sm={6} lg={6}>
             <Section>
-              <Padding bottom={3}>
+              <Padding bottom={1}>
                 <CustomCalendar
                   customDates={calendarDates}
                   month={fromDate}
