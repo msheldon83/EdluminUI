@@ -20,8 +20,8 @@ export const ContractSelectCalendarChanges: React.FC<Props> = props => {
   const { t } = useTranslation();
   const {
     orgId,
-    setSelectedContractId,
     selectedContractId,
+    setSelectedContractId,
     showLabel = true,
   } = props;
 
@@ -39,7 +39,9 @@ export const ContractSelectCalendarChanges: React.FC<Props> = props => {
   );
 
   selectedContract =
-    selectedContract === undefined ? contractOptions[0] : selectedContract;
+    selectedContract === undefined
+      ? { label: t("(Any)"), value: "0" }
+      : selectedContract;
 
   return (
     <SelectNew

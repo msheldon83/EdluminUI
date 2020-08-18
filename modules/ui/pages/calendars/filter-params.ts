@@ -2,8 +2,6 @@ import { Isomorphism } from "@atomic-object/lenses";
 import { format } from "date-fns";
 
 const today = new Date();
-export const groupOptions = ["schoolyear", "contract", "school"] as const;
-export type GroupOption = typeof groupOptions[number];
 
 export const FilterQueryParamDefaults: CalendarChangeFilters = {
   date: format(today, "P"),
@@ -49,20 +47,13 @@ export const FilterQueryParams = {
   defaults: FilterQueryParamDefaults,
   iso: FilterParams,
 };
-export const stringToGroupOption: (
-  s: string,
-  defaultValue: GroupOption
-) => GroupOption = (s, defaultValue) => {
-  const option = groupOptions.find(o => o === s);
-  return option ?? defaultValue;
-};
 
 const to = (o: CalendarChangeFilters): CalendarChangeQueryFilters => {
   return {
     date: o.date,
     contractId: o.contractId,
-    schoolYearId: o.schoolYearId,
     locationId: o.locationId,
+    schoolYearId: o.schoolYearId,
   };
 };
 
@@ -71,5 +62,6 @@ const from = (o: CalendarChangeQueryFilters) => {
     date: o.date,
     locationId: o.locationId,
     contractId: o.contractId,
+    schoolYearId: o.schoolYearId,
   };
 };

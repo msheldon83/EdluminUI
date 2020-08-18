@@ -1,6 +1,5 @@
 import * as React from "react";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationOptions } from "reference-data/locations";
 
@@ -12,21 +11,14 @@ import { useLocationOptions } from "reference-data/locations";
 
 type Props = {
   orgId?: string;
-  selectedLocationIds?: string[];
-  setSelectedLocationIds: (locationIds?: string[]) => void;
+  selectedLocationId?: string;
+  setSelectedLocationId: (locationId?: string) => void;
   label?: string;
-  multiple?: boolean;
 };
 
 export const LocationSelectCalendarChanges: React.FC<Props> = props => {
   const { t } = useTranslation();
-  const {
-    orgId,
-    label,
-    selectedLocationIds,
-    setSelectedLocationIds,
-    multiple = true,
-  } = props;
+  const { orgId, label, selectedLocationId, setSelectedLocationId } = props;
 
   let locationOptions = useLocationOptions(orgId);
 
@@ -38,42 +30,29 @@ export const LocationSelectCalendarChanges: React.FC<Props> = props => {
     locationOptions.unshift({ label: t("(Any)"), value: "0" });
   }
 
-  let selectedLocations = locationOptions.filter(
-    e => e.value && selectedLocationIds?.includes(e.value.toString())
+  let selectedLocation = locationOptions.find(
+    (e: any) => e.value.toString() === selectedLocationId
   );
 
-  selectedLocations =
-    selectedLocations.length === 0 ? [locationOptions[0]] : selectedLocations;
-
-  const onChangeLocations = useCallback(
-    value => {
-      const ids: string[] = value
-        ? Array.isArray(value)
-          ? value.map((v: OptionType) => v.value)
-          : [value.value]
-        : [];
-      if (ids.includes("0")) {
-        setSelectedLocationIds(undefined);
-      } else {
-        setSelectedLocationIds(ids);
-      }
-    },
-    [setSelectedLocationIds]
-  );
+  selectedLocation =
+    selectedLocation === undefined
+      ? { label: t("(Any)"), value: "0" }
+      : selectedLocation;
 
   return (
     <SelectNew
       label={label}
-      value={
-        multiple
-          ? selectedLocations
-          : selectedLocations[0] ?? { value: "", label: "" }
-      }
-      multiple={multiple}
+      value={selectedLocation}
+      multiple={false}
       options={locationOptions}
       withResetValue={false}
-      onChange={onChangeLocations}
-      placeholder={selectedLocationIds?.length === 0 ? t("(Any)") : undefined}
+      onChange={e => {
+        if (e.value.toString() === "0") {
+          setSelectedLocationId(undefined);
+        } else {
+          setSelectedLocationId(e.value.toString());
+        }
+      }}
       doSort={false}
     />
   );

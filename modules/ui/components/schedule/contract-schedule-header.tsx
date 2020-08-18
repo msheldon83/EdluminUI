@@ -4,45 +4,41 @@ import { useTranslation } from "react-i18next";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { ContractSelectCalendarChanges } from "./filters/contract-select";
 import { LocationSelectCalendarChanges } from "./filters/location-select";
+import { FilterQueryParams } from "ui/pages/calendars/filter-params";
+import { useQueryParamIso } from "hooks/query-params";
 
 type Props = {
   orgId: string;
-  schoolYearId?: string;
-  setSchoolYearId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  contractId?: string;
-  setContractId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  locationIds?: string[];
-  setLocationIds: React.Dispatch<React.SetStateAction<string[] | undefined>>;
+  paginationReset: () => void;
 };
 
 export const ContractScheduleHeader: React.FC<Props> = props => {
   const classes = useStyles();
   const { t } = useTranslation();
+  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
 
-  const {
-    setSchoolYearId,
-    schoolYearId,
-    contractId,
-    locationIds,
-    setContractId,
-    setLocationIds,
-    orgId,
-  } = props;
+  const { orgId, paginationReset } = props;
 
   return (
     <>
       <div className={classes.select}>
         <SchoolYearSelect
           orgId={orgId}
-          selectedSchoolYearId={schoolYearId}
-          setSelectedSchoolYearId={setSchoolYearId}
+          selectedSchoolYearId={filters.schoolYearId}
+          setSelectedSchoolYearId={(schoolYearId: string | undefined) => {
+            updateFilters({ schoolYearId: schoolYearId });
+            paginationReset();
+          }}
         />
       </div>
       <div className={[classes.select, classes.fromSelect].join(" ")}>
         <ContractSelectCalendarChanges
           orgId={orgId}
-          selectedContractId={contractId}
-          setSelectedContractId={setContractId}
+          selectedContractId={filters.contractId}
+          setSelectedContractId={(contractId: string | undefined) => {
+            updateFilters({ contractId: contractId });
+            paginationReset();
+          }}
         />
       </div>
       <div
@@ -53,9 +49,11 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
         <LocationSelectCalendarChanges
           label={t("School")}
           orgId={orgId}
-          selectedLocationIds={locationIds}
-          setSelectedLocationIds={setLocationIds}
-          multiple={false}
+          selectedLocationId={filters.locationId}
+          setSelectedLocationId={(locationId: string | undefined) => {
+            updateFilters({ locationId: locationId });
+            paginationReset();
+          }}
         />
       </div>
     </>

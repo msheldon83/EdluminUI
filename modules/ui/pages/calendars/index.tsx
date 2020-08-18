@@ -56,7 +56,6 @@ import { useLocations } from "reference-data/locations";
 import { useContracts } from "reference-data/contracts";
 import { FilterQueryParams } from "./filter-params";
 import { SplitCalendarChange } from "./graphql/split-calendar-change.gen";
-import { GetContractsWithoutSchedules } from "ui/components/contract-schedule/graphql/get-contracts-without-schedules.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -72,20 +71,17 @@ export const Calendars: React.FC<Props> = props => {
 
   const [openEventDialog, setOpenEventDialog] = useState(false);
   const [hideChanges, setHideChanges] = useState(true);
-  const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
-  const [locationIds, setLocationIds] = useState<string[] | undefined>();
   const allSchoolYears = useAllSchoolYears(params.organizationId);
   const schoolYear = useMemo(
-    () => allSchoolYears.find(x => x.id === schoolYearId),
-    [allSchoolYears, schoolYearId]
+    () => allSchoolYears.find(x => x.id === filters.schoolYearId),
+    [allSchoolYears, filters.schoolYearId]
   );
 
-  const [contractId, setContractId] = useState<string | undefined>();
   const allContracts = useContracts(params.organizationId);
-  const contract = useMemo(() => allContracts.find(x => x.id === contractId), [
-    allContracts,
-    contractId,
-  ]);
+  const contract = useMemo(
+    () => allContracts.find(x => x.id === filters.contractId),
+    [allContracts, filters.contractId]
+  );
 
   const [headerCalendarChanges, setHeaderCalendarChanges] = useState<
     CalendarEvent[]
@@ -117,9 +113,9 @@ export const Calendars: React.FC<Props> = props => {
     {
       startDate: selectedDate.toISOString() ?? today.toISOString(),
       endDate: selectedDate.toISOString() ?? today.toISOString(),
-      affectsAllContracts: contractId !== undefined ? false : true,
-      locationIds: locationIds ?? [],
-      contractIds: [contractId] ?? [],
+      affectsAllContracts: filters.contractId !== undefined ? false : true,
+      locationIds: [filters.locationId] ?? [],
+      contractIds: [filters.contractId] ?? [],
     },
   ];
 
@@ -130,26 +126,16 @@ export const Calendars: React.FC<Props> = props => {
 
   const [editSpecificDate, setEditSpecificDate] = useState(false);
 
-  const getContractsWithoutSchedules = useQueryBundle(
-    GetContractsWithoutSchedules,
-    {
-      variables: {
-        orgId: params.organizationId,
-        schoolYearId: schoolYearId ?? "",
-      },
-      skip: !schoolYearId,
-    }
-  );
-
   const [getCalendarChanges, pagination] = usePagedQueryBundle(
     GetCalendarChanges,
     r => r.calendarChange?.paged?.totalCount,
     {
       variables: {
         orgId: params.organizationId,
-        schoolYearId: schoolYearId,
-        contractId: contractId,
-        locationId: locationIds?.[0],
+        schoolYearId:
+          filters.schoolYearId === "" ? undefined : filters.schoolYearId,
+        contractId: filters.contractId === "" ? undefined : filters.contractId,
+        locationId: filters.locationId === "" ? undefined : filters.locationId,
       },
       fetchPolicy: "cache-and-network",
     }
@@ -632,19 +618,8 @@ export const Calendars: React.FC<Props> = props => {
             <Grid item xs={12} className={classes.filters}>
               <div className={classes.scheduleHeader}>
                 <ContractScheduleHeader
-                  schoolYearId={schoolYearId}
-                  setSchoolYearId={input => {
-                    pagination.resetPage();
-                    setSchoolYearId(input);
-                  }}
-                  contractId={contractId}
-                  setContractId={input => {
-                    pagination.resetPage();
-                    setContractId(input);
-                  }}
+                  paginationReset={() => pagination.resetPage()}
                   orgId={params.organizationId}
-                  setLocationIds={setLocationIds}
-                  locationIds={locationIds}
                 />
               </div>
               <div>
@@ -733,6 +708,7 @@ export const Calendars: React.FC<Props> = props => {
                   selectedDate={selectedDate}
                   setSelectedDate={input => {
                     pagination.resetPage();
+                    updateFilters({ date: format(input, "P") });
                     setSelectedDate(input);
                   }}
                 />
