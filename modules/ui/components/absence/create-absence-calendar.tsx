@@ -212,7 +212,6 @@ const useStyles = makeStyles(theme => ({
     },
   },
   today: {
-    border: "solid black 1px",
-    fontWeight: "bold",
+    border: "3px solid #4CC17C",
   },
 }));
