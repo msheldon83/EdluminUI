@@ -836,6 +836,11 @@ export const VacancyUI: React.FC<Props> = props => {
                     : match.url === location.pathname ||
                       (!showSubmit && !isSubmitting))
                 ) {
+                  if (step === "confirmation") {
+                    // Reset the Vacancy when navigating away from the confirmation view
+                    setVacancy({ ...initialVacancy });
+                  }
+
                   return true;
                 }
 
