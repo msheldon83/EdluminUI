@@ -5,6 +5,7 @@ import { Divider, Grid, Typography, Button, Tooltip } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
+import { useQueryParamIso } from "hooks/query-params";
 import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule-header";
 import { useState, useMemo, useCallback } from "react";
 import { TextButton } from "ui/components/text-button";
@@ -25,7 +26,7 @@ import {
   CalendarChangeUpdateInput,
 } from "graphql/server-types.gen";
 import { compact } from "lodash-es";
-import { parseISO, format, isBefore, getDay } from "date-fns";
+import { parseISO, format, isBefore } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
 import { OptionType } from "ui/components/form/select-new";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
@@ -53,6 +54,7 @@ import { Table } from "ui/components/table";
 import { CalendarEvent } from "./types";
 import { useLocations } from "reference-data/locations";
 import { useContracts } from "reference-data/contracts";
+import { FilterQueryParams } from "./filter-params";
 import { SplitCalendarChange } from "./graphql/split-calendar-change.gen";
 import { GetContractsWithoutSchedules } from "ui/components/contract-schedule/graphql/get-contracts-without-schedules.gen";
 
@@ -64,6 +66,7 @@ export const Calendars: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(CalendarRoute);
   const classes = useStyles();
+  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const { openSnackbar } = useSnackbar();
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -83,6 +86,10 @@ export const Calendars: React.FC<Props> = props => {
     allContracts,
     contractId,
   ]);
+
+  const [headerCalendarChanges, setHeaderCalendarChanges] = useState<
+    CalendarEvent[]
+  >();
 
   const contracts = useContracts(params.organizationId ?? "0");
   const contractOptions = React.useMemo(
@@ -171,6 +178,7 @@ export const Calendars: React.FC<Props> = props => {
       });
       if (found) {
         setSelectedDateCalendarChanges(found as CalendarEvent[]);
+        setHeaderCalendarChanges(found as CalendarEvent[]);
       } else {
         const cc: CalendarEvent[] = [
           {
@@ -180,6 +188,7 @@ export const Calendars: React.FC<Props> = props => {
           },
         ];
         setSelectedDateCalendarChanges(cc);
+        setHeaderCalendarChanges(found as CalendarEvent[]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -495,7 +504,7 @@ export const Calendars: React.FC<Props> = props => {
     setOpenEventDialog(true);
   };
 
-  const calendarChangeLength = selectedDateCalendarChanges?.length ?? 0;
+  const calendarChangeLength = headerCalendarChanges?.length ?? 0;
 
   const handleEditFromCalendar = (
     calendarChange: CalendarEvent,
@@ -509,6 +518,7 @@ export const Calendars: React.FC<Props> = props => {
     <>
       <CalendarChangeEventDialog
         open={openEventDialog}
+        orgId={params.organizationId}
         locationOptions={locationOptions}
         contractOptions={contractOptions}
         onAdd={onCreateCalendarChange}
@@ -563,14 +573,14 @@ export const Calendars: React.FC<Props> = props => {
             <Section className={classes.calendarChanges}>
               <DayHeader
                 selectedDate={selectedDate}
-                eventCount={selectedDateCalendarChanges.length ?? 0}
+                eventCount={headerCalendarChanges?.length ?? 0}
               />
-              {selectedDateCalendarChanges.length !== 0 && (
+              {headerCalendarChanges?.length !== 0 && (
                 <>
                   {calendarChangeLength > 2 && hideChanges
-                    ? selectedDateCalendarChanges
-                        .slice(0, 2)
-                        .map((e, i) => (
+                    ? headerCalendarChanges
+                        ?.slice(0, 2)
+                        ?.map((e, i) => (
                           <StickyHeader
                             key={i}
                             locationOptions={locationOptions}
@@ -583,7 +593,7 @@ export const Calendars: React.FC<Props> = props => {
                             onEdit={handleEditFromCalendar}
                           />
                         ))
-                    : selectedDateCalendarChanges.map((e, i) => (
+                    : headerCalendarChanges?.map((e, i) => (
                         <StickyHeader
                           key={i}
                           locationOptions={locationOptions}
@@ -627,7 +637,7 @@ export const Calendars: React.FC<Props> = props => {
                     pagination.resetPage();
                     setSchoolYearId(input);
                   }}
-                  contractId={contract?.id}
+                  contractId={contractId}
                   setContractId={input => {
                     pagination.resetPage();
                     setContractId(input);
@@ -680,6 +690,7 @@ export const Calendars: React.FC<Props> = props => {
                           },
                         ];
 
+                        setHeaderCalendarChanges(calendarEvent);
                         setSelectedDateCalendarChanges(calendarEvent);
                         setOpenEventDialog(true);
                       }}
@@ -716,6 +727,7 @@ export const Calendars: React.FC<Props> = props => {
                   toDate={parseISO(schoolYear?.endDate)}
                   setSelectedCalendarChanges={input => {
                     pagination.resetPage();
+                    setHeaderCalendarChanges(input);
                     setSelectedDateCalendarChanges(input);
                   }}
                   selectedDate={selectedDate}

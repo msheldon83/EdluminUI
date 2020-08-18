@@ -24,6 +24,7 @@ import { isAfterDate } from "helpers/date";
 import { OptionTypeBase } from "react-select/src/types";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
+import { GetAffectedEmployeeCount } from "../graphql/get-affected-employee-count.gen";
 import {
   CalendarChangeCreateInput,
   CalendarChangeUpdateInput,
@@ -31,11 +32,13 @@ import {
 import { CalendarEvent } from "../types";
 import { parseISO, format } from "date-fns";
 import { isSameDay } from "date-fns/esm";
+import { useQueryBundle } from "graphql/hooks";
 import { getCalendarSummaryText } from "../helpers";
 import InfoIcon from "@material-ui/icons/Info";
 
 type Props = {
   open: boolean;
+  orgId: string;
   onClose: () => void;
   locationOptions: OptionType[];
   contractOptions: OptionType[];
@@ -53,9 +56,10 @@ type Props = {
 export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const orgId = useOrganizationId();
   const { locationOptions, contractOptions } = props;
   const today = React.useMemo(() => new Date(), []);
+  const { orgId } = props;
+
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
 
   const calendarChange =
@@ -126,6 +130,21 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           parseISO(calendarChange.endDate)
         )
       : false;
+
+  const getAffectedEmployeeCount = useQueryBundle(GetAffectedEmployeeCount, {
+    variables: {
+      orgId: orgId,
+      locationIds: locationIds,
+      contractIds: contractIds,
+      asOfDate: today,
+    },
+  });
+
+  const affectedEmployees =
+    getAffectedEmployeeCount.state === "LOADING" ||
+    getAffectedEmployeeCount.state === "UPDATING"
+      ? "0"
+      : getAffectedEmployeeCount.data.calendarChange?.affectedEmployeeCount;
 
   if (!orgId || !calendarChange) {
     return <></>;
@@ -353,7 +372,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         {summaryText}
                       </Typography>
                       <div className={classes.subFont}>
-                        {t("show affected employee count here")}
+                        {t(`${affectedEmployees ?? 0} employees affected`)}
                       </div>
                     </Grid>
                   </Grid>

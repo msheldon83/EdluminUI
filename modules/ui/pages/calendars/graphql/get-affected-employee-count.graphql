@@ -1,0 +1,15 @@
+query GetAffectedEmployeeCount(
+  $orgId: ID!
+  $asOfDate: Date
+  $locationIds: [ID]
+  $contractIds: [ID]
+) {
+  calendarChange {
+    affectedEmployeeCount(
+      orgId: $orgId
+      asOfDate: $asOfDate
+      locationIds: $locationIds
+      contractIds: $contractIds
+    )
+  }
+}

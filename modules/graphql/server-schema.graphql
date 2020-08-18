@@ -1472,6 +1472,7 @@ type CalendarChangeQueries {
   byId(id: ID!): CalendarChange
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], schoolYearId: ID, contractId: ID, locationId: ID, positionTypeId: ID): [CalendarChange]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], schoolYearId: ID, contractId: ID, locationId: ID, positionTypeId: ID): PagedCalendarChange
+  affectedEmployeeCount(orgId: ID!, asOfDate: Date, locationIds: [ID], contractIds: [ID]): Int
 }
 
 type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {

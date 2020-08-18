@@ -2,8 +2,8 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
-import { ContractSelect } from "ui/components/reference-selects/contract-select";
-import { LocationSelect } from "ui/components/reference-selects/location-select";
+import { ContractSelectCalendarChanges } from "./filters/contract-select";
+import { LocationSelectCalendarChanges } from "./filters/location-select";
 
 type Props = {
   orgId: string;
@@ -39,7 +39,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
         />
       </div>
       <div className={[classes.select, classes.fromSelect].join(" ")}>
-        <ContractSelect
+        <ContractSelectCalendarChanges
           orgId={orgId}
           selectedContractId={contractId}
           setSelectedContractId={setContractId}
@@ -50,7 +50,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
           " "
         )}
       >
-        <LocationSelect
+        <LocationSelectCalendarChanges
           label={t("School")}
           orgId={orgId}
           selectedLocationIds={locationIds}
