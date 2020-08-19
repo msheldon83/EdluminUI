@@ -32,7 +32,11 @@ import { ChangeLoginEmailDialog } from "../profile/components/change-email-dialo
 import { UpdateLoginEmail } from "../profile/graphql/UpdateLoginEmail.gen";
 import { format, parseISO, isPast } from "date-fns";
 import { Table } from "ui/components/table";
-import { OrgUser } from "graphql/server-types.gen";
+import {
+  OrgUser,
+  UserDevice,
+  MobileDeviceType,
+} from "graphql/server-types.gen";
 import { Column } from "material-table";
 import { UserNotificationLogRoute } from "ui/routes/notification-log";
 import { UserSmsLogRoute } from "ui/routes/sms-log";
@@ -66,6 +70,13 @@ export const UserViewPage: React.FC<{}> = props => {
     >[]
   >([]);
 
+  const [mobileDevices, setMobileDevices] = useState<
+    Pick<
+      UserDevice,
+      "id" | "mobileDeviceTypeId" | "deviceId" | "softwareVersion"
+    >[]
+  >([]);
+
   const getUser = useQueryBundle(GetUserById, {
     variables: { id: params.userId },
   });
@@ -89,6 +100,14 @@ export const UserViewPage: React.FC<{}> = props => {
           | "firstName"
           | "lastName"
           | "email"
+        >[]
+      );
+    }
+    if (user?.mobileDevices && user?.mobileDevices?.length > 0) {
+      setMobileDevices(
+        (user?.mobileDevices ?? []) as Pick<
+          UserDevice,
+          "id" | "mobileDeviceTypeId" | "deviceId" | "softwareVersion"
         >[]
       );
     }
@@ -224,6 +243,33 @@ export const UserViewPage: React.FC<{}> = props => {
     currentStatusLabel = t("No invite sent");
   }
 
+  console.log(user?.mobileDevices);
+
+  const mobileDeviceColumns: Column<
+    Pick<
+      UserDevice,
+      "id" | "mobileDeviceTypeId" | "deviceId" | "softwareVersion"
+    >
+  >[] = [
+    {
+      title: t("Device Id"),
+      field: "deviceId",
+    },
+    {
+      title: t("Type"),
+      render: rowData =>
+        rowData.mobileDeviceTypeId === MobileDeviceType.Android
+          ? t("Android")
+          : rowData.mobileDeviceTypeId === MobileDeviceType.Ios
+          ? t("Ios")
+          : t("None"),
+    },
+    {
+      title: t("Software version"),
+      field: "softwareVersion",
+    },
+  ];
+
   const orgUserColumns: Column<
     Pick<
       OrgUser,
@@ -242,17 +288,11 @@ export const UserViewPage: React.FC<{}> = props => {
       title: t("OrgUserId"),
       render: rowData =>
         rowData.isAdmin ? (
-          <AdminLink
-            orgId={rowData.organization.id}
-            orgUserId={rowData.id}
-          >
+          <AdminLink orgId={rowData.organization.id} orgUserId={rowData.id}>
             {rowData.id}
           </AdminLink>
         ) : rowData.isEmployee ? (
-          <EmployeeLink
-            orgId={rowData.organization.id}
-            orgUserId={rowData.id}
-          >
+          <EmployeeLink orgId={rowData.organization.id} orgUserId={rowData.id}>
             {rowData.id}
           </EmployeeLink>
         ) : rowData.isReplacementEmployee ? (
@@ -432,7 +472,7 @@ export const UserViewPage: React.FC<{}> = props => {
                 alignItems="flex-end"
                 spacing={2}
               >
-                <Grid item xs={9}>
+                <Grid item xs={3}>
                   <Input
                     label={t("Username/Email")}
                     value={user?.loginEmail ?? ""}
@@ -448,7 +488,15 @@ export const UserViewPage: React.FC<{}> = props => {
                     {t("Change Username")}
                   </Button>
                 </Grid>
-                <Grid item xs={4}>
+              </Grid>
+              <Grid
+                container
+                justify="flex-start"
+                alignItems="flex-end"
+                spacing={2}
+                className={classes.paddingTop}
+              >
+                <Grid item xs={3}>
                   <Input
                     label={t("First name")}
                     InputComponent={FormTextField}
@@ -460,7 +508,7 @@ export const UserViewPage: React.FC<{}> = props => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={2}>
                   <Input
                     label={t("Middle name")}
                     InputComponent={FormTextField}
@@ -472,7 +520,7 @@ export const UserViewPage: React.FC<{}> = props => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={3}>
                   <Input
                     label={t("Last name")}
                     InputComponent={FormTextField}
@@ -484,7 +532,7 @@ export const UserViewPage: React.FC<{}> = props => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={3}>
                   <Input
                     label={t("Phone")}
                     InputComponent={FormTextField}
@@ -496,47 +544,47 @@ export const UserViewPage: React.FC<{}> = props => {
                     }}
                   />
                 </Grid>
-                {user?.phone && (
-                  <Grid item xs={4}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          color="primary"
-                          checked={
-                            values.phoneIsValidForSms ||
-                            values.phoneIsValidForSms == undefined ||
-                            values.phoneIsValidForSms == null
-                          }
-                          onChange={() =>
-                            setFieldValue("phoneIsValidForSms", true)
-                          }
-                        />
-                      }
-                      label={t("Phone is valid for sms")}
-                    />
-                    {smsStopped && (
-                      <div>
-                        {t("SMS stopped until {{date}}", {
-                          date: format(
-                            new Date(user.stopSmsUntilUtc),
-                            "MMM d yyyy h:mm aaaa"
-                          ),
-                        })}
-                      </div>
-                    )}
-                    {smsPaused && (
-                      <div>
-                        {t("SMS paused until {{date}}", {
-                          date: format(
-                            new Date(user.suspendSmsUntilUtc),
-                            "MMM d yyyy h:mm aaaa"
-                          ),
-                        })}
-                      </div>
-                    )}
-                  </Grid>
-                )}
               </Grid>
+              {user?.phone && (
+                <Grid item xs={4}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        color="primary"
+                        checked={
+                          values.phoneIsValidForSms ||
+                          values.phoneIsValidForSms == undefined ||
+                          values.phoneIsValidForSms == null
+                        }
+                        onChange={() =>
+                          setFieldValue("phoneIsValidForSms", true)
+                        }
+                      />
+                    }
+                    label={t("Phone is valid for sms")}
+                  />
+                  {smsStopped && (
+                    <div>
+                      {t("SMS stopped until {{date}}", {
+                        date: format(
+                          new Date(user.stopSmsUntilUtc),
+                          "MMM d yyyy h:mm aaaa"
+                        ),
+                      })}
+                    </div>
+                  )}
+                  {smsPaused && (
+                    <div>
+                      {t("SMS paused until {{date}}", {
+                        date: format(
+                          new Date(user.suspendSmsUntilUtc),
+                          "MMM d yyyy h:mm aaaa"
+                        ),
+                      })}
+                    </div>
+                  )}
+                </Grid>
+              )}
               <ActionButtons
                 submit={{ text: t("Save"), execute: submitForm }}
                 cancel={{
@@ -594,9 +642,19 @@ export const UserViewPage: React.FC<{}> = props => {
             </>
           )}
         </div>
-
+        {user?.mobileDevices && user?.mobileDevices.length > 0 && (
+          <>
+            <Divider className={classes.divider} />
+            <div>
+              <Table
+                title={t("Mobile devices")}
+                columns={mobileDeviceColumns}
+                data={mobileDevices}
+              />
+            </div>
+          </>
+        )}
         <Divider className={classes.divider} />
-
         <div>
           <Table
             title={t("Organization access")}
@@ -619,6 +677,7 @@ const useStyles = makeStyles(theme => ({
   rowPadding: {
     paddingBottom: theme.spacing(2),
   },
+  paddingTop: { paddingTop: theme.spacing(2) },
   header: {
     marginBottom: theme.spacing(),
   },
