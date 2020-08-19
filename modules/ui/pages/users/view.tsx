@@ -243,8 +243,6 @@ export const UserViewPage: React.FC<{}> = props => {
     currentStatusLabel = t("No invite sent");
   }
 
-  console.log(user?.mobileDevices);
-
   const mobileDeviceColumns: Column<
     Pick<
       UserDevice,
