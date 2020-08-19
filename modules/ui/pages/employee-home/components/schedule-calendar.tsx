@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { isToday, addDays } from "date-fns";
 import { useEmployeeScheduleDates } from "helpers/absence/use-employee-schedule-dates";
 import { makeFlagClassKey } from "ui/components/employee/helpers";
+import { CalendarLegend } from "./calendar-legend";
 import clsx from "clsx";
 
 type Props = {
@@ -53,9 +54,7 @@ export const ScheduleCalendar: React.FC<Props> = props => {
             className,
           },
           timeClass:
-            calendarDate.absences.length > 0
-              ? classes.absenceToken
-              : undefined
+            calendarDate.absences.length > 0 ? classes.absenceToken : undefined,
         };
       }),
     [classes, employeeScheduleDates]
@@ -65,6 +64,7 @@ export const ScheduleCalendar: React.FC<Props> = props => {
     <Section className={classes.container}>
       <SectionHeader title={t("Upcoming schedule")} />
       <CustomCalendar month={startDate} customDates={styledDates} />
+      <CalendarLegend />
     </Section>
   );
 };

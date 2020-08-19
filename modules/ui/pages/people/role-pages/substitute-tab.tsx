@@ -25,7 +25,6 @@ import { usePayCodes } from "reference-data/pay-codes";
 import { useMemo } from "react";
 import { SectionHeader } from "ui/components/section-header";
 import { Section } from "ui/components/section";
-import { Can } from "ui/components/auth/can";
 import { useTranslation } from "react-i18next";
 import { Comments } from "../components/comments/index";
 import { useHistory } from "react-router";
@@ -131,8 +130,8 @@ export const SubstituteTab: React.FC<Props> = props => {
     await getSubstitute.refetch();
   };
 
-  const refetchQuery = () => {
-    getSubstitute.refetch();
+  const refetchQuery = async () => {
+    await getSubstitute.refetch();
   };
 
   return (
@@ -174,6 +173,8 @@ export const SubstituteTab: React.FC<Props> = props => {
         qualifiedPositionTypes={substitute.qualifiedPositionTypes}
       />
       <SubSchoolPreferences
+        editing={props.editing}
+        editable={canEditThisSub}
         subSchoolPreferences={
           compact(orgUser.substitute.substituteLocationPreferences) ?? []
         }
