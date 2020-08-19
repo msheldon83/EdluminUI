@@ -1,0 +1,13 @@
+query VerifyEmailAndExternalId(
+  $emailAddress: String!
+  $orgId: ID!
+  $id: ID
+  $externalId: String!
+) {
+  user {
+    verifyEmailAddress(emailAddress: $emailAddress)
+  }
+  orgUser {
+    verifyExternalId(orgId: $orgId, id: $id, externalId: $externalId)
+  }
+}

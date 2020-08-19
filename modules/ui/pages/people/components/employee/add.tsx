@@ -153,6 +153,7 @@ export const EmployeeAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
+            skipMailGunValidation: true,
           });
           setStep(steps[1].stepNumber);
         }}
