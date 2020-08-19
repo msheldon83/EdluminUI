@@ -230,7 +230,7 @@ export const VacancyUI: React.FC<Props> = props => {
   const [
     vacancySummaryDetailsToAssign,
     setVacancySummaryDetailsToAssign,
-  ] = React.useState<VacancySummaryDetail[]>([]);
+  ] = React.useState<VacancySummaryDetail[] | undefined>(undefined);
 
   const initialReasonIds = [
     ...new Set(initialFormValues.details.map(x => x.vacancyReasonId)),
@@ -462,6 +462,10 @@ export const VacancyUI: React.FC<Props> = props => {
     );
     return summaryDetails;
   }, [vacancy]);
+
+  const unfilledVacancySummaryDetails = useMemo(() => {
+    return vacancySummaryDetails.filter(vsd => !vsd.assignment);
+  }, [vacancySummaryDetails]);
 
   React.useEffect(() => {
     const container = document.getElementById("main-container");
@@ -937,16 +941,22 @@ export const VacancyUI: React.FC<Props> = props => {
                     (pt: any) => vacancy.positionTypeId === pt.id
                   )?.name
                 }
-                vacancySummaryDetails={vacancySummaryDetailsToAssign}
+                vacancySummaryDetails={
+                  vacancySummaryDetailsToAssign ??
+                  unfilledVacancySummaryDetails ??
+                  []
+                }
                 vacancy={
                   vacancyExists
                     ? undefined
                     : buildVacancyCreateInput({
                         ...vacancy,
                         details: vacancy.details.filter(d =>
-                          vacancySummaryDetailsToAssign.find(
-                            vsd => vsd.vacancyDetailId === d.id
-                          )
+                          (
+                            vacancySummaryDetailsToAssign ??
+                            unfilledVacancySummaryDetails ??
+                            []
+                          ).find(vsd => vsd.vacancyDetailId === d.id)
                         ),
                       })
                 }
@@ -954,14 +964,18 @@ export const VacancyUI: React.FC<Props> = props => {
                 existingVacancy={vacancyExists}
                 vacancyDetailIdsToAssign={
                   vacancyExists
-                    ? vacancySummaryDetailsToAssign.map(
-                        vsd => vsd.vacancyDetailId
-                      )
+                    ? (
+                        vacancySummaryDetailsToAssign ??
+                        unfilledVacancySummaryDetails ??
+                        []
+                      ).map(vsd => vsd.vacancyDetailId)
                     : undefined
                 }
                 employeeToReplace={
-                  vacancySummaryDetailsToAssign[0]?.assignment?.employee
-                    ?.firstName ?? undefined
+                  vacancySummaryDetailsToAssign
+                    ? vacancySummaryDetailsToAssign[0]?.assignment?.employee
+                        ?.firstName ?? undefined
+                    : undefined
                 }
                 selectButtonText={vacancyExists ? t("Assign") : undefined}
                 isApprovedForSubJobSearch={isApprovedForSubJobSearch}
