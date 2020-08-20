@@ -92,14 +92,12 @@ export const Calendars: React.FC<Props> = props => {
     () => contracts.map(c => ({ label: c.name, value: c.id })),
     [contracts]
   );
-  contractOptions.unshift({ label: t("(All)"), value: "0" });
 
   const locations = useLocations();
   const locationOptions: OptionType[] = React.useMemo(
     () => locations.map(l => ({ label: l.name, value: l.id })),
     [locations]
   );
-  locationOptions.unshift({ label: t("(All)"), value: "0" });
 
   const today = useMemo(() => {
     const d = new Date();
