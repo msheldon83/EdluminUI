@@ -24,8 +24,6 @@ export const StickyHeader: React.FC<Props> = props => {
     return <></>;
   }
 
-  console.log(props.calendarChange);
-
   const handleOnEdit = (calendarChange: CalendarEvent, date?: Date) => {
     if (calendarChange.startDate !== calendarChange.endDate) {
       setEditDialogOpen(true);
