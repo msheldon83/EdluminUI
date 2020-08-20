@@ -130,6 +130,7 @@ export const SubstituteAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
+            skipMailGunValidation: true,
           });
           goToNextStep();
         }}

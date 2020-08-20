@@ -635,6 +635,7 @@ input AdministratorInput {
   phoneNumber: String
   inviteImmediately: Boolean
   removeFutureAssignmentsOnInactivate: Boolean
+  skipMailGunValidation: Boolean
   isSuperUser: Boolean
   accessControl: AccessControInput
   relatedOrgIds: [ID]
@@ -2423,6 +2424,7 @@ input EmployeeInput {
   phoneNumber: String
   inviteImmediately: Boolean
   removeFutureAssignmentsOnInactivate: Boolean
+  skipMailGunValidation: Boolean
   position: PositionInput
   substitutePreferences: SubstitutePreferencesInput
   timeOffBalances: [TimeOffBalancesInput]
@@ -3942,7 +3944,7 @@ type OrgUserQueries {
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String, role: [OrgUserRole], active: Boolean, endorsements: [ID], locations: [ID], positionTypes: [ID], shadowOrgIds: [ID], invitationStatus: InvitationStatus): PagedOrgUser
   pagedSubsForPreferences(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], name: String): PagedOrgUser
   lastLoginById(id: ID!): OrgUserLastLogin
-  verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean
+  verifyExternalId(id: ID, orgId: ID!, externalId: String!): Boolean!
   suggestedAdminsForApproverGroups(locationId: ID, orgId: ID!): [OrgUser]
   substituteLocationPreferences(id: ID!, orgId: ID): [EmployeeLocationPreference]
 }
@@ -6294,6 +6296,7 @@ input SubstituteInput {
   phoneNumber: String
   inviteImmediately: Boolean
   removeFutureAssignmentsOnInactivate: Boolean
+  skipMailGunValidation: Boolean
   payCodeId: ID
   attributes: [SubstituteAttributeInput]
   relatedOrgs: [SubstituteRelatedOrgInput]
@@ -6491,6 +6494,7 @@ input UserCreateInput {
   timeZoneId: TimeZone
   cultureId: Culture
   preferences: UserPreferencesInput
+  skipMailGunValidation: Boolean
 }
 
 type UserDevice implements ModelObjectInterface {
@@ -6512,6 +6516,7 @@ input UserLoginEmailChangeInput {
   id: ID!
   rowVersion: String!
   loginEmail: String!
+  skipMailGunValidation: Boolean
 }
 
 type UserMutations {
@@ -6546,6 +6551,7 @@ type UserQueries {
   byId(id: ID!): User
   paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedUser
   pagedUserUnavailableTime(limit: Int, offset: Int, sortBy: [SortDetailsInput], userId: ID, fromDate: DateTime!, toDate: Date!): PagedUserUnavailableTime
+  verifyEmailAddress(emailAddress: String!): Boolean!
 }
 
 type UserUnavailableTime implements ModelObjectInterface {
