@@ -1,8 +1,8 @@
 import { Grid } from "@material-ui/core";
-import { Formik } from "formik";
+import { Formik, FormikValues } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
 import { TextField as FormTextField } from "ui/components/form/text-field";
@@ -45,6 +45,16 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
   const classes = useStyles();
+
+  // See the larger comment: since we are triggering the validation query from the form submit function
+  // we need to then call the submit again after successfully verifying the externalId and email.
+  // This gets the form submit so we can call it from outside formik.
+  const formRef = useRef<FormikValues>();
+  const handleSubmit = () => {
+    if (formRef.current) {
+      formRef.current.handleSubmit();
+    }
+  };
 
   // ---------------------------------------------------------------------
   // There is some goofy looking code in here.  Essentially what we are doing
@@ -103,6 +113,13 @@ export const AddBasicInfo: React.FC<Props> = props => {
       } else {
         setExternalIdValidationMessage(t("Identifier is not unique"));
       }
+
+      if (
+        verifyEmailAndExternalId.data.orgUser.verifyExternalId &&
+        verifyEmailAndExternalId.data.user.verifyEmailAddress
+      ) {
+        handleSubmit();
+      }
     }
   }, [openSnackbar, t, verifyEmailAndExternalId, skipVerify]);
 
@@ -149,6 +166,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
           setSkipVerify(false);
         }
       }}
+      innerRef={formRef}
     >
       {({ handleSubmit, handleChange, submitForm, values, errors }) => (
         <form onSubmit={handleSubmit}>
