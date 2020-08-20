@@ -158,7 +158,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
           .nullable()
           .required(t("Email is required")),
       })}
-      onSubmit={(data: any) => {
+      onSubmit={async (data: any) => {
         if (
           !externalIdValidationMessage &&
           (emailVerified || showEmailWarning)
