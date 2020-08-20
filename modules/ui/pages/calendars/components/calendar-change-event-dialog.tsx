@@ -5,6 +5,8 @@ import {
   DialogTitle,
   Typography,
   Divider,
+  FormControlLabel,
+  Checkbox,
   Grid,
   Button,
   Tooltip,
@@ -15,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-reasons";
-import { useOrganizationId } from "core/org-context";
+import clsx from "clsx";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
 import { compact } from "lodash-es";
@@ -75,29 +77,25 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           contractIds: [],
         } as CalendarEvent);
 
+  const [contractIds, setContractIds] = React.useState<string[]>([]);
+  const [locationIds, setLocationIds] = React.useState<string[]>([]);
+
   const [calendarChangeId, setCalendarChangeId] = useState<
     string | undefined | null
   >(calendarChange.id);
 
-  const [contractIds, setContractIds] = React.useState<string[]>(
-    compact(calendarChange.contractIds) ?? []
-  );
-  const [locationIds, setLocationIds] = React.useState<string[]>(
-    compact(calendarChange.locationIds) ?? []
-  );
-
   const [submittingData, setSubmittingData] = React.useState(false);
   const [summaryText, setSummaryTest] = React.useState<string>("");
   const [affectsAllLocations, setAffectsAllLocations] = useState<boolean>(
-    calendarChange.affectsAllLocations ?? false
+    false
   );
   const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(
-    calendarChange.affectsAllContracts ?? false
+    false
   );
 
+  //Set state values only when we have a real calendarChange
   useEffect(() => {
     if (calendarChangeId !== calendarChange.id) {
-      console.log(calendarChange);
       setContractIds(compact(calendarChange.contractIds) ?? []);
       setLocationIds(compact(calendarChange.locationIds) ?? []);
       setAffectsAllLocations(calendarChange.affectsAllLocations ?? false);
@@ -105,8 +103,6 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
       setCalendarChangeId(calendarChange.id);
     }
   }, [calendarChange.id]);
-
-  console.log(contractIds);
 
   const clearState = () => {
     setContractIds([]);
@@ -182,18 +178,20 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           toDate: format(parseISO(calendarChange.endDate!), "MMMM d, yyyy"),
           fromDate: format(parseISO(calendarChange.startDate!), "MMMM d, yyyy"),
           notes: calendarChange.description ?? "",
-          contracts: calendarChange.contractIds,
+          contracts:
+            calendarChange.changedContracts &&
+            calendarChange.changedContracts?.map(c => c?.id),
           locations: calendarChange.locationIds,
-          applyToAllContracts: affectsAllContracts,
-          applyToAllLocations: affectsAllLocations,
+          affectsAllContracts: affectsAllContracts,
+          affectsAllLocations: affectsAllLocations,
         }}
         onReset={(values, formProps) => {
           formProps.setFieldValue("toDate", today);
           formProps.setFieldValue("fromDate", today);
           formProps.setFieldValue("contracts", []);
           formProps.setFieldValue("locations", []);
-          formProps.setFieldValue("applyToAllContracts", true);
-          formProps.setFieldValue("applyToAllLocations", false);
+          formProps.setFieldValue("affectsAllContracts", true);
+          formProps.setFieldValue("affectsAllLocations", false);
           formProps.setFieldValue("changeReason", changeReasonOptions[0].value);
           formProps.setFieldValue("notes", "");
           props.onClose();
@@ -212,8 +210,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                   : changeReasonOptions[0]?.value,
                 contractIds: data.contracts,
                 locationIds: data.locations,
-                affectsAllContracts: affectsAllContracts,
-                affectsAllLocations: affectsAllLocations,
+                affectsAllContracts: data.affectsAllContracts,
+                affectsAllLocations: data.affectsAllLocations,
               };
               resultSucceeded = await props.onSplit(
                 calendarChange.id ?? "0",
@@ -286,7 +284,6 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     xs={12}
                   >
                     <Grid item xs={3}>
-                      {console.log(values)}
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
@@ -400,6 +397,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         <SelectNew
                           name={"contracts"}
                           className={classes.selectorColor}
+                          disabled={affectsAllContracts}
                           label={t("Contracts")}
                           value={
                             contractOptions.filter(
@@ -412,22 +410,38 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                             const ids = e.map((v: OptionType) =>
                               v.value.toString()
                             );
-                            if (ids.includes("0")) {
-                              setAffectsAllContracts(true);
-                              setFieldValue("applyToAllContracts", true);
-                              setFieldValue("contracts", []);
-                              setContractIds([]);
-                            } else {
-                              setContractIds(ids);
-                              setFieldValue("contracts", ids);
-                              setAffectsAllContracts(false);
-                              setFieldValue("applyToAllContracts", false);
-                            }
+                            setContractIds(ids);
+                            setFieldValue("contracts", ids);
                           }}
                           options={contractOptions}
                           multiple={true}
                           placeholder={t("Search for Contracts")}
                           fixedListBox={true}
+                        />
+                        <FormControlLabel
+                          checked={affectsAllContracts}
+                          className={clsx(
+                            classes.selectorColor,
+                            classes.checkBoxAlignment
+                          )}
+                          control={
+                            <Checkbox
+                              onChange={e => {
+                                setAffectsAllContracts(!affectsAllContracts);
+                                setFieldValue(
+                                  "affectsAllContracts",
+                                  !values.affectsAllContracts
+                                );
+
+                                if (!affectsAllContracts) {
+                                  setFieldValue("contracts", []);
+                                  setContractIds([]);
+                                }
+                              }}
+                              color="primary"
+                            />
+                          }
+                          label={t("All")}
                         />
                       </div>
                     </Grid>
@@ -436,6 +450,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         <SelectNew
                           name={"locations"}
                           className={classes.selectorColor}
+                          disabled={values.affectsAllLocations ?? false}
                           label={t("Schools")}
                           value={
                             locationOptions.filter(
@@ -448,23 +463,39 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                             const ids = e.map((v: OptionType) =>
                               v.value.toString()
                             );
-
-                            if (ids.includes("0")) {
-                              setFieldValue("applyToAllLocations", true);
-                              setFieldValue("locations", []);
-                              setAffectsAllLocations(true);
-                              setLocationIds([]);
-                            } else {
-                              setFieldValue("applyToAllLocations", false);
-                              setFieldValue("locations", ids);
-                              setAffectsAllLocations(false);
-                              setLocationIds(ids);
-                            }
+                            setFieldValue("locations", ids);
+                            setLocationIds(ids);
                           }}
                           options={locationOptions}
                           multiple={true}
                           placeholder={t("Search for Schools")}
                           fixedListBox={true}
+                        />
+                        <FormControlLabel
+                          checked={affectsAllLocations}
+                          className={clsx(
+                            classes.selectorColor,
+                            classes.checkBoxAlignment
+                          )}
+                          control={
+                            <Checkbox
+                              onChange={e => {
+                                setAffectsAllLocations(!affectsAllLocations);
+
+                                setFieldValue(
+                                  "affectsAllLocations",
+                                  !values.affectsAllLocations
+                                );
+
+                                if (!affectsAllLocations) {
+                                  setFieldValue("locations", []);
+                                  setLocationIds([]);
+                                }
+                              }}
+                              color="primary"
+                            />
+                          }
+                          label={t("All")}
                         />
                       </div>
                     </Grid>
@@ -534,6 +565,7 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     top: "-10px",
     right: "-10px",
+    zIndex: 1000,
   },
   marginLeft: {
     marginLeft: "20px",
