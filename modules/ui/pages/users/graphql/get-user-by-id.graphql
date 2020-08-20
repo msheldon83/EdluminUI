@@ -21,6 +21,12 @@ query GetUserById($id: ID!) {
       phoneIsValidForSms
       stopSmsUntilUtc
       suspendSmsUntilUtc
+      mobileDevices {
+        id
+        mobileDeviceTypeId
+        deviceId
+        softwareVersion
+      }
       allOrgUsers {
         id
         firstName

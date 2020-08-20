@@ -4,7 +4,6 @@ import {
   Typography,
   IconButton,
   ClickAwayListener,
-  Chip,
 } from "@material-ui/core";
 import InputBase from "@material-ui/core/InputBase";
 import { fade } from "@material-ui/core/styles";
@@ -26,10 +25,7 @@ import {
 } from "ui/routes/absence";
 import { VacancyViewRoute } from "ui/routes/vacancy";
 import { useHistory } from "react-router";
-import { Can } from "ui/components/auth/can";
-import { PermissionEnum } from "graphql/server-types.gen";
 import { GetGlobalSearchResults } from "../graphql/global-search.gen";
-import { date } from "@storybook/addon-knobs";
 import { LocationViewRoute } from "ui/routes/locations";
 import { PersonViewRoute } from "ui/routes/people";
 import { formatPhoneNumber } from "../helpers/index";
@@ -220,6 +216,11 @@ export const SearchBar: React.FC<Props> = props => {
             {headingArr.map(a => {
               return a;
             })}
+            {orgIds === undefined && (
+              <Typography className={classes.chip} variant="caption">
+                {result.orgName}
+              </Typography>
+            )}
           </div>
           <div>
             <span className={classes.label}>{t("on")}</span>
@@ -261,6 +262,11 @@ export const SearchBar: React.FC<Props> = props => {
             {nameArray.map(a => {
               return a;
             })}
+            {orgIds === undefined && (
+              <Typography className={classes.chip} variant="caption">
+                {result.orgName}
+              </Typography>
+            )}
           </div>
           <div>
             {phoneArray.length > 0 && (
@@ -329,6 +335,11 @@ export const SearchBar: React.FC<Props> = props => {
             {attributes.isSub === "1" && (
               <Typography className={classes.chip} variant="caption">
                 {t("Substitute")}
+              </Typography>
+            )}
+            {orgIds === undefined && (
+              <Typography className={classes.chip} variant="caption">
+                {result.orgName}
               </Typography>
             )}
           </div>

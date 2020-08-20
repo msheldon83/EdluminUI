@@ -803,6 +803,16 @@ export const AbsenceUI: React.FC<Props> = props => {
                       // We're not actually leaving the route
                       // OR the Absence has just been created and we're on the Confirmation screen
                       // OR we don't have any pending changes
+
+                      if (step === "confirmation") {
+                        // Reset the form and state when navigating away from the confirmation view
+                        resetForm();
+                        dispatch({
+                          action: "resetToInitialState",
+                          initialState: initialAbsenceState(),
+                        });
+                      }
+
                       return true;
                     }
 
