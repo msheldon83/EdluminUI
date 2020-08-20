@@ -111,6 +111,7 @@ export const AdminAddPage: React.FC<{}> = props => {
             email: email,
             lastName: lastName,
             externalId: externalId,
+            skipMailGunValidation: true,
           });
           setStep(steps[1].stepNumber);
         }}

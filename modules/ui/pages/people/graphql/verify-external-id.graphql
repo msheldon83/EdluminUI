@@ -1,5 +1,0 @@
-query VerifyExternalId($orgId: ID!, $id: ID, $externalId: String!) {
-  orgUser {
-    verifyExternalId(orgId: $orgId, id: $id, externalId: $externalId)
-  }
-}
