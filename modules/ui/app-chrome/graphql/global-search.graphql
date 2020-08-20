@@ -4,6 +4,7 @@ query GetGlobalSearchResults($orgIds: [ID], $searchTerm: String!) {
       ownerId
       objectTypeId
       orgId
+      orgName
       createdUtc
       objectJson
     }

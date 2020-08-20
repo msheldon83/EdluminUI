@@ -1,6 +1,7 @@
 query GetOrganizationContactsByUserId($id: ID!) {
   user {
     byId(id: $id) {
+      id
       orgUsers {
         id
         isEmployee
