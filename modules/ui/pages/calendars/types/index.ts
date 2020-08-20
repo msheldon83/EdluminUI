@@ -12,6 +12,7 @@ export type CalendarEvent = {
   affectsAllLocations?: Maybe<boolean>;
   changedContracts?: Maybe<Array<Maybe<Contract>>>;
   locationIds?: Maybe<Array<Maybe<string>>>;
+  contractIds?: Maybe<Array<Maybe<string>>>;
   calendarChangeReason?: Maybe<CalendarChangeReason>;
 };
 
