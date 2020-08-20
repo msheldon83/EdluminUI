@@ -75,6 +75,10 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           contractIds: [],
         } as CalendarEvent);
 
+  const [calendarChangeId, setCalendarChangeId] = useState<
+    string | undefined | null
+  >(calendarChange.id);
+
   const [contractIds, setContractIds] = React.useState<string[]>(
     compact(calendarChange.contractIds) ?? []
   );
@@ -90,6 +94,19 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(
     calendarChange.affectsAllContracts ?? false
   );
+
+  useEffect(() => {
+    if (calendarChangeId !== calendarChange.id) {
+      console.log(calendarChange);
+      setContractIds(compact(calendarChange.contractIds) ?? []);
+      setLocationIds(compact(calendarChange.locationIds) ?? []);
+      setAffectsAllLocations(calendarChange.affectsAllLocations ?? false);
+      setAffectsAllContracts(calendarChange.affectsAllContracts ?? false);
+      setCalendarChangeId(calendarChange.id);
+    }
+  }, [calendarChange.id]);
+
+  console.log(contractIds);
 
   const clearState = () => {
     setContractIds([]);
@@ -269,6 +286,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     xs={12}
                   >
                     <Grid item xs={3}>
+                      {console.log(values)}
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
