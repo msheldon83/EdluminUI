@@ -1,5 +1,5 @@
 import { Grid } from "@material-ui/core";
-import { Formik, FormikValues } from "formik";
+import { Formik, FormikProps } from "formik";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
@@ -14,18 +14,11 @@ import { Input } from "ui/components/form/input";
 import { useQueryBundle } from "graphql/hooks";
 import { VerifyEmailAndExternalId } from "../graphql/verify-email-and-externalid.gen";
 import { useSnackbar } from "hooks/use-snackbar";
-import { ShowGenericErrors } from "ui/components/error-helpers";
 import { EmailWarningDialog } from "./email-warning-dialog";
 
 type Props = {
   orgId: string;
-  orgUser: {
-    firstName?: string | null | undefined;
-    middleName?: string | null | undefined;
-    lastName?: string | null | undefined;
-    externalId?: string | null | undefined;
-    email?: string | null | undefined;
-  };
+  orgUser: FormValues;
   onSubmit: (
     firstName: string | null | undefined,
     lastName: string | null | undefined,
@@ -40,6 +33,14 @@ type Props = {
   ) => void;
 };
 
+type FormValues = {
+  firstName?: string | null | undefined;
+  middleName?: string | null | undefined;
+  lastName?: string | null | undefined;
+  externalId?: string | null | undefined;
+  email?: string | null | undefined;
+};
+
 export const AddBasicInfo: React.FC<Props> = props => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
@@ -49,11 +50,9 @@ export const AddBasicInfo: React.FC<Props> = props => {
   // See the larger comment: since we are triggering the validation query from the form submit function
   // we need to then call the submit again after successfully verifying the externalId and email.
   // This gets the form submit so we can call it from outside formik.
-  const formRef = useRef<FormikValues>();
-  const handleSubmit = () => {
-    if (formRef.current) {
-      formRef.current.handleSubmit();
-    }
+  const formRef = useRef<FormikProps<FormValues>>(null);
+  const doSubmit = () => {
+    formRef.current?.handleSubmit();
   };
 
   // ---------------------------------------------------------------------
@@ -77,6 +76,16 @@ export const AddBasicInfo: React.FC<Props> = props => {
   const [showEmailWarning, setShowEmailWarning] = useState(false);
   const [externalId, setExternalId] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
+
+  useEffect(() => {
+    if (props.orgUser.email && props.orgUser.email !== emailAddress) {
+      setEmailAddress(props.orgUser.email);
+    }
+    if (props.orgUser.externalId && props.orgUser.externalId !== externalId) {
+      setExternalId(props.orgUser.externalId);
+    }
+  }, [props.orgUser.email, props.orgUser.externalId]);
+
   const [
     externalIdValidationMessage,
     setExternalIdValidationMessage,
@@ -118,7 +127,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
         verifyEmailAndExternalId.data.orgUser.verifyExternalId &&
         verifyEmailAndExternalId.data.user.verifyEmailAddress
       ) {
-        handleSubmit();
+        doSubmit();
       }
     }
   }, [openSnackbar, t, verifyEmailAndExternalId, skipVerify]);
@@ -149,7 +158,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
           .nullable()
           .required(t("Email is required")),
       })}
-      onSubmit={async (data: any) => {
+      onSubmit={(data: any) => {
         if (
           !externalIdValidationMessage &&
           (emailVerified || showEmailWarning)
