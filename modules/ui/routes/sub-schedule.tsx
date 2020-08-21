@@ -4,16 +4,16 @@ import { defineSubRoute } from "./definition";
 
 export const SubScheduleRoute = defineSubRoute(
   SubstituteChromeRoute,
-  "/schedule"
+  "/schedule/view"
 );
 
 export const SubScheduleListViewRoute = defineSubRoute(
   SubScheduleRoute,
-  "/list-view"
+  "/list"
 );
 export const SubScheduleCalendarViewRoute = defineSubRoute(
   SubScheduleRoute,
-  "/calendar-view"
+  "/calendar"
 );
 
 export const SubScheduleLoader = asyncComponent({
@@ -26,8 +26,8 @@ export const SubScheduleLoader = asyncComponent({
 });
 
 export const SubAvailabilityRoute = defineSubRoute(
-  SubScheduleRoute,
-  "/availability"
+  SubstituteChromeRoute,
+  "/schedule/availability"
 );
 
 export const SubAvailabilityLoader = asyncComponent({
