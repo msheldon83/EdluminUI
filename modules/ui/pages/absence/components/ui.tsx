@@ -21,9 +21,7 @@ import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
 import { AbsenceFormData, AbsenceDetail, VacancyDetail } from "../types";
 import { Formik } from "formik";
-import {
-  allAccountingCodeValuesAreEqual
-} from "helpers/accounting-code-allocations";
+import { allAccountingCodeValuesAreEqual } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
 import { makeStyles, Grid, Typography, Button } from "@material-ui/core";
@@ -44,13 +42,7 @@ import {
   payCodeIdsAreTheSame,
 } from "ui/components/absence/helpers";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import {
-  some,
-  compact,
-  flatMap,
-  isEqual,
-  differenceWith,
-} from "lodash-es";
+import { some, compact, flatMap, isEqual, differenceWith } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -74,11 +66,16 @@ import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
 import { AbsenceFormValidationSchema } from "../validation";
 import { DeletedData } from "ui/components/deleted-data";
-import { findMatchingAssignmentsForDetails, buildAbsenceInput, buildFormData } from "../helpers";
+import {
+  findMatchingAssignmentsForDetails,
+  buildAbsenceInput,
+  buildFormData,
+} from "../helpers";
 
 type Props = {
   organizationId: string;
   actingAsEmployee: boolean;
+  holdForManualFill?: boolean;
   employee: {
     id: string;
     firstName: string;
@@ -128,6 +125,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     refetchAbsence,
     absence,
     unfilledVacancySummaryDetails,
+    holdForManualFill,
   } = props;
 
   const [
@@ -148,6 +146,8 @@ export const AbsenceUI: React.FC<Props> = props => {
     vacancySummaryDetailsToAssign,
     setVacancySummaryDetailsToAssign,
   ] = React.useState<VacancySummaryDetail[] | undefined>(undefined);
+
+  const [holdManualFill, setHoldManualFill] = React.useState<boolean>(false);
 
   const [state, dispatch] = React.useReducer(
     absenceReducer,
@@ -252,6 +252,8 @@ export const AbsenceUI: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
+
+  const onHoldManualFill = () => {};
 
   const onCancelAssignment = React.useCallback(
     async (vacancySummaryDetails: VacancySummaryDetail[]): Promise<boolean> => {
@@ -762,7 +764,10 @@ export const AbsenceUI: React.FC<Props> = props => {
           const formIsDirty =
             dirty ||
             (isCreate && state.absenceDates.length > 0) ||
-            !vacancyDetailsAreEqual(state.initialVacancyDetails ?? [], vacancyDetails ?? []);
+            !vacancyDetailsAreEqual(
+              state.initialVacancyDetails ?? [],
+              vacancyDetails ?? []
+            );
 
           // The object we send to the server when getting projected vacancies
           // or projected absence usage is not the exact same as what we would send
@@ -922,6 +927,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                           <SubstituteDetails
                             absenceId={state.absenceId}
                             organizationId={organizationId}
+                            holdForManualFill={holdForManualFill}
                             actingAsEmployee={actingAsEmployee}
                             needsReplacement={
                               position?.needsReplacement ?? NeedsReplacement.No
@@ -1194,18 +1200,21 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const vacancyDetailsAreEqual = (details: VacancyDetail[], detailsToCompare: VacancyDetail[]) => {
+const vacancyDetailsAreEqual = (
+  details: VacancyDetail[],
+  detailsToCompare: VacancyDetail[]
+) => {
   const detailsWithoutIds = details.map(d => {
     return {
       ...d,
-      vacancyDetailId: undefined
-    }
+      vacancyDetailId: undefined,
+    };
   });
   const detailsToCompareWithoutIds = detailsToCompare.map(d => {
     return {
       ...d,
-      vacancyDetailId: undefined
-    }
+      vacancyDetailId: undefined,
+    };
   });
   return isEqual(detailsWithoutIds, detailsToCompareWithoutIds);
-}
+};

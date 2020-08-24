@@ -39,6 +39,7 @@ export const EditAbsence: React.FC<Props> = props => {
   const { openSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const { actingAsEmployee = false } = props;
+  const [holdManualFill, setHoldManualFill] = React.useState<boolean>(false);
 
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = React.useState(false);
   const [saveErrorsInfo, setSaveErrorsInfo] = React.useState<
@@ -163,6 +164,8 @@ export const EditAbsence: React.FC<Props> = props => {
     return allVacancySummaryDetails.filter(vsd => !vsd.assignment);
   }, [absence, assignmentsByDate]);
 
+  const holdForManualFill = absence?.vacancies?.[0]?.holdForManualFill ?? false;
+
   const initialFormData = React.useMemo(() => {
     if (!absence) {
       return null;
@@ -215,6 +218,7 @@ export const EditAbsence: React.FC<Props> = props => {
       <AbsenceUI
         organizationId={organizationId}
         actingAsEmployee={actingAsEmployee}
+        holdForManualFill={holdForManualFill}
         employee={{
           id: employee.id,
           firstName: employee.firstName,

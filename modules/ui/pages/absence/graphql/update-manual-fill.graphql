@@ -1,0 +1,5 @@
+mutation UpdateManualFill($vacancyManualFillInput: VacancyManualFillInput!) {
+  vacancy {
+    vacancyManualFill(vacancyManualFillInput: $vacancyManualFillInput)
+  }
+}

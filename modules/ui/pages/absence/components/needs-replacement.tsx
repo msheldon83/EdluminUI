@@ -11,8 +11,10 @@ import {
 type Props = {
   actingAsEmployee: boolean;
   needsReplacement: NeedsReplacement;
+  holdForManualFill?: boolean;
   value: boolean;
-  onChange: (checked: boolean) => void;
+  onChangeManualFill?: (checked: boolean) => void;
+  onChangeRequiresSub: (checked: boolean) => void;
   disabled?: boolean;
 };
 
@@ -23,8 +25,10 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
     actingAsEmployee,
     needsReplacement,
     value,
-    onChange,
+    onChangeRequiresSub,
     disabled,
+    holdForManualFill,
+    onChangeManualFill,
   } = props;
 
   return (
@@ -32,10 +36,11 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
       {!actingAsEmployee || needsReplacement === NeedsReplacement.Sometimes ? (
         <FormControlLabel
           label={t("Requires a substitute")}
+          className={classes.displayInline}
           control={
             <Checkbox
               checked={value}
-              onChange={e => onChange(e.target.checked)}
+              onChange={e => onChangeRequiresSub(e.target.checked)}
               color="primary"
               disabled={disabled}
             />
@@ -48,6 +53,22 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
             : t("No substitute required")}
         </Typography>
       )}
+      {holdForManualFill !== undefined && (
+        <FormControlLabel
+          label={t("Fill manually")}
+          className={classes.displayInline}
+          control={
+            <Checkbox
+              checked={holdForManualFill}
+              onChange={e =>
+                onChangeManualFill && onChangeManualFill(e.target.checked)
+              }
+              color="primary"
+              disabled={disabled}
+            />
+          }
+        />
+      )}
     </>
   );
 };
@@ -55,5 +76,8 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
 const useStyles = makeStyles(() => ({
   substituteRequiredText: {
     fontStyle: "italic",
+  },
+  displayInline: {
+    display: "inline-block",
   },
 }));

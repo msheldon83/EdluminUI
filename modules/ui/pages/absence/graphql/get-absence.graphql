@@ -147,6 +147,7 @@ query GetAbsence($id: ID!) {
         notesToReplacement
         isApprovedForSubJobSearch
         positionId
+        holdForManualFill
         position {
           id
           positionTypeId

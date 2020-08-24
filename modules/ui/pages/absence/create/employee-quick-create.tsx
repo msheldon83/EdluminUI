@@ -212,7 +212,7 @@ export const EmployeeQuickAbsenceCreate: React.FC<Props> = props => {
                     defaultReplacementNeeded ?? NeedsReplacement.No
                   }
                   value={values.needsReplacement}
-                  onChange={checked =>
+                  onChangeRequiresSub={checked =>
                     setFieldValue("needsReplacement", checked)
                   }
                 />

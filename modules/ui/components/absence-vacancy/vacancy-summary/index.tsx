@@ -9,11 +9,13 @@ import { uniqWith } from "lodash-es";
 import { NotReleasedBanner } from "ui/components/absence-vacancy/approval-state/not-released-banner";
 import { FilteredAssignmentButton } from "./filtered-assignment-button";
 import { canAssignSub } from "helpers/permissions";
+import { ManualFillBanner } from "./manual-fill-banner";
 
 type Props = {
   vacancySummaryDetails: VacancySummaryDetail[];
   assignAction?: "assign" | "pre-arrange";
   showPayCodes: boolean;
+  holdForManualFill?: boolean;
   showAccountingCodes: boolean;
   notesForSubstitute?: string;
   setNotesForSubstitute?: (notes: string) => void;
@@ -56,6 +58,7 @@ export const VacancySummary: React.FC<Props> = props => {
     allowRemoval = false,
     isApprovedForSubJobSearch,
     assignAction = "assign",
+    holdForManualFill,
   } = props;
 
   const assignmentGroups = useMemo(() => {
@@ -109,6 +112,11 @@ export const VacancySummary: React.FC<Props> = props => {
           </div>
         )}
         {!isApprovedForSubJobSearch && (
+          <NotReleasedBanner isNormalVacancy={!isAbsence} />
+        )}
+
+        {holdForManualFill && <ManualFillBanner />}
+        {!isApprovedForSubJobSearch && !holdForManualFill && (
           <NotReleasedBanner isNormalVacancy={!isAbsence} />
         )}
         <div className={classes.assignmentGroupsContainer}>

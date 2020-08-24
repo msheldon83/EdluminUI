@@ -407,6 +407,7 @@ export const convertVacancyToVacancySummaryDetails = (
       endTimeLocal: parseISO(vd.endTimeLocal),
       locationId: vd.locationId,
       locationName: vd.location?.name ?? "",
+      holdForManualFill: vacancy.holdForManualFill,
       assignment: assignmentOnDate
         ? {
             id: assignmentOnDate.assignmentId,
