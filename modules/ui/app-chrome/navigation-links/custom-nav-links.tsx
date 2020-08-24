@@ -12,6 +12,7 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import SwapCallsIcon from "@material-ui/icons/SwapCalls";
 import TimelineIcon from "@material-ui/icons/Timeline";
 import StorageIcon from "@material-ui/icons/Storage";
+import ScheduleIcon from "@material-ui/icons/Schedule";
 import {
   canViewAbsVacNavLink,
   canViewAnalyticsReportsNavLink,
@@ -268,6 +269,17 @@ export const MyScheduleNavLink: React.FC<Props> = props => {
   );
 };
 
+export const ManageAvailabilityNavLink: React.FC<Props> = props => {
+  const { t } = useTranslation();
+  return (
+    <NavLink
+      title={t("Manage Availability")}
+      icon={<ScheduleIcon />}
+      {...props}
+    />
+  );
+};
+
 export const PTOBalancesNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
@@ -294,10 +306,14 @@ export const EmpSubPreferencesNavLink: React.FC<Props> = props => {
   );
 };
 
-export const SubPreferencesNavLink: React.FC<Props> = props => {
+export const SubSchoolPreferencesNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   return (
-    <NavLink title={t("Sub Preferences")} icon={<SettingsIcon />} {...props} />
+    <NavLink
+      title={t("School Preferences")}
+      icon={<SettingsIcon />}
+      {...props}
+    />
   );
 };
 
