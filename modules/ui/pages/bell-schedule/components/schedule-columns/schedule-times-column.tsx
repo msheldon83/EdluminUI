@@ -48,7 +48,6 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
         const startTimeError = GetTouched(props.touched, "startTime", i)
           ? GetError(props.errors, "startTime", i)
           : undefined;
-        console.log(props.touched);
         const endTimeError = GetTouched(props.touched, "endTime", i)
           ? GetError(props.errors, "endTime", i)
           : undefined;
