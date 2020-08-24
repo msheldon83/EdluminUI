@@ -339,6 +339,24 @@ export const UpdatePeriodPlaceholders = (
   }
 };
 
+export const GetTouched = (touched: any, fieldName: string, index: number) => {
+  if (!touched?.periods || !touched.periods[index]) {
+    return undefined;
+  }
+
+  const periodError = touched.periods[index];
+  if (!periodError) {
+    return undefined;
+  }
+
+  if (!periodError[fieldName]) {
+    return undefined;
+  }
+
+  const errorMessage: boolean = periodError[fieldName];
+  return errorMessage;
+};
+
 export const GetError = (errors: any, fieldName: string, index: number) => {
   if (!errors.periods || !errors.periods[index]) {
     return undefined;

@@ -162,7 +162,14 @@ export const Schedule: React.FC<Props> = props => {
             }),
         })}
       >
-        {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
+        {({
+          handleSubmit,
+          values,
+          setFieldValue,
+          submitForm,
+          errors,
+          touched,
+        }) => (
           <form onSubmit={handleSubmit}>
             <FormikValuesWatcher
               onChange={(prev: { periods: Period[] }, next) => {
@@ -241,6 +248,7 @@ export const Schedule: React.FC<Props> = props => {
                 <ScheduleTimesColumn
                   periods={values.periods}
                   errors={errors}
+                  touched={touched}
                   setFieldValue={setFieldValue}
                   scheduleClasses={classes}
                 />
