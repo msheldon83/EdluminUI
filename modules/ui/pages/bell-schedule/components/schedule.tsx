@@ -38,6 +38,7 @@ import { Can } from "ui/components/auth/can";
 
 type Props = {
   name?: string | null | undefined;
+  isAdd: boolean;
   isStandard: boolean;
   periods: Array<Period>;
   variantId?: string | null | undefined;
@@ -81,7 +82,9 @@ export const Schedule: React.FC<Props> = props => {
               yup
                 .object()
                 .shape({
-                  name: yup.string().required(t("Required")),
+                  name: props.isAdd
+                    ? yup.string()
+                    : yup.string().required(t("Required")),
                   startTime: yup.string().when("skipped", {
                     is: false,
                     then: yup.string().required(t("Required")),
