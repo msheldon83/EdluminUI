@@ -73,7 +73,7 @@ export const Schedule: React.FC<Props> = props => {
           props.onSubmit(periods, props.variantId);
         }}
         validateOnChange={false}
-        validateOnBlur={false}
+        validateOnBlur={true}
         validationSchema={yup.object().shape({
           periods: yup
             .array()
@@ -81,6 +81,7 @@ export const Schedule: React.FC<Props> = props => {
               yup
                 .object()
                 .shape({
+                  name: yup.string().required(t("Required")),
                   startTime: yup.string().when("skipped", {
                     is: false,
                     then: yup.string().required(t("Required")),
