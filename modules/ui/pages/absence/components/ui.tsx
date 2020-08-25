@@ -92,6 +92,7 @@ type Props = {
   };
   initialAbsenceFormData: AbsenceFormData;
   initialAbsenceState: () => AbsenceState;
+  onChangeManualFill?: (checked: boolean) => Promise<void>;
   saveAbsence: (
     data: AbsenceCreateInput | AbsenceUpdateInput
   ) => Promise<Absence>;
@@ -126,6 +127,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     absence,
     unfilledVacancySummaryDetails,
     holdForManualFill,
+    onChangeManualFill,
   } = props;
 
   const [
@@ -252,8 +254,6 @@ export const AbsenceUI: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-
-  const onHoldManualFill = () => {};
 
   const onCancelAssignment = React.useCallback(
     async (vacancySummaryDetails: VacancySummaryDetail[]): Promise<boolean> => {
@@ -928,6 +928,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                             organizationId={organizationId}
                             holdForManualFill={holdForManualFill}
                             actingAsEmployee={actingAsEmployee}
+                            onChangeManualFill={onChangeManualFill}
                             needsReplacement={
                               position?.needsReplacement ?? NeedsReplacement.No
                             }

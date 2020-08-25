@@ -10,17 +10,15 @@ import {
   Vacancy,
   NeedsReplacement,
   PermissionEnum,
-  VacancyManualFillInput,
 } from "graphql/server-types.gen";
+import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 import { GetProjectedVacancies } from "../graphql/get-projected-vacancies.gen";
-import { useQueryBundle, useMutationBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { compact, sortBy } from "lodash-es";
 import { SubstituteDetailsCodes } from "./substitute-details-codes";
-import { UpdateManualFill } from "../graphql/update-manual-fill.gen";
 import { Can } from "ui/components/auth/can";
-import { DesktopOnly, MobileOnly } from "ui/components/mobile-helpers";
 import { accountingCodeAllocationsAreTheSame } from "helpers/accounting-code-allocations";
 import { AccountingCodeValue } from "ui/components/form/accounting-code-dropdown";
 import { payCodeIdsAreTheSame } from "ui/components/absence/helpers";
@@ -41,6 +39,7 @@ type Props = {
   needsReplacement: NeedsReplacement;
   locationIds?: string[];
   projectionInput: AbsenceCreateInput | null;
+  onChangeManualFill?: (checked: boolean) => void;
   absenceDates: Date[];
   isClosed: boolean;
   onAssignSubClick: (
@@ -65,7 +64,6 @@ type Props = {
 export const SubstituteDetails: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { openSnackbar } = useSnackbar();
   const {
     absenceId,
     organizationId,
@@ -84,14 +82,12 @@ export const SubstituteDetails: React.FC<Props> = props => {
     vacanciesOverride,
     isClosed,
     initialVacancyDetails,
+    holdForManualFill,
+    onChangeManualFill,
     disableReplacementInteractions = false,
   } = props;
   const { values, setFieldValue } = useFormikContext<AbsenceFormData>();
   const snackbar = useSnackbar();
-
-  const [holdForManualFill, setHoldForManualFill] = React.useState<
-    boolean | undefined
-  >(props.holdForManualFill);
 
   const getProjectedVacancies = useQueryBundle(GetProjectedVacancies, {
     variables: {
@@ -108,12 +104,6 @@ export const SubstituteDetails: React.FC<Props> = props => {
       isClosed,
     onError: error => {
       ShowErrors(error, snackbar.openSnackbar);
-    },
-  });
-
-  const [updateHoldForManualFill] = useMutationBundle(UpdateManualFill, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
     },
   });
 
@@ -280,12 +270,6 @@ export const SubstituteDetails: React.FC<Props> = props => {
     return !codesAreTheSame;
   }, [vacancySummaryDetails]);
 
-  const onUpdateManualFill = async (input: VacancyManualFillInput) => {
-    await updateHoldForManualFill({
-      variables: { vacancyManualFillInput: input },
-    });
-  };
-
   const needsReplacementDisplay = React.useMemo(() => {
     return (
       <NeedsReplacementCheckbox
@@ -296,25 +280,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
           setFieldValue("needsReplacement", checked)
         }
         holdForManualFill={holdForManualFill}
-        onChangeManualFill={async checked => {
-          if (!vacanciesOverride) {
-            openSnackbar({
-              message: t("No vacancy associated with this absence yet"),
-              dismissable: true,
-              status: "error",
-              autoHideDuration: 5000,
-            });
-            return;
-          }
-
-          setHoldForManualFill(checked);
-          const input = {
-            vacancyId: vacanciesOverride && vacanciesOverride[0].id,
-            holdForManualFill: holdForManualFill,
-          } as VacancyManualFillInput;
-
-          await onUpdateManualFill(input);
-        }}
+        onChangeManualFill={onChangeManualFill}
         disabled={isClosed}
       />
     );
@@ -324,6 +290,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     needsReplacement,
     setFieldValue,
     values.needsReplacement,
+    holdForManualFill,
   ]);
 
   const isApprovedForSubJobSearch = React.useMemo(() => {

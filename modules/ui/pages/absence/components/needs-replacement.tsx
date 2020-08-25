@@ -60,9 +60,9 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
           control={
             <Checkbox
               checked={holdForManualFill}
-              onChange={e =>
-                onChangeManualFill && onChangeManualFill(e.target.checked)
-              }
+              onChange={e => {
+                onChangeManualFill && onChangeManualFill(e.target.checked);
+              }}
               color="primary"
               disabled={disabled}
             />
