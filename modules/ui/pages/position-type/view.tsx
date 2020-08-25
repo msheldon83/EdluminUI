@@ -323,18 +323,15 @@ export const PositionTypeViewPage: React.FC<{}> = props => {
           </Grid>
         </Grid>
       </Section>
-      {positionType.needsReplacement != NeedsReplacement.No && (
-        <ReplacementCriteria
-          editing={editing}
-          replacementCriteria={replacementCriteria}
-        />
-      )}
+      <ReplacementCriteria
+        disabled={positionType.needsReplacement == NeedsReplacement.No}
+        editing={editing}
+        replacementCriteria={replacementCriteria}
+      />
       <PositionTypeAbsReasonsCard
         positionTypeId={positionType.id}
         positionTypeName={positionType.name}
-        updateAbsenceReasons={async (values: {
-          absenceReasonIds?: string[] | null;
-        }) => {}}
+        updateAbsenceReasons={async () => {}}
       />
     </>
   );

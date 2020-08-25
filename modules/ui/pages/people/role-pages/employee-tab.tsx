@@ -144,34 +144,32 @@ export const EmployeeTab: React.FC<Props> = props => {
         orgId={params.organizationId}
         schoolYearId={currentSchoolYear?.id}
       />
-      {employee.primaryPosition?.needsReplacement != NeedsReplacement.No && (
-        <>
-          <ReplacementCriteria
-            editing={props.editing}
-            editable={canEditThisEmployee}
-            replacementCriteria={employee?.primaryPosition?.replacementCriteria}
-            inheritedReplacementCriteria={
-              employee?.primaryPosition?.positionType?.replacementCriteria
-            }
-          />
-          <SubstitutePrefCard
-            heading={t("Substitute Preferences")}
-            favoriteSubstitutes={
-              employee.substitutePreferences.favoriteSubstitutes
-            }
-            blockedSubstitutes={
-              employee.substitutePreferences.blockedSubstitutes
-            }
-            editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}
-            editing={props.editing ? true : false}
-            editable={canEditThisEmployee}
-            editPermission={[
-              PermissionEnum.EmployeeSaveBlockedSubs,
-              PermissionEnum.EmployeeSaveFavoriteSubs,
-            ]}
-          />
-        </>
-      )}
+      <ReplacementCriteria
+        disabled={
+          employee.primaryPosition?.needsReplacement == NeedsReplacement.No
+        }
+        editing={props.editing}
+        editable={canEditThisEmployee}
+        replacementCriteria={employee?.primaryPosition?.replacementCriteria}
+        inheritedReplacementCriteria={
+          employee?.primaryPosition?.positionType?.replacementCriteria
+        }
+      />
+      <SubstitutePrefCard
+        disabled={
+          employee.primaryPosition?.needsReplacement == NeedsReplacement.No
+        }
+        heading={t("Substitute Preferences")}
+        favoriteSubstitutes={employee.substitutePreferences.favoriteSubstitutes}
+        blockedSubstitutes={employee.substitutePreferences.blockedSubstitutes}
+        editRoute={EmployeeSubstitutePreferenceRoute.generate(params)}
+        editing={props.editing ? true : false}
+        editable={canEditThisEmployee}
+        editPermission={[
+          PermissionEnum.EmployeeSaveBlockedSubs,
+          PermissionEnum.EmployeeSaveFavoriteSubs,
+        ]}
+      />
       <UpcomingAbsences
         employeeId={employee.id}
         orgId={params.organizationId}
