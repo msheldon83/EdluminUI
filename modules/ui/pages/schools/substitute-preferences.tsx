@@ -1,19 +1,24 @@
 import * as React from "react";
+import { compact } from "lodash-es";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubPreferenceByLocationId } from "./graphql/get-sub-preference-members.gen";
 import { UpdateLocation } from "./graphql/update-location.gen";
 import { SaveReplacementPoolMember } from "./graphql/save-replacement-pool-member.gen";
+import { AddSubPreference } from "./graphql/add-sub-preference.gen";
+import { RemoveSubPreference } from "./graphql/remove-sub-preference.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationSubPrefRoute } from "ui/routes/locations";
 import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
+import { BlockedPoolMember, PoolMember } from "ui/components/sub-pools/types";
 import {
   PermissionEnum,
   OrgUser,
   ReplacementPoolMember,
   ReplacementPoolMemberUpdateInput,
+  ReplacementPoolType,
 } from "graphql/server-types.gen";
 import { LocationLinkHeader } from "ui/components/link-headers/location";
 
@@ -22,26 +27,159 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 
+  const [favoriteMembers, setFavoriteMembers] = React.useState<PoolMember[]>(
+    []
+  );
+  const [blockedMembers, setBlockedMembers] = React.useState<
+    BlockedPoolMember[]
+  >([]);
+  const [autoAssignedMembers, setAutoAssignedMembers] = React.useState<
+    PoolMember[]
+  >([]);
+
   const getLocation = useQueryBundle(GetSubPreferenceByLocationId, {
     variables: {
       locationId: params.locationId,
     },
   });
 
-  const onRemoveFavoriteSubstitute = async (sub: ReplacementPoolMember) => {
+  const location =
+    getLocation.state == "LOADING"
+      ? undefined
+      : getLocation.data.location?.byId;
+
+  React.useEffect(() => {
+    setFavoriteMembers(
+      compact(
+        location?.substitutePreferences.favoriteSubstituteMembers
+      ).map(m => ({ ...m, employee: m.employee ?? undefined }))
+    );
+    setBlockedMembers(
+      compact(location?.substitutePreferences.blockedSubstituteMembers).map(
+        m => ({
+          ...m,
+          employee: m.employee ?? undefined,
+          adminNote: m.adminNote ?? undefined,
+        })
+      )
+    );
+  }, [location]);
+
+  const onRemoveFavoriteSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(
+      favoriteMembers.filter(m => m.employeeId != sub.employeeId)
+    );
+    await removeSub(sub.employeeId, ReplacementPoolType.Favorite);
+  };
+
+  const onRemoveBlockedSubstitute = async (sub: BlockedPoolMember) => {
+    setBlockedMembers(
+      blockedMembers.filter(m => m.employeeId != sub.employeeId)
+    );
+    await removeSub(sub.employeeId, ReplacementPoolType.Blocked);
+  };
+
+  const onRemoveAutoAssignedSubstitute = async (sub: BlockedPoolMember) => {
+    setAutoAssignedMembers(
+      autoAssignedMembers.filter(m => m.employeeId != sub.employeeId)
+    );
+    await removeSub(sub.employeeId, ReplacementPoolType.AutoAssign);
+  };
+
+  const onAddSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(favoriteMembers.concat(sub));
+    await addSub(sub.employeeId, ReplacementPoolType.Favorite);
+  };
+
+  const onBlockSubstitute = async (sub: PoolMember) => {
+    setBlockedMembers(blockedMembers.concat(sub));
+    await addSub(sub.employeeId, ReplacementPoolType.Blocked);
+  };
+
+  const onAutoAssignSubstitute = async (sub: PoolMember) => {
+    setAutoAssignedMembers(autoAssignedMembers.concat(sub));
+    await addSub(sub.employeeId, ReplacementPoolType.AutoAssign);
+  };
+
+  const [addSubPreference] = useMutationBundle(AddSubPreference, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [removeSubPreference] = useMutationBundle(RemoveSubPreference, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const addSub = async (subId: string, type: ReplacementPoolType) => {
+    const result = await addSubPreference({
+      variables: {
+        subPreference: {
+          orgId: params.organizationId,
+          location: { id: location?.id },
+          substitute: { id: subId },
+          replacementPoolType: type,
+        },
+      },
+    });
+    if (!result.data) return false;
+    await getLocation.refetch();
+    return true;
+  };
+
+  const removeSub = async (subId: string, type: ReplacementPoolType) => {
+    const result = await removeSubPreference({
+      variables: {
+        subPreference: {
+          orgId: params.organizationId,
+          location: { id: location?.id },
+          substitute: { id: subId },
+          replacementPoolType: type,
+        },
+      },
+    });
+    if (!result.data) return false;
+    await getLocation.refetch();
+    return true;
+  };
+
+  const onAddNote = async (
+    replacementPoolMember: ReplacementPoolMemberUpdateInput
+  ) => {
+    const result = await updateReplacementPoolMember({
+      variables: {
+        replacementPoolMember: replacementPoolMember,
+      },
+    });
+    if (!result?.data) return false;
+    await getLocation.refetch();
+    return true;
+  };
+
+  const [updateReplacementPoolMember] = useMutationBundle(
+    SaveReplacementPoolMember,
+    {
+      onError: error => {
+        ShowErrors(error, openSnackbar);
+      },
+    }
+  );
+
+  /*const onRemoveFavoriteSubstitute = async (sub: PoolMember) => {
     const filteredFavorites = location.substitutePreferences?.favoriteSubstituteMembers.filter(
-      (u: any) => {
+      u => {
         return u.employeeId !== sub.employeeId;
       }
     );
     return updatePreferences(
-      filteredFavorites,
+      filteredFavoritesed,
       location.substitutePreferences?.blockedSubstituteMembers,
       location.substitutePreferences?.autoAssignedSubstitutes
     );
   };
 
-  const onRemoveBlockedSubstitute = async (sub: ReplacementPoolMember) => {
+  const onRemoveBlockedSubstitute = async (sub: BlockedPoolMember) => {
     const filteredBlocked = location.substitutePreferences?.blockedSubstituteMembers.filter(
       (u: any) => {
         return u.employeeId !== sub.employeeId;
@@ -54,7 +192,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onRemoveAutoAssignedSubstitute = async (sub: ReplacementPoolMember) => {
+  const onRemoveAutoAssignedSubstitute = async (sub: PoolMember) => {
     const filteredAutoAssigned = location.substitutePreferences?.autoAssignedSubstitutes.filter(
       (u: any) => {
         return u.id !== sub.employeeId;
@@ -67,7 +205,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onAddSubstitute = async (sub: ReplacementPoolMember) => {
+  const onAddSubstitute = async (sub: PoolMember) => {
     location.substitutePreferences?.favoriteSubstituteMembers.push(sub);
 
     return updatePreferences(
@@ -77,7 +215,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onBlockSubstitute = async (sub: ReplacementPoolMember) => {
+  const onBlockSubstitute = async (sub: PoolMember) => {
     location.substitutePreferences?.blockedSubstituteMembers.push(sub);
 
     return updatePreferences(
@@ -87,7 +225,7 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onAutoAssignSubstitute = async (sub: ReplacementPoolMember) => {
+  const onAutoAssignSubstitute = async (sub: PoolMember) => {
     location.substitutePreferences?.autoAssignedSubstitutes.push({
       id: sub.employeeId,
       firstName: sub.employee?.firstName,
@@ -163,29 +301,19 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
-  });
+  });*/
 
-  if (getLocation.state === "LOADING") {
+  if (!location) {
     return <></>;
   }
-  const location: any = getLocation?.data?.location?.byId ?? undefined;
 
   const headerComponent = (
     <LocationLinkHeader
       title={t("Substitute Preferences")}
-      locationName={location.name as string}
+      locationName={location.name}
       params={params}
     />
   );
-
-  const autoAssignedMembers =
-    location.substitutePreferences.autoAssignedSubstitutes.map(
-      (e: any) =>
-        ({
-          employeeId: e.id,
-          employee: { id: e.id, firstName: e.firstName, lastName: e.lastName },
-        } as ReplacementPoolMember)
-    ) ?? [];
 
   return (
     <>
@@ -193,12 +321,8 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteMembers={
-          location.substitutePreferences.favoriteSubstituteMembers ?? []
-        }
-        blockedMembers={
-          location.substitutePreferences.blockedSubstituteMembers ?? []
-        }
+        favoriteMembers={favoriteMembers}
+        blockedMembers={blockedMembers}
         headerComponent={headerComponent}
         onAddNote={onAddNote}
         orgId={params.organizationId}

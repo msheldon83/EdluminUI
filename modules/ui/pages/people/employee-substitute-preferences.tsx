@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { compact } from "lodash-es";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useRouteParams } from "ui/routes/definition";
@@ -11,9 +12,9 @@ import { SaveReplacementPoolMember } from "./graphql/employee/save-replacement-p
 import { AddSubPreference } from "./graphql/employee/add-sub-preference.gen";
 import { RemoveSubPreference } from "./graphql/employee/remove-sub-preference.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
+import { BlockedPoolMember, PoolMember } from "ui/components/sub-pools/types";
 import {
   PermissionEnum,
-  ReplacementPoolMember,
   ReplacementPoolMemberUpdateInput,
   ReplacementPoolType,
 } from "graphql/server-types.gen";
@@ -24,32 +25,61 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 
+  const [favoriteMembers, setFavoriteMembers] = React.useState<PoolMember[]>(
+    []
+  );
+  const [blockedMembers, setBlockedMembers] = React.useState<
+    BlockedPoolMember[]
+  >([]);
+
   const getEmployee = useQueryBundle(GetEmployeeSubPreferencesById, {
     variables: { id: params.orgUserId },
     fetchPolicy: "cache-first",
   });
 
-  const onRemoveFavoriteSubstitute = async (sub: any) => {
+  const orgUser =
+    getEmployee.state == "LOADING"
+      ? undefined
+      : getEmployee.data?.orgUser?.byId;
+  const employee = orgUser?.employee ?? undefined;
+  React.useEffect(() => {
+    setFavoriteMembers(
+      compact(
+        employee?.substitutePreferences.favoriteSubstituteMembers
+      ).map(m => ({ ...m, employee: m.employee ?? undefined }))
+    );
+    setBlockedMembers(
+      compact(employee?.substitutePreferences.blockedSubstituteMembers).map(
+        m => ({
+          ...m,
+          employee: m.employee ?? undefined,
+          adminNote: m.adminNote ?? undefined,
+        })
+      )
+    );
+  }, [employee]);
+
+  const onRemoveFavoriteSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(
+      favoriteMembers.filter(m => m.employeeId != sub.employeeId)
+    );
     await removeSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
-  const onRemoveBlockedSubstitute = async (sub: any) => {
+  const onRemoveBlockedSubstitute = async (sub: BlockedPoolMember) => {
+    setBlockedMembers(
+      blockedMembers.filter(m => m.employeeId != sub.employeeId)
+    );
     await removeSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
-  const onAddSubstitute = async (sub: any) => {
-    orgUser?.employee?.substitutePreferences?.favoriteSubstituteMembers.push(
-      sub
-    );
-
+  const onAddSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(favoriteMembers.concat(sub));
     await addSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
-  const onBlockSubstitute = async (sub: any) => {
-    orgUser?.employee?.substitutePreferences?.blockedSubstituteMembers.push(
-      sub
-    );
-
+  const onBlockSubstitute = async (sub: PoolMember) => {
+    setBlockedMembers(blockedMembers.concat(sub));
     await addSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
@@ -118,11 +148,9 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     }
   );
 
-  if (getEmployee.state === "LOADING") {
+  if (!orgUser || !employee) {
     return <></>;
   }
-  const orgUser = getEmployee?.data?.orgUser?.byId ?? undefined;
-  const employee = orgUser?.employee ?? undefined;
 
   const headerComponent = (
     <PersonLinkHeader
@@ -138,12 +166,8 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteMembers={
-          employee?.substitutePreferences?.favoriteSubstituteMembers ?? []
-        }
-        blockedMembers={
-          employee?.substitutePreferences?.blockedSubstituteMembers ?? []
-        }
+        favoriteMembers={favoriteMembers}
+        blockedMembers={blockedMembers}
         onAddNote={onAddNote}
         headerComponent={headerComponent}
         orgId={params.organizationId}
