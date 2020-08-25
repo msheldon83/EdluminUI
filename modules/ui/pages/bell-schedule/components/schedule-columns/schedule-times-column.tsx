@@ -1,16 +1,17 @@
 import { makeStyles } from "@material-ui/core";
 import { addMinutes, isValid, parseISO, format } from "date-fns";
-import { FormikErrors } from "formik";
+import { FormikErrors, FormikTouched } from "formik";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
-import { GetError, Period } from "../../helpers";
+import { GetError, GetTouched, Period } from "../../helpers";
 import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
 
 type Props = {
   periods: Period[];
   setFieldValue: Function;
+  touched: FormikTouched<{ periods: Period[] }>;
   errors: FormikErrors<{ periods: Period[] }>;
   scheduleClasses: any;
 };
@@ -37,15 +38,19 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
             : undefined;
 
         const hasStartTime = p.startTime && isValid(new Date(p.startTime));
-        const hasPriorPerionEndTime =
+        const hasPriorPeriodEndTime =
           priorPeriodEndTime && isValid(new Date(priorPeriodEndTime));
 
-        const earliestStartTime = hasPriorPerionEndTime
+        const earliestStartTime = hasPriorPeriodEndTime
           ? new Date(priorPeriodEndTime!).toISOString()
           : undefined;
 
-        const startTimeError = GetError(props.errors, "startTime", i);
-        const endTimeError = GetError(props.errors, "endTime", i);
+        const startTimeError = GetTouched(props.touched, "startTime", i)
+          ? GetError(props.errors, "startTime", i)
+          : undefined;
+        const endTimeError = GetTouched(props.touched, "endTime", i)
+          ? GetError(props.errors, "endTime", i)
+          : undefined;
 
         return (
           <div key={i} className={periodClasses.join(" ")}>
@@ -62,7 +67,6 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       value={p.startTime || undefined}
                       earliestTime={earliestStartTime}
                       inputStatus={startTimeError ? "error" : "default"}
-                      validationMessage={startTimeError}
                       highlightOnFocus
                       inputProps={{
                         /*
@@ -89,7 +93,6 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       value={p.endTime || undefined}
                       earliestTime={p.startTime || earliestStartTime}
                       inputStatus={endTimeError ? "error" : "default"}
-                      validationMessage={endTimeError}
                       highlightOnFocus
                       inputProps={{
                         tabIndex: props.periods.length + (2 * i + 2),

@@ -207,6 +207,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       <Schedule
         name={standardVariantType?.name}
         isStandard={true}
+        isAdd={false}
         periods={periods}
         variantId={standardSchedule.id}
         onSubmit={async (
@@ -300,6 +301,7 @@ export const BellScheduleViewPage: React.FC<{}> = props => {
       <Schedule
         name={variantTypeName}
         isStandard={false}
+        isAdd={false}
         periods={periods}
         variantId={existingVariant ? existingVariant.id : null}
         onSubmit={async (
