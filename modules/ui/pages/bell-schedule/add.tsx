@@ -144,6 +144,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
     return (
       <Schedule
         name={variantTypeName}
+        isAdd={true}
         isStandard={true}
         submitLabel={t("Next")}
         periods={schedulePeriods}
@@ -207,6 +208,7 @@ export const BellScheduleAddPage: React.FC<{}> = props => {
       <Schedule
         name={variantTypeName}
         isStandard={false}
+        isAdd={true}
         submitLabel={t("Next")}
         periods={schedulePeriods}
         onSubmit={async (periods: Array<Period>) => {

@@ -16,8 +16,11 @@ type Props = Omit<
   placeHolder?: string;
 };
 
-export const FormikTimeInput: React.FC<Props> = props => {
-  const [field, meta] = useField(props.name);
+export const FormikTimeInput: React.FC<Props> = ({
+  validationMessage,
+  ...props
+}) => {
+  const [field, meta, helpers] = useField(props.name);
   const { setFieldValue } = useFormikContext<any>();
 
   const [time, setTime] = useState(
@@ -29,10 +32,12 @@ export const FormikTimeInput: React.FC<Props> = props => {
   return (
     <TimeInput
       label={props.label || ""}
-      name={props.name}
       className={props.className}
       placeHolder={props.placeHolder}
       {...props}
+      validationMessage={
+        validationMessage ?? (meta.touched ? meta.error : undefined)
+      }
       value={time}
       onChange={(v: string | undefined) => {
         setTime(v);
@@ -40,6 +45,7 @@ export const FormikTimeInput: React.FC<Props> = props => {
           setFieldValue(props.name, undefined);
         }
       }}
+      onBlur={() => helpers.setTouched(true)}
       onValidTime={v => {
         let time = v;
         if (props.date) {

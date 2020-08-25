@@ -38,6 +38,7 @@ import { Can } from "ui/components/auth/can";
 
 type Props = {
   name?: string | null | undefined;
+  isAdd: boolean;
   isStandard: boolean;
   periods: Array<Period>;
   variantId?: string | null | undefined;
@@ -60,66 +61,20 @@ export const Schedule: React.FC<Props> = props => {
   const setPeriods = (periods: Period[], setFieldValue: Function) => {
     setFieldValue("periods", periods);
   };
-
-  // Determine if we already have an End of Day period or not
-  const endOfDayPeriod = useMemo(() => {
-    const periodMarkedAsEndOfDay = props.periods.find(p => p.isEndOfDayPeriod);
-    if (periodMarkedAsEndOfDay) {
-      return periodMarkedAsEndOfDay;
-    }
-
-    // Figure out the End of Day by the details of the last non skipped Period
-    const nonSkippedPeriods = props.periods.filter(p => !p.skipped);
-    const lastPeriod = nonSkippedPeriods[nonSkippedPeriods.length - 1];
-    return props.variantId &&
-      lastPeriod.startTime &&
-      lastPeriod.endTime &&
-      isEqual(parseISO(lastPeriod.startTime), parseISO(lastPeriod.endTime))
-      ? lastPeriod
-      : undefined;
-  }, [props.periods, props.variantId]);
-  const periodsMinusEndOfDay = useMemo(() => {
-    return endOfDayPeriod
-      ? props.periods.filter(p => p !== endOfDayPeriod)
-      : props.periods;
-  }, [endOfDayPeriod, props.periods]);
-
   return (
     <Section borderTopRadius={false}>
       <Formik
         initialValues={{
-          periods: periodsMinusEndOfDay,
+          periods: props.periods,
         }}
         enableReinitialize={true}
         onSubmit={(data, meta) => {
           // Add the end of Day period in here before returning
           const periods = data.periods;
-          const nonSkippedPeriods = periods.filter(p => !p.skipped);
-          if (endOfDayPeriod) {
-            endOfDayPeriod.startTime =
-              nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime;
-            endOfDayPeriod.endTime =
-              nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime;
-            periods.push({
-              ...endOfDayPeriod,
-              isEndOfDayPeriod: true,
-            });
-          } else {
-            periods.push({
-              name: "EndOfDay",
-              placeholder: "EndOfDay",
-              startTime:
-                nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime,
-              endTime: nonSkippedPeriods[nonSkippedPeriods.length - 1].endTime,
-              skipped: false,
-              isEndOfDayPeriod: true,
-            });
-          }
-
           props.onSubmit(periods, props.variantId);
         }}
         validateOnChange={false}
-        validateOnBlur={false}
+        validateOnBlur={true}
         validationSchema={yup.object().shape({
           periods: yup
             .array()
@@ -127,6 +82,9 @@ export const Schedule: React.FC<Props> = props => {
               yup
                 .object()
                 .shape({
+                  name: props.isAdd
+                    ? yup.string()
+                    : yup.string().required(t("Required")),
                   startTime: yup.string().when("skipped", {
                     is: false,
                     then: yup.string().required(t("Required")),
@@ -204,7 +162,14 @@ export const Schedule: React.FC<Props> = props => {
             }),
         })}
       >
-        {({ handleSubmit, values, setFieldValue, submitForm, errors }) => (
+        {({
+          handleSubmit,
+          values,
+          setFieldValue,
+          submitForm,
+          errors,
+          touched,
+        }) => (
           <form onSubmit={handleSubmit}>
             <FormikValuesWatcher
               onChange={(prev: { periods: Period[] }, next) => {
@@ -283,6 +248,7 @@ export const Schedule: React.FC<Props> = props => {
                 <ScheduleTimesColumn
                   periods={values.periods}
                   errors={errors}
+                  touched={touched}
                   setFieldValue={setFieldValue}
                   scheduleClasses={classes}
                 />

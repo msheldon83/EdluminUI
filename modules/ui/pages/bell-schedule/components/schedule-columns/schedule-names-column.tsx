@@ -83,7 +83,7 @@ const ScheduleNameRow = (props: ScheduleNameRowProps) => {
             }}
             placeholder={period.placeholder}
             value={period.name}
-            name={period.name ?? Math.random().toString()} // There always needs to be a valid name on the element
+            name={`periods[${index}].name`}
             variant="outlined"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setFieldValue(`periods[${index}].name`, e.target.value);

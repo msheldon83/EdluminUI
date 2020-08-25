@@ -17,7 +17,7 @@ import { PeopleRoute } from "ui/routes/people";
 import { CalendarCalendarViewRoute } from "ui/routes/calendar/calendar";
 import { SubHomeRoute } from "ui/routes/sub-home";
 import { SubPreferencesRoute } from "ui/routes/sub-preferences";
-import { SubScheduleRoute } from "ui/routes/sub-schedule";
+import { SubScheduleRoute, SubAvailabilityRoute } from "ui/routes/sub-schedule";
 import { useIsSystemAdminOrAdminInMultipleOrgs } from "../hooks";
 import {
   AbsenceNavLink,
@@ -26,13 +26,14 @@ import {
   SettingsNavLink,
   HomeNavLink,
   MyScheduleNavLink,
+  ManageAvailabilityNavLink,
   OrganizationsNavLink,
   PeopleNavLink,
   PTOBalancesNavLink,
   SchoolsNavLink,
   SecurityNavLink,
   EmpSubPreferencesNavLink,
-  SubPreferencesNavLink,
+  SubSchoolPreferencesNavLink,
   MobileSearchNavLink,
   DataManagementNavLink,
 } from "./custom-nav-links";
@@ -137,7 +138,12 @@ export const SubstituteNavLinks: React.FC<Props> = props => {
         navBarExpanded={props.navBarExpanded}
         route={SubScheduleRoute.generate(params)}
       />
-      <SubPreferencesNavLink
+      <ManageAvailabilityNavLink
+        onClick={props.onClick}
+        navBarExpanded={props.navBarExpanded}
+        route={SubAvailabilityRoute.generate(params)}
+      />
+      <SubSchoolPreferencesNavLink
         onClick={props.onClick}
         navBarExpanded={props.navBarExpanded}
         route={SubPreferencesRoute.generate(params)}

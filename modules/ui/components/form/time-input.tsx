@@ -24,6 +24,7 @@ export type TimeInputProps = {
   placeHolder?: string;
   highlightOnFocus?: boolean;
   inputProps?: InputBaseComponentProps;
+  onBlur?: (event: React.FocusEvent) => void;
 };
 
 export const TimeInput = React.forwardRef((props: TimeInputProps, ref) => {
@@ -41,6 +42,7 @@ export const TimeInput = React.forwardRef((props: TimeInputProps, ref) => {
     placeHolder,
     highlightOnFocus = false,
     inputProps,
+    onBlur,
   } = props;
 
   // Sometimes this ref is null if the parent doens't give a ref
@@ -130,7 +132,10 @@ export const TimeInput = React.forwardRef((props: TimeInputProps, ref) => {
       name={name}
       value={parsedValue}
       onChange={event => onChange(event.target.value)}
-      onBlur={attemptToParseValidTime}
+      onBlur={e => {
+        attemptToParseValidTime(e);
+        if (onBlur) onBlur(e);
+      }}
       onFocus={handleFocus}
       inputRef={inputRef}
       inputStatus={inputStatus}
