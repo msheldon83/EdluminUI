@@ -69,7 +69,7 @@ export const ErrorBanner: React.FC<Props> = props => {
                   variant="outlined"
                   onClick={() => props.onClose()}
                 >
-                  {warningsOnly ? t("Cancel") : t("Okay")}
+                  {warningsOnly ? t("Cancel") : t("Ok")}
                 </Button>
                 {warningsOnly && (
                   <Button
