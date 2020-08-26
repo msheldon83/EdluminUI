@@ -2,6 +2,7 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { ContractSelect } from "ui/components/reference-selects/contract-select";
+import clsx from "clsx";
 
 type Props = {
   orgId: string;
@@ -31,7 +32,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
           setSelectedSchoolYearId={setSchoolYearId}
         />
       </div>
-      <div className={[classes.select, classes.fromSelect].join(" ")}>
+      <div className={clsx(classes.select, classes.fromSelect)}>
         <ContractSelect
           orgId={orgId}
           selectedContractId={contractId}
