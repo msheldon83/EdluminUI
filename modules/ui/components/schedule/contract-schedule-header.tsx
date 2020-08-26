@@ -25,6 +25,9 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
         <SchoolYearSelect
           orgId={orgId}
           selectedSchoolYearId={filters.schoolYearId}
+          defaultToCurrentSchoolYear={
+            filters.schoolYearId === "" ? true : false
+          }
           setSelectedSchoolYearId={(schoolYearId: string | undefined) => {
             updateFilters({ schoolYearId: schoolYearId });
             paginationReset();
@@ -34,7 +37,9 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
       <div className={[classes.select, classes.fromSelect].join(" ")}>
         <ContractSelectCalendarChanges
           orgId={orgId}
-          selectedContractId={filters.contractId}
+          selectedContractId={
+            filters.contractId === "" ? undefined : filters.contractId
+          }
           setSelectedContractId={(contractId: string | undefined) => {
             updateFilters({ contractId: contractId });
             paginationReset();
@@ -49,7 +54,9 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
         <LocationSelectCalendarChanges
           label={t("School")}
           orgId={orgId}
-          selectedLocationId={filters.locationId}
+          selectedLocationId={
+            filters.locationId === "" ? undefined : filters.locationId
+          }
           setSelectedLocationId={(locationId: string | undefined) => {
             updateFilters({ locationId: locationId });
             paginationReset();

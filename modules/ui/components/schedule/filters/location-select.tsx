@@ -10,7 +10,7 @@ import { useLocationOptions } from "reference-data/locations";
 // Back-end is assuming that undefined is Any and All Schools === affecsAllLocations
 
 type Props = {
-  orgId?: string;
+  orgId: string;
   selectedLocationId?: string;
   setSelectedLocationId: (locationId?: string) => void;
   label?: string;

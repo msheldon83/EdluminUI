@@ -73,6 +73,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           startDate: today.toISOString(),
           endDate: today.toISOString(),
           affectsAllContracts: true,
+          affectsAllLocations: true,
           locationIds: [],
           contractIds: [],
         } as CalendarEvent);
@@ -86,32 +87,28 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
 
   const [submittingData, setSubmittingData] = React.useState(false);
   const [summaryText, setSummaryTest] = React.useState<string>("");
-  const [affectsAllLocations, setAffectsAllLocations] = useState<boolean>(
-    false
-  );
-  const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(
-    false
-  );
+  const [affectsAllLocations, setAffectsAllLocations] = useState<boolean>(true);
+  const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(true);
+
+  const clearState = () => {
+    setContractIds([]);
+    setLocationIds([]);
+    setSummaryTest("");
+    setAffectsAllLocations(true);
+    setAffectsAllContracts(true);
+    setSubmittingData(false);
+  };
 
   //Set state values only when we have a real calendarChange
   useEffect(() => {
     if (calendarChangeId !== calendarChange.id) {
       setContractIds(compact(calendarChange.contractIds) ?? []);
       setLocationIds(compact(calendarChange.locationIds) ?? []);
-      setAffectsAllLocations(calendarChange.affectsAllLocations ?? false);
-      setAffectsAllContracts(calendarChange.affectsAllContracts ?? false);
+      setAffectsAllLocations(calendarChange.affectsAllLocations ?? true);
+      setAffectsAllContracts(calendarChange.affectsAllContracts ?? true);
       setCalendarChangeId(calendarChange.id);
     }
   }, [calendarChange.id]);
-
-  const clearState = () => {
-    setContractIds([]);
-    setLocationIds([]);
-    setSummaryTest("");
-    setAffectsAllLocations(false);
-    setAffectsAllContracts(false);
-    setSubmittingData(false);
-  };
 
   useEffect(() => {
     const string = getCalendarSummaryText(
@@ -191,7 +188,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           formProps.setFieldValue("contracts", []);
           formProps.setFieldValue("locations", []);
           formProps.setFieldValue("affectsAllContracts", true);
-          formProps.setFieldValue("affectsAllLocations", false);
+          formProps.setFieldValue("affectsAllLocations", true);
           formProps.setFieldValue("changeReason", changeReasonOptions[0].value);
           formProps.setFieldValue("notes", "");
           props.onClose();
@@ -565,7 +562,7 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     top: "-10px",
     right: "-10px",
-    zIndex: 1000,
+    zIndex: 50,
   },
   marginLeft: {
     marginLeft: "20px",

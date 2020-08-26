@@ -11,11 +11,7 @@ import { useState, useMemo, useCallback } from "react";
 import { TextButton } from "ui/components/text-button";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
-import {
-  usePagedQueryBundle,
-  useMutationBundle,
-  useQueryBundle,
-} from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Column } from "material-table";
 import {
   CalendarDayType,
@@ -28,7 +24,6 @@ import {
 import { compact } from "lodash-es";
 import { parseISO, format, isBefore } from "date-fns";
 import { PageTitle } from "ui/components/page-title";
-import { OptionType } from "ui/components/form/select-new";
 import { CalendarDayTypes } from "reference-data/calendar-day-type";
 import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule-variant-types";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -52,9 +47,9 @@ import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
 import { ConvertApolloErrors } from "ui/components/error-helpers";
 import { Table } from "ui/components/table";
 import { CalendarEvent } from "./types";
-import { useLocations } from "reference-data/locations";
-import { useContracts } from "reference-data/contracts";
+import { useContractOptions } from "reference-data/contracts";
 import { FilterQueryParams } from "./filter-params";
+import { useLocationOptions } from "reference-data/locations";
 import { SplitCalendarChange } from "./graphql/split-calendar-change.gen";
 
 type Props = {
@@ -77,27 +72,17 @@ export const Calendars: React.FC<Props> = props => {
     [allSchoolYears, filters.schoolYearId]
   );
 
-  const allContracts = useContracts(params.organizationId);
-  const contract = useMemo(
-    () => allContracts.find(x => x.id === filters.contractId),
-    [allContracts, filters.contractId]
-  );
-
   const [headerCalendarChanges, setHeaderCalendarChanges] = useState<
     CalendarEvent[]
   >();
 
-  const contracts = useContracts(params.organizationId ?? "0");
-  const contractOptions = React.useMemo(
-    () => contracts.map(c => ({ label: c.name, value: c.id })),
-    [contracts]
+  const contractOptions = useContractOptions(params.organizationId);
+  const contract = useMemo(
+    () => contractOptions.find(x => x.value === filters.contractId),
+    [contractOptions, filters.contractId]
   );
 
-  const locations = useLocations();
-  const locationOptions: OptionType[] = React.useMemo(
-    () => locations.map(l => ({ label: l.name, value: l.id })),
-    [locations]
-  );
+  const locationOptions = useLocationOptions(params.organizationId);
 
   const today = useMemo(() => {
     const d = new Date();
@@ -112,6 +97,7 @@ export const Calendars: React.FC<Props> = props => {
       startDate: selectedDate.toISOString() ?? today.toISOString(),
       endDate: selectedDate.toISOString() ?? today.toISOString(),
       affectsAllContracts: filters.contractId !== undefined ? false : true,
+      affectsAllLocations: filters.locationId !== undefined ? false : true,
       locationIds: [filters.locationId] ?? [],
       contractIds: [filters.contractId] ?? [],
     },
@@ -169,6 +155,7 @@ export const Calendars: React.FC<Props> = props => {
             startDate: selectedDate.toISOString(),
             endDate: selectedDate.toISOString(),
             affectsAllContracts: true,
+            affectsAllLocations: true,
           },
         ];
         setSelectedDateCalendarChanges(cc);
@@ -276,6 +263,7 @@ export const Calendars: React.FC<Props> = props => {
         startDate: format(date, "MMM d, yyyy"),
         endDate: format(date, "MMM d, yyyy"),
         affectsAllContracts: true,
+        affectsAllLocations: true,
       };
       const result = await onSplitCalendarChange(
         calendarChangeId,
@@ -483,6 +471,7 @@ export const Calendars: React.FC<Props> = props => {
         startDate: date,
         endDate: date,
         affectsAllContracts: true,
+        affectsAllLocations: true,
       },
     ]);
     setOpenEventDialog(true);
@@ -520,7 +509,7 @@ export const Calendars: React.FC<Props> = props => {
         <Grid container alignItems="center" spacing={2}>
           <Grid item xs={8}>
             <Typography variant="h5">
-              {contract === undefined ? t("All Contracts") : contract?.name}
+              {contract === undefined ? t("All Contracts") : contract?.value}
             </Typography>
 
             {schoolYear && (
