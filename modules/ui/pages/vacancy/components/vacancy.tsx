@@ -80,6 +80,7 @@ type Props = {
   } | null;
   refetchVacancy?: () => Promise<unknown>;
   isApprovedForSubJobSearch?: boolean;
+  approvalStatus?: ApprovalStatus;
 };
 
 export const VacancyUI: React.FC<Props> = props => {
@@ -243,7 +244,7 @@ export const VacancyUI: React.FC<Props> = props => {
   );
 
   const skipProjectedIsAvailableForSubJobSearch =
-    initialFormValues.positionTypeId === vacancy.positionTypeId ||
+    initialFormValues.positionTypeId === vacancy.positionTypeId &&
     differentReasonIds.length === 0
       ? true
       : false;
@@ -861,11 +862,10 @@ export const VacancyUI: React.FC<Props> = props => {
             {step === "vacancy" && (
               <>
                 {approvalState &&
-                  (vacancy.approvalStatus === ApprovalStatus.Approved ||
-                    vacancy.approvalStatus === ApprovalStatus.Denied ||
-                    vacancy.approvalStatus ===
-                      ApprovalStatus.ApprovalRequired ||
-                    vacancy.approvalStatus ===
+                  (props.approvalStatus === ApprovalStatus.Approved ||
+                    props.approvalStatus === ApprovalStatus.Denied ||
+                    props.approvalStatus === ApprovalStatus.ApprovalRequired ||
+                    props.approvalStatus ===
                       ApprovalStatus.PartiallyApproved) && (
                     <Can do={[PermissionEnum.AbsVacApprovalsView]}>
                       <div className={classes.approvalBannerContainer}>
