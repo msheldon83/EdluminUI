@@ -614,6 +614,7 @@ export const Calendars: React.FC<Props> = props => {
                   view={props.view}
                   listViewRoute={CalendarListViewRoute.generate(params)}
                   calendarViewRoute={CalendarCalendarViewRoute.generate(params)}
+                  maintainQueryParams={true}
                 />
               </div>
             </Grid>
