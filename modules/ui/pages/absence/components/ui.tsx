@@ -21,9 +21,7 @@ import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
 import { AbsenceFormData, AbsenceDetail, VacancyDetail } from "../types";
 import { Formik } from "formik";
-import {
-  allAccountingCodeValuesAreEqual
-} from "helpers/accounting-code-allocations";
+import { allAccountingCodeValuesAreEqual } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
 import { Section } from "ui/components/section";
 import { makeStyles, Grid, Typography, Button } from "@material-ui/core";
@@ -44,13 +42,7 @@ import {
   payCodeIdsAreTheSame,
 } from "ui/components/absence/helpers";
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
-import {
-  some,
-  compact,
-  flatMap,
-  isEqual,
-  differenceWith,
-} from "lodash-es";
+import { some, compact, flatMap, isEqual, differenceWith } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
 import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
@@ -74,7 +66,11 @@ import { AbsenceVacancyNotificationLogRoute } from "ui/routes/notification-log";
 import { EmployeeLink } from "ui/components/links/people";
 import { AbsenceFormValidationSchema } from "../validation";
 import { DeletedData } from "ui/components/deleted-data";
-import { findMatchingAssignmentsForDetails, buildAbsenceInput, buildFormData } from "../helpers";
+import {
+  findMatchingAssignmentsForDetails,
+  buildAbsenceInput,
+  buildFormData,
+} from "../helpers";
 
 type Props = {
   organizationId: string;
@@ -206,16 +202,11 @@ export const AbsenceUI: React.FC<Props> = props => {
             isSysAdmin,
             orgId,
             actingAsEmployee ? "employee" : "admin",
-            absence?.approvalState?.approvalStatusId
+            absence?.approvalStatus
           )
       );
     },
-    [
-      actingAsEmployee,
-      canDoFn,
-      isCreate,
-      absence?.approvalState?.approvalStatusId,
-    ]
+    [actingAsEmployee, canDoFn, isCreate, absence?.approvalStatus]
   );
 
   const onProjectedVacanciesChange = React.useCallback(
@@ -761,7 +752,10 @@ export const AbsenceUI: React.FC<Props> = props => {
           const formIsDirty =
             dirty ||
             (isCreate && state.absenceDates.length > 0) ||
-            !vacancyDetailsAreEqual(state.initialVacancyDetails ?? [], vacancyDetails ?? []);
+            !vacancyDetailsAreEqual(
+              state.initialVacancyDetails ?? [],
+              vacancyDetails ?? []
+            );
 
           // The object we send to the server when getting projected vacancies
           // or projected absence usage is not the exact same as what we would send
@@ -865,18 +859,25 @@ export const AbsenceUI: React.FC<Props> = props => {
                       employee.locationIds.length === 0 &&
                       missingLocationsWarning}
 
-                    {absence?.approvalState && (
-                      <Can do={[PermissionEnum.AbsVacApprovalsView]}>
-                        <ApprovalState
-                          orgId={organizationId}
-                          approvalState={absence.approvalState}
-                          actingAsEmployee={actingAsEmployee}
-                          isTrueVacancy={false}
-                          absenceId={state.absenceId}
-                          onChange={refetchAbsence}
-                        />
-                      </Can>
-                    )}
+                    {// Only show the banner if there is an approval state object and the status on the absence matches one we should show
+                    absence?.approvalState &&
+                      (absence?.approvalStatus === ApprovalStatus.Approved ||
+                        absence?.approvalStatus === ApprovalStatus.Denied ||
+                        absence?.approvalStatus ===
+                          ApprovalStatus.ApprovalRequired ||
+                        absence?.approvalStatus ===
+                          ApprovalStatus.PartiallyApproved) && (
+                        <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+                          <ApprovalState
+                            orgId={organizationId}
+                            approvalState={absence.approvalState}
+                            actingAsEmployee={actingAsEmployee}
+                            isTrueVacancy={false}
+                            absenceId={state.absenceId}
+                            onChange={refetchAbsence}
+                          />
+                        </Can>
+                      )}
 
                     <Section className={classes.content}>
                       <Grid container spacing={2}>
@@ -1193,18 +1194,21 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const vacancyDetailsAreEqual = (details: VacancyDetail[], detailsToCompare: VacancyDetail[]) => {
+const vacancyDetailsAreEqual = (
+  details: VacancyDetail[],
+  detailsToCompare: VacancyDetail[]
+) => {
   const detailsWithoutIds = details.map(d => {
     return {
       ...d,
-      vacancyDetailId: undefined
-    }
+      vacancyDetailId: undefined,
+    };
   });
   const detailsToCompareWithoutIds = detailsToCompare.map(d => {
     return {
       ...d,
-      vacancyDetailId: undefined
-    }
+      vacancyDetailId: undefined,
+    };
   });
   return isEqual(detailsWithoutIds, detailsToCompareWithoutIds);
-}
+};
