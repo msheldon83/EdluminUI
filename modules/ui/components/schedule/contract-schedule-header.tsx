@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
 import { ContractSelectCalendarChanges } from "./filters/contract-select";
+import clsx from "clsx";
 import { LocationSelectCalendarChanges } from "./filters/location-select";
 import { FilterQueryParams } from "ui/pages/calendars/filter-params";
 import { useQueryParamIso } from "hooks/query-params";
@@ -35,7 +36,7 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
         />
       </div>
       <div className={clsx(classes.select, classes.fromSelect)}>
-        <ContractSelect
+        <ContractSelectCalendarChanges
           orgId={orgId}
           selectedContractId={
             filters.contractId === "" ? undefined : filters.contractId
