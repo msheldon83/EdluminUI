@@ -34,8 +34,8 @@ export const ContractScheduleHeader: React.FC<Props> = props => {
           }}
         />
       </div>
-      <div className={[classes.select, classes.fromSelect].join(" ")}>
-        <ContractSelectCalendarChanges
+      <div className={clsx(classes.select, classes.fromSelect)}>
+        <ContractSelect
           orgId={orgId}
           selectedContractId={
             filters.contractId === "" ? undefined : filters.contractId
