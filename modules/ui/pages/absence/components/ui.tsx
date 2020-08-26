@@ -202,11 +202,11 @@ export const AbsenceUI: React.FC<Props> = props => {
             isSysAdmin,
             orgId,
             actingAsEmployee ? "employee" : "admin",
-            absence?.approvalStatus
+            localAbsence?.approvalStatus
           )
       );
     },
-    [actingAsEmployee, canDoFn, isCreate, absence?.approvalStatus]
+    [actingAsEmployee, canDoFn, isCreate, localAbsence?.approvalStatus]
   );
 
   const onProjectedVacanciesChange = React.useCallback(

@@ -860,19 +860,25 @@ export const VacancyUI: React.FC<Props> = props => {
             />
             {step === "vacancy" && (
               <>
-                {approvalState && (
-                  <Can do={[PermissionEnum.AbsVacApprovalsView]}>
-                    <div className={classes.approvalBannerContainer}>
-                      <ApprovalState
-                        orgId={params.organizationId}
-                        approvalState={approvalState}
-                        isTrueVacancy={true}
-                        vacancyId={vacancy.id}
-                        onChange={props.refetchVacancy}
-                      />
-                    </div>
-                  </Can>
-                )}
+                {approvalState &&
+                  (vacancy.approvalStatus === ApprovalStatus.Approved ||
+                    vacancy.approvalStatus === ApprovalStatus.Denied ||
+                    vacancy.approvalStatus ===
+                      ApprovalStatus.ApprovalRequired ||
+                    vacancy.approvalStatus ===
+                      ApprovalStatus.PartiallyApproved) && (
+                    <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+                      <div className={classes.approvalBannerContainer}>
+                        <ApprovalState
+                          orgId={params.organizationId}
+                          approvalState={approvalState}
+                          isTrueVacancy={true}
+                          vacancyId={vacancy.id}
+                          onChange={props.refetchVacancy}
+                        />
+                      </div>
+                    </Can>
+                  )}
                 <Grid
                   container
                   justify="space-between"
