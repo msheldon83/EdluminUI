@@ -5,19 +5,19 @@ export const CalendarDayTypes: {
   name: string;
 }[] = [
   {
-    enumValue: "CANCELLED_DAY" as CalendarDayType,
+    enumValue: CalendarDayType.CancelledDay,
     name: "Unscheduled Day Off",
   },
   {
-    enumValue: "INSTRUCTIONAL_DAY" as CalendarDayType,
+    enumValue: CalendarDayType.InstructionalDay,
     name: "Instructional Day",
   },
   {
-    enumValue: "NON_WORK_DAY" as CalendarDayType,
+    enumValue: CalendarDayType.NonWorkDay,
     name: "Scheduled Day Off",
   },
   {
-    enumValue: "TEACHER_WORK_DAY" as CalendarDayType,
+    enumValue: CalendarDayType.TeacherWorkDay,
     name: "Teacher Work Day",
   },
 ];
