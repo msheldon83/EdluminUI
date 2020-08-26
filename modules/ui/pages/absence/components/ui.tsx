@@ -861,11 +861,13 @@ export const AbsenceUI: React.FC<Props> = props => {
 
                     {// Only show the banner if there is an approval state object and the status on the absence matches one we should show
                     absence?.approvalState &&
-                      (absence?.approvalStatus === ApprovalStatus.Approved ||
-                        absence?.approvalStatus === ApprovalStatus.Denied ||
-                        absence?.approvalStatus ===
+                      (localAbsence?.approvalStatus ===
+                        ApprovalStatus.Approved ||
+                        localAbsence?.approvalStatus ===
+                          ApprovalStatus.Denied ||
+                        localAbsence?.approvalStatus ===
                           ApprovalStatus.ApprovalRequired ||
-                        absence?.approvalStatus ===
+                        localAbsence?.approvalStatus ===
                           ApprovalStatus.PartiallyApproved) && (
                         <Can do={[PermissionEnum.AbsVacApprovalsView]}>
                           <ApprovalState
