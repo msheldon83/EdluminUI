@@ -24,7 +24,8 @@ export const getCalendarSummaryText = (
       .filter(c => contractIds.find(x => x === c.value))
       .map(c => {
         return c.label;
-      });
+      })
+      .sort();
 
   const locations =
     locationIds &&
@@ -32,7 +33,8 @@ export const getCalendarSummaryText = (
       .filter(c => locationIds.find(x => x === c.value))
       .map(c => {
         return c.label;
-      });
+      })
+      .sort();
 
   //User has not specified any values.
   if (

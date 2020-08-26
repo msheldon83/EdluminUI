@@ -81,6 +81,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const [contractIds, setContractIds] = React.useState<string[]>([]);
   const [locationIds, setLocationIds] = React.useState<string[]>([]);
 
+  //console.log(calendarChange);
+
   const [calendarChangeId, setCalendarChangeId] = useState<
     string | undefined | null
   >(calendarChange.id);
@@ -106,7 +108,11 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   //Set state values only when we have a real calendarChange
   useEffect(() => {
     if (calendarChangeId !== calendarChange.id) {
-      setContractIds(compact(calendarChange.contractIds) ?? []);
+      setContractIds(
+        compact(calendarChange.changedContracts?.map(e => e?.id)) ??
+          compact(calendarChange.contractIds) ??
+          []
+      );
       setLocationIds(compact(calendarChange.locationIds) ?? []);
       setAffectsAllLocations(calendarChange.affectsAllLocations ?? true);
       setAffectsAllContracts(calendarChange.affectsAllContracts ?? true);
