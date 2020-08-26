@@ -20,7 +20,7 @@ import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-r
 import clsx from "clsx";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { compact } from "lodash-es";
+import { compact, truncate } from "lodash-es";
 import { DatePicker } from "ui/components/form/date-picker";
 import { isAfterDate } from "helpers/date";
 import { OptionTypeBase } from "react-select/src/types";
@@ -60,7 +60,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { locationOptions, contractOptions } = props;
   const today = React.useMemo(() => new Date(), []);
-  const { orgId } = props;
+  const { orgId, open } = props;
 
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
 
@@ -87,8 +87,12 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
 
   const [submittingData, setSubmittingData] = React.useState(false);
   const [summaryText, setSummaryTest] = React.useState<string>("");
-  const [affectsAllLocations, setAffectsAllLocations] = useState<boolean>(true);
-  const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(true);
+  const [affectsAllLocations, setAffectsAllLocations] = useState<boolean>(
+    calendarChange.affectsAllLocations ?? true
+  );
+  const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(
+    calendarChange.affectsAllContracts ?? true
+  );
 
   const clearState = () => {
     setContractIds([]);
@@ -107,6 +111,18 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
       setAffectsAllLocations(calendarChange.affectsAllLocations ?? true);
       setAffectsAllContracts(calendarChange.affectsAllContracts ?? true);
       setCalendarChangeId(calendarChange.id);
+
+      const string = getCalendarSummaryText(
+        locationOptions,
+        contractOptions,
+        affectsAllContracts,
+        affectsAllLocations,
+        contractIds,
+        locationIds,
+        t
+      );
+
+      setSummaryTest(string);
     }
   }, [calendarChange.id]);
 
@@ -179,8 +195,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
             calendarChange.changedContracts &&
             calendarChange.changedContracts?.map(c => c?.id),
           locations: calendarChange.locationIds,
-          affectsAllContracts: affectsAllContracts,
-          affectsAllLocations: affectsAllLocations,
+          affectsAllContracts: calendarChange.affectsAllContracts,
+          affectsAllLocations: calendarChange.affectsAllLocations,
         }}
         onReset={(values, formProps) => {
           formProps.setFieldValue("toDate", today);
@@ -226,8 +242,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                   : changeReasonOptions[0]?.value,
                 contractIds: data.contracts,
                 locationIds: data.locations,
-                affectsAllContracts: affectsAllContracts,
-                affectsAllLocations: affectsAllLocations,
+                affectsAllContracts: data.affectsAllContracts,
+                affectsAllLocations: data.affectsAllLocations,
               };
 
               resultSucceeded = await props.onUpdate(calendarChangeUpdate);
@@ -243,8 +259,8 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 : changeReasonOptions[0]?.value,
               contractIds: data.contracts,
               locationIds: data.locations,
-              affectsAllContracts: affectsAllContracts,
-              affectsAllLocations: affectsAllLocations,
+              affectsAllContracts: data.affectsAllContracts,
+              affectsAllLocations: data.affectsAllLocations,
             };
 
             resultSucceeded = await props.onAdd(calendarChangeCreate);
@@ -562,7 +578,7 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     top: "-10px",
     right: "-10px",
-    zIndex: 50,
+    zIndex: 180,
   },
   marginLeft: {
     marginLeft: "20px",

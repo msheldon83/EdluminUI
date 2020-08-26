@@ -96,10 +96,16 @@ export const Calendars: React.FC<Props> = props => {
     {
       startDate: selectedDate.toISOString() ?? today.toISOString(),
       endDate: selectedDate.toISOString() ?? today.toISOString(),
-      affectsAllContracts: filters.contractId !== undefined ? false : true,
-      affectsAllLocations: filters.locationId !== undefined ? false : true,
-      locationIds: [filters.locationId] ?? [],
-      contractIds: [filters.contractId] ?? [],
+      affectsAllContracts:
+        filters.contractId === "" || filters.contractId === undefined
+          ? true
+          : false,
+      affectsAllLocations:
+        filters.locationId === "" || filters.locationId === undefined
+          ? true
+          : false,
+      locationIds: filters.locationId === "" ? [] : [filters.locationId],
+      contractIds: filters.contractId === "" ? [] : [filters.contractId],
     },
   ];
 

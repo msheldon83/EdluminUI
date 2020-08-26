@@ -3,7 +3,7 @@ import { CalendarChangeRow } from "./calendarChangeRow";
 import { OptionType } from "ui/components/form/select-new";
 import { useState } from "react";
 import { CalendarEvent } from "../types";
-import { EditSignleDayDialog } from "./edit-single-day-dialog";
+import { EditSingleDayDialog } from "./edit-single-day-dialog";
 
 type Props = {
   orgId: string;
@@ -43,7 +43,7 @@ export const StickyHeader: React.FC<Props> = props => {
 
   return (
     <div>
-      <EditSignleDayDialog
+      <EditSingleDayDialog
         open={editDialogOpen}
         onClose={() => {
           setEditDialogOpen(false);
