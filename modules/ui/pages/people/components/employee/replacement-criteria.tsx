@@ -12,6 +12,7 @@ import {
 } from "ui/routes/people";
 
 type Props = {
+  disabled: boolean;
   editing: string | null;
   editable: boolean;
   replacementCriteria?: Maybe<{
@@ -33,7 +34,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
   const history = useHistory();
   const params = useRouteParams(PersonViewRoute);
 
-  const showEditButton = !props.editing && props.editable;
+  const showEditButton = !props.disabled && !props.editing && props.editable;
 
   const replacementCriteria = props.replacementCriteria;
   const inheritedReplacementCriteria = props.inheritedReplacementCriteria;
@@ -88,44 +89,63 @@ export const ReplacementCriteria: React.FC<Props> = props => {
         />
         <Grid container spacing={2}>
           <Grid container item spacing={2} xs={8}>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">{t("Substitutes must have")}</Typography>
-              {deduppedMustHaves.length === 0 ? (
-                <div>{t("Not defined")}</div>
-              ) : (
-                deduppedMustHaves.map((n, i) => <div key={i}>{n}</div>)
-              )}
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">
-                {t("Prefer that substitutes have")}
-              </Typography>
-              {deduppedPreferToHaves.length === 0 ? (
-                <div>{t("Not defined")}</div>
-              ) : (
-                deduppedPreferToHaves.map((n, i) => <div key={i}>{n}</div>)
-              )}
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">
-                {t("Substitutes must not have")}
-              </Typography>
-              {deduppedMustNotHaves.length === 0 ? (
-                <div>{t("Not defined")}</div>
-              ) : (
-                deduppedMustNotHaves.map((n, i) => <div key={i}>{n}</div>)
-              )}
-            </Grid>
-            <Grid item xs={12} sm={6} lg={6}>
-              <Typography variant="h6">
-                {t("Prefer that substitutes not have")}
-              </Typography>
-              {deduppedPreferToNotHaves.length === 0 ? (
-                <div>{t("Not defined")}</div>
-              ) : (
-                deduppedPreferToNotHaves.map((n, i) => <div key={i}>{n}</div>)
-              )}
-            </Grid>
+            {props.disabled && (
+              <Grid item>
+                <Typography variant="h6">
+                  {t("Does not apply to positions that do not require subs.")}
+                </Typography>
+              </Grid>
+            )}
+            {(!props.disabled ||
+              deduppedMustHaves.length > 0 ||
+              deduppedPreferToHaves.length > 0 ||
+              deduppedMustNotHaves.length > 0 ||
+              deduppedPreferToNotHaves.length > 0) && (
+              <>
+                <Grid item xs={12} sm={6} lg={6}>
+                  <Typography variant="h6">
+                    {t("Substitutes must have")}
+                  </Typography>
+                  {deduppedMustHaves.length === 0 ? (
+                    <div>{t("Not defined")}</div>
+                  ) : (
+                    deduppedMustHaves.map((n, i) => <div key={i}>{n}</div>)
+                  )}
+                </Grid>
+                <Grid item xs={12} sm={6} lg={6}>
+                  <Typography variant="h6">
+                    {t("Prefer that substitutes have")}
+                  </Typography>
+                  {deduppedPreferToHaves.length === 0 ? (
+                    <div>{t("Not defined")}</div>
+                  ) : (
+                    deduppedPreferToHaves.map((n, i) => <div key={i}>{n}</div>)
+                  )}
+                </Grid>
+                <Grid item xs={12} sm={6} lg={6}>
+                  <Typography variant="h6">
+                    {t("Substitutes must not have")}
+                  </Typography>
+                  {deduppedMustNotHaves.length === 0 ? (
+                    <div>{t("Not defined")}</div>
+                  ) : (
+                    deduppedMustNotHaves.map((n, i) => <div key={i}>{n}</div>)
+                  )}
+                </Grid>
+                <Grid item xs={12} sm={6} lg={6}>
+                  <Typography variant="h6">
+                    {t("Prefer that substitutes not have")}
+                  </Typography>
+                  {deduppedPreferToNotHaves.length === 0 ? (
+                    <div>{t("Not defined")}</div>
+                  ) : (
+                    deduppedPreferToNotHaves.map((n, i) => (
+                      <div key={i}>{n}</div>
+                    ))
+                  )}
+                </Grid>
+              </>
+            )}
           </Grid>
         </Grid>
       </Section>
