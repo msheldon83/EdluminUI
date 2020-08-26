@@ -20,7 +20,7 @@ import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-r
 import clsx from "clsx";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { compact, truncate } from "lodash-es";
+import { compact } from "lodash-es";
 import { DatePicker } from "ui/components/form/date-picker";
 import { isAfterDate } from "helpers/date";
 import { OptionTypeBase } from "react-select/src/types";
@@ -80,8 +80,6 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
 
   const [contractIds, setContractIds] = React.useState<string[]>([]);
   const [locationIds, setLocationIds] = React.useState<string[]>([]);
-
-  //console.log(calendarChange);
 
   const [calendarChangeId, setCalendarChangeId] = useState<
     string | undefined | null
