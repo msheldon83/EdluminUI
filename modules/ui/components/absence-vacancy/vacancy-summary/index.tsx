@@ -26,6 +26,7 @@ type Props = {
     vacancySummaryDetails: VacancySummaryDetail[]
   ) => Promise<boolean>;
   disableAssignmentActions?: boolean;
+  onChangeManualFill?: (checked: boolean) => void;
   detailsOnly?: boolean;
   readOnly?: boolean;
   noDaysChosenText?: string;
@@ -111,7 +112,9 @@ export const VacancySummary: React.FC<Props> = props => {
             <Typography>{noDaysChosenText}</Typography>
           </div>
         )}
-        {holdForManualFill && <ManualFillBanner />}
+        {holdForManualFill && (
+          <ManualFillBanner onChangeManualFill={props.onChangeManualFill} />
+        )}
         {!isApprovedForSubJobSearch && !holdForManualFill && (
           <NotReleasedBanner isNormalVacancy={!isAbsence} />
         )}

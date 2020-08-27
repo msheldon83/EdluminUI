@@ -476,7 +476,7 @@ export const AbsenceUI: React.FC<Props> = props => {
     const result = await updateHoldForManualFill({
       variables: {
         vacancyManualFillInput: {
-          vacancyId: localAbsence?.vacancies?.[0]?.holdForManualFill ?? "",
+          vacancyId: localAbsence?.vacancies?.[0]?.id ?? "",
           holdForManualFill: checked,
         },
       },

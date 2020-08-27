@@ -359,6 +359,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
             vacancySummaryDetails: VacancySummaryDetail[]
           ) => onAssignSubClick(vacancySummaryDetails)}
           onCancelAssignment={onCancelAssignment}
+          onChangeManualFill={props.onChangeManualFill}
           notesForSubstitute={values.notesToReplacement}
           setNotesForSubstitute={(notes: string) => {
             setFieldValue("notesToReplacement", notes);
