@@ -65,6 +65,7 @@ export type CalendarScheduleDate = {
   absences: EmployeeAbsenceDetail[];
   closedDays: ContractDate[];
   modifiedDays: PositionScheduleDate[];
+  normalDays: PositionScheduleDate[];
   contractInstructionalDays: ContractDate[];
   inServiceDays: ContractDate[];
   nonWorkDays: ContractDate[];

@@ -112,6 +112,8 @@ export const AbsenceSchedule: React.FC<Props> = props => {
       </Grid>
     );
 
+  console.log(selectedCalendarDates);
+
   return (
     <div>
       <div className={classes.sticky}>

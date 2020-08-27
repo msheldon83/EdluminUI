@@ -45,6 +45,7 @@ export const SelectedDateView: React.FC<Props> = props => {
     props.scheduleDates.forEach(s => {
       absenceDays.push(...s.absences);
       instructionalDays.push(...s.modifiedDays);
+      instructionalDays.push(...s.normalDays);
       contractInstructionalDays.push(...s.contractInstructionalDays);
       nonInstructionalDays.push(
         ...s.closedDays.concat(s.inServiceDays).concat(s.nonWorkDays)
@@ -73,12 +74,14 @@ export const SelectedDateView: React.FC<Props> = props => {
         props.actingAsEmployee,
         props.orgId
       )}
-      {displayInstructionalDayInformation(
-        instructionalDays,
-        contractInstructionalDays,
-        classes,
-        t
-      )}
+      {absenceDays.length === 0 &&
+        nonInstructionalDays.length === 0 &&
+        displayInstructionalDayInformation(
+          instructionalDays,
+          contractInstructionalDays,
+          classes,
+          t
+        )}
       {displayNonInstructionalDayInformation(nonInstructionalDays, classes, t)}
     </Grid>
   );
@@ -108,11 +111,21 @@ const displayInstructionalDayInformation = (
   classes: any,
   t: TFunction
 ) => {
+  console.log(contractInstructionalDays);
+  console.log(instructionalDays);
+
   return instructionalDays
     .filter(d => d.startTime != d.endTime)
     .map((d, i) => {
       return (
-        <Grid item container xs={12} key={i} className={classes.detail}>
+        <Grid
+          item
+          container
+          xs={12}
+          key={i}
+          className={classes.detail}
+          spacing={2}
+        >
           <Grid item xs={4}>
             <div>{d.position}</div>
             <div className={classes.subText}>{d.location}</div>
