@@ -53,22 +53,24 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
             : t("No substitute required")}
         </Typography>
       )}
-      {holdForManualFill !== undefined && Config.isDevFeatureOnly && (
-        <FormControlLabel
-          label={t("Fill manually")}
-          className={classes.displayInline}
-          control={
-            <Checkbox
-              checked={holdForManualFill}
-              onChange={e => {
-                onChangeManualFill && onChangeManualFill(e.target.checked);
-              }}
-              color="primary"
-              disabled={disabled}
-            />
-          }
-        />
-      )}
+      {holdForManualFill !== undefined &&
+        needsReplacement &&
+        Config.isDevFeatureOnly && (
+          <FormControlLabel
+            label={t("Fill manually")}
+            className={classes.displayInline}
+            control={
+              <Checkbox
+                checked={holdForManualFill}
+                onChange={e => {
+                  onChangeManualFill && onChangeManualFill(e.target.checked);
+                }}
+                color="primary"
+                disabled={disabled}
+              />
+            }
+          />
+        )}
     </>
   );
 };

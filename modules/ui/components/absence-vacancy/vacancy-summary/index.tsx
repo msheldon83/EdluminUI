@@ -111,10 +111,6 @@ export const VacancySummary: React.FC<Props> = props => {
             <Typography>{noDaysChosenText}</Typography>
           </div>
         )}
-        {!isApprovedForSubJobSearch && (
-          <NotReleasedBanner isNormalVacancy={!isAbsence} />
-        )}
-
         {holdForManualFill && <ManualFillBanner />}
         {!isApprovedForSubJobSearch && !holdForManualFill && (
           <NotReleasedBanner isNormalVacancy={!isAbsence} />

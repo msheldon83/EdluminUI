@@ -59,6 +59,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { VacancySummaryDetail } from "ui/components/absence-vacancy/vacancy-summary/types";
 import { AssignVacancy } from "../graphql/assign-vacancy.gen";
 import { DiscardChangesDialog } from "ui/components/discard-changes-dialog";
+import { UpdateManualFill } from "../graphql/update-manual-fill.gen";
 import { ActionMenu, Option } from "ui/components/action-menu";
 import { useHistory } from "react-router";
 import { AbsenceActivityLogRoute } from "ui/routes/absence-vacancy/activity-log";
@@ -75,7 +76,6 @@ import {
 type Props = {
   organizationId: string;
   actingAsEmployee: boolean;
-  holdForManualFill?: boolean;
   employee: {
     id: string;
     firstName: string;
@@ -92,7 +92,6 @@ type Props = {
   };
   initialAbsenceFormData: AbsenceFormData;
   initialAbsenceState: () => AbsenceState;
-  onChangeManualFill?: (checked: boolean) => Promise<void>;
   saveAbsence: (
     data: AbsenceCreateInput | AbsenceUpdateInput
   ) => Promise<Absence>;
@@ -126,8 +125,6 @@ export const AbsenceUI: React.FC<Props> = props => {
     refetchAbsence,
     absence,
     unfilledVacancySummaryDetails,
-    holdForManualFill,
-    onChangeManualFill,
   } = props;
 
   const [
@@ -224,6 +221,12 @@ export const AbsenceUI: React.FC<Props> = props => {
     },
     []
   );
+
+  const [updateHoldForManualFill] = useMutationBundle(UpdateManualFill, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
 
   const onChangedVacancies = React.useCallback(
     (vacancyDetails: VacancyDetail[]) => {
@@ -464,6 +467,23 @@ export const AbsenceUI: React.FC<Props> = props => {
     },
     []
   );
+
+  const [holdForManualFill, setHoldForManualFill] = React.useState<
+    boolean | undefined
+  >(localAbsence?.vacancies?.[0]?.holdForManualFill ?? false);
+
+  const onChangeManualFill = async (checked: boolean) => {
+    const result = await updateHoldForManualFill({
+      variables: {
+        vacancyManualFillInput: {
+          vacancyId: localAbsence?.vacancies?.[0]?.holdForManualFill ?? "",
+          holdForManualFill: checked,
+        },
+      },
+    });
+
+    if (result?.data?.vacancy) setHoldForManualFill(checked);
+  };
 
   // Due to the way the AssignSub component is structured and it being
   // used across Absence V1, Vacancy, and now Absence V2, it expects to
@@ -932,7 +952,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                             organizationId={organizationId}
                             holdForManualFill={holdForManualFill}
                             actingAsEmployee={actingAsEmployee}
-                            onChangeManualFill={onChangeManualFill}
+                            onChangeManualFill={async (checked: boolean) =>
+                              onChangeManualFill(checked)
+                            }
                             needsReplacement={
                               position?.needsReplacement ?? NeedsReplacement.No
                             }

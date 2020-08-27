@@ -20,7 +20,6 @@ import { DeletedDataIndex } from "./deleted-data-index";
 import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete-absence-vacancy-dialog";
 import { UpdateAbsence } from "../graphql/update-absence.gen";
 import { parseISO, startOfMonth } from "date-fns";
-import { UpdateManualFill } from "../graphql/update-manual-fill.gen";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import {
@@ -61,12 +60,6 @@ export const EditAbsence: React.FC<Props> = props => {
   });
 
   const [deleteAbsence] = useMutationBundle(DeleteAbsence, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  const [updateHoldForManualFill] = useMutationBundle(UpdateManualFill, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -119,23 +112,6 @@ export const EditAbsence: React.FC<Props> = props => {
   const vacancies = compact(absence?.vacancies ?? []);
   const vacancy = vacancies[0];
   const position = vacancy?.position ?? employee?.primaryPosition;
-
-  const [holdForManualFill, setHoldForManualFill] = React.useState<
-    boolean | undefined
-  >(vacancy?.holdForManualFill ?? false);
-
-  const onUpdateManualFill = async (checked: boolean) => {
-    const result = await updateHoldForManualFill({
-      variables: {
-        vacancyManualFillInput: {
-          vacancyId: vacancy.id,
-          holdForManualFill: checked,
-        },
-      },
-    });
-
-    if (result?.data?.vacancy) setHoldForManualFill(checked);
-  };
 
   const assignmentsByDate = React.useMemo(() => {
     if (!absence || !absence?.vacancies) {
@@ -239,10 +215,6 @@ export const EditAbsence: React.FC<Props> = props => {
       <AbsenceUI
         organizationId={organizationId}
         actingAsEmployee={actingAsEmployee}
-        holdForManualFill={holdForManualFill}
-        onChangeManualFill={async (checked: boolean) =>
-          onUpdateManualFill(checked)
-        }
         employee={{
           id: employee.id,
           firstName: employee.firstName,
