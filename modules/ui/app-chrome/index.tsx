@@ -120,8 +120,8 @@ export const AppChrome: React.FunctionComponent = props => {
                   expand={expand}
                   collapse={collapse}
                 />
-                <div id="main-container" className={classes.container}>
-                  <SnackbarProvider>
+                <SnackbarProvider>
+                  <div id="main-container" className={classes.container}>
                     <DialogProvider>
                       <div
                         className={`${
@@ -141,8 +141,8 @@ export const AppChrome: React.FunctionComponent = props => {
                         </ErrorBoundary>
                       </div>
                     </DialogProvider>
-                  </SnackbarProvider>
-                </div>
+                  </div>
+                </SnackbarProvider>
                 <div className={contentFooterClasses}>
                   <div
                     className={classes.contentFooter}

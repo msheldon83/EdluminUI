@@ -71,7 +71,7 @@ export const ErrorDialog: React.FC<Props> = props => {
         ))}
         <div className={classes.actions}>
           <Button size="small" variant="outlined" onClick={() => onClose()}>
-            {warningsOnly ? t("Cancel") : t("Okay")}
+            {warningsOnly ? t("Cancel") : t("Ok")}
           </Button>
           {warningsOnly && (
             <Button

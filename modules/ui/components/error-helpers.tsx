@@ -47,7 +47,7 @@ export const ShowIgnoreAndContinueOrError = (
       return (
         <>
           <Button size="small" variant="outlined" onClick={() => closeDialog()}>
-            {warningsOnly ? t("Cancel") : t("Okay")}
+            {warningsOnly ? t("Cancel") : t("Ok")}
           </Button>
           {warningsOnly && (
             <Button

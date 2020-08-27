@@ -12,6 +12,7 @@ import {
 } from "ui/routes/position-type";
 
 type Props = {
+  disabled: boolean;
   editing: string | null;
   replacementCriteria?: Maybe<{
     mustHave?: Maybe<Pick<Endorsement, "name">>[] | null;
@@ -36,7 +37,7 @@ export const ReplacementCriteria: React.FC<Props> = props => {
           actions={[
             {
               text: t("Edit"),
-              visible: !props.editing,
+              visible: !props.disabled && !props.editing,
               execute: () => {
                 const editSettingsUrl = ReplacementCriteriaEditRoute.generate(
                   params
@@ -48,52 +49,71 @@ export const ReplacementCriteria: React.FC<Props> = props => {
           ]}
         />
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">{t("Substitutes must have")}</Typography>
-            {replacementCriteria?.mustHave?.length === 0 ? (
-              <div>{t("Not defined")}</div>
-            ) : (
-              replacementCriteria?.mustHave?.map((n, i) => (
-                <div key={i}>{n?.name}</div>
-              ))
-            )}
-          </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">
-              {t("Prefer that substitutes have")}
-            </Typography>
-            {replacementCriteria?.preferToHave?.length === 0 ? (
-              <div>{t("Not defined")}</div>
-            ) : (
-              replacementCriteria?.preferToHave?.map((n, i) => (
-                <div key={i}>{n?.name}</div>
-              ))
-            )}
-          </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">
-              {t("Substitutes must not have")}
-            </Typography>
-            {replacementCriteria?.mustNotHave?.length === 0 ? (
-              <div>{t("Not defined")}</div>
-            ) : (
-              replacementCriteria?.mustNotHave?.map((n, i) => (
-                <div key={i}>{n?.name}</div>
-              ))
-            )}
-          </Grid>
-          <Grid item xs={12} sm={6} lg={6}>
-            <Typography variant="h6">
-              {t("Prefer that subsitutes not have")}
-            </Typography>
-            {replacementCriteria?.preferToNotHave?.length === 0 ? (
-              <div>{t("Not defined")}</div>
-            ) : (
-              replacementCriteria?.preferToNotHave?.map((n, i) => (
-                <div key={i}>{n?.name}</div>
-              ))
-            )}
-          </Grid>
+          {props.disabled && (
+            <Grid container item spacing={2} xs={8}>
+              <Grid item>
+                <Typography variant="h6">
+                  {t("Does not apply to positions that do not require subs.")}
+                </Typography>
+              </Grid>
+            </Grid>
+          )}
+          {(!props.disabled ||
+            (replacementCriteria?.mustHave?.length ?? 0) > 0 ||
+            (replacementCriteria?.preferToHave?.length ?? 0) > 0 ||
+            (replacementCriteria?.mustNotHave?.length ?? 0) > 0 ||
+            (replacementCriteria?.preferToNotHave?.length ?? 0) > 0) && (
+            <>
+              <Grid item xs={12} sm={6} lg={6}>
+                <Typography variant="h6">
+                  {t("Substitutes must have")}
+                </Typography>
+                {replacementCriteria?.mustHave?.length === 0 ? (
+                  <div>{t("Not defined")}</div>
+                ) : (
+                  replacementCriteria?.mustHave?.map((n, i) => (
+                    <div key={i}>{n?.name}</div>
+                  ))
+                )}
+              </Grid>
+              <Grid item xs={12} sm={6} lg={6}>
+                <Typography variant="h6">
+                  {t("Prefer that substitutes have")}
+                </Typography>
+                {replacementCriteria?.preferToHave?.length === 0 ? (
+                  <div>{t("Not defined")}</div>
+                ) : (
+                  replacementCriteria?.preferToHave?.map((n, i) => (
+                    <div key={i}>{n?.name}</div>
+                  ))
+                )}
+              </Grid>
+              <Grid item xs={12} sm={6} lg={6}>
+                <Typography variant="h6">
+                  {t("Substitutes must not have")}
+                </Typography>
+                {replacementCriteria?.mustNotHave?.length === 0 ? (
+                  <div>{t("Not defined")}</div>
+                ) : (
+                  replacementCriteria?.mustNotHave?.map((n, i) => (
+                    <div key={i}>{n?.name}</div>
+                  ))
+                )}
+              </Grid>
+              <Grid item xs={12} sm={6} lg={6}>
+                <Typography variant="h6">
+                  {t("Prefer that subsitutes not have")}
+                </Typography>
+                {replacementCriteria?.preferToNotHave?.length === 0 ? (
+                  <div>{t("Not defined")}</div>
+                ) : (
+                  replacementCriteria?.preferToNotHave?.map((n, i) => (
+                    <div key={i}>{n?.name}</div>
+                  ))
+                )}
+              </Grid>
+            </>
+          )}
         </Grid>
       </Section>
     </>
