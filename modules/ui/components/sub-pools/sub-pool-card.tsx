@@ -12,11 +12,12 @@ import {
 import { Can } from "../auth/can";
 import clsx from "clsx";
 import { SubstituteLink } from "ui/components/links/people";
+import { PoolMember } from "./types";
 
 type Props = {
   title: string;
-  replacementPoolMembers?: ReplacementPoolMember[] | null;
-  onRemove: (member: ReplacementPoolMember) => void;
+  replacementPoolMembers?: PoolMember[] | null;
+  onRemove: (member: PoolMember) => void;
   removePermission: PermissionEnum[];
 };
 

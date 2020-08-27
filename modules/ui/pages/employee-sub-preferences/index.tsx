@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
+import { compact } from "lodash-es";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
@@ -8,6 +9,7 @@ import { AddSubPreference } from "./graphql/add-sub-preference.gen";
 import { RemoveSubPreference } from "./graphql/remove-sub-preference.gen";
 import { SaveReplacementPoolMember } from "./graphql/save-replacement-pool-member.gen";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
+import { BlockedPoolMember, PoolMember } from "ui/components/sub-pools/types";
 import {
   PermissionEnum,
   ReplacementPoolType,
@@ -20,31 +22,60 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
   const { openSnackbar } = useSnackbar();
   const me = useGetEmployee();
 
+  const [favoriteMembers, setFavoriteMembers] = React.useState<PoolMember[]>(
+    []
+  );
+  const [blockedMembers, setBlockedMembers] = React.useState<
+    BlockedPoolMember[]
+  >([]);
+
   const getEmployee = useQueryBundle(GetEmployeeByIdForPreferences, {
     variables: { id: me?.id },
   });
 
-  const onRemoveFavoriteSubstitute = async (sub: any) => {
+  const orgUser =
+    getEmployee.state == "LOADING"
+      ? undefined
+      : getEmployee.data?.orgUser?.byId;
+  const employee = orgUser?.employee;
+  React.useEffect(() => {
+    setFavoriteMembers(
+      compact(
+        employee?.substitutePreferences.favoriteSubstituteMembers
+      ).map(m => ({ ...m, employee: m.employee ?? undefined }))
+    );
+    setBlockedMembers(
+      compact(employee?.substitutePreferences.blockedSubstituteMembers).map(
+        m => ({
+          ...m,
+          employee: m.employee ?? undefined,
+          adminNote: m.adminNote ?? undefined,
+        })
+      )
+    );
+  }, [employee]);
+
+  const onRemoveFavoriteSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(
+      favoriteMembers.filter(m => m.employeeId != sub.employeeId)
+    );
     await removeSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
-  const onRemoveBlockedSubstitute = async (sub: any) => {
+  const onRemoveBlockedSubstitute = async (sub: BlockedPoolMember) => {
+    setBlockedMembers(
+      blockedMembers.filter(m => m.employeeId != sub.employeeId)
+    );
     await removeSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
-  const onAddSubstitute = async (sub: any) => {
-    orgUser?.employee?.substitutePreferences?.favoriteSubstituteMembers.push(
-      sub
-    );
-
+  const onAddSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(favoriteMembers.concat(sub));
     await addSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
-  const onBlockSubstitute = async (sub: any) => {
-    orgUser?.employee?.substitutePreferences?.blockedSubstituteMembers.push(
-      sub
-    );
-
+  const onBlockSubstitute = async (sub: PoolMember) => {
+    setBlockedMembers(blockedMembers.concat(sub));
     await addSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
@@ -114,15 +145,9 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
     },
   });
 
-  if (
-    getEmployee.state === "LOADING" ||
-    !getEmployee?.data?.orgUser?.byId?.employee
-  ) {
+  if (!orgUser || !employee) {
     return <></>;
   }
-
-  const orgUser = getEmployee?.data?.orgUser?.byId ?? undefined;
-  const employee: any = getEmployee?.data?.orgUser?.byId.employee;
 
   return (
     <>
@@ -130,12 +155,8 @@ export const EmployeeSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteMembers={
-          employee?.substitutePreferences?.favoriteSubstituteMembers ?? []
-        }
-        blockedMembers={
-          employee?.substitutePreferences?.blockedSubstituteMembers ?? []
-        }
+        favoriteMembers={favoriteMembers}
+        blockedMembers={blockedMembers}
         heading={t("Substitute Preferences")}
         orgId={orgUser?.orgId ?? ""}
         onAddNote={onAddNote}

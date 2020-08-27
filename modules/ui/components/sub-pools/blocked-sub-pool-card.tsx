@@ -8,16 +8,16 @@ import ClearIcon from "@material-ui/icons/Clear";
 import { TextButton } from "ui/components/text-button";
 import {
   PermissionEnum,
-  ReplacementPoolMember,
   ReplacementPoolMemberUpdateInput,
 } from "graphql/server-types.gen";
 import { Can } from "../auth/can";
 import clsx from "clsx";
 import { SubstituteLink } from "ui/components/links/people";
+import { BlockedPoolMember } from "./types";
 
 type Props = {
-  replacementPoolMember: ReplacementPoolMember;
-  onRemove: (member: ReplacementPoolMember) => void;
+  replacementPoolMember: BlockedPoolMember;
+  onRemove: (member: BlockedPoolMember) => void;
   onAddNote: (replacementPoolMember: ReplacementPoolMemberUpdateInput) => void;
   removePermission: PermissionEnum[];
   shaded: number;
@@ -96,21 +96,24 @@ export const BlockedSubPoolCard: React.FC<Props> = props => {
             />
           </Grid>
           <Grid item xs={1} className={classes.position}>
-            <div
-              className={classes.iconHover}
-              onClick={() => {
-                const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
-                  employeeId: replacementPoolMember.employeeId,
-                  id: replacementPoolMember.id,
-                  replacementPoolId: replacementPoolMember.replacementPoolId,
-                  adminNote: note === "" ? null : note,
-                };
-                onAddNote(replacementPoolMemberInput);
-                setShowEdit(!showEdit);
-              }}
-            >
-              <CheckIcon className={classes.saveIcon} />
-            </div>
+            {replacementPoolMember.id &&
+              replacementPoolMember.replacementPoolId && (
+                <div
+                  className={classes.iconHover}
+                  onClick={() => {
+                    const replacementPoolMemberInput: ReplacementPoolMemberUpdateInput = {
+                      employeeId: replacementPoolMember.employeeId,
+                      id: replacementPoolMember.id!,
+                      replacementPoolId: replacementPoolMember.replacementPoolId!,
+                      adminNote: note === "" ? null : note,
+                    };
+                    onAddNote(replacementPoolMemberInput);
+                    setShowEdit(!showEdit);
+                  }}
+                >
+                  <CheckIcon className={classes.saveIcon} />
+                </div>
+              )}
             <div
               className={classes.iconHover}
               onClick={() => {
