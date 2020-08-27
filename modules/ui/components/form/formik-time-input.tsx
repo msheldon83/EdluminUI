@@ -7,21 +7,29 @@ import { parseISO, getHours, getMinutes } from "date-fns";
 
 type Props = Omit<
   TimeInputProps,
-  "name" | "label" | "onChange" | "onValidTime"
+  "name" | "label" | "onChange" | "onValidTime" | "inputStatus"
 > & {
   name: string;
   label?: string;
   date?: Date;
   className?: string;
   placeHolder?: string;
+  inputStatus:
+    | "warning"
+    | "error"
+    | "success"
+    | "default"
+    | "formik"
+    | null
+    | undefined;
 };
 
 export const FormikTimeInput: React.FC<Props> = ({
   validationMessage,
+  inputStatus,
   ...props
 }) => {
   const [field, meta, helpers] = useField(props.name);
-  const { setFieldValue } = useFormikContext<any>();
 
   const [time, setTime] = useState(
     field.value ? convertStringToDate(field.value)?.toISOString() : undefined
@@ -29,23 +37,37 @@ export const FormikTimeInput: React.FC<Props> = ({
 
   React.useEffect(() => setTime(field.value), [setTime, field.value]);
 
+  const derivedError = meta.touched
+    ? meta.error == "Required" && time != undefined
+      ? undefined
+      : meta.error
+    : undefined;
+
   return (
     <TimeInput
       label={props.label || ""}
       className={props.className}
       placeHolder={props.placeHolder}
       {...props}
+      inputStatus={
+        inputStatus == "formik"
+          ? derivedError
+            ? "error"
+            : "default"
+          : inputStatus
+      }
       validationMessage={
-        validationMessage ?? (meta.touched ? meta.error : undefined)
+        validationMessage ??
+        (inputStatus == "formik" ? derivedError : undefined)
       }
       value={time}
       onChange={(v: string | undefined) => {
         setTime(v);
         if (!v) {
-          setFieldValue(props.name, undefined);
+          helpers.setValue(undefined);
         }
       }}
-      onBlur={() => helpers.setTouched(true)}
+      onBlur={field.onBlur}
       onValidTime={v => {
         let time = v;
         if (props.date) {
@@ -59,7 +81,7 @@ export const FormikTimeInput: React.FC<Props> = ({
         }
 
         setTime(time);
-        setFieldValue(props.name, time);
+        helpers.setValue(time);
       }}
     />
   );
