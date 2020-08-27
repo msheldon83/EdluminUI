@@ -208,16 +208,11 @@ export const AbsenceUI: React.FC<Props> = props => {
             isSysAdmin,
             orgId,
             actingAsEmployee ? "employee" : "admin",
-            absence?.approvalState?.approvalStatusId
+            localAbsence?.approvalStatus
           )
       );
     },
-    [
-      actingAsEmployee,
-      canDoFn,
-      isCreate,
-      absence?.approvalState?.approvalStatusId,
-    ]
+    [actingAsEmployee, canDoFn, isCreate, localAbsence?.approvalStatus]
   );
 
   const onProjectedVacanciesChange = React.useCallback(
@@ -870,18 +865,27 @@ export const AbsenceUI: React.FC<Props> = props => {
                       employee.locationIds.length === 0 &&
                       missingLocationsWarning}
 
-                    {absence?.approvalState && (
-                      <Can do={[PermissionEnum.AbsVacApprovalsView]}>
-                        <ApprovalState
-                          orgId={organizationId}
-                          approvalState={absence.approvalState}
-                          actingAsEmployee={actingAsEmployee}
-                          isTrueVacancy={false}
-                          absenceId={state.absenceId}
-                          onChange={refetchAbsence}
-                        />
-                      </Can>
-                    )}
+                    {// Only show the banner if there is an approval state object and the status on the absence matches one we should show
+                    absence?.approvalState &&
+                      (localAbsence?.approvalStatus ===
+                        ApprovalStatus.Approved ||
+                        localAbsence?.approvalStatus ===
+                          ApprovalStatus.Denied ||
+                        localAbsence?.approvalStatus ===
+                          ApprovalStatus.ApprovalRequired ||
+                        localAbsence?.approvalStatus ===
+                          ApprovalStatus.PartiallyApproved) && (
+                        <Can do={[PermissionEnum.AbsVacApprovalsView]}>
+                          <ApprovalState
+                            orgId={organizationId}
+                            approvalState={absence.approvalState}
+                            actingAsEmployee={actingAsEmployee}
+                            isTrueVacancy={false}
+                            absenceId={state.absenceId}
+                            onChange={refetchAbsence}
+                          />
+                        </Can>
+                      )}
 
                     <Section className={classes.content}>
                       <Grid container spacing={2}>
