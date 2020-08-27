@@ -1,20 +1,15 @@
 import * as React from "react";
 import { useHistory } from "react-router";
-import { useMutationBundle, useQueryBundle } from "graphql/hooks";
+import { useQueryBundle } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
 import { compact } from "lodash-es";
 import { parseAndFormat } from "../../components/date-helpers";
 import {
   Grid,
   makeStyles,
-  Paper,
-  TableContainer,
   Table,
   TableBody,
-  TableCell,
-  TableRow,
   TableHead,
-  Typography,
 } from "@material-ui/core";
 import {
   StyledTableContainer,
@@ -27,7 +22,7 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { useOrganizationId } from "core/org-context";
 import { GetAllApplicationGrantsWithinOrg } from "./graphql/get-application-grants.gen";
 import { IntegrationRoute, IntegrationViewRoute } from "ui/routes/integration";
-import { ApplicationLogo } from "./components/ApplicationLogo";
+import { ApplicationLogo } from "./components/application-logo";
 
 type Props = {};
 

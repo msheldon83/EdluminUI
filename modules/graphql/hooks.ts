@@ -2,9 +2,11 @@ import { QueryResult } from "@apollo/react-common";
 import {
   MutationHookOptions,
   MutationTuple,
+  LazyQueryHookOptions,
   QueryHookOptions,
   useMutation,
   useQuery,
+  useLazyQuery,
 } from "@apollo/react-hooks";
 import {
   ApolloQueryResult,
@@ -12,14 +14,16 @@ import {
   FetchMoreQueryOptions,
   NetworkStatus,
   ObservableQuery,
+  OperationVariables,
 } from "apollo-client";
+import { DocumentNode } from "graphql";
 import {
   PaginationQueryParams,
   PaginationSettings,
   QueryIso,
   useQueryParamIso,
 } from "hooks/query-params";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useLoadingState } from "ui/components/loading-state";
 import { GraphqlBundle } from "./core";
 
@@ -225,4 +229,54 @@ export function useImperativeQuery<Result, Vars>(
   };
 
   return imperativelyCallQuery;
+}
+
+// from https://github.com/apollographql/react-apollo/issues/3499#issuecomment-537748212
+// useLazyQuery with an awaitable result
+
+export type LazyQueryResult<TData> = QueryResult<TData>;
+
+export type LazyQueryExecute<TData, TVariables> = (
+  variables?: TVariables | undefined,
+  context?: any
+) => Promise<LazyQueryResult<TData>>;
+
+type LazyQueryHookTuple<TData, TVariables> = [
+  LazyQueryExecute<TData, TVariables>,
+  LazyQueryResult<TData>
+];
+
+export function useLazyQueryPromise<
+  TData = any,
+  TVariables = OperationVariables
+>(
+  query: DocumentNode,
+  options?: LazyQueryHookOptions<TData, TVariables>
+): LazyQueryHookTuple<TData, TVariables> {
+  const [execute, result] = useLazyQuery<TData, TVariables>(query, options);
+
+  const resolveRef = useRef<
+    (
+      value?: LazyQueryResult<TData> | PromiseLike<LazyQueryResult<TData>>
+    ) => void
+  >();
+
+  useEffect(() => {
+    if (result.called && !result.loading && resolveRef.current) {
+      resolveRef.current(result);
+      resolveRef.current = undefined;
+    }
+  }, [result.loading, result.called]);
+
+  const queryLazily: LazyQueryExecute<TData, TVariables> = useCallback(
+    (variables, context) => {
+      execute({ variables, context });
+      return new Promise<LazyQueryResult<TData>>(resolve => {
+        resolveRef.current = resolve;
+      });
+    },
+    [execute]
+  );
+
+  return [queryLazily, result];
 }

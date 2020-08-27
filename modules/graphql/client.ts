@@ -31,14 +31,19 @@ export function buildGraphqlClient(opts: {
     uri: Config.restUri,
     endpoints: {
       reportExport: {
-        uri: `${Config.restUri}/report/export`,
+        uri: `${Config.restUri}api/report/export`,
         responseTransformer: async (data: any, typeName: string) =>
           fileDownloadResponseTransformer(data, "Report"),
       },
       dataImportFailedRows: {
-        uri: `${Config.restUri}/DataImport`,
+        uri: `${Config.restUri}api/DataImport`,
         responseTransformer: async (data: any, typeName: string) =>
           fileDownloadResponseTransformer(data, "FailedRows"),
+      },
+      connectionDownload: {
+        uri: `${Config.restUri}`,
+        responseTransformer: async (data: any, typeName: string) =>
+          fileDownloadResponseTransformer(data, "Download", false),
       },
     },
   });
@@ -60,7 +65,8 @@ export function buildGraphqlClient(opts: {
 
 const fileDownloadResponseTransformer = async (
   response: any,
-  defaultFileName?: string
+  defaultFileName?: string,
+  appendExtension?: boolean = true
 ) => {
   if (response.ok) {
     // Get the filename out of the header

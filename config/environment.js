@@ -3,7 +3,7 @@ window.__TEST__ = false;
 
 window.Config = {
   // These are relative because we use a proxy to route the API calls
-  restUri: "/api",
+  restUri: "/",
   apiUri: "/graphql",
 
   isDevFeatureOnly: true,

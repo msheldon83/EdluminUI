@@ -16,6 +16,7 @@ import {
   usePresetDateRanges,
   PresetRange,
   DateRange,
+  DateRangePreset,
 } from "./hooks/use-preset-date-ranges";
 import {
   maxOfDates,
@@ -33,8 +34,10 @@ export type DateRangePickerProps = {
   maximumDate?: Date;
   onDateRangeSelected: (start: Date, end: Date) => void;
   defaultMonth?: Date;
+  presets?: DateRangePreset[];
   additionalPresets?: PresetRange[];
   contained?: boolean;
+  noPresetText?: string;
 };
 
 export const DateRangePicker = React.memo((props: DateRangePickerProps) => {
@@ -45,17 +48,20 @@ export const DateRangePicker = React.memo((props: DateRangePickerProps) => {
   const {
     onDateRangeSelected,
     defaultMonth = new Date(),
+    presets,
     additionalPresets,
     startDate,
     endDate,
     minimumDate,
     maximumDate,
     contained = false,
+    noPresetText,
   } = props;
 
-  const { presetDateRanges, getPresetByDates } = usePresetDateRanges(
-    additionalPresets
-  );
+  const { presetDateRanges, getPresetByDates } = usePresetDateRanges({
+    presets,
+    additionalPresets,
+  });
 
   const [startMonth, setStartMonth] = React.useState(defaultMonth);
   const [selectedDates, setSelectedDates] = React.useState<CustomDate[]>([]);
@@ -327,6 +333,7 @@ export const DateRangePicker = React.memo((props: DateRangePickerProps) => {
     <div className={containerClasses}>
       <div className={classes.dateRangeSelectContainer}>
         <Select
+          doSort={false}
           value={selectedPreset}
           options={filteredPresetDateRanges}
           label={t("Date Range")}
@@ -334,7 +341,9 @@ export const DateRangePicker = React.memo((props: DateRangePickerProps) => {
           onChange={handlePresetChange}
           readOnly
           renderInputValue={() => {
-            return selectedPreset?.label ?? "";
+            return (
+              selectedPreset?.label ?? noPresetText ?? t("Custom").toString()
+            );
           }}
         />
       </div>
