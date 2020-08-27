@@ -8,6 +8,7 @@ query GetVacancyById($id: ID!) {
       rowVersion
       isClosed
       isApprovedForSubJobSearch
+      approvalStatus
       approvalState {
         id
         canApprove
