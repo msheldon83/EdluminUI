@@ -5,27 +5,27 @@ export const OrgUserRoles: {
   name: string;
 }[] = [
   {
-    enumValue: "INVALID" as OrgUserRole,
+    enumValue: OrgUserRole.Invalid,
     name: "None",
   },
   {
-    enumValue: "ADMINISTRATOR" as OrgUserRole,
+    enumValue: OrgUserRole.Administrator,
     name: "Admin",
   },
   {
-    enumValue: "EMPLOYEE" as OrgUserRole,
+    enumValue: OrgUserRole.Employee,
     name: "Employee",
   },
   {
-    enumValue: "REPLACEMENT_EMPLOYEE" as OrgUserRole,
+    enumValue: OrgUserRole.ReplacementEmployee,
     name: "Substitute",
   },
   {
-    enumValue: "ADMIN_OR_EMPLOYEE" as OrgUserRole,
+    enumValue: OrgUserRole.AdminOrEmployee,
     name: "Admin or Employee",
   },
   {
-    enumValue: "ADMIN_OR_REPLACEMENT" as OrgUserRole,
+    enumValue: OrgUserRole.AdminOrReplacement,
     name: "Admin or Substitute",
   },
 ];

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { format, addMonths, endOfMonth } from "date-fns";
+import { format, addMonths, endOfMonth, isBefore } from "date-fns";
 import { useQueryBundle } from "graphql/hooks";
 import { GetEmployeeSchedule } from "./get-employee-schedule.gen";
 import { computeDisabledDates } from "./computeDisabledDates";
@@ -10,7 +10,7 @@ export const useEmployeeDisabledDates = (
   startDate?: Date
 ) => {
   const fromDate = useMemo(() => {
-    if (startDate) {
+    if (startDate && isBefore(startDate, month)) {
       return format(startDate, "yyyy-M-d");
     }
 
