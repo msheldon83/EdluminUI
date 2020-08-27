@@ -4,6 +4,7 @@ mutation UpdateVacancy($vacancy: VacancyUpdateInput!) {
       id
       rowVersion
       isApprovedForSubJobSearch
+      approvalStatus
       details {
         id
         startDate
