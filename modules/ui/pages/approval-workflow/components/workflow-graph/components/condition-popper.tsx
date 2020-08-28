@@ -298,7 +298,6 @@ export const ConditionPopper: React.FC<Props> = props => {
                         : undefined
                     }
                     setSelectedApproverGroupHeaderIds={(ids?: string[]) => {
-                      console.log(ids);
                       if (ids && ids.length > 0) {
                         setFieldValue("approverGroupHeaderId", ids[0]);
                       } else {
