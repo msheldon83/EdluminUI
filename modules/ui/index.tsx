@@ -741,7 +741,7 @@ export const App = hot(function() {
                                       permissions={[PermissionEnum.ExternalConnectionsView]}
                                     />
                                     <ProtectedRoute
-                                      component={EditAbsenceLoader}
+                                      component={AdminEditAbsenceLoader}
                                       path={AdminEditAbsenceRoute.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.AbsVacView]}
