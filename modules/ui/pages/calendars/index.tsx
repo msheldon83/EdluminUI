@@ -114,6 +114,7 @@ export const Calendars: React.FC<Props> = props => {
     setSelectedDateCalendarChanges,
   ] = useState<CalendarEvent[]>(initialCalendarChange);
 
+  const [isEdit, setIsEdit] = useState<boolean | undefined>(false);
   const [editSpecificDate, setEditSpecificDate] = useState(false);
 
   const [getCalendarChanges, pagination] = usePagedQueryBundle(
@@ -491,6 +492,7 @@ export const Calendars: React.FC<Props> = props => {
   ) => {
     setEditSpecificDate(!!date);
     setSelectedDateCalendarChanges([calendarChange]);
+    setIsEdit(true);
     setOpenEventDialog(true);
   };
   return (
@@ -501,10 +503,12 @@ export const Calendars: React.FC<Props> = props => {
         locationOptions={locationOptions}
         contractOptions={contractOptions}
         onAdd={onCreateCalendarChange}
+        isEdit={isEdit}
         onUpdate={onUpdateCalendarChange}
         onClose={() => {
           setOpenEventDialog(false);
           setErrorMessage("");
+          setIsEdit(false);
         }}
         onSplit={onSplitCalendarChange}
         calendarChange={selectedDateCalendarChanges}
@@ -536,6 +540,7 @@ export const Calendars: React.FC<Props> = props => {
                   className={classes.floatRight}
                   onClick={() => {
                     setSelectedDateCalendarChanges(initialCalendarChange);
+                    setIsEdit(false);
                     setOpenEventDialog(true);
                   }}
                   variant="contained"

@@ -41,6 +41,7 @@ import InfoIcon from "@material-ui/icons/Info";
 type Props = {
   open: boolean;
   orgId: string;
+  isEdit?: boolean;
   onClose: () => void;
   locationOptions: OptionType[];
   contractOptions: OptionType[];
@@ -60,7 +61,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const classes = useStyles();
   const { locationOptions, contractOptions } = props;
   const today = React.useMemo(() => new Date(), []);
-  const { orgId, open } = props;
+  const { orgId, isEdit } = props;
 
   const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
 
@@ -106,7 +107,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
 
   //Set state values only when we have a real calendarChange
   useEffect(() => {
-    if (calendarChangeId !== calendarChange.id) {
+    if (calendarChangeId !== calendarChange.id || isEdit) {
       setContractIds(
         compact(calendarChange.changedContracts?.map(e => e?.id)) ??
           compact(calendarChange.contractIds) ??
@@ -129,7 +130,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
 
       setSummaryTest(string);
     }
-  }, [calendarChange.id]);
+  }, [calendarChange.id, isEdit]);
 
   useEffect(() => {
     const string = getCalendarSummaryText(
