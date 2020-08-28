@@ -101,6 +101,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
     setAffectsAllLocations(true);
     setAffectsAllContracts(true);
     setSubmittingData(false);
+    setCalendarChangeId(undefined);
   };
 
   //Set state values only when we have a real calendarChange
@@ -183,7 +184,10 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
   return (
     <Dialog
       open={props.open}
-      onClose={props.onClose}
+      onClose={() => {
+        clearState();
+        props.onClose();
+      }}
       fullWidth={true}
       maxWidth={"md"}
     >
@@ -467,7 +471,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         <SelectNew
                           name={"locations"}
                           className={classes.selectorColor}
-                          disabled={values.affectsAllLocations ?? false}
+                          disabled={values.affectsAllLocations ?? true}
                           label={t("Schools")}
                           value={
                             locationOptions.filter(
@@ -528,7 +532,10 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 </div>
               )}
               <TextButton
-                onClick={handleReset}
+                onClick={() => {
+                  clearState();
+                  handleReset();
+                }}
                 className={classes.buttonSpacing}
               >
                 {t("Cancel")}

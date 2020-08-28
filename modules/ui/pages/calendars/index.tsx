@@ -489,6 +489,7 @@ export const Calendars: React.FC<Props> = props => {
     calendarChange: CalendarEvent,
     date?: Date
   ) => {
+    console.log("Set Edit");
     setEditSpecificDate(!!date);
     setSelectedDateCalendarChanges([calendarChange]);
     setOpenEventDialog(true);
