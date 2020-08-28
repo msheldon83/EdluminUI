@@ -1,0 +1,5 @@
+mutation RemoveSubPreference($subPreference: SubstitutePreferenceInput!) {
+  location {
+    removeSubPreference(subPreference: $subPreference)
+  }
+}

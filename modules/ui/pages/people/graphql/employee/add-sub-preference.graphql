@@ -1,0 +1,7 @@
+mutation AddSubPreference($subPreference: SubstitutePreferenceInput!) {
+  orgUser {
+    addSubPreference(subPreference: $subPreference) {
+      id
+    }
+  }
+}

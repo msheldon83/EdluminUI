@@ -11,6 +11,7 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ErrorIcon from "@material-ui/icons/Error";
 import InfoIcon from "@material-ui/icons/Info";
 import WarningIcon from "@material-ui/icons/Warning";
+import { useIsMobile } from "hooks";
 
 export type SnackbarHookType = {
   status?: StatusType;
@@ -35,6 +36,7 @@ type ContextValue = {
 
 export const SnackbarProvider = (props: SnackbarProviderProps) => {
   const classes = useStyles();
+  const isMobile = useIsMobile();
 
   const defaultSnackbarProps: SnackbarPropsState = {
     anchorOrigin: {
@@ -108,7 +110,7 @@ export const SnackbarProvider = (props: SnackbarProviderProps) => {
 
       {/* This provider will allow the Snackbar to exists across routes and renders */}
       <MuiSnackbar
-        className={classes.snackbar}
+        className={isMobile ? classes.mobileSnackbar : classes.snackbar}
         {...defaultSnackbarProps}
         {...props.snackbarProps}
         {...snackbarProps}
@@ -185,6 +187,13 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.customColors.warning,
   },
   snackbar: {
+    top: theme.spacing(10),
+    right: theme.spacing(6),
+    borderRadius: theme.typography.pxToRem(4),
+  },
+  mobileSnackbar: {
+    top: theme.spacing(10),
+    right: theme.spacing(3),
     borderRadius: theme.typography.pxToRem(4),
   },
 }));

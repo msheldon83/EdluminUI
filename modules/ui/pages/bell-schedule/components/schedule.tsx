@@ -73,7 +73,7 @@ export const Schedule: React.FC<Props> = props => {
           const periods = data.periods;
           props.onSubmit(periods, props.variantId);
         }}
-        validateOnChange={false}
+        validateOnChange={true}
         validateOnBlur={true}
         validationSchema={yup.object().shape({
           periods: yup

@@ -1472,7 +1472,7 @@ type CalendarChangeQueries {
   byId(id: ID!): CalendarChange
   all(orgId: ID, orgIds: [ID], sortBy: [SortDetailsInput], schoolYearId: ID, contractId: ID, locationId: ID, positionTypeId: ID): [CalendarChange]
   paged(orgId: ID, orgIds: [ID], limit: Int, offset: Int, sortBy: [SortDetailsInput], schoolYearId: ID, contractId: ID, locationId: ID, positionTypeId: ID): PagedCalendarChange
-  affectedEmployeeCount(orgId: ID!, asOfDate: Date, locationIds: [ID], contractIds: [ID], affectsAllContracts: Boolean!, affectsAllLocations: Boolean!): Int
+  affectedEmployeeCount(orgId: ID!, asOfDate: Date, locationIds: [ID], contractIds: [ID]): Int
 }
 
 type CalendarChangeReason implements ModelObjectInterface & OrgObjectInterface & DomainObjectInterface {
@@ -3240,6 +3240,8 @@ type LocationMutations {
   create(location: LocationCreateInput!): Location
   update(location: LocationUpdateInput!): Location
   delete(locationId: ID!): Boolean
+  addSubPreference(subPreference: SubstitutePreferenceInput!): ReplacementPoolMember
+  removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
 }
 
 type LocationQueries {

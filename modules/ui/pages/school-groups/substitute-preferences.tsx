@@ -9,9 +9,9 @@ import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
+import { BlockedPoolMember, PoolMember } from "ui/components/sub-pools/types";
 import {
   PermissionEnum,
-  ReplacementPoolMember,
   ReplacementPoolMemberUpdateInput,
 } from "graphql/server-types.gen";
 
@@ -27,7 +27,7 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
     fetchPolicy: "cache-first",
   });
 
-  const onRemoveFavoriteSubstitute = async (sub: ReplacementPoolMember) => {
+  const onRemoveFavoriteSubstitute = async (sub: PoolMember) => {
     const filteredFavorites = locationGroup.substitutePreferences?.favoriteSubstituteMembers.filter(
       (u: any) => {
         return u.employeeId !== sub.employeeId;
@@ -39,7 +39,7 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onRemoveBlockedSubstitute = async (sub: ReplacementPoolMember) => {
+  const onRemoveBlockedSubstitute = async (sub: BlockedPoolMember) => {
     const filteredBlocked = locationGroup.substitutePreferences?.blockedSubstituteMembers.filter(
       (u: any) => {
         return u.employeeId !== sub.employeeId;
@@ -51,7 +51,7 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onAddSubstitute = async (sub: ReplacementPoolMember) => {
+  const onAddSubstitute = async (sub: PoolMember) => {
     locationGroup.substitutePreferences?.favoriteSubstituteMembers.push(sub);
 
     return updatePreferences(
@@ -60,7 +60,7 @@ export const LocationGroupSubstitutePreferencePage: React.FC<{}> = props => {
     );
   };
 
-  const onBlockSubstitute = async (substitute: ReplacementPoolMember) => {
+  const onBlockSubstitute = async (substitute: PoolMember) => {
     locationGroup.substitutePreferences?.blockedSubstituteMembers.push(
       substitute
     );

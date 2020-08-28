@@ -30,10 +30,8 @@ export const ContractSelect: React.FC<Props> = props => {
   }
 
   const selectedContract =
-    contractOptions.find((c: any) => c.value === selectedContractId) ??
-    includeAllOption
-      ? contractOptions[0]
-      : { value: "", label: "" };
+    contractOptions.find(c => c.value === selectedContractId) ??
+    (includeAllOption ? contractOptions[0] : { value: "", label: "" });
 
   return (
     <SelectNew
