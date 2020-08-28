@@ -169,6 +169,7 @@ export const VacancyView: React.FC<Props> = props => {
         approvalState={vacancy.approvalState}
         refetchVacancy={refetchVacancy}
         isApprovedForSubJobSearch={vacancy.isApprovedForSubJobSearch}
+        approvalStatus={vacancy.approvalStatus}
       />
     </>
   );

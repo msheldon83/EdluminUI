@@ -72,6 +72,16 @@ steps:
         $(Build.ArtifactStagingDirectory)/Edlumin.UI.$(Build.BuildNumber).nupkg
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
+  - task: OctopusMetadata@4
+    displayName: 'Send build info to Octopus'
+    inputs:
+      OctoConnectedServiceName: 'Octopus Deploy'
+      Space: 'Default'
+      PackageId: 'Edlumin.UI'
+      PackageVersion: $(Build.BuildNumber)
+      Replace: 'IgnoreIfExists'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
   - task: OctopusCreateRelease@4
     displayName: "Create Release"
     inputs:

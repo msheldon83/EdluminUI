@@ -66,7 +66,7 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       name={`periods[${i}].startTime`}
                       value={p.startTime || undefined}
                       earliestTime={earliestStartTime}
-                      inputStatus={startTimeError ? "error" : "default"}
+                      inputStatus="formik"
                       highlightOnFocus
                       inputProps={{
                         /*
@@ -92,7 +92,7 @@ export const ScheduleTimesColumn: React.FC<Props> = props => {
                       name={`periods[${i}].endTime`}
                       value={p.endTime || undefined}
                       earliestTime={p.startTime || earliestStartTime}
-                      inputStatus={endTimeError ? "error" : "default"}
+                      inputStatus="formik"
                       highlightOnFocus
                       inputProps={{
                         tabIndex: props.periods.length + (2 * i + 2),

@@ -7,20 +7,20 @@ import { makeStyles } from "@material-ui/styles";
 import {
   PermissionEnum,
   ReplacementPoolMemberUpdateInput,
-  ReplacementPoolMember,
 } from "graphql/server-types.gen";
+import { BlockedPoolMember, PoolMember } from "./types";
 
 type Props = {
   favoriteHeading: string;
   blockedHeading: string;
   searchHeading: string;
-  favoriteMembers: ReplacementPoolMember[];
-  blockedMembers: ReplacementPoolMember[];
+  favoriteMembers: PoolMember[];
+  blockedMembers: BlockedPoolMember[];
   orgId: string;
-  onRemoveFavoriteEmployee: (member: ReplacementPoolMember) => void;
-  onRemoveBlockedEmployee: (member: ReplacementPoolMember) => void;
-  onAddFavoriteEmployee: (member: ReplacementPoolMember) => void;
-  onBlockEmployee: (member: ReplacementPoolMember) => void;
+  onRemoveFavoriteEmployee: (member: PoolMember) => void;
+  onRemoveBlockedEmployee: (member: BlockedPoolMember) => void;
+  onAddFavoriteEmployee: (member: PoolMember) => void;
+  onBlockEmployee: (member: PoolMember) => void;
   onAddNote: (replacementPoolMember: ReplacementPoolMemberUpdateInput) => void;
   removeBlockedPermission: PermissionEnum[];
   removeFavoritePermission: PermissionEnum[];
@@ -28,9 +28,9 @@ type Props = {
   addToFavoritePermission: PermissionEnum[];
   autoAssign?: {
     heading: string;
-    members: ReplacementPoolMember[];
-    onRemove: (member: ReplacementPoolMember) => void;
-    onAdd: (member: ReplacementPoolMember) => void;
+    members: PoolMember[];
+    onRemove: (member: PoolMember) => void;
+    onAdd: (member: PoolMember) => void;
     addPermission: PermissionEnum[];
     removePermission: PermissionEnum[];
   };
@@ -42,22 +42,18 @@ type Props = {
 export const SubstitutePreferences: React.FC<Props> = props => {
   const classes = useStyles();
 
-  const takenSubs =
-    props.autoAssign === undefined
-      ? props.favoriteMembers.concat(props.blockedMembers)
-      : props.favoriteMembers.concat(props.blockedMembers).concat(
-          props.autoAssign.members.map(
-            x =>
-              ({
-                employeeId: x.employeeId,
-                employee: {
-                  firstName: x.employee?.firstName,
-                  lastName: x.employee?.lastName,
-                  id: x.employeeId,
-                },
-              } as ReplacementPoolMember)
-          )
-        );
+  const takenSubs: PoolMember[] = props.favoriteMembers
+    .concat(props.blockedMembers)
+    .concat(
+      props.autoAssign?.members.map(x => ({
+        employeeId: x.employeeId,
+        employee: {
+          firstName: x.employee?.firstName,
+          lastName: x.employee?.lastName,
+          id: x.employeeId,
+        },
+      })) ?? []
+    );
 
   const header =
     "headerComponent" in props ? (

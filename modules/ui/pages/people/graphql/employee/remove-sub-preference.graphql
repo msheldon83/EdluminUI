@@ -1,0 +1,5 @@
+mutation RemoveSubPreference($subPreference: SubstitutePreferenceInput!) {
+  orgUser {
+    removeSubPreference(subPreference: $subPreference)
+  }
+}

@@ -3240,6 +3240,8 @@ type LocationMutations {
   create(location: LocationCreateInput!): Location
   update(location: LocationUpdateInput!): Location
   delete(locationId: ID!): Boolean
+  addSubPreference(subPreference: SubstitutePreferenceInput!): ReplacementPoolMember
+  removeSubPreference(subPreference: SubstitutePreferenceInput!): Boolean
 }
 
 type LocationQueries {

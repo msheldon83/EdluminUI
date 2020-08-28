@@ -18,17 +18,18 @@ import { Input } from "ui/components/form/input";
 import { useDeferredState } from "hooks";
 import { Can } from "../auth/can";
 import { SubstituteLink } from "ui/components/links/people";
+import { PoolMember, PotentialPoolMember } from "./types";
 
 type Props = {
   title: string;
   orgId: string;
-  onAdd: (orgUser: any) => void;
-  onBlock: (orgUser: any) => void;
-  takenSubstitutes: ReplacementPoolMember[];
+  onAdd: (orgUser: PoolMember) => void;
+  onBlock: (orgUser: PoolMember) => void;
+  takenSubstitutes: PoolMember[];
   addToFavoritePermission: PermissionEnum[];
   addToBlockedPermission: PermissionEnum[];
   autoAssign?: {
-    onAdd: (orgUser: any) => void;
+    onAdd: (orgUser: PoolMember) => void;
     addPermission: PermissionEnum[];
   };
 };
@@ -154,9 +155,8 @@ export const SubstitutePicker: React.FC<Props> = props => {
                         employee: {
                           firstName: user.firstName,
                           lastName: user.lastName,
-                          id: user.id,
                         },
-                      } as ReplacementPoolMember)
+                      })
                     }
                   >
                     {t("Block")}
@@ -171,9 +171,8 @@ export const SubstitutePicker: React.FC<Props> = props => {
                         employee: {
                           firstName: user.firstName,
                           lastName: user.lastName,
-                          id: user.id,
                         },
-                      } as ReplacementPoolMember)
+                      })
                     }
                   >
                     {t("Add favorite")}
@@ -189,9 +188,8 @@ export const SubstitutePicker: React.FC<Props> = props => {
                           employee: {
                             firstName: user.firstName,
                             lastName: user.lastName,
-                            id: user.id,
                           },
-                        } as ReplacementPoolMember)
+                        })
                       }
                     >
                       {t("Auto Assign")}
