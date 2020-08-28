@@ -59,6 +59,7 @@ type Props = {
   disableReplacementInteractions?: boolean;
   vacanciesOverride?: Vacancy[];
   initialVacancyDetails?: VacancyDetail[];
+  isCreate: boolean;
 };
 
 export const SubstituteDetails: React.FC<Props> = props => {
@@ -81,6 +82,7 @@ export const SubstituteDetails: React.FC<Props> = props => {
     assignmentsByDate,
     vacanciesOverride,
     isClosed,
+    isCreate,
     initialVacancyDetails,
     holdForManualFill,
     onChangeManualFill,
@@ -274,6 +276,8 @@ export const SubstituteDetails: React.FC<Props> = props => {
     return (
       <NeedsReplacementCheckbox
         actingAsEmployee={actingAsEmployee}
+        isCreate={isCreate}
+        permissions={[PermissionEnum.AbsVacManualFillMode]}
         needsReplacement={needsReplacement}
         value={values.needsReplacement}
         onChangeRequiresSub={checked =>

@@ -950,6 +950,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                           <SubstituteDetails
                             absenceId={state.absenceId}
                             organizationId={organizationId}
+                            isCreate={isCreate}
                             holdForManualFill={holdForManualFill}
                             actingAsEmployee={actingAsEmployee}
                             onChangeManualFill={async (checked: boolean) =>

@@ -7,11 +7,15 @@ import {
   makeStyles,
   Typography,
 } from "@material-ui/core";
+import { PermissionEnum } from "graphql/server-types.gen";
+import { Can } from "ui/components/auth/can";
 
 type Props = {
+  isCreate: boolean;
   actingAsEmployee: boolean;
   needsReplacement: NeedsReplacement;
   holdForManualFill?: boolean;
+  permissions: PermissionEnum[];
   value: boolean;
   onChangeManualFill?: (checked: boolean) => void;
   onChangeRequiresSub: (checked: boolean) => void;
@@ -29,23 +33,49 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
     disabled,
     holdForManualFill,
     onChangeManualFill,
+    isCreate,
+    permissions,
   } = props;
+
+  const canDisplayHoldForManualFill =
+    holdForManualFill !== undefined && !isCreate && Config.isDevFeatureOnly;
 
   return (
     <>
       {!actingAsEmployee || needsReplacement === NeedsReplacement.Sometimes ? (
-        <FormControlLabel
-          label={t("Requires a substitute")}
-          className={classes.displayInline}
-          control={
-            <Checkbox
-              checked={value}
-              onChange={e => onChangeRequiresSub(e.target.checked)}
-              color="primary"
-              disabled={disabled}
-            />
-          }
-        />
+        <>
+          <FormControlLabel
+            label={t("Requires a substitute")}
+            className={classes.displayInline}
+            control={
+              <Checkbox
+                checked={value}
+                onChange={e => onChangeRequiresSub(e.target.checked)}
+                color="primary"
+                disabled={disabled}
+              />
+            }
+          />
+          {canDisplayHoldForManualFill && (
+            <Can do={permissions}>
+              <FormControlLabel
+                label={t("Fill manually")}
+                className={classes.displayInline}
+                control={
+                  <Checkbox
+                    checked={holdForManualFill}
+                    onChange={e => {
+                      onChangeManualFill &&
+                        onChangeManualFill(e.target.checked);
+                    }}
+                    color="primary"
+                    disabled={disabled}
+                  />
+                }
+              />
+            </Can>
+          )}
+        </>
       ) : (
         <Typography className={classes.substituteRequiredText}>
           {needsReplacement === NeedsReplacement.Yes
@@ -53,24 +83,6 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
             : t("No substitute required")}
         </Typography>
       )}
-      {holdForManualFill !== undefined &&
-        needsReplacement &&
-        Config.isDevFeatureOnly && (
-          <FormControlLabel
-            label={t("Fill manually")}
-            className={classes.displayInline}
-            control={
-              <Checkbox
-                checked={holdForManualFill}
-                onChange={e => {
-                  onChangeManualFill && onChangeManualFill(e.target.checked);
-                }}
-                color="primary"
-                disabled={disabled}
-              />
-            }
-          />
-        )}
     </>
   );
 };

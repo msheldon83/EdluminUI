@@ -8,6 +8,7 @@ import { absenceReducer } from "../state";
 import { startOfMonth, min, isSameDay } from "date-fns";
 import { Formik } from "formik";
 import { AbsenceFormValidationSchema } from "../validation";
+import { PermissionEnum } from "graphql/server-types.gen";
 import { useMutationBundle } from "graphql/hooks";
 import { useHistory } from "react-router-dom";
 import { AbsenceFormData } from "../types";
@@ -207,6 +208,8 @@ export const EmployeeQuickAbsenceCreate: React.FC<Props> = props => {
               />
               <div className={classes.needsReplacement}>
                 <NeedsReplacementCheckbox
+                  isCreate={true}
+                  permissions={[PermissionEnum.AbsVacManualFillMode]}
                   actingAsEmployee={true}
                   needsReplacement={
                     defaultReplacementNeeded ?? NeedsReplacement.No
