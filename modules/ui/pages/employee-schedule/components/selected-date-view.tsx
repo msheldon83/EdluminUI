@@ -111,61 +111,59 @@ const displayInstructionalDayInformation = (
   classes: any,
   t: TFunction
 ) => {
-  console.log(contractInstructionalDays);
-  console.log(instructionalDays);
-
-  return instructionalDays
-    .filter(d => d.startTime != d.endTime)
+  return contractInstructionalDays
     .map((d, i) => {
+      const description =
+        d.hasCalendarChange &&
+        (d.calendarChangeDescription || d.calendarChangeReasonName)
+          ? compact([
+              d.calendarChangeDescription,
+              d.calendarChangeReasonName,
+            ]).join(" - ")
+          : t("Contracted Instructional Day");
+      const showDates =
+        d.startDate && d.endDate && !isSameDay(d.startDate, d.endDate);
+
       return (
-        <Grid
-          item
-          container
-          xs={12}
-          key={i}
-          className={classes.detail}
-          spacing={2}
-        >
-          <Grid item xs={4}>
-            <div>{d.position}</div>
-            <div className={classes.subText}>{d.location}</div>
+        <Grid item container xs={12} key={i + 100} className={classes.detail}>
+          <Grid item>
+            <div>{description}</div>
+            {showDates && (
+              <div className={classes.subText}>{`${format(
+                d.startDate!,
+                "MMM d"
+              )} - ${format(d.endDate!, "MMM d")}`}</div>
+            )}
           </Grid>
-          <Grid item>{`${d.startTime} - ${d.endTime}`}</Grid>
-          {d.nonStandardVariantTypeName && (
-            <Grid item>
-              <Chip label={d.nonStandardVariantTypeName} />
-            </Grid>
-          )}
         </Grid>
       );
     })
     .concat(
-      contractInstructionalDays.map((d, i) => {
-        const description =
-          d.hasCalendarChange &&
-          (d.calendarChangeDescription || d.calendarChangeReasonName)
-            ? compact([
-                d.calendarChangeDescription,
-                d.calendarChangeReasonName,
-              ]).join(" - ")
-            : t("Contracted Instructional Day");
-        const showDates =
-          d.startDate && d.endDate && !isSameDay(d.startDate, d.endDate);
-
-        return (
-          <Grid item container xs={12} key={i} className={classes.detail}>
-            <Grid item>
-              <div>{description}</div>
-              {showDates && (
-                <div className={classes.subText}>{`${format(
-                  d.startDate!,
-                  "MMM d"
-                )} - ${format(d.endDate!, "MMM d")}`}</div>
+      instructionalDays
+        .filter(d => d.startTime != d.endTime)
+        .map((d, i) => {
+          return (
+            <Grid
+              item
+              container
+              xs={12}
+              key={i}
+              className={classes.detail}
+              spacing={2}
+            >
+              <Grid item xs={4}>
+                <div>{d.position}</div>
+                <div className={classes.subText}>{d.location}</div>
+              </Grid>
+              <Grid item>{`${d.startTime} - ${d.endTime}`}</Grid>
+              {d.nonStandardVariantTypeName && (
+                <Grid item>
+                  <Chip label={d.nonStandardVariantTypeName} />
+                </Grid>
               )}
             </Grid>
-          </Grid>
-        );
-      })
+          );
+        })
     );
 };
 
