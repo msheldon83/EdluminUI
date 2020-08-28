@@ -1,19 +1,21 @@
 import * as React from "react";
+import { compact } from "lodash-es";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { GetSubPreferenceByLocationId } from "./graphql/get-sub-preference-members.gen";
-import { UpdateLocation } from "./graphql/update-location.gen";
 import { SaveReplacementPoolMember } from "./graphql/save-replacement-pool-member.gen";
+import { AddSubPreference } from "./graphql/add-sub-preference.gen";
+import { RemoveSubPreference } from "./graphql/remove-sub-preference.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { LocationSubPrefRoute } from "ui/routes/locations";
 import { useTranslation } from "react-i18next";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { SubstitutePreferences } from "ui/components/sub-pools/subpref";
+import { BlockedPoolMember, PoolMember } from "ui/components/sub-pools/types";
 import {
   PermissionEnum,
-  OrgUser,
-  ReplacementPoolMember,
   ReplacementPoolMemberUpdateInput,
+  ReplacementPoolType,
 } from "graphql/server-types.gen";
 import { LocationLinkHeader } from "ui/components/link-headers/location";
 
@@ -22,83 +24,126 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
   const { t } = useTranslation();
   const { openSnackbar } = useSnackbar();
 
+  const [favoriteMembers, setFavoriteMembers] = React.useState<PoolMember[]>(
+    []
+  );
+  const [blockedMembers, setBlockedMembers] = React.useState<
+    BlockedPoolMember[]
+  >([]);
+  const [autoAssignedMembers, setAutoAssignedMembers] = React.useState<
+    PoolMember[]
+  >([]);
+
   const getLocation = useQueryBundle(GetSubPreferenceByLocationId, {
     variables: {
       locationId: params.locationId,
     },
   });
 
-  const onRemoveFavoriteSubstitute = async (sub: ReplacementPoolMember) => {
-    const filteredFavorites = location.substitutePreferences?.favoriteSubstituteMembers.filter(
-      (u: any) => {
-        return u.employeeId !== sub.employeeId;
-      }
+  const location =
+    getLocation.state == "LOADING"
+      ? undefined
+      : getLocation.data.location?.byId;
+
+  React.useEffect(() => {
+    setFavoriteMembers(
+      compact(
+        location?.substitutePreferences.favoriteSubstituteMembers
+      ).map(m => ({ ...m, employee: m.employee ?? undefined }))
     );
-    return updatePreferences(
-      filteredFavorites,
-      location.substitutePreferences?.blockedSubstituteMembers,
-      location.substitutePreferences?.autoAssignedSubstitutes
+    setBlockedMembers(
+      compact(location?.substitutePreferences.blockedSubstituteMembers).map(
+        m => ({
+          ...m,
+          employee: m.employee ?? undefined,
+          adminNote: m.adminNote ?? undefined,
+        })
+      )
     );
+    setAutoAssignedMembers(
+      compact(
+        location?.substitutePreferences.autoAssignedSubstitutes
+      ).map(m => ({ employeeId: m.id, employee: m }))
+    );
+  }, [location]);
+
+  const onRemoveFavoriteSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(
+      favoriteMembers.filter(m => m.employeeId != sub.employeeId)
+    );
+    await removeSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
-  const onRemoveBlockedSubstitute = async (sub: ReplacementPoolMember) => {
-    const filteredBlocked = location.substitutePreferences?.blockedSubstituteMembers.filter(
-      (u: any) => {
-        return u.employeeId !== sub.employeeId;
-      }
+  const onRemoveBlockedSubstitute = async (sub: BlockedPoolMember) => {
+    setBlockedMembers(
+      blockedMembers.filter(m => m.employeeId != sub.employeeId)
     );
-    return updatePreferences(
-      location.substitutePreferences?.favoriteSubstituteMembers,
-      filteredBlocked,
-      location.substitutePreferences?.autoAssignedSubstitutes
-    );
+    await removeSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
-  const onRemoveAutoAssignedSubstitute = async (sub: ReplacementPoolMember) => {
-    const filteredAutoAssigned = location.substitutePreferences?.autoAssignedSubstitutes.filter(
-      (u: any) => {
-        return u.id !== sub.employeeId;
-      }
+  const onRemoveAutoAssignedSubstitute = async (sub: BlockedPoolMember) => {
+    setAutoAssignedMembers(
+      autoAssignedMembers.filter(m => m.employeeId != sub.employeeId)
     );
-    return updatePreferences(
-      location.substitutePreferences?.favoriteSubstituteMembers,
-      location.substitutePreferences?.blockedSubstituteMembers,
-      filteredAutoAssigned
-    );
+    await removeSub(sub.employeeId, ReplacementPoolType.AutoAssign);
   };
 
-  const onAddSubstitute = async (sub: ReplacementPoolMember) => {
-    location.substitutePreferences?.favoriteSubstituteMembers.push(sub);
-
-    return updatePreferences(
-      location.substitutePreferences?.favoriteSubstituteMembers,
-      location.substitutePreferences?.blockedSubstituteMembers,
-      location.substitutePreferences?.autoAssignedSubstitutes
-    );
+  const onAddSubstitute = async (sub: PoolMember) => {
+    setFavoriteMembers(favoriteMembers.concat(sub));
+    await addSub(sub.employeeId, ReplacementPoolType.Favorite);
   };
 
-  const onBlockSubstitute = async (sub: ReplacementPoolMember) => {
-    location.substitutePreferences?.blockedSubstituteMembers.push(sub);
-
-    return updatePreferences(
-      location.substitutePreferences?.favoriteSubstituteMembers,
-      location.substitutePreferences?.blockedSubstituteMembers,
-      location.substitutePreferences?.autoAssignedSubstitutes
-    );
+  const onBlockSubstitute = async (sub: PoolMember) => {
+    setBlockedMembers(blockedMembers.concat(sub));
+    await addSub(sub.employeeId, ReplacementPoolType.Blocked);
   };
 
-  const onAutoAssignSubstitute = async (sub: ReplacementPoolMember) => {
-    location.substitutePreferences?.autoAssignedSubstitutes.push({
-      id: sub.employeeId,
-      firstName: sub.employee?.firstName,
-      lastName: sub.employee?.lastName,
-    } as OrgUser);
+  const onAutoAssignSubstitute = async (sub: PoolMember) => {
+    setAutoAssignedMembers(autoAssignedMembers.concat(sub));
+    await addSub(sub.employeeId, ReplacementPoolType.AutoAssign);
+  };
 
-    return updatePreferences(
-      location.substitutePreferences?.favoriteSubstituteMembers,
-      location.substitutePreferences?.blockedSubstituteMembers,
-      location.substitutePreferences?.autoAssignedSubstitutes
-    );
+  const [addSubPreference] = useMutationBundle(AddSubPreference, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+
+  const [removeSubPreference] = useMutationBundle(RemoveSubPreference, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const addSub = async (subId: string, type: ReplacementPoolType) => {
+    const result = await addSubPreference({
+      variables: {
+        subPreference: {
+          orgId: params.organizationId,
+          location: { id: location?.id },
+          substitute: { id: subId },
+          replacementPoolType: type,
+        },
+      },
+    });
+    if (!result.data) return false;
+    await getLocation.refetch();
+    return true;
+  };
+
+  const removeSub = async (subId: string, type: ReplacementPoolType) => {
+    const result = await removeSubPreference({
+      variables: {
+        subPreference: {
+          orgId: params.organizationId,
+          location: { id: location?.id },
+          substitute: { id: subId },
+          replacementPoolType: type,
+        },
+      },
+    });
+    if (!result.data) return false;
+    await getLocation.refetch();
+    return true;
   };
 
   const onAddNote = async (
@@ -123,69 +168,17 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
     }
   );
 
-  const updatePreferences = async (
-    favorites: ReplacementPoolMember[],
-    blocked: ReplacementPoolMember[],
-    autoAssigned: OrgUser[]
-  ) => {
-    const neweFavs = favorites.map((s: ReplacementPoolMember) => {
-      return { id: s.employeeId };
-    });
-
-    const neweBlocked = blocked.map((s: ReplacementPoolMember) => {
-      return { id: s.employeeId };
-    });
-
-    const neweAutoAssigned = autoAssigned.map((s: OrgUser) => {
-      return { id: s.id };
-    });
-
-    const updatedLocation: any = {
-      id: location.id,
-      rowVersion: location.rowVersion,
-      substitutePreferences: {
-        favoriteSubstitutes: neweFavs,
-        blockedSubstitutes: neweBlocked,
-        autoAssignedSubstitutes: neweAutoAssigned,
-      },
-    };
-    const result = await updateLocation({
-      variables: {
-        location: updatedLocation,
-      },
-    });
-    if (!result?.data) return false;
-    await getLocation.refetch();
-    return true;
-  };
-
-  const [updateLocation] = useMutationBundle(UpdateLocation, {
-    onError: error => {
-      ShowErrors(error, openSnackbar);
-    },
-  });
-
-  if (getLocation.state === "LOADING") {
+  if (!location) {
     return <></>;
   }
-  const location: any = getLocation?.data?.location?.byId ?? undefined;
 
   const headerComponent = (
     <LocationLinkHeader
       title={t("Substitute Preferences")}
-      locationName={location.name as string}
+      locationName={location.name}
       params={params}
     />
   );
-
-  const autoAssignedMembers =
-    location.substitutePreferences.autoAssignedSubstitutes.map(
-      (e: any) =>
-        ({
-          employeeId: e.id,
-          employee: { id: e.id, firstName: e.firstName, lastName: e.lastName },
-        } as ReplacementPoolMember)
-    ) ?? [];
 
   return (
     <>
@@ -193,12 +186,8 @@ export const LocationSubstitutePreferencePage: React.FC<{}> = props => {
         favoriteHeading={t("Favorite Substitutes")}
         blockedHeading={t("Blocked Substitutes")}
         searchHeading={"All Substitutes"}
-        favoriteMembers={
-          location.substitutePreferences.favoriteSubstituteMembers ?? []
-        }
-        blockedMembers={
-          location.substitutePreferences.blockedSubstituteMembers ?? []
-        }
+        favoriteMembers={favoriteMembers}
+        blockedMembers={blockedMembers}
         headerComponent={headerComponent}
         onAddNote={onAddNote}
         orgId={params.organizationId}

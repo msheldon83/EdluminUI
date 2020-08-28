@@ -6,14 +6,14 @@ import { useTranslation } from "react-i18next";
 import { BlockedSubPoolCard } from "./blocked-sub-pool-card";
 import {
   PermissionEnum,
-  ReplacementPoolMember,
   ReplacementPoolMemberUpdateInput,
 } from "graphql/server-types.gen";
+import { BlockedPoolMember } from "./types";
 
 type Props = {
   title: string;
-  replacementPoolMembers: ReplacementPoolMember[] | null;
-  onRemove: (member: ReplacementPoolMember) => void;
+  replacementPoolMembers: BlockedPoolMember[] | null;
+  onRemove: (member: BlockedPoolMember) => void;
   onAddNote: (replacementPoolMember: ReplacementPoolMemberUpdateInput) => void;
   removePermission: PermissionEnum[];
 };

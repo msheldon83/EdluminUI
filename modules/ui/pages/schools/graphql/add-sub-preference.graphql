@@ -1,0 +1,7 @@
+mutation AddSubPreference($subPreference: SubstitutePreferenceInput!) {
+  location {
+    addSubPreference(subPreference: $subPreference) {
+      id
+    }
+  }
+}

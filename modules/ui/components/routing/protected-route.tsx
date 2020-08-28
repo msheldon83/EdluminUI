@@ -76,8 +76,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = props => {
     // If we have an Org Id available to us, check that first
     if (organizationId) {
       const orgUsers = userAccess.me?.user?.orgUsers ?? [];
-      const matchingOrgUser = orgUsers.find(ou => ou?.orgId === organizationId);
-      hasAccessToOrg = !!matchingOrgUser?.isAdmin;
+      // We need to get the first orgUser that is an admin in the org in case they have other orgs users with non-admin roles
+      hasAccessToOrg = orgUsers.some(
+        ou => ou?.orgId === organizationId && ou?.isAdmin
+      );
     }
     // If we have a list of permissions to check, make sure the User has at least one of them
     if (!hasAccessToOrg) {
