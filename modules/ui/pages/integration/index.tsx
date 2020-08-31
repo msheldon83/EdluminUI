@@ -63,9 +63,9 @@ export const IntegrationList: React.FC<Props> = props => {
           <TableHead>
             <StyledTableRow>
               <StyledTableCell className={classes.logoColumn}></StyledTableCell>
-              <StyledTableCell>Vendor</StyledTableCell>
-              <StyledTableCell>Connections</StyledTableCell>
-              <StyledTableCell>Created</StyledTableCell>
+              <StyledTableCell>{t("Vendor")}</StyledTableCell>
+              <StyledTableCell>{t("Connections")}</StyledTableCell>
+              <StyledTableCell>{t("Created")}</StyledTableCell>
             </StyledTableRow>
           </TableHead>
           <TableBody>
