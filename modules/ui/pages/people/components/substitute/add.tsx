@@ -20,10 +20,8 @@ import { FinishWizard } from "../finish-create-wizard";
 import { GetSubstituteById } from "../../graphql/substitute/get-substitute-by-id-foradd.gen";
 import { ShowErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
-import {
-  Attribute,
-  SubPositionTypesAndAttributesEdit,
-} from "ui/pages/sub-positions-attributes/components/position-types-attributes";
+import { Attribute } from "ui/pages/sub-positions-attributes/types";
+import { SubPositionTypesAndAttributesEdit } from "ui/pages/sub-positions-attributes/components/position-types-attributes";
 import { ActionButtons } from "ui/components/action-buttons";
 import { Section } from "ui/components/section";
 
