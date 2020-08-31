@@ -38,7 +38,7 @@ export const NotificationGroupHeader: React.FC<Props> = props => {
         )}
         {props.showSmsColumn && (
           <Grid item xs={1}>
-            <div className={classes.headerText}>{t("Sms")}</div>
+            <div className={classes.headerText}>{t("Mobile")}</div>
           </Grid>
         )}
         {props.showInAppColumn && (

@@ -6,6 +6,7 @@ import {
   NotificationPreferenceInput,
   NotificationMethod,
   DefaultNotificationStatus,
+  NotificationReason,
 } from "graphql/server-types.gen";
 import clsx from "clsx";
 import { useNotificationReasons } from "reference-data/notification-reasons";
@@ -93,7 +94,9 @@ export const PreferenceRow: React.FC<Props> = props => {
                 disabled={
                   notificationReason.methodsOfDelivery.find(
                     x => x.method === NotificationMethod.Sms
-                  )?.default === DefaultNotificationStatus.AlwaysOn
+                  )?.default === DefaultNotificationStatus.AlwaysOn ||
+                  notificationReason.enumValue ===
+                    NotificationReason.SubAvailableAssignment // This check is redundant if the notification is set to always on
                 }
               />
             )}

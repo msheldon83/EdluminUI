@@ -1,9 +1,5 @@
 import Maybe from "graphql/tsutils/Maybe";
-import {
-  Contract,
-  CalendarChangeReason,
-  CalendarChange,
-} from "graphql/server-types.gen";
+import { Contract, CalendarChangeReason } from "graphql/server-types.gen";
 
 export type CalendarEvent = {
   id?: Maybe<string>;
@@ -13,8 +9,10 @@ export type CalendarEvent = {
   endDate: Maybe<string>;
   calendarChangeReasonId?: Maybe<string>;
   affectsAllContracts?: Maybe<boolean>;
-  contractIds?: Maybe<Array<Maybe<string>>>;
+  affectsAllLocations?: Maybe<boolean>;
   changedContracts?: Maybe<Array<Maybe<Contract>>>;
+  locationIds?: Maybe<Array<Maybe<string>>>;
+  contractIds?: Maybe<Array<Maybe<string>>>;
   calendarChangeReason?: Maybe<CalendarChangeReason>;
 };
 
@@ -23,33 +21,4 @@ export type CalendarChangeDate = {
   isClosed: boolean;
   isModified: boolean;
   isInservice: boolean;
-};
-
-export const CalendarChangeToCalendarEvent = (
-  calendarChange: Pick<
-    CalendarChange,
-    | "id"
-    | "rowVersion"
-    | "description"
-    | "startDate"
-    | "endDate"
-    | "calendarChangeReasonId"
-    | "affectsAllContracts"
-    | "changedContracts"
-    | "calendarChangeReason"
-  >
-) => {
-  const calendarEvent: CalendarEvent = {
-    id: calendarChange.id,
-    rowVersion: calendarChange.rowVersion,
-    description: calendarChange.description,
-    startDate: calendarChange.startDate,
-    endDate: calendarChange.endDate,
-    calendarChangeReasonId: calendarChange.calendarChangeReasonId,
-    affectsAllContracts: calendarChange.affectsAllContracts,
-    contractIds: calendarChange.changedContracts?.map(c => c?.id),
-    changedContracts: calendarChange.changedContracts,
-    calendarChangeReason: calendarChange.calendarChangeReason,
-  };
-  return calendarEvent;
 };

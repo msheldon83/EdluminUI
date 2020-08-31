@@ -178,7 +178,9 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                   ? data.changeReason
                   : changeReasonOptions[0]?.value,
                 contractIds: data.contracts ?? [],
-                affectsAllContracts: data.applyToAll,
+                locationIds: data.locations ?? [],
+                affectsAllContracts: data.applyToAllContracts,
+                affectsAllLocations: data.applyToAllLocations,
               };
 
               const result = await create(newCalendarChangeCreate);

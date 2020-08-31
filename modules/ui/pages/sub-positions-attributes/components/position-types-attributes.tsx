@@ -13,16 +13,16 @@ import { useMemo, useState, useEffect } from "react";
 import { Section } from "ui/components/section";
 import { Input } from "ui/components/form/input";
 import { DatePicker } from "ui/components/form/date-picker";
-import {
-  isDate,
-  isBefore,
-  differenceInDays,
-  isSameDay,
-  isPast,
-} from "date-fns";
+import { isDate, isSameDay, isPast } from "date-fns";
 import { Warning, ErrorOutline } from "@material-ui/icons";
 import { TFunction } from "i18next";
 import { GetPositionTypeQualifications } from "../graphql/get-position-type-qualifications.gen";
+import { Attribute } from "../types";
+import {
+  attributeIsExpired,
+  attributeIsCloseToExpiring,
+  dayWindowForWarning,
+} from "../helpers";
 
 type Props = {
   organizationId: string;
@@ -34,13 +34,6 @@ type Props = {
     expirationDate?: Date | undefined
   ) => Promise<boolean>;
   removeAttribute: (endorsementId: string) => Promise<boolean>;
-};
-
-export type Attribute = {
-  endorsementId: string;
-  name: string;
-  expirationDate?: Date | null | undefined;
-  expires: boolean;
 };
 
 export const SubPositionTypesAndAttributesEdit: React.FC<Props> = props => {
@@ -466,7 +459,6 @@ const getDatePickerAdornment = (
   classes: any,
   t: TFunction
 ): React.ReactNode | undefined => {
-  const dayWindowForWarning = 30;
   const expired = attributeIsExpired(attribute);
   const closeToExpiration =
     !expired && attributeIsCloseToExpiring(attribute, dayWindowForWarning);
@@ -492,27 +484,4 @@ const getDatePickerAdornment = (
   }
 
   return undefined;
-};
-
-const attributeIsExpired = (attribute: Attribute): boolean => {
-  if (!attribute.expirationDate) {
-    return false;
-  }
-
-  const result = isBefore(attribute.expirationDate, new Date());
-  return result;
-};
-
-const attributeIsCloseToExpiring = (
-  attribute: Attribute,
-  dayWindowForWarning: number
-): boolean => {
-  if (!attribute.expirationDate) {
-    return false;
-  }
-
-  const result =
-    differenceInDays(attribute.expirationDate, new Date()) <=
-    dayWindowForWarning;
-  return result;
 };

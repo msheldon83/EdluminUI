@@ -24,7 +24,7 @@ type Props = {
   forDelete?: boolean;
 };
 
-export const EditSignleDayDialog: React.FC<Props> = props => {
+export const EditSingleDayDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
 
