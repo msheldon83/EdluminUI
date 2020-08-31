@@ -106,7 +106,9 @@ export const TimeInput = React.forwardRef((props: TimeInputProps, ref) => {
       }
 
       onValidTime(
-        timeStampToIso(parseTimeFromString(event.target.value, earliestTime))
+        timeStampToIso(
+          parseTimeFromString(event.target.value, earliestTime, earliestTime)
+        )
       );
     },
     [earliestTime, onValidTime, parsedValue]

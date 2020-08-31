@@ -76,7 +76,8 @@ export const secondsToFormattedHourMinuteString = (seconds: number): string => {
 
 export const parseTimeFromString = (
   time: string,
-  earliestTime?: string
+  earliestTime?: string,
+  dateString?: string
 ): number => {
   let hour = 0;
   let minute = 0;
@@ -136,7 +137,7 @@ export const parseTimeFromString = (
     minute = 0;
   }
 
-  const date = earliestTime ? parseISO(earliestTime) : new Date();
+  const date = dateString ? parseISO(dateString) : new Date();
   date.setHours(hour);
   date.setMinutes(minute);
   date.setSeconds(0);
