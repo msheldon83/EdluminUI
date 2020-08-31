@@ -1,19 +1,17 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
-import { Divider, Grid, Typography, Button } from "@material-ui/core";
+import { Divider, Grid, Typography, Button, Tooltip } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { CalendarRoute } from "ui/routes/calendar/calendar";
 import { Section } from "ui/components/section";
+import { useQueryParamIso } from "hooks/query-params";
 import { ContractScheduleHeader } from "ui/components/schedule/contract-schedule-header";
 import { useState, useMemo, useCallback } from "react";
+import { TextButton } from "ui/components/text-button";
 import { ScheduleViewToggle } from "ui/components/schedule/schedule-view-toggle";
 import { GetCalendarChanges } from "./graphql/get-calendar-changes.gen";
-import {
-  usePagedQueryBundle,
-  useMutationBundle,
-  useQueryBundle,
-} from "graphql/hooks";
+import { usePagedQueryBundle, useMutationBundle } from "graphql/hooks";
 import { Column } from "material-table";
 import {
   CalendarDayType,
@@ -31,6 +29,7 @@ import { useWorkDayScheduleVariantTypes } from "reference-data/work-day-schedule
 import DeleteIcon from "@material-ui/icons/Delete";
 import { DeleteCalendarChange } from "./graphql/delete-calendar-change.gen";
 import { CalendarView } from "./components/calendar-view";
+import { DayHeader } from "./components/event-day-header";
 import { StickyHeader } from "./components/sticky-header";
 import {
   CalendarListViewRoute,
@@ -39,7 +38,7 @@ import {
 import { Can } from "ui/components/auth/can";
 import { UpdateCalendarChange } from "./graphql/update-calendar-change.gen";
 import { useAllSchoolYears } from "reference-data/school-years";
-import { useContracts } from "reference-data/contracts";
+import { CalendarLegend } from "./components/calendar-legend";
 import { ContractScheduleWarning } from "ui/components/contract-schedule/contract-schedule-warning";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { CalendarChangeEventDialog } from "./components/calendar-change-event-dialog";
@@ -48,8 +47,10 @@ import { CreateCalendarChange } from "./graphql/create-calendar-change.gen";
 import { ConvertApolloErrors } from "ui/components/error-helpers";
 import { Table } from "ui/components/table";
 import { CalendarEvent } from "./types";
+import { useContractOptions } from "reference-data/contracts";
+import { FilterQueryParams } from "./filter-params";
+import { useLocationOptions } from "reference-data/locations";
 import { SplitCalendarChange } from "./graphql/split-calendar-change.gen";
-import { GetContractsWithoutSchedules } from "ui/components/contract-schedule/graphql/get-contracts-without-schedules.gen";
 
 type Props = {
   view: "list" | "calendar";
@@ -59,23 +60,29 @@ export const Calendars: React.FC<Props> = props => {
   const { t } = useTranslation();
   const params = useRouteParams(CalendarRoute);
   const classes = useStyles();
+  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
   const { openSnackbar } = useSnackbar();
   const [errorMessage, setErrorMessage] = useState("");
 
   const [openEventDialog, setOpenEventDialog] = useState(false);
-  const [schoolYearId, setSchoolYearId] = useState<string | undefined>();
+  const [hideChanges, setHideChanges] = useState(true);
   const allSchoolYears = useAllSchoolYears(params.organizationId);
   const schoolYear = useMemo(
-    () => allSchoolYears.find(x => x.id === schoolYearId),
-    [allSchoolYears, schoolYearId]
+    () => allSchoolYears.find(x => x.id === filters.schoolYearId),
+    [allSchoolYears, filters.schoolYearId]
   );
 
-  const [contractId, setContractId] = useState<string | undefined>();
-  const allContracts = useContracts(params.organizationId);
-  const contract = useMemo(() => allContracts.find(x => x.id === contractId), [
-    allContracts,
-    contractId,
-  ]);
+  const [headerCalendarChanges, setHeaderCalendarChanges] = useState<
+    CalendarEvent[]
+  >();
+
+  const contractOptions = useContractOptions(params.organizationId);
+  const contract = useMemo(
+    () => contractOptions.find(x => x.value === filters.contractId),
+    [contractOptions, filters.contractId]
+  );
+
+  const locationOptions = useLocationOptions(params.organizationId);
 
   const today = useMemo(() => {
     const d = new Date();
@@ -83,31 +90,32 @@ export const Calendars: React.FC<Props> = props => {
     return d;
   }, []);
 
-  const initialCalendarChange: CalendarEvent = {
-    startDate: today.toISOString(),
-    endDate: today.toISOString(),
-    affectsAllContracts: true,
-  };
+  const [selectedDate, setSelectedDate] = useState(today);
+
+  const initialCalendarChange: CalendarEvent[] = [
+    {
+      startDate: selectedDate.toISOString() ?? today.toISOString(),
+      endDate: selectedDate.toISOString() ?? today.toISOString(),
+      affectsAllContracts:
+        filters.contractId === "" || filters.contractId === undefined
+          ? true
+          : false,
+      affectsAllLocations:
+        filters.locationId === "" || filters.locationId === undefined
+          ? true
+          : false,
+      locationIds: filters.locationId === "" ? [] : [filters.locationId],
+      contractIds: filters.contractId === "" ? [] : [filters.contractId],
+    },
+  ];
 
   const [
     selectedDateCalendarChanges,
     setSelectedDateCalendarChanges,
-  ] = useState(initialCalendarChange);
+  ] = useState<CalendarEvent[]>(initialCalendarChange);
 
-  const [selectedDate, setSelectedDate] = useState(today);
-
+  const [isEdit, setIsEdit] = useState<boolean | undefined>(false);
   const [editSpecificDate, setEditSpecificDate] = useState(false);
-
-  const getContractsWithoutSchedules = useQueryBundle(
-    GetContractsWithoutSchedules,
-    {
-      variables: {
-        orgId: params.organizationId,
-        schoolYearId: schoolYearId ?? "",
-      },
-      skip: !schoolYearId,
-    }
-  );
 
   const [getCalendarChanges, pagination] = usePagedQueryBundle(
     GetCalendarChanges,
@@ -115,8 +123,10 @@ export const Calendars: React.FC<Props> = props => {
     {
       variables: {
         orgId: params.organizationId,
-        schoolYearId: schoolYearId,
-        contractId: contractId,
+        schoolYearId:
+          filters.schoolYearId === "" ? undefined : filters.schoolYearId,
+        contractId: filters.contractId === "" ? undefined : filters.contractId,
+        locationId: filters.locationId === "" ? undefined : filters.locationId,
       },
       fetchPolicy: "cache-and-network",
     }
@@ -137,21 +147,26 @@ export const Calendars: React.FC<Props> = props => {
 
   React.useEffect(() => {
     if (calendarChanges.length > 0) {
-      const found = calendarChanges.find(cc => {
+      const found = calendarChanges.filter(cc => {
         return (
           selectedDate >= parseISO(cc.startDate) &&
           selectedDate <= parseISO(cc.endDate)
         );
       });
       if (found) {
-        setSelectedDateCalendarChanges(found as CalendarEvent);
+        setSelectedDateCalendarChanges(found as CalendarEvent[]);
+        setHeaderCalendarChanges(found as CalendarEvent[]);
       } else {
-        const cc: CalendarEvent = {
-          startDate: selectedDate.toISOString(),
-          endDate: selectedDate.toISOString(),
-          affectsAllContracts: true,
-        };
+        const cc: CalendarEvent[] = [
+          {
+            startDate: selectedDate.toISOString(),
+            endDate: selectedDate.toISOString(),
+            affectsAllContracts: true,
+            affectsAllLocations: true,
+          },
+        ];
         setSelectedDateCalendarChanges(cc);
+        setHeaderCalendarChanges(found as CalendarEvent[]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -215,7 +230,9 @@ export const Calendars: React.FC<Props> = props => {
         description: calendarChange.description,
         calendarChangeReasonId: calendarChange.calendarChangeReasonId,
         contractIds: calendarChange.contractIds as string[],
+        locationIds: calendarChange.locationIds as string[],
         affectsAllContracts: calendarChange.affectsAllContracts ?? false,
+        affectsAllLocations: calendarChange.affectsAllLocations ?? false,
       };
 
       const result = await splitCalendarChange({
@@ -253,6 +270,7 @@ export const Calendars: React.FC<Props> = props => {
         startDate: format(date, "MMM d, yyyy"),
         endDate: format(date, "MMM d, yyyy"),
         affectsAllContracts: true,
+        affectsAllLocations: true,
       };
       const result = await onSplitCalendarChange(
         calendarChangeId,
@@ -411,10 +429,28 @@ export const Calendars: React.FC<Props> = props => {
       sorting: false,
     },
     {
-      title: t("Note"),
-      field: "description",
+      title: t("School"),
+      field: "locationIds",
       searchable: false,
-      sorting: false,
+      render: data => {
+        if (data.affectsAllLocations) {
+          return <Typography>{t("All Schools")}</Typography>;
+        } else if (data?.locations?.length === 1) {
+          return <Typography>{data?.locations?.[0]?.name}</Typography>;
+        } else {
+          return (
+            <Tooltip
+              className={classes.toolTip}
+              placement="bottom-start"
+              title={data?.locations?.map(l => l?.name).join(", ")}
+            >
+              <Typography>{`${data?.locations?.length} ${t(
+                "Schools"
+              )}`}</Typography>
+            </Tooltip>
+          );
+        }
+      },
     },
     {
       title: t("Contract"),
@@ -437,31 +473,42 @@ export const Calendars: React.FC<Props> = props => {
   ).getFullYear()} - ${parseISO(schoolYear?.endDate).getFullYear()}`;
 
   const handleAddFromCalendar = (date: string) => {
-    setSelectedDateCalendarChanges({
-      startDate: date,
-      endDate: date,
-      affectsAllContracts: true,
-    });
+    setSelectedDateCalendarChanges([
+      {
+        startDate: date,
+        endDate: date,
+        affectsAllContracts: true,
+        affectsAllLocations: true,
+      },
+    ]);
     setOpenEventDialog(true);
   };
+
+  const calendarChangeLength = headerCalendarChanges?.length ?? 0;
 
   const handleEditFromCalendar = (
     calendarChange: CalendarEvent,
     date?: Date
   ) => {
     setEditSpecificDate(!!date);
-    setSelectedDateCalendarChanges(calendarChange);
+    setSelectedDateCalendarChanges([calendarChange]);
+    setIsEdit(true);
     setOpenEventDialog(true);
   };
   return (
     <>
       <CalendarChangeEventDialog
         open={openEventDialog}
+        orgId={params.organizationId}
+        locationOptions={locationOptions}
+        contractOptions={contractOptions}
         onAdd={onCreateCalendarChange}
+        isEdit={isEdit}
         onUpdate={onUpdateCalendarChange}
         onClose={() => {
           setOpenEventDialog(false);
           setErrorMessage("");
+          setIsEdit(false);
         }}
         onSplit={onSplitCalendarChange}
         calendarChange={selectedDateCalendarChanges}
@@ -469,10 +516,10 @@ export const Calendars: React.FC<Props> = props => {
         specificDate={editSpecificDate ? selectedDate : undefined}
       />
       <div>
-        <Grid container alignItems="center" justify="space-between" spacing={2}>
-          <Grid item>
+        <Grid container alignItems="center" spacing={2}>
+          <Grid item xs={8}>
             <Typography variant="h5">
-              {contract === undefined ? t("All Contracts") : contract?.name}
+              {contract === undefined ? t("All Contracts") : contract?.value}
             </Typography>
 
             {schoolYear && (
@@ -480,47 +527,96 @@ export const Calendars: React.FC<Props> = props => {
             )}
           </Grid>
           <Can do={[PermissionEnum.CalendarChangeSave]}>
-            <Grid item>
+            <Grid item xs={2}>
               <ImportDataButton
                 orgId={params.organizationId}
                 importType={DataImportType.CalendarChange}
                 label={t("Import events")}
               />
             </Grid>
+            <Grid item xs={2}>
+              {changesLoaded && (
+                <Button
+                  className={classes.floatRight}
+                  onClick={() => {
+                    setSelectedDateCalendarChanges(initialCalendarChange);
+                    setIsEdit(false);
+                    setOpenEventDialog(true);
+                  }}
+                  variant="contained"
+                >
+                  {t("Add Event")}
+                </Button>
+              )}
+            </Grid>
           </Can>
         </Grid>
         <ContractScheduleWarning orgId={params.organizationId} />
-
         <div className={props.view === "calendar" ? classes.sticky : ""}>
           {props.view === "calendar" && (
-            <Section className={classes.calendarchanges}>
-              <StickyHeader
-                orgId={params.organizationId}
-                calendarChange={selectedDateCalendarChanges}
-                onDelete={onDeleteCalendarChange}
-                date={selectedDate}
-                onAdd={handleAddFromCalendar}
-                onEdit={handleEditFromCalendar}
+            <Section className={classes.calendarChanges}>
+              <DayHeader
+                selectedDate={selectedDate}
+                eventCount={headerCalendarChanges?.length ?? 0}
               />
+              {headerCalendarChanges?.length !== 0 && (
+                <>
+                  {calendarChangeLength > 2 && hideChanges
+                    ? headerCalendarChanges
+                        ?.slice(0, 2)
+                        ?.map((e, i) => (
+                          <StickyHeader
+                            key={i}
+                            locationOptions={locationOptions}
+                            contractOptions={contractOptions}
+                            orgId={params.organizationId}
+                            calendarChange={e}
+                            onDelete={onDeleteCalendarChange}
+                            date={selectedDate}
+                            onAdd={handleAddFromCalendar}
+                            onEdit={handleEditFromCalendar}
+                          />
+                        ))
+                    : headerCalendarChanges?.map((e, i) => (
+                        <StickyHeader
+                          key={i}
+                          locationOptions={locationOptions}
+                          contractOptions={contractOptions}
+                          orgId={params.organizationId}
+                          calendarChange={e}
+                          onDelete={onDeleteCalendarChange}
+                          date={selectedDate}
+                          onAdd={handleAddFromCalendar}
+                          onEdit={handleEditFromCalendar}
+                        />
+                      ))}
+                  {calendarChangeLength > 2 && (
+                    <div className={classes.height}>
+                      <TextButton
+                        className={classes.floatLeft}
+                        onClick={() => {
+                          setHideChanges(!hideChanges);
+                        }}
+                      >
+                        <span className={classes.link}>
+                          {hideChanges
+                            ? t(`+ ${calendarChangeLength - 2} more`)
+                            : t("Hide events")}
+                        </span>
+                      </TextButton>
+                    </div>
+                  )}
+                </>
+              )}
             </Section>
           )}
         </div>
-
         <Section className={classes.container}>
           <Grid container>
             <Grid item xs={12} className={classes.filters}>
               <div className={classes.scheduleHeader}>
                 <ContractScheduleHeader
-                  schoolYearId={schoolYearId}
-                  setSchoolYearId={input => {
-                    pagination.resetPage();
-                    setSchoolYearId(input);
-                  }}
-                  contractId={contract?.id}
-                  setContractId={input => {
-                    pagination.resetPage();
-                    setContractId(input);
-                  }}
+                  paginationReset={() => pagination.resetPage()}
                   orgId={params.organizationId}
                 />
               </div>
@@ -529,27 +625,12 @@ export const Calendars: React.FC<Props> = props => {
                   view={props.view}
                   listViewRoute={CalendarListViewRoute.generate(params)}
                   calendarViewRoute={CalendarCalendarViewRoute.generate(params)}
+                  maintainQueryParams={true}
                 />
               </div>
             </Grid>
             <Grid item xs={12}>
               <Divider />
-            </Grid>
-            <Grid direction={"row-reverse"} item container xs={12}>
-              {changesLoaded && (
-                <Can do={[PermissionEnum.CalendarChangeSave]}>
-                  <Button
-                    className={classes.addEventButton}
-                    onClick={() => {
-                      setSelectedDateCalendarChanges(initialCalendarChange);
-                      setOpenEventDialog(true);
-                    }}
-                    variant="contained"
-                  >
-                    {t("Add Event")}
-                  </Button>
-                </Can>
-              )}
             </Grid>
             {props.view === "list" && (
               <Grid item xs={12} className={classes.listContent}>
@@ -566,20 +647,24 @@ export const Calendars: React.FC<Props> = props => {
                       selection={true}
                       pagination={pagination}
                       onRowClick={async (event, calendarChange) => {
-                        const calendarEvent: CalendarEvent = {
-                          id: calendarChange?.id,
-                          rowVersion: calendarChange?.rowVersion,
-                          description: calendarChange?.description,
-                          startDate: calendarChange?.startDate,
-                          endDate: calendarChange?.endDate,
-                          calendarChangeReasonId:
-                            calendarChange?.calendarChangeReason?.id,
-                          affectsAllContracts:
-                            calendarChange?.affectsAllContracts,
-                          contractIds: calendarChange?.changedContracts?.map(
-                            c => c?.id
-                          ),
-                        };
+                        const calendarEvent: CalendarEvent[] = [
+                          {
+                            id: calendarChange?.id,
+                            rowVersion: calendarChange?.rowVersion,
+                            description: calendarChange?.description,
+                            startDate: calendarChange?.startDate,
+                            endDate: calendarChange?.endDate,
+                            calendarChangeReasonId:
+                              calendarChange?.calendarChangeReason?.id,
+                            affectsAllContracts:
+                              calendarChange?.affectsAllContracts,
+                            contractIds: calendarChange?.changedContracts?.map(
+                              c => c?.id
+                            ),
+                          },
+                        ];
+
+                        setHeaderCalendarChanges(calendarEvent);
                         setSelectedDateCalendarChanges(calendarEvent);
                         setOpenEventDialog(true);
                       }}
@@ -608,20 +693,25 @@ export const Calendars: React.FC<Props> = props => {
               </Grid>
             )}
             {props.view === "calendar" && (
-              <CalendarView
-                calandarChangeDates={calendarChanges as CalendarChange[]}
-                fromDate={parseISO(schoolYear?.startDate)}
-                toDate={parseISO(schoolYear?.endDate)}
-                setSelectedCalendarChanges={input => {
-                  pagination.resetPage();
-                  setSelectedDateCalendarChanges(input);
-                }}
-                selectedDate={selectedDate}
-                setSelectedDate={input => {
-                  pagination.resetPage();
-                  setSelectedDate(input);
-                }}
-              />
+              <>
+                <CalendarLegend />
+                <CalendarView
+                  calandarChangeDates={calendarChanges as CalendarChange[]}
+                  fromDate={parseISO(schoolYear?.startDate)}
+                  toDate={parseISO(schoolYear?.endDate)}
+                  setSelectedCalendarChanges={input => {
+                    pagination.resetPage();
+                    setHeaderCalendarChanges(input);
+                    setSelectedDateCalendarChanges(input);
+                  }}
+                  selectedDate={selectedDate}
+                  setSelectedDate={input => {
+                    pagination.resetPage();
+                    updateFilters({ date: format(input, "P") });
+                    setSelectedDate(input);
+                  }}
+                />
+              </>
             )}
           </Grid>
         </Section>
@@ -652,7 +742,6 @@ const useStyles = makeStyles(theme => ({
       theme.customColors.medLightGray
     }`,
   },
-
   filters: {
     padding: theme.spacing(3),
     display: "flex",
@@ -675,6 +764,8 @@ const useStyles = makeStyles(theme => ({
       18
     )}`,
   },
+  floatLeft: { float: "left" },
+  floatRight: { float: "right" },
   sticky: {
     position: "sticky",
     top: 0,
@@ -687,13 +778,18 @@ const useStyles = makeStyles(theme => ({
       theme.customColors.appBackgroundGray
     }`,
   },
-  calendarchanges: {
+  calendarChanges: {
     padding: theme.spacing(1),
-    marginBottom: 0,
   },
-  addEventButton: {
-    marginTop: theme.typography.pxToRem(27),
-    zIndex: 1000,
-    marginRight: theme.typography.pxToRem(30),
+  toolTip: {
+    cursor: "pointer",
+  },
+  link: {
+    textDecoration: "underline",
+    color: theme.customColors.primary,
+  },
+  height: {
+    height: "25px",
+    paddingLeft: "15px",
   },
 }));

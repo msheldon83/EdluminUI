@@ -6,22 +6,31 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "hooks";
+import { useLocation } from "react-router";
 
 type Props = {
   view: "list" | "calendar";
   calendarViewRoute: string;
   listViewRoute: string;
+  maintainQueryParams?: boolean;
 };
 
 export const ScheduleViewToggle: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
   return (
     <>
       <div className={classes.option}>
         <Link
-          to={props.listViewRoute}
+          to={
+            props.maintainQueryParams
+              ? `${props.listViewRoute}?${queryParams}`
+              : props.listViewRoute
+          }
           className={`${classes.option} ${
             props.view === "list" ? classes.selected : ""
           }`}
@@ -36,7 +45,11 @@ export const ScheduleViewToggle: React.FC<Props> = props => {
       </div>
       <div className={classes.option}>
         <Link
-          to={props.calendarViewRoute}
+          to={
+            props.maintainQueryParams
+              ? `${props.calendarViewRoute}?${queryParams}`
+              : props.calendarViewRoute
+          }
           className={`${classes.option} ${
             props.view === "calendar" ? classes.selected : ""
           }`}
