@@ -35,7 +35,6 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
 
   const isMobile = useIsMobile();
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
-  const [employeeId, setEmployeeId] = React.useState<string | null>(null);
 
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy, {
     onError: error => {
@@ -65,9 +64,11 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     [getVacancy]
   );
 
+  const employeeId =
+    orgUsers.find(o => o.orgId === vacancy?.organization.id)?.id ?? "0";
+
   const onDismissVacancy = async (vacancyId: string) => {
-    const employeeId = determineEmployeeId();
-    if (employeeId != 0) {
+    if (employeeId != "0") {
       await Promise.resolve(
         dismissVacancyMutation({
           variables: {
@@ -82,12 +83,6 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     history.push(SubHomeRoute.generate(params));
   };
 
-  const determineEmployeeId = () => {
-    const employeeId =
-      orgUsers.find(o => o.orgId === vacancy?.organization.id)?.id ?? 0;
-    return employeeId;
-  };
-
   const onCloseRequestAbsenceDialog = (assignmentId?: string | null) => {
     setRequestAbsenceIsOpen(false);
     let route = SubHomeRoute.generate(params);
@@ -98,8 +93,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
   };
 
   const onAcceptVacancy = async (vacancyId: string) => {
-    const employeeId = determineEmployeeId();
-    if (employeeId != 0) {
+    if (employeeId != "0") {
       await requestVacancyMutation({
         variables: {
           vacancyRequest: {
@@ -109,7 +103,6 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
         },
       });
     }
-    setEmployeeId(employeeId.toString());
     if (canAcceptVacancy) {
       setRequestAbsenceIsOpen(true);
     } else {
@@ -117,12 +110,19 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     }
   };
 
-  const employeeInterest = compact(vacancy?.interestedEmployees ?? []).find(x =>
-    orgUsers.map(ou => ou.id).includes(x?.employeeId)
+  const employeeInterest = compact(vacancy?.interestedEmployees ?? []).find(
+    x => x?.employeeId === employeeId
   );
   const canAcceptVacancy = vacancy?.details?.some(
     d => !d.assignmentId && isAfter(parseISO(d.startTimeLocal), new Date())
   );
+
+  const assignmentId = vacancy?.details.find(
+    d => d.assignment && d.assignment.employeeId === employeeId
+  )?.assignmentId;
+  if (assignmentId) {
+    history.push(SubSpecificAssignmentRoute.generate({ assignmentId }));
+  }
 
   const DismissAndAcceptButtons = (
     <>

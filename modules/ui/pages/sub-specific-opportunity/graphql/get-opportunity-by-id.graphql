@@ -37,6 +37,10 @@ query GetVacancyById($vacancyId: ID!) {
       details {
         id
         assignmentId
+        assignment {
+          id
+          employeeId
+        }
         location {
           id
           name
