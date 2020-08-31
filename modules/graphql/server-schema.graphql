@@ -687,7 +687,7 @@ type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface 
   active: Boolean!
   name: String!
   definition: String!
-  query: String
+  replaceableFilters: [ReportFilterField!]!
   fileNameFormat: String
   fileFormat: FileFormat
   path: String!
@@ -1786,7 +1786,7 @@ type ContractScheduleMutations {
   create(contractSchedule: ContractScheduleCreateInput!): ContractSchedule
   update(contractSchedule: ContractScheduleUpdateInput!): ContractSchedule
   delete(contractScheduleId: ID!): Boolean
-  seedContractSchedule(contractScheduleId: ID!): ContractSchedule
+  seedContractSchedule(contractScheduleId: ID!, contractCalendarId: ID!): ContractSchedule
 }
 
 type ContractScheduleQueries {
@@ -2776,7 +2776,7 @@ enum EventType {
   CONTRACT_SCHEDULE_UPDATED
   CONTRACT_SCHEDULE_DELETED
   CONTRACT_SCHEDULE_SEEDED
-  RESEED_CONTRACT_SCHEDULE
+  CONTRACT_CALENDAR_UPDATE_REQUESTED
   POSITION_TYPE_CREATED
   POSITION_TYPE_UPDATED
   POSITION_TYPE_DELETED
@@ -2926,6 +2926,9 @@ enum EventType {
   APPLICATION_PRESET_CREATED
   APPLICATION_PRESET_UPDATED
   APPLICATION_PRESET_DELETED
+  POST_CREATED
+  POST_UPDATED
+  POST_DELETED
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
@@ -2947,6 +2950,38 @@ enum EventType {
   COMMENT_CREATED
   COMMENT_UPDATED
   COMMENT_DELETED
+}
+
+enum ExpressionFunction {
+  ADD
+  SUBTRACT
+  MULTIPLY
+  DIVIDE
+  EQUAL
+  NOT_EQUAL
+  GREATER_THAN
+  GREATER_THAN_OR_EQUAL
+  LESS_THAN
+  LESS_THAN_OR_EQUAL
+  CONTAINED_IN
+  BETWEEN
+  ENDS_WITH
+  STARTS_WITH
+  CONTAINS
+  SUM
+  SUM_IF
+  AVG
+  COUNT
+  COUNT_IF
+  IF
+  NOT
+  CONCAT
+  LEFT
+  RIGHT
+  UPPER
+  LOWER
+  AND
+  OR
 }
 
 enum FeatureFlag {
@@ -3469,6 +3504,7 @@ enum ObjectType {
   APPROVAL_WORKFLOW
   APPROVAL_STATE
   ORGANIZATION_CRM_CONTACT
+  POST
   APPLICATION
 }
 
@@ -5935,6 +5971,12 @@ input ReplacementPoolUpdateInput {
   id: ID!
   rowVersion: String!
   replacementPoolConfigId: ID
+}
+
+type ReportFilterField {
+  displayName: String!
+  expressionFunction: ExpressionFunction!
+  arguments: [String]!
 }
 
 input ResetUserPasswordInput {

@@ -7,10 +7,8 @@ import { Typography } from "@material-ui/core";
 import { useRouteParams } from "ui/routes/definition";
 import { PersonViewRoute } from "ui/routes/people";
 import { GetSubstituteById } from "../people/graphql/substitute/get-substitute-by-id.gen";
-import {
-  SubPositionTypesAndAttributesEdit,
-  Attribute,
-} from "./components/position-types-attributes";
+import { SubPositionTypesAndAttributesEdit } from "./components/position-types-attributes";
+import { Attribute } from "./types";
 import { useMemo, useCallback } from "react";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AddEmployeeEndorsement } from "ui/components/employee/graphql/add-endorsement.gen";
