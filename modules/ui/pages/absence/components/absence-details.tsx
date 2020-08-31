@@ -6,6 +6,7 @@ import { startOfDay, min, format, isSameDay, max } from "date-fns";
 import { useFormikContext } from "formik";
 import { NoteField } from "ui/pages/absence/components/notes-field";
 import { CreateAbsenceCalendar } from "ui/components/absence/create-absence-calendar";
+import { CalendarLegend } from "./calendar-legend";
 import { compact, flatMap, intersection, sortBy } from "lodash-es";
 import { AbsenceCreateInput } from "graphql/server-types.gen";
 import { GetProjectedAbsenceUsage } from "../graphql/get-projected-absence-usage.gen";
@@ -176,7 +177,9 @@ export const AbsenceDetails: React.FC<Props> = props => {
             }
           }}
         />
+        <CalendarLegend />
       </div>
+      <div className={classes.paddingTop}></div>
       {closedDates.length > 0 && (
         <div className={classes.closedDayBanner}>
           <Typography>
@@ -284,6 +287,9 @@ const useStyles = makeStyles(theme => ({
     padding: theme.typography.pxToRem(10),
     borderRadius: theme.typography.pxToRem(4),
     width: "100%",
+  },
+  paddingTop: {
+    paddingTop: theme.spacing(2),
   },
 }));
 
