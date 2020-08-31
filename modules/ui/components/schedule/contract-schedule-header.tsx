@@ -1,42 +1,67 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core";
+import { useTranslation } from "react-i18next";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
-import { ContractSelect } from "ui/components/reference-selects/contract-select";
+import { ContractSelectCalendarChanges } from "./filters/contract-select";
 import clsx from "clsx";
+import { LocationSelectCalendarChanges } from "./filters/location-select";
+import { FilterQueryParams } from "ui/pages/calendars/filter-params";
+import { useQueryParamIso } from "hooks/query-params";
 
 type Props = {
   orgId: string;
-  schoolYearId?: string;
-  setSchoolYearId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  contractId?: string;
-  setContractId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  paginationReset: () => void;
 };
 
 export const ContractScheduleHeader: React.FC<Props> = props => {
   const classes = useStyles();
+  const { t } = useTranslation();
+  const [filters, updateFilters] = useQueryParamIso(FilterQueryParams);
 
-  const {
-    setSchoolYearId,
-    schoolYearId,
-    contractId,
-    setContractId,
-    orgId,
-  } = props;
+  const { orgId, paginationReset } = props;
 
   return (
     <>
       <div className={classes.select}>
         <SchoolYearSelect
           orgId={orgId}
-          selectedSchoolYearId={schoolYearId}
-          setSelectedSchoolYearId={setSchoolYearId}
+          selectedSchoolYearId={filters.schoolYearId}
+          defaultToCurrentSchoolYear={
+            filters.schoolYearId === "" ? true : false
+          }
+          setSelectedSchoolYearId={(schoolYearId: string | undefined) => {
+            updateFilters({ schoolYearId: schoolYearId });
+            paginationReset();
+          }}
         />
       </div>
       <div className={clsx(classes.select, classes.fromSelect)}>
-        <ContractSelect
+        <ContractSelectCalendarChanges
           orgId={orgId}
-          selectedContractId={contractId}
-          setSelectedContractId={setContractId}
+          selectedContractId={
+            filters.contractId === "" ? undefined : filters.contractId
+          }
+          setSelectedContractId={(contractId: string | undefined) => {
+            updateFilters({ contractId: contractId });
+            paginationReset();
+          }}
+        />
+      </div>
+      <div
+        className={[classes.select, classes.fromSelect, classes.width].join(
+          " "
+        )}
+      >
+        <LocationSelectCalendarChanges
+          label={t("School")}
+          orgId={orgId}
+          selectedLocationId={
+            filters.locationId === "" ? undefined : filters.locationId
+          }
+          setSelectedLocationId={(locationId: string | undefined) => {
+            updateFilters({ locationId: locationId });
+            paginationReset();
+          }}
         />
       </div>
     </>
@@ -47,9 +72,11 @@ const useStyles = makeStyles(theme => ({
   select: {
     display: "flex",
     flexDirection: "column",
-    minWidth: theme.typography.pxToRem(250),
   },
   fromSelect: {
-    marginLeft: theme.spacing(6),
+    marginLeft: theme.spacing(4),
+  },
+  width: {
+    minWidth: theme.typography.pxToRem(250),
   },
 }));
