@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Typography, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/styles";
