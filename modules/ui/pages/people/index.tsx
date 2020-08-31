@@ -176,11 +176,19 @@ export const PeoplePage: React.FC<Props> = props => {
             )
           )
         : [],
-      adminLocations:
+      adminLocations: (
         (person.administrator?.accessControl?.locations?.filter(l => l) as {
           id: string;
           name: string;
-        }[]) ?? [],
+        }[]) ?? []
+      ).concat(
+        (person.administrator?.accessControl?.locationGroups?.filter(
+          l => l
+        ) as {
+          id: string;
+          name: string;
+        }[]) ?? []
+      ),
       allLocationIdsInScope:
         person.administrator?.accessControl?.allLocationIdsInScope ?? false,
       adminPositionTypes:
