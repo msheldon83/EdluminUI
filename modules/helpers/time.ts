@@ -1,4 +1,4 @@
-import { getHours, getMinutes, format } from "date-fns";
+import { getHours, getMinutes, format, parseISO } from "date-fns";
 
 const padTime = (time: number) => {
   const timeAsString = `${time}`;
@@ -136,7 +136,7 @@ export const parseTimeFromString = (
     minute = 0;
   }
 
-  const date = new Date();
+  const date = earliestTime ? parseISO(earliestTime) : new Date();
   date.setHours(hour);
   date.setMinutes(minute);
   date.setSeconds(0);
