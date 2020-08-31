@@ -74,8 +74,7 @@ export const SelectedDateView: React.FC<Props> = props => {
         props.actingAsEmployee,
         props.orgId
       )}
-      {absenceDays.length === 0 &&
-        nonInstructionalDays.length === 0 &&
+      {nonInstructionalDays.length === 0 &&
         displayInstructionalDayInformation(
           instructionalDays,
           contractInstructionalDays,
