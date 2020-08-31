@@ -5,26 +5,28 @@ import {
   DialogTitle,
   Typography,
   Divider,
-  Grid,
   FormControlLabel,
   Checkbox,
+  Grid,
   Button,
   Tooltip,
 } from "@material-ui/core";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
 import { makeStyles } from "@material-ui/styles";
 import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-reasons";
-import { useOrganizationId } from "core/org-context";
-import { useContracts } from "reference-data/contracts";
+import clsx from "clsx";
 import { Formik } from "formik";
 import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { compact } from "lodash-es";
 import { DatePicker } from "ui/components/form/date-picker";
 import { isAfterDate } from "helpers/date";
 import { OptionTypeBase } from "react-select/src/types";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
+import { GetAffectedEmployeeCount } from "../graphql/get-affected-employee-count.gen";
 import {
   CalendarChangeCreateInput,
   CalendarChangeUpdateInput,
@@ -32,18 +34,24 @@ import {
 import { CalendarEvent } from "../types";
 import { parseISO, format } from "date-fns";
 import { isSameDay } from "date-fns/esm";
+import { useQueryBundle } from "graphql/hooks";
+import { getCalendarSummaryText } from "../helpers";
 import InfoIcon from "@material-ui/icons/Info";
 
 type Props = {
   open: boolean;
+  orgId: string;
+  isEdit?: boolean;
   onClose: () => void;
+  locationOptions: OptionType[];
+  contractOptions: OptionType[];
   onAdd: (calendarChange: CalendarChangeCreateInput) => Promise<boolean>;
   onUpdate: (calendarChange: CalendarChangeUpdateInput) => Promise<boolean>;
   onSplit: (
     originalCalendarChangeId: string,
     calendarChange: CalendarEvent
   ) => Promise<boolean>;
-  calendarChange: CalendarEvent;
+  calendarChange: CalendarEvent[];
   errorMessage?: string;
   specificDate?: Date;
 };
@@ -51,62 +59,161 @@ type Props = {
 export const CalendarChangeEventDialog: React.FC<Props> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-
-  const orgId = useOrganizationId();
+  const { locationOptions, contractOptions } = props;
   const today = React.useMemo(() => new Date(), []);
-  const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
-  const contracts = useContracts(orgId ?? "0");
-  const contractOptions = React.useMemo(
-    () => contracts.map(c => ({ label: c.name, value: c.id })),
-    [contracts]
-  );
-  const [submittingData, setSubmittingData] = React.useState(false);
+  const { orgId, isEdit } = props;
 
-  const updating = props.calendarChange ? !!props.calendarChange.id : false;
+  const changeReasonOptions = useCalendarChangeReasonOptions(orgId ?? "0");
+
+  const calendarChange =
+    props.calendarChange[0] !== undefined
+      ? props.calendarChange[0]
+      : ({
+          //If the incoming calendarChange is undefined create one.
+          //This prevents clicking a day without a CalendarEvent from erroring out.
+          startDate: today.toISOString(),
+          endDate: today.toISOString(),
+          affectsAllContracts: true,
+          affectsAllLocations: true,
+          locationIds: [],
+          contractIds: [],
+        } as CalendarEvent);
+
+  const [contractIds, setContractIds] = React.useState<string[]>([]);
+  const [locationIds, setLocationIds] = React.useState<string[]>([]);
+
+  const [calendarChangeId, setCalendarChangeId] = useState<
+    string | undefined | null
+  >(calendarChange.id);
+
+  const [submittingData, setSubmittingData] = React.useState(false);
+  const [summaryText, setSummaryTest] = React.useState<string>("");
+  const [affectsAllLocations, setAffectsAllLocations] = useState<boolean>(
+    calendarChange.affectsAllLocations ?? true
+  );
+  const [affectsAllContracts, setAffectsAllContracts] = useState<boolean>(
+    calendarChange.affectsAllContracts ?? true
+  );
+
+  const clearState = () => {
+    setContractIds([]);
+    setLocationIds([]);
+    setSummaryTest("");
+    setAffectsAllLocations(true);
+    setAffectsAllContracts(true);
+    setSubmittingData(false);
+    setCalendarChangeId(undefined);
+  };
+
+  //Set state values only when we have a real calendarChange
+  useEffect(() => {
+    if (calendarChangeId !== calendarChange.id || isEdit) {
+      setContractIds(
+        compact(calendarChange.changedContracts?.map(e => e?.id)) ??
+          compact(calendarChange.contractIds) ??
+          []
+      );
+      setLocationIds(compact(calendarChange.locationIds) ?? []);
+      setAffectsAllLocations(calendarChange.affectsAllLocations ?? true);
+      setAffectsAllContracts(calendarChange.affectsAllContracts ?? true);
+      setCalendarChangeId(calendarChange.id);
+
+      const string = getCalendarSummaryText(
+        locationOptions,
+        contractOptions,
+        affectsAllContracts,
+        affectsAllLocations,
+        contractIds,
+        locationIds,
+        t
+      );
+
+      setSummaryTest(string);
+    }
+  }, [calendarChange.id, isEdit]);
+
+  useEffect(() => {
+    const string = getCalendarSummaryText(
+      locationOptions,
+      contractOptions,
+      affectsAllContracts,
+      affectsAllLocations,
+      contractIds,
+      locationIds,
+      t
+    );
+
+    setSummaryTest(string);
+  }, [
+    locationIds,
+    contractIds,
+    contractOptions,
+    locationOptions,
+    affectsAllLocations,
+    affectsAllContracts,
+  ]);
+
+  const updating = calendarChange ? !!calendarChange.id : false;
 
   const isRange =
-    props.calendarChange &&
-    props.calendarChange.startDate &&
-    props.calendarChange.endDate
+    calendarChange && calendarChange.startDate && calendarChange.endDate
       ? !isSameDay(
-          parseISO(props.calendarChange.startDate),
-          parseISO(props.calendarChange.endDate)
+          parseISO(calendarChange.startDate),
+          parseISO(calendarChange.endDate)
         )
       : false;
 
-  if (!orgId || !props.calendarChange) {
+  const getAffectedEmployeeCount = useQueryBundle(GetAffectedEmployeeCount, {
+    variables: {
+      orgId: orgId,
+      locationIds: locationIds,
+      contractIds: contractIds,
+      asOfDate: today,
+    },
+  });
+
+  const affectedEmployees =
+    getAffectedEmployeeCount.state === "LOADING" ||
+    getAffectedEmployeeCount.state === "UPDATING"
+      ? "0"
+      : getAffectedEmployeeCount.data.calendarChange?.affectedEmployeeCount;
+
+  if (!orgId || !calendarChange) {
     return <></>;
   }
 
   return (
     <Dialog
       open={props.open}
-      onClose={props.onClose}
+      onClose={() => {
+        clearState();
+        props.onClose();
+      }}
       fullWidth={true}
       maxWidth={"md"}
     >
       <Formik
         initialValues={{
           changeReason:
-            props.calendarChange.calendarChangeReasonId ??
+            calendarChange.calendarChangeReasonId ??
             changeReasonOptions[0]?.value,
-          toDate: format(
-            parseISO(props.calendarChange.endDate!),
-            "MMMM d, yyyy"
-          ),
-          fromDate: format(
-            parseISO(props.calendarChange.startDate!),
-            "MMMM d, yyyy"
-          ),
-          notes: props.calendarChange.description ?? "",
-          contracts: props.calendarChange.changedContracts?.map(c => c?.id),
-          applyToAll: props.calendarChange.affectsAllContracts,
+          toDate: format(parseISO(calendarChange.endDate!), "MMMM d, yyyy"),
+          fromDate: format(parseISO(calendarChange.startDate!), "MMMM d, yyyy"),
+          notes: calendarChange.description ?? "",
+          contracts:
+            calendarChange.changedContracts &&
+            calendarChange.changedContracts?.map(c => c?.id),
+          locations: calendarChange.locationIds,
+          affectsAllContracts: calendarChange.affectsAllContracts,
+          affectsAllLocations: calendarChange.affectsAllLocations,
         }}
         onReset={(values, formProps) => {
           formProps.setFieldValue("toDate", today);
           formProps.setFieldValue("fromDate", today);
           formProps.setFieldValue("contracts", []);
-          formProps.setFieldValue("applyToAll", true);
+          formProps.setFieldValue("locations", []);
+          formProps.setFieldValue("affectsAllContracts", true);
+          formProps.setFieldValue("affectsAllLocations", true);
           formProps.setFieldValue("changeReason", changeReasonOptions[0].value);
           formProps.setFieldValue("notes", "");
           props.onClose();
@@ -116,38 +223,42 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
           setSubmittingData(true);
           if (updating) {
             if (isRange && !!props.specificDate) {
-              const calendarChange: CalendarEvent = {
+              const calendarChangeSplit: CalendarEvent = {
                 description: data.notes === "" ? null : data.notes,
                 startDate: format(props.specificDate, "MMMM d, yyyy"),
                 endDate: format(props.specificDate, "MMMM d, yyyy"),
                 calendarChangeReasonId: data.changeReason
                   ? data.changeReason
                   : changeReasonOptions[0]?.value,
-                contractIds: data.contracts ?? [],
-                affectsAllContracts: data.applyToAll,
+                contractIds: data.contracts,
+                locationIds: data.locations,
+                affectsAllContracts: data.affectsAllContracts,
+                affectsAllLocations: data.affectsAllLocations,
               };
               resultSucceeded = await props.onSplit(
-                props.calendarChange.id ?? "0",
-                calendarChange
+                calendarChange.id ?? "0",
+                calendarChangeSplit
               );
             } else {
-              const calendarChange: CalendarChangeUpdateInput = {
-                id: props.calendarChange.id!,
-                rowVersion: props.calendarChange.rowVersion!,
+              const calendarChangeUpdate: CalendarChangeUpdateInput = {
+                id: calendarChange.id!,
+                rowVersion: calendarChange.rowVersion!,
                 description: data.notes,
                 startDate: data.fromDate,
                 endDate: data.toDate,
                 calendarChangeReasonId: data.changeReason
                   ? data.changeReason
                   : changeReasonOptions[0]?.value,
-                contractIds: data.contracts ?? [],
-                affectsAllContracts: data.applyToAll,
+                contractIds: data.contracts,
+                locationIds: data.locations,
+                affectsAllContracts: data.affectsAllContracts,
+                affectsAllLocations: data.affectsAllLocations,
               };
 
-              resultSucceeded = await props.onUpdate(calendarChange);
+              resultSucceeded = await props.onUpdate(calendarChangeUpdate);
             }
           } else {
-            const calendarChange: CalendarChangeCreateInput = {
+            const calendarChangeCreate: CalendarChangeCreateInput = {
               orgId: orgId,
               description: data.notes,
               startDate: data.fromDate,
@@ -155,15 +266,18 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
               calendarChangeReasonId: data.changeReason
                 ? data.changeReason
                 : changeReasonOptions[0]?.value,
-              contractIds: data.contracts ?? [],
-              affectsAllContracts: data.applyToAll,
+              contractIds: data.contracts,
+              locationIds: data.locations,
+              affectsAllContracts: data.affectsAllContracts,
+              affectsAllLocations: data.affectsAllLocations,
             };
 
-            resultSucceeded = await props.onAdd(calendarChange);
+            resultSucceeded = await props.onAdd(calendarChangeCreate);
           }
           setSubmittingData(false);
           if (resultSucceeded) {
             formProps.resetForm();
+            clearState();
             props.onClose();
           }
         }}
@@ -189,10 +303,9 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     justify="flex-start"
                     alignItems="center"
                     spacing={2}
-                    xs={7}
-                    className={classes.dateReasonContainer}
+                    xs={12}
                   >
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
@@ -209,37 +322,35 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                           startLabel={t("From")}
                         />
                       )}
-                      {isRange &&
-                        props.calendarChange.id &&
-                        props.specificDate && (
-                          <>
-                            <Typography variant="h4" display="inline">
-                              {format(props.specificDate, "MMM d")}
-                            </Typography>
-                            <Tooltip
-                              title={
-                                <div className={classes.tooltip}>
-                                  <Typography variant="body1">
-                                    {t(
-                                      "You are currently editing a single date that is associated with an event that spans multiple days.  To edit the event's to and from dates, edit the event instead."
-                                    )}
-                                  </Typography>
-                                </div>
-                              }
-                              placement="right-start"
-                            >
-                              <InfoIcon
-                                color="primary"
-                                style={{
-                                  fontSize: "16px",
-                                  marginLeft: "8px",
-                                }}
-                              />
-                            </Tooltip>
-                          </>
-                        )}
+                      {isRange && calendarChange.id && props.specificDate && (
+                        <>
+                          <Typography variant="h4" display="inline">
+                            {format(props.specificDate, "MMM d")}
+                          </Typography>
+                          <Tooltip
+                            title={
+                              <div className={classes.tooltip}>
+                                <Typography variant="body1">
+                                  {t(
+                                    "You are currently editing a single date that is associated with an event that spans multiple days.  To edit the event's to and from dates, edit the event instead."
+                                  )}
+                                </Typography>
+                              </div>
+                            }
+                            placement="right-start"
+                          >
+                            <InfoIcon
+                              color="primary"
+                              style={{
+                                fontSize: "16px",
+                                marginLeft: "8px",
+                              }}
+                            />
+                          </Tooltip>
+                        </>
+                      )}
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       {(!isRange || (isRange && !props.specificDate)) && (
                         <DatePicker
                           variant={"single-hidden"}
@@ -251,8 +362,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         />
                       )}
                     </Grid>
-
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       <Typography>{t("Reason")}</Typography>
                       <SelectNew
                         options={changeReasonOptions}
@@ -271,12 +381,11 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                           setFieldValue("changeReason", selectedValue);
                         }}
                         multiple={false}
-                        withResetValue={false}
+                        withResetValue={true}
                         fixedListBox={true}
                       />
                     </Grid>
-
-                    <Grid item xs={6}>
+                    <Grid item xs={3}>
                       <Input
                         value={values.notes}
                         label={t("Note")}
@@ -294,48 +403,123 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                       />
                     </Grid>
                   </Grid>
-                  <Grid item xs={5} container>
+                  <Grid item xs={12} container>
                     <Grid item xs={12}>
-                      <FormControlLabel
-                        checked={values.applyToAll ?? false}
-                        className={classes.contractSelector}
-                        control={
-                          <Checkbox
-                            onChange={e => {
-                              setFieldValue("applyToAll", !values.applyToAll);
-                              if (!values.applyToAll) {
-                                setFieldValue("contracts", []);
-                              }
-                            }}
-                          />
-                        }
-                        label={t("Apply To All Contracts")}
-                      />
+                      <Typography className={classes.boldFont}>
+                        {summaryText}
+                      </Typography>
+                      <div className={classes.subFont}>
+                        {t(`${affectedEmployees ?? 0} employees affected`)}
+                      </div>
                     </Grid>
-                    <Grid item xs={12}>
-                      <SelectNew
-                        name={"contracts"}
-                        className={classes.contractSelector}
-                        disabled={values.applyToAll ?? false}
-                        label={t("Contracts")}
-                        value={
-                          contractOptions.filter(
-                            e =>
-                              e.value &&
-                              values.contracts?.includes(e.value.toString())
-                          ) ?? [{ label: "", id: "" }]
-                        }
-                        onChange={e => {
-                          const ids = e.map((v: OptionType) =>
-                            v.value.toString()
-                          );
-                          setFieldValue("contracts", ids);
-                        }}
-                        options={contractOptions}
-                        multiple={true}
-                        placeholder={t("Search for Contracts")}
-                        fixedListBox={true}
-                      />
+                  </Grid>
+                  <Grid item xs={12} container>
+                    <Grid item xs={4}>
+                      <div className={classes.positionRelative}>
+                        <SelectNew
+                          name={"contracts"}
+                          className={classes.selectorColor}
+                          disabled={affectsAllContracts}
+                          label={t("Contracts")}
+                          value={
+                            contractOptions.filter(
+                              e =>
+                                e.value &&
+                                values.contracts?.includes(e.value.toString())
+                            ) ?? [{ label: "", id: "" }]
+                          }
+                          onChange={e => {
+                            const ids = e.map((v: OptionType) =>
+                              v.value.toString()
+                            );
+                            setContractIds(ids);
+                            setFieldValue("contracts", ids);
+                          }}
+                          options={contractOptions}
+                          multiple={true}
+                          placeholder={t("Search for Contracts")}
+                          fixedListBox={true}
+                        />
+                        <FormControlLabel
+                          checked={affectsAllContracts}
+                          className={clsx(
+                            classes.selectorColor,
+                            classes.checkBoxAlignment
+                          )}
+                          control={
+                            <Checkbox
+                              onChange={e => {
+                                setAffectsAllContracts(!affectsAllContracts);
+                                setFieldValue(
+                                  "affectsAllContracts",
+                                  !values.affectsAllContracts
+                                );
+
+                                if (!affectsAllContracts) {
+                                  setFieldValue("contracts", []);
+                                  setContractIds([]);
+                                }
+                              }}
+                              color="primary"
+                            />
+                          }
+                          label={t("All")}
+                        />
+                      </div>
+                    </Grid>
+                    <Grid item xs={4} className={classes.marginLeft}>
+                      <div className={classes.positionRelative}>
+                        <SelectNew
+                          name={"locations"}
+                          className={classes.selectorColor}
+                          disabled={values.affectsAllLocations ?? true}
+                          label={t("Schools")}
+                          value={
+                            locationOptions.filter(
+                              e =>
+                                e.value &&
+                                values.locations?.includes(e.value.toString())
+                            ) ?? [{ label: "", id: "" }]
+                          }
+                          onChange={e => {
+                            const ids = e.map((v: OptionType) =>
+                              v.value.toString()
+                            );
+                            setFieldValue("locations", ids);
+                            setLocationIds(ids);
+                          }}
+                          options={locationOptions}
+                          multiple={true}
+                          placeholder={t("Search for Schools")}
+                          fixedListBox={true}
+                        />
+                        <FormControlLabel
+                          checked={affectsAllLocations}
+                          className={clsx(
+                            classes.selectorColor,
+                            classes.checkBoxAlignment
+                          )}
+                          control={
+                            <Checkbox
+                              onChange={e => {
+                                setAffectsAllLocations(!affectsAllLocations);
+
+                                setFieldValue(
+                                  "affectsAllLocations",
+                                  !values.affectsAllLocations
+                                );
+
+                                if (!affectsAllLocations) {
+                                  setFieldValue("locations", []);
+                                  setLocationIds([]);
+                                }
+                              }}
+                              color="primary"
+                            />
+                          }
+                          label={t("All")}
+                        />
+                      </div>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -349,7 +533,10 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                 </div>
               )}
               <TextButton
-                onClick={handleReset}
+                onClick={() => {
+                  clearState();
+                  handleReset();
+                }}
                 className={classes.buttonSpacing}
               >
                 {t("Cancel")}
@@ -383,13 +570,29 @@ const useStyles = makeStyles(theme => ({
     color: theme.customColors.darkRed,
   },
   content: { minHeight: theme.typography.pxToRem(200) },
-  dateReasonContainer: {
-    borderRight: "1px solid #E5E5E5",
-  },
-  contractSelector: {
-    marginLeft: theme.spacing(2),
+  selectorColor: {
+    color: theme.customColors.primary,
   },
   tooltip: {
     padding: theme.spacing(2),
+  },
+  boldFont: {
+    fontSize: "1.1rem",
+    fontWeight: 500,
+  },
+  subFont: {
+    color: theme.customColors.edluminSubText,
+  },
+  positionRelative: {
+    position: "relative",
+  },
+  checkBoxAlignment: {
+    position: "absolute",
+    top: "-10px",
+    right: "-10px",
+    zIndex: 180,
+  },
+  marginLeft: {
+    marginLeft: "20px",
   },
 }));
