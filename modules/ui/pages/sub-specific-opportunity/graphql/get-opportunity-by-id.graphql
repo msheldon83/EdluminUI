@@ -1,6 +1,6 @@
-query GetVacancyById($id: ID!, $vacancyId: ID!) {
+query GetVacancyById($vacancyId: ID!) {
   vacancy {
-    specificJobSearchForUser(id: $id, vacancyId: $vacancyId) {
+    getVacancyByIdForSub(vacancyId: $vacancyId) {
       id
       orgId
       organization {
@@ -28,8 +28,15 @@ query GetVacancyById($id: ID!, $vacancyId: ID!) {
       endDate
       notesToReplacement
       totalDayPortion
+      interestedEmployees {
+        id
+        employeeId
+        isInterested
+        isRejected
+      }
       details {
         id
+        assignmentId
         location {
           id
           name

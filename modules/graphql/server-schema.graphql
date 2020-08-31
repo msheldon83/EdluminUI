@@ -687,7 +687,7 @@ type ApplicationConnection implements ModelObjectInterface & OrgObjectInterface 
   active: Boolean!
   name: String!
   definition: String!
-  query: String
+  replaceableFilters: [ReportFilterField!]!
   fileNameFormat: String
   fileFormat: FileFormat
   path: String!
@@ -2881,6 +2881,7 @@ enum EventType {
   VACANCY_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
   VACANCY_REQUESTED_SUB_RESERVED_EXPIRED
   VACANCY_DISCOVERED_FOR_CALENDAR_CHANGE
+  VACANCY_MANUAL_FILL_UPDATED
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -2925,6 +2926,9 @@ enum EventType {
   APPLICATION_PRESET_CREATED
   APPLICATION_PRESET_UPDATED
   APPLICATION_PRESET_DELETED
+  POST_CREATED
+  POST_UPDATED
+  POST_DELETED
   VACANCY_REASON_CREATED
   VACANCY_REASON_UPDATED
   VACANCY_REASON_DELETED
@@ -2946,6 +2950,38 @@ enum EventType {
   COMMENT_CREATED
   COMMENT_UPDATED
   COMMENT_DELETED
+}
+
+enum ExpressionFunction {
+  ADD
+  SUBTRACT
+  MULTIPLY
+  DIVIDE
+  EQUAL
+  NOT_EQUAL
+  GREATER_THAN
+  GREATER_THAN_OR_EQUAL
+  LESS_THAN
+  LESS_THAN_OR_EQUAL
+  CONTAINED_IN
+  BETWEEN
+  ENDS_WITH
+  STARTS_WITH
+  CONTAINS
+  SUM
+  SUM_IF
+  AVG
+  COUNT
+  COUNT_IF
+  IF
+  NOT
+  CONCAT
+  LEFT
+  RIGHT
+  UPPER
+  LOWER
+  AND
+  OR
 }
 
 enum FeatureFlag {
@@ -3468,6 +3504,7 @@ enum ObjectType {
   APPROVAL_WORKFLOW
   APPROVAL_STATE
   ORGANIZATION_CRM_CONTACT
+  POST
   APPLICATION
 }
 
@@ -5936,6 +5973,12 @@ input ReplacementPoolUpdateInput {
   replacementPoolConfigId: ID
 }
 
+type ReportFilterField {
+  displayName: String!
+  expressionFunction: ExpressionFunction!
+  arguments: [String]!
+}
+
 input ResetUserPasswordInput {
   id: ID!
   orgId: ID
@@ -6629,6 +6672,7 @@ type Vacancy implements ModelObjectInterface & OrgObjectInterface & DomainObject
   numDays: Int!
   totalDuration: Int!
   totalDayPortion: Decimal!
+  holdForManualFill: Boolean
   fillStatus: FillStatus!
   details: [VacancyDetail!]!
   closedDetails: [VacancyDetail]
@@ -6882,12 +6926,18 @@ type VacancyEmployeeRequest implements ModelObjectInterface & OrgObjectInterface
   requestedByOrgUser: OrgUser
 }
 
+input VacancyManualFillInput {
+  vacancyId: ID!
+  holdForManualFill: Boolean
+}
+
 type VacancyMutations {
   create(vacancy: VacancyCreateInput!): Vacancy
   update(vacancy: VacancyUpdateInput!): Vacancy
   delete(vacancyId: ID!): Boolean
   requestVacancy(vacancyRequest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
   rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
+  vacancyManualFill(vacancyManualFillInput: VacancyManualFillInput!): Boolean
   assignVacancy(vacancyAssignment: CreateVacancyAssignmentInput!): Assignment
   swapVacancyAssignments(swapDetails: SwapVacancyAssignmentsInput!): Boolean
   verifyVacancyDetail(vacancyDetail: VacancyDetailVerifyInput!): VacancyDetail
@@ -6939,6 +6989,7 @@ type VacancyQueries {
   approvalInbox(orgId: ID!, limit: Int, offset: Int, getPastDecisions: Boolean): PagedAbsVacApprovalInboxQueryResult
   countOfAbsVacNeedingApproval(orgId: ID!): Int
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
+  getVacancyByIdForSub(vacancyId: ID!): Vacancy
   subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
   vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]
   vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog
