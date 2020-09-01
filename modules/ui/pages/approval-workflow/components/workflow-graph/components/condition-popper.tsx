@@ -45,6 +45,7 @@ type ConditionValues = {
   approverGroupHeaderId?: string;
   args?: { makeAvailableToFill?: boolean };
   reasonIds?: string[];
+  transitionIsDefault?: boolean;
 };
 
 export const ConditionPopper: React.FC<Props> = props => {
@@ -64,7 +65,7 @@ export const ConditionPopper: React.FC<Props> = props => {
       ?.goto === steps[stepIndex]?.onApproval[transitionIndex]?.goto;
 
   useEffect(() => {
-    const initialValues: ConditionValues = {};
+    const initialValues: ConditionValues = { transitionIsDefault };
 
     if (transitionIndex > -1 && stepIndex > -1) {
       const transition = convertTransitionFromInput(
@@ -174,12 +175,17 @@ export const ConditionPopper: React.FC<Props> = props => {
             enableReinitialize
             initialValues={initialFormData}
             validationSchema={Yup.object().shape({
+              transitionIsDefault: Yup.boolean(),
               approverGroupHeaderId: Yup.string()
                 .nullable()
                 .required(t("An approver group is required")),
-              reasonIds: Yup.array(Yup.string())
-                .nullable()
-                .required(t("A reason is required")),
+              reasonIds: Yup.array(Yup.string()).when("transitionIsDefault", {
+                is: true,
+                then: Yup.array(Yup.string()).nullable(),
+                otherwise: Yup.array(Yup.string())
+                  .nullable()
+                  .required(t("A reason is required")),
+              }),
             })}
             onSubmit={data => {
               let nextGoto = steps
