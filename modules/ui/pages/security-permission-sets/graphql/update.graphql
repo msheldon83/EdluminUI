@@ -13,6 +13,10 @@ mutation UpdatePermissionSet($permissionSet: PermissionSetUpdateInput!) {
         settings {
           settingId
           levelId
+          options {
+            optionId
+            enabled
+          }
         }
       }
     }

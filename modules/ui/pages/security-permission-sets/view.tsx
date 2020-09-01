@@ -180,10 +180,18 @@ export const PermissionSetViewPage: React.FC<{}> = props => {
         settings: !c.settings
           ? []
           : c.settings.map(s => {
-              return {
+              const settingInfo = {
                 settingId: s!.settingId,
                 levelId: s!.levelId,
+                options: !s?.options
+                  ? []
+                  : s.options
+                      .filter(o => o !== null)
+                      .map(o => {
+                        return { optionId: o!.optionId, enabled: o!.enabled };
+                      }),
               };
+              return settingInfo;
             }),
       };
     });

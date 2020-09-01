@@ -12,6 +12,11 @@ query GetPermissionDefinitions($role: OrgUserRole!) {
             levelId
             displayName
             permissions
+            options {
+              optionId
+              displayName
+              permissions
+            }
           }
         }
       }

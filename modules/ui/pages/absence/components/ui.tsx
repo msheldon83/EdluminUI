@@ -44,7 +44,11 @@ import {
 import { useEmployeeDisabledDates } from "helpers/absence/use-employee-disabled-dates";
 import { some, compact, flatMap, isEqual, differenceWith } from "lodash-es";
 import { OrgUserPermissions, Role } from "ui/components/auth/types";
-import { canEditAbsVac, canViewAbsVacActivityLog } from "helpers/permissions";
+import {
+  canEditAbsVac,
+  canViewAbsVacActivityLog,
+  canDeleteAbsVac,
+} from "helpers/permissions";
 import { AssignSub } from "ui/components/assign-sub";
 import { EditVacancies } from "ui/pages/absence/components/edit-vacancies";
 import { Confirmation } from "../create/confirmation";
@@ -152,6 +156,12 @@ export const AbsenceUI: React.FC<Props> = props => {
   );
   const isCreate = React.useMemo(() => !state.absenceId, [state.absenceId]);
 
+  const hasFilledVacancies = state.assignmentsByDate.length > 0;
+  const hasVerifiedAssignments = (localAbsence?.vacancies
+    ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
+    : []
+  ).some(d => d.verifiedAtUtc);
+
   // Ensure the User is not able to select dates that are invalid
   // for the current Employee
   const disabledDatesObjs = useEmployeeDisabledDates(
@@ -181,6 +191,40 @@ export const AbsenceUI: React.FC<Props> = props => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabledDates]);
+
+  const canDeleteAbsence = React.useCallback(
+    (absenceDetails: AbsenceDetail[]) => {
+      // if creating than cannot delete
+      if (isCreate) return false;
+      const absenceDates = absenceDetails.map(ad => ad.date);
+      return canDoFn(
+        (
+          permissions: OrgUserPermissions[],
+          isSysAdmin: boolean,
+          orgId?: string,
+          forRole?: Role | null | undefined
+        ) =>
+          canDeleteAbsVac(
+            startOfDay(min(absenceDates)),
+            permissions,
+            isSysAdmin,
+            hasFilledVacancies,
+            hasVerifiedAssignments,
+            orgId,
+            actingAsEmployee ? "employee" : "admin",
+            absence?.approvalState?.approvalStatusId
+          )
+      );
+    },
+    [
+      actingAsEmployee,
+      hasFilledVacancies,
+      hasVerifiedAssignments,
+      canDoFn,
+      isCreate,
+      absence?.approvalState?.approvalStatusId,
+    ]
+  );
 
   const canSaveAbsence = React.useCallback(
     (absenceDetails: AbsenceDetail[]) => {
@@ -592,20 +636,6 @@ export const AbsenceUI: React.FC<Props> = props => {
     t,
   ]);
 
-  const hasFilledVacancies = state.assignmentsByDate.length > 0;
-  const hasVerifiedAssignments = (localAbsence?.vacancies
-    ? flatMap(compact(localAbsence.vacancies), v => compact(v.details))
-    : []
-  ).some(d => d.verifiedAtUtc);
-
-  const canDeleteAbsence =
-    actingAsEmployee && localAbsence
-      ? isAfter(parseISO(localAbsence.startTimeLocal), new Date()) &&
-        localAbsence.approvalStatus !== ApprovalStatus.PartiallyApproved &&
-        localAbsence.approvalStatus !== ApprovalStatus.Approved &&
-        !hasVerifiedAssignments
-      : true;
-
   const canEditDatesAndTimes =
     !state.isClosed &&
     (isCreate ||
@@ -980,8 +1010,9 @@ export const AbsenceUI: React.FC<Props> = props => {
                               </Typography>
                             )}
                           </div>
-                          {deleteAbsence && canDeleteAbsence && !formIsDirty && (
-                            <Can do={[PermissionEnum.AbsVacDelete]}>
+                          {deleteAbsence &&
+                            !formIsDirty &&
+                            canDeleteAbsence(values.details) && (
                               <Button
                                 onClick={() => deleteAbsence()}
                                 variant="text"
@@ -989,8 +1020,7 @@ export const AbsenceUI: React.FC<Props> = props => {
                               >
                                 {t("Delete")}
                               </Button>
-                            </Can>
-                          )}
+                            )}
                           {!isCreate && formIsDirty && !state.isClosed && (
                             <Button
                               onClick={() =>
