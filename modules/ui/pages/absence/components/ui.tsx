@@ -19,7 +19,12 @@ import { AbsenceState, absenceReducer } from "../state";
 import { PageTitle } from "ui/components/page-title";
 import { StepParams } from "helpers/step-params";
 import { useQueryParamIso } from "hooks/query-params";
-import { AbsenceFormData, AbsenceDetail, VacancyDetail } from "../types";
+import {
+  AbsenceFormData,
+  AbsenceDetail,
+  VacancyDetail,
+  AssignmentOnDate,
+} from "../types";
 import { Formik } from "formik";
 import { allAccountingCodeValuesAreEqual } from "helpers/accounting-code-allocations";
 import { AbsenceVacancyHeader } from "ui/components/absence-vacancy/header";
@@ -90,7 +95,10 @@ type Props = {
     defaultAccountingCodeAllocations?: AccountingCodeValue;
   };
   initialAbsenceFormData: AbsenceFormData;
-  initialAbsenceState: () => AbsenceState;
+  initialAbsenceState: (props?: {
+    currentAbsence?: Absence;
+    currentAssignmentsByDate?: AssignmentOnDate[];
+  }) => AbsenceState;
   saveAbsence: (
     data: AbsenceCreateInput | AbsenceUpdateInput
   ) => Promise<Absence>;
@@ -147,7 +155,9 @@ export const AbsenceUI: React.FC<Props> = props => {
 
   const [state, dispatch] = React.useReducer(
     absenceReducer,
-    props,
+    {
+      currentAbsence: localAbsence,
+    },
     initialAbsenceState
   );
   const isCreate = React.useMemo(() => !state.absenceId, [state.absenceId]);
@@ -777,7 +787,12 @@ export const AbsenceUI: React.FC<Props> = props => {
                     resetForm();
                     dispatch({
                       action: "resetToInitialState",
-                      initialState: initialAbsenceState(),
+                      initialState: initialAbsenceState({
+                        currentAbsence: localAbsence,
+                        currentAssignmentsByDate: !isCreate
+                          ? state.assignmentsByDate
+                          : undefined,
+                      }),
                       keepAssignments: !isCreate,
                     });
                     setDiscardChangesDialogIsOpen(false);
