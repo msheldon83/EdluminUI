@@ -98,7 +98,7 @@ const fileDownloadResponseTransformer = async (
       const url = window.URL.createObjectURL(b);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${filename}.${fileExtension}`;
+      a.download = appendExtension ? `${filename}.${fileExtension}` : filename;
       // We need to append the element to the dom -> otherwise it will not work in firefox
       document.body.appendChild(a);
       a.click();
