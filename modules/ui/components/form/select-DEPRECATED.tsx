@@ -59,7 +59,7 @@ export type SelectValueType = ValueType<OptionType>;
 type InputComponentProps = Pick<BaseTextFieldProps, "inputRef"> &
   React.HTMLAttributes<HTMLDivElement>;
 
-export const Select: React.FC<Props> = props => {
+export const SelectDEPRECATED: React.FC<Props> = props => {
   const theme = useTheme();
 
   const isSmallScreen = useIsMobile();
@@ -73,7 +73,7 @@ export const Select: React.FC<Props> = props => {
   );
 };
 
-Select.defaultProps = {
+SelectDEPRECATED.defaultProps = {
   withDropdownIndicator: true,
   isClearable: true,
 };
