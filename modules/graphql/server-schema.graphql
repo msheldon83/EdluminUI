@@ -1786,7 +1786,7 @@ type ContractScheduleMutations {
   create(contractSchedule: ContractScheduleCreateInput!): ContractSchedule
   update(contractSchedule: ContractScheduleUpdateInput!): ContractSchedule
   delete(contractScheduleId: ID!): Boolean
-  seedContractSchedule(contractScheduleId: ID!): ContractSchedule
+  seedContractSchedule(contractScheduleId: ID!, contractCalendarId: ID!): ContractSchedule
 }
 
 type ContractScheduleQueries {
@@ -2776,7 +2776,7 @@ enum EventType {
   CONTRACT_SCHEDULE_UPDATED
   CONTRACT_SCHEDULE_DELETED
   CONTRACT_SCHEDULE_SEEDED
-  RESEED_CONTRACT_SCHEDULE
+  CONTRACT_CALENDAR_UPDATE_REQUESTED
   POSITION_TYPE_CREATED
   POSITION_TYPE_UPDATED
   POSITION_TYPE_DELETED
@@ -4634,6 +4634,12 @@ enum PermissionEnum {
   ABS_VAC_VERIFY
   ABS_VAC_APPROVALS_SKIP
   ABS_VAC_APPROVALS_RESET
+  ABS_VAC_DELETE_PAST
+  ABS_VAC_DELETE_ASSIGNED
+  ABS_VAC_DELETE_VERIFIED
+  ABS_VAC_DELETE_PAST_SAME_DAY
+  ABS_VAC_DELETE_PARTIALLY_APPROVED
+  ABS_VAC_DELETE_APPROVED
   LOCATION_VIEW
   LOCATION_GROUP_VIEW
   LOCATION_SAVE
@@ -4719,6 +4725,25 @@ type PermissionLevel {
   levelId: String!
   displayName: String!
   permissions: [PermissionEnum]!
+  options: [PermissionLevelOption!]!
+}
+
+type PermissionLevelOption {
+  _info: [ReturnMessage]
+  optionId: String!
+  displayName: String!
+  permissions: [PermissionEnum]!
+}
+
+type PermissionLevelOptionIdentifier {
+  _info: [ReturnMessage]
+  optionId: String!
+  enabled: Boolean!
+}
+
+input PermissionLevelOptionIdentifierInput {
+  optionId: String!
+  enabled: Boolean!
 }
 
 type PermissionQueries {
@@ -4781,11 +4806,13 @@ type PermissionSettingIdentifier {
   _info: [ReturnMessage]
   settingId: String!
   levelId: String!
+  options: [PermissionLevelOptionIdentifier!]!
 }
 
 input PermissionSettingIdentifierInput {
   settingId: String!
   levelId: String!
+  options: [PermissionLevelOptionIdentifierInput]
 }
 
 input PermissionSetUpdateInput {
