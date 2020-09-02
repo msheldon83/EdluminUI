@@ -2,7 +2,6 @@ import { Button, Grid, Link, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { PageTitle } from "ui/components/page-title";
-import { OrgUser, Vacancy } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useMemo } from "react";
@@ -22,6 +21,7 @@ import { GetVacancyById } from "./graphql/get-opportunity-by-id.gen";
 import { RequestVacancy } from "ui/pages/sub-home/graphql/request-vacancy.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { compact } from "lodash-es";
+import { isAfter, parseISO } from "date-fns";
 
 type Props = {};
 
@@ -35,7 +35,6 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
 
   const isMobile = useIsMobile();
   const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
-  const [employeeId, setEmployeeId] = React.useState<string | null>(null);
 
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy, {
     onError: error => {
@@ -49,29 +48,27 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
   });
 
   const userAccess = useMyUserAccess();
-
   const orgUsers = compact(userAccess?.me?.user?.orgUsers) ?? [];
-  const userId = userAccess?.me?.user?.id;
 
   const getVacancy = useQueryBundle(GetVacancyById, {
     variables: {
-      id: userId,
       vacancyId: vacancyId,
     },
-    skip: !userId,
   });
 
   const vacancy = useMemo(
     () =>
       getVacancy.state === "DONE" || getVacancy.state === "UPDATING"
-        ? getVacancy.data.vacancy?.specificJobSearchForUser ?? null
+        ? getVacancy.data.vacancy?.getVacancyByIdForSub ?? null
         : null,
     [getVacancy]
   );
 
+  const employeeId =
+    orgUsers.find(o => o.orgId === vacancy?.organization.id)?.id ?? "0";
+
   const onDismissVacancy = async (vacancyId: string) => {
-    const employeeId = determineEmployeeId();
-    if (employeeId != 0) {
+    if (employeeId != "0") {
       await Promise.resolve(
         dismissVacancyMutation({
           variables: {
@@ -86,12 +83,6 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     history.push(SubHomeRoute.generate(params));
   };
 
-  const determineEmployeeId = () => {
-    const employeeId =
-      orgUsers.find(o => o.orgId === vacancy?.organization.id)?.id ?? 0;
-    return employeeId;
-  };
-
   const onCloseRequestAbsenceDialog = (assignmentId?: string | null) => {
     setRequestAbsenceIsOpen(false);
     let route = SubHomeRoute.generate(params);
@@ -102,8 +93,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
   };
 
   const onAcceptVacancy = async (vacancyId: string) => {
-    const employeeId = determineEmployeeId();
-    if (employeeId != 0) {
+    if (employeeId != "0") {
       await requestVacancyMutation({
         variables: {
           vacancyRequest: {
@@ -113,9 +103,26 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
         },
       });
     }
-    setEmployeeId(employeeId.toString());
-    setRequestAbsenceIsOpen(true);
+    if (canAcceptVacancy) {
+      setRequestAbsenceIsOpen(true);
+    } else {
+      history.push(SubHomeRoute.generate(params));
+    }
   };
+
+  const employeeInterest = compact(vacancy?.interestedEmployees ?? []).find(
+    x => x?.employeeId === employeeId
+  );
+  const canAcceptVacancy = vacancy?.details?.some(
+    d => !d.assignmentId && isAfter(parseISO(d.startTimeLocal), new Date())
+  );
+
+  const assignmentId = vacancy?.details.find(
+    d => d.assignment && d.assignment.employeeId === employeeId
+  )?.assignmentId;
+  if (assignmentId) {
+    history.push(SubSpecificAssignmentRoute.generate({ assignmentId }));
+  }
 
   const DismissAndAcceptButtons = (
     <>
@@ -124,7 +131,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
           variant={isMobile ? "text" : "outlined"}
           onClick={() => onDismissVacancy(vacancy?.id ?? "")}
         >
-          {t("Dismiss")}
+          {canAcceptVacancy ? t("Dismiss") : t("No")}
         </Button>
       </Grid>
       <Grid item>
@@ -132,7 +139,7 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
           variant="contained"
           onClick={() => onAcceptVacancy(vacancy?.id ?? "")}
         >
-          {t("Accept")}
+          {canAcceptVacancy ? t("Accept") : t("Yes")}
         </Button>
       </Grid>
     </>
@@ -160,16 +167,55 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
               ) : vacancy === null ? (
                 <Grid item>
                   <Typography variant="h5">
-                    {t("Job is no longer available")}
+                    {t("Assignment is no longer available")}
                   </Typography>
                   <Link
                     onClick={() => history.push(SubHomeRoute.generate(params))}
                   >
-                    {t("Search for jobs")}
+                    {t("Search for assignments")}
                   </Link>
                 </Grid>
               ) : (
                 <>
+                  {!canAcceptVacancy && (
+                    <>
+                      {employeeInterest?.isInterested ? (
+                        <Grid item xs={isMobile ? 12 : 10}>
+                          <Typography variant="h5">
+                            {t(
+                              "You have expressed interest in this assignment."
+                            )}
+                          </Typography>
+                        </Grid>
+                      ) : employeeInterest?.isRejected ? (
+                        <Grid item xs={isMobile ? 12 : 10}>
+                          <Typography variant="h5">
+                            {t("You have dismissed this assignment.")}
+                          </Typography>
+                        </Grid>
+                      ) : (
+                        <>
+                          <Grid item xs={isMobile ? 12 : 10}>
+                            <Typography variant="h5">
+                              {t(
+                                "Unfortunately, this assignment is no longer available.  Would you have been interested in accepting this assignment?"
+                              )}
+                            </Typography>
+                          </Grid>
+                          <Grid
+                            item
+                            container
+                            justify="flex-end"
+                            alignItems="flex-end"
+                            spacing={2}
+                            xs={isMobile ? 12 : 2}
+                          >
+                            {DismissAndAcceptButtons}
+                          </Grid>
+                        </>
+                      )}
+                    </>
+                  )}
                   <Grid item xs={12}>
                     <AvailableJob
                       vacancy={vacancy}
@@ -187,31 +233,37 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
                       </>
                     )}
                   </Grid>
-                  {!isMobile && (
-                    <Grid
-                      item
-                      container
-                      justify="flex-end"
-                      alignItems="flex-end"
-                      spacing={2}
-                      xs={6}
-                    >
-                      {DismissAndAcceptButtons}
-                    </Grid>
-                  )}
+                  {!isMobile &&
+                    canAcceptVacancy &&
+                    !employeeInterest?.isInterested &&
+                    !employeeInterest?.isRejected && (
+                      <Grid
+                        item
+                        container
+                        justify="flex-end"
+                        alignItems="flex-end"
+                        spacing={2}
+                        xs={6}
+                      >
+                        {DismissAndAcceptButtons}
+                      </Grid>
+                    )}
                 </>
               )}
             </Grid>
           </Section>
         </Grid>
       </Grid>
-      {isMobile && vacancy !== null && (
-        <Section>
-          <Grid container justify="space-between" alignItems="flex-end">
-            {DismissAndAcceptButtons}
-          </Grid>
-        </Section>
-      )}
+      {isMobile &&
+        canAcceptVacancy &&
+        !employeeInterest?.isInterested &&
+        !employeeInterest?.isRejected && (
+          <Section>
+            <Grid container justify="space-between" alignItems="flex-end">
+              {DismissAndAcceptButtons}
+            </Grid>
+          </Section>
+        )}
 
       <RequestAbsenceDialog
         open={requestAbsenceIsOpen}
