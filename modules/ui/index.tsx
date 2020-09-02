@@ -350,6 +350,12 @@ import {
   DataImportColumnDefinitionsRoute,
   DataImportColumnDefinitionsLoader,
 } from "./routes/data-import";
+import {
+  IntegrationRoute,
+  IntegrationLoader, 
+  IntegrationViewRoute, 
+  IntegrationViewLoader,
+} from "./routes/integration"
 import { RoleContextProvider } from "core/role-context";
 import {
   CreateAbsenceLoader,
@@ -721,6 +727,18 @@ export const App = hot(function() {
                                       path={DataImportRoute.path}
                                       role={"admin"}
                                       permissions={[PermissionEnum.DataImport]}
+                                    />
+                                    <ProtectedRoute
+                                      component={IntegrationViewLoader}
+                                      path={IntegrationViewRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.ExternalConnectionsView]}
+                                    />
+                                    <ProtectedRoute
+                                      component={IntegrationLoader}
+                                      path={IntegrationRoute.path}
+                                      role={"admin"}
+                                      permissions={[PermissionEnum.ExternalConnectionsView]}
                                     />
                                     <ProtectedRoute
                                       component={EditAbsenceLoader}

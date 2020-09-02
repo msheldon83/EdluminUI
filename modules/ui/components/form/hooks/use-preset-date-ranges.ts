@@ -43,11 +43,82 @@ const getThisSchoolYearDateRange = () => {
   return { start: startOfMonth(start), end: endOfMonth(end) };
 };
 
-export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
+export enum DateRangePreset {
+  Last7,
+  Last30,
+  Today,
+  ThisWeek,
+  ThisMonth,
+  ThisSchoolYear,
+  Yesterday,
+  LastWeek,
+  LastMonth,
+  LastSchoolYear,
+  Tomorrow,
+  NextWeek,
+  NextMonth,
+  Next7,
+}
+
+export const pastPresetDateRanges = [
+  DateRangePreset.Yesterday,
+  DateRangePreset.LastWeek,
+  DateRangePreset.LastMonth,
+  DateRangePreset.LastSchoolYear,
+];
+
+export const presentPresetDateRanges = [
+  DateRangePreset.Today,
+  DateRangePreset.Last7,
+  DateRangePreset.Last30,
+  DateRangePreset.ThisWeek,
+  DateRangePreset.ThisMonth,
+  DateRangePreset.ThisSchoolYear,
+];
+
+export const futurePresetDateRanges = [
+  DateRangePreset.Tomorrow,
+  DateRangePreset.Next7,
+  DateRangePreset.NextWeek,
+  DateRangePreset.NextMonth,
+];
+
+const defaultPresetDateRanges = [
+  DateRangePreset.Today,
+  DateRangePreset.Last7,
+  DateRangePreset.Last30,
+  DateRangePreset.ThisWeek,
+  DateRangePreset.ThisMonth,
+  DateRangePreset.ThisSchoolYear,
+  DateRangePreset.Yesterday,
+  DateRangePreset.LastWeek,
+  DateRangePreset.LastMonth,
+  DateRangePreset.LastSchoolYear,
+  DateRangePreset.Tomorrow,
+  DateRangePreset.Next7,
+  DateRangePreset.NextWeek,
+  DateRangePreset.NextMonth,
+];
+
+type UsePresetDateRangesParams = {
+  presets?: DateRangePreset[];
+  filter?: (r: PresetRange) => boolean;
+  additionalPresets?: PresetRange[];
+};
+
+export const usePresetDateRanges = (
+  options?: UsePresetDateRangesParams | undefined
+) => {
   const { t } = useTranslation();
 
-  const presetDateRanges = ([
-    {
+  const {
+    presets = undefined,
+    filter = undefined,
+    additionalPresets = undefined,
+  } = options ?? {};
+
+  const presetRangeMap: Record<DateRangePreset, PresetRange> = {
+    [DateRangePreset.Last7]: {
       label: t("Last 7 days"),
       value: "last-7-days",
       range() {
@@ -61,7 +132,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.Last30]: {
       label: t("Last 30 days"),
       value: "last-30-days",
       range() {
@@ -75,7 +146,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.Today]: {
       label: t("Today"),
       value: "today",
       range() {
@@ -88,7 +159,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.ThisWeek]: {
       label: t("This week"),
       value: "this-week",
       range() {
@@ -100,7 +171,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.ThisMonth]: {
       label: t("This month"),
       value: "this-month",
       range() {
@@ -112,12 +183,12 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.ThisSchoolYear]: {
       label: t("This school year"),
       value: "this-school-year",
       range: () => getThisSchoolYearDateRange(),
     },
-    {
+    [DateRangePreset.Yesterday]: {
       label: t("Yesterday"),
       value: "yesterday",
       range() {
@@ -129,7 +200,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.LastWeek]: {
       label: t("Last week"),
       value: "last-week",
       range() {
@@ -141,7 +212,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.LastMonth]: {
       label: t("Last month"),
       value: "last-month",
       range() {
@@ -153,7 +224,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.LastSchoolYear]: {
       label: t("Last school year"),
       value: "last-school-year",
       range() {
@@ -168,7 +239,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.Tomorrow]: {
       label: t("Tomorrow"),
       value: "tomorrow",
       range() {
@@ -180,7 +251,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.NextWeek]: {
       label: t("Next week"),
       value: "next-week",
       range() {
@@ -192,7 +263,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.NextMonth]: {
       label: t("Next month"),
       value: "next-month",
       range() {
@@ -204,7 +275,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-    {
+    [DateRangePreset.Next7]: {
       label: t("Next 7 days"),
       value: "next-7-days",
       range() {
@@ -218,7 +289,15 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
         };
       },
     },
-  ] as PresetRange[]).concat(additionalPresets ?? []);
+  };
+
+  const presetsToSelect = presets ?? defaultPresetDateRanges;
+  const selectedPresets = presetsToSelect.map(p => presetRangeMap[p]);
+  const filteredPresetDateRanges = filter
+    ? selectedPresets.filter(filter)
+    : selectedPresets;
+
+  const finalPresets = filteredPresetDateRanges.concat(additionalPresets ?? []);
 
   function getPresetByDates(
     startToMatch?: Date,
@@ -228,7 +307,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
       return undefined;
     }
 
-    return presetDateRanges.find(presetDateRange => {
+    return finalPresets.find(presetDateRange => {
       const { start, end } = presetDateRange.range();
 
       return isSameDay(start, startToMatch) && isSameDay(end, endToMatch);
@@ -236,7 +315,7 @@ export const usePresetDateRanges = (additionalPresets?: PresetRange[]) => {
   }
 
   return {
-    presetDateRanges,
+    presetDateRanges: finalPresets,
     getPresetByDates,
   };
 };

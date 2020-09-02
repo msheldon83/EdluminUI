@@ -1,0 +1,17 @@
+query GetAllApplicationGrantsWithinOrg($orgId: ID!) {
+  applicationGrant {
+    all(orgId: $orgId) {
+      id
+      createdLocal
+      application {
+        id
+        orgId
+        name
+        logoUrlSmall
+      }
+      connections {
+        id
+      }
+    }
+  }
+}

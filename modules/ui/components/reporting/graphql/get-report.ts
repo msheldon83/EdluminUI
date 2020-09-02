@@ -8,7 +8,7 @@ export type ReportQueryInput = {
 export const GetReportDataDocument = gql`
   query GetReportData($input: ReportQueryInput!) {
     report(input: $input)
-      @rest(type: "Report", path: "/report/run", method: "POST") {
+      @rest(type: "Report", path: "api/report/run", method: "POST") {
       data
       metadata
     }
