@@ -103,7 +103,7 @@ export const PermissionSettings: React.FC<Props> = props => {
     settingId: string,
     selectedLevel: string
   ) => {
-    const allowedOptions: Array<LevelOptionsDisplay> = [];
+    const allowedOptions: LevelOptionsDisplay[] = [];
     const levels = permissionDefinitions
       ?.find(c => c.categoryId === categoryId)
       ?.settings?.find(s => s?.settingId === settingId)?.levels;
@@ -321,14 +321,13 @@ export const PermissionSettings: React.FC<Props> = props => {
                           )}
                         </div>
                         {editable && (
-                          <FormGroup row>
+                          <FormGroup row className={classes.levelOptions}>
                             {availableLevelOptions?.map(o => {
                               return (
                                 <FormControlLabel
                                   key={o.optionId}
                                   control={
                                     <Checkbox
-                                      className={classes.levelOption}
                                       checked={o.enabled}
                                       onChange={async e => {
                                         await updateCategorySelections(
@@ -377,8 +376,7 @@ const useStyles = makeStyles(theme => ({
   levelSelect: {
     width: theme.typography.pxToRem(300),
   },
-  levelOption: {
-    paddingTop: theme.typography.pxToRem(2),
-    paddingBottom: theme.typography.pxToRem(2),
+  levelOptions: {
+    paddingTop: theme.spacing(),
   },
 }));

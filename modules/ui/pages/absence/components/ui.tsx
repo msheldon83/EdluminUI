@@ -222,7 +222,7 @@ export const AbsenceUI: React.FC<Props> = props => {
             hasVerifiedAssignments,
             orgId,
             actingAsEmployee ? "employee" : "admin",
-            absence?.approvalState?.approvalStatusId
+            localAbsence?.approvalState?.approvalStatusId
           )
       );
     },
@@ -232,7 +232,7 @@ export const AbsenceUI: React.FC<Props> = props => {
       hasVerifiedAssignments,
       canDoFn,
       isCreate,
-      absence?.approvalState?.approvalStatusId,
+      localAbsence?.approvalState?.approvalStatusId,
     ]
   );
 
