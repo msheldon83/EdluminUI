@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocationOptions } from "reference-data/locations";
@@ -68,7 +68,7 @@ export const LocationSelect: React.FC<Props> = props => {
   );
 
   return (
-    <SelectNew
+    <Select
       label={label}
       value={
         multiple

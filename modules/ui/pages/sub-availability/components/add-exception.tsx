@@ -10,7 +10,7 @@ import {
 } from "graphql/server-types.gen";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { secondsSinceMidnight } from "helpers/time";
 import { DatePicker } from "ui/components/form/date-picker";
@@ -123,7 +123,7 @@ export const AddException: React.FC<Props> = props => {
               <Grid container spacing={2}>
                 <Grid item xs={isMobile ? 12 : 2}>
                   <InputLabel>{t("I am")}</InputLabel>
-                  <SelectNew
+                  <Select
                     value={{
                       value: values.availability,
                       label:

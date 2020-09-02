@@ -17,7 +17,7 @@ import {
 import { SchoolFilter } from "./school-filter";
 import { PositionTypeFilter } from "./position-type-filter";
 import { DateFilter } from "./date-filter";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 
 type Props = {
   orgId: string;
@@ -85,7 +85,7 @@ export const Filters: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={6}>
           <InputLabel>{t("Group by")}</InputLabel>
-          <SelectNew
+          <Select
             options={groupOptions.map(makeOption)}
             value={makeOption(filters.groupDetailsBy)}
             withResetValue={false}
@@ -101,7 +101,7 @@ export const Filters: React.FC<Props> = props => {
             }}
             multiple={false}
           />
-          <SelectNew
+          <Select
             options={groupOptions
               .filter(o => o != filters.groupDetailsBy)
               .map(makeOption)}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTranslation } from "react-i18next";
 import { InvitationStatus } from "graphql/server-types.gen";
 
@@ -24,7 +24,7 @@ export const InvitationStatusSelect: React.FC<Props> = props => {
     options[0];
 
   return (
-    <SelectNew
+    <Select
       label={t("Invitation status")}
       value={selectedOption}
       multiple={false}

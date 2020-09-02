@@ -58,7 +58,7 @@ export const resetOption = {
   value: "",
 };
 
-export function SelectNew<T extends boolean>(props: SelectProps<T>) {
+export function Select<T extends boolean>(props: SelectProps<T>) {
   const classes = useStyles();
   const theme = useTheme();
 

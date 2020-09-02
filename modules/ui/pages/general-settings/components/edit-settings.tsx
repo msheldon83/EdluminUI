@@ -6,7 +6,7 @@ import { Input } from "ui/components/form/input";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { TextButton } from "ui/components/text-button";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTimeZoneOptions } from "reference-data/timezones";
 import InfoIcon from "@material-ui/icons/Info";
 import { Section } from "ui/components/section";
@@ -155,7 +155,7 @@ export const EditGeneralSettings: React.FC<Props> = props => {
                         {t("Edit time zone")}
                       </TextButton>
                     </div>
-                    <SelectNew
+                    <Select
                       value={selectedTimeZoneOption}
                       multiple={false}
                       options={timeZoneOptions}

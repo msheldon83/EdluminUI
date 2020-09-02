@@ -4,7 +4,7 @@ import { Contract } from "graphql/server-types.gen";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import { TextButton } from "ui/components/text-button";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { OptionTypeBase } from "react-select";
 import { makeStyles } from "@material-ui/styles";
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTranslation } from "react-i18next";
 import { DataImportStatus } from "graphql/server-types.gen";
 import { getDisplayName } from "ui/components/enumHelpers";
@@ -38,7 +38,7 @@ export const ImportStatusFilter: React.FC<Props> = props => {
       : statusOptions.find((s: any) => s.value === selectedStatusId.toString());
 
   return (
-    <SelectNew
+    <Select
       label={t("Import status")}
       value={selectedStatus}
       multiple={false}

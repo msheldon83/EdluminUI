@@ -10,7 +10,7 @@ import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-rea
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-user-select";
 import { useTranslation } from "react-i18next";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
@@ -131,7 +131,7 @@ export const Filter: React.FC<Props> = props => {
           (filterField.value ?? []).includes(o.value)
         );
         return (
-          <SelectNew
+          <Select
             label={showLabel ? filterField.field.friendlyName : undefined}
             value={
               filterField.expressionFunction === ExpressionFunction.ContainedIn
@@ -502,7 +502,7 @@ export const Filter: React.FC<Props> = props => {
               (filterField.value ?? []).includes(o.value)
             );
             return (
-              <SelectNew
+              <Select
                 label={showLabel ? filterField.field.friendlyName : undefined}
                 value={
                   filterField.expressionFunction ===

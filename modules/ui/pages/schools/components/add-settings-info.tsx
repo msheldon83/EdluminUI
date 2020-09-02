@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { USStates } from "reference-data/states";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { ActionButtons } from "../../../components/action-buttons";
@@ -19,15 +19,15 @@ type Props = {
   locationGroupOptions: OptionType[];
   location: {
     address?:
-    | {
-      address1?: string | undefined | null;
-      address2?: string | undefined | null;
-      city?: string | undefined | null;
-      state?: StateCode | undefined | null;
-      postalCode?: string | undefined | null;
-    }
-    | undefined
-    | null;
+      | {
+          address1?: string | undefined | null;
+          address2?: string | undefined | null;
+          city?: string | undefined | null;
+          state?: StateCode | undefined | null;
+          postalCode?: string | undefined | null;
+        }
+      | undefined
+      | null;
     phoneNumber?: string | undefined | null;
     locationGroupId?: string | undefined | null;
     notes?: string | undefined | null;
@@ -73,7 +73,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
           postalCode: props?.location?.address?.postalCode ?? "",
           phoneNumber: props.location.phoneNumber ?? "",
           locationGroupId: props.location.locationGroupId ?? "",
-          notes: props.location.notes ?? ""
+          notes: props.location.notes ?? "",
         }}
         onSubmit={async (data, meta) => {
           await props.onSubmit(
@@ -126,7 +126,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                     <Grid item xs={12}>
                       <dt className={classes.title}>{t("School group")}</dt>
                       <span className={classes.required}>*</span>
-                      <SelectNew
+                      <Select
                         name="locationGroupId"
                         value={{
                           value: values.locationGroupId ?? "",
@@ -206,7 +206,7 @@ export const AddSettingsInfo: React.FC<Props> = props => {
                     <Grid item xs={6}>
                       <dt className={classes.title}>{t("State")}</dt>
                       <span className={classes.required}>*</span>
-                      <SelectNew
+                      <Select
                         name="state"
                         value={{
                           value: values.state ?? "",

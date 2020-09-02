@@ -36,7 +36,7 @@ import { ShowErrors, ShowGenericErrors } from "ui/components/error-helpers";
 import { GetAccountingCodesDocument } from "reference-data/get-accounting-codes.gen";
 import { ImportDataButton } from "ui/components/data-import/import-data-button";
 import { Can } from "ui/components/auth/can";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 
 export const AccountingCode: React.FC<{}> = props => {
   const { t } = useTranslation();
@@ -162,7 +162,7 @@ export const AccountingCode: React.FC<{}> = props => {
             </div>
             {!allSchoolsChecked && (
               <div>
-                <SelectNew
+                <Select
                   value={
                     locationOptions.filter(
                       e =>

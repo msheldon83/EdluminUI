@@ -9,7 +9,7 @@ import { SectionHeader } from "ui/components/section-header";
 import { useLocations } from "reference-data/locations";
 import { useContracts } from "reference-data/contracts";
 import { useAccountingCodes } from "reference-data/accounting-codes";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { ActionButtons } from "ui/components/action-buttons";
 import * as yup from "yup";
 import { Formik } from "formik";
@@ -368,7 +368,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Grid item container spacing={2}>
                     <Grid item xs={4}>
                       <Typography>{t("Position Type")}</Typography>
-                      <SelectNew
+                      <Select
                         key={`positiontype-input`}
                         value={{
                           value: values.positionTypeId,
@@ -436,7 +436,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                       }
                     >
                       <Typography>{t("Needs Replacement")}</Typography>
-                      <SelectNew
+                      <Select
                         value={needsReplacementOptions.find(
                           e => e.value && e.value === values.needsReplacement
                         )}
@@ -485,7 +485,7 @@ export const PositionEditUI: React.FC<Props> = props => {
                   <Grid item container spacing={2}>
                     <Grid item xs={4}>
                       <Typography>{t("Contract")}</Typography>
-                      <SelectNew
+                      <Select
                         key={`contract-input`}
                         value={{
                           value: values.contractId,
@@ -532,8 +532,9 @@ export const PositionEditUI: React.FC<Props> = props => {
                         }
                       );
                       const disabledDaysOfWeek =
-                        compact(flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? [])) ??
-                        [];
+                        compact(
+                          flatMap(otherSchedules, (s => s.daysOfTheWeek) ?? [])
+                        ) ?? [];
 
                       return (
                         <div key={`schedule-${i}`}>

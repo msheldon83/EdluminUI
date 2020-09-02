@@ -10,7 +10,7 @@ import { ChangeLoginEmailDialog } from "./change-email-dialog";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Input } from "ui/components/form/input";
 import { useTimeZoneOptions } from "reference-data/timezones";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useIsMobile } from "hooks";
 import { useIsSubstitute } from "reference-data/is-substitute";
 import { TimeZone } from "graphql/server-types.gen";
@@ -196,7 +196,7 @@ export const ProfileBasicInfo: React.FC<Props> = props => {
                     {t("Edit time zone")}
                   </TextButton>
                 </div>
-                <SelectNew
+                <Select
                   value={selectedTimeZoneOption}
                   multiple={false}
                   options={timeZoneOptions}

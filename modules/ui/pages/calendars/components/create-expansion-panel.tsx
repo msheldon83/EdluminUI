@@ -18,8 +18,7 @@ import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "../../../components/action-buttons";
 import { useMutationBundle } from "graphql/hooks";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
-import { SelectNew as SelectMulti } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { DatePicker } from "ui/components/form/date-picker";
 import { useContracts } from "reference-data/contracts";
 import { useMemo } from "react";
@@ -221,7 +220,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                     />
                   </Grid>
                   <Grid item xs={3}>
-                    <SelectMulti
+                    <Select
                       name={"contracts"}
                       disabled={values.applyToAll}
                       label={t("Contracts")}
@@ -282,7 +281,7 @@ export const CreateExpansionPanel: React.FC<Props> = props => {
                 >
                   <Grid item xs={3}>
                     <Typography>{t("Reason")}</Typography>
-                    <SelectNew
+                    <Select
                       options={changeReasonOptions}
                       value={
                         values.changeReason

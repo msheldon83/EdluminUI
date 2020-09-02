@@ -4,9 +4,9 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { CustomOrgUserRelationship } from "./helpers";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { useQueryBundle } from "graphql/hooks";
 import { SubstituteInput } from "graphql/server-types.gen";
 import { SelectedDistricts } from "./components/selected-districts";
@@ -79,7 +79,7 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
           <Grid item xs={12} container className={classes.spacing}>
             {t("Search")}
           </Grid>
-          <SelectNew
+          <Select
             value={{
               value: "",
               label: "",
