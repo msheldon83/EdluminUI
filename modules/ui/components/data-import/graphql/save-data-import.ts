@@ -24,7 +24,7 @@ export const SaveDataImportDocument = gql`
     saveDataImport(input: $input)
       @rest(
         type: "SaveDataImport"
-        path: "/DataImport"
+        path: "api/DataImport"
         method: "POST"
         bodySerializer: $formSerializer
       ) {

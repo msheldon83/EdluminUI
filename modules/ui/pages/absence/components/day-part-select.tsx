@@ -6,7 +6,7 @@ import { useCallback, useMemo, useEffect, useState } from "react";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 import { useTranslation } from "react-i18next";
 import { dayPartToLabel } from "ui/components/absence/helpers";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { TimeInput } from "ui/components/form/time-input";
 import { compact } from "lodash-es";
 import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
@@ -127,7 +127,7 @@ export const DayPartSelect: React.FC<Props> = props => {
 
   return (
     <div className={classes.container}>
-      <SelectNew
+      <Select
         label={t("Times")}
         value={
           value?.part

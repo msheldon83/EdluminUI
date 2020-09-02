@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { AbsenceDetail } from "../types";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { makeStyles } from "@material-ui/core";
 import { DayPart } from "graphql/server-types.gen";
 import {
@@ -77,7 +77,7 @@ export const AbsenceDay: React.FC<Props> = props => {
     <div>
       <div className={classes.subTitle}>{subTitle}</div>
       {showReason && (
-        <SelectNew
+        <Select
           label={t("Reason")}
           value={{
             value: detail.absenceReasonId ?? "",

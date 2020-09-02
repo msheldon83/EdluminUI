@@ -41,7 +41,7 @@ export const DeletedDataIndex: React.FC<Props> = props => {
   );
 
   const message = t(
-    `This absence, originally scheduled for ${formattedDate} has been declined`
+    `This absence, originally scheduled for ${formattedDate}, has been removed.`
   );
   const subHeader = `${deletedAbsence?.firstName} ${deletedAbsence?.lastName}`;
   const header = `${t("Absence #")}${deletedAbsence?.id}`;

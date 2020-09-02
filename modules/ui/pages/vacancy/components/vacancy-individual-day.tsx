@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useMemo, useEffect } from "react";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { OptionTypeBase } from "react-select";
 import { Grid, makeStyles } from "@material-ui/core";
 import { format } from "date-fns";
@@ -17,9 +17,7 @@ import {
   VacancyDetailItem,
   VacancyDetailsFormData,
 } from "../helpers/types";
-import {
-  AccountingCodeDropdown,
-} from "ui/components/form/accounting-code-dropdown";
+import { AccountingCodeDropdown } from "ui/components/form/accounting-code-dropdown";
 import { useFormikContext, FormikErrors } from "formik";
 import { isArray } from "lodash-es";
 import {
@@ -429,7 +427,7 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
               const allocations = mapAccountingCodeValueToAccountingCodeAllocations(
                 value,
                 false,
-                 true
+                true
               );
 
               const newVacDetail: VacancyDetailItem = {

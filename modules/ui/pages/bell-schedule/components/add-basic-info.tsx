@@ -12,7 +12,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
 import { Input } from "ui/components/form/input";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
@@ -156,7 +156,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                   <div className={classes.periodScheduleSubItems}>
                     <div>{t("Number of periods")}</div>
                     <div className={classes.periodOptions}>
-                      <SelectNew
+                      <Select
                         value={periodOptions.find(
                           (p: any) => p.value === values.periodNumberOfPeriods
                         )}

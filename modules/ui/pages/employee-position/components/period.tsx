@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { useQueryBundle } from "graphql/hooks";
 import { useMemo, useEffect } from "react";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { TextButton } from "ui/components/text-button";
 import { FormikTimespanInput } from "ui/components/form/formik-timespan-input";
 import { useTranslation } from "react-i18next";
@@ -226,7 +226,7 @@ export const PeriodUI: React.FC<Props> = props => {
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Typography>{t("Location")}</Typography>
-          <SelectNew
+          <Select
             value={{
               value: period.locationId ?? "",
               label:
@@ -247,7 +247,7 @@ export const PeriodUI: React.FC<Props> = props => {
         </Grid>
         <Grid item xs={6}>
           <Typography>{t("Bell Schedule")}</Typography>
-          <SelectNew
+          <Select
             value={{
               value: period.bellScheduleId ?? "",
               label:
@@ -286,7 +286,7 @@ export const PeriodUI: React.FC<Props> = props => {
           <Grid container item xs={6} spacing={2} alignItems="center">
             <Grid item xs={6}>
               <Typography>{t("Starting")}</Typography>
-              <SelectNew
+              <Select
                 value={startPeriodSelected}
                 multiple={false}
                 onChange={(value: OptionType) => {
@@ -303,7 +303,7 @@ export const PeriodUI: React.FC<Props> = props => {
             </Grid>
             <Grid item xs={6}>
               <Typography>{t("Ending")}</Typography>
-              <SelectNew
+              <Select
                 value={endPeriodSelected}
                 multiple={false}
                 onChange={(value: OptionType) => {

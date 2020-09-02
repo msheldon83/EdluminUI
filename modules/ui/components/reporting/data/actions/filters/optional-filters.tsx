@@ -15,45 +15,35 @@ import {
 import { useTranslation } from "react-i18next";
 import { OptionalFilterRow } from "./optional-filter-row";
 
-type Props = {
+type OptionalFiltersProps = {
   filters: FilterField[];
   filterableFields: DataSourceField[];
   setFilters: (filterFields: FilterField[]) => void;
   refreshReport: () => Promise<void>;
 };
 
-export const OptionalFilters: React.FC<Props> = props => {
+type OptionalFiltersFormProps = {
+  filters: FilterField[];
+  filterableFields: DataSourceField[];
+  setFilters: (filterFields: FilterField[]) => void;
+  onApply: () => Promise<void>;
+  showApply?: boolean;
+};
+
+export const OptionalFiltersForm: React.FC<OptionalFiltersFormProps> = props => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { filters, filterableFields, setFilters, refreshReport } = props;
-  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  const { filters, filterableFields, setFilters, onApply, showApply } = props;
+
   const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
     filters.filter(c =>
       filterableFields
         .map(f => f.dataSourceFieldName)
         .includes(c.field.dataSourceFieldName)
-    ).length === 0
-      ? [
-          {
-            field: filterableFields[0],
-            expressionFunction: ExpressionFunction.Equal,
-          },
-        ]
-      : filters.filter(c =>
-          filterableFields
-            .map(f => f.dataSourceFieldName)
-            .includes(c.field.dataSourceFieldName)
-        )
+    )
   );
 
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
   const filtersWithValue = localFilters.filter(f => f.value !== undefined);
-  const buttonText =
-    filtersWithValue.length > 0
-      ? `${t("Filtered by:")} ${filtersWithValue.length} ${
-          filtersWithValue.length === 1 ? t("field") : t("fields")
-        }`
-      : t("Filter");
 
   React.useEffect(() => {
     const definedFilters = localFilters.filter(f => f.value !== undefined);
@@ -104,24 +94,100 @@ export const OptionalFilters: React.FC<Props> = props => {
   );
 
   return (
+    <div className={classes.filters}>
+      {localFilters.length > 0 ? (
+        localFilters.map((f, i) => {
+          return (
+            <OptionalFilterRow
+              filterField={f}
+              filterableFields={getPossibleFilters(
+                [...filters, ...localFilters],
+                filterableFields,
+                f
+              )}
+              updateFilter={(filterField: FilterField) =>
+                updateFilter(filterField, i)
+              }
+              removeFilter={() => removeFilter(i)}
+              isFirst={i === 0}
+              key={i}
+            />
+          );
+        })
+      ) : (
+        <div className={classes.subText}>{t("No filters applied")}</div>
+      )}
+      <div className={classes.actions}>
+        <Button
+          onClick={addFilter}
+          variant="text"
+          className={classes.addFilter}
+          disabled={possibleFilters.length === 0}
+        >
+          {t("Add filter")}
+        </Button>
+        {showApply && (
+          <Button variant="contained" onClick={onApply}>
+            {t("Apply")}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const OptionalFilters: React.FC<OptionalFiltersProps> = props => {
+  const { t } = useTranslation();
+  const classes = useStyles();
+  const { filters, filterableFields, setFilters, refreshReport } = props;
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
+
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+  const filtersWithValue = filters.filter(f => f.value !== undefined);
+  const [numFiltersWithValue, setNumFiltersWithValue] = React.useState(
+    filtersWithValue.length
+  );
+
+  const buttonText =
+    numFiltersWithValue > 0
+      ? `${t("Filtered by:")} ${numFiltersWithValue} ${
+          numFiltersWithValue === 1 ? t("field") : t("fields")
+        }`
+      : t("Filter");
+
+  const handleSetFilters = (filters: FilterField[]) => {
+    setFilters(filters);
+    setNumFiltersWithValue(filters.filter(f => f.value !== undefined).length);
+  };
+
+  const handleApply = async () => {
+    setFiltersOpen(false);
+    await refreshReport();
+  };
+
+  return (
     <>
       <Button
         color="inherit"
         startIcon={<img src={require("ui/icons/reports-filter.svg")} />}
         onClick={() => {
-          if (
-            !filtersOpen &&
-            filtersWithValue.length === 0 &&
-            localFilters.length === 1 &&
-            localFilters[0].field.filterType === FilterType.Boolean
-          ) {
+          if (!filtersOpen && numFiltersWithValue === 0) {
             /* The first time you open the optional filters popover, we've already
              *  added an initial filter for the User. For things like dropdowns we
              *  don't acknowledge a filter being set until you select something. For
              *  a boolean (checkbox), the intial unchecked state is implicitly a
              *  selection so we are handling that scenario here.
              */
-            updateFilter({ ...localFilters[0], value: false }, 0);
+            const defaultFilter: FilterField = {
+              field: filterableFields[0],
+              expressionFunction: ExpressionFunction.Equal,
+            };
+            if (defaultFilter.field.filterType === FilterType.Boolean) {
+              defaultFilter.value = 0;
+            }
+
+            filters.push(defaultFilter);
           }
           setFiltersOpen(!filtersOpen);
         }}
@@ -146,51 +212,12 @@ export const OptionalFilters: React.FC<Props> = props => {
                   await refreshReport();
                 }}
               >
-                <div className={classes.filters}>
-                  {localFilters.length > 0 ? (
-                    localFilters.map((f, i) => {
-                      return (
-                        <OptionalFilterRow
-                          filterField={f}
-                          filterableFields={getPossibleFilters(
-                            [...filters, ...localFilters],
-                            filterableFields,
-                            f
-                          )}
-                          updateFilter={(filterField: FilterField) =>
-                            updateFilter(filterField, i)
-                          }
-                          removeFilter={() => removeFilter(i)}
-                          isFirst={i === 0}
-                          key={i}
-                        />
-                      );
-                    })
-                  ) : (
-                    <div className={classes.subText}>
-                      {t("No filters applied")}
-                    </div>
-                  )}
-                  <div className={classes.actions}>
-                    <Button
-                      onClick={addFilter}
-                      variant="text"
-                      className={classes.addFilter}
-                      disabled={possibleFilters.length === 0}
-                    >
-                      {t("Add filter")}
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={async () => {
-                        setFiltersOpen(false);
-                        await refreshReport();
-                      }}
-                    >
-                      {t("Apply")}
-                    </Button>
-                  </div>
-                </div>
+                <OptionalFiltersForm
+                  {...props}
+                  setFilters={handleSetFilters}
+                  onApply={handleApply}
+                  showApply
+                />
               </ClickAwayListener>
             </div>
           </Fade>

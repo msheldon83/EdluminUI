@@ -85,6 +85,7 @@ export const useEmployeeScheduleDates = (
           absences: [],
           closedDays: [],
           modifiedDays: [],
+          normalDays: [],
           contractInstructionalDays: [],
           inServiceDays: [],
         };

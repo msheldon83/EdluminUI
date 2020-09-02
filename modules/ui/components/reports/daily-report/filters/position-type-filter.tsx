@@ -3,7 +3,7 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { usePositionTypes } from "reference-data/position-types";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { FilterQueryParams, DailyReportQueryFilters } from "./filter-params";
 import { useStyles } from "./index";
 
@@ -31,7 +31,7 @@ export const PositionTypeFilter: React.FC<Props> = props => {
   return (
     <>
       <Grid item xs={12} sm={6} md={3} lg={3}>
-        <SelectNew
+        <Select
           label={props.positionTypeLabel}
           onChange={onChangePositionTypes}
           options={positionTypeOptions}

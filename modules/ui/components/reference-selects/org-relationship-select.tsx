@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useOrganizationRelationships } from "reference-data/organization-relationships";
@@ -60,7 +60,7 @@ export const OrgRelationshipSelect: React.FC<Props> = props => {
   );
 
   return (
-    <SelectNew
+    <Select
       label={label}
       value={selectedValue ?? { value: "", label: "" }}
       multiple={false}

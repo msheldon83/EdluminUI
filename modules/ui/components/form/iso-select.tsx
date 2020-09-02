@@ -1,10 +1,6 @@
 import * as React from "react";
 import { Isomorphism } from "@atomic-object/lenses";
-import {
-  SelectNew,
-  SelectProps,
-  OptionType,
-} from "ui/components/form/select-new";
+import { Select, SelectProps, OptionType } from "ui/components/form/select";
 import { isEqual } from "lodash-es";
 
 // Equivalent of OptionType, but supports a generic type for value
@@ -68,7 +64,7 @@ export function IsoSelectOne<RawType extends string | number, InterpretedType>(
   const currentOption = options.find(o => isEqual(o.value, value));
 
   return (
-    <SelectNew
+    <Select
       {...props}
       multiple={false}
       options={options.map(optionIso.from)}
@@ -93,7 +89,7 @@ export function IsoSelectMany<RawType extends string | number, InterpretedType>(
   const optionIso = optionTypeIsomorphism(baseIso);
 
   return (
-    <SelectNew
+    <Select
       {...props}
       multiple={true}
       options={options.map(optionIso.from)}

@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 import { useTranslation } from "react-i18next";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 
 type Props = {
   orderByField: OrderByField;
@@ -47,7 +47,7 @@ export const OrderByRow: React.FC<Props> = props => {
         <div>{index === 0 ? t("Sort by") : t("then by")}</div>
       </div>
       <div className={`${classes.field} ${classes.rowItem}`}>
-        <SelectNew
+        <Select
           value={
             orderByOptions.find(
               o =>

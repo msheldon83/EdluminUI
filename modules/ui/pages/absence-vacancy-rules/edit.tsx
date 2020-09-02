@@ -19,7 +19,7 @@ import { useMemo } from "react";
 import * as Yup from "yup";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { ActionButtons } from "ui/components/action-buttons";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { OrganizationUpdateInput, FeatureFlag } from "graphql/server-types.gen";
 
 type Props = {
@@ -247,7 +247,7 @@ export const EditAbsenceVacancyRules: React.FC<Props> = props => {
                   xs={3}
                   className={[classes.inline, classes.marginLeft].join(" ")}
                 >
-                  <SelectNew
+                  <Select
                     name={"assignmentStart"}
                     value={{
                       value: values.assignmentStart ?? "",

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTranslation } from "react-i18next";
 import { useLocationGroupOptions } from "reference-data/location-groups";
 
@@ -35,7 +35,7 @@ export const LocationGroupSelect: React.FC<Props> = props => {
   );
 
   return (
-    <SelectNew
+    <Select
       label={label}
       value={selectedLocationGroups}
       multiple={false}

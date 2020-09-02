@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as uuid from "uuid";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import {
   PositionType,
   Location as Loc,

@@ -1,5 +1,5 @@
 import { getContiguousDateIntervals, DateInterval } from "helpers/date";
-import { format, getISOWeek } from "date-fns";
+import { format, getISOWeek, parseISO } from "date-fns";
 
 export const getIntervalDisplayText = (
   intervals: DateInterval[],
@@ -234,3 +234,8 @@ export const getBasicDateRangeDisplayText = (
   const intervals = getContiguousDateIntervals(allDates, disabledDates);
   return getIntervalDisplayText(intervals, monthFormat, includeYear);
 };
+
+export const parseAndFormat = (isoDate: string | null, formatStr: string) => {
+  if(!isoDate) return isoDate;
+  return format(parseISO(isoDate), formatStr);
+}

@@ -5,7 +5,7 @@ import { PageTitle } from "ui/components/page-title";
 import { SectionHeader } from "ui/components/section-header";
 import { makeStyles, Grid, Typography } from "@material-ui/core";
 import { PermissionEnum } from "graphql/server-types.gen";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { useHistory } from "react-router";
 import { useTranslation } from "react-i18next";
 import { GetAllLocationGroupsWithinOrg } from "ui/pages/school-groups/graphql/get-all-location-groups.gen";

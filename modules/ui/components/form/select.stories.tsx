@@ -2,8 +2,7 @@ import * as React from "react";
 import { action } from "@storybook/addon-actions";
 import { text, boolean, object, select } from "@storybook/addon-knobs";
 import { makeStyles } from "@material-ui/core/styles";
-import { Select as CustomSelect, SelectValueType } from "./select";
-import { SelectNew as CustomSelectNew, OptionType } from "./select-new";
+import { Select as CustomSelect, OptionType } from "./select";
 
 const options = [
   { value: "one", label: "One" },
@@ -14,36 +13,6 @@ const options = [
 ];
 
 export const Select = () => {
-  const classes = useStyles();
-  const [value, setValue] = React.useState<SelectValueType>();
-
-  return (
-    <div>
-      <div className={classes.container}>
-        <CustomSelect
-          label={text("Label", "Basic Select")}
-          value={value}
-          onChange={value => {
-            action("onChange")(value);
-            setValue(value);
-          }}
-          options={object("Options", options)}
-          multi={boolean("Multiple", false)}
-          native={boolean("Native", false)}
-          disabled={boolean("Disabled", false)}
-          inputStatus={select(
-            "InputStatus",
-            { undefined: null, error: "error" },
-            null
-          )}
-          validationMessage={text("ValidationMessage", "")}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const SelectNew = () => {
   const classes = useStyles();
   const [value, setValue] = React.useState<OptionType | undefined>({
     label: "Initial Value",
@@ -65,7 +34,7 @@ export const SelectNew = () => {
 
   return (
     <div className={classes.container}>
-      <CustomSelectNew
+      <CustomSelect
         label={text("label", "Select Label")}
         value={value}
         multiple={false}
@@ -86,7 +55,7 @@ export const SelectNew = () => {
   );
 };
 
-export const MultiSelectNew = () => {
+export const MultiSelect = () => {
   const classes = useStyles();
   const [value1, setValue1] = React.useState<Array<OptionType>>([]);
   const [value2, setValue2] = React.useState<Array<OptionType>>([]);
@@ -106,7 +75,7 @@ export const MultiSelectNew = () => {
 
   return (
     <div className={`${classes.container} ${classes.flexContainer}`}>
-      <CustomSelectNew
+      <CustomSelect
         className={classes.flexItem}
         label={text("label", "Multi Select Label")}
         value={value1}
@@ -124,7 +93,7 @@ export const MultiSelectNew = () => {
         )}
         disabled={boolean("disabled", false)}
       />
-      <CustomSelectNew
+      <CustomSelect
         className={classes.flexItem}
         label={text("label", "Multi Select Label")}
         value={value2}

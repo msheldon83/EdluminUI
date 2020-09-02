@@ -7,7 +7,7 @@ import * as React from "react";
 import { useCallback, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
 import { format, parse } from "date-fns";
 import { GetFilledAbsences } from "./graphql/get-filled-absences.gen";

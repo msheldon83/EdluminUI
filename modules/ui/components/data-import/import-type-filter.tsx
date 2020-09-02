@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTranslation } from "react-i18next";
 import { DataImportType } from "graphql/server-types.gen";
 import { useDataImportTypeOptions } from "reference-data/data-import-types";
@@ -28,7 +28,7 @@ export const ImportTypeFilter: React.FC<Props> = props => {
       : typeOptions.find((s: any) => s.value === selectedTypeId.toString());
 
   return (
-    <SelectNew
+    <Select
       label={t("Import type")}
       value={selectedType ?? { label: "", value: "" }}
       multiple={false}

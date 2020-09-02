@@ -45,6 +45,7 @@ import { NavLink, SubNavItemType } from "./nav-link";
 import SearchIcon from "@material-ui/icons/Search";
 import { VacancyCreateRoute } from "ui/routes/vacancy";
 import { DataImportRoute } from "ui/routes/data-import";
+import { IntegrationRoute } from "ui/routes/integration";
 import { ApprovalInboxRoute } from "ui/routes/approval-inbox";
 import { useOrgFeatureFlags } from "reference-data/org-feature-flags";
 
@@ -244,6 +245,7 @@ export const SecurityNavLink: React.FC<Props> = props => {
 export const DataManagementNavLink: React.FC<Props> = props => {
   const { t } = useTranslation();
   const paramsDataImports = useRouteParams(DataImportRoute);
+  const paramsIntegrations = useRouteParams(IntegrationRoute);
   return (
     <Can do={canViewDataManagementNavLink} orgId={props.orgId}>
       <NavLink
@@ -254,6 +256,11 @@ export const DataManagementNavLink: React.FC<Props> = props => {
             title: t("Imports"),
             route: DataImportRoute.generate(paramsDataImports),
             permissions: [PermissionEnum.DataImport],
+          },
+          {
+            title: t("Integrations"),
+            route: IntegrationRoute.generate(paramsIntegrations),
+            permissions: [PermissionEnum.ExternalConnectionsView],
           },
         ]}
         {...props}

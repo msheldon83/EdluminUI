@@ -12,7 +12,7 @@ import { useLocation } from "react-router-dom";
 import { AbsenceReasonViewEditRoute } from "ui/routes/absence-reason";
 import { usePositionTypeOptions } from "reference-data/position-types";
 import { Formik } from "formik";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { PositionTypeLink } from "ui/components/links/position-types";
@@ -130,7 +130,7 @@ export const AbsenceReasonPositionTypesCard: React.FC<Props> = props => {
                 />
               )}
               {editing && !values.allPositionTypes && (
-                <SelectNew
+                <Select
                   value={
                     positionTypeOptions.filter(
                       e =>

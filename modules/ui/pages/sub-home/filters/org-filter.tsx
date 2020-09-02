@@ -3,7 +3,7 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { useMyUserAccess } from "reference-data/my-user-access";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
 import { compact, uniq } from "lodash-es";
 
