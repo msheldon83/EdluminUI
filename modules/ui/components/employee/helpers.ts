@@ -226,6 +226,7 @@ export const GroupEmployeeScheduleByMonth = (
         absences: [],
         closedDays: [],
         modifiedDays: [],
+        normalDays: [],
         contractInstructionalDays: [],
         inServiceDays: [],
         nonWorkDays: [],
@@ -258,9 +259,14 @@ export const GroupEmployeeScheduleByMonth = (
         break;
     }
   });
+
   positionScheduleDates
     .filter(p => p.nonStandardVariantTypeName)
     .forEach(p => dateLookup(p.date).modifiedDays.push(p));
+
+  positionScheduleDates
+    .filter(p => !p.nonStandardVariantTypeName)
+    .forEach(p => dateLookup(p.date).normalDays.push(p));
 
   const months = generateMonths(startDate, endDate);
   const groupedDates = groupBy(Object.values(allDates), v =>
