@@ -11,7 +11,10 @@ import { ActionButtons } from "../../../components/action-buttons";
 import { Input } from "ui/components/form/input";
 import { OrgUserRole } from "graphql/server-types.gen";
 import { useMemo } from "react";
-import { Select, SelectValueType } from "ui/components/form/select";
+import {
+  SelectDEPRECATED,
+  SelectValueType,
+} from "ui/components/form/select-DEPRECATED";
 import { OptionTypeBase } from "react-select";
 
 type Props = {
@@ -126,7 +129,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
               </Grid>
               <Grid item xs={12} sm={3} lg={3}>
                 <InputLabel>{t("Role")}</InputLabel>
-                <Select
+                <SelectDEPRECATED
                   value={roleOptions.find(
                     (p: any) => p.value === values.orgUserRole
                   )}

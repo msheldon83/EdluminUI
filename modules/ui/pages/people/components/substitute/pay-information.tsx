@@ -4,7 +4,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { useTranslation } from "react-i18next";
 import { Formik } from "formik";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { PayCode, PermissionEnum } from "graphql/server-types.gen";
 
 export const editableSections = {
@@ -68,7 +68,7 @@ export const SubPayInformation: React.FC<Props> = props => {
               {props.editing === editableSections.payInformation ? (
                 <Grid item xs={3}>
                   <div>{t("Pay Code")}</div>
-                  <SelectNew
+                  <Select
                     value={
                       props.payCodeOptions.find(
                         (p: any) => p.value === values.payCodeId

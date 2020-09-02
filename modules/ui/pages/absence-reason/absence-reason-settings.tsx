@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import * as yup from "yup";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { useAbsenceReasonCategoryOptions } from "reference-data/absence-reason-categories";
 import { OptionTypeBase } from "react-select";
 
@@ -204,7 +204,7 @@ export const AbsenceReasonSettings: React.FC<Props> = props => {
             <Typography variant="h6" className={classes.label}>
               {t("Which category is this absence reason a part of?")}
             </Typography>
-            <SelectNew
+            <Select
               name="absenceReasonCategoryId"
               className={classes.categorySelector}
               multiple={false}

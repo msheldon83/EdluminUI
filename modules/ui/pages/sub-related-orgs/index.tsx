@@ -16,7 +16,7 @@ import { useEndorsements } from "reference-data/endorsements";
 import { PersonViewRoute } from "ui/routes/people";
 import { Link } from "react-router-dom";
 import { useRouteParams } from "ui/routes/definition";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { useSnackbar } from "hooks/use-snackbar";
 import { parseISO } from "date-fns";
 import { ShowErrors } from "ui/components/error-helpers";

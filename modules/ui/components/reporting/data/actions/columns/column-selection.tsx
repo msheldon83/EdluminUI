@@ -2,7 +2,7 @@ import * as React from "react";
 import { DataExpression, DataSourceField } from "ui/components/reporting/types";
 import { useTranslation } from "react-i18next";
 import { compact } from "lodash-es";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { Input } from "ui/components/form/input";
 import { Button, makeStyles } from "@material-ui/core";
 import { useMyUserAccess } from "reference-data/my-user-access";
@@ -61,7 +61,7 @@ export const ColumnSelection: React.FC<Props> = props => {
   return (
     <>
       <div className={classes.columns}>
-        <SelectNew
+        <Select
           value={selectedColumns.map(s => {
             return {
               label: s.friendlyName,

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTranslation } from "react-i18next";
 import { useCurrentSchoolYear } from "reference-data/current-school-year";
 import { useAllSchoolYearOptions } from "reference-data/school-years";
@@ -39,7 +39,7 @@ export const SchoolYearSelect: React.FC<Props> = props => {
   ) ?? { value: "", label: "" };
 
   return (
-    <SelectNew
+    <Select
       label={showLabel ? label : undefined}
       value={selectedSchoolYear}
       multiple={false}

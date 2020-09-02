@@ -7,7 +7,7 @@ import {
   Checkbox,
   IconButton,
 } from "@material-ui/core";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
 import { PeriodUI, BellSchedule } from "./period";

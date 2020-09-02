@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useAbsenceReasonCategoryOptions } from 'reference-data/absence-reason-categories';
+import { useAbsenceReasonCategoryOptions } from "reference-data/absence-reason-categories";
 import { compact } from "lodash-es";
 import { ButtonDisableOnClick } from "ui/components/button-disable-on-click";
 import { TextButton } from "ui/components/text-button";
@@ -23,7 +23,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { GetAllAbsenceReasonsWithinCategory } from "../../graphql/get-absence-reasons-within-category.gen";
 import { GetAllAbsenceReasonCategoriesWithinOrg } from "../../graphql/get-absence-reason-categories.gen";
 import { DeleteCategoryDialogRow } from "./row";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 
 type Props = {
   isOpen: boolean;
@@ -75,7 +75,7 @@ export const DeleteCategoryDialog: React.FC<Props> = ({
           {t("Are you sure you want to delete this category?")}
         </Typography>
       </DialogTitle>
-        <DialogContent classes={{root: classes.dialogOverride}}>
+      <DialogContent classes={{ root: classes.dialogOverride }}>
         {absenceReasons.length > 0 && (
           <Grid container spacing={2}>
             <Grid item xs={12} className={classes.header}>
@@ -118,7 +118,7 @@ export const DeleteCategoryDialog: React.FC<Props> = ({
                 </RadioGroup>
               </Grid>
               <Grid item xs={6}>
-                <SelectNew
+                <Select
                   value={destinationOptions.find(
                     o => o.value == (destinationCategory ?? "")
                   )}
@@ -166,5 +166,5 @@ const useStyles = makeStyles(theme => ({
   dividedContainer: { display: "flex" },
   delete: { color: theme.customColors.blue },
   header: { textAlign: "center" },
-  dialogOverride: {overflowY: "visible"}
+  dialogOverride: { overflowY: "visible" },
 }));

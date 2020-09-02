@@ -12,7 +12,7 @@ import {
 } from "@material-ui/core";
 import { DayPart } from "graphql/server-types.gen";
 import { AbsenceDay } from "./absence-day";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { ScheduleTimes } from "helpers/absence/use-employee-schedule-times";
 import { uniq, groupBy } from "lodash-es";
 import { getAllScheduleTimeDayPartRanges } from "../helpers";
@@ -154,7 +154,7 @@ export const AbsenceDays: React.FC<Props> = props => {
             {t("Please select one or more dates above")}
           </div>
           <div className={classes.placeholderSelectionSpacing}>
-            <SelectNew
+            <Select
               label={t("Reason")}
               value={undefined}
               multiple={false}
@@ -163,7 +163,7 @@ export const AbsenceDays: React.FC<Props> = props => {
             />
           </div>
           <div className={classes.placeholderSelectionSpacing}>
-            <SelectNew
+            <Select
               label={t("Times")}
               value={undefined}
               multiple={false}

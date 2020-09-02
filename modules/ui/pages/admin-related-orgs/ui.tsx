@@ -3,10 +3,10 @@ import { Grid, makeStyles } from "@material-ui/core";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Section } from "ui/components/section";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { CustomOrgUserRelationship } from "ui/pages/sub-related-orgs/helpers";
 import { SectionHeader } from "ui/components/section-header";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { useQueryBundle } from "graphql/hooks";
 import { SelectedDistricts } from "./components/selected-districts";
 import { GetDelegatesToOrganizations } from "./graphql/get-related-orgs.gen";
@@ -69,7 +69,7 @@ export const ManageDistrictsUI: React.FC<Props> = props => {
           <Grid item xs={12} container className={classes.spacing}>
             {t("Search")}
           </Grid>
-          <SelectNew
+          <Select
             value={{
               value: "",
               label: "",

@@ -11,7 +11,7 @@ import startOfMonth from "date-fns/startOfMonth";
 import endOfMonth from "date-fns/endOfMonth";
 import { DateInput } from "./date-input";
 import { CustomCalendar as Calendar, CustomDate } from "./custom-calendar";
-import { SelectNew as Select, OptionType } from "./select-new";
+import { Select, OptionType } from "./select";
 import {
   usePresetDateRanges,
   PresetRange,

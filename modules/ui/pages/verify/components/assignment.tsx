@@ -15,7 +15,7 @@ import clsx from "clsx";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { Input } from "ui/components/form/input";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { OptionTypeBase } from "react-select/src/types";
 import { minutesToHours, hoursToMinutes } from "ui/components/helpers";
@@ -579,7 +579,7 @@ export const Assignment: React.FC<Props> = props => {
                             <Typography className={classes.boldText}>
                               {t("Pay:")}
                             </Typography>
-                            <SelectNew
+                            <Select
                               value={dayConversionOptions.find(
                                 a => a.label === selectedDayConversionName
                               )}
@@ -670,7 +670,7 @@ export const Assignment: React.FC<Props> = props => {
                           <Typography className={classes.boldText}>
                             {t("Pay code:")}
                           </Typography>
-                          <SelectNew
+                          <Select
                             value={{
                               value: values.payCodeId ?? "",
                               label:

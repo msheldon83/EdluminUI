@@ -12,7 +12,7 @@ import { getDisplayName } from "ui/components/enumHelpers";
 import { useIsMobile } from "hooks";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { FormikTimeInput } from "ui/components/form/formik-time-input";
 import { secondsSinceMidnight } from "helpers/time";
 import { formatAvailabilityLabel, formatAvailableTime } from "./helpers";
@@ -116,7 +116,7 @@ export const SingleDay: React.FC<Props> = props => {
             })}
           >
             {editing ? (
-              <SelectNew
+              <Select
                 className={
                   isMobile
                     ? classes.mobileAvailabilitySelect

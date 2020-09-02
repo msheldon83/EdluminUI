@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTranslation } from "react-i18next";
 import { useContractOptions } from "reference-data/contracts";
 
@@ -41,7 +41,7 @@ export const ContractSelect: React.FC<Props> = props => {
       : selectedContract;
 
   return (
-    <SelectNew
+    <Select
       label={showLabel ? t("Contract") : undefined}
       value={selectedContract}
       multiple={false}

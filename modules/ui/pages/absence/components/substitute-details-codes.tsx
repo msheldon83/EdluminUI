@@ -12,7 +12,7 @@ import {
 } from "ui/components/form/accounting-code-dropdown";
 import { useFormikContext } from "formik";
 import { AbsenceFormData } from "../types";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 
 type Props = {
   organizationId: string;
@@ -129,7 +129,7 @@ export const SubstituteDetailsCodes: React.FC<Props> = props => {
                 )}
               </div>
             ) : (
-              <SelectNew
+              <Select
                 value={{
                   value: values.payCodeId ?? "",
                   label:

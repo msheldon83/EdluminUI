@@ -15,7 +15,10 @@ import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
-import { Select, SelectValueType } from "ui/components/form/select";
+import {
+  SelectDEPRECATED,
+  SelectValueType,
+} from "ui/components/form/select-DEPRECATED";
 import { useMemo, useState, useEffect } from "react";
 import { ExpandMore } from "@material-ui/icons";
 
@@ -176,7 +179,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                       <Grid item xs={8}>
                         <div className={classes.levelSelect}>
                           {editable ? (
-                            <Select
+                            <SelectDEPRECATED
                               value={selectedLevel}
                               label=""
                               options={levelOptions}

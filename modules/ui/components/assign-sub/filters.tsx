@@ -18,7 +18,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { FilterListButton } from "ui/components/filter-list-button";
 
 type Props = {
@@ -120,7 +120,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   <InputLabel className={classes.label}>
                     {t("Qualified")}
                   </InputLabel>
-                  <SelectNew
+                  <Select
                     value={
                       searchFilter?.name
                         ? undefined
@@ -167,7 +167,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
                   <InputLabel className={classes.label}>
                     {t("Available")}
                   </InputLabel>
-                  <SelectNew
+                  <Select
                     value={
                       searchFilter?.name
                         ? undefined
@@ -212,7 +212,7 @@ export const AssignSubFilters: React.FC<Props> = props => {
             )}
             <Grid item xs={12} md={2}>
               <InputLabel className={classes.label}>{t("Show")}</InputLabel>
-              <SelectNew
+              <Select
                 value={
                   searchFilter?.name
                     ? undefined

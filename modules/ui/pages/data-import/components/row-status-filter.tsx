@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { useTranslation } from "react-i18next";
 import { DataImportRowStatus } from "graphql/server-types.gen";
 import { getDisplayName } from "ui/components/enumHelpers";
@@ -42,7 +42,7 @@ export const RowStatusFilter: React.FC<Props> = props => {
   return (
     <div className={classes.container}>
       <div className={classes.label}>{t("Row status")}</div>
-      <SelectNew
+      <Select
         value={selectedStatus}
         multiple={false}
         options={statusOptions}
