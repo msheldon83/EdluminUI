@@ -137,7 +137,7 @@ export const PermissionSettings: React.FC<Props> = props => {
     )?.filter(o => o.enabled === true);
     if (selectedLevelOptions && selectedLevelOptions.length > 0) {
       selectedLevelOptionsText =
-        " (+ " +
+        "(+ " +
         selectedLevelOptions
           .map(o => {
             return o.displayName;
@@ -312,13 +312,17 @@ export const PermissionSettings: React.FC<Props> = props => {
                               }}
                             />
                           ) : (
-                            selectedLevel.label +
-                            getSelectedLevelOptionsViewText(
-                              categoryId,
-                              settingId,
-                              selectedLevel.value
-                            )
+                            selectedLevel.label
                           )}
+                          {
+                            <div>
+                              {getSelectedLevelOptionsViewText(
+                                categoryId,
+                                settingId,
+                                selectedLevel.value
+                              )}
+                            </div>
+                          }
                         </div>
                         {editable && (
                           <FormGroup row className={classes.levelOptions}>
