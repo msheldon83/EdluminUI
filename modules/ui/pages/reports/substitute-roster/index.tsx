@@ -39,6 +39,10 @@ export const SubstituteRosterReport: React.FC<{}> = () => {
         "InvitationStatus",
         "EndorsementId",
         "HasEndorsements",
+        "EndorsementIsExpired",
+        "EndorsementExpirationDate",
+        "SubPayCodeId",
+        "OrgUserCreatedLocal",
         "SourceOrgId",
       ]}
       saveRdl={(rdl: string) => saveRdlToLocalStorage(localStorageKey, rdl)}

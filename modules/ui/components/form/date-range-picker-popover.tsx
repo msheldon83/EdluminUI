@@ -17,6 +17,7 @@ type DateRangePickerPopoverProps = DateRangePickerProps & {
   placeholder?: string;
   label?: string;
   useStandardWidth?: boolean;
+  showLabel?: boolean;
 };
 
 export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
@@ -32,6 +33,7 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
     placeholder = "",
     label,
     useStandardWidth,
+    showLabel = true,
     ...datePickerProps
   } = props;
 
@@ -84,11 +86,13 @@ export const DateRangePickerPopover = (props: DateRangePickerPopoverProps) => {
 
   return (
     <>
-      <div>
-        <InputLabel htmlFor={id} className={classes.label}>
-          {label ?? t("Date range")}
-        </InputLabel>
-      </div>
+      {showLabel && (
+        <div>
+          <InputLabel htmlFor={id} className={classes.label}>
+            {label ?? t("Date range")}
+          </InputLabel>
+        </div>
+      )}
       <div
         className={clsx(
           classes.trigger,
