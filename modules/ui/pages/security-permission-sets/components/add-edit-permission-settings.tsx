@@ -312,17 +312,17 @@ export const PermissionSettings: React.FC<Props> = props => {
                               }}
                             />
                           ) : (
-                            selectedLevel.label
+                            <>
+                              {selectedLevel.label}
+                              <div>
+                                {getSelectedLevelOptionsViewText(
+                                  categoryId,
+                                  settingId,
+                                  selectedLevel.value
+                                )}
+                              </div>
+                            </>
                           )}
-                          {
-                            <div>
-                              {getSelectedLevelOptionsViewText(
-                                categoryId,
-                                settingId,
-                                selectedLevel.value
-                              )}
-                            </div>
-                          }
                         </div>
                         {editable && (
                           <FormGroup row className={classes.levelOptions}>
