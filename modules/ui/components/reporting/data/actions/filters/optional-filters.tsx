@@ -184,7 +184,7 @@ export const OptionalFilters: React.FC<OptionalFiltersProps> = props => {
               expressionFunction: ExpressionFunction.Equal,
             };
             if (defaultFilter.field.filterType === FilterType.Boolean) {
-              defaultFilter.value = 0;
+              defaultFilter.value = false;
             }
 
             setFilters([defaultFilter]);
