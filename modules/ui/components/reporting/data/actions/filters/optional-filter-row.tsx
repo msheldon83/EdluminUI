@@ -207,6 +207,14 @@ const getExpressionOptions = (t: TFunction, field?: DataSourceField) => {
           o.value === ExpressionFunction.GreaterThan ||
           o.value === ExpressionFunction.GreaterThanOrEqual
       );
+    case FilterType.Date:
+    case FilterType.DateTime:
+      return [
+        {
+          label: t("is between"),
+          value: ExpressionFunction.Between,
+        },
+      ];
     case FilterType.Custom:
       return possibleOptions.filter(o =>
         field.filterTypeDefinition?.supportedExpressions?.includes(o.value)
