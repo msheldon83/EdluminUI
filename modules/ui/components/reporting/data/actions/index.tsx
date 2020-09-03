@@ -52,7 +52,13 @@ export const ActionBar: React.FC<Props> = props => {
       />
       <div className={classes.actionButtons}>
         <OptionalFilters
-          filters={filters.filter(f => !f.field.isRequiredFilter)}
+          filters={filters.filter(
+            f =>
+              !f.field.isRequiredFilter &&
+              filterableFields.find(
+                ff => f.field.dataSourceFieldName === ff.dataSourceFieldName
+              )
+          )}
           filterableFields={filterableFields.filter(f => !f.isRequiredFilter)}
           setFilters={(filters: FilterField[]) =>
             setFilters(filters, false, false)
