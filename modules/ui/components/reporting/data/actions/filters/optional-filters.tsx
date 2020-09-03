@@ -30,111 +30,111 @@ type OptionalFiltersFormProps = {
   showApply?: boolean;
 };
 
-export const OptionalFiltersForm: React.FC<OptionalFiltersFormProps> = props => {
-  const { t } = useTranslation();
-  const classes = useStyles();
-  const { filters, filterableFields, setFilters, onApply, showApply } = props;
+const OptionalFiltersForm = React.forwardRef(
+  (props: OptionalFiltersFormProps, ref) => {
+    const { t } = useTranslation();
+    const classes = useStyles();
+    const { filters, filterableFields, setFilters, onApply, showApply } = props;
 
-  const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
-    filters.filter(c =>
-      filterableFields
-        .map(f => f.dataSourceFieldName)
-        .includes(c.field.dataSourceFieldName)
-    )
-  );
-
-  const filtersWithValue = localFilters.filter(f => f.value !== undefined);
-
-  React.useEffect(() => {
-    const definedFilters = localFilters.filter(f => f.value !== undefined);
-    setFilters(definedFilters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localFilters]);
-
-  const updateFilter = React.useCallback(
-    (filterField: FilterField, filterIndex: number) => {
-      const updatedFilters = [...localFilters];
-      updatedFilters[filterIndex] = filterField;
-      setLocalFilters(updatedFilters);
-    },
-    [localFilters, setLocalFilters]
-  );
-
-  const possibleFilters = React.useMemo(() => {
-    const remainingFilters = getPossibleFilters(
-      [...filters, ...localFilters],
-      filterableFields
+    const [localFilters, setLocalFilters] = React.useState<FilterField[]>(
+      filters.filter(c =>
+        filterableFields
+          .map(f => f.dataSourceFieldName)
+          .includes(c.field.dataSourceFieldName)
+      )
     );
-    return remainingFilters;
-  }, [filters, localFilters, filterableFields]);
 
-  const addFilter = React.useCallback(() => {
-    setLocalFilters(current => {
-      return [
-        ...current,
-        {
-          field: possibleFilters[0],
-          expressionFunction: ExpressionFunction.Equal,
-          value:
-            possibleFilters[0].filterType === FilterType.Boolean
-              ? false
-              : undefined,
-        },
-      ];
-    });
-  }, [setLocalFilters, possibleFilters]);
+    React.useEffect(() => {
+      const definedFilters = localFilters.filter(f => f.value !== undefined);
+      setFilters(definedFilters);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [localFilters]);
 
-  const removeFilter = React.useCallback(
-    (filterIndex: number) => {
-      const updatedFilters = [...localFilters];
-      updatedFilters.splice(filterIndex, 1);
-      setLocalFilters(updatedFilters);
-    },
-    [localFilters, setLocalFilters]
-  );
+    const updateFilter = React.useCallback(
+      (filterField: FilterField, filterIndex: number) => {
+        const updatedFilters = [...localFilters];
+        updatedFilters[filterIndex] = filterField;
+        setLocalFilters(updatedFilters);
+      },
+      [localFilters, setLocalFilters]
+    );
 
-  return (
-    <div className={classes.filters}>
-      {localFilters.length > 0 ? (
-        localFilters.map((f, i) => {
-          return (
-            <OptionalFilterRow
-              filterField={f}
-              filterableFields={getPossibleFilters(
-                [...filters, ...localFilters],
-                filterableFields,
-                f
-              )}
-              updateFilter={(filterField: FilterField) =>
-                updateFilter(filterField, i)
-              }
-              removeFilter={() => removeFilter(i)}
-              isFirst={i === 0}
-              key={i}
-            />
-          );
-        })
-      ) : (
-        <div className={classes.subText}>{t("No filters applied")}</div>
-      )}
-      <div className={classes.actions}>
-        <Button
-          onClick={addFilter}
-          variant="text"
-          className={classes.addFilter}
-          disabled={possibleFilters.length === 0}
-        >
-          {t("Add filter")}
-        </Button>
-        {showApply && (
-          <Button variant="contained" onClick={onApply}>
-            {t("Apply")}
-          </Button>
+    const possibleFilters = React.useMemo(() => {
+      const remainingFilters = getPossibleFilters(
+        [...filters, ...localFilters],
+        filterableFields
+      );
+      return remainingFilters;
+    }, [filters, localFilters, filterableFields]);
+
+    const addFilter = React.useCallback(() => {
+      setLocalFilters(current => {
+        return [
+          ...current,
+          {
+            field: possibleFilters[0],
+            expressionFunction: ExpressionFunction.Equal,
+            value:
+              possibleFilters[0].filterType === FilterType.Boolean
+                ? false
+                : undefined,
+          },
+        ];
+      });
+    }, [setLocalFilters, possibleFilters]);
+
+    const removeFilter = React.useCallback(
+      (filterIndex: number) => {
+        const updatedFilters = [...localFilters];
+        updatedFilters.splice(filterIndex, 1);
+        setLocalFilters(updatedFilters);
+      },
+      [localFilters, setLocalFilters]
+    );
+
+    return (
+      <div className={classes.filters}>
+        {localFilters.length > 0 ? (
+          localFilters.map((f, i) => {
+            return (
+              <OptionalFilterRow
+                filterField={f}
+                filterableFields={getPossibleFilters(
+                  [...filters, ...localFilters],
+                  filterableFields,
+                  f
+                )}
+                updateFilter={(filterField: FilterField) =>
+                  updateFilter(filterField, i)
+                }
+                removeFilter={() => removeFilter(i)}
+                isFirst={i === 0}
+                key={i}
+              />
+            );
+          })
+        ) : (
+          <div className={classes.subText}>{t("No filters applied")}</div>
         )}
+        <div className={classes.actions}>
+          <Button
+            onClick={addFilter}
+            variant="text"
+            className={classes.addFilter}
+            disabled={possibleFilters.length === 0}
+          >
+            {t("Add filter")}
+          </Button>
+          {showApply && (
+            <Button variant="contained" onClick={onApply}>
+              {t("Apply")}
+            </Button>
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
 export const OptionalFilters: React.FC<OptionalFiltersProps> = props => {
   const { t } = useTranslation();
