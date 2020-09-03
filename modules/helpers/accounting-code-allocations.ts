@@ -150,7 +150,7 @@ export const validateAccountingCodeAllocations = (
     return t("Accounting code selections not complete");
   }
 
-  if (sum(accountingCodeAllocations.map(a => a.allocation)) !== 1) {
+  if (sum(accountingCodeAllocations.map(a => a.allocation * 100)) !== 100) {
     // Allocations need to add up to 100%
     return t("Accounting code allocations do not total 100%");
   }
