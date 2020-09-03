@@ -1,0 +1,9 @@
+mutation SaveInterestInVacancy(
+  $vacancyInterest: EmployeeInterestInVacancyInput!
+) {
+  vacancy {
+    saveInterestInVacancy(vacancyInterest: $vacancyInterest) {
+      id
+    }
+  }
+}
