@@ -172,7 +172,7 @@ export const OptionalFilters: React.FC<OptionalFiltersProps> = props => {
         color="inherit"
         startIcon={<img src={require("ui/icons/reports-filter.svg")} />}
         onClick={() => {
-          if (!filtersOpen && numFiltersWithValue === 0) {
+          if (!filtersOpen && filters.length === 0) {
             /* The first time you open the optional filters popover, we've already
              *  added an initial filter for the User. For things like dropdowns we
              *  don't acknowledge a filter being set until you select something. For
@@ -187,7 +187,7 @@ export const OptionalFilters: React.FC<OptionalFiltersProps> = props => {
               defaultFilter.value = 0;
             }
 
-            filters.push(defaultFilter);
+            setFilters([defaultFilter]);
           }
           setFiltersOpen(!filtersOpen);
         }}
