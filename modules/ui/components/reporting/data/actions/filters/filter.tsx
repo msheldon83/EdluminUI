@@ -33,7 +33,7 @@ type Props = {
 export const Filter: React.FC<Props> = props => {
   const { t } = useTranslation();
   const organizationId = useOrganizationId();
-  const { filterField, updateFilter, showLabel } = props;
+  const { filterField, updateFilter, showLabel = false } = props;
 
   const filter = React.useMemo(() => {
     switch (filterField.field.filterType) {
@@ -105,6 +105,7 @@ export const Filter: React.FC<Props> = props => {
             endDate={end}
             placeholder={t("Select dates")}
             label={showLabel ? filterField.field.friendlyName : undefined}
+            showLabel={showLabel}
             onDateRangeSelected={(start, end) => {
               // Check for potential relative date match
               const relativeDates = getRelativeDatesFromDateRange(start, end);

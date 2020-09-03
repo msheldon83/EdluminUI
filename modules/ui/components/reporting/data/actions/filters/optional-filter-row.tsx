@@ -110,7 +110,10 @@ export const OptionalFilterRow: React.FC<Props> = props => {
         )}
       </div>
       <div className={`${classes.filter} ${classes.rowItem}`}>
-        <Filter filterField={filterField} updateFilter={updateFilter} />
+        <Filter
+          filterField={filterField}
+          updateFilter={updateFilter}
+        />
       </div>
     </div>
   );
