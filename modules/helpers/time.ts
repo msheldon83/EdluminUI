@@ -137,7 +137,8 @@ export const parseTimeFromString = (
     minute = 0;
   }
 
-  const date = dateString ? parseISO(dateString) : new Date();
+  const date =
+    dateString && isIso(dateString) ? parseISO(dateString) : new Date();
   date.setHours(hour);
   date.setMinutes(minute);
   date.setSeconds(0);
