@@ -11,6 +11,14 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import { Input, LabelComponent } from "./input";
 import { useMemo } from "react";
 import { ErrorMessage } from "formik";
+import {
+  useKeyPress,
+  ALL_KEYS,
+  ESCAPE,
+  ENTER,
+  ARROW_DOWN,
+  ARROW_UP,
+} from "hooks/use-key-press";
 
 export type SelectProps<T extends boolean> = {
   label?: string;
@@ -97,6 +105,10 @@ export function Select<T extends boolean>(props: SelectProps<T>) {
     false
   );
   const [listOpen, setListOpen] = React.useState(false);
+  const [optionItemFocusedIndex, setOptionItemFocusedIndex] = React.useState<
+    number
+  >(-1);
+  const [componentHasFocus, setComponentHasFocus] = React.useState(false);
 
   // Reference to all the multiple values display
   const selectedChipsRef = React.useRef(null);
@@ -175,6 +187,105 @@ export function Select<T extends boolean>(props: SelectProps<T>) {
     getOptionLabel,
     open: listOpen,
   });
+
+  // Set up keyboard events for arrow navigation
+  const focusedOptionItemElement = React.useCallback(() => {
+    return document.body.querySelector(`.${classes.optionItemFocused}`);
+  }, [classes.optionItemFocused]);
+
+  const focusNextOptionItem = React.useCallback(() => {
+    if (!listOpen && !componentHasFocus) {
+      return;
+    }
+
+    // The user can have focus on the input bug the list could be closed
+    setListOpen(true);
+
+    // Keeps from going out of bounds on the list
+    const nextIndex =
+      optionItemFocusedIndex + 1 > groupedOptions.length - 1
+        ? 0
+        : optionItemFocusedIndex + 1;
+
+    setOptionItemFocusedIndex(nextIndex);
+    focusedOptionItemElement()?.scrollIntoView({
+      block: "nearest",
+    });
+  }, [
+    optionItemFocusedIndex,
+    groupedOptions.length,
+    focusedOptionItemElement,
+    listOpen,
+    componentHasFocus,
+  ]);
+
+  const focusPreviousOptionItem = React.useCallback(() => {
+    if (!listOpen && !componentHasFocus) {
+      return;
+    }
+
+    // The user can have focus on the input bug the list could be closed
+    setListOpen(true);
+
+    // Keeps from going out of bounds on the list
+    const nextIndex =
+      optionItemFocusedIndex - 1 < 0
+        ? groupedOptions.length - 1
+        : optionItemFocusedIndex - 1;
+
+    setOptionItemFocusedIndex(nextIndex);
+    focusedOptionItemElement()?.scrollIntoView({
+      block: "nearest",
+    });
+  }, [
+    optionItemFocusedIndex,
+    groupedOptions.length,
+    focusedOptionItemElement,
+    listOpen,
+    componentHasFocus,
+  ]);
+
+  const resetFocusedOptionItem = () => setOptionItemFocusedIndex(-1);
+
+  /*
+    Using a DOM element click even here so that the autocomplete hook can correctly keep
+    itself in sync and propogate all of the events correctly
+  */
+  const selectFocusedOptionItem = () => focusedOptionItemElement()?.click();
+
+  useKeyPress(ARROW_DOWN, () => focusNextOptionItem(), inputRef.current);
+
+  useKeyPress(ARROW_UP, () => focusPreviousOptionItem(), inputRef.current);
+
+  useKeyPress(
+    ESCAPE,
+    () => {
+      if (!listOpen) {
+        return;
+      }
+
+      const input = inputRef.current as HTMLInputElement | null;
+
+      // Force a blur on the input so the UI can reset properly
+      input?.blur();
+
+      resetFocusedOptionItem();
+    },
+    inputRef.current
+  );
+
+  useKeyPress(
+    ENTER,
+    () => {
+      if (optionItemFocusedIndex < 0 || !listOpen) {
+        return;
+      }
+
+      selectFocusedOptionItem();
+      resetFocusedOptionItem();
+    },
+    inputRef.current
+  );
 
   /*
     This section tracks the width of the listbox as compared to the container.
@@ -257,6 +368,8 @@ export function Select<T extends boolean>(props: SelectProps<T>) {
       className={`${className} ${containerClasses}`}
       {...(disabled ? {} : getRootProps())}
       ref={containerRef}
+      onFocus={() => setComponentHasFocus(true)}
+      onBlur={() => setComponentHasFocus(false)}
     >
       <div className={classes.inputContainer}>
         <div className={classes.dropdownContainer}>
@@ -304,12 +417,15 @@ export function Select<T extends boolean>(props: SelectProps<T>) {
               {groupedOptions.map((option: OptionType, index: number) => {
                 const itemClasses = clsx({
                   [classes.optionItem]: true,
+                  [classes.optionItemFocused]: index === optionItemFocusedIndex,
                   [classes.resetLabel]: option.label === RESET_LABEL,
                 });
 
                 return (
                   <li
                     {...getOptionProps({ option, index })}
+                    onMouseEnter={() => setOptionItemFocusedIndex(index)}
+                    onMouseLeave={() => resetFocusedOptionItem()}
                     className={itemClasses}
                     key={getOptionValue(option)}
                   >
@@ -474,13 +590,20 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
 
     "&:hover": {
-      backgroundColor: theme.background.hoverRow,
-      color: theme.palette.text.primary,
       cursor: "pointer",
     },
     '&[aria-selected="true"]': {
       backgroundColor: theme.customColors.yellow1,
       cursor: "pointer",
+    },
+  },
+  optionItemFocused: {
+    backgroundColor: theme.background.hoverRow,
+    color: theme.palette.text.primary,
+    cursor: "pointer",
+
+    '&[aria-selected="true"]': {
+      backgroundColor: theme.background.hoverRow,
     },
   },
   resetLabel: {
