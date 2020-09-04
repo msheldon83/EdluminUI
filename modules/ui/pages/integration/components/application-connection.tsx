@@ -54,8 +54,11 @@ export const ApplicationConnectionUI: React.FC<AppConnectionUIProps> = ({
   // HACK.  Right now we only have date range to worry about
   const buildFilterString = (filter: ReportFilterField) => {
     const fieldName = filter.displayName;
-    const betweenValues = filter.arguments;
-    return `${fieldName} BETWEEN '${betweenValues[0]}' AND '${betweenValues[1]}'`;
+    let [start, end] = filter.arguments;
+    if (start[0] !== "%") start = `'${start}'`;
+    if (end[0] !== "%") end = `'${end}'`;
+
+    return `${fieldName} BETWEEN ${start} AND ${end}`;
   };
 
   const handleDownload = async (filters: ReportFilterField[]) => {
