@@ -40,16 +40,9 @@ export const LocationSelect: React.FC<Props> = props => {
     );
   }
 
-  let selectedLocations = locationOptions.filter(
+  const selectedLocations = locationOptions.filter(
     e => e.value && selectedLocationIds?.includes(e.value.toString())
   );
-
-  selectedLocations =
-    selectedLocations.length === 0
-      ? includeAllOption
-        ? [locationOptions[0]]
-        : [{ value: "", label: "" }]
-      : selectedLocations;
 
   const onChangeLocations = useCallback(
     value => {
