@@ -208,7 +208,6 @@ export const EmployeeQuickAbsenceCreate: React.FC<Props> = props => {
               />
               <div className={classes.needsReplacement}>
                 <NeedsReplacementCheckbox
-                  isCreate={true}
                   permissions={[PermissionEnum.AbsVacManualFillMode]}
                   actingAsEmployee={true}
                   needsReplacement={

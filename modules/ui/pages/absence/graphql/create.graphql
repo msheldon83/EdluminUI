@@ -45,6 +45,7 @@ mutation CreateAbsence($absence: AbsenceCreateInput!) {
         startTimeLocal
         endTimeLocal
         numDays
+        holdForManualFill
         rowVersion
         notesToReplacement
         isApprovedForSubJobSearch

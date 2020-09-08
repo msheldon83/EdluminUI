@@ -11,7 +11,6 @@ import { PermissionEnum } from "graphql/server-types.gen";
 import { Can } from "ui/components/auth/can";
 
 type Props = {
-  isCreate: boolean;
   actingAsEmployee: boolean;
   needsReplacement: NeedsReplacement;
   holdForManualFill?: boolean;
@@ -33,12 +32,11 @@ export const NeedsReplacementCheckbox: React.FC<Props> = props => {
     disabled,
     holdForManualFill,
     onChangeManualFill,
-    isCreate,
     permissions,
   } = props;
 
   const canDisplayHoldForManualFill =
-    holdForManualFill !== undefined && !isCreate && Config.isDevFeatureOnly;
+    holdForManualFill !== undefined && Config.isDevFeatureOnly;
 
   return (
     <>

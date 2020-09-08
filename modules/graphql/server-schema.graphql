@@ -64,6 +64,7 @@ input AbsenceCreateInput {
   orgId: ID!
   employeeId: ID!
   notesToApprover: String
+  holdForManualFill: Boolean
   adminOnlyNotes: String
   details: [AbsenceDetailCreateInput]
   vacancies: [AbsenceVacancyInput]
@@ -449,6 +450,11 @@ type AbsVacReason {
   _info: [ReturnMessage]
   id: ID!
   name: String!
+}
+
+input AcceptVacancyInput {
+  vacancyId: ID!
+  employeeId: ID!
 }
 
 input AccessControInput {
@@ -2881,7 +2887,10 @@ enum EventType {
   VACANCY_DETAIL_RESTORED_BY_CALENDAR_CHANGE_DELETE
   VACANCY_REQUESTED_SUB_RESERVED_EXPIRED
   VACANCY_DISCOVERED_FOR_CALENDAR_CHANGE
-  VACANCY_MANUAL_FILL_UPDATED
+  VACANCY_MANUAL_FILL_MODE_ENABLED
+  VACANCY_MANUAL_FILL_MODE_DISABLED
+  VACANCY_APPROVED_FOR_FILL
+  VACANCY_REQUESTED_SUB_WINDOW_STARTED
   FILE_UPLOAD_CREATED
   FILE_UPLOADED
   FILE_UPLOAD_DELETED
@@ -3446,6 +3455,7 @@ enum NotificationReason {
   EMP_ABSENCE_APPROVED
   EMP_ABSENCE_DENIED
   ADMIN_WORKFLOW_WAITING
+  SUB_NOTIFY_REQUESTED
 }
 
 type ObjectReplacementCriteria {
@@ -4625,6 +4635,7 @@ enum PermissionEnum {
   ABS_VAC_EDIT_PAST_SAME_DAY
   ABS_VAC_EDIT_PARTIALLY_APPROVED
   ABS_VAC_EDIT_APPROVED
+  ABS_VAC_MANUAL_FILL_MODE
   ABS_VAC_REQUEST_REPLACEMENT
   ABS_VAC_ASSIGN
   ABS_VAC_ASSIGN_NO_SUB_NEEDED
@@ -6621,7 +6632,7 @@ input UserPreferencesInput {
 
 type UserQueries {
   byId(id: ID!): User
-  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedUser
+  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String, roles: [OrgUserRole]): PagedUser
   pagedUserUnavailableTime(limit: Int, offset: Int, sortBy: [SortDetailsInput], userId: ID, fromDate: DateTime!, toDate: Date!): PagedUserUnavailableTime
   verifyEmailAddress(emailAddress: String!): Boolean!
 }
@@ -6962,6 +6973,8 @@ type VacancyMutations {
   create(vacancy: VacancyCreateInput!): Vacancy
   update(vacancy: VacancyUpdateInput!): Vacancy
   delete(vacancyId: ID!): Boolean
+  acceptVacancy(vacancyAccept: AcceptVacancyInput!): Assignment
+  saveInterestInVacancy(vacancyInterest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
   requestVacancy(vacancyRequest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
   rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
   vacancyManualFill(vacancyManualFillInput: VacancyManualFillInput!): Boolean

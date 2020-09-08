@@ -276,7 +276,6 @@ export const SubstituteDetails: React.FC<Props> = props => {
     return (
       <NeedsReplacementCheckbox
         actingAsEmployee={actingAsEmployee}
-        isCreate={isCreate}
         permissions={[PermissionEnum.AbsVacManualFillMode]}
         needsReplacement={needsReplacement}
         value={values.needsReplacement}
@@ -284,7 +283,13 @@ export const SubstituteDetails: React.FC<Props> = props => {
           setFieldValue("needsReplacement", checked)
         }
         holdForManualFill={holdForManualFill}
-        onChangeManualFill={onChangeManualFill}
+        onChangeManualFill={checked => {
+          if (isCreate) {
+            setFieldValue("holdForManualFill", checked);
+          } else {
+            onChangeManualFill && onChangeManualFill(checked);
+          }
+        }}
         disabled={isClosed}
       />
     );
