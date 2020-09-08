@@ -258,7 +258,7 @@ export const DataManagementNavLink: React.FC<Props> = props => {
             permissions: [PermissionEnum.DataImport],
           },
           {
-            title: t("Integrations"),
+            title: t("Connections"),
             route: IntegrationRoute.generate(paramsIntegrations),
             permissions: [PermissionEnum.ExternalConnectionsView],
           },

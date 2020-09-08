@@ -140,6 +140,10 @@ export const ApplicationConnectionUI: React.FC<AppConnectionUIProps> = ({
                 <Link onClick={handleRunNow}>Run now</Link>
               </Grid>
             </Grid> */}
+            <Grid item xs={12}>
+              <Typography variant="h6">{t("Layout Id")}</Typography>
+              <Typography>{connection.id}</Typography>
+            </Grid>
             <Grid container item xs={12}>
               <Grid item xs={3}>
                 <Button variant="outlined" onClick={handleRunNow}>
