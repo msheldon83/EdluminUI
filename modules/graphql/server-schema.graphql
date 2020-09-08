@@ -451,6 +451,11 @@ type AbsVacReason {
   name: String!
 }
 
+input AcceptVacancyInput {
+  vacancyId: ID!
+  employeeId: ID!
+}
+
 input AccessControInput {
   locations: [LocatorInput]
   locationGroups: [LocatorInput]
@@ -6621,7 +6626,7 @@ input UserPreferencesInput {
 
 type UserQueries {
   byId(id: ID!): User
-  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String): PagedUser
+  paged(limit: Int, offset: Int, sortBy: [SortDetailsInput], searchText: String, roles: [OrgUserRole]): PagedUser
   pagedUserUnavailableTime(limit: Int, offset: Int, sortBy: [SortDetailsInput], userId: ID, fromDate: DateTime!, toDate: Date!): PagedUserUnavailableTime
   verifyEmailAddress(emailAddress: String!): Boolean!
 }
@@ -6962,6 +6967,8 @@ type VacancyMutations {
   create(vacancy: VacancyCreateInput!): Vacancy
   update(vacancy: VacancyUpdateInput!): Vacancy
   delete(vacancyId: ID!): Boolean
+  acceptVacancy(vacancyAccept: AcceptVacancyInput!): Assignment
+  saveInterestInVacancy(vacancyInterest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
   requestVacancy(vacancyRequest: EmployeeInterestInVacancyInput!): VacancyEmployeeInterest
   rejectVacancy(vacancyRejection: EmployeeRejectVacancyInput!): VacancyEmployeeInterest
   vacancyManualFill(vacancyManualFillInput: VacancyManualFillInput!): Boolean

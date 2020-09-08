@@ -1,0 +1,7 @@
+mutation AcceptVacancy($vacancyAccept: AcceptVacancyInput!) {
+  vacancy {
+    acceptVacancy(vacancyAccept: $vacancyAccept) {
+      id
+    }
+  }
+}

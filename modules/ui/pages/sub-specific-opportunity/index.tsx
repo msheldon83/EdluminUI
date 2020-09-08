@@ -4,7 +4,7 @@ import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { PageTitle } from "ui/components/page-title";
 import { useIsMobile } from "hooks";
 import * as React from "react";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory } from "react-router";
 import { Section } from "ui/components/section";
@@ -15,13 +15,14 @@ import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AvailableJob } from "ui/pages/sub-home/components/available-job";
 import { SubSpecificOpportunityRoute } from "ui/routes/sub-specific-opportunity";
-import { RequestAbsenceDialog } from "ui/pages/sub-home/components/request-dialog";
 import { DismissVacancy } from "ui/pages/sub-home/graphql/dismiss-vacancy.gen";
 import { GetVacancyById } from "./graphql/get-opportunity-by-id.gen";
-import { RequestVacancy } from "ui/pages/sub-home/graphql/request-vacancy.gen";
+import { AcceptVacancy } from "ui/pages/sub-home/graphql/accept-vacancy.gen";
+import { SaveInterestInVacancy } from "./graphql/save-interest.gen";
 import { useMyUserAccess } from "reference-data/my-user-access";
 import { compact } from "lodash-es";
 import { isAfter, parseISO } from "date-fns";
+import { AcceptResultDialog } from "ui/pages/sub-home/components/accept-result-dialog";
 
 type Props = {};
 
@@ -34,14 +35,23 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
   const vacancyId = params.vacancyId;
 
   const isMobile = useIsMobile();
-  const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
+
+  const [acceptResultDialogOpen, setAcceptResultDialogOpen] = React.useState(
+    false
+  );
+  const [assignmentId, setAssignmentId] = React.useState<string | null>(null);
 
   const [dismissVacancyMutation] = useMutationBundle(DismissVacancy, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
   });
-  const [requestVacancyMutation] = useMutationBundle(RequestVacancy, {
+  const [acceptVacancyMutation] = useMutationBundle(AcceptVacancy, {
+    onError: error => {
+      ShowErrors(error, openSnackbar);
+    },
+  });
+  const [saveInterest] = useMutationBundle(SaveInterestInVacancy, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -64,11 +74,25 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     [getVacancy]
   );
 
-  const employeeId =
-    orgUsers.find(o => o.orgId === vacancy?.organization.id)?.id ?? "0";
+  const employeeId = orgUsers.find(o => o.orgId === vacancy?.organization.id)
+    ?.id;
+
+  // If the user has already been assigned to this vacancy, route them to the specific assignment page
+  useEffect(() => {
+    const vacancyAssignmentId = vacancy?.details.find(
+      d => d.assignment && d.assignment.employeeId === employeeId
+    )?.assignmentId;
+    if (vacancyAssignmentId) {
+      history.push(
+        SubSpecificAssignmentRoute.generate({
+          assignmentId: vacancyAssignmentId,
+        })
+      );
+    }
+  }, [employeeId, history, vacancy]);
 
   const onDismissVacancy = async (vacancyId: string) => {
-    if (employeeId != "0") {
+    if (employeeId) {
       await Promise.resolve(
         dismissVacancyMutation({
           variables: {
@@ -83,30 +107,48 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
     history.push(SubHomeRoute.generate(params));
   };
 
-  const onCloseRequestAbsenceDialog = (assignmentId?: string | null) => {
-    setRequestAbsenceIsOpen(false);
+  const onSaveInterest = async (vacancyId: string) => {
+    if (employeeId) {
+      await Promise.resolve(
+        saveInterest({
+          variables: {
+            vacancyInterest: {
+              vacancyId: vacancyId,
+              employeeId: employeeId,
+            },
+          },
+        })
+      );
+    }
+    history.push(SubHomeRoute.generate(params));
+  };
+
+  const onCloseAcceptResultDialog = async () => {
+    setAcceptResultDialogOpen(false);
     let route = SubHomeRoute.generate(params);
     if (assignmentId) {
       route = SubSpecificAssignmentRoute.generate({ assignmentId });
     }
+    setAssignmentId(null);
     history.push(route);
   };
 
   const onAcceptVacancy = async (vacancyId: string) => {
-    if (employeeId != "0") {
-      await requestVacancyMutation({
+    if (employeeId) {
+      const result = await acceptVacancyMutation({
         variables: {
-          vacancyRequest: {
+          vacancyAccept: {
             vacancyId: vacancyId,
             employeeId: employeeId,
           },
         },
       });
-    }
-    if (canAcceptVacancy) {
-      setRequestAbsenceIsOpen(true);
-    } else {
-      history.push(SubHomeRoute.generate(params));
+      if (result?.data?.vacancy?.acceptVacancy?.id) {
+        setAssignmentId(result.data.vacancy.acceptVacancy.id);
+      }
+      if (result?.data) {
+        setAcceptResultDialogOpen(true);
+      }
     }
   };
 
@@ -116,13 +158,6 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
   const canAcceptVacancy = vacancy?.details?.some(
     d => !d.assignmentId && isAfter(parseISO(d.startTimeLocal), new Date())
   );
-
-  const assignmentId = vacancy?.details.find(
-    d => d.assignment && d.assignment.employeeId === employeeId
-  )?.assignmentId;
-  if (assignmentId) {
-    history.push(SubSpecificAssignmentRoute.generate({ assignmentId }));
-  }
 
   const DismissAndAcceptButtons = (
     <>
@@ -134,13 +169,23 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
           {canAcceptVacancy ? t("Dismiss") : t("No")}
         </Button>
       </Grid>
+
       <Grid item>
-        <Button
-          variant="contained"
-          onClick={() => onAcceptVacancy(vacancy?.id ?? "")}
-        >
-          {canAcceptVacancy ? t("Accept") : t("Yes")}
-        </Button>
+        {canAcceptVacancy ? (
+          <Button
+            variant="contained"
+            onClick={() => onAcceptVacancy(vacancy?.id ?? "")}
+          >
+            {t("Accept")}
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            onClick={() => onSaveInterest(vacancy?.id ?? "")}
+          >
+            {t("Yes")}
+          </Button>
+        )}
       </Grid>
     </>
   );
@@ -265,11 +310,10 @@ export const SubSpecificOpportunity: React.FC<Props> = props => {
           </Section>
         )}
 
-      <RequestAbsenceDialog
-        open={requestAbsenceIsOpen}
-        onClose={onCloseRequestAbsenceDialog}
-        employeeId={employeeId}
-        vacancyId={vacancyId}
+      <AcceptResultDialog
+        open={acceptResultDialogOpen}
+        assignmentId={assignmentId}
+        onClose={onCloseAcceptResultDialog}
       />
     </>
   );
