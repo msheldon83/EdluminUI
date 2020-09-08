@@ -46,10 +46,10 @@ export const IntegrationView: React.FC<Props> = props => {
               organizationId: orgId ?? "",
             })}
           >
-            {t("Return to all integrations")}
+            {t("Return to all connections")}
           </BaseLink>
           <Typography variant="h5" className={classes.subHeader}>
-            {t("Integrations")}
+            {t("Connections")}
           </Typography>
           <PageTitle title={appGrant.application.name} />
         </Grid>

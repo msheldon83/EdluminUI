@@ -8,14 +8,14 @@ import {
   CustomRenderer,
   DataSourceField,
 } from "./types";
-import { useQueryBundle, useImperativeQuery } from "graphql/hooks";
+import { ShowNetworkErrors } from "ui/components/error-helpers";
+import { useQueryBundle } from "graphql/hooks";
+import { useDownload } from "hooks/use-download";
 import { GetReportDataQuery, GetReportChartQuery } from "./graphql/get-report";
 import { reportReducer, convertReportDefinitionInputToRdl } from "./state";
 import { makeStyles } from "@material-ui/core";
 import { useOrganizationId } from "core/org-context";
 import { useSnackbar } from "hooks/use-snackbar";
-import { ShowNetworkErrors } from "../error-helpers";
-import { ExportReportQuery } from "./graphql/export-report";
 import { useTranslation } from "react-i18next";
 import { ReportData } from "./data";
 import { ReportChart } from "./chart";
@@ -118,11 +118,7 @@ export const Report: React.FC<Props> = props => {
   }, [reportChartResponse.state]);
 
   // Support Exporting to CSV
-  const downloadCsvFile = useImperativeQuery(ExportReportQuery, {
-    onError: error => {
-      ShowNetworkErrors(error, openSnackbar);
-    },
-  });
+  const download = useDownload();
 
   const setFilters = React.useCallback(
     (
@@ -212,13 +208,20 @@ export const Report: React.FC<Props> = props => {
         setFirstLevelOrderBy={setFirstLevelOrderBy}
         refreshReport={refreshReport}
         exportReport={async () => {
-          await downloadCsvFile({
-            input: {
-              orgIds: [organizationId],
-              queryText: convertReportDefinitionInputToRdl(state.report!, true),
-            },
-            filename: exportFilename,
-          });
+          await download(
+            `${exportFilename ?? "Report"}.csv`,
+            `${Config.restUri}api/report/export/csv?filenameRoot=${exportFilename}`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                orgIds: [organizationId],
+                queryText: convertReportDefinitionInputToRdl(
+                  state.report!,
+                  true
+                ),
+              }),
+            }
+          );
         }}
         showGroupLabels={showGroupLabels}
         customRender={customRender}
