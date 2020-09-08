@@ -209,7 +209,7 @@ export const Report: React.FC<Props> = props => {
         refreshReport={refreshReport}
         exportReport={async () => {
           await download(
-            exportFilename ?? "Report.csv",
+            `${exportFilename ?? "Report"}.csv`,
             `${Config.restUri}api/report/export/csv?filenameRoot=${exportFilename}`,
             {
               method: "POST",
