@@ -3,10 +3,7 @@ import { AdminChromeRoute } from "./app-chrome";
 import { defineSubRoute } from "./definition";
 
 // Integrations root
-export const IntegrationRoute = defineSubRoute(
-  AdminChromeRoute,
-  "/integration"
-);
+export const IntegrationRoute = defineSubRoute(AdminChromeRoute, "/connection");
 
 export const IntegrationLoader = asyncComponent({
   resolve: async () => {
@@ -14,13 +11,13 @@ export const IntegrationLoader = asyncComponent({
       .IntegrationList;
     return IntegrationPage;
   },
-  name: "Integration",
+  name: "Connection",
 });
 
 // Integration view
 export const IntegrationViewRoute = defineSubRoute(
   AdminChromeRoute,
-  "/integration/:applicationGrantId",
+  "/connection/:applicationGrantId",
   ["applicationGrantId"]
 );
 
@@ -30,5 +27,5 @@ export const IntegrationViewLoader = asyncComponent({
       .IntegrationView;
     return IntegrationViewPage;
   },
-  name: "Integration",
+  name: "Connection",
 });
