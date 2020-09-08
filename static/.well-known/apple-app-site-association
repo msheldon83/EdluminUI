@@ -5,7 +5,18 @@
       {
         "appID": "Q8P5KAM5D4.com.redroverk12.mobile",
         "paths": [
-          "*"
+          "/substitute",
+          "/substitute/schedule/view",
+          "/substitute/schedule/view/calendar",
+          "/substitute/schedule/availability",
+          "/substitute/opportunity/*",
+          "/substitute/assignment/*",
+          "/substitute/preferences",
+          "/substitute/preferences/edit",
+          "/substitute/profile",
+          "/admin/profile",
+          "/admin/*/profile",
+          "/employee/profile"
         ]
       }
     ]
