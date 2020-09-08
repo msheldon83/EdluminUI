@@ -278,7 +278,7 @@ export const StepsGraph: React.FC<Props> = props => {
         onSelectNode={onSelectNode}
         onUpdateNode={onUpdateNode}
         onSelectEdge={onSelectEdge}
-        showGraphControls={true}
+        showGraphControls
         renderNodeText={renderNodeText}
         afterRenderEdge={afterRenderEdge}
         // The following functions are required props, but we aren't implementing them
@@ -287,6 +287,17 @@ export const StepsGraph: React.FC<Props> = props => {
         onCreateEdge={() => {}}
         onDeleteEdge={() => {}}
         onSwapEdge={() => {}}
+        renderBackground={gridSize => {
+          return (
+            <rect
+              x={-(gridSize || 0) / 4}
+              y={-(gridSize || 0) / 4}
+              width={gridSize}
+              height={gridSize}
+              fill={"#F0F0F0"}
+            />
+          );
+        }}
       />
       <Popper
         transition
@@ -365,6 +376,12 @@ const useStyles = makeStyles(theme => ({
   graphBox: {
     width: "100%",
     height: "600px",
+
+    "& .graph-controls": {
+      bottom: `${theme.typography.pxToRem(5)} !important`, // needed to override default style. This is recommended by authors https://github.com/uber/react-digraph/issues/223#issuecomment-636506758
+      left: "50% !important",
+      transform: "translateX(-50%)",
+    },
   },
   whiteText: {
     color: theme.customColors.white,
