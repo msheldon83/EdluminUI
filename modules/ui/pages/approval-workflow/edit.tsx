@@ -187,71 +187,73 @@ export const ApprovalWorkflowEdit: React.FC<Props> = props => {
         />
       </div>
       <Section>
-        <div className={classes.infoWrapper}>
-          <BasicInfo
-            orgId={params.organizationId}
-            workflowType={approvalWorkflow.approvalWorkflowTypeId}
-            usages={JSON.stringify(approvalWorkflow.usages)}
-            editing={editing}
-            setEditing={setEditing}
-            editable={editing !== "usage-info"}
-            onSave={handleUpdateUsages}
-            onCancel={() => setEditing(null)}
-            editName={false}
-            name={approvalWorkflow.name}
-            saveLabel={t("Save")}
-            approvalWorkflowId={params.approvalWorkflowId}
-          />
-          <TestHeader
-            open={showTestHeader}
-            orgId={params.organizationId}
-            workflowType={approvalWorkflow.approvalWorkflowTypeId}
-            onClose={() => {
-              setShowTestHeader(false);
-              setTestReasonId(undefined);
-            }}
-            reasonId={testReasonId}
-            setReasonId={setTestReasonId}
-          />
-        </div>
-        <StepsGraph
-          steps={steps}
-          orgId={params.organizationId}
-          workflowType={approvalWorkflow.approvalWorkflowTypeId}
-          testReasonId={testReasonId}
-          setStepsDirty={setStepsDirty}
-        />
-        <Grid
-          container
-          justify="flex-end"
-          spacing={2}
-          className={classes.buttonContainer}
-        >
-          <Grid item>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setShowTestHeader(!showTestHeader);
+        <div className={classes.positionWrapper}>
+          <div className={classes.infoWrapper}>
+            <BasicInfo
+              orgId={params.organizationId}
+              workflowType={approvalWorkflow.approvalWorkflowTypeId}
+              usages={JSON.stringify(approvalWorkflow.usages)}
+              editing={editing}
+              setEditing={setEditing}
+              editable={editing !== "usage-info"}
+              onSave={handleUpdateUsages}
+              onCancel={() => setEditing(null)}
+              editName={false}
+              name={approvalWorkflow.name}
+              saveLabel={t("Save")}
+              approvalWorkflowId={params.approvalWorkflowId}
+            />
+            <TestHeader
+              open={showTestHeader}
+              orgId={params.organizationId}
+              workflowType={approvalWorkflow.approvalWorkflowTypeId}
+              onClose={() => {
+                setShowTestHeader(false);
                 setTestReasonId(undefined);
               }}
-            >
-              {showTestHeader ? t("Hide test") : t("Test")}
-            </Button>
+              reasonId={testReasonId}
+              setReasonId={setTestReasonId}
+            />
+          </div>
+          <StepsGraph
+            steps={steps}
+            orgId={params.organizationId}
+            workflowType={approvalWorkflow.approvalWorkflowTypeId}
+            testReasonId={testReasonId}
+            setStepsDirty={setStepsDirty}
+          />
+          <Grid
+            container
+            justify="flex-end"
+            spacing={2}
+            className={classes.buttonContainer}
+          >
+            <Grid item>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setShowTestHeader(!showTestHeader);
+                  setTestReasonId(undefined);
+                }}
+              >
+                {showTestHeader ? t("Hide test") : t("Test")}
+              </Button>
+            </Grid>
+            {!editing && (
+              <Can do={[PermissionEnum.ApprovalSettingsSave]}>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleUpdateSteps()}
+                    disabled={!stepsDirty}
+                  >
+                    {t("Save")}
+                  </Button>
+                </Grid>
+              </Can>
+            )}
           </Grid>
-          {!editing && (
-            <Can do={[PermissionEnum.ApprovalSettingsSave]}>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  onClick={() => handleUpdateSteps()}
-                  disabled={!stepsDirty}
-                >
-                  {t("Save")}
-                </Button>
-              </Grid>
-            </Can>
-          )}
-        </Grid>
+        </div>
       </Section>
     </>
   );
@@ -270,5 +272,8 @@ const useStyles = makeStyles(theme => ({
   },
   infoWrapper: {
     paddingBottom: theme.spacing(2),
+  },
+  positionWrapper: {
+    position: "relative",
   },
 }));

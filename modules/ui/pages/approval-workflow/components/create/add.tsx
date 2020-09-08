@@ -95,21 +95,23 @@ export const ApprovalWorkflowAdd: React.FC<Props> = props => {
     setStep: React.Dispatch<React.SetStateAction<number>>
   ) => {
     return (
-      <WorkflowSteps
-        workflowType={props.workflowType}
-        onCancel={handleCancel}
-        orgId={props.orgId}
-        steps={workflow.steps}
-        onSave={async (steps: ApprovalWorkflowStepInput[]) => {
-          const result = await create({
-            ...workflow,
-            steps: steps,
-          });
-          if (result) {
-            handleCancel();
-          }
-        }}
-      />
+      <div className={classes.positionWrapper}>
+        <WorkflowSteps
+          workflowType={props.workflowType}
+          onCancel={handleCancel}
+          orgId={props.orgId}
+          steps={workflow.steps}
+          onSave={async (steps: ApprovalWorkflowStepInput[]) => {
+            const result = await create({
+              ...workflow,
+              steps: steps,
+            });
+            if (result) {
+              handleCancel();
+            }
+          }}
+        />
+      </div>
     );
   };
 
@@ -160,5 +162,12 @@ const useStyles = makeStyles(theme => ({
   placeholder: {
     opacity: "0.2",
     filter: "alpha(opacity = 20)",
+  },
+  positionWrapper: {
+    position: "relative",
+
+    "& .graph-controls": {
+      bottom: `${theme.typography.pxToRem(25)} !important`, // needed to override default style. This is recommended by authors https://github.com/uber/react-digraph/issues/223#issuecomment-636506758
+    },
   },
 }));

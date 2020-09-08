@@ -24,15 +24,15 @@ import { Section } from "ui/components/section";
 import { useSnackbar } from "hooks/use-snackbar";
 import { ShowErrors } from "ui/components/error-helpers";
 import { AvailableJob } from "./components/available-job";
-import { RequestAbsenceDialog } from "./components/request-dialog";
 import { FilterQueryParams } from "./filters/filter-params";
 import { Filters } from "./filters/index";
 import { DismissVacancy } from "./graphql/dismiss-vacancy.gen";
-import { RequestVacancy } from "./graphql/request-vacancy.gen";
+import { AcceptVacancy } from "./graphql/accept-vacancy.gen";
 import { SubJobSearch } from "./graphql/sub-job-search.gen";
 import { Can } from "ui/components/auth/can";
 import { compact } from "lodash-es";
 import { ConfirmOverrideDialog } from "./components/confirm-override";
+import { AcceptResultDialog } from "./components/accept-result-dialog";
 
 type Props = {
   viewingAsAdmin?: boolean;
@@ -54,10 +54,12 @@ export const AvailableAssignments: React.FC<Props> = props => {
 
   const { userId, orgUsers } = props;
 
-  const [requestAbsenceIsOpen, setRequestAbsenceIsOpen] = React.useState(false);
+  const [acceptResultDialogOpen, setAcceptResultDialogOpen] = React.useState(
+    false
+  );
   const [overrideDialogOpen, setOverrideDialogOpen] = React.useState(false);
-  const [employeeId, setEmployeeId] = React.useState<string | null>(null);
   const [vacancyId, setVacancyId] = React.useState<string | null>(null);
+  const [assignmentId, setAssignmentId] = React.useState<string | null>(null);
   const [dismissedAssignments, setDismissedAssignments] = React.useState<
     string[]
   >([]);
@@ -66,7 +68,7 @@ export const AvailableAssignments: React.FC<Props> = props => {
       ShowErrors(error, openSnackbar);
     },
   });
-  const [requestVacancyMutation] = useMutationBundle(RequestVacancy, {
+  const [acceptVacancyMutation] = useMutationBundle(AcceptVacancy, {
     onError: error => {
       ShowErrors(error, openSnackbar);
     },
@@ -133,7 +135,7 @@ export const AvailableAssignments: React.FC<Props> = props => {
 
   const onDismissVacancy = async (vacancyId: string) => {
     const employeeId = determineEmployeeId(vacancyId);
-    if (employeeId != 0) {
+    if (employeeId) {
       setDismissedAssignments([...dismissedAssignments, vacancyId]);
       await Promise.resolve(
         dismissVacancyMutation({
@@ -153,16 +155,8 @@ export const AvailableAssignments: React.FC<Props> = props => {
     const orgId =
       sortedVacancies.find(o => o.vacancy.id === vacancyId)?.vacancy.orgId ??
       "";
-    const employeeId = orgUsers?.find(o => o.orgId === orgId)?.id ?? 0;
+    const employeeId = orgUsers?.find(o => o.orgId === orgId)?.id;
     return employeeId;
-  };
-
-  const onCloseRequestAbsenceDialog = async () => {
-    setRequestAbsenceIsOpen(false);
-    await getVacancies.refetch();
-    if (props.refetchAssignments) {
-      await props.refetchAssignments();
-    }
   };
 
   const onAcceptVacancy = async (
@@ -176,19 +170,36 @@ export const AvailableAssignments: React.FC<Props> = props => {
     } else {
       setOverrideDialogOpen(false);
       const employeeId = determineEmployeeId(vacancyId);
-      if (employeeId != 0) {
-        await requestVacancyMutation({
+      if (employeeId) {
+        const result = await acceptVacancyMutation({
           variables: {
-            vacancyRequest: {
+            vacancyAccept: {
               vacancyId: vacancyId,
               employeeId: employeeId,
             },
           },
         });
+        if (result?.data?.vacancy?.acceptVacancy?.id) {
+          setAssignmentId(result.data.vacancy.acceptVacancy.id);
+        }
+        if (result?.data) {
+          setAcceptResultDialogOpen(true);
+        } else {
+          await getVacancies.refetch();
+          if (props.refetchAssignments) {
+            await props.refetchAssignments();
+          }
+        }
       }
-      setEmployeeId(employeeId.toString());
-      setVacancyId(vacancyId);
-      setRequestAbsenceIsOpen(true);
+    }
+  };
+
+  const onCloseAcceptResultDialog = async () => {
+    setAcceptResultDialogOpen(false);
+    setAssignmentId(null);
+    await getVacancies.refetch();
+    if (props.refetchAssignments) {
+      await props.refetchAssignments();
     }
   };
 
@@ -271,11 +282,10 @@ export const AvailableAssignments: React.FC<Props> = props => {
         </Section>
       </Can>
 
-      <RequestAbsenceDialog
-        open={requestAbsenceIsOpen}
-        onClose={onCloseRequestAbsenceDialog}
-        employeeId={employeeId}
-        vacancyId={vacancyId}
+      <AcceptResultDialog
+        open={acceptResultDialogOpen}
+        assignmentId={assignmentId}
+        onClose={onCloseAcceptResultDialog}
       />
 
       <ConfirmOverrideDialog

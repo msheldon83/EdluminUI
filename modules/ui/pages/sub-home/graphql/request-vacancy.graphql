@@ -1,7 +1,0 @@
-mutation RequestVacancy($vacancyRequest: EmployeeInterestInVacancyInput!) {
-  vacancy {
-    requestVacancy(vacancyRequest: $vacancyRequest) {
-      id
-    }
-  }
-}
