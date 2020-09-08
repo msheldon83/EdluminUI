@@ -1,8 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { useLazyQueryPromise } from "graphql/hooks";
 import { useTranslation } from "react-i18next";
-import { DownloadConnectionQuery } from "../graphql/download-connection";
 import { Grid, makeStyles, Typography, Button } from "@material-ui/core";
 import { useSnackbar } from "hooks/use-snackbar";
 import { Section } from "ui/components/section";
@@ -13,6 +11,7 @@ import {
 import { ConnectionDirectionText } from "./connection-direction";
 import { RunNowDialog } from "./run-now-dialog";
 import { CopyableNameValue } from "ui/components/copyable-name-value";
+import { useDownload } from "hooks/use-download";
 
 type AppConnectionUIProps = {
   appName: string;
@@ -45,7 +44,7 @@ export const ApplicationConnectionUI: React.FC<AppConnectionUIProps> = ({
   const { openSnackbar } = useSnackbar();
   const [runNowOpen, setRunNowOpen] = useState(false);
 
-  const [download] = useLazyQueryPromise(DownloadConnectionQuery.Document);
+  const download = useDownload();
 
   const handleRunNow = () => {
     setRunNowOpen(true);
@@ -55,6 +54,8 @@ export const ApplicationConnectionUI: React.FC<AppConnectionUIProps> = ({
   const buildFilterString = (filter: ReportFilterField) => {
     const fieldName = filter.displayName;
     let [start, end] = filter.arguments;
+    start = start ?? "%0d";
+    end = end ?? "%0d";
     if (start[0] !== "%") start = `'${start}'`;
     if (end[0] !== "%") end = `'${end}'`;
 
@@ -63,11 +64,14 @@ export const ApplicationConnectionUI: React.FC<AppConnectionUIProps> = ({
 
   const handleDownload = async (filters: ReportFilterField[]) => {
     const filterStrings = filters.map(f => buildFilterString(f));
-
-    return await download({
-      filters: filterStrings,
-      connectionId: connection.id,
-    });
+    return await download(
+      connection.fileNameFormat ?? "Download.csv",
+      `${Config.restUri}internalapi/connection/${connection.id}/download`,
+      {
+        method: "POST",
+        body: JSON.stringify(filterStrings),
+      }
+    );
   };
 
   return (

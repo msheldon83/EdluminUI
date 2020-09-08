@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
-import { LazyQueryResult } from "graphql/hooks";
+import { useSnackbar } from "hooks/use-snackbar";
+import { DownloadResult } from "hooks/use-download";
 import { useTranslation } from "react-i18next";
 import {
   makeStyles,
@@ -22,7 +23,7 @@ import { pastPresetDateRanges } from "ui/components/form/hooks/use-preset-date-r
 
 export const RunNowDialog: React.FC<{
   open: boolean;
-  download: (filters: ReportFilterField[]) => Promise<LazyQueryResult<any>>;
+  download: (filters: ReportFilterField[]) => Promise<DownloadResult>;
   close: () => void;
   initialFilters: ReportFilterField[];
 }> = ({ open, download, close, initialFilters }) => {
@@ -30,6 +31,7 @@ export const RunNowDialog: React.FC<{
   const classes = useStyles();
   const [filters, setFilters] = useState(initialFilters);
   const [downloading, setDownloading] = useState(false);
+  const { openSnackbar } = useSnackbar();
 
   const resolveStartEndDates = (filterField: ReportFilterField) => {
     const [startStr, endStr] = filterField?.arguments ?? [];
@@ -58,6 +60,13 @@ export const RunNowDialog: React.FC<{
   const handleDownloadClick = async () => {
     setDownloading(true);
     const { error } = await download(filters);
+    if (error) {
+      openSnackbar({
+        message: error,
+        dismissable: true,
+        status: "error",
+      });
+    }
     setDownloading(false);
     close();
   };
