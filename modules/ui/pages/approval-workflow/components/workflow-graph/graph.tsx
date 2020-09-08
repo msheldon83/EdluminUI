@@ -287,6 +287,17 @@ export const StepsGraph: React.FC<Props> = props => {
         onCreateEdge={() => {}}
         onDeleteEdge={() => {}}
         onSwapEdge={() => {}}
+        renderBackground={gridSize => {
+          return (
+            <rect
+              x={-(gridSize || 0) / 4}
+              y={-(gridSize || 0) / 4}
+              width={gridSize}
+              height={gridSize}
+              fill={"#F0F0F0"}
+            />
+          );
+        }}
       />
       <Popper
         transition
