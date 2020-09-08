@@ -13,7 +13,7 @@ import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import { Can } from "ui/components/auth/can";
 import { useMemo } from "react";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { LocationSelect } from "ui/components/reference-selects/location-select";
 
 type Props = {

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { makeStyles } from "@material-ui/core/styles";
 import CancelIcon from "@material-ui/icons/Cancel";
 import IconButton from "@material-ui/core/IconButton";
-import { SelectNew as Select, OptionType } from "./select-new";
+import { Select, OptionType } from "./select";
 import { TextButton } from "ui/components/text-button";
 import { FormHelperText } from "@material-ui/core";
 
@@ -381,7 +381,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.status.error,
   },
   allocationFooterWrapper: {
-    display: 'flex',
+    display: "flex",
     paddingRight: theme.typography.pxToRem(16),
   },
   error: {

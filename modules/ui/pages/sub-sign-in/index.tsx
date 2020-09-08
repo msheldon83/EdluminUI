@@ -4,10 +4,9 @@ import { useQueryBundle } from "graphql/hooks";
 import { useQueryParamIso } from "hooks/query-params";
 import { VacancyDetail } from "graphql/server-types.gen";
 import * as React from "react";
-import { useCallback, useMemo, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouteParams } from "ui/routes/definition";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
 import { SubSignInRoute } from "ui/routes/sub-sign-in";
 import { format, parse } from "date-fns";
 import { GetFilledAbsences } from "./graphql/get-filled-absences.gen";
@@ -16,6 +15,7 @@ import { FilterQueryParams } from "./components/filter-param";
 import { VacancyDetailRow } from "./components/vacancy-detail";
 import { RedRoverLogo } from "ui/components/red-rover-logo";
 import { Print } from "@material-ui/icons";
+import { LocationSelect } from "ui/components/reference-selects/location-select";
 
 type Props = {};
 
@@ -43,23 +43,6 @@ export const SubSignInPage: React.FC<Props> = props => {
         ? locations.find(x => x.id === filterParams.location.toString())
         : null,
     [locations, filterParams.location]
-  );
-
-  const locationOptions: OptionType[] = useMemo(
-    () => locations.map(l => ({ label: l.name, value: l.id })),
-    [locations]
-  );
-  const onChangeLocation = useCallback(
-    (value: OptionType | OptionType[]) => {
-      let id = null;
-      if (Array.isArray(value)) {
-        id = value[0].value;
-      } else {
-        id = value.value;
-      }
-      updateFilterParams({ location: id.toString() });
-    },
-    [updateFilterParams]
   );
 
   const getFilledAbsences = useQueryBundle(GetFilledAbsences, {
@@ -117,15 +100,16 @@ export const SubSignInPage: React.FC<Props> = props => {
           justify="space-between"
         >
           <Grid item xs={3}>
-            <Select
-              label={t("School")}
-              onChange={onChangeLocation}
-              value={locationOptions.find(
-                e => e.value && e.value === location?.id
-              )}
-              options={locationOptions}
+            <LocationSelect
+              orgId={params.organizationId}
               multiple={false}
-              withResetValue={false}
+              includeAllOption={false}
+              label={t("School")}
+              selectedLocationIds={[filterParams.location]}
+              setSelectedLocationIds={(locationIds?: string[]) => {
+                if (locationIds)
+                  updateFilterParams({ location: locationIds[0] });
+              }}
             />
           </Grid>
           <Grid item xs={3}></Grid>
@@ -138,9 +122,23 @@ export const SubSignInPage: React.FC<Props> = props => {
           </Grid>
         </Grid>
         <Divider />
-        {vacancyDetails.map((v, i) => (
-          <VacancyDetailRow key={i} vacancyDetail={v} shadeRow={i % 2 != 0} />
-        ))}
+        {vacancyDetails.length === 0 ? (
+          <div className={classes.noSubsText}>
+            {t(
+              "There are currently no substitutes assigned to absences at this school."
+            )}
+          </div>
+        ) : (
+          <>
+            {vacancyDetails.map((v, i) => (
+              <VacancyDetailRow
+                key={i}
+                vacancyDetail={v}
+                shadeRow={i % 2 != 0}
+              />
+            ))}
+          </>
+        )}
       </div>
     </>
   );
@@ -187,5 +185,10 @@ const useStyles = makeStyles(theme => ({
     "@media print": {
       display: "none",
     },
+  },
+  noSubsText: {
+    marginTop: theme.spacing(2),
+    fontWeight: 500,
+    fontSize: theme.typography.pxToRem(18),
   },
 }));

@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { Chip } from "@material-ui/core";
 import { OrgUserRole, PermissionEnum } from "graphql/server-types.gen";
 import { usePermissionSets } from "reference-data/permission-sets";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { OptionTypeBase } from "react-select/src/types";
@@ -246,7 +246,7 @@ export const AccessControl: React.FC<Props> = props => {
                           title={t("Permissions")}
                           description={
                             editingThis ? (
-                              <SelectNew
+                              <Select
                                 value={
                                   permissionSetOptions.find(
                                     e =>
@@ -336,7 +336,7 @@ export const AccessControl: React.FC<Props> = props => {
                                   <InputLabel>
                                     {t("Location Groups")}
                                   </InputLabel>
-                                  <SelectNew
+                                  <Select
                                     onChange={e => {
                                       const ids = e.map((v: OptionType) =>
                                         v.value.toString()
@@ -359,7 +359,7 @@ export const AccessControl: React.FC<Props> = props => {
                                 </div>
                                 <div>
                                   <InputLabel>{t("Locations")}</InputLabel>
-                                  <SelectNew
+                                  <Select
                                     onChange={e => {
                                       const ids = e.map((v: OptionType) =>
                                         v.value.toString()
@@ -440,7 +440,7 @@ export const AccessControl: React.FC<Props> = props => {
                             {!values.allPositionTypeIdsInScope && (
                               <>
                                 <InputLabel>{t("Position Types")}</InputLabel>
-                                <SelectNew
+                                <Select
                                   onChange={e => {
                                     const ids = e.map((v: OptionType) =>
                                       v.value.toString()

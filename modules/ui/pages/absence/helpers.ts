@@ -187,16 +187,26 @@ const hasIncompleteDetails = (details: AbsenceDetail[]): boolean => {
   return !!incompleteDetail;
 };
 
+export const getAbsenceDetailsToUse = (absence: Absence | undefined) => {
+  const details = compact(absence?.details);
+  const closedDetails = compact(absence?.closedDetails);
+  const detailsToUse = details.length === 0 ? closedDetails : details;
+  return detailsToUse;
+}
+
 export const buildFormData = (
   absence: Absence,
   notesToApproverRequired: boolean
 ): AbsenceFormData => {
   // Figure out the details to put into the form
-  const details = compact(absence?.details);
-  const closedDetails = compact(absence?.closedDetails);
-  const detailsToUse = details.length === 0 ? closedDetails : details;
+  const details = getAbsenceDetailsToUse(absence);
   const formDetails = sortBy(
-    compact(detailsToUse).map(d => {
+    compact(details).map(d => {
+      const absenceReasonUsages = sortBy(
+        compact(d.reasonUsages ?? []),
+        r => r.sequence
+      );
+
       return {
         id: d.id,
         date: startOfDay(parseISO(d.startDate)),

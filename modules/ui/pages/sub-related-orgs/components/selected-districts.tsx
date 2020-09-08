@@ -2,7 +2,7 @@ import * as React from "react";
 import { Divider, Grid, makeStyles } from "@material-ui/core";
 import { TextButton } from "ui/components/text-button";
 import { useTranslation } from "react-i18next";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { useState } from "react";
 import { Formik } from "formik";
 import {
@@ -111,7 +111,7 @@ export const SelectedDistricts: React.FC<Props> = props => {
                         </Grid>
                         <Grid item xs={4} container className={classes.inline}>
                           <div className={classes.paddingTop}>
-                            <SelectNew
+                            <Select
                               value={{
                                 value: "",
                                 label: "",

@@ -10,7 +10,7 @@ import {
 import { TextButton } from "ui/components/text-button";
 import clsx from "clsx";
 import { Formik } from "formik";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { EmployeeBalanceReportLink } from "ui/components/links/reports";
@@ -247,7 +247,7 @@ export const BalanceRow: React.FC<Props> = props => {
           >
             <div className={classes.reasonContainer}>
               {creatingNew ? (
-                <SelectNew
+                <Select
                   name="absenceReasonId"
                   value={
                     values.absenceReasonId
@@ -308,7 +308,7 @@ export const BalanceRow: React.FC<Props> = props => {
                 }
               </div>
               <div className={classes.balanceType}>
-                <SelectNew
+                <Select
                   name="absenceReasonTrackingTypeId"
                   value={
                     props.absenceReasonTrackingTypeOptions.find(

@@ -4,20 +4,29 @@ import {
   ExpansionPanelSummary,
   ExpansionPanelDetails,
   Grid,
+  Checkbox,
+  FormControlLabel,
   Typography,
   Divider,
+  FormGroup,
 } from "@material-ui/core";
 import {
   PermissionCategoryIdentifierInput,
   PermissionCategory,
+  PermissionLevelOptionIdentifierInput,
+  PermissionLevelOption,
 } from "graphql/server-types.gen";
 import { useIsMobile } from "hooks";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { OptionTypeBase } from "react-select/src/types";
-import { Select, SelectValueType } from "ui/components/form/select";
+import {
+  SelectDEPRECATED,
+  SelectValueType,
+} from "ui/components/form/select-DEPRECATED";
 import { useMemo, useState, useEffect } from "react";
 import { ExpandMore } from "@material-ui/icons";
+import { findMatchingAssignmentsForDetails } from "ui/pages/absence/helpers";
 
 type Props = {
   orgId: string;
@@ -43,6 +52,12 @@ export const PermissionSettings: React.FC<Props> = props => {
   const [categories, setCategories] = useState<
     PermissionCategoryIdentifierInput[]
   >(permissionSetCategories);
+
+  interface LevelOptionsDisplay {
+    optionId: string;
+    enabled: boolean;
+    displayName: string;
+  }
 
   if (permissionDefinitions.length === 0) {
     // The permission definitions haven't been loaded yet
@@ -83,10 +98,75 @@ export const PermissionSettings: React.FC<Props> = props => {
     return levelId;
   };
 
+  const getAvailableLevelOptions = (
+    categoryId: string,
+    settingId: string,
+    selectedLevel: string
+  ) => {
+    const allowedOptions: LevelOptionsDisplay[] = [];
+    const levels = permissionDefinitions
+      ?.find(c => c.categoryId === categoryId)
+      ?.settings?.find(s => s?.settingId === settingId)?.levels;
+    const selectedLevelIndex = levels?.findIndex(
+      l => l.levelId === selectedLevel
+    );
+    if (levels && selectedLevelIndex && selectedLevelIndex >= 0) {
+      for (let i = 0; i <= selectedLevelIndex; i++) {
+        levels[i].options.forEach(option => {
+          allowedOptions.push({
+            optionId: option.optionId,
+            enabled: isOptionEnabled(categoryId, settingId, option.optionId),
+            displayName: option.displayName,
+          });
+        });
+      }
+    }
+    return allowedOptions;
+  };
+
+  const getSelectedLevelOptionsViewText = (
+    categoryId: string,
+    settingId: string,
+    selectedLevel: string
+  ) => {
+    let selectedLevelOptionsText = "";
+    const selectedLevelOptions = getAvailableLevelOptions(
+      categoryId,
+      settingId,
+      selectedLevel
+    )?.filter(o => o.enabled === true);
+    if (selectedLevelOptions && selectedLevelOptions.length > 0) {
+      selectedLevelOptionsText =
+        "(+ " +
+        selectedLevelOptions
+          .map(o => {
+            return o.displayName;
+          })
+          .join(", ") +
+        ")";
+    }
+    return selectedLevelOptionsText;
+  };
+
+  const isOptionEnabled = (
+    categoryId: string,
+    settingId: string,
+    optionId: string
+  ) => {
+    return (
+      categories
+        ?.find(c => c.categoryId === categoryId)
+        ?.settings?.find(s => s?.settingId === settingId)
+        ?.options?.find(o => o?.optionId === optionId)?.enabled ?? false
+    );
+  };
+
   const updateCategorySelections = async (
     categoryId: string,
     settingId: string,
-    levelId: string
+    levelId: string,
+    optionId?: string,
+    enabled?: boolean
   ) => {
     const updatedCategories = [...categories];
 
@@ -119,6 +199,30 @@ export const PermissionSettings: React.FC<Props> = props => {
       matchingCategory.settings.push(matchingSetting);
     }
     matchingSetting.levelId = levelId;
+
+    // Look to see if options need to be reset or modified
+    const oldOptions = matchingSetting.options;
+    matchingSetting.options = [];
+    const availableLevelOptions = getAvailableLevelOptions(
+      categoryId,
+      settingId,
+      levelId
+    );
+    if (availableLevelOptions && availableLevelOptions.length > 0) {
+      availableLevelOptions.forEach(option => {
+        // If option is being passed in then use the new value
+        // If option existed in prior level - then keep enabled value
+        const newEnabled =
+          optionId === option.optionId
+            ? enabled
+            : oldOptions?.find(oo => oo?.optionId === option.optionId)?.enabled;
+        matchingSetting!.options!.push({
+          optionId: option.optionId,
+          enabled: newEnabled ? newEnabled : false,
+        });
+      });
+    }
+
     setCategories(updatedCategories);
     await onChange(updatedCategories);
   };
@@ -161,12 +265,18 @@ export const PermissionSettings: React.FC<Props> = props => {
                     levelOptions.find((p: any) => p.value === matchedLevelId) ??
                     levelOptions[0];
 
+                  const availableLevelOptions = getAvailableLevelOptions(
+                    categoryId,
+                    settingId,
+                    selectedLevel.value
+                  );
+
                   return (
                     <Grid
                       item
                       xs={12}
                       container
-                      alignItems="center"
+                      alignItems="flex-start"
                       key={s.settingId}
                       className={settingClass.join(" ")}
                     >
@@ -176,7 +286,7 @@ export const PermissionSettings: React.FC<Props> = props => {
                       <Grid item xs={8}>
                         <div className={classes.levelSelect}>
                           {editable ? (
-                            <Select
+                            <SelectDEPRECATED
                               value={selectedLevel}
                               label=""
                               options={levelOptions}
@@ -202,9 +312,45 @@ export const PermissionSettings: React.FC<Props> = props => {
                               }}
                             />
                           ) : (
-                            selectedLevel.label
+                            <>
+                              {selectedLevel.label}
+                              <div>
+                                {getSelectedLevelOptionsViewText(
+                                  categoryId,
+                                  settingId,
+                                  selectedLevel.value
+                                )}
+                              </div>
+                            </>
                           )}
                         </div>
+                        {editable && (
+                          <FormGroup row className={classes.levelOptions}>
+                            {availableLevelOptions?.map(o => {
+                              return (
+                                <FormControlLabel
+                                  key={o.optionId}
+                                  control={
+                                    <Checkbox
+                                      checked={o.enabled}
+                                      onChange={async e => {
+                                        await updateCategorySelections(
+                                          categoryId,
+                                          settingId,
+                                          selectedLevel.value,
+                                          o.optionId,
+                                          e.target.checked
+                                        );
+                                      }}
+                                      color="primary"
+                                    />
+                                  }
+                                  label={o.displayName}
+                                />
+                              );
+                            })}
+                          </FormGroup>
+                        )}
                       </Grid>
                     </Grid>
                   );
@@ -233,5 +379,8 @@ const useStyles = makeStyles(theme => ({
   },
   levelSelect: {
     width: theme.typography.pxToRem(300),
+  },
+  levelOptions: {
+    paddingTop: theme.spacing(),
   },
 }));

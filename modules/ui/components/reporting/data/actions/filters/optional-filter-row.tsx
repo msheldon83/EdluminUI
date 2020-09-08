@@ -7,7 +7,7 @@ import {
 } from "../../../types";
 import { makeStyles } from "@material-ui/core";
 import { useTranslation } from "react-i18next";
-import { SelectNew } from "ui/components/form/select-new";
+import { Select } from "ui/components/form/select";
 import { Close } from "@material-ui/icons";
 import { TFunction } from "i18next";
 import { Filter } from "./filter";
@@ -59,7 +59,7 @@ export const OptionalFilterRow: React.FC<Props> = props => {
         <div>{isFirst ? t("Where") : t("And")}</div>
       </div>
       <div className={`${classes.filterField} ${classes.rowItem}`}>
-        <SelectNew
+        <Select
           value={filterOptions.find(
             fo => fo.value === filterField.field.dataSourceFieldName
           )}
@@ -89,7 +89,7 @@ export const OptionalFilterRow: React.FC<Props> = props => {
         {expressionOptions.length === 1 ? (
           expressionOptions[0].label
         ) : (
-          <SelectNew
+          <Select
             value={
               expressionOptions.find(
                 eo => eo.value === filterField.expressionFunction
@@ -110,7 +110,10 @@ export const OptionalFilterRow: React.FC<Props> = props => {
         )}
       </div>
       <div className={`${classes.filter} ${classes.rowItem}`}>
-        <Filter filterField={filterField} updateFilter={updateFilter} />
+        <Filter
+          filterField={filterField}
+          updateFilter={updateFilter}
+        />
       </div>
     </div>
   );
@@ -207,6 +210,14 @@ const getExpressionOptions = (t: TFunction, field?: DataSourceField) => {
           o.value === ExpressionFunction.GreaterThan ||
           o.value === ExpressionFunction.GreaterThanOrEqual
       );
+    case FilterType.Date:
+    case FilterType.DateTime:
+      return [
+        {
+          label: t("is between"),
+          value: ExpressionFunction.Between,
+        },
+      ];
     case FilterType.Custom:
       return possibleOptions.filter(o =>
         field.filterTypeDefinition?.supportedExpressions?.includes(o.value)

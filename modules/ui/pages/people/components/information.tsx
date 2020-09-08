@@ -30,7 +30,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { DateInput } from "ui/components/form/date-input";
 import { Input } from "ui/components/form/input";
 import { PhoneNumberInput } from "ui/components/form/phone-number-input";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { TextField as FormTextField } from "ui/components/form/text-field";
 import { getInitials } from "ui/components/helpers";
 import { Section } from "ui/components/section";
@@ -381,7 +381,7 @@ export const Information: React.FC<Props> = props => {
                         description={
                           props.editing === editableSections.information &&
                           !props.isSuperUser ? (
-                            <SelectNew
+                            <Select
                               value={
                                 permissionSetOptions.find(
                                   e =>
@@ -479,7 +479,7 @@ export const Information: React.FC<Props> = props => {
                             </Grid>
                             <Grid item xs={6}>
                               <div>{t("State")}</div>
-                              <SelectNew
+                              <Select
                                 value={{
                                   value: values.state ?? "",
                                   label:

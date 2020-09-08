@@ -10,7 +10,7 @@ import { VacancyReasonSelect } from "ui/components/reference-selects/vacancy-rea
 import { OrgUserRole } from "graphql/server-types.gen";
 import { OrgUserSelect } from "ui/components/domain-selects/org-user-select/org-user-select";
 import { useTranslation } from "react-i18next";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { EndorsementSelect } from "ui/components/reference-selects/endorsement-select";
 import { OrgRelationshipSelect } from "ui/components/reference-selects/org-relationship-select";
 import { SchoolYearSelect } from "ui/components/reference-selects/school-year-select";
@@ -33,7 +33,7 @@ type Props = {
 export const Filter: React.FC<Props> = props => {
   const { t } = useTranslation();
   const organizationId = useOrganizationId();
-  const { filterField, updateFilter, showLabel } = props;
+  const { filterField, updateFilter, showLabel = false } = props;
 
   const filter = React.useMemo(() => {
     switch (filterField.field.filterType) {
@@ -105,6 +105,7 @@ export const Filter: React.FC<Props> = props => {
             endDate={end}
             placeholder={t("Select dates")}
             label={showLabel ? filterField.field.friendlyName : undefined}
+            showLabel={showLabel}
             onDateRangeSelected={(start, end) => {
               // Check for potential relative date match
               const relativeDates = getRelativeDatesFromDateRange(start, end);
@@ -131,7 +132,7 @@ export const Filter: React.FC<Props> = props => {
           (filterField.value ?? []).includes(o.value)
         );
         return (
-          <SelectNew
+          <Select
             label={showLabel ? filterField.field.friendlyName : undefined}
             value={
               filterField.expressionFunction === ExpressionFunction.ContainedIn
@@ -502,7 +503,7 @@ export const Filter: React.FC<Props> = props => {
               (filterField.value ?? []).includes(o.value)
             );
             return (
-              <SelectNew
+              <Select
                 label={showLabel ? filterField.field.friendlyName : undefined}
                 value={
                   filterField.expressionFunction ===

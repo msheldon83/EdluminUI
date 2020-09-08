@@ -1,4 +1,8 @@
-import { PermissionEnum, ApprovalStatus } from "graphql/server-types.gen";
+import {
+  PermissionEnum,
+  ApprovalStatus,
+  FillStatus,
+} from "graphql/server-types.gen";
 import { isToday, isFuture } from "date-fns";
 import { OrgUserPermissions, CanDo, Role } from "ui/components/auth/types";
 import { flatMap, uniq } from "lodash-es";
@@ -248,7 +252,10 @@ export const canViewDataManagementNavLink = (
   if (isSysAdmin) return true;
 
   const userPerms = getUserPermissions(permissions, orgId);
-  if (!userPerms?.includes(PermissionEnum.DataImport)) {
+  if (
+    !userPerms?.includes(PermissionEnum.DataImport) &&
+    !userPerms?.includes(PermissionEnum.ExternalConnectionsView)
+  ) {
     return false;
   }
 
@@ -384,6 +391,68 @@ export const canReassignSub = (
   ) {
     return false;
   }
+
+  return true;
+};
+
+export const canDeleteAbsVac = (
+  absDate: Date,
+  permissions: OrgUserPermissions[],
+  isSysAdmin: boolean,
+  hasFilledVacancies: boolean,
+  hasVerfiedAssignments: boolean,
+  orgId?: string,
+  forRole?: Role | null | undefined,
+  approvalStatus?: ApprovalStatus | null
+) => {
+  if (isSysAdmin) return true;
+  const userPerms = getUserPermissions(permissions, orgId, forRole);
+
+  if (!canDeleteApprovedAbsVac(userPerms, approvalStatus)) return false;
+
+  if (
+    hasFilledVacancies &&
+    !userPerms.includes(PermissionEnum.AbsVacDeleteAssigned)
+  )
+    return false;
+
+  if (
+    hasVerfiedAssignments &&
+    !userPerms.includes(PermissionEnum.AbsVacDeleteVerified)
+  )
+    return false;
+
+  if (
+    !isToday(absDate) &&
+    !isFuture(absDate) &&
+    !userPerms?.includes(PermissionEnum.AbsVacDeletePast)
+  ) {
+    return false;
+  } else if (
+    (isToday(absDate) || isFuture(absDate)) &&
+    !userPerms?.includes(PermissionEnum.AbsVacDelete)
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const canDeleteApprovedAbsVac = (
+  userPerms: PermissionEnum[],
+  approvalStatus?: ApprovalStatus | null
+) => {
+  if (
+    approvalStatus === ApprovalStatus.PartiallyApproved &&
+    !userPerms.includes(PermissionEnum.AbsVacDeletePartiallyApproved)
+  )
+    return false;
+
+  if (
+    approvalStatus === ApprovalStatus.Approved &&
+    !userPerms.includes(PermissionEnum.AbsVacDeleteApproved)
+  )
+    return false;
 
   return true;
 };

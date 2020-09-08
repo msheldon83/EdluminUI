@@ -22,7 +22,7 @@ import { OptionTypeBase } from "react-select/src/types";
 import { FormikDurationInput } from "ui/components/form/formik-duration-input";
 import { Input } from "ui/components/form/input";
 import { TextField as FormTextField } from "ui/components/form/text-field";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { Section } from "ui/components/section";
 import { SectionHeader } from "ui/components/section-header";
 import * as yup from "yup";
@@ -331,7 +331,7 @@ export const Settings: React.FC<Props> = props => {
                 ].join(" ")}
               >
                 <div>{t("Default contract")}</div>
-                <SelectNew
+                <Select
                   value={{
                     value: values.defaultContractId ?? "",
                     label:
@@ -398,7 +398,7 @@ export const Settings: React.FC<Props> = props => {
                 ].join(" ")}
               >
                 <div>{t("Pay type")}</div>
-                <SelectNew
+                <Select
                   value={{
                     value: values.payTypeId ?? "",
                     label:
@@ -421,7 +421,7 @@ export const Settings: React.FC<Props> = props => {
                 />
                 <div className={classes.paddingTop}>
                   <div>{t("Tracking type")}</div>
-                  <SelectNew
+                  <Select
                     name="absenceReasonTrackingTypeId"
                     value={{
                       value: values.absenceReasonTrackingTypeId ?? "",
@@ -445,7 +445,7 @@ export const Settings: React.FC<Props> = props => {
                 </div>
                 <div className={classes.paddingTop}>
                   <div>{t("Pay code")}</div>
-                  <SelectNew
+                  <Select
                     value={{
                       value: values.payCodeId ?? "",
                       label:

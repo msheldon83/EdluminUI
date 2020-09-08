@@ -13,6 +13,10 @@ query GetPermissionSetById($id: ID!) {
         settings {
           settingId
           levelId
+          options {
+            optionId
+            enabled
+          }
         }
       }
       isShadowRecord

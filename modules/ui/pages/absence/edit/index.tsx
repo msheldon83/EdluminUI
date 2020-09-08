@@ -19,7 +19,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { DeletedDataIndex } from "./deleted-data-index";
 import { DeleteAbsenceVacancyDialog } from "ui/components/absence-vacancy/delete-absence-vacancy-dialog";
 import { UpdateAbsence } from "../graphql/update-absence.gen";
-import { parseISO, startOfMonth } from "date-fns";
+import { parseISO, startOfMonth, startOfDay } from "date-fns";
 import { EmployeeHomeRoute } from "ui/routes/employee-home";
 import { AdminHomeRoute } from "ui/routes/admin-home";
 import {
@@ -27,7 +27,9 @@ import {
   projectVacancyDetailsFromVacancies,
   getAbsenceReasonUsageData,
   buildFormData,
+  getAbsenceDetailsToUse,
 } from "../helpers";
+import { AssignmentOnDate } from "../types";
 
 type Props = { actingAsEmployee?: boolean };
 
@@ -233,34 +235,47 @@ export const EditAbsence: React.FC<Props> = props => {
             : undefined
         }
         initialAbsenceFormData={initialFormData}
-        initialAbsenceState={() => {
-          const absenceDates = (initialFormData?.details ?? []).map(
-            d => d.date
-          );
+        initialAbsenceState={(props?: {
+          currentAbsence?: Absence;
+          currentAssignmentsByDate?: AssignmentOnDate[];
+        }) => {
+          const absenceDates = getAbsenceDetailsToUse(
+            props?.currentAbsence
+          ).map(d => startOfDay(parseISO(d.startDate)));
           const viewingCalendarMonth =
             absenceDates.length > 0
               ? startOfMonth(absenceDates[0])
               : startOfMonth(new Date());
+          const vacancies = compact(props?.currentAbsence?.vacancies ?? []);
+          const vacancyId = vacancies[0]?.id;
+          const closedDetails = compact(
+            props?.currentAbsence?.closedDetails ?? absence.closedDetails ?? []
+          );
+
           return {
             absenceId: absence.id,
-            absenceRowVersion: absence.rowVersion,
-            vacancyId: vacancy?.id,
+            absenceRowVersion:
+              props?.currentAbsence?.rowVersion ?? absence.rowVersion,
+            vacancyId: vacancyId,
             employeeId: employee.id,
             organizationId: organizationId,
             positionId: position?.id ?? "",
             viewingCalendarMonth,
             absenceDates,
-            isClosed: absence.isClosed,
-            closedDates: absence.closedDetails
-              ? compact(absence.closedDetails)?.map(cd =>
-                  parseISO(cd.startDate)
-                )
-              : [],
-            assignmentsByDate: assignmentsByDate,
-            initialVacancyDetails: absence.vacancies
-              ? projectVacancyDetailsFromVacancies(absence.vacancies)
-              : undefined,
-            initialAbsenceReasonUsageData: getAbsenceReasonUsageData(absence),
+            isClosed: props?.currentAbsence?.isClosed ?? absence.isClosed,
+            closedDates: closedDetails.map(cd => parseISO(cd.startDate)),
+            assignmentsByDate:
+              props?.currentAssignmentsByDate ?? assignmentsByDate,
+            initialVacancyDetails:
+              vacancies && vacancies.length > 0
+                ? projectVacancyDetailsFromVacancies(
+                    vacancies,
+                    props?.currentAssignmentsByDate
+                  )
+                : undefined,
+            initialAbsenceReasonUsageData: getAbsenceReasonUsageData(
+              props?.currentAbsence ?? absence
+            ),
           };
         }}
         saveAbsence={async data => {

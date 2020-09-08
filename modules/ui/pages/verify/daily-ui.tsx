@@ -12,7 +12,7 @@ import {
 } from "graphql/server-types.gen";
 import { useRouteParams } from "ui/routes/definition";
 import { useHistory, useLocation } from "react-router";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { Can } from "ui/components/auth/can";
 import { getPayLabel } from "ui/components/helpers";
 import { useOrgVacancyDayConversions } from "reference-data/org-vacancy-day-conversions";

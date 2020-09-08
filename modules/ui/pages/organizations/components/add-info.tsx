@@ -6,7 +6,7 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import { Formik } from "formik";
-import { OptionType, SelectNew } from "ui/components/form/select-new";
+import { OptionType, Select } from "ui/components/form/select";
 import { useIsMobile } from "hooks";
 import { OptionTypeBase } from "react-select/src/types";
 import Button from "@material-ui/core/Button";
@@ -328,7 +328,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <SelectNew
+                <Select
                   label={t("Time Zone")}
                   name={"timeZoneId"}
                   value={{
@@ -355,7 +355,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <SelectNew
+                <Select
                   label={t("Organization Type")}
                   name={"organizationTypeId"}
                   value={{
@@ -434,7 +434,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <SelectNew
+                <Select
                   label={t("Feature Flags")}
                   name={"featureFlags"}
                   value={props.featureFlagOptions.filter(
@@ -452,7 +452,7 @@ export const AddBasicInfo: React.FC<Props> = props => {
                 />
               </Grid>
               <Grid item xs={12} sm={3} classes={{ root: overrideStyles.root }}>
-                <SelectNew
+                <Select
                   label={t("Staffing Provider")}
                   name={"relatesToOrganizationId"}
                   value={{

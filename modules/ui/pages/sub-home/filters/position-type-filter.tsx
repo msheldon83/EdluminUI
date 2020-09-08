@@ -3,7 +3,7 @@ import { useQueryParamIso } from "hooks/query-params";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { usePositionTypes } from "reference-data/position-types";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
 
 type Props = {

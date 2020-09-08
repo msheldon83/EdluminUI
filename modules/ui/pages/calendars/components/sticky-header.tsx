@@ -1,6 +1,6 @@
 import * as React from "react";
 import { CalendarChangeRow } from "./calendarChangeRow";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { useState } from "react";
 import { CalendarEvent } from "../types";
 import { EditSingleDayDialog } from "./edit-single-day-dialog";

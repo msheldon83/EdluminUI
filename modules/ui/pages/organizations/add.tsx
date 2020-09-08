@@ -5,7 +5,7 @@ import { ShowErrors } from "ui/components/error-helpers";
 import { useMutationBundle, useQueryBundle } from "graphql/hooks";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useMemo } from "react";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { useTimezones } from "reference-data/timezones";
 import { useRouteParams } from "ui/routes/definition";
 import { useTranslation } from "react-i18next";

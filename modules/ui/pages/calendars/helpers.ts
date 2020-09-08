@@ -1,4 +1,4 @@
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { TFunction } from "i18next";
 
 export const getCalendarSummaryText = (

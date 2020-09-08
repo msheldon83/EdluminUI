@@ -19,7 +19,7 @@ import { makeStyles } from "@material-ui/styles";
 import { useCalendarChangeReasonOptions } from "reference-data/calendar-change-reasons";
 import clsx from "clsx";
 import { Formik } from "formik";
-import { SelectNew, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { compact } from "lodash-es";
 import { DatePicker } from "ui/components/form/date-picker";
 import { isAfterDate } from "helpers/date";
@@ -364,7 +364,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                     </Grid>
                     <Grid item xs={3}>
                       <Typography>{t("Reason")}</Typography>
-                      <SelectNew
+                      <Select
                         options={changeReasonOptions}
                         value={
                           values.changeReason
@@ -416,7 +416,7 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                   <Grid item xs={12} container>
                     <Grid item xs={4}>
                       <div className={classes.positionRelative}>
-                        <SelectNew
+                        <Select
                           name={"contracts"}
                           className={classes.selectorColor}
                           disabled={affectsAllContracts}
@@ -467,60 +467,62 @@ export const CalendarChangeEventDialog: React.FC<Props> = props => {
                         />
                       </div>
                     </Grid>
-                    <Grid item xs={4} className={classes.marginLeft}>
-                      <div className={classes.positionRelative}>
-                        <SelectNew
-                          name={"locations"}
-                          className={classes.selectorColor}
-                          disabled={values.affectsAllLocations ?? true}
-                          label={t("Schools")}
-                          value={
-                            locationOptions.filter(
-                              e =>
-                                e.value &&
-                                values.locations?.includes(e.value.toString())
-                            ) ?? [{ label: "", id: "" }]
-                          }
-                          onChange={e => {
-                            const ids = e.map((v: OptionType) =>
-                              v.value.toString()
-                            );
-                            setFieldValue("locations", ids);
-                            setLocationIds(ids);
-                          }}
-                          options={locationOptions}
-                          multiple={true}
-                          placeholder={t("Search for Schools")}
-                          fixedListBox={true}
-                        />
-                        <FormControlLabel
-                          checked={affectsAllLocations}
-                          className={clsx(
-                            classes.selectorColor,
-                            classes.checkBoxAlignment
-                          )}
-                          control={
-                            <Checkbox
-                              onChange={e => {
-                                setAffectsAllLocations(!affectsAllLocations);
+                    {Config.isDevFeatureOnly && (
+                      <Grid item xs={4} className={classes.marginLeft}>
+                        <div className={classes.positionRelative}>
+                          <Select
+                            name={"locations"}
+                            className={classes.selectorColor}
+                            disabled={values.affectsAllLocations ?? true}
+                            label={t("Schools")}
+                            value={
+                              locationOptions.filter(
+                                e =>
+                                  e.value &&
+                                  values.locations?.includes(e.value.toString())
+                              ) ?? [{ label: "", id: "" }]
+                            }
+                            onChange={e => {
+                              const ids = e.map((v: OptionType) =>
+                                v.value.toString()
+                              );
+                              setFieldValue("locations", ids);
+                              setLocationIds(ids);
+                            }}
+                            options={locationOptions}
+                            multiple={true}
+                            placeholder={t("Search for Schools")}
+                            fixedListBox={true}
+                          />
+                          <FormControlLabel
+                            checked={affectsAllLocations}
+                            className={clsx(
+                              classes.selectorColor,
+                              classes.checkBoxAlignment
+                            )}
+                            control={
+                              <Checkbox
+                                onChange={e => {
+                                  setAffectsAllLocations(!affectsAllLocations);
 
-                                setFieldValue(
-                                  "affectsAllLocations",
-                                  !values.affectsAllLocations
-                                );
+                                  setFieldValue(
+                                    "affectsAllLocations",
+                                    !values.affectsAllLocations
+                                  );
 
-                                if (!affectsAllLocations) {
-                                  setFieldValue("locations", []);
-                                  setLocationIds([]);
-                                }
-                              }}
-                              color="primary"
-                            />
-                          }
-                          label={t("All")}
-                        />
-                      </div>
-                    </Grid>
+                                  if (!affectsAllLocations) {
+                                    setFieldValue("locations", []);
+                                    setLocationIds([]);
+                                  }
+                                }}
+                                color="primary"
+                              />
+                            }
+                            label={t("All")}
+                          />
+                        </div>
+                      </Grid>
+                    )}
                   </Grid>
                 </Grid>
               </form>

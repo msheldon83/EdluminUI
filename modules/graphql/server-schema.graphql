@@ -4634,6 +4634,12 @@ enum PermissionEnum {
   ABS_VAC_VERIFY
   ABS_VAC_APPROVALS_SKIP
   ABS_VAC_APPROVALS_RESET
+  ABS_VAC_DELETE_PAST
+  ABS_VAC_DELETE_ASSIGNED
+  ABS_VAC_DELETE_VERIFIED
+  ABS_VAC_DELETE_PAST_SAME_DAY
+  ABS_VAC_DELETE_PARTIALLY_APPROVED
+  ABS_VAC_DELETE_APPROVED
   LOCATION_VIEW
   LOCATION_GROUP_VIEW
   LOCATION_SAVE
@@ -4719,6 +4725,25 @@ type PermissionLevel {
   levelId: String!
   displayName: String!
   permissions: [PermissionEnum]!
+  options: [PermissionLevelOption!]!
+}
+
+type PermissionLevelOption {
+  _info: [ReturnMessage]
+  optionId: String!
+  displayName: String!
+  permissions: [PermissionEnum]!
+}
+
+type PermissionLevelOptionIdentifier {
+  _info: [ReturnMessage]
+  optionId: String!
+  enabled: Boolean!
+}
+
+input PermissionLevelOptionIdentifierInput {
+  optionId: String!
+  enabled: Boolean!
 }
 
 type PermissionQueries {
@@ -4781,11 +4806,13 @@ type PermissionSettingIdentifier {
   _info: [ReturnMessage]
   settingId: String!
   levelId: String!
+  options: [PermissionLevelOptionIdentifier!]!
 }
 
 input PermissionSettingIdentifierInput {
   settingId: String!
   levelId: String!
+  options: [PermissionLevelOptionIdentifierInput]
 }
 
 input PermissionSetUpdateInput {
@@ -6989,6 +7016,7 @@ type VacancyQueries {
   approvalInbox(orgId: ID!, limit: Int, offset: Int, getPastDecisions: Boolean): PagedAbsVacApprovalInboxQueryResult
   countOfAbsVacNeedingApproval(orgId: ID!): Int
   specificJobSearchForUser(id: ID!, vacancyId: ID!): Vacancy
+  getVacancyByIdForSub(vacancyId: ID!): Vacancy
   subJobSearch(id: ID!, availableJobsOnly: Boolean, showNonPreferredJobs: Boolean, orgIds: [ID], locationIds: [ID], positionTypeIds: [ID], limit: Int, offset: Int): PagedSubJobSearch
   vacancyNotificationLogByVacancy(vacancyId: ID!, sortBy: [SortDetailsInput]): [VacancyNotificationLog]
   vacancyNotificationLogByUser(userId: ID!, fromDate: Date, toDate: Date, orgIds: [ID], limit: Int, offset: Int): PagedVacancyNotificationLog

@@ -6,7 +6,7 @@ import { useHistory } from "react-router";
 import * as React from "react";
 import { FilterQueryParams, SubHomeQueryFilters } from "./filter-params";
 import { useTranslation } from "react-i18next";
-import { SelectNew as Select, OptionType } from "ui/components/form/select-new";
+import { Select, OptionType } from "ui/components/form/select";
 import { useQueryBundle, useMutationBundle } from "graphql/hooks";
 import { PreferenceFilter as PreferenceFilterEnum } from "graphql/server-types.gen";
 import { GetPreferenceFilter } from "../graphql/get-preference-filter.gen";

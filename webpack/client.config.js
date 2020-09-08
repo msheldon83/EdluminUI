@@ -176,6 +176,11 @@ module.exports = {
         target: `${PROXY_HOST}`,
       },
       "/api/*": { secure: false, changeOrigin: true, target: `${PROXY_HOST}` },
+      "/internalapi/*": {
+        secure: false,
+        changeOrigin: true,
+        target: `${PROXY_HOST}`,
+      },
     },
   },
 };

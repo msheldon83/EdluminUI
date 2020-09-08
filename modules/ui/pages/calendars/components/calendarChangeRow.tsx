@@ -5,7 +5,7 @@ import { PermissionEnum, CalendarDayType } from "graphql/server-types.gen";
 import { parseISO, format } from "date-fns";
 import { useContracts } from "reference-data/contracts";
 import { useTranslation } from "react-i18next";
-import { OptionType } from "ui/components/form/select-new";
+import { OptionType } from "ui/components/form/select";
 import { Can } from "ui/components/auth/can";
 import { getCalendarSummaryText } from "../helpers";
 import clsx from "clsx";
