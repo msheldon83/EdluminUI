@@ -55,7 +55,7 @@ export const IntegrationList: React.FC<Props> = props => {
     <>
       <Grid container justify="space-between" alignItems="center">
         <Grid item>
-          <PageTitle title={t("Integrations")} />
+          <PageTitle title={t("Connections")} />
         </Grid>
       </Grid>
       <StyledTableContainer>
@@ -63,8 +63,7 @@ export const IntegrationList: React.FC<Props> = props => {
           <TableHead>
             <StyledTableRow>
               <StyledTableCell className={classes.logoColumn}></StyledTableCell>
-              <StyledTableCell>{t("Vendor")}</StyledTableCell>
-              <StyledTableCell>{t("Connections")}</StyledTableCell>
+              <StyledTableCell>{t("Application")}</StyledTableCell>
               <StyledTableCell>{t("Created")}</StyledTableCell>
             </StyledTableRow>
           </TableHead>
@@ -84,7 +83,6 @@ export const IntegrationList: React.FC<Props> = props => {
                   </div>
                 </StyledTableCell>
                 <StyledTableCell>{grant.application?.name}</StyledTableCell>
-                <StyledTableCell>{grant.connections.length}</StyledTableCell>
                 <StyledTableCell>
                   {parseAndFormat(grant.createdLocal, "MMM d, yyyy")}
                 </StyledTableCell>

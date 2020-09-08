@@ -20,8 +20,8 @@ import {
   useQueryBundle,
   usePagedQueryBundle,
   useMutationBundle,
-  useImperativeQuery,
 } from "graphql/hooks";
+import { useDownload } from "hooks/use-download";
 import { GetDataImportById } from "./graphql/get-data-import-byid.gen";
 import { GetDataImportRows } from "./graphql/get-data-import-rows.gen";
 import { DeleteDataImport } from "./graphql/delete-data-import.gen";
@@ -40,7 +40,6 @@ import { UpdateDataImport } from "./graphql/update-data-import.gen";
 import { ShowErrors, ShowNetworkErrors } from "ui/components/error-helpers";
 import { useSnackbar } from "hooks/use-snackbar";
 import { useHistory } from "react-router";
-import { DownloadFailedRowsQuery } from "./graphql/download-failed-rows";
 import { GetDataImportColumnDefinitions } from "./graphql/get-data-import-column-definitions.gen";
 
 export const DataImportViewPage: React.FC<{}> = () => {
@@ -106,11 +105,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
     }
   );
 
-  const downloadFailedRows = useImperativeQuery(DownloadFailedRowsQuery, {
-    onError: error => {
-      ShowNetworkErrors(error, openSnackbar);
-    },
-  });
+  const download = useDownload();
 
   const dataImportTypes = useDataImportTypes();
 
@@ -175,12 +170,17 @@ export const DataImportViewPage: React.FC<{}> = () => {
           <Grid item>
             <TextButton
               onClick={async () => {
-                const result = await downloadFailedRows({
-                  input: {
-                    orgId: params.organizationId,
-                  },
-                  dataImportId: params.dataImportId,
-                });
+                const fileName = `${dataImport?.fileUpload?.uploadedFileName}_FailedRows.csv`;
+                const result = await download(
+                  fileName,
+                  `${Config.restUri}api/DataImport/FailedRows?dataImportId=${params.dataImportId}`,
+                  {
+                    method: "POST",
+                    body: JSON.stringify({
+                      orgId: params.organizationId,
+                    }),
+                  }
+                );
               }}
             >
               {t("Download failed rows")}

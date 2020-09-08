@@ -213,27 +213,8 @@ export function useMutationBundle<T, TVariables>(
   return [loadingWrappedFunc, result];
 }
 
-// This hook will execute a query on demand
-// It is a workaround for the Apollo useLazyQuery which does not return a promise
-export function useImperativeQuery<Result, Vars>(
-  query: GraphqlBundle<Result, Vars>,
-  options: QueryHookOptions<Result, Vars> = {}
-): QueryResult<Result, Vars>["refetch"] {
-  const { refetch } = useQueryBundle<Result, Vars>(query, {
-    ...options,
-    skip: true,
-  });
-
-  const imperativelyCallQuery = (queryVariables: Vars) => {
-    return refetch(queryVariables);
-  };
-
-  return imperativelyCallQuery;
-}
-
 // from https://github.com/apollographql/react-apollo/issues/3499#issuecomment-537748212
 // useLazyQuery with an awaitable result
-
 export type LazyQueryResult<TData> = QueryResult<TData>;
 
 export type LazyQueryExecute<TData, TVariables> = (
