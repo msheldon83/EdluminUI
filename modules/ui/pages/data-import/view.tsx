@@ -173,7 +173,7 @@ export const DataImportViewPage: React.FC<{}> = () => {
                 const fileName = `${dataImport?.fileUpload?.uploadedFileName}_FailedRows.csv`;
                 const result = await download(
                   fileName,
-                  `${Config.restUri}api/DataImport/FailedRows?dataImportId={params.dataImportId}`,
+                  `${Config.restUri}api/DataImport/FailedRows?dataImportId=${params.dataImportId}`,
                   {
                     method: "POST",
                     body: JSON.stringify({
