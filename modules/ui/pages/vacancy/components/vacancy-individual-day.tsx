@@ -47,7 +47,6 @@ type Props = {
 };
 
 export const VacancyIndividualDay: React.FC<Props> = props => {
-  const classes = useStyles();
   const { t } = useTranslation();
   const { errors } = useFormikContext<VacancyDetailsFormData>();
   const {
@@ -81,6 +80,11 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
       vacancyDetail.accountingCodeAllocations
     )
   );
+
+  const [
+    vacancyReasonValueSelection,
+    setVacancyReasonValueSelection,
+  ] = useState(vacancyDetail.vacancyReasonId ?? "");
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const timeOptions = useMemo(() => {
@@ -204,16 +208,13 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 
   const selectedVacancyReason = useMemo(() => {
     let vacancyReason = vacancyReasonOptions.find(
-      a => a.value === vacancyDetail.vacancyReasonId
+      a => a.value === vacancyReasonValueSelection
     );
-    if (!vacancyReason && vacancyReasonOptions.length > 0) {
-      vacancyReason = vacancyReasonOptions[0];
-    }
     return {
       value: vacancyReason?.value ?? "",
       label: vacancyReason?.label ?? "",
     };
-  }, [vacancyReasonOptions, vacancyDetail.vacancyReasonId]);
+  }, [vacancyReasonOptions, vacancyReasonValueSelection]);
 
   const accountingCodeError = useMemo(() => {
     const formikError =
@@ -235,6 +236,23 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
 
     return undefined;
   }, [accountingCodeValueSelection, dayIndex, errors?.details, t]);
+
+  const vacancyReasonError = useMemo(() => {
+    const formikError =
+      errors?.details &&
+      isArray(errors.details) &&
+      errors.details[dayIndex] &&
+      vacancyReasonValueSelection === ""
+        ? (errors.details[dayIndex] as FormikErrors<VacancyDetailItem>)
+            ?.vacancyReasonId
+        : undefined;
+
+    if (formikError) {
+      return formikError;
+    }
+
+    return undefined;
+  }, [vacancyReasonValueSelection, dayIndex, errors?.details]);
 
   return (
     <Grid container justify="space-between" spacing={2}>
@@ -267,9 +285,12 @@ export const VacancyIndividualDay: React.FC<Props> = props => {
                 ...vacancyDetail,
                 vacancyReasonId: selectedValue,
               };
+              setVacancyReasonValueSelection(selectedValue);
               setVacancyDetailReason(newVacDetail);
             }}
-          ></Select>
+            inputStatus={vacancyReasonError ? "error" : undefined}
+            validationMessage={vacancyReasonError}
+          />
         </Grid>
       )}
       {getTimeValue() !== "custom" && !disableTime && (

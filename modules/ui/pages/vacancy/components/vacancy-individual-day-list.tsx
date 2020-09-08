@@ -358,18 +358,11 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
     () => {
       if (vacancyDays.length > 0 && vacancyReasonOptions.length > 0) {
         let update = false;
-        const vacReasonId =
-          vacancyDays[0].vacancyReasonId ?? vacancyReasonOptions[0]?.value;
+        const vacReasonId = vacancyDays[0].vacancyReasonId ?? "";
         for (let i = 0; i < vacancyDays.length; i++) {
           if (useSameReason && vacancyDays[i].vacancyReasonId !== vacReasonId) {
             vacancyDays[i].vacancyReasonId = vacReasonId;
             update = true;
-          } else {
-            if (!vacancyDays[i].vacancyReasonId) {
-              vacancyDays[i].vacancyReasonId =
-                vacancyReasonOptions[0]?.value ?? "";
-              update = true;
-            }
           }
         }
         if (update) {
@@ -494,7 +487,7 @@ export const VacancyIndividualDayList: React.FC<Props> = props => {
             showCopyPaste={false}
             subTitle={
               allCheckMarksChecked && vacancyDays.length > 1
-                ? t("Vacancy Details for all days")
+                ? t("Vacancy details for all days")
                 : undefined
             }
             dayIndex={0}

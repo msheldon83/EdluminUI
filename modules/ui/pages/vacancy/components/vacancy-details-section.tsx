@@ -126,6 +126,7 @@ export const VacancyDetailSection: React.FC<Props> = props => {
       }
     });
     newDetails.sort((a, b) => a.date.getTime() - b.date.getTime());
+
     setFieldValue("details", newDetails);
     updateModel({ details: newDetails });
     setIsSelectDatesOpen(false);

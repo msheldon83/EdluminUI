@@ -717,30 +717,48 @@ export const VacancyUI: React.FC<Props> = props => {
         validateOnChange={false}
         validationSchema={yup.object().shape({
           details: yup.array().of(
-            yup.object().test({
-              name: "accountingCodeAllocationsCheck",
-              test: function test(value: VacancyDetailItem) {
-                const accountingCodeAllocations =
-                  value.accountingCodeAllocations;
+            yup
+              .object()
+              .test({
+                name: "accountingCodeAllocationsCheck",
+                test: function test(value: VacancyDetailItem) {
+                  const accountingCodeAllocations =
+                    value.accountingCodeAllocations;
 
-                // Any additional validation should go directly into `validateAccountingCodeAllocations`
-                // instead of being added directly here. It is also used alongside the dropdown
-                // to check for any validation errors
-                const error = validateAccountingCodeAllocations(
-                  accountingCodeAllocations ?? [],
-                  t
-                );
-                if (!error) {
+                  // Any additional validation should go directly into `validateAccountingCodeAllocations`
+                  // instead of being added directly here. It is also used alongside the dropdown
+                  // to check for any validation errors
+                  const error = validateAccountingCodeAllocations(
+                    accountingCodeAllocations ?? [],
+                    t
+                  );
+                  if (!error) {
+                    return true;
+                  }
+
+                  return new yup.ValidationError(
+                    error,
+                    null,
+                    `${this.path}.accountingCodeAllocations`
+                  );
+                },
+              })
+              .test({
+                name: "vacancyReasonCheck",
+                test: function test(value: VacancyDetailItem) {
+                  const vacancyReasonId = value.vacancyReasonId;
+
+                  if (vacancyReasonId === "" || vacancyReasonId === undefined) {
+                    return new yup.ValidationError(
+                      "Must specifiy a Vacancy reason",
+                      null,
+                      `${this.path}.vacancyReasonId`
+                    );
+                  }
+
                   return true;
-                }
-
-                return new yup.ValidationError(
-                  error,
-                  null,
-                  `${this.path}.accountingCodeAllocations`
-                );
-              },
-            })
+                },
+              })
           ),
         })}
         onSubmit={async (data, e) => {
